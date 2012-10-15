@@ -15,7 +15,6 @@ import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
@@ -30,11 +29,11 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -118,7 +117,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     pnlSeries = DIFFERENCE.evaluate(pnlSeries);
     pnlSeries = pnlSeries.multiply(pv);
     final ValueProperties resultProperties = getResultProperties(desiredValue, currency.getCode());
-    final ValueSpecification spec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Collections.singleton(new ComputedValue(spec, pnlSeries));
   }
 
@@ -145,7 +144,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .get();
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override

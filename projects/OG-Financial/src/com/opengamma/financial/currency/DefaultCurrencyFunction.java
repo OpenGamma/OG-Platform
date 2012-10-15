@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -22,12 +22,12 @@ import com.opengamma.financial.property.StaticDefaultPropertyFunction;
  */
 public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String valueName) {
-    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueName);
+  public DefaultCurrencyFunction(final boolean permitWithout, final String valueName) {
+    super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY), ValuePropertyNames.CURRENCY, permitWithout, valueName);
   }
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String... valueNames) {
-    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueNames);
+  public DefaultCurrencyFunction(final boolean permitWithout, final String... valueNames) {
+    super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY), ValuePropertyNames.CURRENCY, permitWithout, valueNames);
   }
 
   @Override
@@ -69,6 +69,36 @@ public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
       return null;
     }
     return currencies.iterator().next();
+  }
+
+  /**
+   * Flagged to inject the default currency at a higher priority to avoid other functions handling the currency omitted case.
+   */
+  public static class Strict extends DefaultCurrencyFunction {
+
+    public Strict(final String valueName) {
+      super(false, valueName);
+    }
+
+    public Strict(final String... valueNames) {
+      super(false, valueNames);
+    }
+
+  }
+
+  /**
+   * Flagged to inject the default currency at a lower priority to allow other functions to handle the currency omitted case.
+   */
+  public static class Permissive extends DefaultCurrencyFunction {
+
+    public Permissive(final String valueName) {
+      super(true, valueName);
+    }
+
+    public Permissive(final String... valueNames) {
+      super(true, valueNames);
+    }
+
   }
 
 }

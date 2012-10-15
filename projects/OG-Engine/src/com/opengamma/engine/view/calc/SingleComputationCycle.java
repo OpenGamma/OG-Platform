@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
@@ -46,6 +45,7 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -421,10 +421,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (ValueSpecification spec : missingLiveData) {
       sb.append("[").append(spec.getValueName()).append(" on ");
       sb.append(spec.getTargetSpecification().getType());
-      if (spec.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-        sb.append("-").append(spec.getTargetSpecification().getIdentifier().getScheme().getName());
+      if (spec.getTargetSpecification().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
+        sb.append("-").append(spec.getTargetSpecification().getUniqueId().getScheme());
       }
-      sb.append(":").append(spec.getTargetSpecification().getIdentifier().getValue()).append("] ");
+      sb.append(":").append(spec.getTargetSpecification().getUniqueId().getValue()).append("] ");
     }
     return sb.toString();
   }

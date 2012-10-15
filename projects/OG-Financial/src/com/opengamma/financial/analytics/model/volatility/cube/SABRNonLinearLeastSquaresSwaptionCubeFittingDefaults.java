@@ -9,14 +9,13 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -26,19 +25,11 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults extends Defaul
   private final String _cube;
 
   public SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults(final String currency, final String cube) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(cube, "cube");
     _currency = currency;
     _cube = cube;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

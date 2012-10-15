@@ -10,6 +10,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -19,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MapComputationTargetResolver implements ComputationTargetResolver {
 
-  // TODO: move to com.opengamma.engine.target
+  // [PLAT-444]: move to com.opengamma.engine.target
 
   /**
    * The backing map.
@@ -30,6 +31,11 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
     return _backingMap.get(specification); 
+  }
+
+  @Override
+  public ComputationTargetType simplifyType(ComputationTargetType type) {
+    return type;
   }
 
   /**

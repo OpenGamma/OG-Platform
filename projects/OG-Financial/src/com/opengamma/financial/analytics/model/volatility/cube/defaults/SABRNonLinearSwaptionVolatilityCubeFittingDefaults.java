@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -46,7 +46,7 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingDefaults extends DefaultP
       final String useFixedAlpha, final String useFixedBeta, final String useFixedRho, final String useFixedNu, final String eps, final String xInterpolator, final String xExtrapolator,
       final String yInterpolator, final String yExtrapolator, final String forwardCurveCalculationMethod, final String forwardCurveInterpolator,
       final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // [PLAT-2286] Set the correct target type
     ArgumentChecker.notNull(alphaStartValue, "alpha start value");
     ArgumentChecker.notNull(betaStartValue, "beta start value");
     ArgumentChecker.notNull(rhoStartValue, "rho start value");

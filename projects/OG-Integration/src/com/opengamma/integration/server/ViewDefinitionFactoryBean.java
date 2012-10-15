@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -230,7 +230,7 @@ public class ViewDefinitionFactoryBean extends SingletonFactoryBean<ViewDefiniti
           String type = entry[1];
           String scheme = entry[2];
           String value = entry[3];
-          calcConfig.addSpecificRequirement(new ValueRequirement(requirement.getFirst(), ComputationTargetType.valueOf(type), UniqueId.of(scheme, value), requirement.getSecond()));
+          calcConfig.addSpecificRequirement(new ValueRequirement(requirement.getFirst(), ComputationTargetType.parse(type), UniqueId.of(scheme, value), requirement.getSecond()));
         }
       }
     }

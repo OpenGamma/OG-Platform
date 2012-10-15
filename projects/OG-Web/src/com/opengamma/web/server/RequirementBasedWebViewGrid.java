@@ -11,10 +11,10 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -67,7 +67,8 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
 
   protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
-      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue, ComputationTargetResolver computationTargetResolver) {
+      Set<? extends ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue,
+      ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache, local, remote);
 
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
@@ -358,7 +359,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   //-------------------------------------------------------------------------
 
-  private static List<RequirementBasedColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
+  private static List<RequirementBasedColumnKey> getRequirements(ViewDefinition viewDefinition, Set<? extends ComputationTargetType> targetTypes) {
     List<RequirementBasedColumnKey> result = new ArrayList<RequirementBasedColumnKey>();
     for (ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
       String calcConfigName = calcConfig.getName();
@@ -372,7 +373,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       }
 
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
-        if (!targetTypes.contains(specificRequirement.getTargetSpecification().getType())) {
+        if (!targetTypes.contains(specificRequirement.getTargetReference().getType())) {
           continue;
         }
         String valueName = specificRequirement.getValueName();

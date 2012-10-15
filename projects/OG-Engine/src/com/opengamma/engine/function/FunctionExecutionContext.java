@@ -9,6 +9,7 @@ import javax.time.Instant;
 import javax.time.calendar.Clock;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.ExternalIdLookup;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 import com.opengamma.util.PublicAPI;
 
@@ -22,6 +23,10 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class FunctionExecutionContext extends AbstractFunctionContext {
 
+  /**
+   * Resolver for mapping the resolved computation targets to the preferred external identifiers.
+   */
+  public static final String EXTERNAL_IDENTIFIER_LOOKUP = "externalIdLookup";
   /**
    * The name under which an instance of {@link ViewProcessorQuery} should be bound.
    */
@@ -62,7 +67,24 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     super(copyFrom);
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets the service for selecting a preferred external identifier from a target.
+   * 
+   * @return the lookup service, not null
+   */
+  public ExternalIdLookup getExternalIdLookup() {
+    return (ExternalIdLookup) get(EXTERNAL_IDENTIFIER_LOOKUP);
+  }
+
+  /**
+   * Sets the service for selecting a preferred external identifier from a target.
+   * 
+   * @param lookup the service to set, not null
+   */
+  public void setExternalIdLookup(final ExternalIdLookup lookup) {
+    put(EXTERNAL_IDENTIFIER_LOOKUP, lookup);
+  }
+
   /**
    * Gets the view processor query.
    * 

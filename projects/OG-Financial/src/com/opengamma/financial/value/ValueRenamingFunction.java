@@ -12,12 +12,11 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -66,19 +65,19 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == _targetType;
+    return true;
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return ImmutableSet.of(new ValueSpecification(_newValueName, new ComputationTargetSpecification(_targetType, target.getUniqueId()), ValueProperties.all()));
+    return ImmutableSet.of(new ValueSpecification(_newValueName, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (String possibleInputValueName : _valueNamesToChange) {
-      result.add(new ValueRequirement(possibleInputValueName, desiredValue.getTargetSpecification(), desiredValue.getConstraints()));
+      result.add(new ValueRequirement(possibleInputValueName, desiredValue.getTargetReference(), desiredValue.getConstraints()));
     }
     return result;
   }

@@ -15,7 +15,8 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,6 +42,11 @@ public class DependencyGraphGridStructure implements GridStructure {
           column("Value", null),
           column("Function"),
           column("Properties")))));
+
+  /**
+   * Map of target types to displayable names.
+   */
+  public static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
@@ -116,7 +122,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       case 0: // target
         return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
       case 1: // target type
-        return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
+        return ViewportResults.stringCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), colIndex);
       case 2: // value name
         return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
       case 3: // value
@@ -131,25 +137,15 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
   }
 
-  /**
-   * @param targetType The type of the row's target
-   * @return The string to display in the target type column
-   */
-  /* package */ static String getTargetTypeName(ComputationTargetType targetType) {
-    switch (targetType) {
-      case PORTFOLIO_NODE:
-        return "Agg";
-      case POSITION:
-        return "Pos";
-      case SECURITY:
-        return "Sec";
-      case PRIMITIVE:
-        return "Prim";
-      case TRADE:
-        return "Trade";
-      default:
-        return null;
-    }
+  private static ComputationTargetTypeMap<String> createTargetTypeNames() {
+    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
+    map.put(ComputationTargetType.PORTFOLIO_NODE, "Agg");
+    map.put(ComputationTargetType.POSITION, "Pos");
+    map.put(ComputationTargetType.SECURITY, "Sec");
+    map.put(ComputationTargetType.ANYTHING, "Prim");
+    map.put(ComputationTargetType.NULL, "Prim");
+    map.put(ComputationTargetType.TRADE, "Trade");
+    return map;
   }
 
   /**

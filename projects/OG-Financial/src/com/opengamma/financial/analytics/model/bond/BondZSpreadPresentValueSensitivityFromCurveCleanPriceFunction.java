@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -58,7 +57,7 @@ public class BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction exten
         .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
         .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD);
-    return new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, target.toSpecification(), properties.get());
   }
 
   @Override

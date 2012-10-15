@@ -12,34 +12,26 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueId;
+import com.opengamma.engine.target.lazy.LazyTargetResolverTrade;
 
 /**
  * A position implementation that defers to a target resolver for the component parts.
  */
-/* package */class TargetResolverPosition extends TargetResolverPositionOrTrade implements Position {
+public class TargetResolverPosition extends TargetResolverPositionOrTrade implements Position {
 
-  private final UniqueId _parentNodeId;
   private final ComputationTargetSpecification[] _tradeSpecs;
   private transient volatile Collection<Trade> _trades;
   private final Map<String, String> _attributes;
 
   public TargetResolverPosition(final ComputationTargetResolver targetResolver, final Position copyFrom) {
     super(targetResolver, copyFrom);
-    _parentNodeId = copyFrom.getParentNodeId();
     final Collection<Trade> trades = copyFrom.getTrades();
     _tradeSpecs = new ComputationTargetSpecification[trades.size()];
     int i = 0;
     for (Trade trade : trades) {
-      _tradeSpecs[i++] = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
+      _tradeSpecs[i++] = ComputationTargetSpecification.of(trade);
     }
     _attributes = copyFrom.getAttributes();
-  }
-
-  @Override
-  public UniqueId getParentNodeId() {
-    return _parentNodeId;
   }
 
   @Override

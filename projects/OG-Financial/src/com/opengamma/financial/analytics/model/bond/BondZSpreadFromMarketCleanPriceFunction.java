@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -60,7 +59,7 @@ public class BondZSpreadFromMarketCleanPriceFunction extends BondZSpreadFunction
 
   @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
+    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, target.toSpecification());
   }
 
   @Override

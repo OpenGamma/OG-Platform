@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataTargetResolver;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
@@ -95,7 +95,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
       s_logger.info("No time-series for {}, {}", identifiers, valueName);
       return null;
     }
-    return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), _snapshotDate != null ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries()
+    return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, hts.getUniqueId()), _snapshotDate != null ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries()
         .getLatestValue());
   }
 

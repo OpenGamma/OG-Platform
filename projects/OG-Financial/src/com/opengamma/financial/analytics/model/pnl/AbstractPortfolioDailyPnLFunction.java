@@ -19,11 +19,11 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -78,9 +78,15 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
   }
 
   @Override
+  protected ValueProperties.Builder createValueProperties() {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    properties.withAny(ValuePropertyNames.CURRENCY);
+    return properties;
+  }
+
+  @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, target.getPortfolioNode(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()),
-        getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.DAILY_PNL, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

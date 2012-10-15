@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
 import com.opengamma.util.tuple.Triple;
@@ -45,13 +45,43 @@ import com.opengamma.util.tuple.Triple;
     }
     if (marketDataSpec != null) {
       s_logger.info("Found live data for {}", getValueRequirement());
-      if (getValueRequirement().isSatisfiedBy(marketDataSpec)) {
-        final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement(), marketDataSpec);
-        final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
-              .singleton(MemoryUtils.instance(function.getResult())));
-        context.declareProduction(result);
-        if (!pushResult(context, result, true)) {
-          throw new IllegalStateException(result + " rejected by pushResult");
+      if ((getValueRequirement().getValueName() == marketDataSpec.getValueName())
+          && getValueRequirement().getConstraints().isSatisfiedBy(marketDataSpec.getProperties())) {
+        final MarketDataSourcingFunction function = MarketDataSourcingFunction.INSTANCE;
+        final ValueSpecification resultSpec = context.simplifyType(marketDataSpec);
+        final ResolvedValue resolvedValue = createResult(resultSpec, new ParameterizedFunction(function, function.getParameters(getValueRequirement())), Collections.<ValueSpecification>emptySet(),
+            Collections.singleton(resultSpec));
+        final ResolvedValueProducer producer = new SingleResolvedValueProducer(getValueRequirement(), resolvedValue);
+        final ResolvedValueProducer existing = context.declareTaskProducing(resultSpec, getTask(), producer);
+        if (existing == producer) {
+          context.declareProduction(resolvedValue);
+          if (!pushResult(context, resolvedValue, true)) {
+            throw new IllegalStateException(resolvedValue + " rejected by pushResult");
+          }
+          // Leave in current state; will go to finished after being pumped
+        } else {
+          producer.release(context);
+          existing.addCallback(context, new ResolvedValueCallback() {
+
+            @Override
+            public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+              if (pump != null) {
+                pump.close(context);
+              }
+              if (!pushResult(context, resolvedValue, true)) {
+                throw new IllegalStateException(resolvedValue + " rejected by pushResult");
+              }
+              // Leave in current state; will go to finished after being pumped
+            }
+
+            @Override
+            public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+              storeFailure(failure);
+              setTaskStateFinished(context);
+            }
+
+          });
+          existing.release(context);
         }
         // Leave in current state; will go to finished after being pumped
       } else {
@@ -59,7 +89,7 @@ import com.opengamma.util.tuple.Triple;
         s_logger.warn("Live data {} cannot satisfy {}", marketDataSpec, getValueRequirement());
         storeFailure(context.marketDataMissing(getValueRequirement()));
         setTaskStateFinished(context);
-        }
+      }
     } else {
       if (missing) {
         s_logger.info("Missing market data for {}", getValueRequirement());
@@ -68,7 +98,8 @@ import com.opengamma.util.tuple.Triple;
       } else {
         final ComputationTarget target = getComputationTarget(context);
         if (target != null) {
-          final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), target);
+          final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(
+              getValueRequirement().getValueName(), target, getValueRequirement().getConstraints());
           if (itr.hasNext()) {
             s_logger.debug("Found functions for {}", getValueRequirement());
             setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);

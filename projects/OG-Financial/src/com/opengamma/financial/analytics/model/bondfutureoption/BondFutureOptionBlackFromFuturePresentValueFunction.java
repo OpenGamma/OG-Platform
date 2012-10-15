@@ -17,6 +17,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -60,7 +61,7 @@ public class BondFutureOptionBlackFromFuturePresentValueFunction extends BondFut
     }
     final BondFutureOptionSecurity security = (BondFutureOptionSecurity) target.getTrade().getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId));
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingId));
     return requirements;
   }
 

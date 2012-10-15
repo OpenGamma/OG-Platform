@@ -11,13 +11,14 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.lazy.LazyTargetResolverPortfolioNode;
+import com.opengamma.engine.target.lazy.LazyTargetResolverPosition;
 import com.opengamma.id.UniqueId;
 
 /**
  * A portfolio node implementation that defers to a target resolver for the component parts.
  */
-/* package*/final class TargetResolverPortfolioNode extends TargetResolverObject implements PortfolioNode {
+public final class TargetResolverPortfolioNode extends TargetResolverObject implements PortfolioNode {
 
   private static final long serialVersionUID = 1L;
 
@@ -29,7 +30,7 @@ import com.opengamma.id.UniqueId;
   private transient volatile List<Position> _positions;
   private final String _name;
 
-  protected TargetResolverPortfolioNode(final ComputationTargetResolver targetResolver, final PortfolioNode copyFrom) {
+  public TargetResolverPortfolioNode(final ComputationTargetResolver targetResolver, final PortfolioNode copyFrom) {
     super(targetResolver);
     _uniqueId = copyFrom.getUniqueId();
     _parentNodeId = copyFrom.getParentNodeId();
@@ -37,13 +38,13 @@ import com.opengamma.id.UniqueId;
     _childNodeSpecs = new ComputationTargetSpecification[childNodes.size()];
     int i = 0;
     for (PortfolioNode childNode : childNodes) {
-      _childNodeSpecs[i++] = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, childNode.getUniqueId());
+      _childNodeSpecs[i++] = ComputationTargetSpecification.of(childNode);
     }
     final List<Position> positions = copyFrom.getPositions();
     _positionSpecs = new ComputationTargetSpecification[positions.size()];
     i = 0;
     for (Position position : positions) {
-      _positionSpecs[i++] = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
+      _positionSpecs[i++] = ComputationTargetSpecification.of(position);
     }
     _name = copyFrom.getName();
   }

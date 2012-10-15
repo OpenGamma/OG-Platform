@@ -6,9 +6,10 @@
 package com.opengamma.engine.function;
 
 import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.PositionAccumulator;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -73,22 +74,17 @@ public class PortfolioStructure {
   }
 
   /**
-   * Returns the portfolio node that a position is underneath.
-   * This is equivalent to resolving the unique identifier reported by the position object.
+   * Returns the portfolio node that a position is underneath. The position must be in a {@link ComputationTarget} of type {@code PORTFOLIO_NODE/POSITION}.
    * 
    * @param position the position to search for, not null
    * @return the portfolio node, null if the node cannot be resolved
    */
-  public PortfolioNode getParentNode(final Position position) {
+  public PortfolioNode getParentNode(final ComputationTarget position) {
     ArgumentChecker.notNull(position, "position");
-    final UniqueId parent = position.getParentNodeId();
-    if (parent == null) {
-      return null;
-    }
-    return getPositionSource().getPortfolioNode(parent);
+    ArgumentChecker.isTrue(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION).isCompatible(position.getType()), "position");
+    return getPositionSource().getPortfolioNode(position.getContextIdentifiers().get(position.getContextIdentifiers().size() - 1));
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Returns the root node for the portfolio containing the given node.
    * This is equivalent to traversing up the tree until the root is found.
@@ -102,13 +98,13 @@ public class PortfolioStructure {
   }
 
   /**
-   * Returns the root node for the portfolio containing the given position.
-   * This is equivalent to traversing up the tree from the position's portfolio node until the root is found.
+   * Returns the root node for the portfolio containing the given position. The position must be in a {@link ComputationTarget} of type {@code PORTFOLIO_NODE/POSITION}. This is equivalent to
+   * traversing up the tree from the position's portfolio node until the root is found.
    * 
    * @param position the position to search for, not null
    * @return the root node, null if parent node hierarchy incomplete
    */
-  public PortfolioNode getRootPortfolioNode(final Position position) {
+  public PortfolioNode getRootPortfolioNode(final ComputationTarget position) {
     final PortfolioNode node = getParentNode(position);
     if (node == null) {
       return null;

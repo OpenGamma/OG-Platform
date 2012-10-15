@@ -17,7 +17,6 @@ import org.mockito.internal.verification.VerificationModeFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -140,7 +139,7 @@ public class MarketDataProviderWithOverrideTest {
   }
 
   private ValueRequirement getRequirement(int number) {
-    return new ValueRequirement("Req-" + number, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Target")));
+    return new ValueRequirement("Req-" + number, ComputationTargetSpecification.of(UniqueId.of("Scheme", "Target")));
   }
     
 }

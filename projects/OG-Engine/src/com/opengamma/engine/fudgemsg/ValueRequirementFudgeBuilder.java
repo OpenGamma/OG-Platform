@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -37,7 +37,7 @@ public class ValueRequirementFudgeBuilder implements FudgeBuilder<ValueRequireme
     MutableFudgeMsg msg = serializer.newMessage();
     String valueName = object.getValueName();
     msg.add(VALUE_NAME_FIELD_NAME, valueName);
-    ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getTargetSpecification());
+    ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.getTargetReference());
     if (!object.getConstraints().isEmpty()) {
       serializer.addToMessage(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
     }
@@ -48,13 +48,12 @@ public class ValueRequirementFudgeBuilder implements FudgeBuilder<ValueRequireme
   public ValueRequirement buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String valueName = message.getString(VALUE_NAME_FIELD_NAME);
     Validate.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
-    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
-    Validate.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
+    ComputationTargetReference targetReference = ComputationTargetReferenceFudgeBuilder.buildObjectImpl(deserializer, message);
     FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
     if (constraints != null) {
-      return new ValueRequirement(valueName, targetSpecification, deserializer.fieldValueToObject(ValueProperties.class, constraints));
+      return new ValueRequirement(valueName, targetReference, deserializer.fieldValueToObject(ValueProperties.class, constraints));
     } else {
-      return new ValueRequirement(valueName, targetSpecification);
+      return new ValueRequirement(valueName, targetReference);
     }
   }
 

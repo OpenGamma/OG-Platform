@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,10 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -85,16 +88,22 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final GraphBuildingContext _context = new GraphBuildingContext(this);
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
-  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
-      : ResolutionFailureVisitor.DEFAULT_INSTANCE, _context);
+  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(new OutputStreamWriter(
+      openDebugStream("resolutionFailure"))) : ResolutionFailureVisitor.DEFAULT_INSTANCE, _context);
   private final Executor _executor;
-  private final Housekeeper _contextCleaner = Housekeeper.of(this, ResolutionCacheCleanup.INSTANCE);
+
+  /**
+   * Clears out resolvers from the resolution cache if memory starts getting low. Disable by setting the {@code DependencyGraphBuilder.disableResolutionCacheCleanup} property.
+   */
+  private final Housekeeper _contextCleaner = System.getProperty("DependencyGraphBuilder.disableResolutionCacheCleanup", "FALSE").equalsIgnoreCase("FALSE") ? Housekeeper.of(this,
+      ResolutionCacheCleanup.INSTANCE) : null;
   private final PendingRequirements _pendingRequirements = new PendingRequirements(this);
   private String _calculationConfigurationName;
   private MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   private FunctionExclusionGroups _functionExclusionGroups;
+  private ComputationTargetSpecificationResolver _targetSpecificationResolver;
 
   // The resolve task is ref-counted once for the map (it is being used as a set)
   private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
@@ -125,7 +134,6 @@ public final class DependencyGraphBuilder implements Cancelable {
   // TODO: We should use an external execution framework rather than the one here; there are far better (and probably more accurate) implementations of
   // the algorithm in other projects I've worked on.
 
-  @SuppressWarnings("unused")
   public static int getDefaultMaxAdditionalThreads() {
     return NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
   }
@@ -203,8 +211,11 @@ public final class DependencyGraphBuilder implements Cancelable {
   /**
    * @param compilationContext the compilationContext to set
    */
-  public void setCompilationContext(FunctionCompilationContext compilationContext) {
+  public void setCompilationContext(final FunctionCompilationContext compilationContext) {
     _compilationContext = compilationContext;
+    if (compilationContext != null) {
+      _targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, compilationContext.getSecuritySource());
+    }
   }
 
   /**
@@ -269,6 +280,10 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected void decrementActiveResolveTasks() {
     _activeResolveTasks.decrementAndGet();
+  }
+
+  protected ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
+    return _targetSpecificationResolver.getTargetSpecification(reference);
   }
 
   protected MapEx<ResolveTask, ResolvedValueProducer> getTasks(final ValueSpecification valueSpecification) {
@@ -355,6 +370,9 @@ public final class DependencyGraphBuilder implements Cancelable {
     // If the run-queue was empty, we won't have started a thread, so double check 
     startBackgroundConstructionJob();
   }
+
+  // TODO [PLAT-2286] When compiling a view, ask for the most complex form of all requirements (e.g. PORTFOLIO_NODE/PORTFOLIO_NODE/POSITION) and be prepared for the function resolution stage
+  // to adjust this down to more specific forms. As part of this reduction, the requirement may end up as something we've already resolved, allowing values to be shared. 
 
   /**
    * Adds target requirements to the graph. The requirements are queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
@@ -447,7 +465,9 @@ public final class DependencyGraphBuilder implements Cancelable {
     @Override
     public void run() {
       s_logger.debug("Building job {} started for {}", _objectId, DependencyGraphBuilder.this);
-      _contextCleaner.start();
+      if (_contextCleaner != null) {
+        _contextCleaner.start();
+      }
       boolean jobsLeftToRun;
       int completed = 0;
       do {
@@ -748,11 +768,13 @@ public final class DependencyGraphBuilder implements Cancelable {
           final Map.Entry<ResolveTask, ResolvedValueProducer> producer = itrProducer.next();
           if (!producer.getValue().hasActiveCallbacks()) {
             discards.add(producer.getValue());
-            // The key isn't ref counted, but we to release it after the producer has been discarded in case it is then available
+            // The key isn't ref counted, but we need to release it after the producer has been discarded in case it is then available
             // for discard because the producer is complete & inactive
-            producer.getKey().addRef();
-            discards.add(producer.getKey());
+            if (producer.getKey().addRef()) {
+              discards.add(producer.getKey());
+            }
             itrProducer.remove();
+            removed++;
           }
         }
         if (producers.isEmpty()) {
@@ -764,7 +786,6 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (context == null) {
           context = new GraphBuildingContext(this);
         }
-        removed += discards.size() / 2;
         for (ResolvedValueProducer discard : discards) {
           discard.release(context);
         }

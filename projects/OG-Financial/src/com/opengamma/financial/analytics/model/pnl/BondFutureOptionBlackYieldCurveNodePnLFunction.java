@@ -12,8 +12,8 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -29,9 +29,6 @@ public class BondFutureOptionBlackYieldCurveNodePnLFunction extends YieldCurveNo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     return target.getPosition().getSecurity() instanceof BondFutureOptionSecurity;
   }
 

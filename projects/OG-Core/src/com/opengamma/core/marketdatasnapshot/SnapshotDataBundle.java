@@ -19,7 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 
 /**
  * A bundle of data to use in some structured context.
@@ -33,7 +33,7 @@ public class SnapshotDataBundle extends DirectBean {
    * The market values in the bundle.
    */
   @PropertyDefinition
-  private Map<UniqueId, Double> _dataPoints;
+  private Map<ExternalId, Double> _dataPoints;
 
   /**
    * Creates an instance.
@@ -73,7 +73,7 @@ public class SnapshotDataBundle extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1186222381:  // dataPoints
-        setDataPoints((Map<UniqueId, Double>) newValue);
+        setDataPoints((Map<ExternalId, Double>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -103,7 +103,7 @@ public class SnapshotDataBundle extends DirectBean {
    * Gets the market values in the bundle.
    * @return the value of the property
    */
-  public Map<UniqueId, Double> getDataPoints() {
+  public Map<ExternalId, Double> getDataPoints() {
     return _dataPoints;
   }
 
@@ -111,7 +111,7 @@ public class SnapshotDataBundle extends DirectBean {
    * Sets the market values in the bundle.
    * @param dataPoints  the new value of the property
    */
-  public void setDataPoints(Map<UniqueId, Double> dataPoints) {
+  public void setDataPoints(Map<ExternalId, Double> dataPoints) {
     this._dataPoints = dataPoints;
   }
 
@@ -119,7 +119,7 @@ public class SnapshotDataBundle extends DirectBean {
    * Gets the the {@code dataPoints} property.
    * @return the property, not null
    */
-  public final Property<Map<UniqueId, Double>> dataPoints() {
+  public final Property<Map<ExternalId, Double>> dataPoints() {
     return metaBean().dataPoints().createProperty(this);
   }
 
@@ -137,7 +137,7 @@ public class SnapshotDataBundle extends DirectBean {
      * The meta-property for the {@code dataPoints} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<UniqueId, Double>> _dataPoints = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Map<ExternalId, Double>> _dataPoints = DirectMetaProperty.ofReadWrite(
         this, "dataPoints", SnapshotDataBundle.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -181,7 +181,7 @@ public class SnapshotDataBundle extends DirectBean {
      * The meta-property for the {@code dataPoints} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<UniqueId, Double>> dataPoints() {
+    public final MetaProperty<Map<ExternalId, Double>> dataPoints() {
       return _dataPoints;
     }
 

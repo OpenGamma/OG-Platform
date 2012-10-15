@@ -14,11 +14,11 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -29,8 +29,7 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -79,15 +78,7 @@ public class BloombergFXForwardSpotRateFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXForwardSecurity || target.getSecurity() instanceof NonDeliverableFXForwardSecurity;
+    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY);
   }
 
   @Override
@@ -113,7 +104,7 @@ public class BloombergFXForwardSpotRateFunction extends AbstractFunction.NonComp
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + currencyPair.getFirstCurrency() + ", " + currencyPair.getSecondCurrency() + ")");
     }
     if (dataType.equals(LIVE)) {
-      return Collections.singleton(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
+      return Collections.singleton(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair)));
     } else if (dataType.equals(LAST_CLOSE)) {
       final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
       final ExternalId externalId = getBBGId(currencyPair, baseQuotePair);

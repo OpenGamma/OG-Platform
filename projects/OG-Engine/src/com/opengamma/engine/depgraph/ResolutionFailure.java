@@ -88,7 +88,7 @@ public abstract class ResolutionFailure implements Cloneable {
 
   protected abstract ResolutionFailure getRequirementsFailed();
 
-  protected abstract ResolutionFailure assertValueRequirement(final ValueRequirement valueRequirement);
+  protected abstract ResolutionFailure checkFailure(final ValueRequirement valueRequirement);
 
   protected abstract ResolutionFailure suppressed();
 

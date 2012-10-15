@@ -31,6 +31,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -42,10 +43,15 @@ public class CacheNotifyingSecuritySourceTest {
 
   private static class TargetResolver implements CachingComputationTargetResolver {
 
-    private final List<Security> _passed = new LinkedList<Security>();
+    private final List<UniqueIdentifiable> _passed = new LinkedList<UniqueIdentifiable>();
 
     @Override
     public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(final ComputationTargetType specification) {
       throw new UnsupportedOperationException();
     }
 
@@ -66,9 +72,7 @@ public class CacheNotifyingSecuritySourceTest {
 
     @Override
     public void cacheSecurities(final Collection<Security> securities) {
-      ArgumentChecker.notNull(securities, "securities");
-      ArgumentChecker.isFalse(securities.isEmpty(), "securities.isEmpty");
-      _passed.addAll(securities);
+      cacheTargets(securities);
     }
 
     @Override
@@ -79,6 +83,13 @@ public class CacheNotifyingSecuritySourceTest {
     @Override
     public void cacheTrades(final Collection<Trade> trades) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets) {
+      ArgumentChecker.notNull(targets, "targets");
+      ArgumentChecker.isFalse(targets.isEmpty(), "targets.isEmpty");
+      _passed.addAll(targets);
     }
 
   }

@@ -8,14 +8,13 @@ package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -48,15 +47,8 @@ public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDe
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    if (security instanceof CapFloorCMSSpreadSecurity) {
-      return false;
-    }
-    return super.canApplyTo(context, target);
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY;
   }
 
   @Override

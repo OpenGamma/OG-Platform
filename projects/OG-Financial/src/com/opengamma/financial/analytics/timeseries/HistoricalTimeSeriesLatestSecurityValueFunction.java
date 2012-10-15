@@ -10,11 +10,11 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -35,8 +35,7 @@ public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFun
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue latestHtsValue = inputs.getComputedValue(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    return Collections.singleton(new ComputedValue(
-        new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), latestHtsValue.getValue()));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), latestHtsValue.getValue()));
   }
 
   @Override
@@ -45,17 +44,11 @@ public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFun
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return getTargetType().equals(target.getType());
-  }
-  
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties props = createValueProperties()
         .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get();
-    return Collections.singleton(new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getSecurity(), props), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), props));
   }
 
   @Override
@@ -71,7 +64,7 @@ public class HistoricalTimeSeriesLatestSecurityValueFunction extends AbstractFun
       return null;
     }
     UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
-    ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, htsId, desiredValue.getConstraints());
+    ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, desiredValue.getConstraints());
     return Collections.singleton(valueRequirement);
   }
   

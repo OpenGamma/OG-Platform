@@ -15,7 +15,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.id.UniqueId;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistMaintainer} class.
@@ -23,9 +22,9 @@ import com.opengamma.id.UniqueId;
 @Test
 public class MultipleFunctionBlacklistMaintainerTest {
 
-  private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+  private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-  private final CalculationJobItem _item2 = new CalculationJobItem("F2", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+  private final CalculationJobItem _item2 = new CalculationJobItem("F2", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
 
   public void testNone() {

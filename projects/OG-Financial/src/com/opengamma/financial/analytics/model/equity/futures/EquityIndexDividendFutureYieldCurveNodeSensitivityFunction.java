@@ -24,11 +24,12 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -39,6 +40,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityIndexDividendFutureSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
@@ -89,15 +91,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof EquityIndexDividendFutureSecurity;
+    return FinancialSecurityTypes.EQUITY_INDEX_DIVIDEND_FUTURE_SECURITY;
   }
 
   @Override
@@ -124,7 +118,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
   }
   
   private ValueRequirement getSpotAssetRequirement(EquityIndexDividendFutureSecurity security) {
-    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
     return req;
   }
   
@@ -134,7 +128,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
   
   private ValueRequirement getCurveSpecRequirement(final Currency currency) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
   
   private Double getSpot(EquityIndexDividendFutureSecurity security, FunctionInputs inputs) {
@@ -166,7 +160,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
   
   private ValueRequirement getDiscountCurveRequirement(EquityIndexDividendFutureSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
   }
   
   private ValueSpecification getValueSpecification(final ComputationTarget target) {

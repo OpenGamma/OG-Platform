@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
@@ -103,16 +104,16 @@ public class ExecutionPlanTest {
    */
   private DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph("Default");
-    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Test", "1"));
+    final ComputationTarget target1 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1"));
     final DependencyNode node1 = new DependencyNode(target1);
     node1.setFunction(new MockFunction("1", target1));
-    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Test", "2"));
+    final ComputationTarget target2 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2"));
     final DependencyNode node2 = new DependencyNode(target2);
     node2.setFunction(new MockFunction("2", target2));
-    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Test", "3"));
+    final ComputationTarget target3 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3"));
     final DependencyNode node3 = new DependencyNode(target3);
     node3.setFunction(new MockFunction("3", target3));
-    final ComputationTarget target4 = new ComputationTarget(UniqueId.of("Test", "4"));
+    final ComputationTarget target4 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4"));
     final DependencyNode node4 = new DependencyNode(target4);
     node4.setFunction(new MockFunction("4", target4));
     node3.addInputNode(node1);

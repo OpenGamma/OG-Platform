@@ -53,7 +53,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void preOrderOperation(Position position) {
+  public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
     T result = _fn.apply(position);
     if (result != null) {
       _values.add(result);

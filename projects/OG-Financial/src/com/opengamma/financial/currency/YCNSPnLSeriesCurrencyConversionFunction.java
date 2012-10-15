@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -36,9 +35,6 @@ public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyCo
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (!super.canApplyTo(context, target)) {
-      return false;
-    }
-    if (target.getType() != ComputationTargetType.POSITION) {
       return false;
     }
     final Security security = target.getPosition().getSecurity();

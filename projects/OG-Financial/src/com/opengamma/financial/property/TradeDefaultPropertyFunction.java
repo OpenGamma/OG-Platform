@@ -8,7 +8,7 @@ package com.opengamma.financial.property;
 import java.util.Map;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 
 /**
  * Dummy function to inject default properties from a trades's attributes into the dependency graph.

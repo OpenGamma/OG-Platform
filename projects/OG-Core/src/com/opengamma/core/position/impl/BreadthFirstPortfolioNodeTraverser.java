@@ -46,7 +46,7 @@ public class BreadthFirstPortfolioNodeTraverser extends PortfolioNodeTraverser {
     if (firstPass) {
       getCallback().preOrderOperation(portfolioNode);
       for (Position position : portfolioNode.getPositions()) {
-        getCallback().preOrderOperation(position);
+        getCallback().preOrderOperation(portfolioNode, position);
       }
     }
     if (!firstPass) {
@@ -59,7 +59,7 @@ public class BreadthFirstPortfolioNodeTraverser extends PortfolioNodeTraverser {
     }
     if (firstPass) {
       for (Position position : portfolioNode.getPositions()) {
-        getCallback().postOrderOperation(position);
+        getCallback().postOrderOperation(portfolioNode, position);
       }
       getCallback().postOrderOperation(portfolioNode);
     }

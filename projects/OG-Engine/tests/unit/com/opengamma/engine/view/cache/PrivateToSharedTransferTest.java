@@ -21,14 +21,17 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.MissingValueLoader;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
@@ -37,8 +40,9 @@ public class PrivateToSharedTransferTest {
 
   private static ValueSpecification[] createValueSpecifications(final int count) {
     final ValueSpecification[] specs = new ValueSpecification[count];
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
     for (int i = 0; i < specs.length; i++) {
-      specs[i] = new ValueSpecification(new ValueRequirement(Integer.toString(i), "Foo"), "Bar");
+      specs[i] = new ValueSpecification(Integer.toString(i), target, ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get());
     }
     return specs;
   }

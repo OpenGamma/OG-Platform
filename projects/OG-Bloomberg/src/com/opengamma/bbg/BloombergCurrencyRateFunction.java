@@ -12,21 +12,20 @@ import java.util.regex.Pattern;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Maps the codes used by the generic currency conversion functions to Bloomberg ticker lookups
- * which will then be provided by the live data integration (or a user override).
+ * Maps the codes used by the generic currency conversion functions to Bloomberg ticker lookups which will then be provided by the live data integration (or a user override).
  */
 public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -61,7 +60,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   /**
    * Sets the rate lookup scheme.
    * 
-   * @param rateLookupIdentifierScheme  the scheme
+   * @param rateLookupIdentifierScheme the scheme
    */
   public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
     _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
@@ -70,7 +69,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   /**
    * Sets the rate lookup value name.
    * 
-   * @return  the value name
+   * @return the value name
    */
   public String getRateLookupValueName() {
     return _rateLookupValueName;
@@ -79,7 +78,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   /**
    * Sets the rate lookup value name.
    * 
-   * @param rateLookupValueName  the value name
+   * @param rateLookupValueName the value name
    */
   public void setRateLookupValueName(final String rateLookupValueName) {
     _rateLookupValueName = rateLookupValueName;
@@ -87,8 +86,8 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
       return false;
     }
     if (getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme()) == false) {
@@ -135,7 +134,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   private ValueRequirement createLiveDataRequirement(final ComputationTarget target) {
     final Pair<String, String> currencies = parse(target);
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
-        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
+        ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
   }
 
   private ValueSpecification createResultValueSpecification(final ComputationTarget target) {

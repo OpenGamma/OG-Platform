@@ -33,7 +33,7 @@ public class FunctionBlacklistRuleFudgeBuilderTest extends AbstractFudgeBuilderT
     final FunctionBlacklistRule rule = new FunctionBlacklistRule();
     rule.setFunctionIdentifier("Foo");
     rule.setFunctionParameters(new EmptyFunctionParameters());
-    rule.setTarget(new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
+    rule.setTarget(ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     rule.setInputs(Arrays.asList(new ValueSpecification("Foo", rule.getTarget(), ValueProperties.with(ValuePropertyNames.FUNCTION, "Fn").get())));
     rule.setOutputs(Arrays.asList(new ValueSpecification("Bar", rule.getTarget(), ValueProperties.with(ValuePropertyNames.FUNCTION, "Fn").get())));
     assertEncodeDecodeCycle(FunctionBlacklistRule.class, rule);

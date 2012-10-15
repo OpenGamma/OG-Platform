@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +24,6 @@ import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -163,12 +161,11 @@ public final class ViewDefinitionCompiler {
       @Override
       public CompiledViewDefinitionWithGraphsImpl get() throws InterruptedException, ExecutionException {
         long t = -System.nanoTime();
-        EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
+        SpecificRequirementsCompiler.execute(viewCompilationContext);
         t += System.nanoTime();
         s_logger.info("Added specific requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
-        boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
-        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
+        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection);
         t += System.nanoTime();
         s_logger.info("Added portfolio requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();

@@ -13,7 +13,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -28,7 +27,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   private final AnalyticsNode _root;
 
-  /* package */ PortfolioGridStructure(CompiledViewDefinition compiledViewDef) {
+  /* package */PortfolioGridStructure(CompiledViewDefinition compiledViewDef) {
     super(compiledViewDef, rows(compiledViewDef));
     ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
@@ -38,7 +37,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     _root = AnalyticsNode.emptyRoot();
   }
 
-  /* package */ static PortfolioGridStructure empty() {
+  /* package */static PortfolioGridStructure empty() {
     return new PortfolioGridStructure();
   }
 
@@ -62,8 +61,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
       @Override
       public Row apply(PortfolioNode node) {
-        ComputationTargetSpecification target =
-            new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
+        ComputationTargetSpecification target = ComputationTargetSpecification.of(node);
         String nodeName;
         // if the parent ID is null it's the root node
         if (node.getParentNodeId() == null) {
@@ -77,8 +75,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
       @Override
       public Row apply(Position position) {
-        ComputationTargetSpecification target =
-            new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
+        ComputationTargetSpecification target = ComputationTargetSpecification.of(position);
         return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
     };

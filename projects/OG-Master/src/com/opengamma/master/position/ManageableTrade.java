@@ -61,12 +61,6 @@ public class ManageableTrade extends DirectBean
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The unique identifier of the parent position.
-   * This field is managed by the master.
-   */
-  @PropertyDefinition
-  private UniqueId _parentPositionId;
-  /**
    * The quantity.
    * This field must not be null for the object to be valid.
    */
@@ -151,7 +145,6 @@ public class ManageableTrade extends DirectBean
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
-    _parentPositionId = trade.getParentPositionId();
     _quantity = trade.getQuantity();
     _securityLink = new ManageableSecurityLink(trade.getSecurityLink());
     _tradeDate = trade.getTradeDate();
@@ -252,8 +245,6 @@ public class ManageableTrade extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case -108882834:  // parentPositionId
-        return getParentPositionId();
       case -1285004149:  // quantity
         return getQuantity();
       case 807992154:  // securityLink
@@ -288,9 +279,6 @@ public class ManageableTrade extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
-        return;
-      case -108882834:  // parentPositionId
-        setParentPositionId((UniqueId) newValue);
         return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
@@ -347,7 +335,6 @@ public class ManageableTrade extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       ManageableTrade other = (ManageableTrade) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getParentPositionId(), other.getParentPositionId()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getCounterpartyExternalId(), other.getCounterpartyExternalId()) &&
@@ -368,7 +355,6 @@ public class ManageableTrade extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
@@ -410,34 +396,6 @@ public class ManageableTrade extends DirectBean
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the unique identifier of the parent position.
-   * This field is managed by the master.
-   * @return the value of the property
-   */
-  public UniqueId getParentPositionId() {
-    return _parentPositionId;
-  }
-
-  /**
-   * Sets the unique identifier of the parent position.
-   * This field is managed by the master.
-   * @param parentPositionId  the new value of the property
-   */
-  public void setParentPositionId(UniqueId parentPositionId) {
-    this._parentPositionId = parentPositionId;
-  }
-
-  /**
-   * Gets the the {@code parentPositionId} property.
-   * This field is managed by the master.
-   * @return the property, not null
-   */
-  public final Property<UniqueId> parentPositionId() {
-    return metaBean().parentPositionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -785,11 +743,6 @@ public class ManageableTrade extends DirectBean
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", ManageableTrade.class, UniqueId.class);
     /**
-     * The meta-property for the {@code parentPositionId} property.
-     */
-    private final MetaProperty<UniqueId> _parentPositionId = DirectMetaProperty.ofReadWrite(
-        this, "parentPositionId", ManageableTrade.class, UniqueId.class);
-    /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
@@ -856,7 +809,6 @@ public class ManageableTrade extends DirectBean
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "parentPositionId",
         "quantity",
         "securityLink",
         "counterpartyExternalId",
@@ -881,8 +833,6 @@ public class ManageableTrade extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case -108882834:  // parentPositionId
-          return _parentPositionId;
         case -1285004149:  // quantity
           return _quantity;
         case 807992154:  // securityLink
@@ -933,14 +883,6 @@ public class ManageableTrade extends DirectBean
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
-    }
-
-    /**
-     * The meta-property for the {@code parentPositionId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> parentPositionId() {
-      return _parentPositionId;
     }
 
     /**

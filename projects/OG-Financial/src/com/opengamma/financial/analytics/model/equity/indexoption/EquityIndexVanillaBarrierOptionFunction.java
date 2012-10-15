@@ -23,12 +23,14 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -112,11 +114,13 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   }
 
   @Override
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY;
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
-    if (!(security instanceof EquityBarrierOptionSecurity)) {
-      return false;
-    }
     final ExerciseType exerciseType = ((EquityBarrierOptionSecurity) security).getExerciseType();
     if (!(exerciseType instanceof EuropeanExerciseType)) {
       return false;

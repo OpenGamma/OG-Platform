@@ -17,10 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -153,9 +154,8 @@ public class RateLimitingMergingViewProcessListenerTest {
   }
   
   private ComputedValue getComputedValue(String valueName, Object value) {
-    UniqueId uniqueId = UniqueId.of("Scheme", valueName);
-    ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
-    return new ComputedValue(new ValueSpecification(valueRequirement, "FunctionId"), value);
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(UniqueId.of("Scheme", valueName));
+    return new ComputedValue(new ValueSpecification(valueName, target, ValueProperties.with(ValuePropertyNames.FUNCTION, "FunctionId").get()), value);
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingViewProcessListener mergingListener, TestViewResultListener testListener, int period) throws InterruptedException {

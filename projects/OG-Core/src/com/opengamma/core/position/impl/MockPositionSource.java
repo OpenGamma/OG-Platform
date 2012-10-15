@@ -161,7 +161,6 @@ public class MockPositionSource implements PositionSource {
       if (position instanceof SimplePosition) {
         SimplePosition positionImpl = (SimplePosition) position;
         positionImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
-        positionImpl.setParentNodeId(node.getUniqueId());
         
         //add trades
         for (Trade trade : positionImpl.getTrades()) {

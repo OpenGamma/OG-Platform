@@ -26,12 +26,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -59,7 +59,11 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     _instrumentType = instrumentType;
   }
 
-  public abstract boolean isCorrectIdType(ComputationTarget target);
+  protected abstract ComputationTargetType getTargetType();
+
+  protected boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return true;
+  }
 
   protected String getInstrumentType() {
     return _instrumentType;
@@ -76,7 +80,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
         final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
-        result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
+        result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
       }
     }
     final ValueProperties specProperties = ValueProperties.builder()
@@ -84,7 +88,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
-    result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, specification.getTarget(), specProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, ComputationTargetType.PRIMITIVE, specification.getTarget().getUniqueId(), specProperties));
     return result;
   }
 
@@ -111,11 +115,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       _now = now;
       _definitionSource = definitionSource;
       _specificationSource = specificationSource;
-    }
-
-    @Override
-    public ComputationTargetType getTargetType() {
-      return ComputationTargetType.PRIMITIVE;
     }
 
     @SuppressWarnings("synthetic-access")
@@ -183,11 +182,13 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     }
 
     @Override
+    public ComputationTargetType getTargetType() {
+      return RawVolatilitySurfaceDataFunction.this.getTargetType();
+    }
+
+    @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      if (target.getType() != ComputationTargetType.PRIMITIVE) {
-        return false;
-      }
-      return isCorrectIdType(target);
+      return RawVolatilitySurfaceDataFunction.this.canApplyTo(context, target);
     }
 
     @SuppressWarnings({"synthetic-access" })
@@ -208,7 +209,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       for (final Object x : definition.getXs()) {
         for (final Object y : definition.getYs()) {
           final ExternalId identifier = provider.getInstrument(x, y, valuationDate);
-          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           final Double volatility = (Double) inputs.getValue(requirement);
           if (volatility != null) {
             xList.add(x);

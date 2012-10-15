@@ -13,6 +13,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -20,6 +22,8 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -150,7 +154,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
-    final ValueRequirement requirement = MemoryUtils.instance(rawRequirement);
+    final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
       dependent.setRecursionDetected();
@@ -277,7 +281,14 @@ import com.opengamma.util.tuple.Pair;
         if (tasks.containsKey(null)) {
           continue;
         }
-        if (tasks.remove(task) == null) {
+        final ResolveTask removed = tasks.remove(task);
+        if (removed == null) {
+          // Task has already been discarded
+          return;
+        }
+        if (removed != task) {
+          // Task has already been discarded and replaced by an equivalent; don't discard that
+          tasks.put(removed, removed);
           return;
         }
       }
@@ -364,6 +375,42 @@ import com.opengamma.util.tuple.Pair;
     getBuilder().addResolvedValue(resolvedValue);
   }
 
+  public ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
+    return getBuilder().resolveTargetReference(reference);
+  }
+
+  /**
+   * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * 
+   * @param valueSpec the specification to process, not null
+   * @return the possibly simplified specification, not null
+   */
+  public ValueSpecification simplifyType(final ValueSpecification valueSpec) {
+    final ComputationTargetSpecification oldTargetSpec = valueSpec.getTargetSpecification();
+    final ComputationTargetSpecification newTargetSpec = ComputationTargetResolverUtils.simplifyType(oldTargetSpec, getCompilationContext().getComputationTargetResolver());
+    if (newTargetSpec == oldTargetSpec) {
+      return valueSpec;
+    } else {
+      return MemoryUtils.instance(new ValueSpecification(valueSpec.getValueName(), newTargetSpec, valueSpec.getProperties()));
+    }
+  }
+
+  /**
+   * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * 
+   * @param valueReq the requirement to process, not null
+   * @return the possibly simplified requirement, not null
+   */
+  public ValueRequirement simplifyType(final ValueRequirement valueReq) {
+    final ComputationTargetReference oldTargetRef = valueReq.getTargetReference();
+    final ComputationTargetReference newTargetRef = ComputationTargetResolverUtils.simplifyType(oldTargetRef, getCompilationContext().getComputationTargetResolver());
+    if (newTargetRef == oldTargetRef) {
+      return valueReq;
+    } else {
+      return MemoryUtils.instance(new ValueRequirement(valueReq.getValueName(), newTargetRef, valueReq.getConstraints()));
+    }
+  }
+
   // Failure reporting
 
   public ResolutionFailure recursiveRequirement(final ValueRequirement valueRequirement) {
@@ -411,14 +458,6 @@ import com.opengamma.util.tuple.Pair;
       return NullResolutionFailure.INSTANCE;
     } else {
       return ResolutionFailureImpl.marketDataMissing(valueRequirement);
-    }
-  }
-
-  public ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
-    if (getBuilder().isDisableFailureReporting()) {
-      return NullResolutionFailure.INSTANCE;
-    } else {
-      return ResolutionFailureImpl.suppressed(valueRequirement);
     }
   }
 

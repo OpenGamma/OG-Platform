@@ -17,11 +17,11 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -98,7 +98,7 @@ public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompil
       scaledValue = value.getValue();
     }
     common = common.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), common);
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), common);
     return Sets.newHashSet(new ComputedValue(specification, scaledValue));
   }
 

@@ -18,11 +18,11 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYi
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -45,7 +45,7 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
 
   @Override
@@ -101,22 +101,10 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
       payCurrency = baseQuotePair.getCounter();
       receiveCurrency = baseQuotePair.getBase();
     }
-    result.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ccyPair));
-    result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, payCurrency.getUniqueId(), payCurveProperties));
-    result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, receiveCurrency.getUniqueId(), receiveCurveProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(ccyPair)));
+    result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(payCurrency), payCurveProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(receiveCurrency), receiveCurveProperties));
     return result;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null, {}", target);
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

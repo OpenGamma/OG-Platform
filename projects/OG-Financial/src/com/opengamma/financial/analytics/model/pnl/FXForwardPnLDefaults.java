@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -64,9 +64,6 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     if (!(security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity)) {
       return false;

@@ -37,11 +37,12 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -55,7 +56,6 @@ import com.opengamma.financial.analytics.model.volatility.surface.fitted.Surface
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -81,7 +81,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
@@ -181,24 +181,12 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme()) && target.getUniqueId().getValue().length() == 3;
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .withAny(ValuePropertyNames.SURFACE)
@@ -236,7 +224,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
       }
     }
     assert surfaceName != null;
-    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.SURFACE, surfaceName)

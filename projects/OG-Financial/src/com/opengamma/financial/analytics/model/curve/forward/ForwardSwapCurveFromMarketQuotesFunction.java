@@ -33,12 +33,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -59,7 +60,6 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -79,7 +79,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @Override
@@ -129,12 +129,6 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        final UniqueId uid = target.getUniqueId();
-        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
-      }
-
-      @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
@@ -144,7 +138,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final DoubleArrayList expiries = new DoubleArrayList();
         final DoubleArrayList forwards = new DoubleArrayList();
-        final Currency currency = Currency.of(target.getUniqueId().getValue());
+        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final ForwardSwapCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currency.toString());
         if (definition == null) {
           throw new OpenGammaRuntimeException("Couldn't find a forward swap curve definition called " + curveName + " for target " + target);

@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -33,7 +33,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
 
   public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String... applicableCurrencies) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(absoluteTolerance, "absolute tolerance");
     ArgumentChecker.notNull(relativeTolerance, "relative tolerance");
     ArgumentChecker.notNull(maxIterations, "max iterations");

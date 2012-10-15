@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,9 +34,9 @@ public class SnapshotDataBundleFormatter extends NoHistoryFormatter<SnapshotData
 
   @Override
   public List<List<String>> formatForExpandedDisplay(SnapshotDataBundle bundle, ValueSpecification valueSpec) {
-    Map<UniqueId, Double> dataPoints = bundle.getDataPoints();
+    Map<ExternalId, Double> dataPoints = bundle.getDataPoints();
     List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
-    for (Map.Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
+    for (Map.Entry<ExternalId, Double> entry : dataPoints.entrySet()) {
       String idStr = entry.getKey().toString();
       String formattedValue = _doubleFormatter.formatForDisplay(entry.getValue(), valueSpec);
       results.add(ImmutableList.of(idStr, formattedValue));

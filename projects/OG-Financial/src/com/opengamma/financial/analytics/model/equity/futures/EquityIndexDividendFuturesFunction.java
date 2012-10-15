@@ -27,11 +27,12 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,6 +43,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.EquityIndexDividendFutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -139,7 +141,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
     }
 
     // Call OG-Analytics
-    return getComputedValue(derivative, dataBundle, security);
+    return getComputedValue(target.toSpecification(), derivative, dataBundle, security);
   }
 
   /**
@@ -147,12 +149,12 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
    * 
    * @return Call to the Analytics to get the value required
    */
-  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, EquityIndexDividendFutureSecurity security) {
+  private Set<ComputedValue> getComputedValue(ComputationTargetSpecification targetSpec, EquityFuture derivative, EquityFutureDataBundle bundle, EquityIndexDividendFutureSecurity security) {
 
     final double nContracts = 1;
     final double valueItself;
 
-    final ValueSpecification specification = getValueSpecification(_valueRequirementName, security);
+    final ValueSpecification specification = getValueSpecification(_valueRequirementName, targetSpec, security);
 
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
       valueItself = _pricer.presentValue(derivative, bundle);
@@ -171,15 +173,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof EquityIndexDividendFutureSecurity;
+    return FinancialSecurityTypes.EQUITY_INDEX_DIVIDEND_FUTURE_SECURITY;
   }
 
   @Override
@@ -212,7 +206,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
 
   private ValueRequirement getDiscountCurveRequirement(EquityIndexDividendFutureSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
   }
 
   private YieldAndDiscountCurve getYieldCurve(EquityIndexDividendFutureSecurity security, FunctionInputs inputs) {
@@ -227,7 +221,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
 
   private ValueRequirement getDividendYieldRequirement(EquityIndexDividendFutureSecurity security) {
     ExternalId id = security.getUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, id);
+    return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, id);
   }
 
   @SuppressWarnings("unused")
@@ -241,7 +235,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
   }
 
   private ValueRequirement getSpotAssetRequirement(EquityIndexDividendFutureSecurity security) {
-    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
     return req;
   }
 
@@ -255,7 +249,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
   }
 
   private ValueRequirement getCostOfCarryRequirement(EquityIndexDividendFutureSecurity security) {
-    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, security.getUnderlyingId());
+    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
   }
 
   private Double getCostOfCarry(EquityIndexDividendFutureSecurity security, FunctionInputs inputs) {
@@ -292,20 +286,18 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(getValueSpecification(_valueRequirementName, target.getSecurity()));
+    return Collections.singleton(getValueSpecification(_valueRequirementName, target.toSpecification(), target.getSecurity()));
   }
 
   /**
    * Create a ValueSpecification, the meta data for the value itself.
    * 
-   * @param equityFuture
+   * @param valueRequirementName the value requirement name
+   * @param targetSpec the target specification
    * @param equityFutureSecurity The OG_Financial Security
    */
-  private ValueSpecification getValueSpecification(final String valueRequirementName, final Security equityFutureSecurity) {
-
-    final ValueRequirement valueReq = new ValueRequirement(valueRequirementName, equityFutureSecurity);
+  private ValueSpecification getValueSpecification(final String valueRequirementName, final ComputationTargetSpecification targetSpec, final Security equityFutureSecurity) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(equityFutureSecurity);
-
     final ValueProperties.Builder properties = createValueProperties();
     final ValueProperties valueProps = properties
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
@@ -314,6 +306,6 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
         .with(ValuePropertyNames.CALCULATION_METHOD, _pricingMethodName)
         .get();
 
-    return new ValueSpecification(valueReq, valueProps);
+    return new ValueSpecification(valueRequirementName, targetSpec, valueProps);
   }
 }

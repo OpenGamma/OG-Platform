@@ -12,9 +12,8 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
@@ -31,14 +30,8 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _model = new BlackScholesMertonModel();
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
   @Override

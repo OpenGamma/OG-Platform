@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -62,6 +62,11 @@ import com.opengamma.util.tuple.Triple;
 
   protected ValueSpecification getResolvedOutput() {
     return _resolvedOutput;
+  }
+
+  @Override
+  protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+    return getResolvedOutput().getTargetSpecification();
   }
 
   private static class DelegateState extends NextFunctionStep implements ResolvedValueCallback {
@@ -178,6 +183,11 @@ import com.opengamma.util.tuple.Triple;
       return _worker;
     }
 
+    @Override
+    protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+      return getValueSpecification().getTargetSpecification();
+    }
+
     protected ResolutionFailure functionApplication(final GraphBuildingContext context) {
       return context.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
     }
@@ -186,14 +196,23 @@ import com.opengamma.util.tuple.Triple;
       return getFunction().getFunction().canHandleMissingRequirements();
     }
 
+    private static boolean isSatisfied(final ValueRequirement requirement, final ValueSpecification specification) {
+      // Don't need to test the target as by definition should be on the same thing. Value names are interned.
+      return (requirement.getValueName() == specification.getValueName())
+          && requirement.getConstraints().isSatisfiedBy(specification.getProperties());
+    }
+
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final boolean lastWorkerResult) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
       ValueSpecification resolvedOutput = getValueSpecification();
       Set<ValueSpecification> newOutputValues = null;
       try {
+        //DebugUtils.getResults2_enter();
         newOutputValues = getFunction().getFunction().getResults(context.getCompilationContext(), getComputationTarget(context), inputs);
+        //DebugUtils.getResults2_leave();
       } catch (Throwable t) {
+        //DebugUtils.getResults2_leave();
         s_logger.warn("Exception thrown by getResults", t);
         context.exception(t);
       }
@@ -210,15 +229,12 @@ import com.opengamma.util.tuple.Triple;
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
       resolvedOutput = null;
       for (ValueSpecification outputValue : newOutputValues) {
-        if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
-          resolvedOutput = outputValue.compose(getValueRequirement());
-          if (resolvedOutput != outputValue) {
-            resolvedOutput = MemoryUtils.instance(resolvedOutput);
-          }
+        if ((resolvedOutput == null) && isSatisfied(getValueRequirement(), outputValue)) {
+          resolvedOutput = context.simplifyType(outputValue.compose(getValueRequirement()));
           s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
           resolvedOutputValues.add(resolvedOutput);
         } else {
-          resolvedOutputValues.add(MemoryUtils.instance(outputValue));
+          resolvedOutputValues.add(context.simplifyType(outputValue));
         }
       }
       if (resolvedOutput == null) {
@@ -393,8 +409,11 @@ import com.opengamma.util.tuple.Triple;
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       Set<ValueRequirement> additionalRequirements = null;
       try {
+        //DebugUtils.getAdditionalRequirements_enter();
         additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), getComputationTarget(context), inputs.keySet(), resolvedOutputs);
+        //DebugUtils.getAdditionalRequirements_leave();
       } catch (Throwable t) {
+        //DebugUtils.getAdditionalRequirements_leave();
         s_logger.warn("Exception thrown by getAdditionalRequirements", t);
         context.exception(t);
       }
@@ -547,8 +566,11 @@ import com.opengamma.util.tuple.Triple;
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
       Set<ValueRequirement> inputRequirements = null;
       try {
+        //DebugUtils.getRequirements_enter();
         inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getValueRequirement());
+        //DebugUtils.getRequirements_leave();
       } catch (Throwable t) {
+        //DebugUtils.getRequirements_leave();
         s_logger.warn("Exception thrown by getRequirements", t);
         context.exception(t);
       }

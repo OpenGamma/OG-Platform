@@ -23,11 +23,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
@@ -151,7 +151,7 @@ public class ViewComputationJobTest {
     
     Map<String, Object> resultValues = new HashMap<String, Object>();
     ViewComputationResultModel result = client.getLatestResult();
-    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitive1().getTargetSpecification());
+    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
     for (ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
       resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
     }
@@ -188,7 +188,7 @@ public class ViewComputationJobTest {
     resultListener.assertProcessCompleted(TIMEOUT);
     
     ViewComputationResultModel result = client.getLatestResult();
-    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitive1().getTargetSpecification());
+    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitiveTarget());
     assertNull(targetResult);
   }
   
@@ -443,7 +443,7 @@ public class ViewComputationJobTest {
     public ValueSpecification getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
       return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataUtils
-          .createMarketDataValue(requirement) : null;
+          .createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
     }
 
     @Override

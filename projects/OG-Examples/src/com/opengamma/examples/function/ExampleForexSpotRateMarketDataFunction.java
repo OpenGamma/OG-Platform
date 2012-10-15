@@ -14,6 +14,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.forex.AbstractFXSpotRateMarketDataFunction;
@@ -30,7 +31,7 @@ public class ExampleForexSpotRateMarketDataFunction extends AbstractFXSpotRateMa
   
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(desiredValue.getTargetSpecification().getUniqueId());
+    UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(target.getUniqueId());
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
@@ -38,7 +39,7 @@ public class ExampleForexSpotRateMarketDataFunction extends AbstractFXSpotRateMa
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + currencyPair.getFirstCurrency() + ", " + currencyPair.getSecondCurrency() + ")");
     }
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, 
+    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
         ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, baseQuotePair.getBase().getCode() + baseQuotePair.getCounter().getCode()));
     return ImmutableSet.of(spotRequirement);
   }

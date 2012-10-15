@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -19,8 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 
 /**
  *
@@ -47,7 +45,7 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
   };
 
   public EquityIndexOptionDefaultPropertiesFunction(final String volSurface, final String fundingCurve, final String smileInterpolator) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY), true);
     Validate.notNull(volSurface, "No volSurface name was provided to use as default value.");
     Validate.notNull(fundingCurve, "No fundingCurve name was provided to use as default value.");
     _volSurfaceName = volSurface;
@@ -76,13 +74,4 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     return null;
   }
 
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-
-    return (target.getSecurity() instanceof EquityIndexOptionSecurity) ||
-      target.getSecurity() instanceof EquityBarrierOptionSecurity;
-  }
 }

@@ -37,6 +37,8 @@ public interface ViewCalculationResultModel {
    */
   Map<Pair<String, ValueProperties>, ComputedValue> getValues(ComputationTargetSpecification target);
   
+  // TODO: note that getValues should be querying on the target's unique identifier only as the caller may be passing in a more (or less) descriptive type component that will not be an exact match
+
   /**
    * Returns all computed values for a given target.
    * 

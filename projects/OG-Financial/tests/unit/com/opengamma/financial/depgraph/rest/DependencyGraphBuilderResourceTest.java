@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -44,6 +43,7 @@ import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailability
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;

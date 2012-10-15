@@ -57,6 +57,18 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
+    }
+
+    /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
      * @param context The compilation context with view-specific parameters and configurations.
      * @param target The target for which calculation is desired.
@@ -248,7 +260,20 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
+    }
+
+    /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * 
      * @param context The compilation context with view-specific parameters and configurations.
      * @param target The target for which calculation is desired.
      * @param inputs The resolved inputs to the function.

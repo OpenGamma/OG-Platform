@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -27,7 +27,7 @@ public class FXForwardCurveFromYieldCurveDefaultPropertiesFunction extends Defau
 
   //TODO shouldn't need curve name in here
   public FXForwardCurveFromYieldCurveDefaultPropertiesFunction(final String curveName, final String payCurveName, final String receiveCurveName) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // [PLAT-2286] Set this to the correct type, CURRENCY?
     ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(payCurveName, "pay curve name");
     ArgumentChecker.notNull(receiveCurveName, "receive curve name");

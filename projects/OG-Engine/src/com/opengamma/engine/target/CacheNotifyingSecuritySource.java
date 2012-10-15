@@ -23,7 +23,7 @@ import com.opengamma.id.VersionCorrection;
  */
 public class CacheNotifyingSecuritySource implements SecuritySource {
 
-  // TODO: should be package visible
+  // [PLAT-444]: should be package visible
 
   private final SecuritySource _underlying;
   private final CachingComputationTargetResolver _cache;

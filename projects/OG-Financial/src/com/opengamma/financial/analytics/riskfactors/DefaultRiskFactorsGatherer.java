@@ -155,7 +155,8 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     }
 
     @Override
-    public void preOrderOperation(final Position position) {
+    public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
+      // REVIEW 2012-09-17 Andrew -- [PLAT-2286] Should we check whether the position has already been visited?
       final Set<ValueRequirement> riskFactorRequirements = DefaultRiskFactorsGatherer.this.getPositionRiskFactors(position);
       _valueRequirements.addAll(riskFactorRequirements);
       if (_calcConfig != null) {
@@ -167,7 +168,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     }
 
     @Override
-    public void postOrderOperation(final Position position) {
+    public void postOrderOperation(final PortfolioNode parentNode, final Position position) {
     }
 
     @Override
@@ -717,7 +718,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   private ValueRequirement getValueRequirement(final Position position, final String valueName, final ValueProperties constraints) {
-    return new ValueRequirement(valueName, new ComputationTargetSpecification(position), constraints);
+    return new ValueRequirement(valueName, ComputationTargetSpecification.of(position), constraints);
   }
 
   //-------------------------------------------------------------------------

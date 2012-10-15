@@ -17,9 +17,9 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;

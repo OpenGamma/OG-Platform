@@ -252,6 +252,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
+      if (compiledViewDefinition == null) {
+        s_logger.warn("Job terminated during view compilation");
+        return;
+      }
     } catch (Exception e) {
       String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
           getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);

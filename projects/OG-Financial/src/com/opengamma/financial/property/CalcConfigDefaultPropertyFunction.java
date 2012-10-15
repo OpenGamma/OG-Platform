@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -23,15 +23,37 @@ import com.opengamma.engine.value.ValueRequirement;
  * will be processed to introduce a default value for any omitted <em>PropertyName</em> on <em>ValueName</em> for that
  * target.
  */
-/* package */abstract class CalcConfigDefaultPropertyFunction extends DefaultPropertyFunction {
+public abstract class CalcConfigDefaultPropertyFunction extends DefaultPropertyFunction {
+
+  /**
+   * Applies to any matching targets.
+   */
+  public static class Generic extends CalcConfigDefaultPropertyFunction {
+
+    public Generic() {
+      super(false);
+    }
+
+  }
+
+  /**
+   * Applies to specifically identified targets only.
+   */
+  public static class Specific extends CalcConfigDefaultPropertyFunction {
+
+    public Specific() {
+      super(true);
+    }
+
+  }
 
   private static final String WILDCARD = "*";
   private static final String SEP = ".DEFAULT_";
 
   private final boolean _identifier;
 
-  protected CalcConfigDefaultPropertyFunction(final ComputationTargetType type, final boolean identifier) {
-    super(type, false);
+  protected CalcConfigDefaultPropertyFunction(final boolean identifier) {
+    super(ComputationTargetType.ANYTHING, false);
     _identifier = identifier;
   }
 
@@ -58,7 +80,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    final String prefix = getTargetType().name() + ".";
+    final String prefix = getTargetType() + ".";
     if (isIdentifier()) {
       final List<String> identifiers = getIdentifiers(defaults.getTarget());
       final List<String> suffixes = new ArrayList<String>(identifiers.size());
@@ -110,7 +132,7 @@ import com.opengamma.engine.value.ValueRequirement;
     if (defaults.getProperties() == null) {
       return false;
     }
-    final String prefix = getTargetType().name() + ".";
+    final String prefix = getTargetType() + ".";
     if (isIdentifier()) {
       final List<String> identifiers = getIdentifiers(target);
       if (identifiers == null) {
@@ -145,8 +167,8 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final StringBuilder sbSpecific = new StringBuilder(getTargetType().name()).append('.').append(desiredValue.getValueName()).append(SEP).append(propertyName);
-    final StringBuilder sbWildcard = new StringBuilder(getTargetType().name()).append("." + WILDCARD + SEP).append(propertyName);
+    final StringBuilder sbSpecific = new StringBuilder(getTargetType().toString()).append('.').append(desiredValue.getValueName()).append(SEP).append(propertyName);
+    final StringBuilder sbWildcard = new StringBuilder(getTargetType().toString()).append("." + WILDCARD + SEP).append(propertyName);
     if (isIdentifier()) {
       sbSpecific.append('.');
       sbWildcard.append('.');

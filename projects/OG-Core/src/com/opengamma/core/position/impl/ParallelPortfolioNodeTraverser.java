@@ -67,7 +67,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             @Override
             public void run() {
               try {
-                getCallback().preOrderOperation(position);
+                getCallback().preOrderOperation(_node, position);
               } finally {
                 childDone();
               }
@@ -107,7 +107,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                   @Override
                   public void run() {
                     try {
-                      getCallback().postOrderOperation(position);
+                      getCallback().postOrderOperation(_node, position);
                     } finally {
                       childDone();
                     }

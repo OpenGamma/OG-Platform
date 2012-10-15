@@ -25,11 +25,11 @@ public class RawSecurityUtils {
    * @return true if security is externally provided sensitivities security
    */
   public static boolean isExternallyProvidedSensitivitiesSecurity(Security security) {
-    return security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);
+    return (security instanceof RawSecurity) && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);
   }
   
   public static boolean isExternallyProvidedSensitivitiesFactorSetSecurity(Security security) {
-    return security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE);
+    return (security instanceof RawSecurity) && security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE);
   }
   
   public static SecurityEntryData decodeSecurityEntryData(RawSecurity rawSecurity) {

@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -27,7 +27,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction exten
   private final String _surfaceDefinitionName;
 
   public SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction(final String surfaceDefinitionName) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // [PLAT-2286] Use the correct type here
     ArgumentChecker.notNull(surfaceDefinitionName, "surface definition name");
     _surfaceDefinitionName = surfaceDefinitionName;
   }

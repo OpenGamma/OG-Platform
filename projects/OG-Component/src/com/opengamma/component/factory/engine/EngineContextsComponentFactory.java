@@ -34,6 +34,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklist;
+import com.opengamma.engine.marketdata.ExternalIdLookup;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -189,6 +190,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
+    context.setExternalIdLookup(new ExternalIdLookup(null, getSecuritySource()));
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);

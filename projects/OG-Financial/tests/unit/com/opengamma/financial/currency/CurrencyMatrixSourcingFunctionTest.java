@@ -17,14 +17,21 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.function.EmptyFunctionInputs;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
@@ -47,7 +54,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     _functionExecutionContext = new FunctionExecutionContext();
     _functionCompilationContext = new FunctionCompilationContext();
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
-    matrix.setLiveData(_currencyUSD, _currencyGBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of("LiveData", "USD_GBP")));
+    matrix.setLiveData(_currencyUSD, _currencyGBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP")));
     matrix.setFixedConversion(_currencyEUR, _currencyGBP, _rateEUR_GBP);
     matrix.setCrossConversion(_currencyEUR, _currencyUSD, _currencyGBP);
     OpenGammaCompilationContext.setCurrencyMatrixSource(_functionCompilationContext, new CurrencyMatrixSource() {
@@ -90,15 +97,19 @@ public class CurrencyMatrixSourcingFunctionTest {
 
   @Test
   public void testGetRequirementsAndExecute() {
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "liveDataSourcing").get();
+    final ComputationTargetSpecificationResolver resolver = new ComputationTargetSpecificationResolver(null, null);
+    
     // Require value the "right" way up
     ComputationTarget outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME, "USD_GBP"));
     ValueRequirement outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
     Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
     assertEquals (1, inRequirements.size ());
-    ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of("LiveData", "USD_GBP"));
+    ComputationTargetRequirement inRequirementTarget = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP"));
+    ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(new ComputedValue(new ValueSpecification(inRequirement, "liveDataSourcing"), _rateUSD_GBP)),
-        outTarget, Collections.singleton(outRequirement));
+    Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     ComputedValue output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -109,10 +120,10 @@ public class CurrencyMatrixSourcingFunctionTest {
     outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
     assertEquals(1, inRequirements.size());
-    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of("LiveData", "USD_GBP"));
+    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(new ComputedValue(new ValueSpecification(inRequirement, "liveDataSourcing"), _rateUSD_GBP)), outTarget, Collections
-        .singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -123,7 +134,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
     assertEquals(0, inRequirements.size());
-    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(), outTarget, Collections.singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext, new EmptyFunctionInputs(), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -134,10 +145,10 @@ public class CurrencyMatrixSourcingFunctionTest {
     outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
     inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
     assertEquals(1, inRequirements.size());
-    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of("LiveData", "USD_GBP"));
+    inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(new ComputedValue(new ValueSpecification(inRequirement, "liveDataSourcing"), _rateUSD_GBP)), outTarget, Collections
-        .singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);

@@ -14,7 +14,10 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
@@ -23,13 +26,11 @@ import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
 public class ViewportResultsJsonWriterTest {
 
-  private final ViewportDefinition _viewportDefinition =
-      ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), false);
-  private final ValueRequirement _valueReq =
-      new ValueRequirement("valueName", ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
-  private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq, "fnName");
+  private final ComputationTargetSpecification _target = new ComputationTargetSpecification(ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
+  private final ValueRequirement _valueReq = new ValueRequirement("valueName", _target);
+  private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq.getValueName(), _target, ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "fnName").get());
+  private final ViewportDefinition _viewportDefinition = ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), false);
   private final ViewportResultsJsonWriter _writer = new ViewportResultsJsonWriter(new ResultsFormatter());
-
 
   private static AnalyticsColumnGroups createColumns(Class<?> type) {
     AnalyticsColumn column = new AnalyticsColumn("header", "desc", type);

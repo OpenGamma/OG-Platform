@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang.BooleanUtils;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -90,7 +89,7 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     Triple<String, String, ValueProperties> requirement = ValueRequirementUtils.parseRequirement((String) parameters[2]);
     String notAvailableValue = (String) parameters[3];
     boolean flattenValue = BooleanUtils.isTrue((Boolean) parameters[4]);
-    ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, targetId);
+    ComputationTargetSpecification target = ComputationTargetSpecification.of(targetId);
     return invoke(resultModel, requirement.getFirst(), new ValueRequirement(requirement.getSecond(), target, requirement.getThird()),
         notAvailableValue, flattenValue);
   }

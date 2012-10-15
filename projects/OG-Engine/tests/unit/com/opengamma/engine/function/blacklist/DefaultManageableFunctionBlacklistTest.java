@@ -17,7 +17,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.MockFunction;
@@ -40,7 +39,7 @@ public class DefaultManageableFunctionBlacklistTest {
 
   public DefaultManageableFunctionBlacklistTest() {
     _function = new ParameterizedFunction(new MockFunction("F1", null), new EmptyFunctionParameters());
-    _target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo"));
+    _target = ComputationTargetSpecification.of(UniqueId.of("Test", "Foo"));
     _inputs = Collections.singleton(new ValueSpecification("Foo", _target, ValueProperties.with(ValuePropertyNames.FUNCTION, "X").get()));
     _outputs = Collections.singleton(new ValueSpecification("Bar", _target, ValueProperties.with(ValuePropertyNames.FUNCTION, "Y").get()));
   }

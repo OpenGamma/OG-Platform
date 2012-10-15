@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolat
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -50,16 +49,6 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return isCorrectIdType(target);
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties(LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties));
@@ -75,8 +64,6 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
     final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);
     return Sets.newHashSet(volatilitySurfaceRequirement);
   }
-
-  protected abstract boolean isCorrectIdType(final ComputationTarget target);
 
   protected abstract String getInstrumentType();
 

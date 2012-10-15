@@ -261,12 +261,14 @@ public class DependencyNode {
   /**
    * Returns the market data requirement of this node.
    * 
-   * @return the market data requirement.
+   * @return the market data requirement, or null if none
    */
   public Pair<ValueRequirement, ValueSpecification> getRequiredMarketData() {
     if (_function.getFunction() instanceof MarketDataSourcingFunction) {
       final MarketDataSourcingFunction ldsf = ((MarketDataSourcingFunction) _function.getFunction());
-      return ldsf.getMarketDataRequirement();
+      final ValueSpecification outputValue = getOutputValues().iterator().next();
+      final ValueRequirement inputValue = ldsf.getMarketDataRequirement(_function.getParameters(), outputValue);
+      return Pair.of(inputValue, outputValue);
     }
     return null;
   }
@@ -299,11 +301,8 @@ public class DependencyNode {
     if (_function != null) {
       throw new IllegalStateException("The function was already set");
     }
-
-    if (function.getFunction().getTargetType() != getComputationTarget().getType()) {
-      throw new IllegalArgumentException("Provided function of type " + function.getFunction().getTargetType() + " but target of type " + getComputationTarget().getType());
-    }
-
+    // [PLAT-2286] We used to check the function's target was right for the target specification. This would require knowledge of
+    // the resolution strategy to do properly. The function type has to be compatible with something that is a sub-type of the target.
     _function = function;
   }
 

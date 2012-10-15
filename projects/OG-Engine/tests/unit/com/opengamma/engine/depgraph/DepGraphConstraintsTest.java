@@ -18,6 +18,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -107,13 +108,14 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueId()));
+        final ValueRequirement req1any = helper.getRequirement1Any();
+        return Collections.singleton(new ValueSpecification(req1any.getValueName(), target.toSpecification(), req1any.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
       public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-        return Collections.singleton(new ValueRequirement(helper.getRequirement2Any().getValueName(), desiredValue.getTargetSpecification(), ValueProperties.with("TEST",
-            desiredValue.getConstraints().getValues("TEST")).get()));
+        return Collections.singleton(new ValueRequirement(helper.getRequirement2Any().getValueName(), target.toSpecification(),
+            ValueProperties.with("TEST", desiredValue.getConstraints().getValues("TEST")).get()));
       }
 
     };

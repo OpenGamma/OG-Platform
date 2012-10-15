@@ -9,12 +9,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,19 +23,11 @@ public class BondZSpreadDefaultRiskFreeCurveNamesFunction extends DefaultPropert
   private final String _riskFreeCurve;
 
   public BondZSpreadDefaultRiskFreeCurveNamesFunction(final String riskFreeCurve, final String... valueNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.BOND_SECURITY, true);
     ArgumentChecker.notNull(riskFreeCurve, "risk-free curve name");
     ArgumentChecker.notNull(valueNames, "value names");
     _riskFreeCurve = riskFreeCurve;
     _valueNames = valueNames;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
-    return target.getSecurity() instanceof BondSecurity;
   }
 
   @Override

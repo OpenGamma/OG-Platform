@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -35,7 +35,7 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
 
   public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(timeAxis, "time axis");
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(volatilityTransform, "volatility transform");

@@ -44,7 +44,9 @@ public class ViewCompilationContext {
       compilationContext.setViewCalculationConfiguration(calcConfig);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
       compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext));
-      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
+      final DefaultCompiledFunctionResolver functionResolver = new DefaultCompiledFunctionResolver(compilationContext, transformedRules);
+      functionResolver.compileRules();
+      builder.setFunctionResolver(functionResolver);
       builder.setCompilationContext(compilationContext);
       configurationGraphs.put(configName, builder);
     }

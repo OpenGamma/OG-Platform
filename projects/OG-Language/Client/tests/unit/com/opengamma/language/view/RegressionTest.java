@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ValueProperties;

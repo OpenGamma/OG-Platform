@@ -222,7 +222,6 @@ public class CSVPositionSource implements PositionSource {
     while ((tokens = csvReader.readNext()) != null) {
       SimplePosition position = parseLine(tokens, positionId);
       if (position != null) {
-        position.setParentNodeId(rootNodeId);
         ((SimplePortfolioNode) portfolio.getRootNode()).addPosition(position);
         _positions.put(position.getUniqueId(), position);
         positionId = UniqueId.of(portfolioId.getScheme(), Integer.toString(++curIndex));

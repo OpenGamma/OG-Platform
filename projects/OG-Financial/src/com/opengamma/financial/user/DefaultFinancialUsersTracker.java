@@ -77,7 +77,7 @@ public class DefaultFinancialUsersTracker implements FinancialUserDataTracker, F
     if (marketDataSnapshotIds == null) {
       marketDataSnapshotIds = freshIds;
     }
-    freshIds.add(identifier);
+    marketDataSnapshotIds.add(identifier);
     s_logger.debug("{} marketdatasnapshot created by {}", identifier, userName);
   }
 

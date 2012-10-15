@@ -17,8 +17,8 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -52,7 +52,7 @@ import com.opengamma.util.tuple.Pair;
     _nodeRequirements.put(node.getUniqueId(), new HashSet<Pair<String, ValueProperties>>());
     final Set<Pair<String, ValueProperties>> requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
     if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-      final ComputationTargetSpecification nodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
+      final ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(node);
       for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
         addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
       }
@@ -60,7 +60,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public void preOrderOperation(final Position position) {
+  public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
     final Security security = position.getSecurity();
     if (security == null) {
       return;
@@ -72,13 +72,14 @@ import com.opengamma.util.tuple.Pair;
       requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(securityType);
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
         if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
-          final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(position.getParentNodeId());
+          final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(parentNode.getUniqueId());
           synchronized (nodeRequirements) {
             nodeRequirements.addAll(requiredOutputs);
           }
         }
         if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
-          final ComputationTargetSpecification positionSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
+          // TODO: [PLAT-2286] Don't need to create the parent node specification each time
+          final ComputationTargetSpecification positionSpec = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId());
           for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
             addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), positionSpec, requiredOutput.getSecond()));
           }
@@ -91,7 +92,8 @@ import com.opengamma.util.tuple.Pair;
         requiredOutputs = _calculationConfiguration.getTradeRequirementsBySecurityType().get(securityType);
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
           for (Trade trade : trades) {
-            final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
+            // TODO: [PLAT-2286] Scope the trade underneath it's parent portfolio node and position
+            final ComputationTargetSpecification tradeSpec = ComputationTargetSpecification.of(trade);
             for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
               addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), tradeSpec, requiredOutput.getSecond()));
             }
@@ -110,7 +112,7 @@ import com.opengamma.util.tuple.Pair;
         parentNodeRequirements.addAll(nodeRequirements);
       }
     }
-    final ComputationTargetSpecification nodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
+    final ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(node);
     for (Pair<String, ValueProperties> requiredOutput : nodeRequirements) {
       addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
     }

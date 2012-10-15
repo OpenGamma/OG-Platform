@@ -42,10 +42,9 @@ import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueSpecification;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -55,8 +54,6 @@ import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calcnode.InvocationResult;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -93,10 +90,9 @@ public class DbBatchWriterTest extends DbTest {
     final String calculationConfigName = "config_1";
 
     _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
-    final Security security = new SimpleSecurity(_compTargetSpec.getUniqueId(), ExternalIdBundle.of("Sec", "APPL"), "equity", "APPL");
 
-    _requirement = new ValueRequirement("FAIR_VALUE", security);
-    _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");
+    _requirement = new ValueRequirement("FAIR_VALUE", _compTargetSpec);
+    _specification = new ValueSpecification("FAIR_VALUE", _compTargetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "IDENTITY_FUNCTION").get());
 
     final Instant _valuationTime = Instant.parse("2011-12-14T14:20:17.143Z");
 
@@ -115,7 +111,7 @@ public class DbBatchWriterTest extends DbTest {
       @Override
       public Collection<com.opengamma.engine.ComputationTargetSpecification> getComputationTargets(String calcConfName) {
         if (calcConfName.equals(calculationConfigName)) {
-          return Arrays.asList(new ComputationTargetSpecification(UniqueId.of("Primitive", "Value")), _compTargetSpec);
+          return Arrays.asList(ComputationTargetSpecification.of(UniqueId.of("Primitive", "Value")), _compTargetSpec);
         } else {
           return emptyList();
         }
@@ -173,9 +169,9 @@ public class DbBatchWriterTest extends DbTest {
     assertEquals(0, marketDataValues.size());
 
     final Set<ComputationTargetSpecification> specs = Sets.newHashSet();
-    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)));
-    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12346", "1")));
-    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12347", "2")));
+    specs.add(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12345", null)));
+    specs.add(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12346", "1")));
+    specs.add(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12347", "2")));
 
 
     final Map<ComputationTargetSpecification, Long> compTargetSpecIdx = new HashMap<ComputationTargetSpecification, Long>();
@@ -227,9 +223,9 @@ public class DbBatchWriterTest extends DbTest {
 
     // should update 2, add 1
     values = new HashSet<MarketDataValue>();
-    values.add(new MarketDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)), 123.46, "value_name"));
-    values.add(new MarketDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12347", "2")), 123.47, "value_name"));
-    values.add(new MarketDataValue(new ComputationTargetSpecification(ExternalId.of("BUID", "EQ12348")), 123.45, "value_name"));
+    values.add(new MarketDataValue(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12345", null)), 123.46, "value_name"));
+    values.add(new MarketDataValue(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12347", "2")), 123.47, "value_name"));
+    values.add(new MarketDataValue(ComputationTargetSpecification.of(UniqueId.of("BUID", "EQ12348")), 123.45, "value_name"));
 
     _batchMaster.addValuesToMarketData(marketData.getObjectId(), values);
     marketDataValues = _batchMaster.getMarketDataValues(marketData.getObjectId(), PagingRequest.ALL).getFirst();
@@ -373,7 +369,7 @@ public class DbBatchWriterTest extends DbTest {
         assertNull(security);
 
         HbComputationTargetSpecification primitive = _batchWriter.getComputationTargetIntransaction(
-          new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId));
+            new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId));
         assertNull(primitive);
 
 
@@ -402,7 +398,7 @@ public class DbBatchWriterTest extends DbTest {
         assertEquals(ComputationTargetType.SECURITY, security.getType());
 
         HbComputationTargetSpecification primitive = _batchWriter.getOrCreateComputationTargetInTransaction(
-          new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId));
+            new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId));
 
         assertEquals(ComputationTargetType.PRIMITIVE, primitive.getType());
         return null;
@@ -427,7 +423,7 @@ public class DbBatchWriterTest extends DbTest {
           new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId));
         assertEquals(ComputationTargetType.SECURITY, security.getType());        
 
-        com.opengamma.engine.ComputationTarget target = new com.opengamma.engine.ComputationTarget(mockSecurity);
+        com.opengamma.engine.ComputationTarget target = new com.opengamma.engine.ComputationTarget(ComputationTargetType.SECURITY, mockSecurity);
 
         security = _batchWriter.getOrCreateComputationTargetInTransaction(target.toSpecification());
         assertEquals(ComputationTargetType.SECURITY, security.getType());        

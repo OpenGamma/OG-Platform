@@ -11,8 +11,9 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AsymmetricPowerOptionModel;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
@@ -38,20 +39,17 @@ public class AsymmetricPowerOptionModelFunction extends StandardOptionDataAnalyt
   }
 
   @Override
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     //REVIEW yomi 09-06-2011 OptionSecurity is no more..
     /*
-    if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AsymmetricPoweredPayoffStyle) {
-      return true;
-    }
+    return (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AsymmetricPoweredPayoffStyle);
     */
-    if (target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
+    return true;
   }
 
   @Override

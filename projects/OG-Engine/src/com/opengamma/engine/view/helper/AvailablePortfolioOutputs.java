@@ -27,7 +27,6 @@ import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,9 +34,15 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -94,6 +99,10 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   }
 
+  private static boolean isSatisfied(final ValueRequirement requirement, final ValueSpecification result) {
+    return (requirement.getValueName() == result.getValueName()) && requirement.getConstraints().isSatisfiedBy(result.getProperties());
+  }
+
   /**
    * Constructs a new output set.
    * 
@@ -110,7 +119,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     _anyValue = anyValue;
     final Collection<CompiledFunctionDefinition> functions = removeDummyFunctions(functionRepository.getAllFunctions());
-    final Map<UniqueId, Object> targetCache = new HashMap<UniqueId, Object>();
+    final Map<UniqueId, UniqueIdentifiable> targetCache = new HashMap<UniqueId, UniqueIdentifiable>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
 
       @Override
@@ -119,7 +128,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
 
       @Override
-      public void preOrderOperation(final Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         targetCache.put(position.getUniqueId(), position);
         targetCache.put(position.getSecurity().getUniqueId(), position.getSecurity());
         for (Trade trade : position.getTrades()) {
@@ -208,7 +217,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         for (Map.Entry<CompiledFunctionDefinition, Set<ValueSpecification>> functionResult : functionResults.entrySet()) {
           final CompiledFunctionDefinition function = functionResult.getKey();
           for (ValueSpecification result : functionResult.getValue()) {
-            if (requirement.isSatisfiedBy(result)) {
+            if (isSatisfied(requirement, result)) {
               final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
               if ((group == null) || visitedFunctions.add(group)) {
                 final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, requirement, result.compose(requirement));
@@ -253,15 +262,17 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         }
         final Map<Iterator<ValueSpecification>, ValueRequirement> inputs = new HashMap<Iterator<ValueSpecification>, ValueRequirement>();
         for (ValueRequirement requirement : requirements) {
-          final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
-          if (targetSpec.getUniqueId() != null) {
+          final ComputationTargetReference targetRef = requirement.getTargetReference();
+          if (targetRef instanceof ComputationTargetSpecification) {
+            final ComputationTargetSpecification targetSpec = targetRef.getSpecification();
             if (MarketDataUtils.isAvailable(marketDataAvailabilityProvider, requirement)) {
               s_logger.debug("Requirement {} can be satisfied by market data", requirement);
-              inputs.put(Collections.singleton(new ValueSpecification(requirement, "marketdata")).iterator(), requirement);
+              inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "marketdata").get())),
+                  requirement);
             } else {
-              final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
+              final UniqueIdentifiable requirementTarget = targetCache.get(targetSpec.getUniqueId());
               if (requirementTarget != null) {
-                final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, new ComputationTarget(requirementTarget), requirement);
+                final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, new ComputationTarget(targetSpec.getType(), requirementTarget), requirement);
                 if (satisfied == null) {
                   s_logger.debug("Can't satisfy {} for function {}", requirement, function);
                   if (!function.canHandleMissingRequirements()) {
@@ -272,12 +283,17 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 }
               } else {
                 s_logger.debug("No target cached for {}, assuming ok", targetSpec);
-                inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
+                inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), targetSpec,
+                    ValueProperties.with(ValuePropertyNames.FUNCTION, "").get())), requirement);
               }
             }
           } else {
-            s_logger.debug("No unique ID for {}, assuming ok", targetSpec);
-            inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
+            s_logger.debug("Externally referenced entity {}, assuming ok", targetRef);
+            final ExternalId eid = targetRef.getRequirement().getIdentifiers().iterator().next();
+            final UniqueId uid = UniqueId.of(eid.getScheme().getName(), eid.getValue());
+            inputs.put(
+                new SingleItem<ValueSpecification>(new ValueSpecification(requirement.getValueName(), new ComputationTargetSpecification(targetRef.getType(), uid), ValueProperties.with(
+                    ValuePropertyNames.FUNCTION, "").get())), requirement);
           }
         }
         final Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
@@ -297,7 +313,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
               final Set<ValueSpecification> results = function.getResults(_context, target, inputSet);
               if (results != null) {
                 for (ValueSpecification result : results) {
-                  if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
+                  if ((resolvedOutputValue == result) || isSatisfied(requiredOutputValue, result)) {
                     outputs.add(result.compose(requiredOutputValue));
                   }
                 }
@@ -360,7 +376,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
 
       @Override
-      public void preOrderOperation(final Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
         final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
         final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();

@@ -17,7 +17,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -61,8 +60,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
   }
 
   /**
-   * When you have multiple requirements eminating from the same function,
-   * should only have a single node using that function. 
+   * When you have multiple requirements produced by the same function, should only have a single node using that function.
    */
   public void multipleOutputsSingleFunctionNode() {
     DepGraphTestHelper helper = helper();
@@ -72,7 +70,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(Sets.newHashSet(helper.getRequirement2()));
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
+    Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
@@ -86,7 +84,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
   public void unsatisfiableDependency() {
     DepGraphTestHelper helper = helper();
     helper.addFunctionProducing1and2();
-    ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
+    ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget().toSpecification());
     DependencyGraphBuilder builder = helper.getBuilder(null);
     expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement1(), null, null));
     expectFailure(builder, builder.getContext().resolveRequirement(anotherReq, null, null));
@@ -103,7 +101,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     graph.removeUnnecessaryValues();
     assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
     assertTrue(graph.getOutputSpecifications().contains(helper.getSpec2()));
-    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
+    Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
@@ -134,7 +132,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
     assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
-    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
+    Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {

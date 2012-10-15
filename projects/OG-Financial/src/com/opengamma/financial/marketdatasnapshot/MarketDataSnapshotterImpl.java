@@ -17,14 +17,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -36,11 +37,12 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -53,6 +55,7 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Default implementation of {@link MarketDataSnapshotter}.
@@ -61,9 +64,9 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   // TODO: reimplement this in a javalike way, transliterating LINQ is dirty.
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
-  
+
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
-  
+  private final ExternalIdBundleLookup _identifierLookup;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
   private final VolatilityCubeSnapper _volatilityCubeSnapper;
@@ -71,13 +74,14 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final StructuredSnapper[] _structuredSnappers;
 
   /**
-   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls ) 
+   * @param identifierLookup the lookup mechanism for resolved target specifications to orginal data identifiers
+   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    */
-  public MarketDataSnapshotterImpl(VolatilityCubeDefinitionSource cubeDefinitionSource) {
-    super();
+  public MarketDataSnapshotterImpl(final ExternalIdBundleLookup identifierLookup, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
     _cubeDefinitionSource = cubeDefinitionSource;
-    _volatilityCubeSnapper =  new VolatilityCubeSnapper(_cubeDefinitionSource);
-    _structuredSnappers = new StructuredSnapper[]{_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
+    _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
+    _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
+    _identifierLookup = identifierLookup;
   }
 
   @Override
@@ -103,7 +107,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
     Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
     Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
-    
+
     ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
@@ -115,30 +119,16 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private UnstructuredMarketDataSnapshot getGlobalValues(ViewComputationResultModel results, Map<String, DependencyGraph> graphs) {
     Set<ComputedValue> data = results.getAllMarketData();
-    Set<ComputedValue> includedGlobalData = includedGlobalValues(data, graphs);
-    
-    ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget = Multimaps.index(includedGlobalData,
-        new Function<ComputedValue, MarketDataValueSpecification>() {
-
-          @Override
-          public MarketDataValueSpecification apply(ComputedValue r) {
-            ComputationTargetSpecification targetSpec = r.getSpecification().getTargetSpecification();
-            return new MarketDataValueSpecification(getMarketType(targetSpec.getType()), targetSpec.getUniqueId());
-          }
-        });
-        
-    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(dataByTarget);
-
+    Multimap<MarketDataValueSpecification, ComputedValue> indexedData = identifyGlobalValues(data, graphs);
+    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(indexedData);
     ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     snapshot.setValues(dict);
     return snapshot;
   }
 
-  private Set<ComputedValue> includedGlobalValues(Set<ComputedValue> data, Map<String, DependencyGraph> graphs) {
-    //TODO include nulls for missing values
-    
-    Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
-    
+  private Multimap<MarketDataValueSpecification, ComputedValue> identifyGlobalValues(Set<ComputedValue> data, Map<String, DependencyGraph> graphs) {
+    final Multimap<MarketDataValueSpecification, ComputedValue> indexedData = ArrayListMultimap.create();
+    final Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
     Set<ComputedValue> dataRemaining = null;
     for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
       if (dataRemaining == null) {
@@ -146,17 +136,22 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       } else {
         dataRemaining = Sets.difference(dataRemaining, dataFound);
       }
-
-      DependencyGraph graph = entry.getValue();
+      final DependencyGraph graph = entry.getValue();
       for (ComputedValue computedValue : dataRemaining) {
-        DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
+        final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
         if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
           dataFound.add(computedValue);
+          final ComputationTargetReference target = nodeProducing.getRequiredMarketData().getFirst().getTargetReference();
+          final ExternalIdBundle identifiers = _identifierLookup.getExternalIds(target);
+          if (identifiers != null) {
+            // TODO: should use the order config to prioritise which scheme to select
+            // TODO: we could add the config to the lookup to avoid passing two objects around
+            indexedData.put(new MarketDataValueSpecification(MarketDataUtils.getMarketDataValueType(target.getType()), identifiers.iterator().next()), computedValue);
+          }
         }
       }
     }
-    
-    return dataFound;
+    return indexedData;
   }
 
   private boolean isTerminalUnstructuredOutput(DependencyNode node, DependencyGraph graph) {
@@ -164,13 +159,13 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     // market data nodes are immediately fed into structured data nodes (so we only have to recurse 1 layer)
     // Whilst branching factor may be high, only a few of those paths will be to structured nodes, so we don't have to iterate too much
     // Chains from live data to each output are quite short
-    
+
     ArrayDeque<DependencyNode> remainingCandidates = new ArrayDeque<DependencyNode>(); //faster than Stack
     remainingCandidates.add(node);
-    
+
     while (!remainingCandidates.isEmpty()) {
       node = remainingCandidates.remove();
-      
+
       if (isStructuredNode(node)) {
         continue;
       }
@@ -190,7 +185,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   @SuppressWarnings("rawtypes")
   private boolean isStructuredNode(DependencyNode node) {
     Set<ValueSpecification> outputValues = node.getOutputValues();
-    
+
     for (ValueSpecification output : outputValues) {
       for (StructuredSnapper snapper : _structuredSnappers) {
         if (output.getValueName() == snapper.getRequirementName()) {
@@ -203,11 +198,11 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         }
       }
     }
-    
+
     return false;
   }
 
-  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getGlobalValues(ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget) {
+  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getGlobalValues(Multimap<MarketDataValueSpecification, ComputedValue> dataByTarget) {
     return Maps.transformValues(dataByTarget.asMap(),
         new Function<Collection<ComputedValue>, Map<String, ValueSnapshot>>() {
 
@@ -226,25 +221,13 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
                 ComputedValue computedValue = Iterables.get(from, 0);
                 return new ValueSnapshot((Double) computedValue.getValue());
               }
-              
+
             });
           }
         });
   }
 
-  private MarketDataValueType getMarketType(ComputationTargetType type) {
-    switch (type) {
-      case PRIMITIVE:
-        return MarketDataValueType.PRIMITIVE;
-      case SECURITY:
-        return MarketDataValueType.SECURITY;
-      case PORTFOLIO_NODE:
-      case POSITION:
-      case TRADE:
-      default:
-        throw new IllegalArgumentException("Unexpected market target type " + type);
-    }
-  }
+  // TODO: snapshot should be holding value specifications not value requirements
 
   @Override
   public Map<YieldCurveKey, Map<String, ValueRequirement>> getYieldCurveSpecifications(ViewClient client, ViewCycle cycle) {
@@ -254,7 +237,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     Map<YieldCurveKey, Map<String, ValueRequirement>> ret = new HashMap<YieldCurveKey, Map<String, ValueRequirement>>();
     for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
       DependencyGraph graph = entry.getValue();
-      for (DependencyNode node : graph.getDependencyNodes(ComputationTargetType.PRIMITIVE)) {
+      for (DependencyNode node : graph.getDependencyNodes()) {
         for (ValueSpecification outputValue : node.getOutputValues()) {
           if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
             addAll(ret, outputValue);
@@ -279,7 +262,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         getCurveProperties(yieldCurveSpec));
     add(ret, key, interpolatedSpec);
   }
-  
+
   private void add(Map<YieldCurveKey, Map<String, ValueRequirement>> ret, YieldCurveKey key, ValueRequirement outputValue) {
     Map<String, ValueRequirement> ycMap = ret.get(key);
     if (ycMap == null) {

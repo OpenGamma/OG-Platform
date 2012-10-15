@@ -6,17 +6,22 @@
 package com.opengamma.engine.function;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -28,34 +33,56 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  private final ComputationTargetSpecificationResolver _resolver;
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
   private final Map<String, ComputedValue> _valuesByRequirementName = new HashMap<String, ComputedValue>();
-  private final Map<Pair<String, ComputationTargetSpecification>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, ComputationTargetSpecification>, ComputedValue[]>();
+  private final Map<Pair<String, Object>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, Object>, ComputedValue[]>();
   private final Collection<ValueSpecification> _missingValues;
 
-  public FunctionInputsImpl() {
-    _missingValues = null;
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final ComputedValue value) {
+    _resolver = resolver;
+    _missingValues = Collections.emptySet();
+    addValue(value);
   }
 
-  public FunctionInputsImpl(ComputedValue value) {
-    this(Collections.singleton(value), Collections.<ValueSpecification>emptySet());
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final Collection<? extends ComputedValue> values) {
+    this(resolver, values, Collections.<ValueSpecification>emptySet());
   }
 
-  public FunctionInputsImpl(Collection<? extends ComputedValue> values, Collection<ValueSpecification> missingValues) {
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final Collection<? extends ComputedValue> values, final Collection<ValueSpecification> missingValues) {
+    _resolver = resolver;
+    _missingValues = missingValues;
     for (ComputedValue value : values) {
       addValue(value);
     }
-    _missingValues = missingValues;
   }
 
-  public void addValue(ComputedValue value) {
+  private void targetRefKey(final ComputationTargetReference targetRef, final List<UniqueId> uids) {
+    if (targetRef.getParent() != null) {
+      targetRefKey(targetRef.getParent(), uids);
+    }
+    uids.add(_resolver.getTargetSpecification(targetRef).getUniqueId());
+  }
+
+  private Object targetSpecKey(final ComputationTargetSpecification targetSpec) {
+    if (targetSpec.getParent() == null) {
+      return targetSpec.getUniqueId();
+    } else {
+      final List<UniqueId> uids = new ArrayList<UniqueId>();
+      targetRefKey(targetSpec.getParent(), uids);
+      uids.add(targetSpec.getUniqueId());
+      return uids;
+    }
+  }
+
+  private void addValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed Value");
     if (value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
     }
     _values.add(value);
     _valuesByRequirementName.put(value.getSpecification().getValueName(), value);
-    final Pair<String, ComputationTargetSpecification> key = Pair.of(value.getSpecification().getValueName(), value.getSpecification().getTargetSpecification());
+    final Pair<String, Object> key = Pair.of(value.getSpecification().getValueName(), targetSpecKey(value.getSpecification().getTargetSpecification()));
     final ComputedValue[] prev = _valuesByRequirement.get(key);
     if (prev == null) {
       _valuesByRequirement.put(key, new ComputedValue[] {value });
@@ -83,8 +110,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public ComputedValue getComputedValue(ValueRequirement requirement) {
-    final Pair<String, ComputationTargetSpecification> key = Pair.of(requirement.getValueName(),
-        requirement.getTargetSpecification());
+    final Pair<String, Object> key = Pair.of(requirement.getValueName(), targetSpecKey(_resolver.getTargetSpecification(requirement.getTargetReference())));
     final ComputedValue[] values = _valuesByRequirement.get(key);
     if (values != null) {
       for (ComputedValue value : values) {

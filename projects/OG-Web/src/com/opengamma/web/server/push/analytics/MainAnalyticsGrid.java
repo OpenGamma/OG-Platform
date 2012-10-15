@@ -19,6 +19,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -292,8 +293,13 @@ import com.opengamma.util.tuple.Pair;
   private static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(ComputationTargetSpecification specification) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification) {
       return null;
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(final ComputationTargetType type) {
+      return type;
     }
 
     @Override

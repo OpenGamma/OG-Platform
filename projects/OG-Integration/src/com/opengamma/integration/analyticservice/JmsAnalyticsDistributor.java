@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.MessageCreator;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -64,7 +64,7 @@ public class JmsAnalyticsDistributor implements AnalyticResultReceiver {
       
       ComputationTargetType type = valueSpec.getTargetSpecification().getType();
       
-      if (type == ComputationTargetType.POSITION) {
+      if (type.isTargetType(ComputationTargetType.POSITION)) {
         
         String destinationName = _jmsTopicNameResolver.resolve(new JmsTopicNameResolveRequest(calcConfig, valueSpec));
         FudgeMsg fudgeMsg = _fudgeContext.toFudgeMsg(computedValue).getMessage();

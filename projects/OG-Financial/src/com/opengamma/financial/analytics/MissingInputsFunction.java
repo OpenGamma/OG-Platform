@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -26,6 +25,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -205,7 +205,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     // Requirement has all constraints asked of us (minus the aggregation style)
     final ValueProperties requirementConstraints = resultConstraints.withoutAny(ValuePropertyNames.AGGREGATION);
     final Set<ValueRequirement> requirements = getUnderlyingCompiled().getRequirements(context, target,
-        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
     s_logger.debug("Returning requirements {} for {}", requirements, desiredValue);
     return requirements;
   }
@@ -296,7 +296,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     final Set<ValueRequirement> underlyingDesired = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desiredValue : desiredValues) {
       final ValueProperties requirementConstraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.AGGREGATION);
-      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
     }
     try {
       return createExecuteResults(inputs, getUnderlyingInvoker().execute(executionContext, inputs, target, underlyingDesired));

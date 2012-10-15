@@ -36,6 +36,9 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
   @Override
   public ViewDefinition getDefinition(UniqueId definitionId) {
     ViewDefinition viewDefinition = _definitionsById.get(definitionId.getObjectId());
+    if (viewDefinition == null) {
+      return null;
+    }
     if (!viewDefinition.getUniqueId().isLatest() && !viewDefinition.getUniqueId().equals(definitionId)) {
       throw new OpenGammaRuntimeException("Previous versions of definitions not supported");
     }

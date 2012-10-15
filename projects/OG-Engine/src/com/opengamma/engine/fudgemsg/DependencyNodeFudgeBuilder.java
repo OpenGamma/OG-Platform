@@ -21,7 +21,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -29,6 +28,8 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -67,7 +68,7 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
   @SuppressWarnings("unchecked")
   @Override
   public DependencyNode buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ComputationTargetSpecification target = deserializer.fieldValueToObject(ComputationTargetSpecification.class, msg.getByName(COMPUTATION_TARGET_FIELD));
+    ComputationTargetSpecification target = deserializer.fieldValueToObject(ComputationTargetReference.class, msg.getByName(COMPUTATION_TARGET_FIELD)).getSpecification();
     
     String parameterizedFunctionUniqueId = msg.getString(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD);
     FudgeField functionParametersField = msg.getByName(FUNCTION_PARAMETERS_FIELD);
@@ -98,10 +99,9 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
     }
     return node;
   }
-  
+
   /**
-   * It is both impratical and undesirable to serialise the full function definition, so deserialised objects instead
-   * contain a stub with selected details.
+   * It is both impractical and undesirable to serialise the full function definition, so deserialised objects instead contain a stub with selected details.
    */
   private static class CompiledFunctionDefinitionStub implements CompiledFunctionDefinition {
 

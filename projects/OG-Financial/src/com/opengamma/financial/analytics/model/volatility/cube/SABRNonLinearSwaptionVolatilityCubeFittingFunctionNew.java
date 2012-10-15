@@ -39,11 +39,12 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -67,7 +68,6 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
@@ -114,10 +114,9 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     if (volatilityDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube data");
     }
-    final String uniqueId = target.getUniqueId().getValue();
-    final Currency currency = Currency.of(uniqueId);
-    final String fullSpecificationName = specificationName + "_" + uniqueId;
-    final String fullDefinitionName = definitionName + "_" + uniqueId;
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
+    final String fullSpecificationName = specificationName + "_" + currency.getCode();
+    final String fullDefinitionName = definitionName + "_" + currency.getCode();
     final SwaptionVolatilityCubeSpecification specification = specificationSource.getSpecification(fullSpecificationName);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification name " + fullSpecificationName);
@@ -215,13 +214,7 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -255,10 +248,9 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
       return null;
     }
     final String cubeName = cubeNames.iterator().next();
-    final String uniqueId = target.getUniqueId().getValue();
-    final Currency currency = Currency.of(uniqueId);
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final String definitionName = cubeDefinitions.iterator().next();
-    final String fullDefinitionName = definitionName + "_" + uniqueId;
+    final String fullDefinitionName = definitionName + "_" + currency.getCode();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final SyntheticSwaptionVolatilityCubeDefinitionSource definitionSource = new SyntheticSwaptionVolatilityCubeDefinitionSource(configSource);
     final VolatilityCubeDefinition definition = definitionSource.getDefinition(currency, fullDefinitionName);

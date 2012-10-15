@@ -131,7 +131,7 @@ public class CancelExecutionTest {
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
     _functionCount.set(0);
-    final MockFunction mockFunction = new MockFunction(new ComputationTarget("Foo")) {
+    final MockFunction mockFunction = new MockFunction(ComputationTarget.NULL) {
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
         try {
@@ -170,7 +170,7 @@ public class CancelExecutionTest {
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
-      DependencyNode node = new DependencyNode(new ComputationTarget("Foo"));
+      DependencyNode node = new DependencyNode(ComputationTarget.NULL);
       node.setFunction(mockFunction);
       if (previous != null) {
         node.addInputNode(previous);

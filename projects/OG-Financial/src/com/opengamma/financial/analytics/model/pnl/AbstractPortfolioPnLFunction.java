@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,11 +18,11 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -49,7 +50,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
       currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
     ValueRequirement desiredValue = desiredValues.iterator().next();
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node, extractCurrencyProperty(desiredValue)), getUniqueId());
+    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), desiredValue.getConstraints());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum.doubleValue());
     return Sets.newHashSet(result);
   }
@@ -60,25 +61,25 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final PortfolioNode node = target.getPortfolioNode();
-      final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      for (Position position : allPositions) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueId(), extractCurrencyProperty(desiredValue)));
-      }
-      return requirements;
+    final PortfolioNode node = target.getPortfolioNode();
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    for (Position position : allPositions) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueId(), extractCurrencyProperty(desiredValue)));
     }
-    return null;
+    return requirements;
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties() {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    properties.withAny(ValuePropertyNames.CURRENCY);
+    return properties;
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPortfolioNode(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()),
-          getUniqueId()));
-    }
-    return null;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

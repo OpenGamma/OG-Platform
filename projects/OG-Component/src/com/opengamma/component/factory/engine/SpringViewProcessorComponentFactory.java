@@ -25,6 +25,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -124,7 +125,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(info, viewProcessor);
     
     if (isPublishRest()) {
-      final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
+      final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
+      final SecuritySource securitySource = compiledFunctionService.getFunctionCompilationContext().getSecuritySource();
+      final DataViewProcessorResource vpResource = new DataViewProcessorResource(securitySource, viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(),
+          getScheduler());
       repo.getRestComponents().publish(info, vpResource);
     }
   }

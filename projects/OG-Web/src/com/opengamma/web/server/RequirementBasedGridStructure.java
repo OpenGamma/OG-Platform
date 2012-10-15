@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -45,7 +44,7 @@ public class RequirementBasedGridStructure {
   private final Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> _specificationBasedColumns;
   private final Map<Integer, Set<Integer>> _unsatisfiedCells;
 
-  public RequirementBasedGridStructure(CompiledViewDefinition compiledViewDefinition, EnumSet<ComputationTargetType> targetTypes,
+  public RequirementBasedGridStructure(CompiledViewDefinition compiledViewDefinition, Set<? extends ComputationTargetType> targetTypes,
       List<RequirementBasedColumnKey> requirements, List<ComputationTargetSpecification> targets) {
     ValueSpecificationAnalysisResult analysisResult = analyseValueSpecifications(compiledViewDefinition, requirements, targetTypes, targets);
     Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> specificationBasedColumns = new HashMap<RequirementBasedColumnKey, Collection<WebViewGridColumn>>();
@@ -116,7 +115,7 @@ public class RequirementBasedGridStructure {
   }
 
   private static ValueSpecificationAnalysisResult analyseValueSpecifications(CompiledViewDefinition compiledViewDefinition,
-      Collection<RequirementBasedColumnKey> requirements, EnumSet<ComputationTargetType> targetTypes, List<ComputationTargetSpecification> targets) {
+      Collection<RequirementBasedColumnKey> requirements, Set<? extends ComputationTargetType> targetTypes, List<ComputationTargetSpecification> targets) {
     Map<Pair<String, String>, Set<RequirementBasedColumnKey>> requirementsByConfigValueName = getRequirementsMap(requirements);
     Set<ComputationTargetSpecification> impliedTargets = targets == null ? new HashSet<ComputationTargetSpecification>() : null;
     Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> specToRequirements = new HashMap<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>>();
