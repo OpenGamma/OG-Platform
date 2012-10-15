@@ -142,6 +142,9 @@ public class ResolutionRule {
   }
 
   private boolean isValidResultsOnTarget(final ComputationTarget target, final Set<ValueSpecification> results) {
+    if (results == null) {
+      return true;
+    }
     final UniqueId uid = target.getUniqueId();
     if (uid != null) {
       final List<UniqueId> context = target.getContextIdentifiers();

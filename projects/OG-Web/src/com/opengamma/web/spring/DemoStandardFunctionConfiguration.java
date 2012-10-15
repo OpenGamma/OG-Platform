@@ -442,7 +442,7 @@ import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.CalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.financial.property.PositionDefaultPropertyFunction;
-import com.opengamma.financial.property.TradeDefaultPropertyFunction;
+import com.opengamma.financial.property.AttributableDefaultPropertyFunction;
 import com.opengamma.financial.value.ForwardPriceRenamingFunction;
 import com.opengamma.financial.value.ValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
@@ -566,7 +566,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Generic.class));
     functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Specific.class));
     functionConfigs.add(functionConfiguration(PositionDefaultPropertyFunction.class));
-    functionConfigs.add(functionConfiguration(TradeDefaultPropertyFunction.class));
+    functionConfigs.add(functionConfiguration(AttributableDefaultPropertyFunction.class));
   }
 
   protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {

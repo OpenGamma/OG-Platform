@@ -28,6 +28,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -54,11 +55,17 @@ public class DefaultCompiledFunctionResolverTest {
     return new ParameterizedFunction(cfd, cfd.getFunctionDefinition().getDefaultParameters());
   }
 
+  private FunctionCompilationContext createFunctionCompilationContext() {
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    context.setComputationTargetResolver(new DefaultComputationTargetResolver());
+    return context;
+  }
+
   public void testBasicResolution() {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("scheme", "test_target"));
     final ParameterizedFunction parameterizedF1 = function(new PrimitiveTestFunction("req1"), "1");
     final ParameterizedFunction parameterizedF2 = function(new PrimitiveTestFunction("req1"), "2");
-    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
+    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(createFunctionCompilationContext());
     resolver.addRule(new ResolutionRule(parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     resolver.addRule(new ResolutionRule(parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
     resolver.compileRules();
@@ -86,7 +93,7 @@ public class DefaultCompiledFunctionResolverTest {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("scheme", "test_target"));
     final ParameterizedFunction parameterizedF1 = function(new PrimitiveTestFunction("req1"), "1");
     final ParameterizedFunction parameterizedF2 = function(new PrimitiveTestFunction("req1"), "2");
-    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
+    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(createFunctionCompilationContext());
     resolver.addRule(new ResolutionRule(parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     resolver.addRule(new ResolutionRule(parameterizedF2, new Filter(target), 200));
     resolver.compileRules();
@@ -169,7 +176,7 @@ public class DefaultCompiledFunctionResolverTest {
   public void testSecurityFunction() {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.SECURITY, new MockSecurityA());
     final ParameterizedFunction pfn = function(new TestSecurityFunction(), "1");
-    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
+    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(createFunctionCompilationContext());
     resolver.addRule(new ResolutionRule(pfn, ApplyToAllTargets.INSTANCE, 0));
     resolver.compileRules();
     Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = resolver.resolveFunction("Value", target, ValueProperties.none()).next();
@@ -232,7 +239,7 @@ public class DefaultCompiledFunctionResolverTest {
   public void testSecuritySubClassFunction() {
     final ParameterizedFunction pfn1 = function(new TestSecurityFunction(), "1");
     final ParameterizedFunction pfn2 = function(new TestSecuritySubClassFunction(), "2");
-    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
+    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(createFunctionCompilationContext());
     resolver.addRule(new ResolutionRule(pfn1, ApplyToAllTargets.INSTANCE, 0));
     resolver.addRule(new ResolutionRule(pfn2, ApplyToAllTargets.INSTANCE, 1));
     resolver.compileRules();
@@ -284,7 +291,7 @@ public class DefaultCompiledFunctionResolverTest {
   public void testPositionFunction() {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.of(SimplePosition.class), mock(SimplePosition.class));
     final ParameterizedFunction pfn = function(new TestPositionFunction(), "1");
-    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
+    final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(createFunctionCompilationContext());
     resolver.addRule(new ResolutionRule(pfn, ApplyToAllTargets.INSTANCE, 0));
     resolver.compileRules();
     Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = resolver.resolveFunction("Value", target, ValueProperties.none()).next();

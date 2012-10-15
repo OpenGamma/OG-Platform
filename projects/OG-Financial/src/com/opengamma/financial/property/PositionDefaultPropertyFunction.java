@@ -13,7 +13,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 /**
  * Dummy function to inject default properties from a position's attributes into the dependency graph.
  */
-public class PositionDefaultPropertyFunction extends PositionOrTradeDefaultPropertyFunction {
+public class PositionDefaultPropertyFunction extends PositionOrAttributableDefaultPropertyFunction {
 
   public PositionDefaultPropertyFunction() {
     super(ComputationTargetType.POSITION);

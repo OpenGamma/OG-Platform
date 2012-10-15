@@ -109,11 +109,6 @@ public class DefaultPropertyFunctionsTest {
     }
 
     @Override
-    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      return target.getType() == ComputationTargetType.TRADE;
-    }
-
-    @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Trade trade = target.getTrade();
       final Security security = trade.getSecurity();
@@ -223,7 +218,8 @@ public class DefaultPropertyFunctionsTest {
     // Default property functions
     functions.addFunction(new CalcConfigDefaultPropertyFunction.Generic());
     functions.addFunction(new CalcConfigDefaultPropertyFunction.Specific());
-    functions.addFunction(new TradeDefaultPropertyFunction());
+    functions.addFunction(new PositionDefaultPropertyFunction());
+    functions.addFunction(new AttributableDefaultPropertyFunction());
     functions.addFunction(new AggregationDefaultPropertyFunction("Present Value", SummingFunction.AGGREGATION_STYLE_FULL));
     // Basic scaling and aggregation
     functions.addFunction(new SummingFunction("Present Value"));

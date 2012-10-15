@@ -271,7 +271,12 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       
   @Override
   public ComputationTargetType simplifyType(final ComputationTargetType type) {
-    return type.accept(s_simplifyType, _baseTypes);
+    final ComputationTargetType newType = type.accept(s_simplifyType, _baseTypes);
+    if (newType != null) {
+      return newType;
+    } else {
+      return type;
+    }
   }
 
   /**

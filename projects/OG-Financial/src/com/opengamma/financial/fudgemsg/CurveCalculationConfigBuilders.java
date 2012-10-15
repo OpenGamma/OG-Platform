@@ -22,6 +22,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveInstrumentConfig;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -86,7 +87,7 @@ import com.opengamma.util.money.Currency;
       final List<FudgeField> yieldCurveNamesFields = message.getAllByName(YIELD_CURVE_NAMES_FIELD);
       ComputationTargetSpecification target;
       try {
-        target = deserializer.fieldValueToObject(ComputationTargetSpecification.class, message.getByName(TARGET_FIELD));
+        target = (ComputationTargetSpecification) deserializer.fieldValueToObject(ComputationTargetReference.class, message.getByName(TARGET_FIELD));
       } catch (RuntimeException e) {
         // [PLAT-2286] Legacy support for UniqueIdentifiable member of the configuration
         final UniqueIdentifiable targetObject = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(ID_FIELD));

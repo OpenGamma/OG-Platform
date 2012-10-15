@@ -26,6 +26,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -207,7 +208,8 @@ public class ComputationTargetResults {
       s_logger.debug("Recursive request for {}", requirement);
       return null;
     }
-    final ComputationTargetSpecification targetSpec = getTargetSpecificationResolver().getTargetSpecification(requirement.getTargetReference());
+    final ComputationTargetSpecification targetSpec = getTargetSpecificationResolver().getTargetSpecification(
+        ComputationTargetResolverUtils.simplifyType(requirement.getTargetReference(), getTargetResolver()));
     final ComputationTarget target = getTargetResolver().resolve(targetSpec);
     if (target == null) {
       s_logger.debug("Couldn't resolve target for {}", requirement);
@@ -276,6 +278,7 @@ public class ComputationTargetResults {
     s_logger.debug("Need partial resolution of {} to continue", reqs);
     final Map<ValueSpecification, ValueRequirement> resolved = Maps.newHashMapWithExpectedSize(reqs.size());
     for (ValueRequirement req : reqs) {
+      // TODO: need to call "simplify type" on requirement
       final ValueSpecification resolvedReq = resolvePartialRequirement(req, visited, adjustedTarget);
       if (resolvedReq == null) {
         return null;

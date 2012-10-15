@@ -35,6 +35,7 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -197,7 +198,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           functionResults = new HashMap<CompiledFunctionDefinition, Set<ValueSpecification>>();
           for (CompiledFunctionDefinition function : functions) {
             try {
-              if ((function.getTargetType() == target.getType()) && function.canApplyTo(_context, target)) {
+              if (function.getTargetType().isCompatible(target.getType()) && function.canApplyTo(_context, target)) {
                 final Set<ValueSpecification> results = function.getResults(_context, target);
                 if (results != null) {
                   functionResults.put(function, results);
@@ -272,7 +273,8 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             } else {
               final UniqueIdentifiable requirementTarget = targetCache.get(targetSpec.getUniqueId());
               if (requirementTarget != null) {
-                final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, new ComputationTarget(targetSpec.getType(), requirementTarget), requirement);
+                final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, ComputationTargetResolverUtils.createResolvedTarget(targetSpec, requirementTarget),
+                    requirement);
                 if (satisfied == null) {
                   s_logger.debug("Can't satisfy {} for function {}", requirement, function);
                   if (!function.canHandleMissingRequirements()) {
@@ -347,7 +349,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
         for (CompiledFunctionDefinition function : functions) {
           try {
-            if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
+            if (function.getTargetType().isCompatible(ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
                 visitedRequirements.clear();
@@ -382,7 +384,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
         for (CompiledFunctionDefinition function : functions) {
           try {
-            if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
+            if (function.getTargetType().isCompatible(ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
                 visitedRequirements.clear();

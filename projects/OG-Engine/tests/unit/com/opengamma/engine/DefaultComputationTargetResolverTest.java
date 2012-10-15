@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.math.BigDecimal;
 

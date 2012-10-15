@@ -23,14 +23,14 @@ import com.opengamma.engine.value.ValueRequirement;
  * Any attributes of the form <code><em>ValueName</em>.DEFAULT_<em>PropertyName</em></code> will be
  * processed to introduce a default value for any omitted <em>PropertyName</em> on <em>ValueName</em> for the target.
  */
-/* package */abstract class PositionOrTradeDefaultPropertyFunction extends DefaultPropertyFunction {
+/* package */abstract class PositionOrAttributableDefaultPropertyFunction extends DefaultPropertyFunction {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PositionOrTradeDefaultPropertyFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PositionOrAttributableDefaultPropertyFunction.class);
 
   private static final String WILDCARD = "*";
   private static final String SEP = ".DEFAULT_";
 
-  public PositionOrTradeDefaultPropertyFunction(final ComputationTargetType type) {
+  public PositionOrAttributableDefaultPropertyFunction(final ComputationTargetType type) {
     super(type, false);
   }
 

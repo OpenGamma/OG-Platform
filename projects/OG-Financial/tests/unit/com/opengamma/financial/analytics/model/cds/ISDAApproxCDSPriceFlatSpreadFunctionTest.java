@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -61,24 +62,6 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   }
 
   @Test
-  public void canApplyTo() {
-    boolean result = testItem.canApplyTo(null, ComputationTarget.NULL);
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo1() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(ComputationTargetType.SECURITY, SECURITY));
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo2() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY));
-    Assert.assertTrue(result);
-  }
-
-  @Test
   public void execute() {
     //TODO
   }
@@ -107,7 +90,7 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
     Assert
       .assertEquals(
         r.toString(),
-        "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
+            "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[CURRENCY, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -122,6 +105,6 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   @Test
   public void getTargetType() {
-    Assert.assertEquals(testItem.getTargetType(), ComputationTargetType.SECURITY);
+    Assert.assertEquals(testItem.getTargetType(), FinancialSecurityTypes.CDS_SECURITY);
   }
 }
