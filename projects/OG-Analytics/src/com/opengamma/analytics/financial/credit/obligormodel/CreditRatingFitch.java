@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.obligormodel;
 
 /**
  * Enumerate the possible credit rating states for a reference entity (Fitch rating classifications)

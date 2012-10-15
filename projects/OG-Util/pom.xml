@@ -43,6 +43,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>elsql</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.fudgemsg</groupId>
       <artifactId>fudge-java</artifactId>
     </dependency>
