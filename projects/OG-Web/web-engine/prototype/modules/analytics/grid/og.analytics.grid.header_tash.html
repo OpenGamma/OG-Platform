@@ -2,7 +2,15 @@
   {{#each sets}}
     <div class="OG-g-h-set">
       {{#if not_depgraph}}
-        <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>
+        {{#if views}}
+          <select>
+          {{#each views}}
+            <option value="{{value}}" {{#selected}}selected="selected"{{/selected}}>{{value}}</option>
+          {{/each}}
+          </select>
+        {{else}}
+          <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>
+        {{/if}}
       {{/if}}
       <div class="OG-g-h-cols">
         {{#each columns}}

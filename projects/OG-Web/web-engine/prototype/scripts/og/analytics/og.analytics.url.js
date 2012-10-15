@@ -39,6 +39,8 @@ $.register_module({
                             og.analytics.grid = new og.analytics.Grid({
                                 selector: main_selector, cellmenu: true,
                                 source: last_object.main = JSON.parse(last_fingerprint.main = current_main)
+                            }).on('viewchange', function (view) {
+                                url.main($.extend({}, og.analytics.grid.source, {type: view}));
                             });
                         }
                         panels.forEach(function (panel) {
