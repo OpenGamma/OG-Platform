@@ -18,12 +18,17 @@ $.register_module({
             return Combo = function () {
                 var combo = this;
                 return combo.state = 'blurred',
-                    combo.open = function () {$input.autocomplete('search', '').select();},
+                    combo.open = function () {
+                        combo.$input.autocomplete('search', '').select();
+                    },
                     combo.placeholder = placeholder || '', 
                     combo.autocomplete_obj = {
                         minLength: 0, delay: 0,
-                        open: function() {$(this).autocomplete('widget')
-                            .blurkill(function () {combo.$input.autocomplete('close')});},
+                        open: function() {
+                            $(this).autocomplete('widget').blurkill(function () {
+                                combo.$input.autocomplete('close');
+                            });
+                        },
                         source: function (req, res) {
                             var escaped = $.ui.autocomplete.escapeRegex(req.term),
                                 matcher = new RegExp(escaped, 'i'),
@@ -41,7 +46,7 @@ $.register_module({
                             }, []));
                         }
                     },
-                    combo.$wrapper = $('<div />'), // wrap input in div, enable input width 100% of parent, FF, IE
+                    combo.$wrapper = $('<div>'), // wrap input in div, enable input width 100% of parent, FF, IE
                     combo.$input = combo.$wrapper.html('<input type="text" />').find('input')
                         .autocomplete(combo.autocomplete_obj).attr('placeholder', placeholder).on('mouseup', open)
                         .on('blur', function () {
@@ -50,7 +55,7 @@ $.register_module({
                         })
                         .on('focus', function () {
                             combo.state = 'focused';
-                            combo.$input.trigger('open', combo.$input)
+                            combo.$input.trigger('open', combo.$input);
                         }),
                     // Enable html list items
                     combo.$input.data('autocomplete')._renderItem = function(ul, item) {
@@ -59,9 +64,9 @@ $.register_module({
                     },
                     combo.$button = $('<div class="OG-icon og-icon-down"></div>').on('click', function () {
                         return combo.$input.autocomplete('widget').is(':visible') ? 
-                            combo.$input.autocomplete('close').select() : open();
+                            combo.$input.autocomplete('close').select() : combo.open();
                     }), $([combo.$wrapper, combo.$button]).prependTo(selector), combo;
             }, Combo.prototype = EventEmitter.prototype, AutoCombo = new Combo();
-        }
+        };
     }
 });
