@@ -80,18 +80,11 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   //-------------------------------------------------------------------------
 
-  public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
-    Integer rowId = getGridStructure().getRowId(target);
-    if (rowId == null) {
-      // Result not in the grid
-      return;
-    }
-
+  public void processTargetResult(final int rowId, ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
     Map<String, Object> valuesToSend = createTargetResult(rowId);
     for (Integer unsatisfiedColId : getGridStructure().getUnsatisfiedCells(rowId)) {
       valuesToSend.put(Integer.toString(unsatisfiedColId), null);
     }
-
     // Whether or not the row is in the viewport, we may have to store history
     if (resultModel != null) {
       for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
@@ -201,13 +194,13 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   @Override
   protected List<Object> getInitialJsonRowStructures() {
-    List<Object> rowStructures = new ArrayList<Object>();
-    for (Map.Entry<ComputationTargetSpecification, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
+    final ComputationTargetSpecification[] targets = getGridStructure().getTargets();
+    final List<Object> rowStructures = new ArrayList<Object>(targets.length);
+    for (int i = 0; i < targets.length; i++) {
+      UniqueId target = targets[i].getUniqueId();
       Map<String, Object> rowDetails = new HashMap<String, Object>();
-      UniqueId target = targetEntry.getKey().getUniqueId();
-      int rowId = targetEntry.getValue();
-      rowDetails.put("rowId", rowId);
-      addRowDetails(target, rowId, rowDetails);
+      rowDetails.put("rowId", i);
+      addRowDetails(target, i, rowDetails);
       rowStructures.add(rowDetails);
     }
     return rowStructures;
@@ -307,35 +300,37 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   @Override
   protected String[][] getCsvRows(ViewComputationResultModel result) {
-    String[][] rows = new String[getGridStructure().getTargets().size()][];
+    String[][] rows = new String[getGridStructure().getTargets().length][];
     int columnCount = getGridStructure().getColumns().size() + getAdditionalCsvColumnCount();
     int offset = getCsvDataColumnOffset();
     for (ComputationTargetSpecification target : result.getAllTargets()) {
-      Integer rowId = getGridStructure().getRowId(target);
-      if (rowId == null) {
+      final int[] rowIds = getGridStructure().getRowIds(target);
+      if (rowIds == null) {
         continue;
       }
       ViewTargetResultModel resultModel = result.getTargetResult(target);
-      String[] values = new String[columnCount];
-      supplementCsvRowData(rowId, target, values);
-      rows[rowId] = values;
-      for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
-        for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
-          Object originalValue = value.getValue();
-          if (originalValue == null) {
-            continue;
-          }
-          ValueSpecification specification = value.getSpecification();
-          Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
-          if (columns == null) {
-            // Expect a column for every value
-            s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
-            continue;
-          }
-          for (WebViewGridColumn column : columns) {
-            int colId = column.getId();
-            ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-            values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
+      for (int rowId : rowIds) {
+        String[] values = new String[columnCount];
+        supplementCsvRowData(rowId, target, values);
+        rows[rowId] = values;
+        for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
+          for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
+            Object originalValue = value.getValue();
+            if (originalValue == null) {
+              continue;
+            }
+            ValueSpecification specification = value.getSpecification();
+            Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
+            if (columns == null) {
+              // Expect a column for every value
+              s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
+              continue;
+            }
+            for (WebViewGridColumn column : columns) {
+              int colId = column.getId();
+              ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+              values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
+            }
           }
         }
       }

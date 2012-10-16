@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -25,8 +27,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -326,15 +332,61 @@ public class WebView {
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
 
     if (getPrimitivesGrid() != null) {
-      for (ComputationTargetSpecification target : getPrimitivesGrid().getGridStructure().getTargets().keySet()) {
-        getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+      final ComputationTargetSpecification[] targets = getPortfolioGrid().getGridStructure().getTargets();
+      for (int i = 0; i < targets.length; i++) {
+        final ComputationTargetSpecification target = targets[i];
+        getPrimitivesGrid().processTargetResult(i, target, resultModel.getTargetResult(target), resultTimestamp);
       }
       getPrimitivesGrid().processDepGraphs(resultTimestamp);
     }
 
     if (getPortfolioGrid() != null) {
-      for (ComputationTargetSpecification target : getPortfolioGrid().getGridStructure().getTargets().keySet()) {
-        getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+      ComputationTargetSpecification nodeSpec = null;
+      // [PLAT-2286] This is a hack to almost support trivial nesting, e.g. for the PositionWeight function. Recognition of complex target types needs doing properly.
+      final ComputationTargetSpecification[] targets = getPortfolioGrid().getGridStructure().getTargets();
+      for (int i = 0; i < targets.length; i++) {
+        final ComputationTargetSpecification target = targets[i];
+        ViewTargetResultModel targetResult = resultModel.getTargetResult(target);
+        if (target.getType().isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
+          nodeSpec = target;
+        } else if ((nodeSpec != null) && target.getType().isTargetType(ComputationTargetType.POSITION)) {
+          ViewTargetResultModel scopedResult = resultModel.getTargetResult(nodeSpec.containing(ComputationTargetType.POSITION, target.getUniqueId()));
+          if (scopedResult != null) {
+            if (targetResult != null) {
+              final Map<String, Collection<ComputedValue>> newResult = new HashMap<String, Collection<ComputedValue>>();
+              for (String calcConfig : targetResult.getCalculationConfigurationNames()) {
+                newResult.put(calcConfig, new ArrayList<ComputedValue>(targetResult.getAllValues(calcConfig)));
+              }
+              for (String calcConfig : scopedResult.getCalculationConfigurationNames()) {
+                Collection<ComputedValue> scopedValues = scopedResult.getAllValues(calcConfig);
+                Collection<ComputedValue> values = newResult.get(calcConfig);
+                if (values == null) {
+                  values = new ArrayList<ComputedValue>(scopedValues.size());
+                  newResult.put(calcConfig, values);
+                }
+                for (ComputedValue value : scopedValues) {
+                  values.add(new ComputedValue(new ValueSpecification(value.getSpecification().getValueName(), target, value.getSpecification().getProperties()), value.getValue()));
+                }
+              }
+              targetResult = new ViewTargetResultModel() {
+
+                @Override
+                public Collection<String> getCalculationConfigurationNames() {
+                  return newResult.keySet();
+                }
+
+                @Override
+                public Collection<ComputedValue> getAllValues(String calcConfigurationName) {
+                  return newResult.get(calcConfigurationName);
+                }
+
+              };
+            } else {
+              targetResult = scopedResult;
+            }
+          }
+        }
+        getPortfolioGrid().processTargetResult(i, target, targetResult, resultTimestamp);
       }
       getPortfolioGrid().processDepGraphs(resultTimestamp);
     }

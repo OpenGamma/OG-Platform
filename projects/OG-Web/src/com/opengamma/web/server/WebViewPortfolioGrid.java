@@ -42,12 +42,15 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   private WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
                                Client local, Client remote, ComputationTargetResolver computationTargetResolver) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        ImmutableSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "Loading...", computationTargetResolver);
+        // [PLAT-2286] Hack to get PositionWeight results to show up
+        ImmutableSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION)), resultConverterCache,
+        local, remote, "Loading...", computationTargetResolver);
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
-      int rowId = getGridStructure().getRowId(row.getTarget());
-      _rowIdToRowMap.put(rowId, row);
+      final int[] rowIds = getGridStructure().getRowIds(row.getTarget());
+      for (int rowId : rowIds) {
+        _rowIdToRowMap.put(rowId, row);
+      }
     }
   }
 
@@ -56,8 +59,8 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
-      int parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget());
-      details.put("parentRowId", parentRowId);
+      final int[] parentRowIds = getGridStructure().getRowIds(row.getParentRow().getTarget());
+      details.put("parentRowId", parentRowIds[0]);
     }
     ComputationTargetType targetType = row.getTarget().getType();
     details.put("type", targetType.toString());
@@ -132,7 +135,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
     PortfolioRow portfolioRow = _rowIdToRowMap.get(rowId);
     PortfolioRow parentRow = portfolioRow.getParentRow();
-    String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget()).toString() : null;
+    String parentRowIdText = parentRow != null ? Integer.toString(getGridStructure().getRowIds(parentRow.getTarget())[0]) : null;
 
     String name;
     String quantity;
