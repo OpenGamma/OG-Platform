@@ -864,7 +864,7 @@ CREATE TABLE sec_cds (
   currency_id bigint NOT NULL,
   maturity_date DATETIME2(6) NOT NULL,
   maturity_date_zone varchar(50) NOT NULL,
-  start_date timestamp DATETIME2(6) NOT NULL,
+  start_date DATETIME2(6) NOT NULL,
   start_date_zone varchar(50) NOT NULL,
   premium_frequency_id bigint NOT NULL,
   daycountconvention_id bigint NOT NULL,
