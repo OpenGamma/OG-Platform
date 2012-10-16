@@ -35,7 +35,6 @@ $.register_module({
                         gadget.resize = surface.resize;
                         if (!config.child) og.common.gadgets.manager.register(gadget);
                     } else surface.surface.update_surface_plane(surface_options.data);
-
                 });
         }
     }
