@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.obligormodel;
 
 /**
  * Enumerate the industrial sector classification of a reference entity
@@ -26,5 +26,5 @@ public enum Sector {
    */
   INDUSTRIALS;
 
-  // TODO: Extend this list to include a comprehensive list of sector classifications
+  // TODO: Extend this list to include a comprehensive list of sector classifications (ICB classification)
 }

@@ -167,10 +167,10 @@ $.register_module({
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);
                 }
-            };
+            }
             menu.getQuery = function () {
                 return query;
-            }
+            };
             return menu;
         };
     }

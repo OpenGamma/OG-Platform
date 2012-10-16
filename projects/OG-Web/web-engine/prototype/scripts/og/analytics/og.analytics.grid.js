@@ -13,7 +13,12 @@ $.register_module({
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
             })();
         var available = (function () {
-            var nodes, unravel = function (arr, result) {
+            var nodes;
+            var all = function (total) {
+                for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push(lcv);
+                return result;
+            };
+            var unravel = function (arr, result) {
                 var start = arr[0], end = arr[1], children = arr[2], last_end = null,
                     i, j, len = children.length, child, curr_start, curr_end;
                 result.push(start);
@@ -27,7 +32,10 @@ $.register_module({
                 while (++start <= end) result.push(start);
                 return result;
             };
-            return function (meta) {return (nodes = meta.nodes), unravel(meta.structure, []);};
+            return function (meta) {
+                nodes = meta.nodes
+                return meta.structure.length ? unravel(meta.structure, []) : all(meta.data_rows);
+            };
         })();
         var background = function (sets, width, bg_color) {
             var columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
@@ -65,8 +73,8 @@ $.register_module({
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('instantiating grid...')};
             grid.events = {
-                cellhoverin: [], cellhoverout: [], cellselect: [],
-                mousedown: [], rangeselect: [], render: [], scroll: [], select: []
+                cellhoverin: [], cellhoverout: [], cellselect: [], mousedown: [],
+                rangeselect: [], render: [], scroll: [], select: [], viewchange: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
@@ -84,7 +92,16 @@ $.register_module({
             var grid = this, config = grid.config;
             grid.elements.parent.html('initializing data connection...');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);});
+                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);})
+                .on('types', function (types) {
+                    grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
+                        return {
+                            value: key.toUpperCase(),
+                            selected: config.source.type ? key === config.source.type : key === 'portfolio'
+                        };
+                    });
+                    if (grid.elements.empty) return; else render_header.call(grid);
+                });
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
                     var $node = $(this);
@@ -103,6 +120,9 @@ $.register_module({
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
+                .on('click', '.OG-g-h-set-name a', function (event) {
+                    return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
+                })
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
@@ -191,8 +211,8 @@ $.register_module({
             grid.resize();
         };
         var render_header = (function () {
-            var head_data = function (meta, sets, depgraph, col_offset, set_offset) {
-                var width = meta.columns.width, index = 0;
+            var head_data = function (grid, sets, col_offset, set_offset) {
+                var width = grid.meta.columns.width, index = 0, depgraph = grid.config.source.depgraph;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
@@ -200,6 +220,8 @@ $.register_module({
                             return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
                         });
                         return {
+                            // only send views in for fixed columns (and if there is a viewchange handler)
+                            views: !col_offset && grid.events.viewchange.length ? grid.views : null,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
@@ -207,11 +229,10 @@ $.register_module({
                 };
             };
             return function () {
-                var grid = this, meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length,
-                    depgraph = grid.config.source.depgraph;
-                grid.elements.fixed_head.html(templates.header(head_data(meta, columns.fixed, depgraph)));
+                var grid = this, meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length;
+                grid.elements.fixed_head.html(templates.header(head_data(grid, columns.fixed)));
                 grid.elements.scroll_head
-                    .html(templates.header(head_data(meta, columns.scroll, depgraph, meta.fixed_length, fixed_sets)));
+                    .html(templates.header(head_data(grid, columns.scroll, meta.fixed_length, fixed_sets)));
             };
         })();
         var render_rows = (function () {
@@ -268,6 +289,11 @@ $.register_module({
         };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
+            var all = function (total) {
+                cache[''] = 0;
+                for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push({prefix: 0});
+                return result;
+            };
             var rep = function (times, lcv, result) {
                 if (times in rep_memo) return rep_memo[times];
                 if ((result = '') || (lcv = times)) while (lcv--) result += rep_str;
@@ -290,14 +316,15 @@ $.register_module({
                 return result;
             };
             return function () {
-                var grid = this, unraveled, prefix;
+                var grid = this, meta = grid.meta, unraveled, prefix;
                 cache = {}; counter = 0; grid.meta.unraveled_cache = [];
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, [], 0)).reduce(function (acc, val, idx) {
+                unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
+                meta.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});
-                for (prefix in cache) grid.meta.unraveled_cache[+cache[prefix]] = prefix;
-                grid.meta.unraveled = unraveled.pluck('prefix');
+                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = prefix;
+                meta.unraveled = unraveled.pluck('prefix');
             };
         })();
         var viewport = function (handler) {

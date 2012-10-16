@@ -26,6 +26,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.context.Lifecycle;
 
+import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
@@ -135,12 +136,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     properties.setReplyToAddress(replyTo);
     
     final String correlationId = getReplyToQueue() + "-" + _correlationIdGenerator.getAndIncrement();
-    byte[] correlationIdBytes;
-    try {
-      correlationIdBytes = correlationId.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new OpenGammaRuntimeException("This should never happen - UTF-8 should be supported", e);
-    }
+    byte[] correlationIdBytes = correlationId.getBytes(Charsets.UTF_8);
     properties.setCorrelationId(correlationIdBytes);
     
     Message message = new Message(request, properties);

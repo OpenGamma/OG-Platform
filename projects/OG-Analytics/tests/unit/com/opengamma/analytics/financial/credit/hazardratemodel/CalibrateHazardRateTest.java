@@ -3,12 +3,24 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.hazardratemodel;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRate;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
+import com.opengamma.analytics.financial.credit.obligormodel.Region;
+import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;

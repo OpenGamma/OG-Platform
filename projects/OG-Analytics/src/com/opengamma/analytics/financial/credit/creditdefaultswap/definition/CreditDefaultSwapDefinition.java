@@ -11,9 +11,9 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Obligor;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;

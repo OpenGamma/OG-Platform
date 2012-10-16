@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.obligormodel;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -17,6 +17,7 @@ public class Obligor {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Sort out the hashCode and equals methods
+  // TODO : Maybe add an explicit default flag?
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

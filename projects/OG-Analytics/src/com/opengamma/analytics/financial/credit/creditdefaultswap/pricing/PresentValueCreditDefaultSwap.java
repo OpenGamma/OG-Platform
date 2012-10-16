@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;

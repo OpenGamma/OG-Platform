@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.hazardratemodel;
 
 /**
  * Class for the construction of flat survival curves (mostly used for testing purposes)

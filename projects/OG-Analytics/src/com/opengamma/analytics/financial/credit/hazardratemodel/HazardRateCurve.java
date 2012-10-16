@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.hazardratemodel;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
