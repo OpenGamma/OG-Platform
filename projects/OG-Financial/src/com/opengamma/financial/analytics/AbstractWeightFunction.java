@@ -31,15 +31,9 @@ import com.opengamma.id.UniqueId;
 public abstract class AbstractWeightFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
-   * The property name that describes the value used to construct the weight. The full set of output properties will include those of the target and its parent node. If any of these are called
-   * {@code Value} they will be prefixed to give {@code ValueValue}.
+   * The property name that describes the value used to construct the weight. The full set of output properties will include those of the target and its parent node.
    */
   public static final String VALUE_PROPERTY_NAME = "Value";
-
-  /**
-   * The property name exposed by this function for properties on the requirements that would collide with its own {@code Value}.
-   */
-  public static final String PASSTHROUGH_VALUE_PROPERTY_NAME = "ValueValue";
 
   /**
    * Default to the generic value, for example FAIR_VALUE or PRESENT_VALUE depending on the asset classes.
@@ -63,21 +57,8 @@ public abstract class AbstractWeightFunction extends AbstractFunction.NonCompile
     } else {
       return null;
     }
-    // Propogate the desired value constraints onto the requirements, removing those specific to this function, rewriting any that would be masked
-    // and adding a unit homogeneity clause
+    // Propogate the desired value constraints onto the requirements, removing those specific to this function and adding a unit homogeneity clause
     final ValueProperties.Builder requirementConstraintsBuilder = constraints.copy().withoutAny(VALUE_PROPERTY_NAME);
-    values = constraints.getValues(PASSTHROUGH_VALUE_PROPERTY_NAME);
-    if (values != null) {
-      if (constraints.isOptional(PASSTHROUGH_VALUE_PROPERTY_NAME)) {
-        requirementConstraintsBuilder.withOptional(VALUE_PROPERTY_NAME);
-      }
-      requirementConstraintsBuilder.withoutAny(PASSTHROUGH_VALUE_PROPERTY_NAME);
-      if (values.isEmpty()) {
-        requirementConstraintsBuilder.withAny(VALUE_PROPERTY_NAME);
-      } else {
-        requirementConstraintsBuilder.with(VALUE_PROPERTY_NAME, values);
-      }
-    }
     for (String unit : UnitProperties.unitPropertyNames()) {
       values = constraints.getValues(unit);
       if (values == null) {
@@ -133,6 +114,7 @@ public abstract class AbstractWeightFunction extends AbstractFunction.NonCompile
         }
       }
     }
+    resultPropertiesBuilder.withoutAny(VALUE_PROPERTY_NAME).with(VALUE_PROPERTY_NAME, inputValue.getValueName());
     resultPropertiesBuilder.withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId());
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.WEIGHT, target.toSpecification(), resultPropertiesBuilder.get()));
   }
