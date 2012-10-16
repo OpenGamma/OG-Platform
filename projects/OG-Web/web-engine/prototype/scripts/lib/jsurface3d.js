@@ -493,7 +493,7 @@
                     obj.add(mesh);
                 }());
                 (function () { // axis
-                    var y = {axis: 'y', spacing: js3d.adjusted_ys, labels: js3d.ys, right: true},
+                    var y = {axis: 'y', spacing: js3d.adjusted_ys, labels: js3d.ys, values: js3d.ys, right: true},
                         y_axis = js3d.surface.create_axis(y);
                     y_axis.position.x = -(settings.surface_x / 2) - 25;
                     y_axis.position.y = 4;
@@ -520,7 +520,7 @@
                     obj.add(mesh);
                 }());
                 (function () { // axis
-                    var y = {axis: 'y', spacing: js3d.adjusted_ys, labels: js3d.ys},
+                    var y = {axis: 'y', spacing: js3d.adjusted_ys, labels: js3d.ys, values: js3d.ys},
                         y_axis = js3d.surface.create_axis(y);
                     y_axis.position.y = 4;
                     y_axis.position.z = (settings.surface_z / 2) + 5;
@@ -561,8 +561,12 @@
          */
         surface.create_axes = function () {
             var group = new THREE.Object3D,
-                x = {axis: 'x', spacing: js3d.adjusted_xs, labels: data.xs_labels || data.xs, label: data.xs_label},
-                z = {axis: 'z', spacing: js3d.adjusted_zs, labels: data.zs_labels || data.zs, label: data.zs_label},
+                x = {
+                    axis: 'x', spacing: js3d.adjusted_xs, labels: data.xs_labels, values: data.xs, label: data.xs_label
+                },
+                z = {
+                    axis: 'z', spacing: js3d.adjusted_zs, labels: data.zs_labels, values: data.zs, label: data.zs_label
+                },
                 x_axis = surface.create_axis(x),
                 z_axis = surface.create_axis(z);
             x_axis.position.z = settings.surface_z / 2 + settings.axis_offset;
@@ -583,14 +587,14 @@
          */
         surface.create_axis = function (config) {
             var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6),
-                lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth),
+                lbl_arr = util.thin(config.values, nth), pos_arr = util.thin(config.spacing, nth),
                 axis_len = settings['surface_' + config.axis];
             (function () { // axis values
                 var value, n;
                 for (i = 0; i < lbl_arr.length; i++) {
                     n = lbl_arr[i];
                     n = n % 1 === 0 ? n : (+n).toFixed(settings.precision_lbl).replace(/0+$/, '');
-                    value = js3d.text3d(n, settings.font_color);
+                    value = js3d.text3d(n+'', settings.font_color);
                     value.scale.set(0.1, 0.1, 0.1);
                     if (config.axis === 'y') {
                         value.position.x = pos_arr[i] - 6;
@@ -776,6 +780,11 @@
             js3d.interactive_meshes.add('surface', group.children[0]);
             return group;
         };
+        surface.update_surface_plane = function (new_data) {
+            surface.init_data(new_data);
+            js3d.geometry_groups.slice.remove(js3d.surface_plane);
+            js3d.geometry_groups.slice.add(js3d.surface_plane = js3d.surface.create_surface_plane());
+        };
         /**
          * Implements any valid hover interaction with the surface.
          * Adds vertex_sphere, lines (tubes), active axis labels
@@ -916,8 +925,8 @@
         /**
          * Scale data to fit surface dimentions, apply Log (to x and z) if enabled
          */
-        surface.init_data = function () {
-            var settings = js3d.settings, data = js3d.data;
+        surface.init_data = function (new_data) {
+            var settings = js3d.settings, data = new_data || js3d.data;
             // adjusted data is the original data scaled to fit 2D grids width/length/height.
             // It is used to set the distance between plane segments. Then the real data is used as the values
             js3d.adjusted_vol = util.scale(data.vol, 0, settings.surface_y);
@@ -1196,17 +1205,14 @@
         var js3d = this, $selector = $(config.selector), stats = {}, animation_frame, timeout, buffers, settings,
             renderer, scene, backlight, keylight, filllight, ambientlight;
         js3d.data = config.data;
-        js3d.vol_max = Math.max.apply(null, js3d.data.vol);
-        js3d.vol_min = Math.min.apply(null, js3d.data.vol);
         js3d.selector = $selector;
         js3d.settings = settings = $.extend({}, default_settings, config.options);
-        js3d.hud = new Hud(js3d, $selector);
+        js3d.local_settings = {log: false, play: null, stopping: false};
         js3d.matlib = new Matlib(settings);
         js3d.projector = new THREE.Projector();
         js3d.x_segments = js3d.data.xs.length - 1;
         js3d.z_segments = js3d.data.zs.length - 1;
         js3d.y_segments = settings.y_segments;
-        js3d.local_settings = {log: true, play: null, stopping: false};
         js3d.interactive_meshes = new InteractiveMeshes();
         js3d.buffers = buffers = {};
         js3d.width = null;
@@ -1218,6 +1224,10 @@
         js3d.smile = new Smile(js3d);
         js3d.text3d = new Text3D(js3d.matlib, js3d.settings);
         js3d.surface = new Surface(js3d);
+        /* Hud */
+        js3d.hud = new Hud(js3d, $selector);
+        js3d.vol_max = Math.max.apply(null, js3d.data.vol);
+        js3d.vol_min = Math.min.apply(null, js3d.data.vol);
         /**
          * Geometry Groups
          *
