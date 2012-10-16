@@ -392,7 +392,7 @@ public class BloombergHistoricalLoader {
     }
     int i = 0;
     int toUpdate = 0;
-    for (HistoricalTimeSeriesInfoDocument doc : documents) {
+    for (HistoricalTimeSeriesInfoDocument doc : documents.subList(0, 100)) {
       if (++i % 100 == 0) {
         s_logger.info("Checking required updates for time series {} of {} ", i, documents.size());
       }
