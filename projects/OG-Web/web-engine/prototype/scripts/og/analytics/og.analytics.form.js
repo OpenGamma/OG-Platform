@@ -92,6 +92,9 @@ $.register_module({
                             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
                                 $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
                             } else $load_btn.addClass('og-disabled').off('click');
+                        },
+                        get_query = function () {
+                            console.log(ds_dropdwn.get_query());
                         };
                     return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
                         ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
@@ -105,6 +108,7 @@ $.register_module({
                             ds_dropdwn = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
                                 .addListener(events.open, function () {close_dropmenu(ag_dropdwn);}),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
+                            $load_btn.after($('<button class="query-btn">SHOW QUERY</button>').on('click', get_query));
                         }),
                         emitter.addListener(events.closeall, function () {
                             close_dropmenu(ag_dropdwn);

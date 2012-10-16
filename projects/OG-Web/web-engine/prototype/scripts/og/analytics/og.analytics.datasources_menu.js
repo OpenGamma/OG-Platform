@@ -53,8 +53,8 @@ $.register_module({
                     return 0;
                 },
                 remove_entry = function (entry) {
-                    if (~entry) query.splice(entry, 1);
-                    else if (query.length === 1) return query.length = 0; // emitEvent; reset_query
+                    if (query.length === 1) return query.length = 0; // emitEvent; reset_query
+                    query.splice(entry, 1);
                 },  
                 remove_orphans = function () {
                     return reset_source_select(), $parent.removeClass($parent.data('type')).find('.extra-opts').remove();
@@ -168,7 +168,7 @@ $.register_module({
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);
                 }
             }
-            menu.getQuery = function () {
+            menu.get_query = function () {
                 return query;
             };
             return menu;

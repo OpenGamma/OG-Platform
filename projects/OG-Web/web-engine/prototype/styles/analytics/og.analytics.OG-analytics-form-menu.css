@@ -223,3 +223,12 @@
         display: block;
         width: 20px;
     }
+
+
+
+.query-btn{
+    position: absolute;
+    display: inline-block;
+    left:80%;
+    top:7px;
+}
