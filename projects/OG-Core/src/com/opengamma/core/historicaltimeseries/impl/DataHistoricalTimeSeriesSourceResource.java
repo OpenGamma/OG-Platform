@@ -5,7 +5,9 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -269,11 +272,34 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     return bld.build(uniqueId.getObjectId());
   }
 
+  /**
+   * Workaround for {@link UriBuilder#queryParam} that will not escape strings that contain valid escaped sequences. For example, "%3FFoo" will be left as-is since "%3F" is a valid escape whereas
+   * "%3GFoo" will be escaped to "%253GFoo". If the string contains a "%" then we will escape it in advance and the builder will leave it alone. Otherwise we'll let the builder deal with the string.
+   * 
+   * @param bundle the identifiers to convert
+   * @return the array of, possibly encoded, identifier strings
+   */
+  private static Object[] identifiers(final ExternalIdBundle bundle) {
+    final List<String> identifiers = bundle.toStringList();
+    final String[] array = new String[identifiers.size()];
+    identifiers.toArray(array);
+    try {
+      for (int i = 0; i < array.length; i++) {
+        if (array[i].indexOf('%') >= 0) {
+          array[i] = URLEncoder.encode(array[i], "UTF-8").replace('+', ' ');
+        }
+      }
+    } catch (UnsupportedEncodingException e) {
+      throw new OpenGammaRuntimeException("Caught", e);
+    }
+    return array;
+  }
+
   public static URI uriSearchSingle(
       URI baseUri, ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/single");
-    bld.queryParam("id", identifierBundle.toStringList().toArray());
+    bld.queryParam("id", identifiers(identifierBundle));
     if (dataSource != null) {
       bld.queryParam("dataSource", dataSource);
     }
@@ -301,7 +327,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       URI baseUri, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/single");
-    bld.queryParam("id", identifierBundle.toStringList().toArray());
+    bld.queryParam("id", identifiers(identifierBundle));
     bld.queryParam("idValidityDate", (identifierValidityDate != null ? identifierValidityDate : "ALL"));
     if (dataSource != null) {
       bld.queryParam("dataSource", dataSource);
@@ -330,7 +356,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       URI baseUri, ExternalIdBundle identifierBundle, String dataField, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/resolve");
-    bld.queryParam("id", identifierBundle.toStringList().toArray());
+    bld.queryParam("id", identifiers(identifierBundle));
     if (dataField != null) {
       bld.queryParam("dataField", dataField);
     }
@@ -355,7 +381,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       URI baseUri, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataField, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/resolve");
-    bld.queryParam("id", identifierBundle.toStringList().toArray());
+    bld.queryParam("id", identifiers(identifierBundle));
     bld.queryParam("idValidityDate", (identifierValidityDate != null ? identifierValidityDate : "ALL"));
     if (dataField != null) {
       bld.queryParam("dataField", dataField);
