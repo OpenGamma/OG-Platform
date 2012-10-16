@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.timeseries.snapshot;
+package com.opengamma.integration.timeseries.snapshotter;
 
 import com.opengamma.component.OpenGammaComponentServer;
 
