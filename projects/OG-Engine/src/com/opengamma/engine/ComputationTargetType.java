@@ -44,7 +44,11 @@ public enum ComputationTargetType {
   /**
    * A trade.
    */
-  TRADE;
+  TRADE,
+  /**
+   * A currency.
+   */
+  CURRENCY;  // TODO: check whether this is correct
 
   /**
    * Checks if the type is compatible with the target.
