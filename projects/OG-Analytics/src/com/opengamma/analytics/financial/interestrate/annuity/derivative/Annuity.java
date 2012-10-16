@@ -80,7 +80,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
   public boolean isIborOrFixed() {
     boolean result = true;
     for (final P payment : _payments) {
-      result = (result & payment.isIborOrFixed());
+      result = result && payment.isIborOrFixed();
     }
     return result;
   }
@@ -144,7 +144,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
 
   @Override
   public String toString() {
-    StringBuffer result = new StringBuffer("Annuity:");
+    final StringBuffer result = new StringBuffer("Annuity:");
     for (final P payment : _payments) {
       result.append(payment.toString());
       result.append("\n");

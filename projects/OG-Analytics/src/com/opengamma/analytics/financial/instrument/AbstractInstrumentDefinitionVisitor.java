@@ -73,18 +73,33 @@ import com.opengamma.util.ArgumentChecker;
  * @param <RESULT_TYPE> Type of the result
  */
 public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+  private final RESULT_TYPE _defaultReturnType;
+
+  public AbstractInstrumentDefinitionVisitor() {
+    _defaultReturnType = null;
+  }
+
+  public AbstractInstrumentDefinitionVisitor(final RESULT_TYPE defaultReturnType) {
+    ArgumentChecker.notNull(defaultReturnType, "default return type");
+    _defaultReturnType = defaultReturnType;
+  }
 
   @Override
   public RESULT_TYPE visit(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
     ArgumentChecker.notNull(definition, "definition");
-    ArgumentChecker.notNull(data, "data");
+    if (_defaultReturnType != null) {
+      return _defaultReturnType;
+    }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
-        + "with data of type " + data.getClass().getSimpleName());
+        + " with data of type " + data.getClass().getSimpleName());
   }
 
   @Override
   public RESULT_TYPE visit(final InstrumentDefinition<?> definition) {
     ArgumentChecker.notNull(definition, "definition");
+    if (_defaultReturnType != null) {
+      return _defaultReturnType;
+    }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
   }
 
@@ -369,13 +384,13 @@ public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final DATA_TYPE data) {
-    return visit(payment, data);
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor, final DATA_TYPE data) {
+    return visit(capFloor, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
-    return visit(payment);
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor) {
+    return visit(capFloor);
   }
 
   @Override
@@ -409,23 +424,23 @@ public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final DATA_TYPE data) {
-    return visit(payment, data);
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor, final DATA_TYPE data) {
+    return visit(capFloor, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
-    return visit(payment);
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor) {
+    return visit(capFloor);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final DATA_TYPE data) {
-    return visit(payment, data);
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloor, final DATA_TYPE data) {
+    return visit(capFloor, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
-    return visit(payment);
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloorCMSSpread) {
+    return visit(capFloorCMSSpread);
   }
 
   @Override

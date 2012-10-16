@@ -5,10 +5,57 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.CASH_MATURITY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.CASH_NOTIONAL;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.CASH_RATE;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FIXED_COUPON_MATURITY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FIXED_COUPON_NOTIONAL;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FIXED_COUPON_RATE;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FIXED_INCOME_CURRENCY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FIXING_RATE;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FRA_END;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FRA_NOTIONAL;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FRA_RATE;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FRA_START;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_MATURITY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_AMOUNT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_CURRENCY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_EUR;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_GBP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_RECEIVE_AMOUNT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_RECEIVE_CURRENCY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_COUPON_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_FIXING_SERIES;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.LONG_NDF;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_FRA;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP_WITH_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYMENT_AMOUNT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYMENT_MATURITY;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_CASH;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_PAYMENT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_IBOR_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_IBOR_SPREAD_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_FRA;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP_WITH_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_CASH;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_PAYMENT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_IBOR_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_IBOR_SPREAD_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SHORT_NDF;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SWAP_FIXED_RATE;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SWAP_NOTIONAL;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SWAP_START;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.USD_IBOR_INDEX1;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,96 +63,21 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
-import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class FixedReceiveCashFlowVisitorTest {
-  private static final Calendar NO_HOLIDAY = new NoHolidayCalendar();
-  private static final DayCount DAY_COUNT = new SemiAnnualDayCount();
-  private static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
-  private static final Currency FIXED_INCOME_CURRENCY = Currency.USD;
-  private static final IborIndex IBOR_INDEX = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, DAY_COUNT, NONE, false, "f");
-  private static final ZonedDateTime CASH_START = ZonedDateTime.of(2012, 6, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(2012, 12, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final double CASH_NOTIONAL = 234000;
-  private static final double CASH_RATE = 0.002;
-  private static final CashDefinition CASH = new CashDefinition(FIXED_INCOME_CURRENCY, CASH_START, CASH_MATURITY, CASH_NOTIONAL, CASH_RATE, 0.5);
-  private static final ZonedDateTime PAYMENT_MATURITY = ZonedDateTime.of(2011, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final double PAYMENT_AMOUNT = 34500;
-  private static final PaymentFixedDefinition FIXED_PAYMENT = new PaymentFixedDefinition(FIXED_INCOME_CURRENCY, PAYMENT_MATURITY, PAYMENT_AMOUNT);
-  private static final ZonedDateTime FIXED_COUPON_START = ZonedDateTime.of(2011, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final ZonedDateTime FIXED_COUPON_MATURITY = ZonedDateTime.of(2011, 2, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final double FIXED_COUPON_NOTIONAL = 45600;
-  private static final double FIXED_COUPON_RATE = 0.0001;
-  private static final CouponFixedDefinition FIXED_COUPON = CouponFixedDefinition.from(FIXED_INCOME_CURRENCY, FIXED_COUPON_MATURITY, FIXED_COUPON_START,
-      FIXED_COUPON_MATURITY, 1. / 12, FIXED_COUPON_NOTIONAL, FIXED_COUPON_RATE);
-  private static final CouponIborDefinition IBOR_COUPON = CouponIborDefinition.from(FIXED_COUPON_NOTIONAL, FIXED_COUPON_MATURITY, IBOR_INDEX);
-  private static final double IBOR_COUPON_SPREAD = 0.00023;
-  private static final CouponIborSpreadDefinition IBOR_SPREAD_COUPON = CouponIborSpreadDefinition.from(IBOR_COUPON, IBOR_COUPON_SPREAD);
-  private static final ZonedDateTime FRA_START = ZonedDateTime.of(2011, 6, 3, 11, 0, 0, 0, TimeZone.UTC);
-  private static final ZonedDateTime FRA_END = ZonedDateTime.of(2011, 12, 3, 11, 0, 0, 0, TimeZone.UTC);
-  private static final double FRA_NOTIONAL = 567000;
-  private static final double FRA_RATE = 0.004;
-  private static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, IBOR_INDEX, FRA_RATE);
-  private static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, IBOR_INDEX, FRA_RATE);
-  private static final ZonedDateTime SWAP_START = ZonedDateTime.of(2001, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final ZonedDateTime SWAP_MATURITY = ZonedDateTime.of(2031, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  private static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), DAY_COUNT, IBOR_INDEX);
-  private static final double SWAP_NOTIONAL = 789000;
-  private static final double SWAP_FIXED_RATE = 0.04;
-  private static final SwapFixedIborDefinition PAYER_SWAP = SwapFixedIborDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR, SWAP_NOTIONAL, SWAP_FIXED_RATE, true);
-  private static final SwapFixedIborDefinition RECEIVER_SWAP = SwapFixedIborDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR, SWAP_NOTIONAL, SWAP_FIXED_RATE,
-      false);
-  private static final double IBOR_SPREAD = 0.01;
-  private static final SwapFixedIborSpreadDefinition PAYER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
-      SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, true);
-  private static final SwapFixedIborSpreadDefinition RECEIVER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
-      SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, false);
-  private static final Currency FX_PAY_CURRENCY = Currency.GBP;
-  private static final Currency FX_RECEIVE_CURRENCY = Currency.EUR;
-  private static final ZonedDateTime FX_MATURITY = DateUtils.getUTCDate(2013, 1, 1);
-  private static final double FX_PAY_AMOUNT = -12345;
-  private static final double FX_RECEIVE_AMOUNT = 23456;
-  private static final ForexDefinition FX_PAY_GBP = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, FX_PAY_AMOUNT, FX_RECEIVE_AMOUNT);
-  private static final ForexDefinition FX_PAY_EUR = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, -FX_PAY_AMOUNT, -FX_RECEIVE_AMOUNT);
-  private static final ForexNonDeliverableForwardDefinition LONG_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, -FX_PAY_AMOUNT,
-      -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
-  private static final ForexNonDeliverableForwardDefinition SHORT_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_PAY_AMOUNT,
-      -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
-  private static final DoubleTimeSeries<LocalDate> IBOR_FIXING_SERIES;
-  private static final double FIXING_RATE = 0.03;
-  private static final LocalDate TODAY = LocalDate.of(2012, 8, 1);
+  private static final ForwardRateAgreementDefinition PAYER_FRA_UNFIXED = ForwardRateAgreementDefinition.from(FRA_START.plusYears(3), FRA_END.plusYears(3), FRA_NOTIONAL,
+      USD_IBOR_INDEX1, FRA_RATE);
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITHOUT_FIXINGS;
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES;
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES;
@@ -113,9 +85,9 @@ public class FixedReceiveCashFlowVisitorTest {
 
   static {
     INSTRUMENTS_WITHOUT_FIXINGS = new HashSet<InstrumentDefinition<?>>();
-    INSTRUMENTS_WITHOUT_FIXINGS.add(CASH);
-    INSTRUMENTS_WITHOUT_FIXINGS.add(FIXED_PAYMENT);
-    INSTRUMENTS_WITHOUT_FIXINGS.add(FIXED_COUPON);
+    INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVE_CASH);
+    INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVE_FIXED_PAYMENT);
+    INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVE_FIXED_COUPON);
     INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVER_FRA);
     INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVER_SWAP);
     INSTRUMENTS_WITHOUT_FIXINGS.add(RECEIVER_SWAP_WITH_SPREAD);
@@ -128,17 +100,8 @@ public class FixedReceiveCashFlowVisitorTest {
     INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES.add(PAYER_SWAP);
     INSTRUMENTS_WITH_OPTIONAL_FIXING_SERIES.add(PAYER_SWAP_WITH_SPREAD);
     INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES = new HashSet<InstrumentDefinition<?>>();
-    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(IBOR_COUPON);
-    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(IBOR_SPREAD_COUPON);
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final List<Double> fixings = new ArrayList<Double>();
-    LocalDate date = LocalDate.of(2000, 1, 1);
-    while (date.isBefore(TODAY)) {
-      dates.add(date);
-      fixings.add(FIXING_RATE);
-      date = date.plusDays(1);
-    }
-    IBOR_FIXING_SERIES = new ListLocalDateDoubleTimeSeries(dates, fixings);
+    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(RECEIVE_IBOR_COUPON);
+    INSTRUMENTS_WITH_MANDATORY_FIXING_SERIES.add(RECEIVE_IBOR_SPREAD_COUPON);
   }
 
   @Test
@@ -191,58 +154,63 @@ public class FixedReceiveCashFlowVisitorTest {
 
   @Test
   public void testCash() {
-    final Map<LocalDate, MultipleCurrencyAmount> payment = CASH.accept(VISITOR);
+    final Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVE_CASH.accept(VISITOR);
     assertEquals(1, payment.size());
     assertEquals(CASH_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
     final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(CASH_NOTIONAL * CASH_RATE * 0.5, ca.getAmount());
+    assertEquals(Math.abs(CASH_NOTIONAL * CASH_RATE * 0.5), ca.getAmount());
+    assertEquals(Collections.emptyMap(), PAY_CASH.accept(VISITOR));
   }
 
   @Test
   public void testFixedPayment() {
-    final Map<LocalDate, MultipleCurrencyAmount> payment = FIXED_PAYMENT.accept(VISITOR);
+    final Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVE_FIXED_PAYMENT.accept(VISITOR);
     assertEquals(1, payment.size());
     assertEquals(PAYMENT_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
     final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(PAYMENT_AMOUNT, ca.getAmount());
+    assertEquals(Math.abs(PAYMENT_AMOUNT), ca.getAmount());
+    assertEquals(Collections.emptyMap(), PAY_FIXED_PAYMENT.accept(VISITOR));
   }
 
   @Test
   public void testFixedCoupon() {
-    final Map<LocalDate, MultipleCurrencyAmount> payment = FIXED_COUPON.accept(VISITOR);
+    final Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVE_FIXED_COUPON.accept(VISITOR);
     assertEquals(1, payment.size());
     assertEquals(FIXED_COUPON_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
     final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(FIXED_COUPON_NOTIONAL * FIXED_COUPON_RATE / 12, ca.getAmount(), 1e-15);
+    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * FIXED_COUPON_RATE / 12), ca.getAmount(), 1e-15);
+    assertEquals(Collections.emptyMap(), PAY_FIXED_COUPON.accept(VISITOR));
   }
 
   @Test
   public void testIborCoupon() {
-    Map<LocalDate, MultipleCurrencyAmount> payment = IBOR_COUPON.accept(VISITOR, IBOR_FIXING_SERIES);
+    Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVE_IBOR_COUPON.accept(VISITOR, IBOR_FIXING_SERIES);
     assertEquals(1, payment.size());
     assertEquals(FIXED_COUPON_MATURITY.toLocalDate().plusMonths(6), Iterables.getOnlyElement(payment.keySet()));
     MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(FIXED_COUPON_NOTIONAL * FIXING_RATE / 2, ca.getAmount(), 1e-15);
-    payment = IBOR_SPREAD_COUPON.accept(VISITOR, IBOR_FIXING_SERIES);
+    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * FIXING_RATE / 2), ca.getAmount(), 1e-15);
+    assertEquals(Collections.emptyMap(), PAY_IBOR_COUPON.accept(VISITOR, IBOR_FIXING_SERIES));
+    payment = RECEIVE_IBOR_SPREAD_COUPON.accept(VISITOR, IBOR_FIXING_SERIES);
     assertEquals(1, payment.size());
     assertEquals(FIXED_COUPON_MATURITY.toLocalDate().plusMonths(6), Iterables.getOnlyElement(payment.keySet()));
     mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(FIXED_COUPON_NOTIONAL * (FIXING_RATE + IBOR_COUPON_SPREAD) / 2, ca.getAmount(), 1e-15);
+    assertEquals(Math.abs(FIXED_COUPON_NOTIONAL * (FIXING_RATE + IBOR_COUPON_SPREAD) / 2), ca.getAmount(), 1e-15);
+    assertEquals(Collections.emptyMap(), PAY_IBOR_SPREAD_COUPON.accept(VISITOR, IBOR_FIXING_SERIES));
   }
 
   @Test
@@ -255,6 +223,7 @@ public class FixedReceiveCashFlowVisitorTest {
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
     assertEquals(FRA_NOTIONAL * FIXING_RATE * 0.5, ca.getAmount(), 1e-15);
+    assertEquals(Collections.emptyMap(), PAYER_FRA_UNFIXED.accept(VISITOR, IBOR_FIXING_SERIES));
   }
 
   @Test
@@ -342,26 +311,4 @@ public class FixedReceiveCashFlowVisitorTest {
     assertEquals(CurrencyAmount.of(FX_RECEIVE_CURRENCY, -FX_PAY_AMOUNT), amount);
   }
 
-  private static final class SemiAnnualDayCount extends DayCount {
-
-    public SemiAnnualDayCount() {
-    }
-
-    @Override
-    public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
-      return 0.5;
-    }
-
-    @Override
-    public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon,
-        final double paymentsPerYear) {
-      return 0;
-    }
-
-    @Override
-    public String getConventionName() {
-      return null;
-    }
-
-  }
 }

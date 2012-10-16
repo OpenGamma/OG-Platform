@@ -31,7 +31,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Returns all of the known pay cash-flows, including floating payments that have fixed. If there are no known cash-flows, an empty map is returned.
+ * Returns all of the known pay cash-flows, including floating payments that have fixed. 
  * The payments are always positive.
  */
 public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
@@ -43,27 +43,6 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
   }
 
   private FixedPayCashFlowVisitor() {
-  }
-
-  /**
-   * @param definition The instrument definition
-   * @return An empty map
-   */
-  @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> definition) {
-    ArgumentChecker.notNull(definition, "definition");
-    return definition.accept(this);
-  }
-
-  /**
-   * @param definition The instrument definition
-   * @param indexFixingTimeSeries The fixing time series for a floating index
-   * @return An empty map
-   */
-  @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> definition, final DoubleTimeSeries<LocalDate> indexFixingTimeSeries) {
-    ArgumentChecker.notNull(definition, "definition");
-    return definition.accept(this, indexFixingTimeSeries);
   }
 
   /**
