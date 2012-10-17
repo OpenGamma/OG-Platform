@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.analytics.Selector',
-    dependencies: ['og.analytics.Grid', 'og.common.events'],
+    dependencies: ['og.analytics.Grid', 'og.analytics.Clipboard', 'og.common.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
@@ -49,6 +49,10 @@ $.register_module({
                 if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
                 selector.busy(true);
+                setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
+                    if (!selector.registered) selector.registered = !!grid.elements.parent
+                        .blurkill(function () {selector.registered = false; selector.clear();});
+                });
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
@@ -59,7 +63,6 @@ $.register_module({
             var mousemove = (function () {
                 var resolution = 6, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                 return function (start, event, reset) {
-                    event.preventDefault();
                     if (reset) counter = 0;
                     if (counter++ % resolution) return;
                     if (counter > resolution) counter = 1;
@@ -93,26 +96,31 @@ $.register_module({
                         },
                         fixed: false
                     });
-                    render(regions, rectangle);
+                    render.call(selector, regions.length ? regions : null, rectangle);
                 }
             })();
-            var render = function (regions, rectangle) {
-                if (!selector.regions && !regions) return;
-                if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
-                $(grid.id + ' ' + overlay).remove();
-                selector.regions.forEach(function (region) {
-                    $('<div class="' + overlay.substring(1) + '" />').css(region.position).css(region.dimensions)
-                        .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
-                });
-            };
             selector.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
+            selector.clipboard = new og.analytics.Clipboard(grid);
             selector.events = {select: []};
             selector.grid = grid;
-            selector.regions = null;
             selector.rectangle = null;
-            grid.on('mousedown', mousedown_observer).on('render', render); // initialize
+            selector.regions = null;
+            grid.on('mousedown', mousedown_observer).on('render', render, selector); // initialize
+        };
+        var render = function (regions, rectangle) {
+            var selector = this, grid = selector.grid, selection, data, available;
+            if (!selector.regions && !regions) return selector.clipboard.clear();
+            if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
+            $(grid.id + ' ' + overlay).remove();
+            available =  selector.clipboard.has(selection = selector.selection()) ? ' OG-g-avl' : '';
+            selector.regions.forEach(function (region) {
+                $('<div class="' + overlay.substring(1) + available + '" />')
+                    .css(region.position).css(region.dimensions)
+                    .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
+            });
+            if (available) selector.clipboard.select();
         };
         constructor.prototype.clear = function () {
             var selector = this;
@@ -122,7 +130,8 @@ $.register_module({
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
+            var selector = this, grid = this.grid, meta = grid.meta,
+                bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
@@ -131,8 +140,8 @@ $.register_module({
             for (lcv = 0; lcv < scan.length; lcv += 1)
                 if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
                 else if (scan[lcv] > bottom_right.right) break;
-            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
-            return {rows: rows, cols: cols};
+            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(meta.available[lcv]);
+            return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
         };
         return constructor;
     }

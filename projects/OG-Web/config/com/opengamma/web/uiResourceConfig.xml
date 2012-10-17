@@ -290,8 +290,9 @@
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cellmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>

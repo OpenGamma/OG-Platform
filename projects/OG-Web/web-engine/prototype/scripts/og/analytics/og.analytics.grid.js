@@ -140,7 +140,7 @@ $.register_module({
                             rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                             selection = grid.selector.selection(rectangle);
                         if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                        if (!(cell = grid.cell(transpose_selection.call(grid, selection)))) return;
+                        if (!(cell = grid.cell(selection))) return;
                         cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
                         cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;
@@ -181,11 +181,12 @@ $.register_module({
                     };
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
-                var cell, meta = grid.meta, selection = transpose_selection.call(grid, raw), events;
-                events = 1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)) ?
-                    grid.events.cellselect : grid.events.rangeselect;
-                fire(events, selection);
+            grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
+                var cell, meta = grid.meta, events;
+                if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
+                    fire(grid.events.cellselect, cell, selection);
+                else
+                    fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
@@ -280,13 +281,6 @@ $.register_module({
                 return (partial_width += set_width), css;
             });
         };
-        var transpose_selection = function (raw) {
-            var grid = this, meta = grid.meta;
-            return {
-                cols: raw.cols, rows: raw.rows.map(function (row) {return meta.available[row];}),
-                type: raw.cols.map(function (col) {return meta.columns.types[col];})
-            };
-        };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
             var all = function (total) {
@@ -380,12 +374,26 @@ $.register_module({
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
             for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-            bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
+            bottom = (Math.floor(Math.max(0, y) / grid.meta.row_height) + 1) * grid.meta.row_height;
             top = bottom - grid.meta.row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
+        constructor.prototype.range = function (selection) {
+            var grid = this, viewport = grid.meta.viewport, row_indices, col_indices, cols_len = viewport.cols.length,
+                types = [], available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
+                    !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
+            if (!available) return null;
+            row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
+            col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
+            return row_indices.map(function (row_idx) {
+                return col_indices.map(function (col_idx, idx) {
+                    var cell = grid.data[row_idx * cols_len + col_idx];
+                    return {value: cell, type: cell.t || selection.type[idx]};
+                });
+            });
+        };
         constructor.prototype.resize = function (handler) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
                 width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),

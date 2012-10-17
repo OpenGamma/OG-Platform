@@ -4,17 +4,21 @@
  */
 
 (function ($) {
-    var namespace = 'blurkill', elements = [];
+    var namespace = 'blurkill', elements = [], current_target;
     $(function () {
-        $(document).on('mousedown.' + namespace, function () {
-            elements = elements.filter(function (close) {return close(), false;});
+        $(document).on('mousedown.' + namespace, function (event) {
+            elements = elements.filter(function (element) {
+                if (current_target === element.target) return true;
+                return element.handler(), false;
+            });
+            current_target = null;
         });
     });
     $.fn[namespace] = function (close) {
-        this.on('mousedown', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-        return elements.push(close || (function (element) {return function () {element.remove();};})(this)), this;
+        var element = {
+            target: this[0], handler: close || (function (element) {return function () {element.remove();};})(this)
+        };
+        return elements.push(element), this.off('mousedown.' + namespace)
+            .on('mousedown.' + namespace, function () {current_target = element.target;});
     };
 })(jQuery);

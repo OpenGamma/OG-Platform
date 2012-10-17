@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.analytics.Formatter',
-    dependencies: ['og.analytics.Grid'],
+    dependencies: [],
     obj: function () {
         var module = this;
         $.fn.sparkline.defaults.common.disableHiddenCheck = true;
@@ -26,7 +26,7 @@ $.register_module({
             formatter.CURVE = function (value) {
                 try {
                     return '<span class="fl">[' + JSON.stringify($.isArray(value) ? value : value.v || []) + ']</span>';
-                }catch (error) {return og.dev.warn(module.name + ': ', error), '';}
+                } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
             };
             grid.on('render', function () {
                 var sp_options = {
