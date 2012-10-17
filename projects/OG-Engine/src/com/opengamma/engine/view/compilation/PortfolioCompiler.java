@@ -37,10 +37,9 @@ public final class PortfolioCompiler {
    * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
    * 
    * @param compilationContext  the context of the view definition compilation
-   * @param versionCorrection  the version-correction at which to operate, not null
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio execute(ViewCompilationContext compilationContext, VersionCorrection versionCorrection) {
+  protected static Portfolio execute(ViewCompilationContext compilationContext) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -62,7 +61,7 @@ public final class PortfolioCompiler {
 
       // Actually need the portfolio now
       if (portfolio == null) {
-        portfolio = getPortfolio(compilationContext, versionCorrection);
+        portfolio = getPortfolio(compilationContext);
       }
       
       // Add portfolio requirements to the dependency graph
@@ -99,9 +98,8 @@ public final class PortfolioCompiler {
    * any underlying or related data referenced by a security will not be resolved at this stage. 
    * 
    * @param compilationContext  the compilation context containing the view being compiled, not null
-   * @param versionCorrection  the version-correction at which the portfolio is required, not null
    */
-  private static Portfolio getPortfolio(ViewCompilationContext compilationContext, VersionCorrection versionCorrection) {
+  private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
     UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
@@ -117,7 +115,7 @@ public final class PortfolioCompiler {
       if (portfolioId.isVersioned()) {
         portfolio = positionSource.getPortfolio(portfolioId);
       } else {
-        portfolio = positionSource.getPortfolio(portfolioId.getObjectId(), versionCorrection);
+        portfolio = positionSource.getPortfolio(portfolioId.getObjectId(), compilationContext.getResolverVersionCorrection());
       }
     } catch (DataNotFoundException ex) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource +

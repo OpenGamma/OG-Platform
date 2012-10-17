@@ -52,6 +52,10 @@ public class ComputationTargetSpecificationResolver implements ComputationTarget
     }
   }
 
+  // TODO: change this to an interface and put this in DefaultComputationTargetSpecificationResolver
+
+  // TODO: methods to add other resolver strategies
+
   /**
    * Returns the computation target specification that corresponds to the reference. If the reference is already a resolved specification then the same object is returned. If the reference contains an
    * external identifier bundle the appropriate source will be used to look up the object and a specification constructed from the unique identifier of the returned object, if any.

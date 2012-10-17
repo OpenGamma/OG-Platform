@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,10 +28,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tests {@link CompiledViewDefinitionWithGraphsImpl}.
@@ -176,7 +179,7 @@ public class CompiledViewDefinitionTest {
     for (DependencyGraph graph : graphs) {
       map.put(graph.getCalculationConfigurationName(), graph);
     }
-    return new CompiledViewDefinitionWithGraphsImpl(mock(ViewDefinition.class), map, null, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(mock(ViewDefinition.class), map, Collections.<ComputationTargetReference, UniqueId>emptyMap(), null, 0);
   }
 
   @Test

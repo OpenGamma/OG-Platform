@@ -36,6 +36,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -605,10 +606,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } else {
       compiledViewDefinition = getCachedCompiledViewDefinition();
     }
-    // TODO: [PLAT-2748] can only return the cached one if the resolver V/C is valid for it 
-    if (compiledViewDefinition != null && compiledViewDefinition.isValidFor(valuationTime) && functionInitId == compiledViewDefinition.getFunctionInitId()) {
-      // Existing cached model is valid (an optimisation for the common case of similar, increasing valuation times)
-      return compiledViewDefinition;
+    if (compiledViewDefinition != null) {
+      do {
+        // Check that any resolved targets still resolve to the same value
+        for (Map.Entry<ComputationTargetReference, UniqueId> targets : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
+          System.out.println("TODO: resolve " + targets.getKey() + " to a target specification and check the unique ID is still " + targets.getValue());
+        }
+        if (functionInitId != compiledViewDefinition.getFunctionInitId()) {
+          // The function repository has been reinitialized which invalidates any previous graps
+          break;
+        }
+        if (!compiledViewDefinition.isValidFor(valuationTime)) {
+          // One or more functions are no longer valid and must be recompiled which will then require a graph rebuild
+          break;
+        }
+        // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
+        return compiledViewDefinition;
+      } while (false);
     }
 
     try {

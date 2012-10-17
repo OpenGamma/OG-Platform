@@ -12,12 +12,15 @@ import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
+
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -33,6 +36,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleStartedCall;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -134,7 +138,8 @@ public class ViewProcessTest {
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
+        compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
       public boolean isValidFor(final InstantProvider timestampProvider) {
         Instant timestamp = timestampProvider.toInstant();
@@ -204,7 +209,8 @@ public class ViewProcessTest {
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
+        compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
       public boolean isValidFor(final InstantProvider timestampProvider) {
         Instant timestamp = timestampProvider.toInstant();

@@ -18,7 +18,9 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -29,32 +31,31 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   private final Map<String, DependencyGraph> _graphsByConfiguration;
   private final long _functionInitId;
-
-  // TODO: [PLAT-2748] Need to know all of the OID/EID resolutions that will have used the resolver version correction
+  private final Map<ComputationTargetReference, UniqueId> _resolutions;
 
   /**
    * Constructs an instance.
    * 
-   * @param viewDefinition  the view definition, not null
-   * @param graphsByConfiguration  the dependency graphs by calculation configuration name, not null
-   * @param portfolio  the portfolio, possibly null
-   * @param functionInitId  the function init ID that was used when creating the dependency graphs
+   * @param viewDefinition the view definition, not null
+   * @param graphsByConfiguration the dependency graphs by calculation configuration name, not null
+   * @param resolutions the resolution mappings used to create the dependency graphs, not null
+   * @param portfolio the portfolio, possibly null
+   * @param functionInitId the function init ID that was used when creating the dependency graphs
    */
   public CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition,
-      Map<String, DependencyGraph> graphsByConfiguration,
+      Map<String, DependencyGraph> graphsByConfiguration, Map<ComputationTargetReference, UniqueId> resolutions,
       Portfolio portfolio, long functionInitId) {
     this(viewDefinition, portfolio, processCompiledCalculationConfigurations(graphsByConfiguration),
-        processValidityRange(graphsByConfiguration), graphsByConfiguration, functionInitId);
+        processValidityRange(graphsByConfiguration), graphsByConfiguration, resolutions, functionInitId);
   }
   
-  private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio,
-      Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      Pair<Instant, Instant> validityRange,
-      Map<String, DependencyGraph> graphsByConfiguration,
-      long functionInitId) {
+  private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio, Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      Pair<Instant, Instant> validityRange, Map<String, DependencyGraph> graphsByConfiguration, Map<ComputationTargetReference, UniqueId> resolutions, long functionInitId) {
     super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
+    ArgumentChecker.notNull(resolutions, "resolutions");
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
+    _resolutions = Collections.unmodifiableMap(resolutions);
   }
   
   //--------------------------------------------------------------------------
@@ -64,7 +65,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * @return an unmodifiable map of dependency graphs by configuration name, not null
    */
   public Map<String, DependencyGraph> getDependencyGraphsByConfiguration() {
-    return Collections.unmodifiableMap(_graphsByConfiguration);
+    return _graphsByConfiguration;
   }
 
   /**
@@ -73,7 +74,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * @return  an unmodifiable collection of the dependency graphs for every calculation configuration, not null
    */
   public Collection<DependencyGraph> getAllDependencyGraphs() {
-    return Collections.unmodifiableCollection(_graphsByConfiguration.values());
+    return _graphsByConfiguration.values();
   }
 
   /**
@@ -98,7 +99,16 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     return _functionInitId;
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets the object and external identifiers that were resolved as part of the view compilation. The graphs contained in this instance are only valid when the mapping returned here holds. For
+   * example, a different version/correction used for target resolution might make one or more references resolve to a different target specification. Anything using the original specification will
+   * not longer be valid.
+   * 
+   * @return the map of target references containing object identifiers (unversioned unique identifiers) or external identifiers to the resolved unique identifiers
+   */
+  public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {
+    return _resolutions;
+  }
   
   @Override
   public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfigName) {

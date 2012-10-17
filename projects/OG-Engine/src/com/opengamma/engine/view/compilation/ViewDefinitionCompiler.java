@@ -23,16 +23,24 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
+import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.depgraph.Housekeeper;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -117,7 +125,7 @@ public final class ViewDefinitionCompiler {
     ArgumentChecker.notNull(compilationServices, "compilationServices");
     s_logger.debug("Compiling {} for use with {}", viewDefinition.getName(), valuationTime);
     final OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
-    final ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime);
+    final ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection);
     if (s_logger.isDebugEnabled()) {
       new CompilationCompletionEstimate(viewCompilationContext);
     }
@@ -165,15 +173,19 @@ public final class ViewDefinitionCompiler {
         t += System.nanoTime();
         s_logger.info("Added specific requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
-        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection);
+        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext);
         t += System.nanoTime();
         s_logger.info("Added portfolio requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
         Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
         t += System.nanoTime();
         s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
+        t -= System.nanoTime();
+        Map<ComputationTargetReference, UniqueId> resolutions = processResolutions(viewCompilationContext, portfolio);
+        t += System.nanoTime();
+        s_logger.info("Extracted resolved identifiers after {}ms", (double) t / 1e6);
         timer.finished();
-        _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
+        _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, resolutions, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
         if (OUTPUT_DEPENDENCY_GRAPHS) {
           outputDependencyGraphs(graphsByConfiguration);
         }
@@ -213,6 +225,19 @@ public final class ViewDefinitionCompiler {
       result.put(builder.getCalculationConfigurationName(), graph);
       // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data?
     }
+    return result;
+  }
+
+  private static Map<ComputationTargetReference, UniqueId> processResolutions(final ViewCompilationContext context, final Portfolio portfolio) {
+    final Map<ComputationTargetReference, UniqueId> result = new HashMap<ComputationTargetReference, UniqueId>();
+    result.put(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getRootNode().getUniqueId().toLatest()), portfolio.getRootNode().getUniqueId());
+    PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
+      @Override
+      public void preOrderOperation(final PortfolioNode node, final Position position) {
+        result.put(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest()), position.getUniqueId());
+      }
+    }).traverse(portfolio.getRootNode());
+    // TODO: fetch the resolver lookups from each graph builder
     return result;
   }
 

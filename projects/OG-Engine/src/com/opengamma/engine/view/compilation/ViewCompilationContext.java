@@ -19,6 +19,7 @@ import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Holds context relating to the partially-completed compilation of a view definition, for passing to different stages
@@ -29,8 +30,9 @@ public class ViewCompilationContext {
   private final ViewDefinition _viewDefinition;
   private final ViewCompilationServices _services;
   private final Map<String, DependencyGraphBuilder> _configurationGraphs;
+  private final VersionCorrection _resolverVersionCorrection;
 
-  /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
+  /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
     _viewDefinition = viewDefinition;
     _services = compilationServices;
     final Map<String, DependencyGraphBuilder> configurationGraphs = new HashMap<String, DependencyGraphBuilder>();
@@ -51,6 +53,7 @@ public class ViewCompilationContext {
       configurationGraphs.put(configName, builder);
     }
     _configurationGraphs = configurationGraphs;
+    _resolverVersionCorrection = resolverVersionCorrection; // TODO: this needs to be known by the builders
   }
 
   public ViewDefinition getViewDefinition() {
@@ -67,6 +70,10 @@ public class ViewCompilationContext {
 
   public Collection<DependencyGraphBuilder> getBuilders() {
     return Collections.unmodifiableCollection(_configurationGraphs.values());
+  }
+
+  public VersionCorrection getResolverVersionCorrection() {
+    return _resolverVersionCorrection;
   }
 
 }
