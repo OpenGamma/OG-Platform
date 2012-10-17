@@ -140,9 +140,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade), yieldCurveNames);
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade));
     if (timeSeriesRequirements == null) {
       return null;
     }

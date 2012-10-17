@@ -35,7 +35,7 @@ public abstract class Payment implements InstrumentDerivative {
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    */
-  public Payment(Currency currency, double paymentTime, String fundingCurveName) {
+  public Payment(final Currency currency, final double paymentTime, final String fundingCurveName) {
     Validate.notNull(currency, "currency");
     Validate.notNull(fundingCurveName, "funding curve name");
     Validate.isTrue(paymentTime >= 0.0, "payment time < 0");
@@ -79,7 +79,7 @@ public abstract class Payment implements InstrumentDerivative {
    * @return  True if IborCoupon or FixedCoupon 
    */
   public boolean isIborOrFixed() {
-    return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
+    return (this instanceof CouponFixed) || (this instanceof CouponIbor);
   }
 
   @Override
@@ -100,7 +100,7 @@ public abstract class Payment implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -110,7 +110,7 @@ public abstract class Payment implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Payment other = (Payment) obj;
+    final Payment other = (Payment) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }

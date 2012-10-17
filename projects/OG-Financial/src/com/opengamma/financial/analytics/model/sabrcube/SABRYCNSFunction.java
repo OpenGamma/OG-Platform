@@ -231,8 +231,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor),
-        curveCalculationConfig.getYieldCurveNames()); //TODO
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor)); 
     if (timeSeriesRequirements == null) {
       return null;
     }

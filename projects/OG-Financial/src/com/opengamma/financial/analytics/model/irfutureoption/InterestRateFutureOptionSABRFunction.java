@@ -59,7 +59,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for a range of functions computing values on an IRFuturesOption using the SABR Model
+ * @deprecated Uses the old properties
  */
+@Deprecated
 public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the surface fitting method */
   public static final String SURFACE_FITTING_NAME = "SABR";
@@ -141,7 +143,7 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
 
   protected Set<ValueRequirement> getTimeSeriesRequirements(final ComputationTarget target, final String fundingCurveName, final String forwardCurveName) {
     final Trade trade = target.getTrade();
-    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade), new String[] {fundingCurveName, forwardCurveName });
+    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
   }
 
   protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName,

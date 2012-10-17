@@ -67,7 +67,7 @@ public class MixedLogNormalVolatilitySurface {
         final double kStar = k / fwd;
         double price = 0;
         for (int i = 0; i < n; i++) {
-          double fStar = Math.exp(t * mu[i]) / expOmega;
+          final double fStar = Math.exp(t * mu[i]) / expOmega;
           price += w[i] * BlackFormulaRepository.price(fStar, kStar, t, sigma[i], isCall);
         }
         if (price > 1e-250) {
@@ -117,9 +117,10 @@ public class MixedLogNormalVolatilitySurface {
     //    final double tZeroLimit = Math.sqrt(sum1 / sum2);
 
     final Function<Double, Double> surf = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tk) {
-        double t = Math.max(minT, tk[0]);
+        final double t = Math.max(minT, tk[0]);
         final double k = tk[1];
         final double fwd = fwdCurve.getForward(t);
 
@@ -145,15 +146,15 @@ public class MixedLogNormalVolatilitySurface {
         double muStar = 0.0;
 
         for (int i = 0; i < n; i++) {
-          double temp = w[i] * Math.exp(t * mu[i]);
+          final double temp = w[i] * Math.exp(t * mu[i]);
           expOmega += temp;
           muStar += temp * mu[i];
         }
         muStar /= expOmega;
 
-        double[] d1 = new double[n];
-        double[] d1Sqr = new double[n];
-        double[] fStar = new double[n];
+        final double[] d1 = new double[n];
+        final double[] d1Sqr = new double[n];
+        final double[] fStar = new double[n];
         double d1SqrMin = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < n; i++) {
@@ -170,13 +171,13 @@ public class MixedLogNormalVolatilitySurface {
         double num = 0;
         final boolean useApprox = d1SqrMin > maxExp;
         for (int i = 0; i < n; i++) {
-          double regPhi = Math.exp(0.5 * (d1SqrMin - d1Sqr[i]));
+          final double regPhi = Math.exp(0.5 * (d1SqrMin - d1Sqr[i]));
           double deltaStar = 0;
           if (useApprox) {
             deltaStar = (isCall ? 1.0 : -1.0) * 2 * rootT * regPhi / Math.sqrt(1 + d1Sqr[i]);
           } else {
             final double invPhiMin = Math.exp(0.5 * d1SqrMin) * ROOT_2_PI;
-            double delta = isCall ? NORMAL.getCDF(d1[i]) : -NORMAL.getCDF(-d1[i]);
+            final double delta = isCall ? NORMAL.getCDF(d1[i]) : -NORMAL.getCDF(-d1[i]);
             deltaStar = 2 * rootT * invPhiMin * delta;
           }
 
@@ -184,7 +185,7 @@ public class MixedLogNormalVolatilitySurface {
           num += w[i] * fStar[i] * (regPhi * sigma[i] + deltaStar * (mu[i] - muStar));
         }
 
-        double res = Math.sqrt(num / den);
+        final double res = Math.sqrt(num / den);
         if (Doubles.isFinite(res)) {
           return res;
         }

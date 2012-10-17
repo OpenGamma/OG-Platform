@@ -212,7 +212,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade), curveNames);
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade));
     if (timeSeriesRequirements == null) {
       s_logger.error("Could not get time series for conversion of security {}", security);
       return null;

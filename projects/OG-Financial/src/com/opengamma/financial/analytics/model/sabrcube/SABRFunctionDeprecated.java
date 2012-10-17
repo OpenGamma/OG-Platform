@@ -163,7 +163,7 @@ public abstract class SABRFunctionDeprecated extends AbstractFunction.NonCompile
     requirements.add(getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getCubeRequirement(cubeName, currency, fittingMethod));
     final Set<ValueRequirement> timeSeriesRequirements = getConverter()
-        .getConversionTimeSeriesRequirements(security, security.accept(getVisitor()), new String[] {fundingCurveName, forwardCurveName });
+        .getConversionTimeSeriesRequirements(security, security.accept(getVisitor()));
     if (timeSeriesRequirements == null) {
       return null;
     }

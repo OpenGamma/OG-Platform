@@ -170,7 +170,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, curveNames, security.accept(getVisitor()), getConverter());
+    final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, security.accept(getVisitor()), getConverter());
     if (timeSeriesRequirements == null) {
       return null;
     }

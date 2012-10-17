@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
@@ -17,7 +19,6 @@ import com.opengamma.analytics.financial.interestrate.market.description.MarketF
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -64,8 +65,10 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
 
   @Override
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
-    ArgumentChecker.isTrue(instrument instanceof CouponIborGearing, "Coupon Ibor Gearing");
-    return presentValue((CouponIborGearing) instrument, market);
+    throw new NotImplementedException("Cannot handle CouponIborGearing");
+    //FIXME As this code stands, it goes into an infinite loop
+    //    ArgumentChecker.isTrue(instrument instanceof CouponIborGearing, "Coupon Ibor Gearing");
+    //    return presentValue((CouponIborGearing) instrument, market);
   }
 
   /**
@@ -89,9 +92,11 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
     mapDsc.put(market.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<MarketForwardSensitivity>> mapFwd = new HashMap<String, List<MarketForwardSensitivity>>();
     final List<MarketForwardSensitivity> listForward = new ArrayList<MarketForwardSensitivity>();
-    listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor()), forwardBar));
+    listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon
+        .getFixingAccrualFactor()), forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.fromYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(),
+        CurveSensitivityMarket.fromYieldDiscountingAndForward(mapDsc, mapFwd));
     return result;
   }
 

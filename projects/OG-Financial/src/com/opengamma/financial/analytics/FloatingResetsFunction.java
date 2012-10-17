@@ -15,7 +15,7 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.instrument.FloatingCashFlowVisitor;
+import com.opengamma.analytics.financial.instrument.FloatingPayCashFlowVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -50,7 +50,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FloatingResetsFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FloatingCashFlowVisitor FLOATING_CASH_FLOW_CALCULATOR = FloatingCashFlowVisitor.getInstance();
+  private static final FloatingPayCashFlowVisitor FLOATING_CASH_FLOW_CALCULATOR = FloatingPayCashFlowVisitor.getInstance();
   private static final ReferenceIndexVisitor INDEX_VISITOR = new ReferenceIndexVisitor();
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
