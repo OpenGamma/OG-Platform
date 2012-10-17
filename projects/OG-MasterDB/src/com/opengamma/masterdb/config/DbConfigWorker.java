@@ -169,14 +169,15 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>(vc);
+    
     final List<ObjectId> objectIds = request.getConfigIds();
     if (objectIds != null && objectIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
