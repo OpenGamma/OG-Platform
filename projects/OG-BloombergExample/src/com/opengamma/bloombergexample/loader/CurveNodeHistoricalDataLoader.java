@@ -18,12 +18,11 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
@@ -39,10 +38,11 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
@@ -181,11 +181,10 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    */
   private List<YieldCurveDefinition> getCurveDefinitionNames(ConfigMaster configMaster, String nameExpr) {
     List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    ConfigSearchRequest<YieldCurveDefinition> searchReq = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
-    searchReq.setName(nameExpr);
-    ConfigSearchResult<YieldCurveDefinition> result = configMaster.search(searchReq);
-    for (ConfigDocument<YieldCurveDefinition> document : result.getDocuments()) {
-      results.add(document.getValue());
+    ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
+    request.setName(nameExpr);
+    for (ConfigDocument<YieldCurveDefinition> doc : ConfigMasterIterator.iterable(configMaster, request)) {
+      results.add(doc.getValue());
     }
     return results;
   }

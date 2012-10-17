@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -66,9 +66,8 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
     _underlyingRepository = new InMemoryViewDefinitionRepository();
     
     ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
-    ConfigSearchResult<ViewDefinition> searchResult = _configMaster.search(request);
-    for (ConfigDocument<ViewDefinition> configDocument : searchResult.getDocuments()) {
-      _underlyingRepository.addViewDefinition(new AddViewDefinitionRequest(configDocument.getValue()));
+    for (ConfigDocument<ViewDefinition> doc : ConfigMasterIterator.iterable(configMaster, request)) {
+      _underlyingRepository.addViewDefinition(new AddViewDefinitionRequest(doc.getValue()));
     }
     _changeListener = new ChangeListener() {
       @Override
