@@ -53,8 +53,8 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuturesFunction {
 
-  public EquityFuturesYieldCurveNodeSensitivityFunction(final String fundingCurveName) {
-    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, EquityFuturePricerFactory.MARK_TO_MARKET, fundingCurveName);
+  public EquityFuturesYieldCurveNodeSensitivityFunction(String pricingMethodName) {
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, pricingMethodName);
   }
 
   // Need to do this to get labels for the output
@@ -66,15 +66,18 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
-    // Get Funding Curve Name
-    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
-    if (fundingCurves == null || fundingCurves.size() != 1) {
+    // Get Funding Curve Name and Configuration
+    final String fundingCurveName = getFundingCurveName(desiredValue);
+    if (fundingCurveName == null) {
       return null;
     }
-    final String fundingCurveName = fundingCurves.iterator().next();
+    final String curveConfigName = getCurveConfigName(desiredValue);
+    if (curveConfigName == null) {
+      return null;
+    }
     // Add Funding Curve Requirement, which may not have been in super's requirements
     final EquityFutureSecurity security = (EquityFutureSecurity)  target.getTrade().getSecurity();
-    requirements.add(getDiscountCurveRequirement(security));
+    requirements.add(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
     // Add Funding Curve Spec, to get labels correct in result
     requirements.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(security), fundingCurveName));
     return requirements;
@@ -92,13 +95,15 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 
     // 2. Build up the market data bundle
-    final EquityFutureDataBundle market = getEquityFutureDataBundle(security, inputs, timeSeriesBundle);
+    final EquityFutureDataBundle market = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValues.iterator().next());
 
     // 3. Create specification that matches the properties promised in getResults
     // For the curve we're bumping, create a bundle
     YieldCurveBundle curveBundle = new YieldCurveBundle();
-    final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
-    final String fundingCurveName = getFundingCurveName();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String fundingCurveName = getFundingCurveName(desiredValue);
+    final String curveConfigName = getCurveConfigName(desiredValue);
+    final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs, fundingCurveName, curveConfigName);
     curveBundle.setCurve(fundingCurveName, fundingCurve);
     // Build up InstrumentLabelledSensitivities for the Curve
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(security.getCurrency(), fundingCurveName));
@@ -108,7 +113,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
 
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(),
-        createValueProperties(target).get());
+        createValueProperties(target, fundingCurveName, curveConfigName, getPricingMethodName()).get());
 
     // 4. Compute sensitivity to the discount rate, then use chain rule to distribute sensitivity across the curve
     final DoubleMatrix1D sensVector;
