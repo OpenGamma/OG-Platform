@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.ratingtransitionmodel;
 
 /**
  * Class to hold a matrix giving the transition threshold probabilities for migrations between different rating states
