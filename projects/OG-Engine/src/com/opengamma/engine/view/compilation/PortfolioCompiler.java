@@ -112,10 +112,7 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
           + "' contains required portfolio outputs, but the compiler does not have access to a position source.");
     }
-    // NOTE jonathan 2011-11-11 -- not sure what the right thing to do is here. Reasonable compromise seems to be to
-    // follow the cycle VersionCorrection if no specific portfolio version has been specified, otherwise to use the
-    // exact portfolio version requested (which is an important requirement for e.g. PnL Explain). Perhaps the
-    // portfolio should be loaded independently of the cycle version correction, so latest always means latest?
+    // If the portfolio identifier is versioned then that must be used, otherwise it is the requested resolution version.
     Portfolio portfolio;
     try {
       if (portfolioId.isVersioned()) {

@@ -30,6 +30,8 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   private final Map<String, DependencyGraph> _graphsByConfiguration;
   private final long _functionInitId;
 
+  // TODO: [PLAT-2748] Need to know all of the OID/EID resolutions that will have used the resolver version correction
+
   /**
    * Constructs an instance.
    * 

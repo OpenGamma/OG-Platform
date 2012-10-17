@@ -108,12 +108,11 @@ public class BatchRunner {
 
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
       MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime);
-      ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(_valuationInstant, marketDataSpec);
+      ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(_valuationInstant).setMarketDataSpecification(marketDataSpec)
+          .setResolverVersionCorrection(VersionCorrection.of(_versionAsOf, _correctedTo)).create();
       ViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.of(cycleOptions);
 
-      VersionCorrection versionCorrection = VersionCorrection.of(_versionAsOf, _correctedTo);
-
-      ExecutionOptions executionOptions = new ExecutionOptions(executionSequence, ExecutionFlags.none().awaitMarketData().get(), null, null, versionCorrection);
+      ExecutionOptions executionOptions = new ExecutionOptions(executionSequence, ExecutionFlags.none().awaitMarketData().get(), null, null);
 
       viewClient.attachToViewProcess(UniqueId.parse(_viewDefinitionUid), executionOptions);
     } finally {

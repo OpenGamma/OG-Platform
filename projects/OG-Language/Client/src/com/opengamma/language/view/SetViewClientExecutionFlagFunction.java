@@ -65,7 +65,7 @@ public class SetViewClientExecutionFlagFunction extends AbstractFunctionInvoker 
       flags.remove(flag);
     }
     return new ViewClientDescriptor(viewClient.getViewId(), new ExecutionOptions(options.getExecutionSequence(), flags, options.getMaxSuccessiveDeltaCycles(),
-        options.getDefaultExecutionOptions(), options.getVersionCorrection()));
+        options.getDefaultExecutionOptions()));
   }
 
   // AbstractFunctionInvoker

@@ -244,9 +244,10 @@ public class WatchListRecorder {
 
   private ViewExecutionOptions generateExecutionOptions(Instant now) {
     List<ViewCycleExecutionOptions> executionOptionsList = new ArrayList<ViewCycleExecutionOptions>();
+    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
     for (int i = 0; i < VALIDITY_PERIOD_DAYS; i++) {
       Instant valuationTime = now.plus(i, TimeUnit.DAYS);
-      executionOptionsList.add(new ViewCycleExecutionOptions(valuationTime));
+      executionOptionsList.add(builder.setValuationTime(valuationTime).create());
     }
     ViewCycleExecutionSequence executionSequence = new ArbitraryViewCycleExecutionSequence(executionOptionsList);
     return ExecutionOptions.of(executionSequence, ExecutionFlags.none().compileOnly().get());

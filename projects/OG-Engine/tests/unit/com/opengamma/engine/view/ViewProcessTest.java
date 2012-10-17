@@ -15,9 +15,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.client.ViewResultMode;
-import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
-import com.opengamma.engine.view.listener.CycleStartedCall;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -26,6 +23,7 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
@@ -33,6 +31,8 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -116,7 +116,7 @@ public class ViewProcessTest {
     client.setResultListener(resultListener);
     
     final Instant time0 = Instant.now();
-    ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions(MarketData.live());
+    ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
         
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
@@ -181,7 +181,7 @@ public class ViewProcessTest {
     client.setResultListener(resultListener);
 
     final Instant time0 = Instant.now();
-    ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions(MarketData.live());
+    ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
 
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);

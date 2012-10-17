@@ -66,8 +66,9 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   public static ArbitraryViewCycleExecutionSequence of(Collection<InstantProvider> valuationTimeProviders) {
     ArgumentChecker.notNull(valuationTimeProviders, "valuationTimeProviders");
     List<ViewCycleExecutionOptions> executionSequence = new ArrayList<ViewCycleExecutionOptions>(valuationTimeProviders.size());
+    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
     for (InstantProvider valuationTimeProvider : valuationTimeProviders) {
-      ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTimeProvider);
+      ViewCycleExecutionOptions options = builder.setValuationTime(valuationTimeProvider).create();
       executionSequence.add(options);
     }
     return new ArbitraryViewCycleExecutionSequence(executionSequence);

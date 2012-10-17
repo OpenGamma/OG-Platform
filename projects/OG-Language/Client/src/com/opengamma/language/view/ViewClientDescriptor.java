@@ -83,9 +83,9 @@ public final class ViewClientDescriptor {
    */
   public static ViewClientDescriptor staticMarketData(final UniqueId viewId, final String dataSource) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
-    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
+    final ViewCycleExecutionOptions.Builder cycleOptions = ViewCycleExecutionOptions.builder();
+    cycleOptions.setMarketDataSpecification((dataSource == null) ? MarketData.live() : MarketData.live(dataSource));
+    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions.create(), ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
     return new ViewClientDescriptor(viewId, options);
   }
   
@@ -169,7 +169,7 @@ public final class ViewClientDescriptor {
    */
   public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId, final InstantProvider valuationTime) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTime, MarketData.user(snapshotId));
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(MarketData.user(snapshotId)).create();
     final ExecutionFlags flags = ExecutionFlags.none().triggerOnMarketData();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     return new ViewClientDescriptor(viewId, options);
@@ -188,7 +188,7 @@ public final class ViewClientDescriptor {
    */
   public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId, final InstantProvider valuationTime) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTime, MarketData.user(snapshotId));
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(MarketData.user(snapshotId)).create();
     final ExecutionFlags flags = ExecutionFlags.none().waitForInitialTrigger();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     return new ViewClientDescriptor(viewId, options);

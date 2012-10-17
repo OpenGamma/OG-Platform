@@ -248,7 +248,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
 
-    VersionCorrection versionCorrection = getResolvedVersionCorrection();
+    VersionCorrection versionCorrection = getResolverVersionCorrection(executionOptions);
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
@@ -267,8 +267,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         marketDataSnapshot.init();
       }
       if (executionOptions.getValuationTime() == null) {
-        executionOptions = new ViewCycleExecutionOptions(marketDataSnapshot.getSnapshotTime(),
-                                                         executionOptions.getMarketDataSpecifications());
+        executionOptions = ViewCycleExecutionOptions.builder().setValuationTime(marketDataSnapshot.getSnapshotTime()).setMarketDataSpecifications(executionOptions.getMarketDataSpecifications())
+            .create();
       }
     } catch (Exception e) {
       s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
@@ -569,12 +569,25 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return getCycleManager().manage(cycle);
   }
 
-  private VersionCorrection getResolvedVersionCorrection() {
-    VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
-    if (!versionCorrection.containsLatest()) {
-      return versionCorrection;
+  private VersionCorrection getResolverVersionCorrection(final ViewCycleExecutionOptions viewCycleOptions) {
+    VersionCorrection vc = null;
+    do {
+      vc = viewCycleOptions.getResolverVersionCorrection();
+      if (vc != null) {
+        break;
+      }
+      vc = getExecutionOptions().getDefaultExecutionOptions().getResolverVersionCorrection();
+      if (vc != null) {
+        break;
+      }
+      vc = VersionCorrection.LATEST;
+    } while (false);
+    // Note: NOW means NOW as the caller has requested LATEST. We should not be using the valuation time.
+    if (vc.containsLatest()) {
+      return vc.withLatestFixed(Instant.now());
+    } else {
+      return vc;
     }
-    return versionCorrection.withLatestFixed(Instant.now());
   }
 
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime, VersionCorrection versionCorrection) {
@@ -588,6 +601,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } else {
       compiledViewDefinition = getCachedCompiledViewDefinition();
     }
+    // TODO: [PLAT-2748] can only return the cached one if the resolver V/C is valid for it 
     if (compiledViewDefinition != null && compiledViewDefinition.isValidFor(valuationTime) && functionInitId == compiledViewDefinition.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing valuation times)
       return compiledViewDefinition;

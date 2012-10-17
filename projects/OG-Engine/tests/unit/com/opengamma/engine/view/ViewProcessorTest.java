@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,6 +33,7 @@ import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -155,7 +155,8 @@ public class ViewProcessorTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
     client.setResultListener(listener);
-    ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), new ViewCycleExecutionOptions(MarketData.live()), ExecutionFlags.none().runAsFastAsPossible().get());
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create(),
+        ExecutionFlags.none().runAsFastAsPossible().get());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
     
@@ -177,7 +178,7 @@ public class ViewProcessorTest {
     vp.start();
     
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     client.waitForCompletion();
     client.shutdown();
@@ -213,7 +214,7 @@ public class ViewProcessorTest {
       
     };
     client.setResultListener(resultListener);
-    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());

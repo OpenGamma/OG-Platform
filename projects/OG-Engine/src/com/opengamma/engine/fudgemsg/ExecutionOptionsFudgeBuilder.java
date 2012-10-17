@@ -20,7 +20,6 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.id.VersionCorrection;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -38,7 +37,6 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String WAIT_FOR_INITIAL_TRIGGER_FIELD = "waitForInitialTrigger";
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
-  private static final String VERSION_CORRECTION_FIELD = "versionCorrection";
   private static final String BATCH_FIELD = "batch";
 
   @Override
@@ -56,7 +54,6 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
     serializer.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
-    serializer.addToMessage(msg, VERSION_CORRECTION_FIELD, null, object.getVersionCorrection());
     return msg;
   }
 
@@ -94,10 +91,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
         deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
 
-    FudgeField versionCorrectionField = message.getByName(VERSION_CORRECTION_FIELD);
-    VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, versionCorrectionField);
-
-    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, versionCorrection);
+    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions);
   }
 
 }

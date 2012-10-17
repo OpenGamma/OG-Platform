@@ -36,7 +36,7 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
         valuationTime = defaults.getValuationTime();
       }
     }
-    return new ViewCycleExecutionOptions(valuationTime, marketDataSpecifications);
+    return ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecifications(marketDataSpecifications).create();
   }
 
 }
