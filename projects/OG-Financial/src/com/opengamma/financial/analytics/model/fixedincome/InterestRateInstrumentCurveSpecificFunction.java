@@ -26,11 +26,12 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -128,14 +129,11 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
     // doesn't break curves
@@ -151,7 +149,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
         return false;
       }
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
+    return true;
   }
 
   @Override
@@ -182,8 +180,8 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
@@ -203,7 +201,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     for (final ValueRequirement requirement : curveRequirements) {
       final ValueProperties.Builder properties = requirement.getConstraints().copy();
       properties.with(PROPERTY_REQUESTED_CURVE, curve).withOptional(PROPERTY_REQUESTED_CURVE);
-      curveWithRequestedCurveRequirements.add(new ValueRequirement(requirement.getValueName(), requirement.getTargetSpecification(), properties.get()));
+      curveWithRequestedCurveRequirements.add(new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), properties.get()));
     }
     requirements.addAll(curveWithRequestedCurveRequirements);
     final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, curveNames, security.accept(_visitor), _definitionConverter);

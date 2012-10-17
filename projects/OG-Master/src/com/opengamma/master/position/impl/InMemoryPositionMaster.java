@@ -174,8 +174,6 @@ public class InMemoryPositionMaster implements PositionMaster {
       ManageableTrade clonedTrade = clonedTrades.get(i);
       clonedTrade.setUniqueId(uniqueId);
       origTrade.setUniqueId(uniqueId);
-      clonedTrade.setParentPositionId(parentPositionId);
-      origTrade.setParentPositionId(parentPositionId);
       _storeTrades.put(objectId, clonedTrade);
     }
   }

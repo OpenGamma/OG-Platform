@@ -17,7 +17,7 @@ public class OptimisticMarketDataAvailabilityProvider implements MarketDataAvail
 
   @Override
   public ValueSpecification getAvailability(final ValueRequirement requirement) {
-    return requirement.getValueName().startsWith("Market_") ? MarketDataUtils.createMarketDataValue(requirement) : null;
+    return requirement.getValueName().startsWith("Market_") ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
   }
 
 }

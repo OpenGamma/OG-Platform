@@ -15,7 +15,6 @@ import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -32,7 +31,7 @@ import com.opengamma.id.UniqueId;
     super(targetResolver);
     _uniqueId = copyFrom.getUniqueId();
     _quantity = copyFrom.getQuantity();
-    _securitySpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, copyFrom.getSecurity().getUniqueId());
+    _securitySpec = ComputationTargetSpecification.of(copyFrom.getSecurity());
   }
 
   @Override

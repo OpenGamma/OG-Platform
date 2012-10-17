@@ -30,7 +30,7 @@ import com.opengamma.util.test.Timeout;
 @Test
 public class MaximumJobItemExecutionWatchdogTest {
 
-  private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), new ComputationTargetSpecification(""),
+  private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
 
   public void testNoAlert() throws Exception {

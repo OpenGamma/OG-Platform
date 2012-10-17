@@ -8,11 +8,9 @@ package com.opengamma.master.position.impl;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
@@ -23,7 +21,6 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
-import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -198,58 +195,41 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   @Override
   public Position getPosition(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
-    String[] values = StringUtils.split(uniqueId.getValue(), '-');
-    String[] versions = Objects.firstNonNull(StringUtils.split(uniqueId.getVersion(), '-'), new String[] {null, null});
-    if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uniqueId);
-    }
-    UniqueId nodeId = UniqueId.of(schemes[0], values[0], versions[0]);
-    UniqueId posId = UniqueId.of(schemes[1], values[1], versions[1]);
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePosition manPos;
     if (vc != null) {
-      manPos = getPositionMaster().get(posId, vc).getPosition();
+      manPos = getPositionMaster().get(uniqueId, vc).getPosition();
     } else {
-      manPos = getPositionMaster().get(posId).getPosition();
+      manPos = getPositionMaster().get(uniqueId).getPosition();
     }
     if (manPos == null) {
       throw new DataNotFoundException("Unable to find position: " + uniqueId);
     }
-    return convertPosition(nodeId, manPos);
+    return manPos.toPosition();
   }
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
-    String[] values = StringUtils.split(uniqueId.getValue(), '-');
-    String[] versions = Objects.firstNonNull(StringUtils.split(uniqueId.getVersion(), '-'), new String[] {null, null});
-    if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uniqueId);
-    }
-    UniqueId nodeId = versions[0].length() == 0 ? UniqueId.of(schemes[0], values[0]) : UniqueId.of(schemes[0], values[0], versions[0]);
-    UniqueId tradeId = versions[0].length() == 0 ? UniqueId.of(schemes[1], values[1]) : UniqueId.of(schemes[1], values[1], versions[1]);
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageableTrade manTrade = null;
     if (vc != null) {
       // use defined instants
       PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.addTradeObjectId(tradeId);
+      positionSearch.addTradeObjectId(uniqueId);
       positionSearch.setVersionCorrection(vc);
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
       if (positions.getDocuments().size() == 1) {
         ManageablePosition manPos = positions.getFirstPosition();
-        manTrade = manPos.getTrade(tradeId);
+        manTrade = manPos.getTrade(uniqueId);
       }
     } else {
       // match by uniqueId
-      manTrade = getPositionMaster().getTrade(tradeId);
+      manTrade = getPositionMaster().getTrade(uniqueId);
     }
     if (manTrade == null) {
       throw new DataNotFoundException("Unable to find trade: " + uniqueId);
     }
-    convertTrade(nodeId, convertId(manTrade.getParentPositionId(), nodeId), manTrade);
     return manTrade;
   }
 
@@ -305,7 +285,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       for (ObjectId positionId : manNode.getPositionIds()) {
         final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
-          sourceNode.addPosition(convertPosition(nodeId, foundPosition));
+          sourceNode.addPosition(foundPosition.toPosition());
         } else {
           s_logger.warn("Position {} not found for portfolio node {}", positionId, nodeId);
         }
@@ -318,49 +298,6 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     }
   }
 
-  /**
-   * Converts a manageable position to a source position
-   * 
-   * @param nodeId  the parent node unique identifier, null if root
-   * @param manPos  the manageable position, not null
-   * @return the converted position, not null
-   */
-  protected SimplePosition convertPosition(final UniqueId nodeId, final ManageablePosition manPos) {
-    final SimplePosition position = manPos.toPosition(nodeId);
-    UniqueId posId = convertId(manPos.getUniqueId(), nodeId);
-    position.setUniqueId(posId);
-    for (ManageableTrade manTrade : manPos.getTrades()) {
-      convertTrade(nodeId, posId, manTrade);
-    }
-    return position;
-  }
-
-  /**
-   * Converts a manageable trade to a source trade.
-   * 
-   * @param nodeId  the parent node unique identifier, null if root
-   * @param posId  the converted position unique identifier, not null
-   * @param manTrade  the manageable trade, not null
-   */
-  protected void convertTrade(final UniqueId nodeId, final UniqueId posId, final ManageableTrade manTrade) {
-    manTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
-    manTrade.setParentPositionId(posId);
-  }
-
-  /**
-   * Converts a position/trade unique identifier to one unique to the node.
-   * 
-   * @param positionOrTradeId  the unique identifier to convert, not null
-   * @param nodeId  the node unique identifier, not null
-   * @return the combined unique identifier, not null
-   */
-  protected UniqueId convertId(final UniqueId positionOrTradeId, final UniqueId nodeId) {
-    return UniqueId.of(
-        nodeId.getScheme() + '-' + positionOrTradeId.getScheme(),
-        nodeId.getValue() + '-' + positionOrTradeId.getValue(),
-        StringUtils.defaultString(nodeId.getVersion()) + '-' + StringUtils.defaultString(positionOrTradeId.getVersion()));
-  }
-  
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {

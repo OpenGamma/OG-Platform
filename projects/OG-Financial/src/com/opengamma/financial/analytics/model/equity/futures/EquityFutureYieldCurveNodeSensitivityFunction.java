@@ -24,11 +24,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -100,9 +101,6 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     return target.getTrade().getSecurity() instanceof com.opengamma.financial.security.future.EquityFutureSecurity;
   }
 
@@ -134,7 +132,7 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
   }
 
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
-    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
     return req;
   }
 
@@ -144,7 +142,7 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getMarketValueRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
@@ -196,7 +194,7 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
 
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
   }
 
   private ValueSpecification getValueSpecification(final ComputationTarget target) {

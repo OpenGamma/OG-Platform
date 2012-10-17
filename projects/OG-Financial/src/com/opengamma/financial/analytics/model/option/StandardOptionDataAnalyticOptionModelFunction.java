@@ -71,7 +71,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
-    requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueId(), curveName));
+    requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency(), curveName));
     requirements.add(getVolatilitySurfaceMarketDataRequirement(option, curveName));
     requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueId(), curveName));
     return requirements;

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;
@@ -40,6 +39,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.analytics.DependencyGraphGridStructure;
 
 /**
  * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
@@ -161,7 +161,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     
     Map<String, Object> row = new HashMap<String, Object>();
     final String targetName = getTargetName(node.getComputationTarget());
-    final String targetType = getTargetTypeName(node.getComputationTarget().getType());
+    final String targetType = DependencyGraphGridStructure.TARGET_TYPE_NAMES.get(node.getComputationTarget().getType());
     final String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
     final String displayProperties = getValuePropertiesForDisplay(valueSpecification.getProperties());
     
@@ -257,23 +257,6 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       }
     }
     return sb.length() == 0 ? null : sb.toString();
-  }
-  
-  private String getTargetTypeName(ComputationTargetType targetType) {
-    switch (targetType) {
-      case PORTFOLIO_NODE:
-        return "Agg";
-      case POSITION:
-        return "Pos";
-      case SECURITY:
-        return "Sec";
-      case PRIMITIVE:
-        return "Prim";
-      case TRADE:
-        return "Trade";
-      default:
-        return null;
-    }
   }
   
   @SuppressWarnings("unchecked")

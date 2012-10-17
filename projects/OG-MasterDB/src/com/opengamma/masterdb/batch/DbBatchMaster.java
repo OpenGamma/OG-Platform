@@ -40,7 +40,7 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueProperties;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
@@ -420,7 +420,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       final String valueName = rs.getString("name");
 //      final Timestamp evalInstant = rs.getTimestamp("eval_instant");
 //      final long computeNodeId = rs.getLong("compute_node_id");
-      final ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("target_type"));
+      final ComputationTargetType computationTargetType = ComputationTargetType.parse(rs.getString("target_type"));
       final String valueRequirementsSyntheticForm = rs.getString("synthetic_form");
       final String targetTypeIdScheme = rs.getString("target_type_id_scheme");
       final String targetTypeIdValue = rs.getString("target_type_id_value");

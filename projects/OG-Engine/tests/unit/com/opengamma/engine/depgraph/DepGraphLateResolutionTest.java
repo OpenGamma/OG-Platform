@@ -22,6 +22,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -41,7 +42,8 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement1Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -82,11 +84,10 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
 
-      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueId());
-
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(_result);
+        final ValueRequirement req = helper.getRequirement1Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -117,11 +118,10 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
 
-      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueId());
-
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(_result);
+        final ValueRequirement req = helper.getRequirement1Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override

@@ -16,14 +16,14 @@ import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 
 /* package */final class UnstructuredMarketDataSnapshotUtil {
 
   private UnstructuredMarketDataSnapshotUtil() {
   }
 
-  public static List<Double> getValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final UniqueId identifier) {
+  public static List<Double> getValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier) {
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
     Map<String, ValueSnapshot> values = globalValues.get(new MarketDataValueSpecification(MarketDataValueType.SECURITY, identifier));
     if (values != null) {
@@ -42,7 +42,7 @@ import com.opengamma.id.UniqueId;
     return null;
   }
 
-  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final UniqueId identifier, final MarketDataValueType type, final boolean addIfMissing) {
+  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final ExternalId identifier, final MarketDataValueType type, final boolean addIfMissing) {
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
     final MarketDataValueSpecification spec = new MarketDataValueSpecification(type, identifier);
     Map<String, ValueSnapshot> values = globalValues.get(spec);
@@ -53,7 +53,7 @@ import com.opengamma.id.UniqueId;
     return values;
   }
 
-  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final UniqueId identifier,
+  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier,
       final Double overrideValue, final Double marketValue, final MarketDataValueType type) {
     if ((overrideValue != null) || (marketValue != null)) {
       final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, type, true);

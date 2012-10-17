@@ -13,8 +13,8 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -35,7 +35,7 @@ public class BondPV01CurrencyCurveFunction extends BondPV01Function {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final String curveName = YieldCurveFunction.getCurveName(context, desiredValue);
-    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, BondFunctionUtils.getCurrencyID(target), 
+    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY, BondFunctionUtils.getCurrencyID(target),
       ValueProperties.with(ValuePropertyNames.CURVE, curveName).get())); 
   }
   

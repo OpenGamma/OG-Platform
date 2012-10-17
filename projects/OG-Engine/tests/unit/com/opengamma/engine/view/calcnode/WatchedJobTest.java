@@ -41,16 +41,16 @@ import com.opengamma.util.tuple.Triple;
 @Test
 public class WatchedJobTest {
 
-  private final ComputationTargetSpecification TARGET = new ComputationTargetSpecification("Foo");
-  private final ValueSpecification VS_A = new ValueSpecification("A", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "A").get());
-  private final ValueSpecification VS_B = new ValueSpecification("B", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "B").get());
-  private final ValueSpecification VS_C = new ValueSpecification("C", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "C").get());
-  private final ValueSpecification VS_D = new ValueSpecification("D", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "D").get());
-  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), TARGET, Collections.<ValueSpecification>emptySet(), Arrays.asList(VS_A));
-  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_B));
-  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B), Arrays.asList(VS_C));
-  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_C));
-  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D));
+  private final ValueSpecification VS_A = new ValueSpecification("A", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "A").get());
+  private final ValueSpecification VS_B = new ValueSpecification("B", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "B").get());
+  private final ValueSpecification VS_C = new ValueSpecification("C", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "C").get());
+  private final ValueSpecification VS_D = new ValueSpecification("D", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "D").get());
+  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Collections.<ValueSpecification>emptySet(),
+      Arrays.asList(VS_A));
+  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_A), Arrays.asList(VS_B));
+  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_B), Arrays.asList(VS_C));
+  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_A), Arrays.asList(VS_C));
+  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D));
 
   private static CalculationJobSpecification createJobSpecification() {
     return new CalculationJobSpecification(UniqueId.of("Cycle", "1"), "Default", Instant.now(), JobIdSource.getId());

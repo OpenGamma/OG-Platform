@@ -195,7 +195,7 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
       return getNodeTitle(node);
     }
     if (node instanceof UniqueIdentifiable) {
-      ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(node);
+      ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(((UniqueIdentifiable) node).getUniqueId());
       return renderForColumn(targetSpec, column);
     }
     return "Unknown object: " + node;

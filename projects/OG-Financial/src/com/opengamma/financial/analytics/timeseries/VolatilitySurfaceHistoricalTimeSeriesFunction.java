@@ -21,11 +21,11 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -100,13 +100,13 @@ public abstract class VolatilitySurfaceHistoricalTimeSeriesFunction extends Abst
         }
       }
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, desiredValue.getTargetSpecification(),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, target.toSpecification(),
         desiredValue.getConstraints()), bundle));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

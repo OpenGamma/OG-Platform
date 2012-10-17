@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata.snapshot;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -16,6 +17,7 @@ import com.opengamma.util.SingletonFactoryBean;
 public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<UserMarketDataProviderFactory> {
 
   private MarketDataSnapshotSource _snapshotSource;
+  private ExternalIdBundleLookup _identifierLookup = new ExternalIdBundleLookup(null);
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
   
   public MarketDataSnapshotSource getSnapshotSource() {
@@ -26,6 +28,14 @@ public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBe
     _snapshotSource = snapshotSource;
   }
   
+  public ExternalIdBundleLookup getIdentifierLookup() {
+    return _identifierLookup;
+  }
+
+  public void setIdentifierLookup(final ExternalIdBundleLookup identifierLookup) {
+    _identifierLookup = identifierLookup;
+  }
+
   public MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
     return _baseMarketDataAvailabilityProvider;
   }
@@ -37,7 +47,7 @@ public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBe
   @Override
   protected UserMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getSnapshotSource(), "snapshotSource");
-    return new UserMarketDataProviderFactory(getSnapshotSource(), getBaseMarketDataAvailabilityProvider());
+    return new UserMarketDataProviderFactory(getSnapshotSource(), getIdentifierLookup(), getBaseMarketDataAvailabilityProvider());
   }
 
 }

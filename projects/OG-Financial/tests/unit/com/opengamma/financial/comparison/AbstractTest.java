@@ -76,7 +76,6 @@ import com.opengamma.util.time.Expiry;
 
   protected Position createPosition(final String uid, final int quantity, final Security security, final String attr1Value, final String attr2Value, final Trade trade1, final Trade trade2) {
     final SimplePosition position = new SimplePosition(new BigDecimal(quantity), security.getExternalIdBundle());
-    position.setParentNodeId(createUniqueId("Node"));
     position.setSecurityLink(SimpleSecurityLink.of(security));
     if (attr1Value != null) {
       position.addAttribute("Attr1", attr1Value);

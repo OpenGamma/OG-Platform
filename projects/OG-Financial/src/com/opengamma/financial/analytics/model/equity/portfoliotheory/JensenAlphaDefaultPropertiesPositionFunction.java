@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 
 /**
  * 

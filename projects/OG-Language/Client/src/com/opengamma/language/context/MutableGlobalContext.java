@@ -15,6 +15,8 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -68,8 +70,17 @@ public class MutableGlobalContext extends GlobalContext {
     removeOrReplaceValue(CLIENT, client);
   }
   
+  public void setComputationTargetResolver(final DefaultComputationTargetResolver computationTargetResolver) {
+    removeOrReplaceValue(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  }
+
   public void setCurrencyPairsSource(final CurrencyPairsSource currencyPairsSource) {
     removeOrReplaceValue(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
+  }
+
+  public void setExternalIdBundleLookup(final ExternalIdBundleLookup externalIdBundleLookup) {
+    ArgumentChecker.notNull(externalIdBundleLookup, "externalIdBundleLookup");
+    replaceValue(EXTERNAL_IDENTIFIER_LOOKUP, externalIdBundleLookup);
   }
 
   public void setExchangeSource(final ExchangeSource exchangeSource) {
@@ -156,8 +167,9 @@ public class MutableGlobalContext extends GlobalContext {
     removeOrReplaceValue(SECURITY_SOURCE, securitySource);
   }
   
-  public void setComputationTargetResolver(final DefaultComputationTargetResolver computationTargetResolver) {
-    removeOrReplaceValue(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  public void setTargetSpecificationResolver(final ComputationTargetSpecificationResolver targetSpecificationResolver) {
+    ArgumentChecker.notNull(targetSpecificationResolver, "targetSpecificationResolver");
+    replaceValue(TARGET_SPECIFICATION_RESOLVER, targetSpecificationResolver);
   }
 
   @Override

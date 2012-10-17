@@ -166,5 +166,6 @@ public class ForexVisitors {
     public ZonedDateTime visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getExpiry().getExpiry();
     }
+
   }
 }

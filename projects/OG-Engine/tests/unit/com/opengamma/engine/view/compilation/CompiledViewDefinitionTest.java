@@ -19,7 +19,6 @@ import javax.time.InstantProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -28,6 +27,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -46,7 +46,7 @@ public class CompiledViewDefinitionTest {
   private final Instant _time5 = _time0.plusMillis(5);
 
   private DependencyNode createDependencyNode(final Instant functionStart, final Instant functionEnd) {
-    final DependencyNode node = new DependencyNode(new ComputationTarget("Foo"));
+    final DependencyNode node = new DependencyNode(new ComputationTarget(ComputationTargetType.NULL, null));
     node.setFunction(new CompiledFunctionDefinition() {
 
       @Override
@@ -122,7 +122,7 @@ public class CompiledViewDefinitionTest {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.NULL;
       }
 
       @Override

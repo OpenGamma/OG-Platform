@@ -7,6 +7,7 @@ package com.opengamma.engine;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -17,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class DelegatingComputationTargetResolver implements ComputationTargetResolver {
 
-  // TODO: move to com.opengamma.engine.target
+  // [PLAT-444]: move to com.opengamma.engine.target
 
   /**
    * The underlying resolver.
@@ -44,6 +45,11 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
     return getUnderlying().resolve(specification);
+  }
+
+  @Override
+  public ComputationTargetType simplifyType(final ComputationTargetType type) {
+    return getUnderlying().simplifyType(type);
   }
 
   @Override

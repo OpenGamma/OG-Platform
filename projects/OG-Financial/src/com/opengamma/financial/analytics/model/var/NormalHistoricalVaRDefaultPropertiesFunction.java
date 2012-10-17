@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _meanCalculator;
   private final String _stdDevCalculator;
   private final String _confidenceLevel;
@@ -32,8 +32,8 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   private final PriorityClass _priority;
 
   public NormalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
-      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final String priority, final ComputationTargetType target) {
-    super(target, true);
+      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final String priority) {
+    super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION), true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");

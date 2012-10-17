@@ -13,9 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,8 +23,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -47,7 +44,7 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   public FXForwardDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
@@ -62,17 +59,7 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    if (!(security instanceof FinancialSecurity)) {
-      return false;
-    }
-    if (!(security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity)) {
-      return false;
-    }
-    final FinancialSecurity fxSecurity = (FinancialSecurity) security;
+    final FinancialSecurity fxSecurity = (FinancialSecurity) target.getSecurity();
     final String payCurrency = fxSecurity.accept(ForexVisitors.getPayCurrencyVisitor()).getCode();
     final String receiveCurrency = fxSecurity.accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode();
     return _currencyCurveConfigAndDiscountingCurveNames.containsKey(payCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(receiveCurrency);

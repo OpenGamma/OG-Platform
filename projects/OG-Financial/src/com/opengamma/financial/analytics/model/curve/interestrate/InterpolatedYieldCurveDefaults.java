@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
@@ -28,7 +28,7 @@ public class InterpolatedYieldCurveDefaults extends DefaultPropertyFunction {
 
   public InterpolatedYieldCurveDefaults(final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... applicableCurrencyNames) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");

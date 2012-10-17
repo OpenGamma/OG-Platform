@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
@@ -29,7 +30,7 @@ public class PortfolioComparator extends PositionSetComparator {
     final Collection<Position> positions = new LinkedList<Position>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override
-      public void preOrderOperation(final Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         positions.add(position);
       }
     }).traverse(portfolio.getRootNode());

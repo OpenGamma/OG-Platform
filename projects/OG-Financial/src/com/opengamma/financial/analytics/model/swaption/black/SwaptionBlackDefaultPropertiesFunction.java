@@ -14,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +42,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
   public SwaptionBlackDefaultPropertiesFunction(final String priority, final String... currencyCurveConfigAndSurfaceNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
@@ -57,9 +57,6 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof SwaptionSecurity)) {
-      return false;
-    }
     final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
     final String currencyName = FinancialSecurityUtils.getCurrency(swaption).getCode();
     return _currencyCurveConfigAndSurfaceNames.containsKey(currencyName);

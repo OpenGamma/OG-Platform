@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.InvocationResult;
+import java.util.Set;
+
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -18,7 +16,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import java.util.Set;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**
  * Fudge message builder for {@code ComputedValue}.
@@ -84,7 +85,7 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     ComputedValue computedValue = new ComputedValue(valueSpec, valueObject);
 
     String invocationResultName = message.getString(INVOCATION_RESULT_FIELD_NAME);
-    if(invocationResultName != null){
+    if (invocationResultName != null) {
       InvocationResult invocationResult = InvocationResult.valueOf(invocationResultName);
       computedValue.setInvocationResult(invocationResult);
     }
@@ -102,12 +103,12 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
       computedValue.setStackTrace(stackTrace);
     }
     FudgeField requirementField = message.getByName(REQUIREMENTS_FIELD_NAME);
-    if (requirementField != null){
+    if (requirementField != null) {
       Set<ValueRequirement> requirements = deserializer.fieldValueToObject(Set.class, requirementField);
       computedValue.setRequirements(requirements);
     }
     FudgeField missingInputsField = message.getByName(MISSING_INPUTS_FIELD_NAME);
-    if(missingInputsField != null){
+    if (missingInputsField != null) {
       Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, missingInputsField);
       computedValue.setMissingInputs(missingInputs);
     }

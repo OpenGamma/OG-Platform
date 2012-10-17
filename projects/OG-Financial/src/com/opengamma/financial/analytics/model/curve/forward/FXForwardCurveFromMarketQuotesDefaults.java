@@ -9,13 +9,12 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -27,24 +26,13 @@ public class FXForwardCurveFromMarketQuotesDefaults extends DefaultPropertyFunct
 
   public FXForwardCurveFromMarketQuotesDefaults(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
       final String forwardCurveRightExtrapolator) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.UNORDERED_CURRENCY_PAIR, true);
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
     ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
     _forwardCurveInterpolator = forwardCurveInterpolator;
     _forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolator;
     _forwardCurveRightExtrapolator = forwardCurveRightExtrapolator;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

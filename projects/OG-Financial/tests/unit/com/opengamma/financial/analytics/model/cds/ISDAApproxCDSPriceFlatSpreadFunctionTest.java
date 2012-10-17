@@ -11,13 +11,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -26,17 +25,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
 
 public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
@@ -68,24 +62,6 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   }
 
   @Test
-  public void canApplyTo() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget("test"));
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo1() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(SECURITY));
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo2() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(CDS_SECURITY));
-    Assert.assertTrue(result);
-  }
-
-  @Test
   public void execute() {
     //TODO
   }
@@ -101,7 +77,7 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
           .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
           .get());
     
-    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), requirement);
+    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY), requirement);
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 2);
 
@@ -114,12 +90,12 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
     Assert
       .assertEquals(
         r.toString(),
-        "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
+            "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[CURRENCY, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getResults1() {
-    testItem.getResults(null, new ComputationTarget(CDS_SECURITY));
+    testItem.getResults(null, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY));
   }
 
   @Test
@@ -129,6 +105,6 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   @Test
   public void getTargetType() {
-    Assert.assertEquals(testItem.getTargetType(), ComputationTargetType.SECURITY);
+    Assert.assertEquals(testItem.getTargetType(), FinancialSecurityTypes.CDS_SECURITY);
   }
 }

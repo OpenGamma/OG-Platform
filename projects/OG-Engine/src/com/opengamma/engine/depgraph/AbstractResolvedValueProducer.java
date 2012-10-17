@@ -163,6 +163,7 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         if ((_pumped != null) && _pumped.remove(this)) {
           // Was in a pumped state; close and release the parent resolver
+          assert !_closed;
           _closed = true;
         } else {
           return false;
@@ -308,7 +309,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value, final boolean lastResult) {
     assert value != null;
     assert !_finished;
-    if (!getValueRequirement().isSatisfiedBy(value.getValueSpecification())) {
+    if (!getValueRequirement().getConstraints().isSatisfiedBy(value.getValueSpecification().getProperties())) {
       // Happens when a task was selected early on for satisfying the requirement as part of
       // an aggregation feed. Late resolution then produces different specifications which
       // would have caused in-line failures, but the delegating subscriber will receive them
@@ -431,9 +432,13 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public synchronized void addRef() {
-    assert _refCount > 0;
-    _refCount++;
+  public synchronized boolean addRef() {
+    if (_refCount > 0) {
+      _refCount++;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override

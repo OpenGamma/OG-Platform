@@ -11,13 +11,13 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.lazy.LazyTargetResolverPortfolioNode;
 import com.opengamma.id.UniqueId;
 
 /**
  * A portfolio implementation that defers to a target resolver for the component parts.
  */
-/* package*/final class TargetResolverPortfolio extends TargetResolverObject implements Portfolio {
+public final class TargetResolverPortfolio extends TargetResolverObject implements Portfolio {
 
   private static final long serialVersionUID = 1L;
 
@@ -31,7 +31,7 @@ import com.opengamma.id.UniqueId;
     super(targetResolver);
     _attributes = copyFrom.getAttributes();
     _uniqueId = copyFrom.getUniqueId();
-    _rootNodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, copyFrom.getRootNode().getUniqueId());
+    _rootNodeSpec = ComputationTargetSpecification.of(copyFrom.getRootNode());
     _name = copyFrom.getName();
   }
 

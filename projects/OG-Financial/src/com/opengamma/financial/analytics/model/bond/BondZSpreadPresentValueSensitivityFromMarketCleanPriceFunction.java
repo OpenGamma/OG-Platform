@@ -12,7 +12,6 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -61,7 +60,7 @@ public class BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction exte
 
   @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
   }
 
   @Override

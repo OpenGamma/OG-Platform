@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.riskfactor.option;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -98,7 +100,11 @@ public class UnderlyingTimeSeriesProvider {
 
     @Override
     public ExternalIdBundle visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      return _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
+      final Security underlying = _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      if (underlying == null) {
+        throw new DataNotFoundException("Can't find underlying " + security.getUnderlyingId() + " for " + security);
+      }
+      return underlying.getExternalIdBundle();
     }
 
   }

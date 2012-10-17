@@ -13,14 +13,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -125,12 +124,8 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Set<ComputedValue> rates = Sets.newHashSetWithExpectedSize(desiredValues.size());
-    for (ValueRequirement desiredValue : desiredValues) {
-      final Pair<Currency, Currency> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
-      rates.add(new ComputedValue(createValueSpecification(desiredValue.getTargetSpecification()), getConversionRate(inputs, currencies.getFirst(), currencies.getSecond())));
-    }
-    return rates;
+    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
+    return Collections.singleton(new ComputedValue(createValueSpecification(target.toSpecification()), getConversionRate(inputs, currencies.getFirst(), currencies.getSecond())));
   }
 
   @Override
@@ -138,7 +133,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     if (getCurrencyMatrix() == null) {
       return false;
     }
-    if ((target.getType() != ComputationTargetType.PRIMITIVE) || (target.getUniqueId() == null)) {
+    if (target.getUniqueId() == null) {
       return false;
     }
     if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
@@ -251,7 +246,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Pair<Currency, Currency> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
+    final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
     return getConversionRequirements(currencies);
   }
 

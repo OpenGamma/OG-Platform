@@ -30,12 +30,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -70,7 +70,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
       }
 
       @Override
@@ -108,18 +108,6 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName).get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties));
-      }
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        if (target.getUniqueId() == null) {
-          s_logger.error("Target unique id was null; {}", target);
-          return false;
-        }
-        return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @Override

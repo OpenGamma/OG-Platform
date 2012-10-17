@@ -11,11 +11,11 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -44,11 +44,8 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     final double price = latestDataPoint.getValue();
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
-            new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.MARK, ComputationTargetType.POSITION, target.getPosition().getUniqueId(),
-                    ValueProperties.with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
-                    getUniqueId()),
-                    price));
+            new ValueSpecification(ValueRequirementNames.MARK, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
+            price));
   }
 
   @Override
@@ -65,23 +62,18 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     if (timeSeries == null) {
       return null;
     }
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.none()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE,
+        timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.none()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-      final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
-      return Collections.<ValueSpecification>singleton(
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARK,
-              ComputationTargetType.POSITION,
-              target.getPosition().getUniqueId(),
-              ValueProperties.with(ValuePropertyNames.CURRENCY,
-                  securityEntryData.getCurrency().getCode()).get()),
-                  getUniqueId()));
-    }
-    return null;
+    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
+    return Collections.<ValueSpecification>singleton(
+        new ValueSpecification(ValueRequirementNames.MARK,
+            target.toSpecification(),
+            createValueProperties().with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()));
   }
 
   @Override

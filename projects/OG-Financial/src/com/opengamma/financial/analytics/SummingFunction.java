@@ -14,17 +14,18 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.property.UnitProperties;
 
 /**
  * Able to sum a particular requirement name from a set of underlying positions.
@@ -39,15 +40,10 @@ public class SummingFunction extends MissingInputsFunction {
   protected static class Impl extends AbstractFunction.NonCompiledInvoker {
 
     private final String _requirementName;
-    private final String[] _homogenousProperties;
+    private final String[] _homogenousProperties = UnitProperties.unitPropertyNames();
 
     protected Impl(final String requirementName) {
       _requirementName = requirementName;
-      _homogenousProperties = new String[] {ValuePropertyNames.CURRENCY };
-      // TODO: Handle this more generically. Requiring a value with a wildcard constraint
-      // forces the homogeneity. This would work for currencies, but those specifying
-      // the value requirements have certain intuitive expectations of how currencies
-      // should behave.
     }
 
     private static CompiledFunctionDefinition of(final String requirementName) {

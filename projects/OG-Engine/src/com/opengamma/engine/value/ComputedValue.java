@@ -35,7 +35,7 @@ public class ComputedValue implements Serializable {
   //a compelling reason to do so.
 
   private static final long serialVersionUID = 1L;
-  
+
   /**
    * The specification of the value.
    */
@@ -61,9 +61,9 @@ public class ComputedValue implements Serializable {
    * Creates a computed value.
    * <p>
    * This combines the value and its specification.
-   *
-   * @param specification  the specification of the value, not null
-   * @param value  the actual value
+   * 
+   * @param specification the specification of the value, not null
+   * @param value the actual value
    */
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.notNull(specification, "value specification");
@@ -78,7 +78,7 @@ public class ComputedValue implements Serializable {
 
   /**
    * Gets the value specification.
-   *
+   * 
    * @return the specification, not null
    */
   public ValueSpecification getSpecification() {
@@ -87,7 +87,7 @@ public class ComputedValue implements Serializable {
 
   /**
    * Gets the value.
-   *
+   * 
    * @return the value, not null
    */
   public Object getValue() {
@@ -180,7 +180,7 @@ public class ComputedValue implements Serializable {
     result = 31 * result + (_exceptionMsg != null ? _exceptionMsg.hashCode() : 0);
     result = 31 * result + (_stackTrace != null ? _stackTrace.hashCode() : 0);
     result = 31 * result + (_missingInputs != null ? _missingInputs.hashCode() : 0);
-    result = 31 * result + (_originalRequirements != null? _originalRequirements.hashCode() : 0);
+    result = 31 * result + (_originalRequirements != null ? _originalRequirements.hashCode() : 0);
     return result;
   }
 
@@ -195,7 +195,7 @@ public class ComputedValue implements Serializable {
     if (spec != null) {
       style.append(sb, "name", spec.getValueName(), null);
       ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
-      style.append(sb, "targetId", targetSpec.getIdentifier(), null);
+      style.append(sb, "targetId", targetSpec.getUniqueId(), null);
       style.append(sb, "targetType", targetSpec.getType(), null);
       style.append(sb, "properties", spec.getProperties(), null);
     }

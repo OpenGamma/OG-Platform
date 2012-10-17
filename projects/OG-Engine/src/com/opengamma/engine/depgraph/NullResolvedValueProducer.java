@@ -37,9 +37,13 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
-  public synchronized void addRef() {
-    assert _refCount > 0;
-    _refCount++;
+  public synchronized boolean addRef() {
+    if (_refCount > 0) {
+      _refCount++;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override

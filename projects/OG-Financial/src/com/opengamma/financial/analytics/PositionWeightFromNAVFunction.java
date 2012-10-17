@@ -5,18 +5,18 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -36,36 +36,22 @@ public class PositionWeightFromNAVFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Position position = target.getPosition();
-    final Object fairValueObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, position));
+    final Object fairValueObj = inputs.getValue(ValueRequirementNames.FAIR_VALUE);
     if (fairValueObj != null) {
       final double fairValue = (Double) fairValueObj;
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(
-          ValueRequirementNames.WEIGHT, position), getUniqueId()), fairValue / _nav));
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.WEIGHT, target.toSpecification(), createValueProperties().get()), fairValue / _nav));
     }
     return null;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.getPosition()));
-    }
-    return null;
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.toSpecification()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target
-          .getPosition()), getUniqueId()));
-    }
-    return null;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.WEIGHT, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

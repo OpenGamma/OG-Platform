@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -76,7 +76,7 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, getCurveDefinitionName()).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
 }

@@ -112,7 +112,6 @@ public class InMemoryPositionMasterTest {
     assertEquals("2", addedTrade.getUniqueId().getValue());
     
     addedTrade.setUniqueId(null);
-    addedTrade.setParentPositionId(null);
     
     assertEquals(TRADE1, addedTrade);
     addedPosition.setUniqueId(null);

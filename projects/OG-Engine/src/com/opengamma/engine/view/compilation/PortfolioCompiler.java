@@ -38,10 +38,9 @@ public final class PortfolioCompiler {
    * 
    * @param compilationContext  the context of the view definition compilation
    * @param versionCorrection  the version-correction at which to operate, not null
-   * @param forcePortfolioResolution  true if there are external portfolio targets, false otherwise
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio execute(ViewCompilationContext compilationContext, VersionCorrection versionCorrection, boolean forcePortfolioResolution) {
+  protected static Portfolio execute(ViewCompilationContext compilationContext, VersionCorrection versionCorrection) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -53,7 +52,7 @@ public final class PortfolioCompiler {
       return null;
     }
 
-    Portfolio portfolio = forcePortfolioResolution ? getPortfolio(compilationContext, versionCorrection) : null;
+    Portfolio portfolio = null;
 
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       if (calcConfig.getAllPortfolioRequirements().size() == 0) {

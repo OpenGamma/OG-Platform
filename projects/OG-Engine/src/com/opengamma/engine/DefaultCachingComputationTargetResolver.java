@@ -20,8 +20,11 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.target.LazyResolveContext;
-import com.opengamma.engine.target.LazyResolver;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.lazy.LazyResolveContext;
+import com.opengamma.engine.target.lazy.LazyResolver;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -31,7 +34,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class DefaultCachingComputationTargetResolver extends DelegatingComputationTargetResolver implements CachingComputationTargetResolver {
 
-  // TODO: move to com.opengamma.engine.target
+  // [PLAT-444]: move to com.opengamma.engine.target
 
   /** The cache key. */
   private static final String COMPUTATIONTARGET_CACHE = "computationTarget";
@@ -44,11 +47,23 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * The cache.
    */
   private final Cache _computationTarget;
+
   /**
+   * The cache of "live" target values that have already been resolved. These are keyed by unique identifier so that target specifications which specify different scopes can be satisfied by the same
+   * object.
+   * <p>
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final ConcurrentMap<ComputationTargetSpecification, ComputationTarget> _frontCache = new MapMaker().softValues().makeMap();
+  private final ConcurrentMap<UniqueId, UniqueIdentifiable> _frontObjectCache = new MapMaker().softValues().makeMap();
+
+  /**
+   * The cache of "live" targets that have already been resolved. These are keyed by their exact target specifications.
+   * <p>
+   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
+   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
+   */
+  private final ConcurrentMap<ComputationTargetSpecification, ComputationTarget> _frontTargetCache = new MapMaker().softValues().makeMap();
 
   private final LazyResolveContext _lazyResolveContext;
 
@@ -76,10 +91,12 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     } else {
       _lazyResolveContext = new LazyResolveContext(underlying.getSecuritySource(), this);
     }
+    _frontTargetCache.put(ComputationTargetSpecification.NULL, ComputationTarget.NULL);
   }
 
   public void clear() {
-    _frontCache.clear();
+    _frontObjectCache.clear();
+    _frontTargetCache.clear();
     _computationTarget.removeAll();
   }
 
@@ -97,55 +114,79 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   }
 
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    ComputationTarget target = _frontCache.get(specification);
+  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+    ComputationTarget result = _frontTargetCache.get(specification);
+    if (result != null) {
+      return result;
+    }
+    final UniqueId uid = specification.getUniqueId();
+    UniqueIdentifiable target = _frontObjectCache.get(uid);
     if (target != null) {
-      return target;
+      // The cached object may be from an earlier lookup with a different resolution strategy. For example
+      // CTSpec[PRIMITIVE, Foo~Bar] will store the UniqueId object in the cache which is not suitable to
+      // return for CTSpec[SECURITY, Foo~Bar].
+      if (specification.getType().isCompatible(target)) {
+        return ComputationTargetResolverUtils.createResolvedTarget(specification, target);
+      }
     }
-    final Element e = _computationTarget.get(specification);
+    final Element e = _computationTarget.get(uid);
     if (e != null) {
-      target = (ComputationTarget) e.getValue();
-      final ComputationTarget existing = _frontCache.putIfAbsent(MemoryUtils.instance(specification), target);
-      if (existing != null) {
-        return existing;
-      } else {
-        return target;
-      }
-    } else {
-      target = super.resolve(specification);
-      if (target != null) {
-        specification = MemoryUtils.instance(specification);
-        final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
+      target = (UniqueIdentifiable) e.getValue();
+      if (specification.getType().isCompatible(target)) {
+        final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, target);
         if (existing != null) {
-          return existing;
+          result = ComputationTargetResolverUtils.createResolvedTarget(specification, existing);
+        } else {
+          result = ComputationTargetResolverUtils.createResolvedTarget(specification, target);
         }
-        addToCacheImpl(specification, target);
+        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, result);
+        if (newResult != null) {
+          return newResult;
+        } else {
+          return result;
+        }
       }
-      return target;
     }
+    result = super.resolve(specification);
+    if (result != null) {
+      final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, result.getValue());
+      if (existing == null) {
+        addToCacheImpl(uid, result.getValue());
+      }
+      final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, result);
+      if (newResult != null) {
+        result = newResult;
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public ComputationTargetType simplifyType(final ComputationTargetType type) {
+    return super.simplifyType(type);
   }
 
   @Override
   public void cachePositions(Collection<Position> positions) {
-    addToCache(positions, ComputationTargetType.POSITION);
+    cacheTargets(positions);
   }
 
   @Override
   public void cacheTrades(Collection<Trade> trades) {
-    addToCache(trades, ComputationTargetType.TRADE);
+    cacheTargets(trades);
   }
 
   @Override
   public void cacheSecurities(Collection<Security> securities) {
-    addToCache(securities, ComputationTargetType.SECURITY);
+    cacheTargets(securities);
   }
 
   @Override
   public void cachePortfolioNodes(final Collection<PortfolioNode> nodes) {
-    addToCache(nodes, ComputationTargetType.PORTFOLIO_NODE);
+    cacheTargets(nodes);
   }
 
-  private void addToCacheImpl(final ComputationTargetSpecification specification, final ComputationTarget ct) {
+  private void addToCacheImpl(final UniqueId identifier, final UniqueIdentifiable target) {
     // Don't allow re-entrance to the cache; serialization of a LazyResolver can try to write entries to the
     // cache. Put them into the frontCache only so that we can do a quick lookup if they stay in memory. The
     // problem is that spooling a big root portfolio node to disk can try to resolve and cache all of the
@@ -153,7 +194,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     if (LazyResolveContext.isWriting()) {
       return;
     }
-    Element e = new Element(specification, ct);
+    Element e = new Element(identifier, target);
     // If the cache is going to write to disk and two threads hit this then one gets blocked; better to let the
     // second one carry on with something else and the first can do "cache writing" duties until the queue is
     // clear.
@@ -174,20 +215,17 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
   }
 
-  private void addToCache(ComputationTargetSpecification specification, final ComputationTarget ct) {
-    specification = MemoryUtils.instance(specification);
-    if (_frontCache.putIfAbsent(specification, ct) == null) {
-      addToCacheImpl(specification, ct);
+  protected void cacheTarget(final UniqueIdentifiable target) {
+    final UniqueId uid = target.getUniqueId();
+    if (_frontObjectCache.putIfAbsent(uid, target) == null) {
+      addToCacheImpl(uid, target);
     }
   }
 
-  private void addToCache(final UniqueIdentifiable target, final ComputationTargetType targetType) {
-    addToCache(new ComputationTargetSpecification(targetType, target.getUniqueId()), new ComputationTarget(targetType, target));
-  }
-
-  private void addToCache(final Collection<? extends UniqueIdentifiable> targets, final ComputationTargetType targetType) {
+  @Override
+  public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets) {
     for (UniqueIdentifiable target : targets) {
-      addToCache(target, targetType);
+      cacheTarget(target);
     }
   }
 

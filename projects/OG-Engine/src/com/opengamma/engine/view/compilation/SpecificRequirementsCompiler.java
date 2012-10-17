@@ -5,11 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.EnumSet;
-
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -27,16 +24,14 @@ public final class SpecificRequirementsCompiler {
    * Adds any specific requirements mentioned in the view calculation configurations to the dependency graphs.
    * 
    * @param compilationContext  the context of the view definition compilation
-   * @return the set of target types found in the specific requirements, not null
    */
-  public static EnumSet<ComputationTargetType> execute(ViewCompilationContext compilationContext) {
-    EnumSet<ComputationTargetType> specificTargetTypes = EnumSet.noneOf(ComputationTargetType.class);
+  public static void execute(ViewCompilationContext compilationContext) {
     ResultModelDefinition resultModelDefinition = compilationContext.getViewDefinition().getResultModelDefinition();
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
       for (ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
-        ComputationTargetSpecification targetSpecification = requirement.getTargetSpecification();
-        if (resultModelDefinition.getOutputMode(targetSpecification.getType()) == ResultOutputMode.NONE) {
+        ComputationTargetReference targetReference = requirement.getTargetReference();
+        if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
           // We're not including this in the results, so no point it being a terminal output. It will be added
           // automatically if it is needed for some other terminal output.
           continue;
@@ -44,7 +39,6 @@ public final class SpecificRequirementsCompiler {
         builder.addTarget(requirement);
       }
     }
-    return specificTargetTypes;
   }
   
 }

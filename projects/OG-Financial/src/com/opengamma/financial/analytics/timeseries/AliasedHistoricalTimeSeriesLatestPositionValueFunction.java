@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 
 /**
  * Function which exposes the latest position value of an historical time-series for a given data field under a

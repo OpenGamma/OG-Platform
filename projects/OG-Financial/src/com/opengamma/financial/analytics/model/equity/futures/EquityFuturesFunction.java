@@ -27,11 +27,12 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -135,7 +136,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         throw new OpenGammaRuntimeException("Unhandled pricingMethod");
     }
     // Call OG-Analytics
-    return getComputedValue(derivative, dataBundle, trade);
+    return getComputedValue(target.toSpecification(), derivative, dataBundle, trade);
   }
 
   /**
@@ -143,13 +144,13 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    *
    * @return Call to the Analytics to get the value required
    */
-  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, Trade trade) {
+  private Set<ComputedValue> getComputedValue(ComputationTargetSpecification targetSpec, EquityFuture derivative, EquityFutureDataBundle bundle, Trade trade) {
 
     final double nContracts = trade.getQuantity().doubleValue();
     final double valueItself;
 
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
-    final ValueSpecification specification = getValueSpecification(_valueRequirementName, security);
+    final ValueSpecification specification = getValueSpecification(_valueRequirementName, targetSpec, security);
 
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
       valueItself = _pricer.presentValue(derivative, bundle);
@@ -173,10 +174,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
-    return target.getTrade().getSecurity() instanceof EquityFutureSecurity;
+    return target.getTrade().getSecurity() instanceof com.opengamma.financial.security.future.EquityFutureSecurity;
   }
 
   @Override
@@ -214,7 +212,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
   }
 
   private YieldAndDiscountCurve getYieldCurve(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -229,7 +227,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private ValueRequirement getDividendYieldRequirement(EquityFutureSecurity security) {
     ExternalId id = security.getUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, id);
+    return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, ComputationTargetType.PRIMITIVE, id);
   }
 
   @SuppressWarnings("unused")
@@ -243,7 +241,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
-    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
     return req;
   }
 
@@ -257,7 +255,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getCostOfCarryRequirement(EquityFutureSecurity security) {
-    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, security.getUnderlyingId());
+    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, ComputationTargetType.PRIMITIVE, security.getUnderlyingId());
   }
 
   private Double getCostOfCarry(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -304,20 +302,18 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(getValueSpecification(_valueRequirementName, target.getTrade().getSecurity()));
+    return Collections.singleton(getValueSpecification(_valueRequirementName, target.toSpecification(), target.getTrade().getSecurity()));
   }
 
   /**
    * Create a ValueSpecification, the meta data for the value itself.
-   *
-   * @param equityFuture
+   * 
+   * @param valueRequirementName the value requirement name
+   * @param targetSpec the target specification
    * @param equityFutureSecurity The OG_Financial Security
    */
-  private ValueSpecification getValueSpecification(final String valueRequirementName, final Security equityFutureSecurity) {
-
-    final ValueRequirement valueReq = new ValueRequirement(valueRequirementName, equityFutureSecurity);
+  private ValueSpecification getValueSpecification(final String valueRequirementName, final ComputationTargetSpecification targetSpec, final Security equityFutureSecurity) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(equityFutureSecurity);
-
     final ValueProperties.Builder properties = createValueProperties();
     final ValueProperties valueProps = properties
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
@@ -326,6 +322,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         .with(ValuePropertyNames.CALCULATION_METHOD, _pricingMethodName)
         .get();
 
-    return new ValueSpecification(valueReq, valueProps);
+    return new ValueSpecification(valueRequirementName, targetSpec, valueProps);
   }
 }

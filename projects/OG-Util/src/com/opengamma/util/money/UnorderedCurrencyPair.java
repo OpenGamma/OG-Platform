@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.money;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import com.opengamma.id.ObjectId;
@@ -19,7 +20,9 @@ import com.opengamma.util.ArgumentChecker;
  * This acts like a two element {@code Set}, thus
  * {@code UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)}.
  */
-public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectIdentifiable {
+public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectIdentifiable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The scheme to use in object identifiers.

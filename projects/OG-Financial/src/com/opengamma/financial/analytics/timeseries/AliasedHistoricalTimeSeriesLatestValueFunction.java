@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.timeseries;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.value.ValueRequirementAliasFunction;

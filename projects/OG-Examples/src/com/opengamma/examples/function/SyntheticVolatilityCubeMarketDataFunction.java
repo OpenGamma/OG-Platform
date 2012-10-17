@@ -20,12 +20,12 @@ import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -66,7 +66,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
   @Override
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);
-    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getCurrency());
+    final ComputationTargetSpecification currencySpec = ComputationTargetSpecification.of(_helper.getCurrency());
     _marketDataResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, currencySpec,
         createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_marketDataResult);
@@ -138,7 +138,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
     final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     if (instruments != null) {
       for (final ExternalId id : instruments) {
-        ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, new ComputationTargetSpecification(id)));
+        ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id));
       }
     }
     return ret;
@@ -186,7 +186,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
 
     @Override
     public ComputationTargetType getTargetType() {
-      return ComputationTargetType.PRIMITIVE;
+      return ComputationTargetType.CURRENCY;
     }
 
     @SuppressWarnings("synthetic-access")
@@ -206,7 +206,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
       final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<VolatilityPoint, Double>();
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
 
-      final HashMap<UniqueId, Double> otherData = new HashMap<UniqueId, Double>();
+      final HashMap<ExternalId, Double> otherData = new HashMap<ExternalId, Double>();
 
       for (final ComputedValue value : inputs.getAllValues()) {
         if (!(value.getValue() instanceof Double)) {
@@ -216,11 +216,11 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
         final VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
         final Pair<Tenor, Tenor> strikePoint = getStrikePoint(value.getSpecification());
         if (volatilityPoint == null && strikePoint == null) {
-          otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
+          otherData.put(getExternalId(value.getSpecification().getTargetSpecification()), dValue);
         } else if (volatilityPoint != null && strikePoint == null) {
           if (volatilityPoint.getRelativeStrike() > -50) {
             final Double previous = dataPoints.put(volatilityPoint, dValue);
-            final ExternalId previousId = dataIds.put(volatilityPoint, value.getSpecification().getTargetSpecification().getIdentifier());
+            final ExternalId previousId = dataIds.put(volatilityPoint, getExternalId(value.getSpecification().getTargetSpecification()));
             final Double previousRelativeStrike = relativeStrikes.put(volatilityPoint, volatilityPoint.getRelativeStrike()); 
             if (previous != null && previous > dValue) {
               //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
@@ -254,14 +254,22 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
       if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
         return null;
       }
-      return _pointsById.get(spec.getTargetSpecification().getIdentifier());
+      return _pointsById.get(getExternalId(spec.getTargetSpecification()));
     }
 
     private Pair<Tenor, Tenor> getStrikePoint(final ValueSpecification spec) {
       if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
         return null;
       }
-      return _strikesById.get(spec.getTargetSpecification().getIdentifier());
+      return _strikesById.get(getExternalId(spec.getTargetSpecification()));
     }
+
   }
+
+  private static ExternalId getExternalId(final ComputationTargetSpecification ctSpec) {
+    // TODO: this is not pretty, but the target spec was probably constructed from an identifier bundle
+    final UniqueId uid = ctSpec.getUniqueId();
+    return ExternalId.of(uid.getScheme(), uid.getValue());
+  }
+
 }

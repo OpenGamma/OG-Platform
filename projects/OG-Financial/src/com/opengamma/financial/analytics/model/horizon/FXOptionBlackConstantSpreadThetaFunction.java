@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.model.option.definition.ForexOptionData
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -153,9 +152,6 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     return target.getSecurity() instanceof FXOptionSecurity
         || target.getSecurity() instanceof FXDigitalOptionSecurity;
   }

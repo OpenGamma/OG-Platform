@@ -12,7 +12,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.analytics.MissingInputsFunction;
@@ -26,18 +25,15 @@ public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDa
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
-      final PortfolioNode node = target.getPortfolioNode();
-      final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
-      for (Position position : allPositions) {
-        Security positionSecurity = position.getSecurity();
-        if (!FinancialSecurityUtils.isExchangeTraded(positionSecurity) && !(positionSecurity instanceof BondSecurity)) {
-          return false;
-        }
+    final PortfolioNode node = target.getPortfolioNode();
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+    for (Position position : allPositions) {
+      Security positionSecurity = position.getSecurity();
+      if (!FinancialSecurityUtils.isExchangeTraded(positionSecurity) && !(positionSecurity instanceof BondSecurity)) {
+        return false;
       }
-      return true;
     }
-    return false;
+    return true;
   }
 
   @Override

@@ -14,10 +14,9 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
@@ -137,8 +136,8 @@ public class ViewResultModelMergerTest {
   //-------------------------------------------------------------------------
   private ComputedValue getComputedValue(String valueName, Object value) {
     UniqueId uniqueId = UniqueId.of("Scheme", valueName);
-    ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
-    return new ComputedValue(new ValueSpecification(valueRequirement, "FunctionId"), value);
+    return new ComputedValue(new ValueSpecification(valueName, ComputationTargetSpecification.of(uniqueId),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "FunctionId").get()), value);
   }
   
   private void assertResultsEqual(ViewResultModel expected, ViewResultModel actual) {

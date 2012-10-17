@@ -35,7 +35,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -47,7 +46,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testFull() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -69,7 +67,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade_withPremium() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ObjectId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -87,7 +84,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade_withAttributes() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));

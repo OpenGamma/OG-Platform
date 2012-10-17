@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -198,23 +198,6 @@ public class DependencyGraph {
    */
   public int getSize() {
     return _dependencyNodes.size();
-  }
-
-  /**
-   * Returns an immutable set of all nodes in the graph for the given target type.
-   * 
-   * @param type computation target type, not null
-   * @return the set of nodes
-   */
-  public Set<DependencyNode> getDependencyNodes(final ComputationTargetType type) {
-    // REVIEW 2012-05-24 aiwg -- Do we really need this? It's only used by some of the unit tests.
-    Set<DependencyNode> dependencyNodes = new HashSet<DependencyNode>();
-    for (Map.Entry<ValueSpecification, DependencyNode> entry : _outputValues.entrySet()) {
-      if (entry.getKey().getTargetSpecification().getType() == type) {
-        dependencyNodes.add(entry.getValue());
-      }
-    }
-    return dependencyNodes;
   }
 
   /**

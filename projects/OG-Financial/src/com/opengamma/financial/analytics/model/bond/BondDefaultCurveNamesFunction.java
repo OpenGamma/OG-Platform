@@ -11,13 +11,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -39,7 +38,7 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _currencyAndCreditCurveNames;
 
   public BondDefaultCurveNamesFunction(final String priority, final String... currencyAndCurveConfigNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.BOND_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,
@@ -60,9 +59,6 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof BondSecurity)) {
-      return false;
-    }
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     return _currencyAndCreditCurveNames.containsKey(currency);
   }

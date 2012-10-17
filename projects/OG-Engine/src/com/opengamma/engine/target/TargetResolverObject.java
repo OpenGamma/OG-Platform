@@ -18,7 +18,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 /**
  * Base class for target resolver based object.
  */
-/* package */abstract class TargetResolverObject implements Serializable {
+public class TargetResolverObject implements Serializable {
 
   private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
   private static final ConcurrentMap<ComputationTargetResolver, Integer> s_resolver2identifier = new MapMaker().weakKeys().makeMap();

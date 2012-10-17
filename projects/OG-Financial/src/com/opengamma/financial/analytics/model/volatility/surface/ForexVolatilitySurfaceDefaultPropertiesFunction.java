@@ -9,14 +9,13 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -27,21 +26,13 @@ public class ForexVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
   private final String _rightExtrapolatorName;
 
   public ForexVolatilitySurfaceDefaultPropertiesFunction(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.UNORDERED_CURRENCY_PAIR, true);
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,7 +46,7 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
   private final Map<String, String> _currencyAndCurveConfigNames;
 
   public InterestRateInstrumentDefaultPropertiesFunction(final String priority, final String includeIRFutures, final String... currencyAndCurveConfigNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(includeIRFutures, "include IR futures field");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
@@ -63,14 +62,8 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (!_includeIRFutures && security instanceof InterestRateFutureSecurity) {
-      return false;
-    }
-    if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
       return false;
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(security);

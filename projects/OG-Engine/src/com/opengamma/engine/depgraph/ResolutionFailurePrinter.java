@@ -5,14 +5,16 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -24,30 +26,32 @@ import com.opengamma.util.ArgumentChecker;
 public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
 
   private final Set<ResolutionFailure> _visited;
-  private final PrintStream _out;
+  private final PrintWriter _out;
   private final String _indent;
 
   public ResolutionFailurePrinter() {
-    this(System.out);
+    this(new OutputStreamWriter(System.out));
   }
 
-  public ResolutionFailurePrinter(final PrintStream out) {
+  public ResolutionFailurePrinter(final Writer out) {
     ArgumentChecker.notNull(out, "out");
-    _out = out;
+    _out = new PrintWriter(out, true);
     _indent = "";
     _visited = Collections.newSetFromMap(new IdentityHashMap<ResolutionFailure, Boolean>());
   }
 
-  protected ResolutionFailurePrinter(final ResolutionFailurePrinter parent) {
+  protected ResolutionFailurePrinter(final ResolutionFailurePrinter parent, final PrintWriter writer) {
     ArgumentChecker.notNull(parent, "parent");
-    _out = parent._out;
+    _out = writer;
     _indent = parent._indent + "  ";
     _visited = parent._visited;
   }
 
   protected void println(final String str) {
-    _out.print(_indent);
-    _out.println(str);
+    synchronized (_out) {
+      _out.print(_indent);
+      _out.println(str);
+    }
   }
 
   protected String toString(final ValueRequirement valueRequirement) {
@@ -56,11 +60,11 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
     if (!valueRequirement.getConstraints().isEmpty()) {
       sb.append(' ').append(toString(valueRequirement.getConstraints()));
     }
-    sb.append(" on ").append(toString(valueRequirement.getTargetSpecification()));
+    sb.append(" on ").append(toString(valueRequirement.getTargetReference()));
     return sb.toString();
   }
 
-  protected String toString(final ComputationTargetSpecification target) {
+  protected String toString(final ComputationTargetReference target) {
     return target.toString();
   }
 
@@ -74,10 +78,6 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
 
   protected String toString(final ValueSpecification valueSpecification) {
     return valueSpecification.getValueName() + ' ' + toString(valueSpecification.getProperties()) + " on " + toString(valueSpecification.getTargetSpecification());
-  }
-
-  protected String toString(final ParameterizedFunction function) {
-    return function.toString();
   }
 
   protected String toString(final Map<ValueSpecification, ValueRequirement> requirements) {
@@ -145,81 +145,88 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
   }
 
   @Override
-  protected synchronized Void visitCouldNotResolve(final ValueRequirement valueRequirement) {
+  protected Void visitCouldNotResolve(final ValueRequirement valueRequirement) {
     println("Could not resolve " + toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitNoFunctions(final ValueRequirement valueRequirement) {
+  protected Void visitNoFunctions(final ValueRequirement valueRequirement) {
     println("No functions available for " + toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+  protected Void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
     println("Recursive requirement on " + toString(valueRequirement) + " for function(s) producing it");
     return null;
   }
 
   @Override
-  protected synchronized Void visitUnsatisfied(final ValueRequirement valueRequirement) {
+  protected Void visitUnsatisfied(final ValueRequirement valueRequirement) {
     println("Unsatisfied requirement " + toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitMarketDataMissing(final ValueRequirement valueRequirement) {
+  protected Void visitMarketDataMissing(final ValueRequirement valueRequirement) {
     println("Market data missing for requirement " + toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected Void visitSuccessfulFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
-    println("Applied " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    println("Applied " + function + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected Void visitFailedFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
-    println("Couldn't satisfy " + toStringResolutionFailures(unsatisfied) + " for " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement) +
-        ". Caused by:");
+    final StringWriter buffer = new StringWriter();
+    final ResolutionFailurePrinter visitor = new ResolutionFailurePrinter(this, new PrintWriter(buffer));
     for (ResolutionFailure requirement : unsatisfied) {
       if (_visited.add(requirement)) {
-        requirement.accept(new ResolutionFailurePrinter(this));
+        requirement.accept(visitor);
       } else {
-        println("  ...");
+        visitor.println("... " + requirement.getValueRequirement());
       }
+    }
+    synchronized (_out) {
+      _out.print(_indent);
+      _out.println("Couldn't satisfy " + toStringResolutionFailures(unsatisfied) + " for " + function + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement) +
+          ". Caused by:");
+      _out.print(buffer.toString());
     }
     return null;
   }
 
   @Override
-  protected synchronized Void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected Void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
-    println("getAdditionalRequirements method failed on " + toString(function) + " with inputs " + toString(requirements) + " to produce " + toString(desiredOutput) + " for " +
+    println("getAdditionalRequirements method failed on " + function + " with inputs " + toString(requirements) + " to produce " + toString(desiredOutput) + " for " +
         toString(valueRequirement));
     return null;
   }
 
   @Override
-  protected synchronized Void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
-    println("getResults method failed on " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
-    return null;
-  }
-
-  @Override
-  protected synchronized Void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
-    println("getRequirements method failed on " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
-    return null;
-  }
-
-  @Override
-  protected synchronized Void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected Void visitGetResultsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
-    println("Provisional result " + toString(desiredOutput) + " for " + toString(desiredOutput) + " not in output of " + toString(function) + " after late resolution of " +
+    println("getResults method failed on " + function + " with inputs " + toString(requirements) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    return null;
+  }
+
+  @Override
+  protected Void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput) {
+    println("getRequirements method failed on " + function + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    return null;
+  }
+
+  @Override
+  protected Void visitLateResolutionFailure(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
+      final Map<ValueSpecification, ValueRequirement> requirements) {
+    println("Provisional result " + toString(desiredOutput) + " for " + toString(desiredOutput) + " not in output of " + function + " after late resolution of " +
         toStringValueSpecifications(requirements.keySet()));
     return null;
   }

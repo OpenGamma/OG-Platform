@@ -32,7 +32,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -44,6 +43,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -110,7 +110,7 @@ public class ViewDefinitionCompilerTest {
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     // This function doesn't actually require anything, so it can compute at the node level without anything else.
     // Hence, the only target will be the node.
-    MockFunction fn1 = MockFunction.getMockFunction(new ComputationTarget(pn), 14.2);
+    MockFunction fn1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, pn), 14.2);
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1);
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
@@ -156,8 +156,8 @@ public class ViewDefinitionCompilerTest {
     securitySource.addSecurity(sec1);
     securitySource.addSecurity(sec2);
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
-    MockFunction fn2 = MockFunction.getMockFunction("fn2", new ComputationTarget(sec2), 14.2);
-    MockFunction fn1 = MockFunction.getMockFunction("fn1", new ComputationTarget(pn), 14.2, fn2);
+    MockFunction fn2 = MockFunction.getMockFunction("fn2", new ComputationTarget(ComputationTargetType.SECURITY, sec2), 14.2);
+    MockFunction fn1 = MockFunction.getMockFunction("fn1", new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, pn), 14.2, fn2);
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1);
     functionRepo.addFunction(fn2);

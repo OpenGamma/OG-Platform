@@ -11,13 +11,12 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 
 /**
  *
@@ -38,7 +37,7 @@ public class FXOneLookBarrierOptionBlackDefaultPropertiesFunction extends Defaul
   };
 
   public FXOneLookBarrierOptionBlackDefaultPropertiesFunction(final String barrierOverhedge, final String callSpreadFullWidth) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY, true);
     Validate.notNull(barrierOverhedge, "No barrierOverhedge name was provided to use as default value.");
     Validate.notNull(callSpreadFullWidth, "No callSpreadFullWidth name was provided to use as default value.");
     _barrierOverhedge = barrierOverhedge;
@@ -63,14 +62,5 @@ public class FXOneLookBarrierOptionBlackDefaultPropertiesFunction extends Defaul
     }
     return null;
   }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return (target.getSecurity() instanceof FXBarrierOptionSecurity);
-  }
-
 
 }

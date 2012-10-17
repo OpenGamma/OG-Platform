@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -78,12 +78,12 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
 
   private ValueRequirement getCreditCurveRequirement() {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, getCreditCurveName()).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(_currency), properties);
   }
 
   private ValueRequirement getRiskFreeCurveRequirement() {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, getRiskFreeCurveName()).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(_currency), properties);
   }
 
   protected ValueSpecification getResultSpec(final ComputationTarget target) {

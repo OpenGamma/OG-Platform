@@ -8,8 +8,8 @@ package com.opengamma.engine.marketdata.availability;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -57,10 +57,10 @@ public class ValueNameMarketDataAvailabilityProvider implements MarketDataAvaila
   //-------------------------------------------------------------------------
   @Override
   public ValueSpecification getAvailability(ValueRequirement requirement) {
-    if (getTargetType() != null && requirement.getTargetSpecification().getType() != getTargetType()) {
+    if (getTargetType() != null && requirement.getTargetReference().getType().isTargetType(getTargetType())) {
       return null;
     }
-    return _validMarketDataRequirementNames.contains(requirement.getValueName()) ? MarketDataUtils.createMarketDataValue(requirement) : null;
+    return _validMarketDataRequirementNames.contains(requirement.getValueName()) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
   }
   
 }

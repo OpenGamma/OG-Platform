@@ -23,6 +23,8 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -33,7 +35,8 @@ import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistedException;
-import com.opengamma.engine.target.LazyComputationTargetResolver;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -81,11 +84,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private final ViewComputationCacheSource _cacheSource;
   private final CompiledFunctionService _functionCompilationService;
-  private final ComputationTargetResolver _targetResolver;
+  private final ComputationTargetResolver _targetResolver; // TODO: this should be in the FunctionExecutionContext
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private final String _nodeId;
   private final ExecutorService _executorService;
+  private final ComputationTargetSpecificationResolver _targetSpecificationResolver; // TODO: this should be in the FunctionExecutionContext
   private boolean _writeBehindSharedCache;
   private boolean _writeBehindPrivateCache;
   private boolean _asynchronousTargetResolve;
@@ -111,6 +115,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     _nodeId = nodeId;
     _executorService = executorService;
     _functionInvocationStatistics = functionInvocationStatistics;
+    _targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, getFunctionExecutionContext().getSecuritySource());
   }
 
   public ViewComputationCacheSource getCacheSource() {
@@ -123,6 +128,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
+  }
+
+  public ComputationTargetSpecificationResolver getTargetSpecificationResolver() {
+    return _targetSpecificationResolver;
   }
 
   public ViewProcessorQuerySender getViewProcessorQuerySender() {
@@ -444,22 +453,28 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     // store results
     missing.clear();
     missing.addAll(outputs);
+    final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(outputs.size());
     for (ComputedValue result : results) {
-      final ValueSpecification resultSpec = result.getSpecification();
-      if (!missing.remove(resultSpec)) {
-        s_logger.debug("Function produced non-requested result {}", resultSpec);
+      ValueSpecification resultSpec = result.getSpecification();
+      final ComputationTargetSpecification targetSpec = ComputationTargetResolverUtils.simplifyType(resultSpec.getTargetSpecification(), getTargetResolver());
+      if (targetSpec != resultSpec.getTargetSpecification()) {
+        resultSpec = new ValueSpecification(resultSpec.getValueName(), targetSpec, resultSpec.getProperties());
+        result = new ComputedValue(resultSpec, result.getValue());
+      }
+      if (missing.remove(resultSpec)) {
+        newResults.add(result);
+      } else {
+        s_logger.debug("Function {} produced non-requested result {}", invoker, resultSpec);
       }
     }
     if (!missing.isEmpty()) {
-      final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(results.size() + missing.size());
-      newResults.addAll(results);
       for (ValueSpecification output : missing) {
+        s_logger.debug("Function {} didn't produce required result {}", invoker, output);
         newResults.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
       }
-      results = newResults;
       itemResult = itemResult.withMissingOutputs(missing);
     }
-    getCache().putValues(results, getJob().getCacheSelectHint(), statistics);
+    getCache().putValues(newResults, getJob().getCacheSelectHint(), statistics);
     return itemResult;
   }
 
@@ -528,7 +543,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return CalculationJobResultItem.missingInputs(missing);
       }
     }
-    final FunctionInputs functionInputs = new FunctionInputsImpl(inputs, missing);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(getTargetSpecificationResolver(), inputs, missing);
     if (target == null) {
       try {
         target = targetFuture.get();

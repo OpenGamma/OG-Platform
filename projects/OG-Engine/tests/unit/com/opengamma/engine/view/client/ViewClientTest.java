@@ -26,10 +26,10 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -583,7 +583,7 @@ public class ViewClientTest {
     public void addValue(ValueRequirement requirement, Object value) {
       s_logger.debug("Setting {} = {}", requirement, value);
       synchronized (_lastKnownValues) {
-        _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
+        _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value));
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
@@ -608,7 +608,7 @@ public class ViewClientTest {
     @Override
     public ValueSpecification getAvailability(final ValueRequirement requirement) {
       synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement) : null;
+        return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
       }
     }
 

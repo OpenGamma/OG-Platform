@@ -5,27 +5,34 @@
  */
 package com.opengamma.engine;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.CacheNotifyingSecuritySource;
-import com.opengamma.engine.target.LazyResolveContext;
-import com.opengamma.engine.target.LazyResolvedPortfolio;
-import com.opengamma.engine.target.LazyResolvedPortfolioNode;
-import com.opengamma.engine.target.LazyResolvedPosition;
-import com.opengamma.engine.target.LazyResolvedTrade;
-import com.opengamma.engine.target.LazyResolver;
-import com.opengamma.engine.target.LazyResolverPositionSource;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
+import com.opengamma.engine.target.ComputationTargetTypeProvider;
+import com.opengamma.engine.target.ComputationTargetTypeVisitor;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
+import com.opengamma.engine.target.lazy.LazyResolveContext;
+import com.opengamma.engine.target.lazy.LazyResolver;
+import com.opengamma.engine.target.lazy.LazyResolverPositionSource;
+import com.opengamma.engine.target.resolver.ChainedResolver;
+import com.opengamma.engine.target.resolver.PositionSourceResolver;
+import com.opengamma.engine.target.resolver.Resolver;
+import com.opengamma.engine.target.resolver.SecuritySourceResolver;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,9 +40,9 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This is the standard implementation that resolves from a target specification to a real target. It provides results using a security and position source.
  */
-public class DefaultComputationTargetResolver implements ComputationTargetResolver, LazyResolver {
+public class DefaultComputationTargetResolver implements ComputationTargetResolver, LazyResolver, ComputationTargetTypeProvider {
 
-  // TODO: move to com.opengamma.engine.target
+  // [PLAT-444]: move to com.opengamma.engine.target
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultComputationTargetResolver.class);
@@ -44,10 +51,21 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The security source.
    */
   private final SecuritySource _securitySource;
+
   /**
    * The position source.
    */
   private final PositionSource _positionSource;
+
+  /**
+   * The per-type resolvers.
+   */
+  private final ComputationTargetTypeMap<Resolver<?>> _resolvers = new ComputationTargetTypeMap<Resolver<?>>(ChainedResolver.CREATE);
+
+  /**
+   * The type-reductions used.
+   */
+  private final ComputationTargetTypeMap<ComputationTargetType> _baseTypes = new ComputationTargetTypeMap<ComputationTargetType>();
 
   private LazyResolveContext _lazyResolveContext;
 
@@ -75,8 +93,41 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   public DefaultComputationTargetResolver(final SecuritySource securitySource, final PositionSource positionSource) {
     _securitySource = securitySource;
+    if (securitySource != null) {
+      addResolver(ComputationTargetType.SECURITY, new SecuritySourceResolver(securitySource));
+    }
     _positionSource = positionSource;
+    if (positionSource != null) {
+      final PositionSourceResolver resolver = new PositionSourceResolver(positionSource);
+      addResolver(ComputationTargetType.PORTFOLIO_NODE, new LazyResolver.LazyPortfolioNodeResolver(this, resolver.portfolioNode()));
+      addResolver(ComputationTargetType.POSITION, new LazyResolver.LazyPositionResolver(this, resolver.position()));
+      addResolver(ComputationTargetType.TRADE, new LazyResolver.LazyTradeResolver(this, resolver.trade()));
+    }
+    addResolver(ComputationTargetType.CURRENCY);
+    addResolver(ComputationTargetType.PRIMITIVE);
+    addResolver(ComputationTargetType.UNORDERED_CURRENCY_PAIR);
     _lazyResolveContext = new LazyResolveContext(securitySource, null);
+  }
+
+  /**
+   * Adds a resolver for use with targets of the given type.
+   * 
+   * @param <T> the target type
+   * @param type the type(s) to use this resolver for, never null
+   * @param resolver the resolver to use, not null
+   */
+  public <T extends UniqueIdentifiable> void addResolver(final ComputationTargetType type, final Resolver<T> resolver) {
+    _resolvers.put(type, resolver, _resolvers.getFoldFunction());
+    _baseTypes.put(type, type);
+  }
+
+  /**
+   * Registers a primitive type with the resolver using the primitive type's default resolution strategy to convert {@link UniqueId} instances to the target object.
+   * 
+   * @param type the primitive type to resolve, never null
+   */
+  public void addResolver(final PrimitiveComputationTargetType<?> type) {
+    addResolver(type, type);
   }
 
   @Override
@@ -122,7 +173,6 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     return new LazyResolverPositionSource(getPositionSourceImpl(), getLazyResolveContext());
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Resolves the specification using the security and position sources.
    * <p>
@@ -133,153 +183,102 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    final UniqueId uid = specification.getUniqueId();
-    switch (specification.getType()) {
-      case PRIMITIVE:
-        return resolvePrimitive(specification, uid);
-      case SECURITY:
-        return resolveSecurity(specification, uid);
-      case POSITION:
-        return resolvePosition(specification, uid);
-      case TRADE:
-        return resolveTrade(specification, uid);
-      case PORTFOLIO_NODE:
-        return resolveNode(specification, uid);
-      default:
-        throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
-    }
-  }
-
-  /**
-   * Handles the resolve of a primitive. This is only called if the specification is of type primitive.
-   * 
-   * @param specification the specification being resolved, not null
-   * @param uid the unique identifier of the target
-   * @return the resolved primitive target, not null
-   */
-  protected ComputationTarget resolvePrimitive(final ComputationTargetSpecification specification, final UniqueId uid) {
-    return new ComputationTarget(specification.getType(), uid);
-  }
-
-  /**
-   * Handles the resolve of a security. This is only called if the specification is of type security.
-   * 
-   * @param specification the specification being resolved, not null
-   * @param securityId the unique identifier of the target
-   * @return the resolved security target, not null
-   */
-  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueId securityId) {
-    checkSecuritySource(ComputationTargetType.SECURITY);
-
-    final Security security;
-    try {
-      security = getSecuritySourceImpl().getSecurity(securityId);
-    } catch (DataNotFoundException ex) {
-      s_logger.info("Unable to resolve security UID {}", securityId);
-      return null;
-    }
-    s_logger.info("Resolved security UID {} to security {}", securityId, security);
-    return new ComputationTarget(ComputationTargetType.SECURITY, security);
-  }
-
-  /**
-   * Handles the resolve of a position. This is only called if the specification is of type position.
-   * 
-   * @param specification the specification being resolved, not null
-   * @param positionId the unique identifier of the target
-   * @return the resolved position target, not null
-   */
-  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueId positionId) {
-    checkSecuritySource(ComputationTargetType.POSITION);
-    checkPositionSource(ComputationTargetType.POSITION);
-
-    // resolve position
-    Position position;
-    try {
-      position = getPositionSourceImpl().getPosition(positionId);
-    } catch (DataNotFoundException ex) {
-      s_logger.info("Unable to resolve position UID {}", positionId);
-      return null;
-    }
-    s_logger.info("Resolved position UID {} to position {}", positionId, position);
-    return new ComputationTarget(ComputationTargetType.POSITION, new LazyResolvedPosition(getLazyResolveContext(), position));
-  }
-
-  /**
-   * Handles the resolve of a trade. This is only called if the specification is of type trade.
-   * 
-   * @param specification the specification being resolved, not null
-   * @param tradeId the unique identifier of the target
-   * @return the resolved trade target, not null
-   */
-  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueId tradeId) {
-    checkSecuritySource(ComputationTargetType.TRADE);
-    checkPositionSource(ComputationTargetType.TRADE);
-
-    // resolve trade
-    Trade trade;
-    try {
-      trade = getPositionSourceImpl().getTrade(tradeId);
-    } catch (DataNotFoundException ex) {
-      s_logger.info("Unable to resolve trade UID {}", tradeId);
-      return null;
-    }
-    s_logger.info("Resolved trade UID {} to trade {}", tradeId, trade);
-    return new ComputationTarget(ComputationTargetType.TRADE, new LazyResolvedTrade(getLazyResolveContext(), trade));
-  }
-
-  /**
-   * Handles the resolve of a node. This is only called if the specification is of type node.
-   * 
-   * @param specification the specification being resolved, not null
-   * @param uniqueId the unique identifier of the target
-   * @return the resolved node target, not null
-   */
-  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueId uniqueId) {
-    checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);
-
-    // try node
-    try {
-      PortfolioNode node = getPositionSourceImpl().getPortfolioNode(uniqueId);
-      s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uniqueId, node);
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new LazyResolvedPortfolioNode(getLazyResolveContext(), node));
-    } catch (DataNotFoundException ex) {
-      // try portfolio
-      try {
-        Portfolio portfolio = getPositionSourceImpl().getPortfolio(uniqueId);
-        s_logger.info("Resolved multiple-position UID {} to portfolio {}", uniqueId, portfolio);
-        return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new LazyResolvedPortfolio(getLazyResolveContext(), portfolio));
-      } catch (DataNotFoundException ex2) {
-        s_logger.info("Unable to resolve multiple-position UID {}", uniqueId);
-        return null;
+    final ComputationTargetType type = specification.getType();
+    if (ComputationTargetType.NULL == type) {
+      return ComputationTarget.NULL;
+    } else {
+      final Resolver<?> resolver = _resolvers.get(type);
+      if (resolver != null) {
+        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId());
+        if (resolved != null) {
+          return ComputationTargetResolverUtils.createResolvedTarget(specification, resolved);
+        } else {
+          s_logger.info("Unable to resolve {}", specification);
+          return null;
+        }
+      } else {
+        throw new OpenGammaRuntimeException("Unhandled computation target type " + specification.getType());
       }
     }
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Ensures that the security source is available.
-   * 
-   * @param attemptedTargetType the target type for the message, not null
-   */
-  private void checkSecuritySource(ComputationTargetType attemptedTargetType) {
-    if (getSecuritySourceImpl() == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve " + attemptedTargetType + ", no SecuritySource found");
+  private static final ComputationTargetTypeVisitor<ComputationTargetTypeMap<ComputationTargetType>, ComputationTargetType> s_simplifyType =
+      new ComputationTargetTypeVisitor<ComputationTargetTypeMap<ComputationTargetType>, ComputationTargetType>() {
+
+        @Override
+        public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
+          ComputationTargetType result = null;
+          boolean changed = false;
+          for (ComputationTargetType type : types) {
+            final ComputationTargetType newType = type.accept(this, data);
+            if ((newType != null) && (newType != type)) {
+              if (result == null) {
+                result = newType;
+              } else {
+                result = result.or(newType);
+              }
+              changed = true;
+            } else {
+              if (result == null) {
+                result = type;
+              } else {
+                result = result.or(type);
+              }
+            }
+          }
+          return changed ? result : null;
+        }
+
+        @Override
+        public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTargetTypeMap<ComputationTargetType> data) {
+          final int length = types.size();
+          for (int i = 0; i < length; i++) {
+            ComputationTargetType type = types.get(i);
+            ComputationTargetType newType = type.accept(this, data);
+            if ((newType != null) && (newType != type)) {
+              ComputationTargetType result;
+              if (i > 0) {
+                result = types.get(0);
+                for (int j = 1; j < i; j++) {
+                  result = result.containing(types.get(j));
+                }
+                result = result.containing(newType);
+              } else {
+                result = newType;
+              }
+              for (int j = i + 1; j < length; j++) {
+                type = types.get(j);
+                newType = type.accept(this, data);
+                result = result.containing((newType == null) ? type : newType);
+              }
+              return result;
+            }
+          }
+          return null;
+        }
+
+        @Override
+        public ComputationTargetType visitNullComputationTargetType(final ComputationTargetTypeMap<ComputationTargetType> data) {
+          return null;
+        }
+
+        @Override
+        public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTargetTypeMap<ComputationTargetType> data) {
+          return data.get(type);
+        }
+
+      };
+      
+  @Override
+  public ComputationTargetType simplifyType(final ComputationTargetType type) {
+    final ComputationTargetType newType = type.accept(s_simplifyType, _baseTypes);
+    if (newType != null) {
+      return newType;
+    } else {
+      return type;
     }
   }
 
-  /**
-   * Ensures that the position source is available.
-   * 
-   * @param attemptedTargetType the target type for the message, not null
-   */
-  private void checkPositionSource(ComputationTargetType attemptedTargetType) {
-    if (getPositionSourceImpl() == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve " + attemptedTargetType + ", no PositionSource found");
-    }
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Returns a string suitable for debugging.
    * 
@@ -288,6 +287,27 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[securitySource=" + getSecuritySourceImpl() + ",positionSource=" + getPositionSourceImpl() + "]";
+  }
+
+  // ComputationTargetTypeProvider
+
+  @Override
+  public Collection<ComputationTargetType> getSimpleTypes() {
+    final Set<ComputationTargetType> types = new HashSet<ComputationTargetType>();
+    for (ComputationTargetType baseType : _baseTypes.values()) {
+      types.add(baseType);
+    }
+    return types;
+  }
+
+  @Override
+  public Collection<ComputationTargetType> getAdditionalTypes() {
+    return Collections.emptySet();
+  }
+
+  @Override
+  public Collection<ComputationTargetType> getAllTypes() {
+    return getSimpleTypes();
   }
 
 }

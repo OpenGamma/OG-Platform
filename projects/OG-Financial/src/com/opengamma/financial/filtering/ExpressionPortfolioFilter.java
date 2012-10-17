@@ -114,11 +114,6 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
     }
 
     @Override
-    public UniqueId getParentPositionId() {
-      return getTrade().getParentPositionId();
-    }
-
-    @Override
     public Counterparty getCounterparty() {
       return getTrade().getCounterparty();
     }

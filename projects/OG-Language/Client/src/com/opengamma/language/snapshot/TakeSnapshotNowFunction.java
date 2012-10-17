@@ -23,9 +23,9 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.id.UniqueId;
+import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -69,7 +69,7 @@ public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements 
     _meta = info.annotate(new MetaFunction(Categories.MARKET_DATA, "TakeSnapshotNow", getParameters(), this));
   }
 
-  private StructuredMarketDataSnapshot invoke(final UserViewClient viewClient, final UserPrincipal liveDataUser, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+  private StructuredMarketDataSnapshot invoke(final UserViewClient viewClient, final UserPrincipal liveDataUser, final GlobalContext globalContext) {
     final NextCycleReferenceListener resultListener = new NextCycleReferenceListener(viewClient.getViewClient(), liveDataUser);
     try {
       viewClient.getViewClient().setViewCycleAccessSupported(true);
@@ -78,7 +78,7 @@ public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements 
       resultListener.awaitResult();
 
       if (resultListener.getCycleReference() != null) {      
-        MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(volatilityCubeDefinitionSource);
+        MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(globalContext.getExternalIdBundleLookup(), globalContext.getVolatilityCubeDefinitionSource());
         return snapshotter.createSnapshot(viewClient.getViewClient(), resultListener.getCycleReference());
       } else {
         throw new OpenGammaRuntimeException("Unable to obtain cycle from view client " + viewClient.getViewClient().getUniqueId(), resultListener.getException());
@@ -101,8 +101,7 @@ public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements 
       throw new DataNotFoundException("Invalid view client " + viewClientId);
     }
     try {
-      return invoke(viewClientHandle.get(), sessionContext.getUserContext().getLiveDataUser(),
-          sessionContext.getGlobalContext().getVolatilityCubeDefinitionSource());
+      return invoke(viewClientHandle.get(), sessionContext.getUserContext().getLiveDataUser(), sessionContext.getGlobalContext());
     } finally {
       viewClientHandle.unlock();
     }

@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,10 +25,8 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -58,7 +55,8 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
 
   public SABRRightExtrapolationDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
       final String... currencyCurveConfigAndCubeNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.SWAPTION_SECURITY.or(FinancialSecurityTypes.SWAP_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY),
+        true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(fittingMethod, "fitting method");
@@ -80,17 +78,12 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof SwaptionSecurity
-        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
-        || security instanceof CapFloorSecurity
-        || security instanceof CapFloorCMSSpreadSecurity)) {
-      return false;
+    if (security instanceof SwapSecurity) {
+      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
+      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+        return false;
+      }
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
     return _currencyCurveConfigAndCubeNames.containsKey(currencyName);

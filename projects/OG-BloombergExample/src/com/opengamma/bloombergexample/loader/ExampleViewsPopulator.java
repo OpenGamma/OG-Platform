@@ -5,14 +5,13 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bloombergexample.tool.ExampleDatabasePopulator;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -25,6 +24,7 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -36,7 +36,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Example code to create a set of example views.
  * <p>
- * It is designed to run against the HSQLDB example database.  
+ * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
 public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> {
@@ -50,10 +50,9 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
+   * Main method to run the tool. No arguments are needed.
    * 
-   * @param args  the arguments, unused
+   * @param args the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
     new ExampleViewsPopulator().initAndRun(args, IntegrationToolContext.class);
@@ -78,9 +77,9 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     equityViewDefinition.setMinDeltaCalculationPeriod(500L);
     equityViewDefinition.setMaxDeltaCalculationPeriod(30000L);
     equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());    
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());        
-    
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
+
     return equityViewDefinition;
   }
 
@@ -119,11 +118,11 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, "Default");
     ValueProperties defaultProperties = ValueProperties.with("ForwardCurve", "DEFAULT").with("FundingCurve", "DEFAULT").with("Currency", "USD").get();
     defaultCalc.setDefaultProperties(defaultProperties);
-    
+
     ValueProperties fundingCurveSpecificProperties = ValueProperties.with("Curve", FUNDING).get();
     ValueProperties forwardCurve3MSpecificProperties = ValueProperties.with("Curve", FORWARD_3M).get();
     ValueProperties forwardCurve6MSpecificProperties = ValueProperties.with("Curve", FORWARD_6M).get();
-    
+
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, fundingCurveSpecificProperties);
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, forwardCurve3MSpecificProperties);
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, forwardCurve6MSpecificProperties);
@@ -134,10 +133,9 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, forwardCurve6MSpecificProperties);
     for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
       defaultCalc.addSpecificRequirement(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        UniqueId.of("CurrencyISO", ccy.getCode()),
-        ValueProperties.with("Curve", FUNDING).get()));
+          ValueRequirementNames.YIELD_CURVE,
+          ComputationTargetSpecification.of(ccy),
+          ValueProperties.with("Curve", FUNDING).get()));
     }
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
 

@@ -28,11 +28,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -82,14 +83,14 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
     final String fundingCurveName = getPropertyName(constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE));
     final String curveCalculationMethodName = getPropertyName(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD));
     final ValueProperties.Builder forwardCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, forwardCurveName);
-    final ValueRequirement forwardCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    final ValueRequirement forwardCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency),
         forwardCurveSpecProperties.get());
     final Object forwardCurveSpecObject = inputs.getValue(forwardCurveSpecRequirement);
     if (forwardCurveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveSpecRequirement);
     }
     final ValueProperties.Builder fundingCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName);
-    final ValueRequirement fundingCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    final ValueRequirement fundingCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency),
         fundingCurveSpecProperties.get());
     final Object fundingCurveSpecObject = inputs.getValue(fundingCurveSpecRequirement);
     if (fundingCurveSpecObject == null) {
@@ -99,12 +100,13 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
     final ValueProperties forwardCurveProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, forwardCurveName);
     final ValueProperties fundingCurveProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, fundingCurveName);
-    final Object forwardCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardCurveProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final Object forwardCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, targetSpec, forwardCurveProperties));
     if (forwardCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + forwardCurveName);
     }
     final DoubleLabelledMatrix1D forwardCurveSensitivities = (DoubleLabelledMatrix1D) forwardCurveSensitivitiesObject;
-    final Object fundingCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingCurveProperties));
+    final Object fundingCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, targetSpec, fundingCurveProperties));
     if (fundingCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + fundingCurveName);
     }
@@ -117,15 +119,12 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
     final DoubleTimeSeries<?> result = getPnLSeries(forwardCurveSpec, forwardCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction)
         .add(getPnLSeries(fundingCurveSpec, fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, targetSpec, resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     if (!(security instanceof FinancialSecurity)) {
       return false;
@@ -164,14 +163,14 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
     final String fundingCurveName = getPropertyName(fundingCurveNames);
     final ValueProperties forwardSensitivityProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, forwardCurveName);
     final ValueProperties fundingSensitivityProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, fundingCurveName);
-    final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardSensitivityProperties);
-    final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingSensitivityProperties);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, targetSpec, forwardSensitivityProperties);
+    final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, targetSpec, fundingSensitivityProperties);
     final ValueProperties.Builder forwardCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, forwardCurveName);
-    final ValueRequirement forwardCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
-        forwardCurveSpecProperties.get());
+    final ComputationTargetSpecification curveSpec = ComputationTargetSpecification.of(currency);
+    final ValueRequirement forwardCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, curveSpec, forwardCurveSpecProperties.get());
     final ValueProperties.Builder fundingCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName);
-    final ValueRequirement fundingCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
-        fundingCurveSpecProperties.get());
+    final ValueRequirement fundingCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, curveSpec, fundingCurveSpecProperties.get());
     return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, forwardCurveSpecRequirement, fundingCurveSpecRequirement);
   }
 

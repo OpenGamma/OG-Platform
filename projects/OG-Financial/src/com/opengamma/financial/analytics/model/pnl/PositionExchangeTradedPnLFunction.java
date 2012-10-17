@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -26,8 +25,7 @@ public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFuncti
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
     }
-    boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangeTraded(security));
-    return value;
+    return FinancialSecurityUtils.isExchangeTraded(security);
   }
   
   @Override

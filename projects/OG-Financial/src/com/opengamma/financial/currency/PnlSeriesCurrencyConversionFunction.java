@@ -14,11 +14,12 @@ import com.google.common.collect.Iterables;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -32,7 +33,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
@@ -198,6 +199,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   private class TimeSeriesCurrencyConversionRequirements implements CurrencyMatrixValueVisitor<Set<ValueRequirement>> {
 
     private final HistoricalTimeSeriesResolver _timeSeriesResolver;
+    private final ExternalIdBundleLookup _externalIdLookup = new ExternalIdBundleLookup(null);
 
     public TimeSeriesCurrencyConversionRequirements(final HistoricalTimeSeriesResolver timeSeriesResolver) {
       _timeSeriesResolver = timeSeriesResolver;
@@ -213,10 +215,10 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     }
 
     @Override
-    public Set<ValueRequirement> visitValueRequirement(final CurrencyMatrixValueRequirement uniqueId) {
-      final ValueRequirement requirement = uniqueId.getValueRequirement();
-      final ExternalId targetId = requirement.getTargetSpecification().getIdentifier();
-      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(targetId.toBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    public Set<ValueRequirement> visitValueRequirement(final CurrencyMatrixValueRequirement lookupValue) {
+      final ValueRequirement requirement = lookupValue.getValueRequirement();
+      final ExternalIdBundle targetId = _externalIdLookup.getExternalIds(requirement.getTargetReference());
+      final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(targetId, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
       }

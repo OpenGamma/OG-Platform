@@ -15,11 +15,11 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -80,7 +80,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue value = inputs.getAllValues().iterator().next();
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getResultProperties(value.getSpecification()));
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(value.getSpecification()));
     return Sets.newHashSet(new ComputedValue(specification, value.getValue()));
   }
 

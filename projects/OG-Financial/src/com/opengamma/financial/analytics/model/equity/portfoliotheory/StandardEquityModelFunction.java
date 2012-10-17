@@ -11,17 +11,17 @@ import java.util.Set;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 
 /**
@@ -39,48 +39,24 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
             equity.getUniqueId()));
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
-            new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), 
-                                     ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getCode()).get()),
-                getUniqueId()),
+            new ValueSpecification(ValueRequirementNames.FAIR_VALUE, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, equity.getCurrency().getCode()).get()),
                 price));
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (target.getSecurity() instanceof EquitySecurity) {
-      return true;
-    }
-    return false;
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()));
-      return requirements;
-    }
-    return null;
+    final EquitySecurity equity = (EquitySecurity) target.getSecurity();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()));
+    return requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      return Collections.<ValueSpecification>singleton(
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, 
-                                                      ComputationTargetType.SECURITY, 
-                                                      equity.getUniqueId(), 
-                                                      ValueProperties.with(ValuePropertyNames.CURRENCY, 
-                                                      equity.getCurrency().getCode()).get()), 
-                                 getUniqueId()));
-    }
-    return null;
+    final EquitySecurity equity = (EquitySecurity) target.getSecurity();
+    return Collections.<ValueSpecification>singleton(
+        new ValueSpecification(ValueRequirementNames.FAIR_VALUE, target.toSpecification(),
+            createValueProperties().with(ValuePropertyNames.CURRENCY, equity.getCurrency().getCode()).get()));
   }
 
   @Override
@@ -90,7 +66,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_SECURITY;
   }
 
 }

@@ -114,7 +114,6 @@ public class PortfolioNodeAndPositionFudgeEncodingTest extends AbstractFudgeBuil
     assertEquals(expected.getUniqueId(), actual.getUniqueId());
     assertEquals(expected.getQuantity(), actual.getQuantity());
     assertEquals(expected.getSecurityLink(), actual.getSecurityLink());
-    assertEquals(expected.getParentNodeId(), actual.getParentNodeId());
   }
 
   private FudgeMsg runPortfolioNodeTest(final PortfolioNode original) {
@@ -128,7 +127,7 @@ public class PortfolioNodeAndPositionFudgeEncodingTest extends AbstractFudgeBuil
   private int countParents(final FudgeMsg message) {
     int count = 0;
     for (FudgeField field : message) {
-      if (PortfolioNodeFudgeBuilder.PARENT_FIELD_NAME.equals(field.getName()) || PositionFudgeBuilder.PARENT_FIELD_NAME.equals(field.getName())) {
+      if (PortfolioNodeFudgeBuilder.PARENT_FIELD_NAME.equals(field.getName())) {
         s_logger.debug("Found parent ref {}", field.getValue());
         count++;
       } else if (field.getValue() instanceof FudgeMsg) {
@@ -167,13 +166,6 @@ public class PortfolioNodeAndPositionFudgeEncodingTest extends AbstractFudgeBuil
     final FudgeMsg message = runPositionTest(new SimplePosition(nextUniqueId(), new BigDecimal(100), ExternalIdBundle.of(ExternalId.of("Scheme 1", "Id 1"), ExternalId
         .of("Scheme 2", "Id 2"))));
     assertEquals(0, countParents(message));
-  }
-
-  public void testPositionWithPortfolioNode() {
-    final SimplePosition position = new SimplePosition(nextUniqueId(), new BigDecimal(100), ExternalId.of("Security", "Bar"));
-    position.setParentNodeId(nextUniqueId());
-    final FudgeMsg message = runPositionTest(position);
-    assertEquals(1, countParents(message));
   }
 
 }

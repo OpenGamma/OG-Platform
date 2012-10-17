@@ -28,6 +28,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.resolver.FunctionPriority;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -51,7 +52,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Bar(), getUniqueId()));
+        final ValueRequirement req2bar = helper.getRequirement2Bar();
+        return Collections.singleton(new ValueSpecification(req2bar.getValueName(), target.toSpecification(), req2bar.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
     };
@@ -80,7 +82,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -118,7 +121,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -126,8 +130,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
         s_logger.debug("fnConv1 late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
         final ValueSpecification input = inputs.keySet().iterator().next();
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetSpecification(), ValueProperties.with(
-            ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), target.toSpecification(),
+            ValueProperties.with(ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
       }
 
     };
@@ -139,7 +143,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -190,7 +195,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -218,9 +224,9 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
   public void twoLevelConversion() {
     final DepGraphTestHelper helper = helper();
-    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Target", "1"));
-    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Target", "2"));
-    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Target", "3"));
+    final ComputationTarget target1 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "1"));
+    final ComputationTarget target2 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "2"));
+    final ComputationTarget target3 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "3"));
     final String property = "Constraint";
     MockFunction source = new MockFunction("source1", target1);
     source.addResult(new ComputedValue(new ValueSpecification("A", target1.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "1").with(property, "Foo").get()), 1.0));
@@ -332,7 +338,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(new ValueRequirement("C", target.toSpecification()), createValueProperties().withAny(property).get()));
+        return Collections.singleton(new ValueSpecification("C", target.toSpecification(), createValueProperties().withAny(property).get()));
       }
 
       @Override

@@ -16,9 +16,9 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistRule;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -77,7 +77,7 @@ public class FunctionBlacklistRuleFudgeBuilder implements FudgeBuilder<FunctionB
     }
     field = message.getByName(TARGET_FIELD);
     if (field != null) {
-      rule.setTarget(deserializer.fieldValueToObject(ComputationTargetSpecification.class, field));
+      rule.setTarget(deserializer.fieldValueToObject(ComputationTargetReference.class, field).getSpecification());
     }
     field = message.getByName(INPUTS_FIELD);
     if (field != null) {

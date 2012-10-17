@@ -15,7 +15,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
@@ -76,9 +76,10 @@ public class ViewProcessorTestEnvironment {
 
   public static final String TEST_VIEW_DEFINITION_NAME = "Test View";
   public static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
-  
-  private static final ValueRequirement s_primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "PrimitiveValue"));
-  private static final ValueRequirement s_primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "PrimitiveValue"));
+
+  private static final ComputationTargetSpecification s_primitiveTarget = ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue"));
+  private static final ValueRequirement s_primitive1 = new ValueRequirement("Value1", s_primitiveTarget);
+  private static final ValueRequirement s_primitive2 = new ValueRequirement("Value2", s_primitiveTarget);
 
   // Settings
   private MarketDataProvider _marketDataProvider;
@@ -377,6 +378,10 @@ public class ViewProcessorTestEnvironment {
 
   public Thread getCurrentComputationThread(ViewProcessImpl viewProcess) {
     return viewProcess.getComputationThread();
+  }
+
+  public static ComputationTargetSpecification getPrimitiveTarget() {
+    return s_primitiveTarget;
   }
 
   public static ValueRequirement getPrimitive1() {

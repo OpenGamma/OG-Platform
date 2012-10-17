@@ -14,16 +14,15 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataTargetResolver;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -42,10 +41,10 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalMarketDataProvider.class);
   
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  private final SecuritySource _securitySource;
   private final String _timeSeriesResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
   private final ConcurrentMap<ValueRequirement, Pair<ExternalIdBundle, Integer>> _subscriptionIdBundleMap = new ConcurrentHashMap<ValueRequirement, Pair<ExternalIdBundle, Integer>>();
+  private final ExternalIdBundleLookup _externalIdLookup;
 
   /**
    * Creates a new market data provider.
@@ -60,9 +59,9 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
-    _securitySource = securitySource;
     _timeSeriesResolverKey = timeSeriesResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
+    _externalIdLookup = new ExternalIdBundleLookup(securitySource);
   }
   
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
@@ -83,7 +82,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
         if (existing != null) {
           _subscriptionIdBundleMap.put(requirement, Pair.of(existing.getFirst(), existing.getSecond() + 1));
         } else {
-          _subscriptionIdBundleMap.put(requirement, Pair.of(lookupExternalIdBundle(requirement), 1));
+          _subscriptionIdBundleMap.put(requirement, Pair.of(getExternalIdBundleLookup().getExternalIds(requirement.getTargetReference()), 1));
         }
       }
     }
@@ -136,7 +135,6 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     return ObjectUtils.equals(_timeSeriesResolverKey, historicalSpec.getTimeSeriesResolverKey());
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public ValueSpecification getAvailability(final ValueRequirement requirement) {
     final ExternalIdBundle idBundle = getExternalIdBundle(requirement);
@@ -152,39 +150,29 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       }
       return null;
     } else {
-      return MarketDataUtils.createMarketDataValue(requirement);
+      return MarketDataUtils.createMarketDataValue(requirement, hts.getUniqueId());
     }
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public ExternalIdBundle getExternalIdBundle(final ValueRequirement requirement) {
     Pair<ExternalIdBundle, Integer> existingSubscription = _subscriptionIdBundleMap.get(requirement);
     if (existingSubscription != null) {
       return existingSubscription.getFirst();
     }
-    return lookupExternalIdBundle(requirement);
+    return getExternalIdBundleLookup().getExternalIds(requirement.getTargetReference());
   }
 
-  private ExternalIdBundle lookupExternalIdBundle(final ValueRequirement requirement) {
-    switch (requirement.getTargetSpecification().getType()) {
-      case PRIMITIVE:
-        return ExternalIdBundle.of(requirement.getTargetSpecification().getIdentifier());
-      case SECURITY:
-        final Security security;
-        try {
-          security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
-        } catch (DataNotFoundException ex) {
-          return null;
-        }
-        return security.getExternalIdBundle();
-      default:
-        return null;
-    }
-  }
-  
-  //-------------------------------------------------------------------------
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
+  
+  protected ExternalIdBundleLookup getExternalIdBundleLookup() {
+    return _externalIdLookup;
+  }
+
+  public String getTimeSeriesResolverKey() {
+    return _timeSeriesResolverKey;
+  }
+  
 }

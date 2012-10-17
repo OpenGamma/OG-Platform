@@ -25,7 +25,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -129,11 +129,6 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final ValueProperties properties = getResultProperties(createValueProperties().get(), currency);
@@ -164,8 +159,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
       return null;
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
     }
     final String cubeName = cubeNames.iterator().next();
@@ -198,7 +193,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties);
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {

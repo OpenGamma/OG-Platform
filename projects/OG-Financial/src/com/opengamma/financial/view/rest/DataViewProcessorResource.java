@@ -24,6 +24,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -58,6 +60,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
   //CSON: just constants
 
   /**
+   * The identifier lookup.
+   */
+  private final ExternalIdBundleLookup _identifierLookup;
+  /**
    * The view processor.
    */
   private final ViewProcessor _viewProcessor;
@@ -90,14 +96,16 @@ public class DataViewProcessorResource extends AbstractDataResource {
   /**
    * Creates an instance.
    * 
-   * @param viewProcessor  the view processor, not null
-   * @param volatilityCubeDefinitionSource  the volatility cube, not null
-   * @param jmsConnector  the JMS connector, not null
-   * @param fudgeContext  the Fudge context, not null
-   * @param scheduler  the scheduler, not null
+   * @param securitySource a security source to use for resolving things, null to not resolve
+   * @param viewProcessor the view processor, not null
+   * @param volatilityCubeDefinitionSource the volatility cube, not null
+   * @param jmsConnector the JMS connector, not null
+   * @param fudgeContext the Fudge context, not null
+   * @param scheduler the scheduler, not null
    */
-  public DataViewProcessorResource(ViewProcessor viewProcessor, VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
+  public DataViewProcessorResource(SecuritySource securitySource, ViewProcessor viewProcessor, VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
       JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+    _identifierLookup = new ExternalIdBundleLookup(securitySource);
     _viewProcessor = viewProcessor;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
@@ -142,7 +150,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   @Path(PATH_SNAPSHOTTER)
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
+    MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_identifierLookup, _volatilityCubeDefinitionSource);
     return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
   }
   

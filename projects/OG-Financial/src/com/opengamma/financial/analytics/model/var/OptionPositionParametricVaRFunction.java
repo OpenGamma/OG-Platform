@@ -100,7 +100,7 @@ public class OptionPositionParametricVaRFunction { /*extends AbstractFunction.No
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
+    return target.getPosition().getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override

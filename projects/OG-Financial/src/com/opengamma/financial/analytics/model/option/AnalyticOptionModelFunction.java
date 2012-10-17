@@ -18,11 +18,12 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticO
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -32,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -85,18 +87,13 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return results;
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueId uid) {
     // TODO 2010-10-28 Andrew -- We're assuming the underlying is in the same currency as the PUT/CALL price. Detect if it's different and act accordingly.
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueId uid, final String curveName) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final Currency currency, final String curveName) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
   }
 
   protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueId uid, final String curveName) {
