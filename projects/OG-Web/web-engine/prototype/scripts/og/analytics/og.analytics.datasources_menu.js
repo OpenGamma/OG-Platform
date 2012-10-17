@@ -35,7 +35,7 @@ $.register_module({
                     og.api.rest.timeseries.get().pipe(function (resp) {
                         // console.log(resp);
                         populate_src_options(['Mock A','Mock B','Mock C', 'Mock D']);
-                    }).pipe(function () {$source_select.after($historical_opts.html());})
+                    }).pipe(function () {$source_select.after($historical_opts.html());});
                 },
                 display_query = function () {
                     if(query.length) {
@@ -53,8 +53,8 @@ $.register_module({
                     return 0;
                 },
                 remove_entry = function (entry) {
-                    if (query.length === 1) return query.length = 0; // emitEvent; reset_query
-                    query.splice(entry, 1);
+                    if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; reset_query
+                    if (~entry) query.splice(entry, 1);
                 },  
                 remove_orphans = function () {
                     return reset_source_select(), $parent.removeClass($parent.data('type')).find('.extra-opts').remove();
@@ -79,10 +79,13 @@ $.register_module({
                     }
                 },
                 source_handler = function (entry) {
-                    if (ds_val === default_sel_txt)
+                    if (ds_val === default_sel_txt){
                         return remove_entry(entry), display_query(), enable_extra_options(false);
-                    else if (~entry) query[entry] = {pos:sel_pos, type:type_val, src:ds_val};
-                    else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:ds_val});
+                    } else if (~entry) {
+                        query[entry] = {pos:sel_pos, type:type_val, src:ds_val};
+                    } else {
+                        query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:ds_val});
+                    }
                     enable_extra_options(true);
                     display_query(); // emitEvent; data_selected 
                 },
@@ -101,16 +104,15 @@ $.register_module({
                     else $inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
                     $inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
                 },
-                date_handler = function (entry) {
-                    if (!$custom.datepicker('isDisabled')) {
-                        $custom.addClass(active_s+ ' ' +date_selected_s).focus().datepicker('hide');
-                        $latest.removeClass(active_s);
-                        if ($custom.parent().is(versions_s))
-                            query[entry].version_date = $custom.datepicker('getDate');
-                        else if ($custom.parent().is(corrections_s))
-                            query[entry].correction_date = $custom.datepicker('getDate');
-                        else query[entry].date = $custom.datepicker('getDate');
-                    }
+                date_handler = function () {
+                    // TODO AG: refocus custom but hide datepicker, remove duplication of entry retrieval
+                    var entry = query.pluck('pos').indexOf(sel_pos);
+                    $custom.addClass(active_s+ ' ' +date_selected_s); 
+                    $latest.removeClass(active_s);
+                    if ($custom.parent().is(versions_s)) query[entry].version_date = $custom.datepicker('getDate');
+                    else if ($custom.parent().is(corrections_s))
+                        query[entry].correction_date = $custom.datepicker('getDate');
+                    else query[entry].date = $custom.datepicker('getDate');
                 },
                 remove_date = function (entry) {
                     $latest.addClass(active_s);
@@ -128,14 +130,14 @@ $.register_module({
                     type_val = $type_select.val();
                     ds_val = $source_select.val();
                     sel_pos = $parent.data('pos');
-                    entry = (query.pluck('pos').indexOf(sel_pos));
+                    entry = query.pluck('pos').indexOf(sel_pos);
                     if ($elem.is(menu.$dom.add)) return menu.add_handler();
                     if ($elem.is(del_s)) return delete_handler(entry);
                     if ($elem.is($type_select)) return type_val = type_val.toLowerCase(), type_handler(entry);
                     if ($elem.is($source_select)) return source_handler(entry);
                     if ($elem.is(custom_s))
                         return $custom = $elem, $latest = $elem.siblings().filter(latest_s),
-                            $custom.datepicker({onSelect:function () {date_handler(entry)}}).datepicker('show');
+                            $custom.datepicker({onSelect: date_handler}).datepicker('show');
                     if ($elem.is(latest_s)) 
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                 };
@@ -143,26 +145,13 @@ $.register_module({
                 $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
                 $query = $('.datasources-query', $dom.title);
                 $option = $(wrapper).append('<option>');
-                $snapshot_opts = $(wrapper).append([
-                '<div class="extra-opts">',
-                    '<div class="versions">',
-                        '<span>Versions:</span>',
-                        '<input class="latest" type="button" value="Latest" disabled />',
-                        '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled="true" />',
-                    '</div>',
-                    '<div class="corrections">',
-                        '<span>Correction:</span>',
-                        '<input class="latest" type="button" value="Latest" disabled />',
-                        '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled="true" />',
-                    '</div>',
-                '</div>'
-                ].join(''));
-                $historical_opts = $(wrapper).append([
-                '<div class="extra-opts">',
-                    '<input class="latest" type="button" value="Latest" disabled />',
-                    '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled />',
-                '</div>'
-                ].join(''));
+                $.when(
+                    og.api.text({module: 'og.analytics.form_datasources_snapshot_opts_tash'}),
+                    og.api.text({module: 'og.analytics.form_datasources_historical_opts_tash'})
+                ).then(function(snapshot, historical){
+                    $snapshot_opts = $(wrapper).append(snapshot);
+                    $historical_opts = $(wrapper).append(historical);
+                });
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);

@@ -60,7 +60,9 @@ $.register_module({
                         keydown_handler = function (event) {
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
-                                active_pos = function (elms, pos) {return $elem.is(elms[pos]())};
+                                active_pos = function (elms, pos) {
+                                    return $elem.is(elms[pos]());
+                                };
                             if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
                             if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
                             if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
