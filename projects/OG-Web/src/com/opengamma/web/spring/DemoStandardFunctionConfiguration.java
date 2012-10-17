@@ -510,7 +510,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static void addSummingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
     functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL,
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, MissingInputsFunction.AGGREGATION_STYLE_FULL,
         FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
 
