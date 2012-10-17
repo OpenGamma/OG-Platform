@@ -175,7 +175,8 @@ public class HistoricalTimeSeriesMasterUtils {
    * @param dataField  the data field, not null
    * @param observationTime  the descriptive observation time key, e.g. LONDON_CLOSE, not null
    * @param externalIdBundle  the external identifiers with which the time-series is associated, not null
-   * @param timeSeries  the time-series, not null
+   * @param date  the date, not null
+   * @param value the value, not null
    * @return the unique identifier of the time-series
    */
   public UniqueId writeTimeSeriesPoint(String description, String dataSource, String dataProvider, String dataField,
