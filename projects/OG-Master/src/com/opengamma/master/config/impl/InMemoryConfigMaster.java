@@ -6,6 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,12 +129,11 @@ public class InMemoryConfigMaster implements ConfigMaster {
         list.add((ConfigDocument<T>) doc);
       }
     }
+    Collections.sort(list, request.getSortOrder());
+    
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
-    
-    List<ConfigDocument<T>> select = request.getPagingRequest().select(list);
-    
-    result.getDocuments().addAll(select);
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 
