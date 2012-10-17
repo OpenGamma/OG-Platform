@@ -1443,6 +1443,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "EUR", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "GBP", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "AUD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction.Alpha.class));
@@ -1478,18 +1479,30 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYCNSFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP",
-        "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig",
-        "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD",
-        "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs
         .add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
-            "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
-            "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+            "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, 
+            "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+            "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+            "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+            "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
   }
 
   private static void addDeprecatedSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
