@@ -98,7 +98,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjectiveTest 
   private static final SwaptionPhysicalFixedIborSABRLMMAtBestMethod METHOD_CALIBRATION = new SwaptionPhysicalFixedIborSABRLMMAtBestMethod(MONEYNESS, LMM_PARAM_INIT);
   private static final SwaptionPhysicalFixedIborBasketMethod METHOD_BASKET = SwaptionPhysicalFixedIborBasketMethod.getInstance();
 
-  private static final double TOLERANCE_LS = 1.0E+53; // The fit is not exact.
+  private static final double TOLERANCE_LS = 1.0E+5; // The fit is not exact.
   private static final double TOLERANCE_PV = 1.0E-2;
 
   @Test

@@ -197,9 +197,22 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The effective date is date+_spotLag. The end of fixing period is effective date+tenor.
+   */
   public SwapFixedONDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
     return SwapFixedONDefinition.from(startDate, tenor, notional, this, fixedRate, true);
+  }
+
+  @Override
+  /**
+   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
+   */
+  public SwapFixedONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double fixedRate, double notional, Object... objects) {
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _businessDayConvention, _index.getCalendar(), _endOfMonth);
+    return SwapFixedONDefinition.from(startDate, endTenor, notional, this, fixedRate, true);
   }
 
   @Override
