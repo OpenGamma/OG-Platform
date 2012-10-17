@@ -44,7 +44,7 @@ $.register_module({
         };
         DropMenu.prototype.open = function () {
             var menu = this;
-            return menu.$dom.menu.show()/*.blurkill(menu.close.bind(menu))*/, menu.state = 'open', menu.opened = true,
+            return menu.$dom.menu.show(), menu.state = 'open', menu.opened = true,
                 menu.$dom.title.addClass('og-active'), menu.emitEvent(events.opened, [menu]), menu;
         };
         DropMenu.prototype.close = function () {

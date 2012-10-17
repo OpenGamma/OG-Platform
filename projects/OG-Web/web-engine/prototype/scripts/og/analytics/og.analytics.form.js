@@ -50,7 +50,7 @@ $.register_module({
                 return status;
             };
             MastHead = function (template, search, aggregators, datasource) {
-                var MastHead = this, Form, ag_dropdwn, ds_dropdwn, vd_s = '.og-view',
+                var MastHead = this, Form, ag_menu, ds_menu, vd_s = '.og-view',
                     fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
                     $form = $(selector).html(template), $ag = $('.og-aggregation', $form),
                     $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
@@ -61,19 +61,19 @@ $.register_module({
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
                                 active_pos = function (elms, pos) {return $elem.is(elms[pos]())};
-                            if (!shift_key && ac_menu.state === 'focused') ag_dropdwn.emitEvent(events.open);
-                            if (!shift_key && active_pos($ag_fcntrls,'last')) ds_dropdwn.emitEvent(events.open);
-                            if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_dropdwn.emitEvent(events.close);
-                            if (shift_key && $elem.is($load_btn)) ds_dropdwn.emitEvent(events.open);
-                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_dropdwn.emitEvent(events.open);
-                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_dropdwn.emitEvent(events.close);
+                            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
+                            if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
+                            if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
+                            if (shift_key && $elem.is($load_btn)) ds_menu.emitEvent(events.open);
+                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
+                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
                         },
                         button_handler = function (val) {
                             if (val === 'OK') {
-                                if (ag_dropdwn.is_opened()) {
-                                    ds_dropdwn.emitEvent(events.open).emitEvent(events.focus);
-                                } else if (ds_dropdwn.is_opened()) {
-                                    ds_dropdwn.emitEvent(events.close);
+                                if (ag_menu.is_opened()) {
+                                    ds_menu.emitEvent(events.open).emitEvent(events.focus);
+                                } else if (ds_menu.is_opened()) {
+                                    ds_menu.emitEvent(events.close);
                                     $load_btn.focus();
                                 }
                             } else if (val === 'Cancel') {
@@ -86,7 +86,8 @@ $.register_module({
                             if ($elem.is('button')) button_handler($elem.text());
                         },
                         close_dropmenu = function (menu) {
-                            if (menu.status() === 'open'|| menu.status() === 'focused') menu.emitEvent(events.close);
+                            if (menu === ds_menu) ag_menu.emitEvent(events.close);
+                            else ds_menu.emitEvent(events.close);
                         },
                         auto_combo_handler = function (even, ui) {
                             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
@@ -94,7 +95,7 @@ $.register_module({
                             } else $load_btn.addClass('og-disabled').off('click');
                         },
                         get_query = function () {
-                            console.log(ds_dropdwn.get_query());
+                            console.log(ds_menu.get_query());
                         };
                     return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
                         ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
@@ -103,16 +104,16 @@ $.register_module({
                             og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                             og.api.text({module: 'og.analytics.form_datasources_tash'})
                         ).then(function (aggregation_markup, datasources_markup) {
-                            ag_dropdwn = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
-                                .addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
-                            ds_dropdwn = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
-                                .addListener(events.open, function () {close_dropmenu(ag_dropdwn);}),
+                            ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
+                                .addListener(events.opened, close_dropmenu),
+                            ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
+                                .addListener(events.opened, close_dropmenu),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                             $load_btn.after($('<button class="query-btn">SHOW QUERY</button>').on('click', get_query));
                         }),
                         emitter.addListener(events.closeall, function () {
-                            close_dropmenu(ag_dropdwn);
-                            close_dropmenu(ds_dropdwn);
+                            close_dropmenu(ag_menu);
+                            close_dropmenu(ds_menu);
                         }),
                         og.views.common.layout.main.allowOverflow('north'),
                         status = new Status(selector + ' .og-status'),
