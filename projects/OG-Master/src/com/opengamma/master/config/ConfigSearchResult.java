@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -42,10 +43,19 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
   /**
    * Creates an instance from a collection of documents.
    * 
-   * @param coll  the collection of documents to add, not null
+   * @param documents  the collection of documents to add, not null
    */
-  public ConfigSearchResult(Collection<ConfigDocument<T>> coll) {
-    super(coll);
+  public ConfigSearchResult(Collection<ConfigDocument<T>> documents) {
+    super(documents);
+  }
+
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public ConfigSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
   }
 
   //-------------------------------------------------------------------------

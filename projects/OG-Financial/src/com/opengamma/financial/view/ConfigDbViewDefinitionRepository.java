@@ -25,42 +25,60 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An in-memory view definition repository which sources its {@link ViewDefinition}s from a {@link ConfigMaster} and
- * is kept up-to-date from this master.
+ * An in-memory view definition repository which sources view definitions from a config master.
+ * <p>
+ * This loads {@link ViewDefinition}s from a {@link ConfigMaster} and is kept up-to-date from this master.
  */
 public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepository, ChangeProvider {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigDbViewDefinitionRepository.class);
-    
+
+  /**
+   * The underlying repository.
+   */
   private final InMemoryViewDefinitionRepository _underlyingRepository;
+  /**
+   * The config master storing the view definitions.
+   */
   private final ConfigMaster _configMaster;
+  /**
+   * The change manager.
+   */
   private final ChangeManager _changeManager = new BasicChangeManager();
+  /**
+   * The change listener.
+   */
   private final ChangeListener _changeListener;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param configMaster  the config master, not null
+   */
   public ConfigDbViewDefinitionRepository(ConfigMaster configMaster) {
+    ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
     _underlyingRepository = new InMemoryViewDefinitionRepository();
     
     ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
-    ConfigSearchResult<ViewDefinition> searchResult = _configMaster.search(request);
-    for (ConfigDocument<ViewDefinition> configDocument : searchResult.getDocuments()) {
-      _underlyingRepository.addViewDefinition(new AddViewDefinitionRequest(configDocument.getValue()));
+    for (ConfigDocument<ViewDefinition> doc : ConfigMasterIterator.iterable(configMaster, request)) {
+      _underlyingRepository.addViewDefinition(new AddViewDefinitionRequest(doc.getValue()));
     }
     _changeListener = new ChangeListener() {
-
       @Override
       public void entityChanged(ChangeEvent event) {
         ConfigDbViewDefinitionRepository.this.entityChanged(event);
       }
-      
     };
     _configMaster.changeManager().addChangeListener(_changeListener);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObjectId> getDefinitionIds() {
     return _underlyingRepository.getDefinitionIds();
@@ -70,12 +88,12 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   public ViewDefinition getDefinition(UniqueId definitionId) {
     return _underlyingRepository.getDefinition(definitionId);
   }
-  
+
   @Override
   public Map<UniqueId, String> getDefinitionEntries() {   
     return _underlyingRepository.getDefinitionEntries();    
   }
-  
+
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     return _underlyingRepository.getDefinition(definitionName);
@@ -86,7 +104,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   public ChangeManager changeManager() {
     return _changeManager;
   }
-  
+
   //-------------------------------------------------------------------------
   private void entityChanged(ChangeEvent event) {
     ArgumentChecker.notNull(event, "event");
@@ -119,8 +137,8 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
         ViewDefinition removedDefinition = (ViewDefinition) removedDocument.getValue();
         try {
           getUnderlyingRepository().removeViewDefinition(removedDefinition.getUniqueId());
-        } catch (DataNotFoundException e) {
-          s_logger.warn("Attempted to remove view definition '" + removedDefinition.getName() + "' in response to change notification, but it was not found", e);
+        } catch (DataNotFoundException ex) {
+          s_logger.warn("Attempted to remove view definition '" + removedDefinition.getName() + "' in response to change notification, but it was not found", ex);
         }
         beforeId = removedDefinition.getUniqueId();
         break;
@@ -131,7 +149,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   private ConfigMaster getConfigMaster() {
     return _configMaster;
   }
-  
+
   private InMemoryViewDefinitionRepository getUnderlyingRepository() {
     return _underlyingRepository;
   }

@@ -26,7 +26,7 @@ public class GeneratorInterestRateFuturesTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
-  private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", USDLIBOR3M);
+  private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", USDLIBOR3M, 0.25);
 
   @Test
   /**

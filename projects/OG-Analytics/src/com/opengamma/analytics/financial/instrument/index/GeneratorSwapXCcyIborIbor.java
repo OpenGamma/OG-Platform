@@ -148,6 +148,32 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument {
     return SwapXCcyIborIborDefinition.from(startDate, tenor, this, fx * notional, notional, spread, true);
   }
 
+  /**
+   * Generate the cross-currency swap from the spread and the FX exchange rate.
+   * @param date The reference date (the effective date of the swap will be the spot lag of the generator after the reference date).
+   * @param startTenor The tenor to the start.
+   * @param endTenor The tenor from start to end.
+   * @param spread The spread above the index (is applied to the first leg).
+   * @param notional The notional of the second leg. The first leg notional is that number multiplied by the FX rate (see below).
+   * @param objects The FX rate used to build the swap. Can be as a rate (Double) directly. In that case it should be the ccy2/ccy1 rate.
+   * Or as a FXMatrix and the correct rate is used.
+   * @return The cross-currency swap.
+   */
+  @Override
+  public SwapXCcyIborIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
+    ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
+    Double fx;
+    if (objects[0] instanceof Double) {
+      fx = (Double) objects[0];
+    } else {
+      fx = ((FXMatrix) objects[0]).getFxRate(_iborIndex2.getCurrency(), _iborIndex1.getCurrency());
+    }
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex1);
+    return SwapXCcyIborIborDefinition.from(startDate, endTenor, this, fx * notional, notional, spread, true);
+  }
+
   @Override
   public String toString() {
     return getName();

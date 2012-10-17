@@ -100,8 +100,9 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
+import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
+import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaultPropertiesFunction;
@@ -509,7 +510,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static void addSummingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
     functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL,
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, MissingInputsFunction.AGGREGATION_STYLE_FULL,
         FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
 
@@ -909,22 +910,32 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addEquityDerivativesCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE,
-        EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01,
-        EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO,
-        EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA,
-        EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
-    functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.SPOT,
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.SPOT,
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.FORWARD,
+        EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.FORWARD,
+        EquityFuturePricerFactory.DIVIDEND_YIELD)));
+    functionConfigs.add(functionConfiguration(EquityFuturesYieldCurveNodeSensitivityFunction.class, EquityFuturePricerFactory.MARK_TO_MARKET));
+    functionConfigs.add(functionConfiguration(EquityFuturesYieldCurveNodeSensitivityFunction.class, EquityFuturePricerFactory.DIVIDEND_YIELD));
+    functionConfigs.add(functionConfiguration(EquityFuturesDefaultPropertiesFunction.class, "Discounting", "DefaultTwoCurveUSDConfig", EquityFuturePricerFactory.MARK_TO_MARKET));
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE,
         EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
@@ -1023,14 +1034,34 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR",
-        "DefaultTwoCurveEURConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "CHF",
-        "DefaultTwoCurveCHFConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "GBP",
-        "DefaultTwoCurveGBPConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "KRW",
-        "DefaultCashCurveKRWConfig", "Cash", "BRL", "DefaultCashCurveBRLConfig", "Cash", "HKD", "DefaultCashCurveHKDConfig", "Cash"));
+    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", 
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", 
+        "CAD", "DefaultTwoCurveCADConfig", "Discounting", 
+        "AUD", "DefaultTwoCurveAUDConfig", "Discounting", 
+        "CHF", "DefaultTwoCurveCHFConfig", "Discounting", 
+        "MXN", "DefaultCashCurveMXNConfig", "Cash", 
+        "JPY", "DefaultTwoCurveJPYConfig", "Discounting", 
+        "GBP", "DefaultTwoCurveGBPConfig", "Discounting", 
+        "NZD", "DefaultTwoCurveNZDConfig", "Discounting", 
+        "HUF", "DefaultCashCurveHUFConfig", "Cash", 
+        "KRW", "DefaultCashCurveKRWConfig", "Cash", 
+        "BRL", "DefaultCashCurveBRLConfig", "Cash", 
+        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
     functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
-        LINEAR_EXTRAPOLATOR, "USD", "EUR", "TULLETT", "USD", "CAD", "TULLETT", "USD", "AUD", "TULLETT", "USD", "CHF", "TULLETT", "USD", "MXN", "TULLETT", "USD", "JPY",
-        "TULLETT", "USD", "GBP", "TULLETT", "USD", "NZD", "TULLETT", "USD", "HUF", "TULLETT", "USD", "KRW", "TULLETT", "USD", "BRL", "TULLETT", "EUR", "CHF", "TULLETT",
+        LINEAR_EXTRAPOLATOR, 
+        "USD", "EUR", "TULLETT", 
+        "USD", "CAD", "TULLETT", 
+        "USD", "AUD", "TULLETT", 
+        "USD", "CHF", "TULLETT", 
+        "USD", "MXN", "TULLETT", 
+        "USD", "JPY", "TULLETT", 
+        "USD", "GBP", "TULLETT",
+        "USD", "NZD", "TULLETT", 
+        "USD", "HUF", "TULLETT", 
+        "USD", "KRW", "TULLETT", 
+        "USD", "BRL", "TULLETT", 
+        "EUR", "CHF", "TULLETT",
         "USD", "HKD", "TULLETT"));
   }
 
@@ -1423,6 +1454,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "EUR", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "GBP", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "AUD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction.Alpha.class));
@@ -1458,18 +1490,30 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYCNSFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP",
-        "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig",
-        "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD",
-        "DefaultTwoCurveUSDConfig", "BLOOMBERG", "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, 
+        "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+        "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+        "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+        "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs
         .add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
-            "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
-            "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
+            "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, 
+            "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG", 
+            "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG", 
+            "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG", 
+            "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
   }
 
   private static void addDeprecatedSABRCalculators(final List<FunctionConfiguration> functionConfigs) {

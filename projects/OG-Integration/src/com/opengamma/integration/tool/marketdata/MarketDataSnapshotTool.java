@@ -24,13 +24,13 @@ import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
 
-import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
@@ -51,13 +51,14 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -137,11 +138,10 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
     FutureTask<List<StructuredMarketDataSnapshot>> task = null;
     for (ConfigMaster configMaster : configMasters) {
-      ConfigSearchRequest<ViewDefinition> searchRequest = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
-      searchRequest.setName(viewDefinitionName);
-      ConfigSearchResult<ViewDefinition> searchResult = configMaster.search(searchRequest);
-      for (ViewDefinition viewDefinition : searchResult.getValues()) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, viewDefinition, viewExecutionOptions, task));
+      ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
+      request.setName(viewDefinitionName);
+      for (ConfigDocument<ViewDefinition> doc : ConfigMasterIterator.iterable(configMaster, request)) {
+        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, doc.getValue(), viewExecutionOptions, task));
         executor.execute(task);
       }
     }

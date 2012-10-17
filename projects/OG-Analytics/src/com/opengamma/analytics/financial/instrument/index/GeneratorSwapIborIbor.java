@@ -70,8 +70,8 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, 
-      final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, 
+      final int spotLag) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");
@@ -124,9 +124,24 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The effective date is date+_spotLag. The maturity date is effective date+tenor.
+   */
   public SwapIborIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
     return SwapIborIborDefinition.from(startDate, tenor, this, notional, spread, true);
+  }
+
+  @Override
+  /**
+   * The effective date is spot+startTenor. The maturity date is effective date + endTenor
+   */
+  public SwapIborIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex1);
+    return SwapIborIborDefinition.from(startDate, endTenor, this, notional, spread, true);
   }
 
   @Override

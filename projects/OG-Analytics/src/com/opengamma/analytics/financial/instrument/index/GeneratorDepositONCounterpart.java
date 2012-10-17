@@ -102,10 +102,27 @@ public class GeneratorDepositONCounterpart extends GeneratorInstrument {
    * @return The overnight deposit.
    */
   public DepositCounterpartDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, tenor, _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, _calendar);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
     return new DepositCounterpartDefinition(_currency, startDate, endDate, notional, marketQuote, accrualFactor, _nameCounterpart);
+  }
+
+  @Override
+  /**
+   * Generate an overnight deposit for the given counterpart.
+   * @param date The reference date.
+   * @param startTenor The period (only with days) up to the start of the overnight deposit.
+   * @param endTenor Not used.
+   * @param marketQuote The deposit rate.
+   * @param notional The deposit notional.
+   * @param objects No.
+   * @return The overnight deposit.
+   */
+  public DepositCounterpartDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double marketQuote, final double notional,
+      final Object... objects) {
+    return generateInstrument(date, startTenor, marketQuote, notional);
   }
 
   @Override

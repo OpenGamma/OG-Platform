@@ -9,14 +9,20 @@ import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_GBP;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_FIXING_SERIES;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.LONG_NDF;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_FRA;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP_WITH_SPREAD;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_CASH;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_COUPON;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_PAYMENT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP_WITH_SPREAD;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_CASH;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_COUPON;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_PAYMENT;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SHORT_NDF;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +59,12 @@ public class NettingFixedCashFlowVisitorTest {
     NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_FIXED_PAYMENT);
     NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_EUR);
     NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_GBP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_FRA);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP_WITH_SPREAD);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP_WITH_SPREAD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -108,4 +120,36 @@ public class NettingFixedCashFlowVisitorTest {
       }
     }
   }
+
+  @Test
+  public void testMultipleCashFlowsNoNetting() {
+    for (final InstrumentDefinition<?> definition : NO_NETTING_MULTIPLE_CASHFLOWS) {
+      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(PAY_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> receive = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(RECEIVE_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(VISITOR, IBOR_FIXING_SERIES));
+      final Set<LocalDate> combinedDates = new HashSet<LocalDate>();
+      combinedDates.addAll(pay.keySet());
+      combinedDates.addAll(receive.keySet());
+      assertEquals(combinedDates.size(), netted.size());
+      for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : netted.entrySet()) {
+        final LocalDate date = entry.getKey();
+        final MultipleCurrencyAmount payAmount = pay.get(date);
+        final MultipleCurrencyAmount receiveAmount = receive.get(date);
+        MultipleCurrencyAmount combinedAmountForDate = null;
+        if (payAmount != null) {
+          combinedAmountForDate = payAmount.multipliedBy(-1);
+          if (receiveAmount != null) {
+            combinedAmountForDate = combinedAmountForDate.plus(receiveAmount);
+          }
+        } else {
+          if (receiveAmount != null) {
+            combinedAmountForDate = receiveAmount;
+          }
+        }
+        assertNotNull(combinedAmountForDate);
+        assertEquals(combinedAmountForDate, entry.getValue());
+      }
+    }
+  }
+
 }

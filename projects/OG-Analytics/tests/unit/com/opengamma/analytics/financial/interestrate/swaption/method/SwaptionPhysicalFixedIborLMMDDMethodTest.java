@@ -542,10 +542,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, IS_LONG);
     final SwaptionPhysicalFixedIbor swaptionAmortized = swaptionAmortizedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
-    // SABR parameters sensitivity (parallel shift check)
+    // SABR parameters sensitivity (parallel shift check). The sensitivities are not exact; in the approximation a small "second order" term is ignored
     PresentValueSABRSensitivityDataBundle pvss = METHOD_SABR_LMM_ATBEST.presentValueSABRSensitivity(swaptionAmortized, sabrBundle);
     final double[] shift = new double[] {0.0001, 0.0001, 0.0001};
-    final double[] toleranceSABRSensi = new double[] {5.0E+3, 5.0E+3, 1.0E+4};
+    final double[] toleranceSABRSensi = new double[] {5.0E+4, 5.0E+3, 1.0E+4};
     double[] sensiComputed = new double[] {pvss.getAlpha().toSingleValue(), pvss.getRho().toSingleValue(), pvss.getNu().toSingleValue()};
     double[] sensiExpected = new double[shift.length];
     SABRInterestRateParameters sabrParameterShift;
