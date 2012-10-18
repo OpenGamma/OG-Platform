@@ -57,7 +57,7 @@ import com.opengamma.util.money.Currency;
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
-  // TODO: Refactor - this is a field name, like PX_LAST
+  // TODO: Refactor - this is a field name, like PX_LAST - Maybe we should reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
 
   private final String _valueRequirementName;
@@ -368,14 +368,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, DIVIDEND_YIELD_FIELD,
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
-  }
-
-  /**
-   * Gets the dividendYieldField.
-   * @return the dividendYieldField
-   */
-  protected static final String getDividendYieldFieldName() {
-    return DIVIDEND_YIELD_FIELD;
   }
 
   /**
