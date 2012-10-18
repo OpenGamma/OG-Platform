@@ -20,7 +20,9 @@
         },
         /** @private */
         warn = typeof console !== 'undefined' && console.warn ? function () {
-            console.warn.apply(console, Array.prototype.slice.call(arguments));
+            var args = Array.prototype.slice.call(arguments);
+            console.$ = args;
+            console.warn.apply(console, args);
         } : log.partial('[warning]'),
         top_level = window, default_module = {
             live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',

@@ -10,32 +10,35 @@ $.register_module({
         $(window).on('unload', function () {
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
-        var constructor = function (config) {
-            var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta, cols,
+        var constructor = function (config, bypass_types) {
+            var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
                 fire = og.common.events.fire, viewport = null, view_id = config.view, graph_id, viewport_id,
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
-                grid_type = null, depgraph = !!config.depgraph, types_emitted = false,
+                grid_type = null, depgraph = !!config.depgraph, types_emitted = false, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
+                data.busy(false);
                 if (!result || result.error)
                     return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
-                if (result.data.version === viewport_version) try {fire(data.events.data, result.data.data);}
+                if (viewport && viewport.empty !== true && result.data.version === viewport_version)
+                    try {fire(data.events.data, result.data.data);}
                     catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
             };
             var data_setup = function () {
                 if (!view_id || !viewport) return;
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
+                data.busy(true);
                 (viewport_id ? viewports.get({
                     view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                     viewport_id: viewport_id, update: data_setup
-                }) : viewports
-                    .put({
+                }) : viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                        loading: function () {loading_viewport_id = true;},
                         rows: viewport.rows, columns: viewport.cols, expanded: viewport.expanded
-                    })
-                    .pipe(function (result) {
+                    }).pipe(function (result) {
+                        loading_viewport_id = false;
                         if (result.error) // goes to data_setup so take care
                             return (view_id = graph_id = viewport_id = subscribed = null);
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
@@ -49,7 +52,7 @@ $.register_module({
             var initialize = function () {
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
-                if (depgraph) grid_type = config.type; // don't bother with type_setup if it's a depgraph
+                if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 api.put(put_options).pipe(view_handler);
@@ -122,13 +125,20 @@ $.register_module({
                 });
             };
             data.meta = meta = {columns: {}};
-            data.cols = cols = {};
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
+                if (new_viewport === null) {
+                    data.busy(true);
+                    if (viewport_id) viewports.del({
+                        view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id
+                    }).pipe(function (result) {data.busy(false);});
+                    viewport = null; viewport_id = null;
+                    return data;
+                }
                 if (!new_viewport.rows.length || !new_viewport.cols.length)
                     return og.dev.warn(module.name + ': nonsensical viewport, ', new_viewport), data;
                 viewport = new_viewport;
-                if (!viewport_id) return data;
+                if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 data.busy(true);
                 viewports.put({
                     view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
@@ -141,6 +151,7 @@ $.register_module({
             connections[data.id] = data;
             initialize();
         };
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         return constructor;
     }

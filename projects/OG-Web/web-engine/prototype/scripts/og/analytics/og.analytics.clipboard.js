@@ -8,9 +8,19 @@ $.register_module({
     obj: function () {
         var module = this, textarea, node, formatters = {
             CURVE: function (value) {return '**CURVE**';},
-            DOUBLE: function (value) {return value && value.v || '';},
-            LABELLED_MATRIX_1D: function (value) {return value && value.v || '';},
-            PRIMITIVE: function (value) {return value.v || value;},
+            DOUBLE: function (value) {
+                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
+            },
+            LABELLED_MATRIX_1D: function (value) {
+                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+            },
+            LABELLED_MATRIX_2D: function (value) {
+                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
+            },
+            PRIMITIVE: function (value) {
+                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
+            },
+            SURFACE_DATA: function (value) {return '** SURFACE DATA **';},
             TIME_SERIES: function (value) {return '**TIME SERIES**';},
             UNKNOWN: function (value) {
                 var type = value.t;
@@ -20,45 +30,38 @@ $.register_module({
         var constructor = function (grid) {
             var clipboard = this;
             clipboard.data = null;
-            clipboard.dataman = null;
+            clipboard.dataman = new og.analytics.Data(grid.source, true /* bypass type check */)
+                .on('data', function (data) {
+                    var lcv, index = 0,
+                        rows = clipboard.selection.rows.length,
+                        cols = clipboard.selection.cols.length, row;
+                    clipboard.data = [];
+                    while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
+                        row.push({value: data[index++], type: clipboard.selection.type[lcv]});
+                    // if (!grid.selector.copyable) grid.selector.render();
+                });
             clipboard.grid = grid;
-            clipboard.signature = null;
+            clipboard.selection = null;
+            grid.on('select', function (selection) {clipboard.viewport(selection);});
         };
         var format = function (cell) {
+            if (typeof cell.value === 'undefined') return '';
             if (formatters[cell.type]) return formatters[cell.type](cell.value);
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
         };
+        var same_viewport = function (one, two) {
+            return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
+        };
         var select = function (text) {textarea.val(text).focus().select();};
         constructor.prototype.clear = function () {
             var clipboard = this;
-            if (clipboard.dataman) try {clipboard.dataman.kill(), clipboard.dataman = null;} catch (error) {}
+            if (clipboard.selection) clipboard.dataman.viewport(null), clipboard.selection = clipboard.data = null;
         };
         constructor.prototype.has = function (selection) {
-            var clipboard = this, grid = clipboard.grid, grid_data, signature, dataman;
             if (!selection) return false;
-            grid_data = selection.rows.length === 1 && selection.cols.length === 1 ? grid.cell(selection)
-                : grid.range(selection);
-            signature = selection.rows.join('|') + '-' + selection.cols.join('|');
-            if (!grid_data && signature !== clipboard.signature) clipboard.data = null;
-            clipboard.signature = signature;
-            if (grid_data && clipboard.dataman) clipboard.clear();
-            if (!grid_data && !clipboard.dataman) {
-                clipboard.data = null;
-                clipboard.dataman = dataman = new og.analytics.Data(grid.source)
-                    .viewport({rows: selection.rows, cols: selection.cols})
-                    .on('data', function (data) {
-                        if (dataman.signature !== clipboard.signature) return clipboard.data = null, clipboard.clear();
-                        var lcv, index = 0, rows = selection.rows.length, cols = selection.cols.length, row;
-                        clipboard.data = [];
-                        while (rows--) {
-                            for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
-                                row.push({value: data[index++], type: selection.type[lcv]});
-                        }
-                    });
-                dataman.signature = signature;
-            }
-            return grid_data ? (clipboard.data = grid_data) && true : !!clipboard.data;;
+            var clipboard = this, grid = clipboard.grid;
+            return !!(clipboard.data || (clipboard.data = grid.range(selection)));
         };
         constructor.prototype.select = function () {
             var clipboard = this;
@@ -67,6 +70,14 @@ $.register_module({
             select(clipboard.data.map(function (row) {
                 return row.map(function (cell) {return format(cell);}).join('\t');
             }).join('\n'));
+        };
+        constructor.prototype.viewport = function (selection) {
+            var clipboard = this, grid = clipboard.grid;
+            if (clipboard.selection && selection && same_viewport(clipboard.selection, selection)) return;
+            clipboard.selection = selection;
+            clipboard.data = null;
+            if (grid.range(selection)) return;
+            clipboard.dataman.viewport(selection);
         };
         $(function () {
             node = (textarea = $('<textarea />').appendTo('body')
