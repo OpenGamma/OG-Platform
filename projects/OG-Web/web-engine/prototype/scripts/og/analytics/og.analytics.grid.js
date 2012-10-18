@@ -349,6 +349,7 @@ $.register_module({
             var grid = this, live = $(grid.id).length;
             if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
             try {grid.dataman.kill();} catch (error) {return false;}
+            try {grid.clipboard.dataman.kill();} catch (error) {return false;}
             try {grid.elements.style.remove();} catch (error) {return false;}
         };
         constructor.prototype.cell = function (selection) {
@@ -376,10 +377,11 @@ $.register_module({
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         constructor.prototype.nearest_cell = function (x, y) {
-            var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+            var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
+                row_height = grid.meta.row_height, grid_height = grid.meta.viewport.height;
             for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-            bottom = (Math.floor(Math.max(0, y) / grid.meta.row_height) + 1) * grid.meta.row_height;
-            top = bottom - grid.meta.row_height;
+            bottom = (Math.floor(Math.max(0, Math.min(y, grid_height - row_height)) / row_height) + 1) * row_height;
+            top = bottom - row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
         constructor.prototype.off = og.common.events.off;
@@ -425,15 +427,18 @@ $.register_module({
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar_size;
             meta.rows = (meta.available = available(grid.meta)).length;
-            meta.viewport = {height: meta.rows * row_height, width: Math.min(width, data_width) - columns.width.fixed};
-            meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
+            meta.viewport = {
+                scroll_height: height - header_height, height: meta.rows * row_height,
+                width: Math.min(width, data_width) - columns.width.fixed
+            };
+            meta.visible_rows = Math.min(Math.ceil(meta.viewport.scroll_height / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
                 scroll_left: columns.width.fixed,
-                height: height - header_height, header_height: header_height, row_height: row_height,
+                height: meta.viewport.scroll_height, header_height: header_height, row_height: row_height,
                 set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

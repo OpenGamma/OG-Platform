@@ -151,6 +151,7 @@ $.register_module({
             connections[data.id] = data;
             initialize();
         };
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         return constructor;
     }
