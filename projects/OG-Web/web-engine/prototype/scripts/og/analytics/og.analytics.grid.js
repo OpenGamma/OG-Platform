@@ -199,6 +199,7 @@ $.register_module({
             grid.meta = meta;
             meta.row_height = row_height;
             meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
+            meta.scrollbar_size = scrollbar_size;
             grid.col_widths();
             columns.headers = [];
             columns.types = [];
@@ -208,7 +209,10 @@ $.register_module({
                 set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
             });
             unravel_structure.call(grid);
-            if (grid.elements.empty) init_elements.call(grid);
+            if (grid.elements.empty) {
+                grid.clipboard = new og.analytics.Clipboard(grid);
+                init_elements.call(grid);
+            }
             grid.resize();
         };
         var render_header = (function () {

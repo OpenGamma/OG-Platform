@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var events = og.common.events, constructor = function (config) {
             var cell = this;
-            cell.dataman = new og.analytics.Data(config.source)
+            cell.dataman = new og.analytics.Data(config.source, true /* bypass checking for primitives/portfolio */)
                 .viewport({rows: [config.row], cols: [config.col], expanded: true})
                 .on('data', function (data) {
                     var cell_data = data[0];
