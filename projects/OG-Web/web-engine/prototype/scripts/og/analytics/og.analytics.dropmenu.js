@@ -41,13 +41,16 @@ $.register_module({
             return this.opened = true, this.state = 'focused', this.emitEvent(events.focused, [this]), this;
         };
         DropMenu.prototype.open = function () {
-            return this.$dom.menu.show()/*.blurkill(this.close.bind(this))*/, this.state = 'open', 
+            if (this.$dom.menu) {
+                return this.$dom.menu.show()/*.blurkill(this.close.bind(this))*/, this.state = 'open', 
                 this.opened = true, this.$dom.toggle.addClass('og-active'), this.emitEvent(events.opened, [this]), this;
+            }
         };
         DropMenu.prototype.close = function () {
-            return (this.$dom.menu ? this.$dom.menu.hide() : null), this.state = 'closed',
-                this.opened = false, this.$dom.toggle.removeClass('og-active'), this.emitEvent(events.closed, [this]), 
-                this;
+            if (this.$dom.menu) {
+                return this.$dom.menu.hide(), this.state = 'closed', this.opened = false,
+                    this.$dom.toggle.removeClass('og-active'), this.emitEvent(events.closed, [this]), this;
+            }
         };
         DropMenu.prototype.menu_handler = function () {}; // extend this method
         DropMenu.prototype.toggle_handler = function () {
