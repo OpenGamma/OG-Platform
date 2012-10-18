@@ -18,19 +18,12 @@ import org.testng.annotations.BeforeMethod;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.config.impl.InMemoryConfigMaster;
-import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -71,8 +64,6 @@ public abstract class AbstractWebSecurityResourceTestCase {
     };
     
     HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    ConfigSource cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
-    
     addSecurity(WebResourceTestUtils.getEquitySecurity());
     addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         

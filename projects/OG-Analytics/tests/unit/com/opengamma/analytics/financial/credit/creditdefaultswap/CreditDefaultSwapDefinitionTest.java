@@ -10,18 +10,18 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
-import com.opengamma.analytics.financial.credit.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Obligor;
-import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
+import com.opengamma.analytics.financial.credit.obligormodel.Region;
+import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -116,8 +116,11 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final boolean protectionStart = true;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Construct the obligors in the contract
 
   private static final Obligor protectionBuyer = new Obligor(
       protectionBuyerTicker,
@@ -165,7 +168,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -175,7 +178,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, null, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -185,7 +188,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, null, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +198,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, null, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -205,7 +208,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, null, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -215,7 +218,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, null, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -225,7 +228,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, null, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -235,7 +238,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, null, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -245,7 +248,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, null, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -255,7 +258,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, null,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -265,7 +268,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         null, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -275,7 +278,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -285,7 +288,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -295,7 +298,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -305,7 +308,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -315,7 +318,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -325,7 +328,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, -notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, -notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -335,7 +338,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, -premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, -premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -345,7 +348,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, -recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, -recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -353,7 +356,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, 1.0 + recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, 1.0 + recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -365,7 +368,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -375,7 +378,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, testEffectiveDate,
         maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -385,7 +388,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         testMaturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -395,7 +398,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -405,7 +408,7 @@ public class CreditDefaultSwapDefinitionTest {
 
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
         maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium, protectionStart);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

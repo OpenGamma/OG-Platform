@@ -221,8 +221,7 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
       final ValueRequirement couponSensitivitiesRequirement = getCouponSensitivitiesRequirement(currency, forwardCurveName, fundingCurveName);
       requirements.add(couponSensitivitiesRequirement);
     }
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor),
-        new String[] {fundingCurveName, forwardCurveName });
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor));
     if (timeSeriesRequirements == null) {
       return null;
     }

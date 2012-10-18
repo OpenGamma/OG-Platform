@@ -8,6 +8,9 @@ package com.opengamma.analytics.math.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
+import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
+
 /**
  * 
  */
@@ -52,6 +55,11 @@ public final class Interpolator1DFactory {
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
+  
+  public static final String ISDA_INTERPOLATOR = "ISDAInterpolator";
+  public static final String ISDA_EXTRAPOLATOR = "ISDAExtrapolator";
+  public static final ISDAInterpolator1D ISDA_INTERPOLATOR_INSTANCE = new ISDAInterpolator1D();
+  public static final ISDAExtrapolator1D ISDA_EXTRAPOLATOR_INSTANCE = new ISDAExtrapolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -74,6 +82,12 @@ public final class Interpolator1DFactory {
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
+    
+    staticInstances.put(ISDA_INTERPOLATOR, ISDA_INTERPOLATOR_INSTANCE);
+    staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
+    instanceNames.put(ISDAInterpolator1D.class, ISDA_INTERPOLATOR);
+    instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
+    
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }

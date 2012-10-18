@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.equity.future.pricing;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given the current value of its underlying asset and a cost of carry. 
@@ -31,16 +31,36 @@ public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
   /**
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
-   * @return Present value of the derivative
+   * @return The spot price of the equity or index
    */
   @Override
-  public double presentValue(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+    return dataBundle.getSpotValue();
+  }
+
+  /**
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
+   * @return The forward price of the equity or index
+   */
+  @Override
+  public double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getCostOfCarry());
     Validate.notNull(dataBundle.getSpotValue());
-
     double fwdPrice = dataBundle.getSpotValue() * Math.exp(dataBundle.getCostOfCarry() * future.getTimeToSettlement());
+    return fwdPrice;
+  }
+
+  /**
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
+   * @return Present value of the derivative
+   */
+  @Override
+  public double presentValue(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+    double fwdPrice = forwardPrice(future, dataBundle);
     return (fwdPrice - future.getStrike()) * future.getUnitAmount();
   }
 

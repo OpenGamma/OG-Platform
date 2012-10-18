@@ -8,10 +8,13 @@ $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.common.routes'],
     obj: function () {
+        jQuery.ajaxSettings.traditional = true; // instead of arr[]=1&arr[]=2 we want arr=1&arr=2
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
-            common = og.api.common, routes = og.common.routes, start_loading = common.start_loading,
-            end_loading = common.end_loading, encode = window['encodeURIComponent'],
-            outstanding_requests = {}, registrations = [], subscribe,
+            common = og.api.common, routes = og.common.routes, loading_start = common.loading_start,
+            loading_end = common.loading_end, encode = window['encodeURIComponent'],
+            // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
+            str = common.str,
+            outstanding_requests = {}, registrations = [], subscribe, post_processors = {},
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 configs: 'config', exchanges: 'exchange', holidays: 'holiday',
@@ -24,184 +27,180 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
-            TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
-            get_cache = function (key) {return common.get_cache(module.name + key);},
-            set_cache = function (key, value) {return common.set_cache(module.name + key, value);},
-            del_cache = function (key) {return common.del_cache(module.name + key);},
-            /** @ignore */
-            register = function (req) {
-                return !req.config.meta.update ? true
-                    : !api.id ? false
-                        : !!registrations.push({
-                            id: req.id, dependencies: req.config.meta.dependencies || [],
-                            config: req.config, method: req.method,
-                            update: req.config.meta.update, url: req.url, current: req.current
-                        });
-            },
-            Promise = function () {
-                var deferred = new $.Deferred, promise = deferred.promise();
-                promise.deferred = deferred;
-                promise.id = ++request_id;
-                return promise;
-            },
-            /** @ignore */
-            request = function (method, config, promise) {
-                var no_post_body = {GET: 0, DELETE: 0}, is_get = config.meta.type === 'GET',
-                    // build GET/DELETE URLs instead of letting $.ajax do it
-                    url = config.url || (config.meta.type in no_post_body ?
-                        [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
-                            .filter(Boolean).join('?')
-                                : live_data_root + method.map(encode).join('/')),
-                    current = routes.current(), send;
-                promise = promise || new Promise;
-                /** @ignore */
-                send = function () {
-                    // GETs are being POSTed with method=GET so they do not cache. TODO: change this
-                    outstanding_requests[promise.id].ajax = $.ajax({
-                        url: url,
-                        type: is_get ? 'POST' : config.meta.type,
-                        data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
-                        headers: {'Accept': 'application/json'},
-                        dataType: 'json',
-                        timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
-                        beforeSend: function (xhr, req) {
-                            var aborted = !(promise.id in outstanding_requests),
-                                message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
-                                    (!is_get ? '\n\n' + req.data : '');
-                            og.dev.log(message);
-                            if (aborted) return false;
-                        },
-                        error: function (xhr, status, error) {
-                            // re-send requests that have timed out only if the are GETs
-                            if (error === 'timeout' && is_get) return send();
-                            var result = {
-                                error: true, data: null, meta: {},
-                                message: status === 'parsererror' ? 'JSON parser failed'
-                                    : xhr.responseText || 'There was no response from the server.'
-                            };
-                            delete outstanding_requests[promise.id];
-                            if (error === 'abort') return; // do not call handler if request was cancelled
-                            config.meta.handler(result);
-                            promise.deferred.resolve(result);
-                        },
-                        success: function (data, status, xhr) {
-                            var meta = {content_length: xhr.responseText.length},
-                                location = xhr.getResponseHeader('Location'), result, cache_for;
-                            delete outstanding_requests[promise.id];
-                            if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
-                            if (config.meta.type in no_post_body) meta.url = url;
-                            result = {error: false, message: status, data: data, meta: meta};
-                            if (cache_for = config.meta.cache_for)
-                                set_cache(url, result), setTimeout(function () {del_cache(url);}, cache_for);
-                            config.meta.handler(result);
-                            promise.deferred.resolve(result);
-                        },
-                        complete: end_loading
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 30s */,
+            TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
+        var cache_get = function (key) {return common.cache_get(module.name + key);};
+        var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
+        var cache_del = function (key) {return common.cache_del(module.name + key);};
+        var check = function (params) {
+            common.check(params);
+            if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
+            if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
+                throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
+            if (str(params.bundle.config.to) && !str(params.bundle.config.from))
+                throw new TypeError(params.bundle.method + ': config.to requires config.from');
+            if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
+                params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
+            return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
+                return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
+            }, {type: 'GET'});
+        };
+        var default_del = function (config) {
+            config = config || {};
+            var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
+            meta = check({
+                bundle: {method: root + '#del', config: config},
+                required: [{all_of: ['id']}],
+                dependencies: [{fields: ['version'], require: 'id'}]
+            });
+            meta.type = 'DELETE';
+            return request(method.concat(version ? [id, 'versions', version] : id), {data: {}, meta: meta});
+        };
+        var default_get = function (fields, api_fields, config) {
+            config = config || {};
+            var root = this.root, method = [root], data = {}, meta,
+                all = fields.concat('id', 'version', 'page_size', 'page', 'from', 'to'),
+                id = str(config.id), version = str(config.version), version_search = version === '*',
+                field_search = fields.some(function (val) {return val in config;}),
+                ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
+                search = field_search || id_search || version_search || !id,
+                has_meta = root in meta_data, meta_request = has_meta && config.meta;
+            meta = check({
+                bundle: {method: root + '#get', config: config},
+                dependencies: [{fields: ['version'], require: 'id'}],
+                empties: [
+                    {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
+                    {condition: !has_meta, label: 'meta data unavailable for /' + root, fields: ['meta']},
+                    {condition: meta_request, label: 'meta data request', fields: all},
+                    {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
+                ]
+            });
+            if (meta_request) method.push('metaData');
+            if (search) data = paginate(config);
+            if (field_search) fields.forEach(function (val, idx) {
+                if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
+            });
+            if (id_search) data[singular[root] + 'Id'] = ids;
+            version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
+            if (id) method = method.concat(version);
+            return request(method, {data: data, meta: meta});
+        };
+        var not_available = function (method) {
+            throw new Error(this.root + '#' + method + ' does not exist in the REST API');
+        };
+        var not_implemented = function (method) {
+            throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
+        };
+        var paginate = function (config) {
+            var from = str(config.from), to = str(config.to);
+            return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
+                : {'pgSze': str(config.page_size) || PAGE_SIZE, 'pgNum': str(config.page) || PAGE};
+        }
+        var post_process = function (data, url) {return post_processors[url] ? post_processors[url](data) : data;};
+        post_processors[live_data_root + 'compressor/compress'] = function (data) {
+            return (data.data = data.data.replace(/\=/g, '-').replace(/\//g, '_').replace(/\+/g, '.')), data;
+        };
+        var Promise = function () {
+            var deferred = new $.Deferred, promise = deferred.promise();
+            promise.deferred = deferred;
+            promise.id = ++request_id;
+            return promise;
+        };
+        var register = function (req) {
+            return !req.config.meta.update ? true
+                : !api.id ? false
+                    : !!registrations.push({
+                        id: req.id, dependencies: req.config.meta.dependencies || [],
+                        config: req.config, method: req.method,
+                        update: req.config.meta.update, url: req.url, current: req.current
                     });
-                };
-                if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
-                    // if registration fails, it's because we don't have a client ID yet, so stall
-                    return setTimeout(request.partial(method, config, promise), STALL), promise;
-                if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
-                    var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
-                    config.meta.handler(result);
-                    promise.deferred.resolve(result);
-                }, INSTANT), promise;
-                if (config.meta.update) if (is_get) config.data['clientId'] = api.id;
-                    else warn(module.name + ': update functions are only for GETs');
-                if (config.meta.cache_for && !is_get)
-                    warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
-                start_loading(config.meta.loading);
-                if (is_get) { // deal with client-side caching of GETs
-                    if (get_cache(url) && typeof get_cache(url) === 'object') return setTimeout((function (result) {
-                        return function () {config.meta.handler(result), promise.deferred.resolve(result);};
-                    })(get_cache(url)), INSTANT), promise;
-                    if (get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
-                        return setTimeout(request.partial(method, config, promise), STALL), promise;
-                    if (config.meta.cache_for) set_cache(url, true);
-                }
-                outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
-                return send(), promise;
-            },
+        };
+        var request = function (method, config, promise) {
+            var no_post_body = {GET: 0, DELETE: 0}, is_get = config.meta.type === 'GET', current = routes.current(),
+                // build GET/DELETE URLs instead of letting $.ajax do it
+                url = config.url || (config.meta.type in no_post_body ?
+                    [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
+                        .filter(Boolean).join('?')
+                            : live_data_root + method.map(encode).join('/')),
+            promise = promise || new Promise;
             /** @ignore */
-            request_expired = function (request, current) {
-                return (current.page !== request.current.page) || request.dependencies.some(function (field) {
-                    return current.args[field] !== request.current.args[field];
+            var send = function () {
+                // GETs are being POSTed with method=GET so they do not cache. TODO: change this
+                outstanding_requests[promise.id].ajax = $.ajax({
+                    url: url,
+                    type: is_get ? 'POST' : config.meta.type,
+                    data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
+                    headers: {'Accept': 'application/json'},
+                    dataType: 'json',
+                    timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
+                    beforeSend: function (xhr, req) {
+                        var aborted = !(promise.id in outstanding_requests),
+                            message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
+                                (!is_get ? '\n\n' + req.data : '');
+                        og.dev.log(message);
+                        if (aborted) return false;
+                    },
+                    error: function (xhr, status, error) {
+                        // re-send requests that have timed out only if the are GETs
+                        if (error === 'timeout' && is_get) return send();
+                        var result = {
+                            error: true, data: null, meta: {},
+                            message: status === 'parsererror' ? 'JSON parser failed'
+                                : xhr.responseText || 'There was no response from the server.'
+                        };
+                        delete outstanding_requests[promise.id];
+                        if (error === 'abort') return; // do not call handler if request was cancelled
+                        config.meta.handler(result);
+                        promise.deferred.resolve(result);
+                    },
+                    success: function (data, status, xhr) {
+                        var meta = {content_length: xhr.responseText.length},
+                            location = xhr.getResponseHeader('Location'), result, cache_for;
+                        delete outstanding_requests[promise.id];
+                        if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
+                        if (config.meta.type in no_post_body) meta.url = url;
+                        result = {error: false, message: status, data: post_process(data, url), meta: meta};
+                        if (cache_for = config.meta.cache_for)
+                            cache_set(url, result), setTimeout(function () {cache_del(url);}, cache_for);
+                        config.meta.handler(result);
+                        promise.deferred.resolve(result);
+                    },
+                    complete: loading_end
                 });
-            },
-            /** @ignore */
-            paginate = function (config) {
-                var from = str(config.from), to = str(config.to);
-                return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
-                    : {'pgSze': str(config.page_size) || PAGE_SIZE, 'pgNum': str(config.page) || PAGE};
-            },
-            /** @ignore */
-            check = function (params) {
-                common.check(params);
-                if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
-                if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
-                    throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
-                if (str(params.bundle.config.to) && !str(params.bundle.config.from))
-                    throw new TypeError(params.bundle.method + ': config.to requires config.from');
-                if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
-                    params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-                return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
-                    return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
-                }, {type: 'GET'});
-            },
-            // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
-            str = common.str,
-            /** @ignore */
-            default_get = function (fields, api_fields, config) {
-                config = config || {};
-                var root = this.root, method = [root], data = {}, meta,
-                    all = fields.concat('id', 'version', 'page_size', 'page', 'from', 'to'),
-                    id = str(config.id), version = str(config.version), version_search = version === '*',
-                    field_search = fields.some(function (val) {return val in config;}),
-                    ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
-                    search = field_search || id_search || version_search || !id,
-                    has_meta = root in meta_data, meta_request = has_meta && config.meta;
-                meta = check({
-                    bundle: {method: root + '#get', config: config},
-                    dependencies: [{fields: ['version'], require: 'id'}],
-                    empties: [
-                        {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
-                        {condition: !has_meta, label: 'meta data unavailable for /' + root, fields: ['meta']},
-                        {condition: meta_request, label: 'meta data request', fields: all},
-                        {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
-                    ]
-                });
-                if (meta_request) method.push('metaData');
-                if (search) data = paginate(config);
-                if (field_search) fields.forEach(function (val, idx) {
-                    if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
-                });
-                if (id_search) data[singular[root] + 'Id'] = ids;
-                version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
-                if (id) method = method.concat(version);
-                return request(method, {data: data, meta: meta});
-            },
-            /** @ignore */
-            default_del = function (config) {
-                config = config || {};
-                var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
-                meta = check({
-                    bundle: {method: root + '#del', config: config},
-                    required: [{all_of: ['id']}],
-                    dependencies: [{fields: ['version'], require: 'id'}]
-                });
-                meta.type = 'DELETE';
-                return request(method.concat(version ? [id, 'versions', version] : id), {data: {}, meta: meta});
-            },
-            /** @ignore */
-            not_available = function (method) {
-                throw new Error(this.root + '#' + method + ' does not exist in the REST API');
-            },
-            /** @ignore */
-            not_implemented = function (method) {
-                throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
+            if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
+                // if registration fails, it's because we don't have a client ID yet, so stall
+                return setTimeout(request.partial(method, config, promise), STALL), promise;
+            if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
+                var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                config.meta.handler(result);
+                promise.deferred.resolve(result);
+            }, INSTANT), promise;
+            if (config.meta.update) if (is_get) config.data['clientId'] = api.id;
+                else warn(module.name + ': update functions are only for GETs');
+            if (config.meta.cache_for && !is_get)
+                warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
+            loading_start(config.meta.loading);
+            if (is_get) { // deal with client-side caching of GETs
+                if (cache_get(url) && typeof cache_get(url) === 'object') return setTimeout((function (result) {
+                    return function () {config.meta.handler(result), promise.deferred.resolve(result);};
+                })(cache_get(url)), INSTANT), promise;
+                if (cache_get(url)) // if cache_get returns true a request is already outstanding, so stall
+                    return setTimeout(request.partial(method, config, promise), STALL), promise;
+                if (config.meta.cache_for) cache_set(url, true);
+            }
+            outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+            return send(), promise;
+        };
+        var request_expired = function (request, current) {
+            return (current.page !== request.current.page) || request.dependencies.some(function (field) {
+                return current.args[field] !== request.current.args[field];
+            });
+        };
+        var simple_get = function (config) {
+            meta = check({bundle: {method: this.root + '#get', config: config || {}}});
+            return request([this.root], {data: {}, meta: meta});
+        };
         api = {
             abort: function (promise) {
                 if (!promise) return;
@@ -213,7 +212,7 @@ $.register_module({
             },
             aggregators: { // all requests that begin with /aggregators
                 root: 'aggregators',
-                get: default_get.partial([], null),
+                get: simple_get,
                 put: not_available.partial('put'),
                 del: not_available.partial('del')
             },
@@ -226,6 +225,26 @@ $.register_module({
                 // clean up registrations
                 registrations.filter(request_expired.partial(void 0, current)).pluck('id')
                     .forEach(function (id) {api.abort({id: id});});
+            },
+            compressor: { // all requests that begin with /compressor
+                root: 'compressor',
+                get: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root, 'decompress'], data = {}, meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
+                    meta.type = 'POST';
+                    data.content = config.content.replace(/\-/g, '=').replace(/\_/g, '\/').replace(/\./g, '+');
+                    return request(method, {data: data, meta: meta});
+                },
+                put: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root, 'compress'], data = {}, meta;
+                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['content']}]});
+                    meta.type = 'POST';
+                    data.content = JSON.stringify(config.content);
+                    return request(method, {data: data, meta: meta});
+                },
+                del: not_available.partial('del')
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -304,6 +323,12 @@ $.register_module({
                 del: not_implemented.partial('del')
             },
             id: null,
+            livedatasources: { // all requests that begin with /livedatasources
+                root: 'livedatasources',
+                get: simple_get,
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
             marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
                 root: 'marketdatasnapshots',
                 get: default_get.partial([], null),
@@ -529,31 +554,167 @@ $.register_module({
             views: { // all requests that begin with /views
                 root: 'views',
                 get: not_available.partial('get'),
-                put: function (config) {
+                put: function (config, promise) {
                     config = config || {};
-                    var root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version'],
+                    var promise = promise || new Promise,
+                        root = this.root, method = [root], data = {}, meta,
+                        fields = ['viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'live',
-                            'provider', 'snapshotId', 'versionDateTime'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders',
+                            'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
                         ];
+                    if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
+                        return function () {api.views.put.call(context, config, promise);}; // complete, return a
+                    })(this), STALL), promise;                                              // promise and try again
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [
-                            {all_of: ['viewdefinition']},
-                            {condition: config.live, all_of: ['provider']},
-                            {condition: !config.live, all_of: ['snapshot', 'version']}
-                        ]
+                        required: [{all_of: ['viewdefinition', 'providers']}]
                     });
                     meta.type = 'POST';
-                    fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    fields.forEach(function (val, idx) {
+                        var is_object = typeof config[val] === 'object';
+                        if (is_object ? val = JSON.stringify(config[val]) : val = str(config[val])) // is truthy
+                            data[api_fields[idx]] = val;
+                    });
                     data['clientId'] = api.id;
-                    return request(method, {data: data, meta: meta});
+                    return request(method, {data: data, meta: meta}, promise);
                 },
-                del: not_available.partial('del')
+                del: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root], meta, view_id = str(config.view_id);
+                    meta = check({
+                        bundle: {method: root + '#del', config: config},
+                        required: [{all_of: ['view_id']}]
+                    });
+                    meta.type = 'DELETE';
+                    method = method.concat(view_id);
+                    return request(method, {data: {}, meta: meta});
+                },
+                grid: {
+                    depgraphs: {
+                        root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
+                        del: not_implemented.partial('del'),
+                        get: not_available.partial('get'),
+                        structure: {
+                            root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
+                            get: function (config) {
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#get', config: config},
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id']}]
+                                });
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                return request(method, {data: data, meta: meta});
+                            },
+                            put: not_available.partial('put'),
+                            del: not_available.partial('del')
+                        },
+                        put: function (config) {
+                            var root = this.root, method = root.split('/'), data = {}, meta,
+                                fields = ['view_id', 'grid_type', 'row', 'col'],
+                            meta = check({
+                                bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
+                            });
+                            meta.type = 'POST';
+                            data['clientId'] = api.id;
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
+                            return request(method, {data: data, meta: meta});
+                        },
+                        viewports: {
+                            root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports',
+                            get: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#get', config: config},
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id', 'viewport_id']}]
+                                });
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                method.push(config.viewport_id);
+                                return request(method, {data: data, meta: meta});
+                            },
+                            put: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta,
+                                    fields = ['view_id', 'grid_type', 'graph_id', 'viewport_id', 'rows', 'columns'],
+                                meta = check({
+                                    bundle: {method: root + '#put', config: config},
+                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns']}]
+                                });
+                                meta.type = 'POST';
+                                data.rows = config.rows;
+                                data.columns = config.columns;
+                                data.expanded = !!config.expanded;
+                                data['clientId'] = api.id;
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
+                                return request(method, {data: data, meta: meta});
+                            },
+                            del: not_available.partial('del')
+                        }
+                    },
+                    structure: {
+                        root: 'views/{{view_id}}/{{grid_type}}',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['view_id', 'grid_type']}]
+                            });
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            return request(method, {data: data, meta: meta});
+                        },
+                        put: not_available.partial('put'),
+                        del: not_available.partial('del')
+                    },
+                    viewports: {
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
+                            });
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.viewport_id);
+                            return request(method, {data: data, meta: meta});
+                        },
+                        put: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta,
+                                fields = ['view_id', 'grid_type', 'viewport_id', 'rows', 'columns'],
+                            meta = check({
+                                bundle: {method: root + '#put', config: config},
+                                required: [{all_of: ['view_id', 'rows', 'columns']}]
+                            });
+                            meta.type = 'POST';
+                            data.rows = config.rows;
+                            data.columns = config.columns;
+                            data.expanded = !!config.expanded;
+                            data['clientId'] = api.id;
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
+                            return request(method, {data: data, meta: meta});
+                        },
+                        del: not_available.partial('del')
+                    }
+                }
             }
         };
-        common.clear_cache(module.name); // empty the cache from another session or window if it still exists
+        common.cache_clear(module.name); // empty the cache from another session or window if it still exists
         api.subscribe = subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
             if (result.error)

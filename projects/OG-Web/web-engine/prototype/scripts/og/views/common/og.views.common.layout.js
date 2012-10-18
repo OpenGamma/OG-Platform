@@ -51,7 +51,7 @@ $.register_module({
             };},
             gadget: function () {return {
                 main: $('.OG-layout-gadget-container').layout({
-                    defaults: {enableCursorHotkey: false},
+                    defaults: {enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize'},
                     center: {paneClass: 'OG-gadgets-container'}
                 })
             };},

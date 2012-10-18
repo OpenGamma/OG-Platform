@@ -14,6 +14,7 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -739,7 +740,7 @@ public class InstrumentDerivativeVisitorTest {
     public Class<?> visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
       return null;
     }
-
+    
     @Override
     public Class<?> visitCouponIborCompounded(CouponIborCompounded payment) {
       // TODO Auto-generated method stub
@@ -759,6 +760,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCDSDerivative(ISDACDSDerivative cds, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCDSDerivative(ISDACDSDerivative cds) {
       return null;
     }
 

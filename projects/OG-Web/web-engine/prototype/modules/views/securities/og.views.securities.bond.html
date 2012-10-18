@@ -33,8 +33,14 @@
             <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>
             <tr class="og-divider"><td></td><td></td></tr>
             <tr><td><span>Day Count</span></td><td>${dayCount}</td></tr>
-            <tr><td><span>Guarantee Type</span></td><td>${guaranteeType}</td></tr>
-            <tr><td><span>Business Day Convention</span></td><td>${businessDayConvention}</td></tr>
+            <tr>
+              <td><span>Guarantee Type</span></td>
+              <td>{{if guaranteeType}}${guaranteeType}{{else}}(no value){{/if}}</td>
+            </tr>
+            <tr>
+              <td><span>Business Day Convention</span></td>
+              <td>{{if businessDayConvention}}${businessDayConvention}{{else}}(no value){{/if}}</td>
+            </tr>
             <tr><td><span>Announcement Date</span></td><td>${announcementDate}</td></tr>
             <tr>
               <td><span>Interest Accrual Date</span></td>

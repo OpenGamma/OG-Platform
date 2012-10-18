@@ -79,15 +79,15 @@ public class LiveMarketDataProviderTest {
     MarketDataSnapshot snapshot = provider.snapshot(null);
     snapshot.init(Collections.<ValueRequirement>emptySet(), 0, TimeUnit.MILLISECONDS);
     
-    Double test1Value = (Double) snapshot.query(test1Requirement);
+    Double test1Value = (Double) snapshot.query(test1Requirement).getValue();
     assertNotNull(test1Value);
     assertEquals(52.07, test1Value, 0.000001);
     
-    Double test2Value = (Double) snapshot.query(test2Requirement);
+    Double test2Value = (Double) snapshot.query(test2Requirement).getValue();
     assertNotNull(test2Value);
     assertEquals(52.15, test2Value, 0.000001);
     
-    Double test3Value = (Double) snapshot.query(test3Requirement);
+    Double test3Value = (Double) snapshot.query(test3Requirement).getValue();
     assertNotNull(test3Value);
     assertEquals(52.17, test3Value, 0.000001);
     

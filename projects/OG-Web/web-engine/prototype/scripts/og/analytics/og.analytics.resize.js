@@ -43,7 +43,7 @@ $.register_module({
             };
             var mousedown_handler = function (event) {
                 return event.which !== 3 || event.button !== 2 ? left_handler()
-                    : event.stopPropagation(), (block_menu = true), right_handler();
+                    : (event.stopPropagation(), (block_menu = true), right_handler());
             };
             var resize = function () {
                 $resizer.css({

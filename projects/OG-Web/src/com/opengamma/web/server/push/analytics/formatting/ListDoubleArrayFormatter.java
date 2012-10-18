@@ -39,9 +39,8 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(List value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+  public List formatForExpandedDisplay(List value, ValueSpecification valueSpec) {
+    return value;
   }
 
   @Override

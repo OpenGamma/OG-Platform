@@ -117,12 +117,16 @@ public class BloombergRateClassifier {
     switch(bbgFwdScale) {
       case 0:
         return 1;
+      case 1:
+        return 10;
       case 2: 
         return 100;
+      case 3: 
+        return 1000;
       case 4:
         return 10000;
       default:
-        s_logger.warn("Unable to handle forward scale {}; can only normalize 0, 2 and 4", bbgFwdScale);
+        s_logger.warn("Unable to handle forward scale {}", bbgFwdScale);
         return null;
     }
   }

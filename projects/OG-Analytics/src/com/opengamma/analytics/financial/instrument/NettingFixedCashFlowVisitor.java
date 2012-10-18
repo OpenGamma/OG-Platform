@@ -12,11 +12,12 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Returns the netted results of pay and receive cash-flows, where a negative value implies a net liability.
  */
-public final class NettingFixedCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<LocalDate, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class NettingFixedCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FixedPayCashFlowVisitor PAY_VISITOR = FixedPayCashFlowVisitor.getInstance();
   private static final FixedReceiveCashFlowVisitor RECEIVE_VISITOR = FixedReceiveCashFlowVisitor.getInstance();
   private static final NettingFixedCashFlowVisitor INSTANCE = new NettingFixedCashFlowVisitor();
@@ -29,17 +30,26 @@ public final class NettingFixedCashFlowVisitor extends AbstractInstrumentDefinit
   }
 
   /**
-   * Returns netted cash-flows after a particular date. If the date is after the maturity of the object, an empty map is returned.
+   * Returns netted known cash-flows, including any floating cash-flows that have fixed.
    * @param instrument The instrument, not null
-   * @param fromDate The date from which to list the cash-flows.
    * @return A map containing netted cash-flows.
    */
   @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> instrument, final LocalDate fromDate) {
+  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> instrument) {
+    return visit(instrument, null);
+  }
+
+  /**
+   * Returns netted known cash-flows, including any floating cash-flows that have fixed.
+   * @param instrument The instrument, not null
+   * @param indexFixingTimeSeries The fixing time series
+   * @return A map containing netted cash-flows.
+   */
+  @Override
+  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> instrument, final DoubleTimeSeries<LocalDate> indexFixingTimeSeries) {
     ArgumentChecker.notNull(instrument, "instrument");
-    ArgumentChecker.notNull(fromDate, "date");
-    final Map<LocalDate, MultipleCurrencyAmount> payCashFlows = instrument.accept(PAY_VISITOR, fromDate);
-    final Map<LocalDate, MultipleCurrencyAmount> receiveCashFlows = instrument.accept(RECEIVE_VISITOR, fromDate);
+    final Map<LocalDate, MultipleCurrencyAmount> payCashFlows = instrument.accept(PAY_VISITOR, indexFixingTimeSeries);
+    final Map<LocalDate, MultipleCurrencyAmount> receiveCashFlows = instrument.accept(RECEIVE_VISITOR, indexFixingTimeSeries);
     return add(payCashFlows, receiveCashFlows);
   }
 

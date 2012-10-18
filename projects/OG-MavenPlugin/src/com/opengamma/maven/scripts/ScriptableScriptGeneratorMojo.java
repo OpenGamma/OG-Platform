@@ -20,13 +20,16 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.opengamma.maven.MojoUtils;
+import com.opengamma.util.ClasspathUtils;
 import com.opengamma.util.annotation.ClassNameAnnotationScanner;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.generate.scripts.ScriptsGenerator;
@@ -55,17 +58,17 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
    */
   private File _outputDir;
   /**
-   * @parameter alias="templateFile"
+   * @parameter alias="template"
    */
-  private String _templateFile;
+  private String _template;
+  /**
+   * @parameter alias="baseClassTemplateMap"
+   */
+  private Map<String, String> _baseClassTemplateMap;
   /**
    * @parameter alias="resourceArtifact"
    */
   private String _resourceArtifact;
-  /**
-   * @parameter alias="templateResource"
-   */
-  private String _templateResource;
   /**
    * @parameter alias="additionalScripts"
    */
@@ -81,11 +84,15 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
    */
   private MavenProject _project;
   
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    Template template = getTemplate();
-    
+    boolean templateSet = !StringUtils.isBlank(_template);
+    boolean templateMapSet = _baseClassTemplateMap != null && _baseClassTemplateMap.isEmpty();
+    if ((templateSet && templateMapSet) || (!templateSet && !templateMapSet)) {
+      throw new MojoExecutionException("Exactly one of 'template' or 'baseClassTemplateMap' must be set");
+    }
     if (!_outputDir.exists()) {
       try {
         getLog().debug("Creating output directory " + _outputDir);
@@ -103,13 +110,21 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
     } catch (DependencyResolutionRequiredException e) {
       throw new MojoExecutionException("Error obtaining dependencies", e);
     }
-    String[] classpathElements = classpathElementList.toArray(new String[classpathElementList.size()]);
-    Set<String> annotationClasses = ClassNameAnnotationScanner.scan(classpathElements, Scriptable.class.getName());
+    URL[] classpathUrls = ClasspathUtils.getClasspathURLs(classpathElementList);
+    Set<String> annotationClasses = ClassNameAnnotationScanner.scan(classpathUrls, Scriptable.class.getName());
     getLog().info("Generating " + annotationClasses.size() + " scripts");
+    
+    ClassLoader classLoader = new URLClassLoader(classpathUrls, this.getClass().getClassLoader());
+    Map<Class<?>, Template> templateMap = resolveTemplateMap(classLoader);
     
     for (String className : annotationClasses) {
       Map<String, Object> templateData = new HashMap<String, Object>();
       templateData.put("className", className);
+      Template template = getTemplateForClass(className, classLoader, templateMap);
+      if (template == null) {
+        getLog().warn("No template for scriptable class " + className);
+        continue;
+      }
       ScriptsGenerator.generate(className, _outputDir, template, templateData);
     }
     
@@ -134,15 +149,53 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
     }
   }
 
-  private Template getTemplate() throws MojoExecutionException, MojoFailureException {
+  //-------------------------------------------------------------------------
+  private Map<Class<?>, Template> resolveTemplateMap(ClassLoader classLoader) throws MojoExecutionException {
+    if (_baseClassTemplateMap == null || _baseClassTemplateMap.isEmpty()) {
+      return ImmutableMap.<Class<?>, Template>of(Object.class, getTemplate(_template));
+    }
+    Map<Class<?>, Template> templateMap = new HashMap<Class<?>, Template>();
+    for (Map.Entry<String, String> unresolvedEntry : _baseClassTemplateMap.entrySet()) {
+      String className = unresolvedEntry.getKey();
+      Class<?> clazz;
+      try {
+        clazz = classLoader.loadClass(className);
+      } catch (ClassNotFoundException e) {
+        throw new IllegalArgumentException("Unable to resolve class " + className);
+      }
+      Template template = getTemplate(unresolvedEntry.getValue());
+      templateMap.put(clazz, template);
+    }
+    return templateMap;
+  }
+  
+  private Template getTemplateForClass(String className, ClassLoader classLoader, Map<Class<?>, Template> templateMap) throws MojoExecutionException {
+    if (templateMap.size() == 1 && Object.class.equals(Iterables.getOnlyElement(templateMap.keySet()))) {
+      return Iterables.getOnlyElement(templateMap.values());
+    }
+    Class<?> clazz;
     try {
-      if (!StringUtils.isBlank(_templateFile)) {
-        return getTemplateFromFile(_baseDir, _templateFile);
-      } else if (!StringUtils.isBlank(_templateResource)) {
+      clazz = classLoader.loadClass(className);
+    } catch (ClassNotFoundException e) {
+      throw new MojoExecutionException("Unable to resolve class " + className);
+    }
+    for (Map.Entry<Class<?>, Template> templateMapEntry : templateMap.entrySet()) {
+      if (templateMapEntry.getKey().isAssignableFrom(clazz)) {
+        return templateMapEntry.getValue();
+      }
+    }
+    return null;
+  }
+
+  private Template getTemplate(String templateName) throws MojoExecutionException {
+    try {
+      if (_resourceArtifact == null) {
+        return getTemplateFromFile(_baseDir, templateName);
+      } else {
         ClassLoader resourceLoader = getResourceLoader(_resourceArtifact, _project);
-        InputStream resourceStream = resourceLoader.getResourceAsStream(_templateResource);
+        InputStream resourceStream = resourceLoader.getResourceAsStream(templateName);
         if (resourceStream == null) {
-          throw new MojoExecutionException("Resource '" + _templateResource + "' not found");
+          throw new MojoExecutionException("Resource '" + templateName + "' not found");
         }
         String templateStr;
         try {
@@ -150,40 +203,18 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
         } finally {
           resourceStream.close();
         }
-        return new Template(_templateResource, new StringReader(templateStr), new Configuration());
-      } else {
-        throw new MojoFailureException("templateFile or templateResource must be specified");
+        return new Template(templateName, new StringReader(templateStr), new Configuration());
       }
     } catch (IOException e) {
-      throw new MojoExecutionException("Error loading Freemarker template from '" + _templateFile + "'", e);
+      throw new MojoExecutionException("Error loading Freemarker template from '" + templateName + "'", e);
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static ClassLoader getResourceLoader(String resourceArtifact, MavenProject project) throws MojoExecutionException, MalformedURLException {
     if (StringUtils.isBlank(resourceArtifact)) {
       return ScriptableScriptGeneratorMojo.class.getClassLoader();
     }
-    String[] artifactParts = resourceArtifact.split(":");
-    if (artifactParts.length < 2 || artifactParts.length > 4) {
-      throw new MojoExecutionException("resourceArtifact must be of the form groupId:artifactId[:type[:classifier]]");
-    }
-    String groupId = artifactParts[0];
-    String artifactId = artifactParts[1];
-    String type = artifactParts.length > 2 ? artifactParts[2] : null;
-    String classifier = artifactParts.length > 3 ? artifactParts[3] : null;
-    
-    File artifactFile = null;
-    for (Artifact artifact : (Set<Artifact>) project.getDependencyArtifacts()) {
-      if (groupId.equals(artifact.getGroupId()) && artifactId.equals(artifact.getArtifactId()) &&
-          (type == null || type.equals(artifact.getType())) && (classifier == null || classifier.equals(artifact.getClassifier()))) {
-        artifactFile = artifact.getFile();
-        break;
-      }
-    }
-    if (artifactFile == null) {
-      throw new MojoExecutionException("Unable to find artifact with coordinates '" + resourceArtifact + "'");
-    }
+    File artifactFile = MojoUtils.getArtifactFile(resourceArtifact, project);
     return new URLClassLoader(new URL[] { artifactFile.toURI().toURL() });
   }
 

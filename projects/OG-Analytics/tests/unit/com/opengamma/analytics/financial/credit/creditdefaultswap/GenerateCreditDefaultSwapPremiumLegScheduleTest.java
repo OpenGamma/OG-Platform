@@ -10,19 +10,19 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
-import com.opengamma.analytics.financial.credit.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Obligor;
-import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
+import com.opengamma.analytics.financial.credit.obligormodel.Region;
+import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -100,16 +100,16 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final Calendar calendar = new MyCalendar();
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime effectiveDate = startDate.plusDays(1); //DateUtils.getUTCDate(2008, 12, 22);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2010, 2, 4);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
   private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
@@ -117,6 +117,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final boolean protectionStart = true;
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Construct the obligors in the contract
 
   private static final Obligor protectionBuyer = new Obligor(
       protectionBuyerTicker,
@@ -183,7 +188,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       premiumLegCoupon,
       recoveryRate,
-      includeAccruedPremium);
+      includeAccruedPremium,
+      protectionStart);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -196,11 +202,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
-    ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     if (outputSchedule) {
       for (int i = 0; i < schedule.length; i++) {
-        System.out.println(schedule[i][0]);
+        System.out.println(schedule[i]);
       }
     }
 

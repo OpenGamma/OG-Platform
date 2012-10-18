@@ -81,11 +81,11 @@ public class MarketDataProviderWithOverrideTest {
     assertEquals(1, overrideProvider.getAndResetSnapshotCount());
     assertEquals(1, underlyingProvider.getAndResetSnapshotCount());
     
-    assertEquals("value1", snapshot.query(req1));
+    assertEquals("value1", snapshot.query(req1).getValue());
     assertEquals(1, overrideProvider.getAndResetQueryCount());
     assertEquals(0, underlyingProvider.getAndResetQueryCount());
     
-    assertEquals("value2", snapshot.query(req2));
+    assertEquals("value2", snapshot.query(req2).getValue());
     assertEquals(1, overrideProvider.getAndResetQueryCount());
     assertEquals(1, underlyingProvider.getAndResetQueryCount());
     
@@ -94,7 +94,7 @@ public class MarketDataProviderWithOverrideTest {
     assertEquals(1, overrideProvider.getAndResetQueryCount());
     assertEquals(1, underlyingProvider.getAndResetQueryCount());
     
-    assertEquals("value1", snapshot.query(req1));
+    assertEquals("value1", snapshot.query(req1).getValue());
   }
   
   public void testSnapshotWithOverrides() throws InterruptedException {
@@ -111,7 +111,7 @@ public class MarketDataProviderWithOverrideTest {
     assertEquals(1, underlyingProvider.getAndResetSnapshotCount());
     
     // p1 should override the value in p2
-    assertEquals("value1", snapshot.query(req1));
+    assertEquals("value1", snapshot.query(req1).getValue());
     assertEquals(1, overrideProvider.getAndResetQueryCount());
     assertEquals(0, underlyingProvider.getAndResetQueryCount());
   }
@@ -134,7 +134,7 @@ public class MarketDataProviderWithOverrideTest {
     assertEquals(1, overrideProvider.getAndResetSnapshotCount());
     assertEquals(1, underlyingProvider.getAndResetSnapshotCount());
     // p1 should override the value in p2, but p2 was queried for the operation
-    assertEquals("value1", snapshot.query(req1));
+    assertEquals("value1", snapshot.query(req1).getValue());
     assertEquals(1, overrideProvider.getAndResetQueryCount());
     assertEquals(1, underlyingProvider.getAndResetQueryCount());
   }

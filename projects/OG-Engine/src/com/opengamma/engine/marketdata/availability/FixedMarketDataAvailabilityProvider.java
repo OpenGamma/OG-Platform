@@ -6,9 +6,13 @@
 package com.opengamma.engine.marketdata.availability;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,25 +20,25 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
-  private final Map<ValueRequirement, MarketDataAvailability> _requirements = new HashMap<ValueRequirement, MarketDataAvailability>();
+  private final Set<ValueRequirement> _missing = new HashSet<ValueRequirement>();
+  private final Map<ValueRequirement, ValueSpecification> _requirements = new HashMap<ValueRequirement, ValueSpecification>();
 
   @Override
-  public MarketDataAvailability getAvailability(ValueRequirement requirement) {
-    final MarketDataAvailability availability = _requirements.get(requirement);
-    if (availability == null) {
-      return MarketDataAvailability.NOT_AVAILABLE;
+  public synchronized ValueSpecification getAvailability(final ValueRequirement requirement) {
+    if (_missing.contains(requirement)) {
+      throw new MarketDataNotSatisfiableException(requirement);
     }
-    return availability;
+    return _requirements.get(requirement);
   }
 
-  public void addAvailableRequirement(final ValueRequirement requirement) {
+  public synchronized void addAvailableRequirement(final ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
-    _requirements.put(requirement, MarketDataAvailability.AVAILABLE);
+    _requirements.put(requirement, MarketDataUtils.createMarketDataValue(requirement));
   }
   
-  public void addMissingRequirement(final ValueRequirement requirement) {
+  public synchronized void addMissingRequirement(final ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
-    _requirements.put(requirement, MarketDataAvailability.MISSING);
+    _missing.add(requirement);
   }
 
 }

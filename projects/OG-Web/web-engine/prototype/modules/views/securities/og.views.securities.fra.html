@@ -23,7 +23,11 @@
             <tr><td><span>End Date</span></td><td>${endDate.date} - ${endDate.zone}</td></tr>
             <tr><td><span>Rate</span></td><td>${rate}</td></tr>
             <tr><td><span>Region</span></td><td>${region}</td></tr>
-            <tr><td><span>Reference Rate</span></td><td>${underlyingName}</td></tr>
+            <tr>
+              <td><span>Reference Rate</span></td>
+              <td>{{if underlyingName}}${underlyingName}{{else}}(no value){{/if}}</td>
+            </tr>
+            <tr><td><span>Underlying ID</span></td><td class="OG-js-underlying-id">${underlyingId}</td></tr>
           </tbody>
         </table>
       </section>

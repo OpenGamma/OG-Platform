@@ -224,11 +224,17 @@ public final class ValuePropertyNames {
   public static final String SHIFT = "Shift";
 
   // REVIEW 2012-08-29 andrew -- The Javadoc for SHIFT above is bad; it's a common name that will be used for things other than DV01.
+  // REVIEW 2012-10-13 casey -- One doesn't even shift DV01. The shift in DV01 is in its name - Delta Value of One Basis Point..
 
   /**
-   * 
+   *
    */
   public static final String VALUE_AGGREGATION = "ValueAggregation";
 
 
+  /*
+   * The underlying ticker is used in Equity Options to tie results to the vol surface used,
+   * such that each column may represent, for example, the vega of all positions sensitive to changes in that specific surface
+   */
+  public static final String UNDERLYING_TICKER = "UnderlyingTicker";
 }

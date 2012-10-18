@@ -9,31 +9,20 @@ package com.opengamma.bloombergexample.loader;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.functional.Functional.map;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.financial.analytics.ircurve.*;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -41,10 +30,11 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
@@ -68,7 +58,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
   private Set<ExternalId> _curveNodesExternalIds;
 
   private Set<ExternalId> _initialRateExternalIds;
-  
+
   private Set<ExternalIdBundle> _futuresExternalIds;
 
   public Set<ExternalId> getCurveNodesExternalIds() {
@@ -121,7 +111,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
       }
     });
     _curveNodesExternalIds = getCurves(configSource, curveNames, dates);
-    
+
     _futuresExternalIds = getFutures(configSource, curveNames, dates);
 
   }
@@ -183,11 +173,10 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    */
   private List<YieldCurveDefinition> getCurveDefinitionNames(ConfigMaster configMaster, String nameExpr) {
     List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    ConfigSearchRequest<YieldCurveDefinition> searchReq = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
-    searchReq.setName(nameExpr);
-    ConfigSearchResult<YieldCurveDefinition> result = configMaster.search(searchReq);
-    for (ConfigItem<YieldCurveDefinition> document : result.getValues()) {
-      results.add(document.getValue());
+    ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
+    request.setName(nameExpr);
+    for (ConfigDocument doc : ConfigMasterIterator.iterable(configMaster, request)) {
+      results.add((YieldCurveDefinition) doc.getObject().getValue());
     }
     return results;
   }
@@ -220,7 +209,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
     }
     return externalIds;
   }
-  
+
   /**
    * For a given list of curve names, on a given list of dates, get the superset of all ids which are futures
    * @param configSource

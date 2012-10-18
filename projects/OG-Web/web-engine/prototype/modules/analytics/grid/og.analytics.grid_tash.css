@@ -5,8 +5,8 @@
     -ms-user-select: none;
     user-select: none;
 }
-{{id}} .OG-g-b-scroll {width: {{viewport_width}}px; left: {{fixed_width}}px; height: {{height}}px;}
-{{id}} .OG-g-h-scroll {width: {{viewport_width}}px; height: {{header_height}}px; left: {{fixed_width}}px}
+{{id}} .OG-g-b-scroll {width: {{viewport_width}}px; left: {{scroll_left}}px; height: {{height}}px;}
+{{id}} .OG-g-h-scroll {width: {{viewport_width}}px; height: {{header_height}}px; left: {{scroll_left}}px}
 {{id}} .OG-g-b-scroll .OG-g-rows {width: {{scroll_width}}px}
 {{#if scroll_bg}}
     {{id}} .OG-g-cell {border: 0px;}
@@ -14,9 +14,10 @@
     {{id}} .OG-g-b-fixed .OG-g-rows {background: url({{fixed_bg}}); background-repeat: repeat-y;}
 {{/if}}
 {{id}} .OG-g-b-scroll .OG-g-row {width: {{scroll_width}}px}
-{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px;}
+{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px; overflow-y: scroll;}
 {{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
 {{id}} .OG-g-b {top: {{header_height}}px}
+{{id}} .OG-g-h-cols {top: {{set_height}}px}
 {{#if row_height}}{{id}} .OG-g-cell {height: {{row_height}}px;}{{/if}}
 {{#each sets}}
     {{prefix}} .OG-g .s{{index}} {left: {{left}}px; right: {{right}}px;}
@@ -24,3 +25,28 @@
 {{#each columns}}
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}
+/* flot */
+{{id}} .OG-g .fl {position: absolute; top: 0; right: 0; left: 0; bottom: 0}
+/* sparkline */
+{{id}} .OG-g .sp {position: absolute; top: 3px; right: 18px;}
+/* flat sparkline */
+{{id}} .OG-g .fsp {position: absolute; top: 3px; right: 2px;}
+{{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block}
+{{id}} .OG-g .node.collapse:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll 0 -25px transparent;
+    content: "";
+    cursor: pointer;
+    height: 9px;
+    position: absolute;
+    top: 6px;
+    width: 9px;
+}
+{{id}} .OG-g .node.expand:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll -30px -25px transparent;
+    content: "";
+    cursor: pointer;
+    height: 9px;
+    position: absolute;
+    top: 5px;
+    width: 9px;
+}

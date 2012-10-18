@@ -1,0 +1,110 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-cell-options {
+    background-color: #fff;
+    border-bottom: 1px solid #dadcdd;
+    border-top: 1px solid #dadcdd;
+    border-right: 1px solid #dadcdd;
+    height: 20px;
+    position: absolute;
+    width: 31px;
+    padding-right: 2px;
+    z-index: 3;
+}
+
+.OG-cell-options.og-expanded {
+    background-color: #fafafa;
+    border-top: 1px solid #c9cacb;
+    border-bottom: 1px solid #c9cacb;
+    box-shadow: 2px 2px 2px #ebebeb;
+    width: 86px;
+    -moz-box-shadow: 2px 2px 2px #ebebeb;
+    -webkit-box-shadow: 2px 2px 2px #ebebeb;
+}
+
+.OG-cell-options.og-expanded .og-num {
+    color: #555;
+    background-color: #fff;
+    margin-right: 2px;
+}
+
+.OG-cell-options .og-small {
+    float: left;
+    height: 14px;
+    width: 12px;
+    background-color: #ccc;
+    margin-left: 1px;
+}
+
+.OG-cell-options.og-expanded .og-small {
+    display: none;
+}
+
+.OG-cell-options.og-expanded .og-big {
+    display: block;
+}
+
+.OG-cell-options .OG-icon {
+    background-color: #ccc;
+    float: left;
+    margin-left: 1px;
+    padding: 1px;
+}
+
+.OG-cell-options .OG-icon.og-icon-ellipsis {
+    background: transparent;
+}
+
+
+.OG-cell-options .OG-icon.og-icon-ellipsis::after {
+    top: 9px;
+    left: -1px;
+    margin-left: 1px;
+}
+
+.OG-cell-options .og-big {
+    display: none;
+}
+
+.OG-cell-options .og-group {
+    padding-left: 4px;
+    position: relative;
+    top: 3px;
+}
+
+.OG-cell-options .og-icon-new-window-2 {
+    background-color: #c9cacb;
+    padding: 5px 4px 4px 3px;
+    top: -3px;
+    right: -2px;
+    height: 11px;
+}
+
+.OG-cell-options .og-num {
+    border: 1px solid #dadcdd;
+    color: #c9cacb;
+    cursor: pointer;
+    display: inline-block;
+    float: left;
+    font-weight: bold;
+    height: 12px;
+    line-height: 13px;
+    padding: 0;
+    width: 12px;
+    text-align: center;
+}
+
+.OG-cell-options .OG-icon:hover,
+.OG-cell-options .og-small:hover,
+.OG-cell-options.og-expanded .OG-icon:hover {
+    background-color: #6fd66f;
+}
+
+.OG-cell-options .og-num:hover,
+.OG-cell-options.og-expanded .og-num:hover {
+    background-color: #6fd66f;
+    border: 1px solid #6fd66f;
+    color: #fff;
+}

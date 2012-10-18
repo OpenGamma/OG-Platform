@@ -5,8 +5,16 @@
  */
 package com.opengamma.web.server.push.analytics.formatting;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
  *
@@ -19,9 +27,19 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
   }
 
   @Override
-  public Object formatForExpandedDisplay(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+  public Map<String, Object> formatForExpandedDisplay(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
+    ZonedDateTimeDoubleTimeSeries series = value.toZonedDateTimeDoubleTimeSeries();
+    List<Object[]> data = Lists.newArrayListWithCapacity(series.size());
+    for (Map.Entry<ZonedDateTime, Double> entry : series) {
+      long timeMillis = entry.getKey().toInstant().toEpochMillisLong();
+      Double vol = entry.getValue();
+      data.add(new Object[]{timeMillis, vol});
+    }
+    Map<String, String> templateData = ImmutableMap.of("data_field", "Historical Time Series",
+                                                       "observation_time", "Historical Time Series");
+    Map<String, Object> timeSeries = ImmutableMap.of("fieldLabels", new String[]{"Time", "Value"},
+                                                     "data", data);
+    return ImmutableMap.<String, Object>of("template_data", templateData, "timeseries", timeSeries);
   }
 
   @Override

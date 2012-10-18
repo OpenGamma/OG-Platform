@@ -60,12 +60,16 @@ $.register_module({
             };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
-                og.api.rest.viewdefinitions.get({})
-            ).then(function (template, search) {
+                og.api.rest.viewdefinitions.get({}),
+                og.api.rest.aggregators.get()
+            ).then(function (template, search, aggregators) {
+                search.data.sort((function(i){ // sort by name
+                    return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
+                })('name'));
                 var response = { // dummy response
                     view: search.data,
                     aggregation: {
-                        aggregators: ['Long / Short', 'Asset Class'],
+                        aggregators: aggregators.data,
                         row: [
                             {num: 1, label: 'Aggregated by', by: 'Long / Short'},
                             {num: 2, label: 'Then by', by: 'Asset Class', last: true}
@@ -124,6 +128,18 @@ $.register_module({
                         if ($(elm).closest('.og-aggregation').length) datasources_menu.close();
                         if ($(elm).closest('.og-datasources').length) aggregation_menu.close();
                     })
+                    .on('click', '.og-load', function () {
+                        if (!~auto_combo_menu[0].value.indexOf('Db')) return;
+                        og.analytics.url.main({
+                            viewdefinition: auto_combo_menu[0].value,
+                            providers: [
+                                {'marketDataType': 'live', 'source': 'Bloomberg'},
+                                {'marketDataType': 'live', 'source': 'Activ'},
+                                {'marketDataType': 'live', 'source': 'TullettPrebon'},
+                                {'marketDataType': 'live', 'source': 'ICAP'}
+                            ]
+                        });
+                    })
                     .on('click', '.og-menu-aggregation button', function () {
                         var val = $(this).text();
                         if (val === 'OK') $(selector).trigger('tab', 'datasources'), datasources_menu.focus();
@@ -138,11 +154,7 @@ $.register_module({
                         '.OG-analytics-form .og-view', 'search...', response.view)
                     .on('input autocompletechange autocompleteselect', function (event, ui) {
                         var $load = $(selector + ' .og-load');
-                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                            $load.removeClass('og-disabled').on('click', function () {
-                                status.play();
-                            });
-                        }
+                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') $load.removeClass('og-disabled');
                         else $load.addClass('og-disabled').off('click');
                     });
                 var aggregation_menu = new FormCombo(

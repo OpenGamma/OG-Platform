@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
  * Fudge builder for {@code DoublesPair}.
@@ -37,14 +38,22 @@ public final class PairFudgeBuilder implements FudgeBuilder<Pair<?, ?>> {
       msg.add("firstDouble", object.getFirst());
     } else {
       if (object.getFirst() != null) {
-        serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
+        if (object.getFirst() instanceof String) {
+          msg.add(FIRST_FIELD_NAME, null, FudgeWireType.STRING, object.getFirst());
+        } else {
+          serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
+        }
       }
     }
     if (object instanceof LongDoublePair || object instanceof IntDoublePair || object instanceof DoublesPair) {
       msg.add("secondDouble", object.getSecond());
     } else {
       if (object.getSecond() != null) {
-        serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
+        if (object.getSecond() instanceof String) {
+          msg.add(SECOND_FIELD_NAME, null, FudgeWireType.STRING, object.getSecond());
+        } else {
+          serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
+        }
       }
     }
     return msg;

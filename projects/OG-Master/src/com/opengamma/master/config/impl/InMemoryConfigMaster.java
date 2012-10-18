@@ -9,6 +9,10 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.util.functional.Functional.functional;
 
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -99,8 +103,27 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public <T> ConfigSearchResult<T> search(final ConfigSearchRequest<T> request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<ConfigDocument> list = new ArrayList<ConfigDocument>();
+    for (ConfigDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
+    }
+    Collections.sort(list, request.getSortOrder());
+    
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+    public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final ConfigDocument document = _store.get(objectId.getObjectId());
@@ -206,29 +229,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
     }
     return result;
   }
-
-  //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
-  @Override
-  public ConfigSearchResult search(ConfigSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-
-    final List<ConfigDocument> list = new ArrayList<ConfigDocument>();
-    for (ConfigDocument doc : _store.values()) {
-      if (request.matches(doc)) {
-        list.add(doc);
-      }
-    }
-    final ConfigSearchResult result = new ConfigSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), list));
-
-    List<ConfigDocument> select = request.getPagingRequest().select(list);
-
-    result.getDocuments().addAll(select);
-    return result;
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @Override
   public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<ConfigDocument> replacementDocuments) {

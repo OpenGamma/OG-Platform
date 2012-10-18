@@ -7,6 +7,7 @@ package com.opengamma.master.holiday.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.Instant;
@@ -102,6 +103,8 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
         list.add(doc);
       }
     }
+    Collections.sort(list, request.getSortOrder());
+    
     final HolidaySearchResult result = new HolidaySearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));

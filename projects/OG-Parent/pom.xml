@@ -365,6 +365,11 @@
         <artifactId>joda-beans</artifactId>
         <version>0.6</version>
       </dependency>
+      <dependency>
+        <groupId>com.opengamma</groupId>
+        <artifactId>elsql</artifactId>
+        <version>0.7</version>
+      </dependency>
 
       <!-- Basic low-level libraries -->
       <dependency>

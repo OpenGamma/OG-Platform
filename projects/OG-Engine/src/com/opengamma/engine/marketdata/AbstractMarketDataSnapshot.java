@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -41,10 +42,10 @@ public abstract class AbstractMarketDataSnapshot implements MarketDataSnapshot {
    * {@inheritDoc}
    */
   @Override
-  public Map<ValueRequirement, Object> query(final Set<ValueRequirement> requirements) {
-    final Map<ValueRequirement, Object> results = Maps.newHashMapWithExpectedSize(requirements.size());
+  public Map<ValueRequirement, ComputedValue> query(final Set<ValueRequirement> requirements) {
+    final Map<ValueRequirement, ComputedValue> results = Maps.newHashMapWithExpectedSize(requirements.size());
     for (ValueRequirement requirement : requirements) {
-      final Object value = query(requirement);
+      final ComputedValue value = query(requirement);
       if (value != null) {
         results.put(requirement, value);
       }

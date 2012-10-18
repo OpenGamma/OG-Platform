@@ -26,11 +26,11 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -39,6 +39,7 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -530,7 +531,7 @@ public class ViewClientTest {
     
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
     
-    private final Map<ValueRequirement, Object> _lastKnownValues = new HashMap<ValueRequirement, Object>();
+    private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new HashMap<ValueRequirement, ComputedValue>();
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
     @Override
@@ -572,7 +573,7 @@ public class ViewClientTest {
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
-        Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
+        Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
         return new SynchronousInMemoryLKVSnapshot(snapshotValues);
       }
     }
@@ -582,7 +583,7 @@ public class ViewClientTest {
     public void addValue(ValueRequirement requirement, Object value) {
       s_logger.debug("Setting {} = {}", requirement, value);
       synchronized (_lastKnownValues) {
-        _lastKnownValues.put(requirement, value);
+        _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
@@ -605,9 +606,9 @@ public class ViewClientTest {
 
     //-----------------------------------------------------------------------
     @Override
-    public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+    public ValueSpecification getAvailability(final ValueRequirement requirement) {
       synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(requirement) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
+        return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement) : null;
       }
     }
 
@@ -615,10 +616,10 @@ public class ViewClientTest {
   
   private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
-    private final Map<ValueRequirement, Object> _snapshot;
+    private final Map<ValueRequirement, ComputedValue> _snapshot;
     private final Instant _snapshotTime = Instant.now();
     
-    public SynchronousInMemoryLKVSnapshot(Map<ValueRequirement, Object> snapshot) {
+    public SynchronousInMemoryLKVSnapshot(Map<ValueRequirement, ComputedValue> snapshot) {
       _snapshot = snapshot;
     }
 
@@ -638,7 +639,7 @@ public class ViewClientTest {
     }
     
     @Override
-    public Object query(ValueRequirement requirement) {
+    public ComputedValue query(ValueRequirement requirement) {
       return _snapshot.get(requirement);
     }
     

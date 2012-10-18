@@ -30,12 +30,12 @@
           </execution>
         </executions>
         <configuration>
-          <templateFile>scripts-templates/script-template.ftl</templateFile>
+          <template>scripts-templates/script-template.ftl</template>
           <additionalScripts>
             <param>scripts-templates/run-tool.sh</param>
             <param>scripts-templates/java-utils.sh</param>
           </additionalScripts>
-        </configuration>      
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

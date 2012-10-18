@@ -45,8 +45,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * @deprecated Uses the old properties
  */
+@Deprecated
 public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFutureOptionSABRFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(LINEAR, LINEAR);

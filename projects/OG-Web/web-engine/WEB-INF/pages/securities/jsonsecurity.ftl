@@ -2,7 +2,7 @@
 <#setting number_format="0.#####">
 {
     "template_data": {
-     <#if securityAttributes??>
+     <#if securityAttributes?? && securityAttributes?has_content>
       "attributes": {
       <#list securityAttributes?keys as key>
         <#assign value = securityAttributes[key]> "${key}" : "${value}"<#if key_has_next>,</#if>
@@ -20,6 +20,7 @@
         "rate":"${security.rate}",
         "region":"${security.regionId?replace("_", " ")}",
         "underlyingId":"${security.underlyingId?replace("_", " ")}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         "startDate": {
               "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"

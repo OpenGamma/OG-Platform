@@ -55,7 +55,7 @@ $.register_module({
                     var from, to, json_header;
                     if (result.error) return ui.message({
                         location: '.OG-js-search',
-                        css: {bottom: '6px', left: '1px'},
+                        css: {bottom: '1px', left: '1px'},
                         message: 'oops, something bad happened (' + result.message + ')'
                     });
                     json_header = result.data.header;
@@ -86,7 +86,7 @@ $.register_module({
                         loading: function () {
                             ui.message({
                                 location: '.OG-js-search',
-                                css: {bottom: '6px', left: '1px'},
+                                css: {bottom: '1px', left: '1px'},
                                 message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,

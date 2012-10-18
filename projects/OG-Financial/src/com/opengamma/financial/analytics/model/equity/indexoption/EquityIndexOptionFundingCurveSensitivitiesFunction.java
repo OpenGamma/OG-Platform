@@ -21,12 +21,8 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefiniti
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
@@ -40,11 +36,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -86,18 +80,16 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
     final EquityIndexOptionDefinition defn = getConverter().visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
+    if (derivative.getTimeToSettlement() < 0.0) {
+      throw new OpenGammaRuntimeException("EquityIndexOption with expiry, " + security.getExpiry().getExpiry().toString() + ", has already settled.");
+    }
 
     // 2. Build up the market data bundle
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
 
-    // a. The Spot Index
-    final Object spotObject = inputs.getValue(getSpotRequirement(security.getUnderlyingId()));
-    if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
-    }
-    final double spot = (Double) spotObject;
+    final StaticReplicationDataBundle market = buildMarketBundle(security.getUnderlyingId(), executionContext, inputs, target, desiredValues);
 
-    // b. The Funding Curve
+    // Unpack the curve we're bumping
+    ValueRequirement desiredValue = desiredValues.iterator().next();
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
     if (fundingObject == null) {
@@ -111,25 +103,9 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
 
-    // c. The Vol Surface
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext), security, volSurfaceName,
-        smileInterpolator, fundingCurveName, security.getUnderlyingId()));
-    if (volSurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
-    }
-    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    //TODO no choice of other surfaces
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
-
-    // d. Forward Curve
-    final ForwardCurve forwardCurve = new ForwardCurve(spot, ((YieldCurve) fundingCurve).getCurve());
-
     // 3. Perform the calculation - what we came here to do
-    final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
-    final DoubleMatrix1D sensVector;
 
+    final DoubleMatrix1D sensVector;
     if (((YieldCurve) fundingCurve).getCurve() instanceof InterpolatedDoublesCurve) {
       // We can use chain rule to distribute closed-form model sensitivity across the curve
       // We have two dates of interest, expiry and settlement
@@ -157,7 +133,8 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
 
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints());
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(),
+        createValueProperties(target, desiredValue, executionContext).get());
 
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);
   }

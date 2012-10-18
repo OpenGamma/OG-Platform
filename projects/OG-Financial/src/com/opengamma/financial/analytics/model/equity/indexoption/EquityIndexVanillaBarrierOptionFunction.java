@@ -25,6 +25,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -94,7 +95,8 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final Object results = computeValues(vanillas, market);
 
     // 5. Properties of what's required of this function
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
+    // final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue, executionContext).get());
     // 6. Return result
     return Collections.singleton(new ComputedValue(spec, results));
 
@@ -161,7 +163,18 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
-  private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
+    Builder builder =  super.createValueProperties(target, desiredValue, executionContext)
+        .with(ValuePropertyNames.BINARY_OVERHEDGE, desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE))
+        .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH));
+
+    ValueProperties constraints = desiredValue.getConstraints();
+    ValueProperties properties = builder.get();
+    return builder;
+  }
+
+  protected Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
       final double smoothingFullWidth, final double overhedge) {
 
     final Set<EquityIndexOption> vanillas = new HashSet<EquityIndexOption>();

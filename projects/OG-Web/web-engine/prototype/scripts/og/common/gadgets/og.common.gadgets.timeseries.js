@@ -6,7 +6,7 @@
  * @see http://code.google.com/p/flot/
  */
 $.register_module({
-    name: 'og.common.gadgets.timeseries',
+    name: 'og.common.gadgets.Timeseries',
     dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
     obj: function () {
         var api = og.api, prefix = 'timeseries_', counter = 1;
@@ -347,10 +347,9 @@ $.register_module({
                     $legend.find('table').css({'top': '17px'});
                     legend_height = $legend.find('table').prev().height() + 15;
                     $legend.css({
-                        left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 160 : rel_cursor_pos,
-                        visibility: 'visible', position: 'absolute', top: '13px', width: '140px',
-                        'background-color': '#f9f9f9', 'height': legend_height + 'px', 'border': '1px solid #e5e5e5'
-                    }).fadeTo(0, 0.9);
+                        left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 175 : rel_cursor_pos,
+                        visibility: 'visible', 'height': legend_height + 'px'
+                    });
                     $legend.find('div, table').css({'left': '5px', 'background': 'none'});
                     while (i--) {
                         if (!dataset[i].data.length) continue;

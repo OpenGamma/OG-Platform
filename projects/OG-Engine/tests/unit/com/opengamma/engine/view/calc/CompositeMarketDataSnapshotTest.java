@@ -33,22 +33,26 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 
 public class CompositeMarketDataSnapshotTest {
 
   private static final ValueRequirement REQUIREMENT1 = requirement("r1");
   private static final ValueRequirement REQUIREMENT2 = requirement("r2");
-  private static final Object VALUE1 = new Object();
-  private static final Object VALUE2 = new Object();
+  private static final ValueSpecification SPECIFICATION1 = MarketDataUtils.createMarketDataValue(REQUIREMENT1);
+  private static final ValueSpecification SPECIFICATION2 = MarketDataUtils.createMarketDataValue(REQUIREMENT2);
+  private static final ComputedValue VALUE1 = new ComputedValue(SPECIFICATION1, new Object());
+  private static final ComputedValue VALUE2 = new ComputedValue(SPECIFICATION2, new Object());
   private static final ValueRequirement UNKNOWN_REQUIREMENT = requirement("u");
 
   private MarketDataSnapshot _delegate1;
   private MarketDataSnapshot _delegate2;
   private CompositeMarketDataSnapshot _snapshot;
 
-  @SuppressWarnings("unchecked")
   @BeforeMethod
   public void setUp() throws Exception {
     _delegate1 = mock(MarketDataSnapshot.class);
@@ -126,7 +130,7 @@ public class CompositeMarketDataSnapshotTest {
   @Test
   public void queryMultiSubset() {
     Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, UNKNOWN_REQUIREMENT);
-    Map<ValueRequirement, Object> result = _snapshot.query(reqs);
+    Map<ValueRequirement, ComputedValue> result = _snapshot.query(reqs);
     assertEquals(VALUE1, result.get(REQUIREMENT1));
     assertNull(result.get(REQUIREMENT2));
     assertNull(result.get(UNKNOWN_REQUIREMENT));
@@ -138,7 +142,7 @@ public class CompositeMarketDataSnapshotTest {
   @Test
   public void queryMultiAll() {
     Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, REQUIREMENT2, UNKNOWN_REQUIREMENT);
-    Map<ValueRequirement, Object> result = _snapshot.query(reqs);
+    Map<ValueRequirement, ComputedValue> result = _snapshot.query(reqs);
     assertEquals(VALUE1, result.get(REQUIREMENT1));
     assertEquals(VALUE2, result.get(REQUIREMENT2));
     assertNull(result.get(UNKNOWN_REQUIREMENT));

@@ -7,23 +7,22 @@ package com.opengamma.web.server.push.analytics.formatting;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  *
  */
 /* package */ class HistoricalTimeSeriesFormatter extends NoHistoryFormatter<HistoricalTimeSeries> {
 
+  private final LocalDateDoubleTimeSeriesFormatter _delegate = new LocalDateDoubleTimeSeriesFormatter();
+
   @Override
   public Object formatForDisplay(HistoricalTimeSeries value, ValueSpecification valueSpec) {
-    LocalDateDoubleTimeSeries timeSeries = value.getTimeSeries();
-    return "Time-series (" + timeSeries.getEarliestTime().toLocalDate() + " to " + timeSeries.getLatestTime().toLocalDate() + ")";
+    return _delegate.formatForDisplay(value.getTimeSeries(), valueSpec);
   }
 
   @Override
   public Object formatForExpandedDisplay(HistoricalTimeSeries value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    return _delegate.formatForExpandedDisplay(value.getTimeSeries(), valueSpec);
   }
 
   @Override

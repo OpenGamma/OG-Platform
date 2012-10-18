@@ -39,7 +39,7 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public Object formatForExpandedDisplay(BucketedGreekResultCollection value, ValueSpecification valueSpec) {
     // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
   }
 
   @Override

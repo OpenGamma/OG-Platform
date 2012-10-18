@@ -150,6 +150,10 @@
     <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
     <property name="severity" value="error"/>
   </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="UnsupportedEncodingException "/>
+    <property name="message" value="Use constants on Guava Charsets class instead"/>
+  </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
     <property name="onCommentFormat" value="CSON"/>

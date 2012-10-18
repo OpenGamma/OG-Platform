@@ -6,6 +6,7 @@
 package com.opengamma.master.exchange.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.Instant;
@@ -81,6 +82,8 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
         list.add(doc);
       }
     }
+    Collections.sort(list, request.getSortOrder());
+    
     ExchangeSearchResult result = new ExchangeSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));

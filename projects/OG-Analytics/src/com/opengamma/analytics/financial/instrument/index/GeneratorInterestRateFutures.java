@@ -24,16 +24,22 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument {
    * The Ibor index to which the future is linked.
    */
   private final IborIndex _iborIndex;
+  /**
+   * The accrual factor associated to the futures.
+   */
+  private final double _futuresAccrualFactor;
 
   /**
    * Constructor.
    * @param name The generator name.
    * @param iborIndex The Ibor index to which the future is linked.
+   * @param futuresAccrualFactor The accrual factor associated to the futures.
    */
-  public GeneratorInterestRateFutures(String name, IborIndex iborIndex) {
+  public GeneratorInterestRateFutures(String name, IborIndex iborIndex, double futuresAccrualFactor) {
     super(name);
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     _iborIndex = iborIndex;
+    _futuresAccrualFactor = futuresAccrualFactor;
   }
 
   /**
@@ -45,6 +51,9 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The future is the first futures after the date+tenor.
+   */
   public InterestRateFutureDefinition generateInstrument(ZonedDateTime date, Period tenor, double marketQuote, double notional, Object... objects) {
     //TODO: Add monthly futures
     ArgumentChecker.isTrue(objects.length >= 1, "Number of quarterly futures required");
@@ -52,8 +61,15 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument {
     Integer num = (Integer) objects[0];
     ZonedDateTime periodDate = ScheduleCalculator.getAdjustedDate(date, tenor, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
     ZonedDateTime referenceDate = InterestRateFuturesUtils.nextQuarterlyDate(num, periodDate);
-    double paymentAccrualFactor = 0.25; // TODO: REVIEW for 1 month futures.
-    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, 1, referenceDate, _iborIndex, notional, paymentAccrualFactor, "IRF");
+    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, 1, referenceDate, _iborIndex, notional, _futuresAccrualFactor, "IRF");
+  }
+
+  @Override
+  /**
+   * The future is the first futures after the date+startTenor. The endTenor is not used.
+   */
+  public InterestRateFutureDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double marketQuote, double notional, Object... objects) {
+    return generateInstrument(date, startTenor, marketQuote, notional, objects);
   }
 
   @Override

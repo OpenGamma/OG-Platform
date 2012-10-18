@@ -1,0 +1,13 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-icon.og-icon-new-window-2:after {
+    background-position: -46px -35px;
+    background-color: transparent;
+    display: inline-block;
+    height: 10px;
+    position: relative;
+    width: 10px;
+    z-index: 2;
+}

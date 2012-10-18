@@ -15,10 +15,7 @@ $.register_module({
          */
         return function (selector, placeholder, data) {
             var $wrapper, $input, $button, autocomplete_obj,
-                open = function () {
-                    // open using the current input value or an empty string
-                    $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
-                };
+                open = function () {$input.autocomplete('search', '').select();};
             placeholder = placeholder || '';
             autocomplete_obj = {
                 minLength: 0, delay: 0,
