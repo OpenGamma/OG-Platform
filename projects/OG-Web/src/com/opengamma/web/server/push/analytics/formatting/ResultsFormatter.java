@@ -32,6 +32,7 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -89,6 +90,7 @@ public class ResultsFormatter {
     _formatters.put(SnapshotDataBundle.class, new SnapshotDataBundleFormatter(doubleFormatter));
     _formatters.put(InterpolatedYieldCurveSpecificationWithSecurities.class, new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter());
     _formatters.put(HistoricalTimeSeriesBundle.class, new HistoricalTimeSeriesBundleFormatter());
+    _formatters.put(VolatilitySurfaceSpecification.class, new VolatilitySurfaceSpecificationFormatter());
   }
 
   private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
