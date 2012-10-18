@@ -193,13 +193,14 @@
 
     /* snapshots */
     .OG-analytics-form-menu.og-menu-datasources .snapshot .source{
-        width:130px;
-        min-width: 130px;
+        /*width:130px;
+        min-width: 130px;*/
     }
 
     /* historical */
     .OG-analytics-form-menu.og-menu-datasources .historical td .source{
-        width: 356px;
+        /* change back for datetime picker width: 356px;*/
+        width: 256px;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .historical td .source{

@@ -55,6 +55,9 @@ $.register_module({
                     $form = $(selector).html(template), $ag = $('.og-aggregation', $form),
                     $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
                     status, ac_menu;
+                search.data.sort((function(i){ // sort by name
+                    return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
+                })('name'));
                 return Form = function(){
                     var form = this,
                         keydown_handler = function (event) {
@@ -97,7 +100,11 @@ $.register_module({
                             } else $load_btn.addClass('og-disabled').off('click');
                         },
                         get_query = function () {
-                            console.log(ds_menu.get_query());
+                            if (!~ac_menu.$input.val().indexOf('Db')) return;
+                            og.analytics.url.main({
+                                viewdefinition: ac_menu.$input.val(),
+                                providers: ds_menu.get_query()
+                            });
                         };
                     return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
                         ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
@@ -111,7 +118,7 @@ $.register_module({
                             ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
                                 .addListener(events.opened, close_dropmenu),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
-                            $load_btn.after($('<button class="query-btn">SHOW QUERY</button>').on('click', get_query));
+                            $load_btn.on('click', get_query);
                         }),
                         emitter.addListener(events.closeall, function () {
                             close_dropmenu(ag_menu);

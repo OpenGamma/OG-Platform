@@ -9,7 +9,7 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type', 
                 source_s = '.source', menu_click_s = 'input, button, div.og-icon-delete, a.OG-link-add',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
-                date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions', 
+                date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',  resolver_keys = [],
                 corrections_s = '.corrections', $dom = menu.$dom,  $type_select, $source_select, $parent, $query,
                 $option, $extra_opts, $snapshot_opts, $historical_opts, $latest, $custom, $datepicker,
                 events = {
@@ -24,18 +24,24 @@ $.register_module({
                     data.forEach(function (d) {$source_select.append($($option.html()).text(d.name || d));});
                 },
                 populate_livedatasources = function () {
-                    og.api.rest.livedatasources.get().pipe(function (resp) { populate_src_options(resp.data); });
+                    og.api.rest.livedatasources.get().pipe(function (resp) {
+                        if (resp.error) return;
+                        populate_src_options(resp.data); 
+                    });
                 },
                 populate_marketdatasnapshots = function () {
                     og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
+                        if (resp.error) return;
                         populate_src_options(resp.data[0].snapshots);
-                    }).pipe(function () { $source_select.after($snapshot_opts.html()); });
+                    }).pipe(function () { 
+                        //$source_select.after($snapshot_opts.html()); 
+                    });
                 },
                 populate_historical = function () {
-                    og.api.rest.timeseries.get().pipe(function (resp) {
-                        // console.log(resp);
-                        populate_src_options(['Mock A','Mock B','Mock C', 'Mock D']);
-                    }).pipe(function () {$source_select.after($historical_opts.html());});
+                    if(resolver_keys) {
+                        populate_src_options(resolver_keys);
+                        $source_select.after($historical_opts.html());
+                    }
                 },
                 display_query = function () {
                     if(query.length) {
@@ -79,7 +85,7 @@ $.register_module({
                     }
                 },
                 source_handler = function (entry) {
-                    if (ds_val === default_sel_txt){
+                    if (ds_val === default_sel_txt) {
                         return remove_entry(entry), display_query(), enable_extra_options(false);
                     } else if (~entry) {
                         query[entry] = {pos:sel_pos, type:type_val, src:ds_val};
@@ -111,8 +117,8 @@ $.register_module({
                     $latest.removeClass(active_s);
                     if ($custom.parent().is(versions_s)) query[entry].version_date = $custom.datepicker('getDate');
                     else if ($custom.parent().is(corrections_s))
-                        query[entry].correction_date = $custom.datepicker('getDate');
-                    else query[entry].date = $custom.datepicker('getDate');
+                        query[entry].correction_date = $custom.val();
+                    else query[entry].date = $custom.val();
                 },
                 remove_date = function (entry) {
                     $latest.addClass(active_s);
@@ -141,7 +147,7 @@ $.register_module({
                     if ($elem.is($source_select)) return source_handler(entry);
                     if ($elem.is(custom_s))
                         return $custom = $elem, $latest = $elem.siblings().filter(latest_s),
-                            $custom.datepicker({onSelect: date_handler}).datepicker('show');
+                            $custom.datepicker({onSelect: date_handler, dateFormat:'yy-mm-dd'}).datepicker('show');
                     if ($elem.is(latest_s)) 
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                 };
@@ -151,10 +157,14 @@ $.register_module({
                 $option = $(wrapper).append('<option>');
                 $.when(
                     og.api.text({module: 'og.analytics.form_datasources_snapshot_opts_tash'}),
-                    og.api.text({module: 'og.analytics.form_datasources_historical_opts_tash'})
-                ).then(function(snapshot, historical){
+                    og.api.text({module: 'og.analytics.form_datasources_historical_opts_tash'}),
+                    og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'})
+                ).then(function(snapshot, historical, res_keys){
                     $snapshot_opts = $(wrapper).append(snapshot);
                     $historical_opts = $(wrapper).append(historical);
+                    res_keys.data.data.forEach(function (entry) {
+                        resolver_keys.push(entry.split('|')[1]);        
+                    });
                 });
                 if ($dom.toggle) $dom.toggle.on('click', toggle_handler);
                 if ($dom.menu) {
@@ -162,7 +172,26 @@ $.register_module({
                 }
             }
             menu.get_query = function () {
-                return query;
+                if (!query.length) return;
+                var arr = [];
+                query.forEach(function (entry) {
+                    var obj = {};
+                    if (entry.type.toLowerCase() === 'historical') {
+                        if (entry.date) {
+                            obj['marketDataType'] = 'fixedHistorical';
+                            obj['date'] = entry.date;
+                        } else obj.marketDataType = 'latestHistorical';
+                        obj['resolverKey'] = entry.src;
+                    } else if (entry.type.toLowerCase() === 'snapshot') {
+                        obj['marketDataType'] = entry.type.toLowerCase();
+                        obj['snapshotId'] = entry.src;
+                    } else if (entry.type.toLowerCase() === 'live') {
+                        obj['marketDataType'] = entry.type.toLowerCase();
+                        obj['source'] = entry.src;
+                    }
+                    arr.push(obj);
+                });
+                return arr;
             };
             return menu;
         };
