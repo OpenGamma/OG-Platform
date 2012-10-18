@@ -357,7 +357,8 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getProperties() {
