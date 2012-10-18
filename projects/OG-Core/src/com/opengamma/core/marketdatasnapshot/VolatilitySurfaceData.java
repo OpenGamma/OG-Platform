@@ -15,10 +15,9 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -32,6 +31,10 @@ import com.opengamma.util.tuple.Pair;
  * @param <Y> Type of the y-data
  */
 public class VolatilitySurfaceData<X, Y> {
+  /** Default name for the x axis */
+  public static final String DEFAULT_X_LABEL = "x";
+  /** Default name for the y axis */
+  public static final String DEFAULT_Y_LABEL = "y";
   private static final Comparator<Pair<?, ?>> COMPARATOR = FirstThenSecondPairComparator.INSTANCE;
   private final String _definitionName;
   private final String _specificationName;
@@ -41,21 +44,33 @@ public class VolatilitySurfaceData<X, Y> {
   private final Y[] _ys;
   private final SortedSet<X> _uniqueXs;
   private final Map<X, List<ObjectsPair<Y, Double>>> _strips;
+  private final String _xLabel;
+  private final String _yLabel;
 
   public VolatilitySurfaceData(final String definitionName, final String specificationName, final UniqueIdentifiable target,
                                final X[] xs, final Y[] ys, final Map<Pair<X, Y>, Double> values) {
-    Validate.notNull(definitionName, "Definition Name");
-    Validate.notNull(specificationName, "Specification Name");
-    Validate.notNull(target, "Target");
-    Validate.notNull(ys, "Y axis values");
-    Validate.notNull(xs, "X axis values");
-    Validate.notNull(values, "Volatility Values Map");
+    this(definitionName, specificationName, target, xs, DEFAULT_X_LABEL, ys, DEFAULT_Y_LABEL, values);
+  }
+  
+
+  public VolatilitySurfaceData(final String definitionName, final String specificationName, final UniqueIdentifiable target,
+                               final X[] xs, final String xLabel, final Y[] ys, final String yLabel, final Map<Pair<X, Y>, Double> values) {
+    ArgumentChecker.notNull(definitionName, "Definition Name");
+    ArgumentChecker.notNull(specificationName, "Specification Name");
+    ArgumentChecker.notNull(target, "Target");
+    ArgumentChecker.notNull(xs, "X axis values");
+    ArgumentChecker.notNull(xLabel, "x label");
+    ArgumentChecker.notNull(ys, "Y axis values");
+    ArgumentChecker.notNull(yLabel, "y label");
+    ArgumentChecker.notNull(values, "Volatility Values Map");
     _definitionName = definitionName;
     _specificationName = specificationName;
     _target = target;
     _values = new HashMap<Pair<X, Y>, Double>(values);
     _xs = xs;
+    _xLabel = xLabel;
     _ys = ys;
+    _yLabel = yLabel;
     _uniqueXs = new TreeSet<X>(); 
     _strips = new HashMap<X, List<ObjectsPair<Y, Double>>>();
     for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
@@ -78,10 +93,18 @@ public class VolatilitySurfaceData<X, Y> {
     return _xs;
   }
 
+  public String getXLabel() {
+    return _xLabel;
+  }
+  
   public Y[] getYs() {
     return _ys;
   }
 
+  public String getYLabel() {
+    return _yLabel;
+  }
+  
   public Double getVolatility(final X x, final Y y) {
     return _values.get(Pair.of(x, y));
   }
@@ -91,7 +114,7 @@ public class VolatilitySurfaceData<X, Y> {
   }
   
   public List<ObjectsPair<Y, Double>> getYValuesForX(final X x) {
-    Validate.notNull(x, "x");
+    ArgumentChecker.notNull(x, "x");
     if (!_strips.containsKey(x)) {
       throw new OpenGammaRuntimeException("Could not get strip for x value " + x);
     }
@@ -140,6 +163,8 @@ public class VolatilitySurfaceData<X, Y> {
            getTarget().equals(other.getTarget()) &&
            Arrays.equals(getXs(), other.getXs()) &&
            Arrays.equals(getYs(), other.getYs()) &&
+           getXLabel().equals(other.getXLabel()) &&
+           getYLabel().equals(other.getYLabel()) &&
            _values.equals(other._values);
   }
 
