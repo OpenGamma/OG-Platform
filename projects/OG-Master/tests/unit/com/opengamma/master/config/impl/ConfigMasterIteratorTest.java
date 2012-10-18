@@ -23,7 +23,7 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchSortOrder;
 
 /**
- * Test {@link ConfigMasterIterator}.
+ * Test {@link ConfigSearchIterator}.
  */
 @Test
 public class ConfigMasterIteratorTest {
@@ -59,12 +59,12 @@ public class ConfigMasterIteratorTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
-    new ConfigMasterIterator<ExternalId>(null, new ConfigSearchRequest<ExternalId>());
+    new ConfigSearchIterator<ExternalId>(null, new ConfigSearchRequest<ExternalId>());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullRequest() throws Exception {
-    new ConfigMasterIterator<ExternalId>(_configMaster, null);
+    new ConfigSearchIterator<ExternalId>(_configMaster, null);
   }
 
   public void iterate() throws Exception {
@@ -72,7 +72,7 @@ public class ConfigMasterIteratorTest {
     request.setType(ExternalId.class);
     request.setSortOrder(ConfigSearchSortOrder.NAME_ASC);
     
-    ConfigMasterIterator<ExternalId> iterator = new ConfigMasterIterator<ExternalId>(_configMaster, request);
+    ConfigSearchIterator<ExternalId> iterator = new ConfigSearchIterator<ExternalId>(_configMaster, request);
     assertEquals(true, iterator.hasNext());
     assertEquals(0, iterator.nextIndex());
     assertEquals(_item1, iterator.next());
@@ -107,7 +107,7 @@ public class ConfigMasterIteratorTest {
     ConfigMaster mockMaster = mock(ConfigMaster.class);
     when(mockMaster.search(any(ConfigSearchRequest.class))).thenThrow(new IllegalStateException());
     
-    ConfigMasterIterator<ExternalId> iterator = new ConfigMasterIterator<ExternalId>(mockMaster, request);
+    ConfigSearchIterator<ExternalId> iterator = new ConfigSearchIterator<ExternalId>(mockMaster, request);
     iterator.hasNext();
   }
 

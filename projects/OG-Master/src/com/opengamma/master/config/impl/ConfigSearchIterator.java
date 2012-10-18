@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -27,7 +27,7 @@ import com.opengamma.util.paging.PagingRequest;
  * @param <T>  the type of the configuration item
  */
 @PublicSPI
-public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
+public class ConfigSearchIterator<T> implements Iterator<ConfigDocument> {
 
   /**
    * The master that is being used.
@@ -48,7 +48,7 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
   /**
    * The current document, null if not fetched, at end or removed.
    */
-  private ConfigItem<T> _current;
+  private ConfigDocument _current;
   /**
    * The overall index of the last retrived object.
    */
@@ -64,13 +64,13 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
    * @param request  the request object, not null
    * @return an iterable suitable for use in a for-each loop, not null
    */
-  public static <R> Iterable<ConfigItem<R>> iterable(final ConfigMaster master, final ConfigSearchRequest<R> request) {
+  public static <R> Iterable<ConfigDocument> iterable(final ConfigMaster master, final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(request, "request");
-    return new Iterable<ConfigItem<R>>() {
+    return new Iterable<ConfigDocument>() {
       @Override
-      public Iterator<ConfigItem<R>> iterator() {
-        return new ConfigMasterIterator<R>(master, request);
+      public Iterator<ConfigDocument> iterator() {
+        return new ConfigSearchIterator<R>(master, request);
       }
     };
   }
@@ -83,7 +83,7 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
    * @param master  the underlying master, not null
    * @param request  the request object, not null
    */
-  public ConfigMasterIterator(ConfigMaster master, ConfigSearchRequest<T> request) {
+  public ConfigSearchIterator(ConfigMaster master, ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(request, "request");
     _master = master;
@@ -100,7 +100,7 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
   }
 
   @Override
-  public ConfigItem<T> next() {
+  public ConfigDocument next() {
     if (hasNext() == false) {
       throw new NoSuchElementException("No more elements found");
     }
@@ -163,9 +163,8 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private ConfigItem<T> doNext() {
-    _current = (ConfigItem<T>) _currentBatch.getDocuments().get(_batchIndex).getObject();
+  private ConfigDocument doNext() {
+    _current = _currentBatch.getDocuments().get(_batchIndex);
     _batchIndex++;
     _overallIndex++;
     return _current;
