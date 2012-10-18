@@ -9,8 +9,8 @@
     border-right: 1px solid #dadcdd;
     height: 20px;
     position: absolute;
-    width: 31px;
-    padding-right: 2px;
+    width: 32px;
+    padding-right: 1px;
     z-index: 3;
 }
 
@@ -19,7 +19,7 @@
     border-top: 1px solid #c9cacb;
     border-bottom: 1px solid #c9cacb;
     box-shadow: 2px 2px 2px #ebebeb;
-    width: 86px;
+    width: 102px;
     -moz-box-shadow: 2px 2px 2px #ebebeb;
     -webkit-box-shadow: 2px 2px 2px #ebebeb;
 }
@@ -32,7 +32,7 @@
 
 .OG-cell-options .og-small {
     float: left;
-    height: 14px;
+    height: 15px;
     width: 12px;
     background-color: #ccc;
     margin-left: 1px;
@@ -52,16 +52,27 @@
     margin-left: 1px;
     padding: 1px;
 }
-
 .OG-cell-options .OG-icon.og-icon-ellipsis {
     background: transparent;
+	padding:1px;
 }
-
 
 .OG-cell-options .OG-icon.og-icon-ellipsis::after {
     top: 9px;
     left: -1px;
     margin-left: 1px;
+}
+
+.OG-cell-options .OG-icon.og-icon-down-chevron {
+    background: transparent;
+	border: 1px solid #dadcdd;
+    cursor: pointer;
+    height: 11px;
+	left: -2px;
+}
+
+.OG-cell-options .OG-icon.og-icon-down-chevron::after {
+	top: 4px;
 }
 
 .OG-cell-options .og-big {
@@ -89,7 +100,7 @@
     display: inline-block;
     float: left;
     font-weight: bold;
-    height: 12px;
+    height: 13px;
     line-height: 13px;
     padding: 0;
     width: 12px;
