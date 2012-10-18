@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -46,6 +47,15 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
    */
   public MarketDataSnapshotSearchResult(Collection<MarketDataSnapshotDocument> coll) {
     super(coll);
+  }
+
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public MarketDataSnapshotSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
   }
 
   //-------------------------------------------------------------------------

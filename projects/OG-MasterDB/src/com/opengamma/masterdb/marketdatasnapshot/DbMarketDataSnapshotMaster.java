@@ -104,14 +104,15 @@ public class DbMarketDataSnapshotMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult(vc);
+    
     final List<ObjectId> snapshotIds = request.getSnapshotIds();
     if (snapshotIds != null && snapshotIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());

@@ -114,7 +114,9 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final HolidaySearchResult result = new HolidaySearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final HolidaySearchResult result = new HolidaySearchResult(vc);
+    
     ExternalIdSearch regionSearch = request.getRegionExternalIdSearch();
     ExternalIdSearch exchangeSearch = request.getExchangeExternalIdSearch();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getCode() : null);
@@ -124,7 +126,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())

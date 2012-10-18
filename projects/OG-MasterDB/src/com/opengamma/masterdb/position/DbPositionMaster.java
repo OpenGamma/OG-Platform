@@ -104,7 +104,9 @@ public class DbPositionMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final PositionSearchResult result = new PositionSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final PositionSearchResult result = new PositionSearchResult(vc);
+    
     final ExternalIdSearch securityIdSearch = request.getSecurityIdSearch();
     final List<ObjectId> positionObjectIds = request.getPositionObjectIds();
     final List<ObjectId> tradeObjectIds = request.getTradeObjectIds();
@@ -114,7 +116,7 @@ public class DbPositionMaster
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())

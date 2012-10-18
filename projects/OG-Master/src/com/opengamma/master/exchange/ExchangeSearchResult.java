@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -44,6 +45,15 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
    */
   public ExchangeSearchResult(Collection<ExchangeDocument> coll) {
     super(coll);
+  }
+
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public ExchangeSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
   }
 
   //-------------------------------------------------------------------------

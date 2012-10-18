@@ -149,7 +149,9 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final SecuritySearchResult result = new SecuritySearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final SecuritySearchResult result = new SecuritySearchResult(vc);
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -157,7 +159,7 @@ public class DbSecurityMaster
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
