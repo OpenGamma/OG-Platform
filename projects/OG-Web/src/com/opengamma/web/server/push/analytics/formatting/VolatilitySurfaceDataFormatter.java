@@ -27,7 +27,9 @@ import com.opengamma.web.server.conversion.LabelFormatter;
 
   @Override
   public String formatForDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
-    return "Volatility Surface (" + value.getXs().length + " x " + value.getYs().length + ")";
+    int xSize = value.getUniqueXValues().size();
+    int ySize = Sets.newHashSet(value.getYs()).size();
+    return "Volatility Surface (" + xSize + " x " + ySize + ")";
   }
 
   /**
@@ -82,6 +84,7 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     results.put("x_labels", xLabels);
     results.put("y_labels", yLabels);
     results.put("vol", vol);
+    // TODO axis labels
     return results;
   }
 
