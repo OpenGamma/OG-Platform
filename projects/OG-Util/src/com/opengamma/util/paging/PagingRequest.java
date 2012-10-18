@@ -185,8 +185,8 @@ public final class PagingRequest {
   public <T> List<T> select(List<T> list) {
     int firstIndex = getFirstItem();
     int lastIndex = getLastItem();
-    if (firstIndex >= list.size()) {
-      firstIndex = 0;
+    if (firstIndex > list.size()) {
+      firstIndex = list.size();
     }
     if (lastIndex > list.size()) {
       lastIndex = list.size();

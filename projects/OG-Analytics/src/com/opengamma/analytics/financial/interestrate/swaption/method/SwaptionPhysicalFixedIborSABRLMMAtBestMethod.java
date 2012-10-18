@@ -116,6 +116,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
     double[] dPvdPhi = new double[2 * nbPeriods];
     // Implementation note: Derivative of the priced swaptions wrt the calibration parameters (multiplicative factor and additive term)
+    // Implementation note: Phi is a vector with the multiplicative factors on the volatility and then the additive terms on the displacements.
     double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
     double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
@@ -150,6 +151,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
 
     double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the SABR parameters as a unique array.
+    // Implementation note: Theta is vector with first the Alpha, the the Rho and finally the Nu.
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
         PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);

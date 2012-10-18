@@ -61,9 +61,20 @@ public class GeneratorFRA extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The FRA is from spot+(tenor-_iborIndex.getTenor()) to spot + tenor.
+   */
   public ForwardRateAgreementDefinition generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
     Period startPeriod = tenor.minus(_iborIndex.getTenor());
     return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate);
+  }
+
+  @Override
+  /**
+   * The FRA is from spot+startTenor to spot + (startTenor+_iborIndex.getTenor()). The endTenor is not used.
+   */
+  public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double rate, double notional, Object... objects) {
+    return ForwardRateAgreementDefinition.fromTrade(date, startTenor, notional, _iborIndex, rate);
   }
 
   @Override

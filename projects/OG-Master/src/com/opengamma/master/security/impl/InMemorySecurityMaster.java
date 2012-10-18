@@ -6,6 +6,7 @@
 package com.opengamma.master.security.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -126,7 +127,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
         list.add(doc);
       }
     }
-    SecuritySearchResult result = new SecuritySearchResult();
+    Collections.sort(list, request.getSortOrder());
+    
+    final SecuritySearchResult result = new SecuritySearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;

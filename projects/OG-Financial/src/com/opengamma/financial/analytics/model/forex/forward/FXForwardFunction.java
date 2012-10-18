@@ -33,7 +33,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -84,10 +83,6 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Could not get base/quote pair data");
     }
     final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
-    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
-    if (baseQuotePair == null) {
-      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
-    }
     final YieldAndDiscountCurve[] curves;
     final String[] allCurveNames;
     curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve};

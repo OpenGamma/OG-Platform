@@ -183,7 +183,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-        .with(ValuePropertyNames.CURRENCY, getCurrencyCode(target));
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
@@ -195,21 +195,9 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
-        .with(ValuePropertyNames.CURRENCY, getCurrencyCode(target));
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return builder;
   }
-
-  protected String getCurrencyCode(ComputationTarget target) {
-    Security security = target.getSecurity();
-    if (security instanceof EquityIndexOptionSecurity) {
-      return getEquityIndexOptionSecurity(target).getCurrency().getCode();
-    } else if (security instanceof EquityBarrierOptionSecurity) {
-      return ((EquityBarrierOptionSecurity) security).getCurrency().getCode();
-    } else {
-      throw new OpenGammaRuntimeException("Attempting to get currency code from unsupported securityType.");
-    }
-  }
-
 
   @Override
   /**

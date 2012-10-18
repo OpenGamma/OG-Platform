@@ -17,7 +17,7 @@ import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigMasterIterator;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.util.ArgumentChecker;
 
@@ -30,8 +30,16 @@ import com.opengamma.util.ArgumentChecker;
 @Path("timeseriesresolverkeys")
 public class TimeSeriesResolverKeysResource {
 
+  /**
+   * The config master.
+   */
   private final ConfigMaster _configMaster;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param configMaster  the config master, not null
+   */
   public TimeSeriesResolverKeysResource(ConfigMaster configMaster) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
@@ -44,12 +52,11 @@ public class TimeSeriesResolverKeysResource {
   public String getResolverKeys() {
     ConfigSearchRequest<HistoricalTimeSeriesRating> request =
         new ConfigSearchRequest<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
-    ConfigSearchResult<HistoricalTimeSeriesRating> result = _configMaster.search(request);
-    List<ConfigDocument<HistoricalTimeSeriesRating>> documents = result.getDocuments();
-    List<String> keyNames = Lists.newArrayListWithCapacity(documents.size());
-    for (ConfigDocument<HistoricalTimeSeriesRating> document : documents) {
-      keyNames.add(document.getName());
+    List<String> keyNames = Lists.newArrayList();
+    for (ConfigDocument<HistoricalTimeSeriesRating> doc : ConfigMasterIterator.iterable(_configMaster, request)) {
+      keyNames.add(doc.getName());
     }
     return new JSONArray(keyNames).toString();
   }
+
 }
