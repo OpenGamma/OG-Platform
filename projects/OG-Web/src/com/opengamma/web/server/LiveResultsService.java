@@ -63,7 +63,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.marketdatasnapshot.impl.MarketDataSnapshotSearchIterator;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -330,11 +330,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private Map<String, Map<String, String>> getSnapshotDetails() {
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setIncludeData(false);
-    MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
-    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getSnapshots();
     
     Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
-    for (ManageableMarketDataSnapshot snapshot : snapshots) {
+    for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(_snapshotMaster, snapshotSearchRequest)) {
+      ManageableMarketDataSnapshot snapshot = doc.getObject();
       if (snapshot.getUniqueId() == null) {
         s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
         continue;

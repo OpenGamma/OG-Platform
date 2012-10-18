@@ -3,45 +3,42 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.config.impl;
+package com.opengamma.master.security.impl;
 
 import java.util.Iterator;
 
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.impl.AbstractSearchIterator;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An iterator that searches an config master as an iterator.
+ * An iterator that searches a security master as an iterator.
  * <p>
  * Large systems may store a large amount of data in each master.
  * A simple search request that pulls back the entire database is unrealistic.
  * This remote iterator allows the database to be queried in a consistent way remotely.
- * 
- * @param <T>  the type of the configuration item
  */
-public class ConfigSearchIterator<T> extends AbstractSearchIterator<ConfigDocument, ConfigMaster, ConfigSearchRequest<T>> {
+public class SecuritySearchIterator extends AbstractSearchIterator<SecurityDocument, SecurityMaster, SecuritySearchRequest> {
 
   /**
    * Creates an instance based on a request.
    * <p>
    * The request will be altered during the iteration.
    * 
-   * @param <R>  the type of the configuration item
    * @param master  the underlying master, not null
    * @param request  the request object, not null
    * @return an iterable suitable for use in a for-each loop, not null
    */
-  public static <R> Iterable<ConfigDocument> iterable(final ConfigMaster master, final ConfigSearchRequest<R> request) {
+  public static Iterable<SecurityDocument> iterable(final SecurityMaster master, final SecuritySearchRequest request) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(request, "request");
-    return new Iterable<ConfigDocument>() {
+    return new Iterable<SecurityDocument>() {
       @Override
-      public Iterator<ConfigDocument> iterator() {
-        return new ConfigSearchIterator<R>(master, request);
+      public Iterator<SecurityDocument> iterator() {
+        return new SecuritySearchIterator(master, request);
       }
     };
   }
@@ -54,13 +51,13 @@ public class ConfigSearchIterator<T> extends AbstractSearchIterator<ConfigDocume
    * @param master  the underlying master, not null
    * @param request  the request object, not null
    */
-  public ConfigSearchIterator(ConfigMaster master, ConfigSearchRequest<T> request) {
+  public SecuritySearchIterator(SecurityMaster master, SecuritySearchRequest request) {
     super(master, request);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected ConfigSearchResult<T> doSearch(ConfigSearchRequest<T> request) {
+  protected SecuritySearchResult doSearch(SecuritySearchRequest request) {
     return getMaster().search(request);
   }
 

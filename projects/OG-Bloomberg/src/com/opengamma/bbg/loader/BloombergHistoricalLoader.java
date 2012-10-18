@@ -51,6 +51,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesInfoSearchIterator;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
@@ -462,14 +463,14 @@ public class BloombergHistoricalLoader {
     // loads all time-series that were originally loaded from Bloomberg
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
-    return removeExpiredTimeSeries(_timeSeriesMaster.search(request));
+    return removeExpiredTimeSeries(HistoricalTimeSeriesInfoSearchIterator.iterable(_timeSeriesMaster, request));
   }
 
-  private List<HistoricalTimeSeriesInfoDocument> removeExpiredTimeSeries(final HistoricalTimeSeriesInfoSearchResult searchResult) {
+  private List<HistoricalTimeSeriesInfoDocument> removeExpiredTimeSeries(final Iterable<HistoricalTimeSeriesInfoDocument> searchIterable) {
     List<HistoricalTimeSeriesInfoDocument> result = Lists.newArrayList();
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     
-    for (HistoricalTimeSeriesInfoDocument htsInfoDoc : searchResult.getDocuments()) {
+    for (HistoricalTimeSeriesInfoDocument htsInfoDoc : searchIterable) {
       ManageableHistoricalTimeSeriesInfo tsInfo = htsInfoDoc.getObject();
 
       boolean valid = getIsValidOn(previousWeekDay, tsInfo);
