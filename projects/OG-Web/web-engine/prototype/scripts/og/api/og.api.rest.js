@@ -581,7 +581,7 @@ $.register_module({
                 },
                 del: function (config) {
                     config = config || {};
-                    var root = this.root, method = [root], meta, view_id = str(config.view_id);
+                    var root = this.root, method = [root], meta, view_id = config.view_id;
                     meta = check({
                         bundle: {method: root + '#del', config: config},
                         required: [{all_of: ['view_id']}]
@@ -658,7 +658,20 @@ $.register_module({
                                 if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
                                 return request(method, {data: data, meta: meta});
                             },
-                            del: not_available.partial('del')
+                            del: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#del', config: config},
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id', 'viewport_id']}]
+                                });
+                                meta.type = 'DELETE';
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                method.push(config.viewport_id);
+                                return request(method, {data: {}, meta: meta});
+                            }
                         }
                     },
                     structure: {
@@ -709,7 +722,19 @@ $.register_module({
                             if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
                             return request(method, {data: data, meta: meta});
                         },
-                        del: not_available.partial('del')
+                        del: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#del', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
+                            });
+                            meta.type = 'DELETE';
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.viewport_id);
+                            return request(method, {data: {}, meta: meta});
+                        }
                     }
                 }
             }
