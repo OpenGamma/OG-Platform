@@ -168,7 +168,7 @@
         border-top-color: #ccc !important;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button].active{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button].active{ 
         border-top-color: #80c696 !important;
         cursor: default;
     }

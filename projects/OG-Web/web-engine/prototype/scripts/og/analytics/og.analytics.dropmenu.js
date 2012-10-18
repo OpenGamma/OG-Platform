@@ -21,11 +21,11 @@ $.register_module({
                 menu.data = data;
                 menu.$dom = {};
                 menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
-                menu.$dom.title = $('.og-option-title', menu.$dom.cntr);
-                menu.$dom.title_prefix = $(dummy_s);
-                menu.$dom.title_infix = $(dummy_s);
-                menu.$dom.menu = $('.OG-analytics-form-menu', menu.$dom.cntr);
-                menu.$dom.menu_actions = $('.OG-dropmenu-actions', menu.$dom.menu);
+                menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                menu.$dom.toggle_prefix = $(dummy_s);
+                menu.$dom.toggle_infix = $(dummy_s);
+                menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+                menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                 menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
                 menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
                 menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
@@ -38,67 +38,50 @@ $.register_module({
         $.extend(true, DropMenu.prototype, EventEmitter.prototype);
         DropMenu.prototype.constructor = DropMenu;
         DropMenu.prototype.focus = function () {
-            var menu = this;
-            return menu.opts[menu.opts.length-1].find('select').first().focus(), menu.opened = true,
-                menu.state = 'focused', menu.emitEvent(events.focused, [menu]), menu;
+            return this.opened = true, this.state = 'focused', this.emitEvent(events.focused, [this]), this;
         };
         DropMenu.prototype.open = function () {
-            var menu = this;
-            return menu.$dom.menu.show(), menu.state = 'open', menu.opened = true,
-                menu.$dom.title.addClass('og-active'), menu.emitEvent(events.opened, [menu]), menu;
+            return this.$dom.menu.show()/*.blurkill(this.close.bind(this))*/, this.state = 'open', 
+                this.opened = true, this.$dom.toggle.addClass('og-active'), this.emitEvent(events.opened, [this]), this;
         };
         DropMenu.prototype.close = function () {
-            var menu = this;
-            return (menu.$dom.menu ? menu.$dom.menu.hide() : null), menu.state = 'closed', menu.opened = false,
-                menu.$dom.title.removeClass('og-active'), menu.emitEvent(events.closed, [menu]), menu;
+            return (this.$dom.menu ? this.$dom.menu.hide() : null), this.state = 'closed',
+                this.opened = false, this.$dom.toggle.removeClass('og-active'), this.emitEvent(events.closed, [this]), 
+                this;
         };
-        DropMenu.prototype.menu_handler = function (event) {
-            var menu = this, elem = $(event.target);
-            if (elem.is(menu.$dom.add)) {
-                menu.add_handler(); 
-                menu.stop(event);
-            }
-            if (elem.is('.og-icon-delete')) {
-                menu.del_handler(elem.closest('.OG-dropmenu-options'));
-                menu.stop(event);
-            }
-            if (elem.is(':checkbox')) {elem.focus();}
+        DropMenu.prototype.menu_handler = function () {}; // extend this method
+        DropMenu.prototype.toggle_handler = function () {
+            return this.opened ? this.close() : (this.open(), this.focus());
         };
-        DropMenu.prototype.title_handler = function () {
-            var menu = this;
-                menu.opened ? menu.close() : (menu.open(), menu.focus());
-        };
+        /** START Move to menu class **/
         DropMenu.prototype.add_handler = function () {
-            var menu = this, opt, len = menu.opts.length;
-            return opt = menu.$dom.opt_cp.clone(true).data("pos", menu.opts.length), menu.opts.push(opt),
-                    menu.$dom.add.focus(), menu.opts[len].find('.number span').text(menu.opts.length), 
-                    menu.$dom.menu_actions.before(menu.opts[len]);
+            return len = this.opts.length, opt = this.$dom.opt_cp.clone(true).data("pos", this.opts.length),
+                this.opts.push(opt), this.$dom.add.focus(), this.opts[len].find('.number span').text(this.opts.length), 
+                this.$dom.menu_actions.before(this.opts[len]);
         };
         DropMenu.prototype.del_handler = function (elem) {
-            var menu = this, data = elem.data();
-            if (menu.opts.length === 1) return;
-            menu.opts.splice(data.pos, 1);
+            var data = elem.data();
+            if (this.opts.length === 1) return;
+            this.opts.splice(data.pos, 1);
             elem.remove();
-            menu.update_opt_nums(data.pos);
-            if (data.pos < menu.opts.length) menu.opts[data.pos].find('select').first().focus();
-            else menu.opts[data.pos-1].find('select').first().focus();
+            this.update_opt_nums(data.pos);
+            if (data.pos < this.opts.length) this.opts[data.pos].find('select').first().focus();
+            else this.opts[data.pos-1].find('select').first().focus();
         };
         DropMenu.prototype.update_opt_nums = function (pos) {
-            var menu = this;
-            for (var i = pos || 0, len = menu.opts.length; i < len;)
-                menu.opts[i].data('pos', i).find('.number span').text(i+=1);
+            for (var i = pos || 0, len = this.opts.length; i < len;)
+                this.opts[i].data('pos', i).find('.number span').text(i+=1);
         };
+        /** END Move to menu class **/
         DropMenu.prototype.stop = function (event) {
             event.stopPropagation();
             event.preventDefault();
         };
         DropMenu.prototype.status = function () {
-            var menu = this;
-            return menu.state;
+            return this.state;
         };
         DropMenu.prototype.is_opened = function () {
-            var menu = this;
-            return menu.opened;
+            return this.opened;
         };
         return DropMenu;
     }

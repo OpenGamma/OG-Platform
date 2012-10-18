@@ -41,7 +41,7 @@ $.register_module({
                     if(query.length) {
                         var i = 0, arr = [];
                         query.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
-                            if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
+                            if (i > 0) arr[i++] = $dom.toggle_infix.html() + " ";
                             arr[i++] = entry;
                         });
                         $query.html(arr.reduce(function (a, v) { return a += v.type ? v.type + ":" + v.src : v; }, ''));
@@ -121,6 +121,10 @@ $.register_module({
                     else if ($custom.parent().is(corrections_s)) delete query[entry].correction_date;
                     else delete query[entry].date;
                 },
+                toggle_handler = function (event){ // Move to menu class
+                    menu.toggle_handler();
+                    menu.opts[menu.opts.length-1].find('select').first().focus();
+                },
                 menu_handler = function (event) {
                     var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(parent_s);
@@ -142,8 +146,8 @@ $.register_module({
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                 };
             if ($dom) {
-                $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
-                $query = $('.datasources-query', $dom.title);
+                $dom.toggle_infix.append('<span>then</span>');
+                $query = $('.datasources-query', $dom.toggle);
                 $option = $(wrapper).append('<option>');
                 $.when(
                     og.api.text({module: 'og.analytics.form_datasources_snapshot_opts_tash'}),
@@ -152,7 +156,7 @@ $.register_module({
                     $snapshot_opts = $(wrapper).append(snapshot);
                     $historical_opts = $(wrapper).append(historical);
                 });
-                if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
+                if ($dom.toggle) $dom.toggle.on('click', toggle_handler);
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);
                 }
