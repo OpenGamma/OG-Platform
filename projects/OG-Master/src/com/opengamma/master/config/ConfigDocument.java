@@ -24,22 +24,52 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the config master.
- *
  */
 @PublicSPI
 @BeanDefinition
 public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
 
   /**
+   * The config unique identifier.
+   * This field is managed by the master but must be set for updates.
+   */
+  private UniqueId _uniqueId;
+  /**
+   * The document name.
+   */
+  private String _name;
+
+  /**
+   * Creates an empty document.
+   * This constructor is here for automated bean construction.
+   * This document is invalid until the document class gets set.
+   */
+  private ConfigDocument() {
+  }
+
+  /**
    * Creates an empty document.
    *
+   * @param configItem  the config item
    */
-  @SuppressWarnings("unchecked")
   public ConfigDocument(ConfigItem<?> configItem) {
     // this method accepts a ? rather than a ConfigItem<?> for caller flexibility
     setObject(configItem);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param <T> the type
+   * @param value  the value
+   * @param type  the type of the value
+   * @param name  the name
+   * @param uid  the unique identifier
+   * @param versionFrom  the version from
+   * @param versionTo  the version to
+   * @param correctionFrom  the correction from
+   * @param correctionTo  the correction to
+   */
   public <T> ConfigDocument(T value, Class<T> type, String name, UniqueId uid, Instant versionFrom, Instant versionTo, Instant correctionFrom, Instant correctionTo) {
     ConfigItem<T> item = ConfigItem.of(value);
     item.setName(name);
@@ -51,12 +81,7 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     setObject(item);
   }
 
-  /**
-   * The config unique identifier.
-   * This field is managed by the master but must be set for updates.
-   */
-  private UniqueId _uniqueId;
-
+  //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
     if (_uniqueId == null && getObject() != null && getObject().getUniqueId() != null) {
@@ -73,34 +98,33 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
   }
 
-  /**
-   * Creates an empty document.
-   * This constructor is here for automated bean construction.
-   * This document is invalid until the document class gets set 
-   */
-  private ConfigDocument() {
-  }
-
   @Override
   public ObjectId getObjectId() {
     return getObject().getObjectId();
   }
  
-  private String _name;
-
-  public void setName(String name) {
-    _name = name;
-    if (getObject() != null) {
-      getObject().setName(_name);
-    }
-  }
-
-
+  /**
+   * Gets the name of the config item.
+   * 
+   * @return the name
+   */
   public String getName() {
     if (_name == null && getObject() != null && getObject().getName() != null) {
       _name = getObject().getName();
     }
     return _name;
+  }
+
+  /**
+   * Sets the name of the config item.
+   * 
+   * @param name  the name
+   */
+  public void setName(String name) {
+    _name = name;
+    if (getObject() != null) {
+      getObject().setName(_name);
+    }
   }
 
   @Override
@@ -120,7 +144,12 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
   }
 
-  public Class getType() {
+  /**
+   * Gets the object type.
+   * 
+   * @return the type, may be null
+   */
+  public Class<?> getType() {
     if (getObject() != null) {
       return getObject().getType();
     } else {
