@@ -68,4 +68,5 @@ public interface ExchangeSource extends Source<Exchange> {
    * @throws RuntimeException if an error occurs
    */
   Exchange getSingle(ExternalIdBundle identifierBundle);
+
 }

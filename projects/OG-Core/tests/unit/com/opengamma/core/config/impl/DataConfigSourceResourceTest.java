@@ -75,7 +75,6 @@ public class DataConfigSourceResourceTest {
     assertSame(target, test.getEntity());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   @Test
   public void testSearch() {
     final ConfigItem<SimpleExchange> target = ConfigItem.of(new SimpleExchange());

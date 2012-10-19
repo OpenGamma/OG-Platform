@@ -12,8 +12,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.security.ManageableSecurity;
@@ -53,16 +51,6 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableSecurity get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
-  }
-
-  @Override
-  public ManageableSecurity get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getObject();
-  }
-
   @Override
   public Collection<Security> get(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -104,7 +92,7 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
     return securities.isEmpty() ? null : securities.iterator().next();
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked" })
   private Collection<ManageableSecurity> getSecuritiesInternal(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(bundle);

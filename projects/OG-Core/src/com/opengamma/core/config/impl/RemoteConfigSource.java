@@ -24,7 +24,6 @@ import com.sun.jersey.api.client.GenericType;
  */
 public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> implements ConfigSource {
 
-
   /**
    * The change manager.
    */
@@ -44,86 +43,18 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
    * Creates an instance.
    *
    * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager to use, not null
    */
   public RemoteConfigSource(final URI baseUri, final ChangeManager changeManager) {
     super(baseUri);
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _changeManager = changeManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
-  }
-
-
-  @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    return get(clazz, configName, versionCorrection).getValue();
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    GenericType<T> type = new GenericType<T>() {
-    };
-    Object value = get(uniqueId).getValue();
-    if (type.getRawClass().isAssignableFrom(value.getClass())) {
-      return (T) value;
-    } else {
-      throw new RuntimeException("The requested object type is not " + type.getRawClass());
-    }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    GenericType<T> type = new GenericType<T>() {
-    };
-    Object value = get(objectId, versionCorrection).getValue();
-    if (type.getRawClass().isAssignableFrom(value.getClass())) {
-      return (T) value;
-    } else {
-      throw new RuntimeException("The requested object type is not " + type.getRawClass());
-    }
-  }
-
-  @Override
-  public ConfigItem get(ObjectId objectId, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-
-    URI uri = DataConfigSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
-    return accessRemote(uri).get(ConfigItem.class);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(configName, "configName");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-
-    URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
-    GenericType<ConfigItem<T>> gt = new GenericType<ConfigItem<T>>() {
-    };
-    return accessRemote(uri).get(gt.getRawClass());
-  }
-
-  @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
-    return getConfig(clazz, name, VersionCorrection.LATEST);
-  }
-
-  @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-
-    URI uri = DataConfigSourceResource.uriSearch(getBaseUri(), clazz, versionCorrection);
-
-    GenericType<List<ConfigItem<T>>> gt = new GenericType<List<ConfigItem<T>>>() {
-    };
-    return accessRemote(uri).get(gt.getRawClass());
   }
 
   @Override
@@ -132,4 +63,75 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     URI uri = DataConfigSourceResource.uriGet(getBaseUri(), uniqueId);
     return accessRemote(uri).get(ConfigItem.class);
   }
+
+  @Override
+  public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+
+    URI uri = DataConfigSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
+    return accessRemote(uri).get(ConfigItem.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+    GenericType<R> type = new GenericType<R>() {
+    };
+    Object value = get(uniqueId).getValue();
+    if (type.getRawClass().isAssignableFrom(value.getClass())) {
+      return (R) value;
+    } else {
+      throw new RuntimeException("The requested object type is not " + type.getRawClass());
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    GenericType<R> type = new GenericType<R>() {
+    };
+    Object value = get(objectId, versionCorrection).getValue();
+    if (type.getRawClass().isAssignableFrom(value.getClass())) {
+      return (R) value;
+    } else {
+      throw new RuntimeException("The requested object type is not " + type.getRawClass());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    return get(clazz, configName, versionCorrection).getValue();
+  }
+
+  @Override
+  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(configName, "configName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    
+    URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
+    GenericType<ConfigItem<R>> gt = new GenericType<ConfigItem<R>>() {
+    };
+    return accessRemote(uri).get(gt.getRawClass());
+  }
+
+  @Override
+  public <R> R getLatestByName(Class<R> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
+  }
+
+  @Override
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    
+    URI uri = DataConfigSourceResource.uriSearch(getBaseUri(), clazz, versionCorrection);
+    
+    GenericType<List<ConfigItem<R>>> gt = new GenericType<List<ConfigItem<R>>>() { };
+    return accessRemote(uri).get(gt.getRawClass());
+  }
+
 }

@@ -33,7 +33,7 @@ public class MasterSnapshotSource extends AbstractMasterSource<StructuredMarketD
    * The listeners.
    */
   private final ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener> _registeredListeners = 
-    new  ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener>();
+    new ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener>();
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -44,6 +44,7 @@ public class MasterSnapshotSource extends AbstractMasterSource<StructuredMarketD
     super(master);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void addChangeListener(final UniqueId uniqueId, final MarketDataSnapshotChangeListener listener) {
     ChangeListener changeListener = new ChangeListener() {
@@ -66,6 +67,4 @@ public class MasterSnapshotSource extends AbstractMasterSource<StructuredMarketD
     getMaster().changeManager().removeChangeListener(changeListener);
   }
 
-
 }
-

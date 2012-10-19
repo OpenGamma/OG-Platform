@@ -29,12 +29,9 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * Change events are aggregated from the different sources and presented through a single change manager.
  */
-public class DelegatingConfigSource extends UniqueIdSchemeDelegator<ConfigSource> implements ConfigSource {
-
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
+public class DelegatingConfigSource
+    extends UniqueIdSchemeDelegator<ConfigSource>
+    implements ConfigSource {
 
   /**
    * Creates an instance specifying the default delegate.
@@ -43,7 +40,6 @@ public class DelegatingConfigSource extends UniqueIdSchemeDelegator<ConfigSource
    */
   public DelegatingConfigSource(ConfigSource defaultSource) {
     super(defaultSource);
-    _changeManager = defaultSource.changeManager();
   }
 
   /**
@@ -62,7 +58,6 @@ public class DelegatingConfigSource extends UniqueIdSchemeDelegator<ConfigSource
     for (ConfigSource source : schemePrefixToSourceMap.values()) {
       changeManager.addChangeManager(source.changeManager());
     }
-    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -156,7 +151,6 @@ public class DelegatingConfigSource extends UniqueIdSchemeDelegator<ConfigSource
 
   @Override
   public Map<UniqueId, ConfigItem<?>> get(Collection<UniqueId> uniqueIds) {
-    Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
     Map<UniqueId, ConfigItem<?>> map = new HashMap<UniqueId, ConfigItem<?>>();
     for (UniqueId uniqueId : uniqueIds) {
@@ -164,4 +158,5 @@ public class DelegatingConfigSource extends UniqueIdSchemeDelegator<ConfigSource
     }
     return map;
   }
+
 }

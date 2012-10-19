@@ -8,15 +8,20 @@ package com.opengamma.core;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
  * A source of snapshot information as accessed by the main application.
+ * <p>
+ * This interface is read-only.
+ * Implementations must be thread-safe.
  *
+ * @param <V> the type returned by the source
  */
-public interface Source<T> {
+public interface Source<V> {
 
   /**
    * Gets an object by unique identifier.
@@ -25,10 +30,10 @@ public interface Source<T> {
    * @param uniqueId  the unique identifier, not null
    * @return the UniqueIdentifiable object, not null
    * @throws IllegalArgumentException if the identifier is invalid
-   * @throws com.opengamma.DataNotFoundException if the object could not be found
+   * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
    */
-  T get(UniqueId uniqueId);
+  V get(UniqueId uniqueId);
 
   /**
    * Gets an object by object identifier and version-correction.
@@ -40,10 +45,10 @@ public interface Source<T> {
    * @param versionCorrection  the version-correction, not null
    * @return the matched object, not null
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
-   * @throws com.opengamma.DataNotFoundException if the object could not be found
+   * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
    */
-  T get(ObjectId objectId, VersionCorrection versionCorrection);
+  V get(ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
    * Gets objects by unique identifier.
@@ -54,6 +59,6 @@ public interface Source<T> {
    * @param uniqueIds the unique identifiers to query, not null
    * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
    */
-  Map<UniqueId, T> get(Collection<UniqueId> uniqueIds);
+  Map<UniqueId, V> get(Collection<UniqueId> uniqueIds);
 
 }

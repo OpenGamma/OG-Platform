@@ -41,7 +41,7 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   }
 
   public <T> ConfigDocument(T value, Class<T> type, String name, UniqueId uid, Instant versionFrom, Instant versionTo, Instant correctionFrom, Instant correctionTo) {
-    ConfigItem<T> item = new ConfigItem<T>(value);
+    ConfigItem<T> item = ConfigItem.of(value);
     item.setName(name);
     setVersionFromInstant(versionFrom);
     setVersionToInstant(versionTo);
