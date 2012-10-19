@@ -8,7 +8,11 @@ package com.opengamma.language.view;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;

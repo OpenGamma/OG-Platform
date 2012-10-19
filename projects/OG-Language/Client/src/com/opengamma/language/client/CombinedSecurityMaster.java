@@ -12,7 +12,15 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.*;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 
 /**
  * A {@link SecurityMaster} that combines the behavior of the masters

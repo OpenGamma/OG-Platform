@@ -15,9 +15,13 @@ import com.opengamma.id.VersionCorrection;
 
 /**
  * A source of with additional methods working with external bundle ids.
+ * <p>
+ * This interface is read-only.
+ * Implementations must be thread-safe.
  *
+ * @param <V> the type returned by the source
  */
-public interface SourceWithExternalBundle<T extends UniqueIdentifiable & ExternalBundleIdentifiable> extends Source<T>, ChangeProvider {
+public interface SourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable> extends Source<V>, ChangeProvider {
 
   /**
    * Gets all objects at the given version-correction that match the specified
@@ -32,7 +36,7 @@ public interface SourceWithExternalBundle<T extends UniqueIdentifiable & Externa
    * @throws IllegalArgumentException if the identifier bundle is invalid
    * @throws RuntimeException if an error occurs
    */
-  Collection<T> get(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+  Collection<V> get(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
   // TODO: remove below here
@@ -55,7 +59,7 @@ public interface SourceWithExternalBundle<T extends UniqueIdentifiable & Externa
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    * @throws RuntimeException if an error occurs
    */
-  Collection<T> get(ExternalIdBundle bundle);
+  Collection<V> get(ExternalIdBundle bundle);
 
   /**
    * Gets the single best-fit object at the latest version-correction that matches the
@@ -73,7 +77,7 @@ public interface SourceWithExternalBundle<T extends UniqueIdentifiable & Externa
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    * @throws RuntimeException if an error occurs
    */
-  T getSingle(ExternalIdBundle bundle);
+  V getSingle(ExternalIdBundle bundle);
 
   /**
    * Gets the single best-fit object at the given version-correction that matches the
@@ -92,5 +96,6 @@ public interface SourceWithExternalBundle<T extends UniqueIdentifiable & Externa
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    * @throws RuntimeException if an error occurs
    */
-  T getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+  V getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+
 }

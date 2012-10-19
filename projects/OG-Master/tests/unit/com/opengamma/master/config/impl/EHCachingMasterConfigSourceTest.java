@@ -45,7 +45,7 @@ public class EHCachingMasterConfigSourceTest {
   
   private static final ConfigItem<ExternalId> ITEM;
   static {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(CONFIG);
+    ConfigItem<ExternalId> item = ConfigItem.of(CONFIG);
     item.setName(CONFIG_NAME);
     item.setType(ExternalId.class);
     ITEM = item;

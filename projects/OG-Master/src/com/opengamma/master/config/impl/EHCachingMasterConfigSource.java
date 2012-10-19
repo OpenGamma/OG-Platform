@@ -66,7 +66,12 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     _configCache = EHCacheUtils.getCacheFromManager(cacheManager, CONFIG_CACHE);
   }
 
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
+   */
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
@@ -187,8 +192,8 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
+  //-------------------------------------------------------------------------
   private class ConfigDocumentChangeListener implements ChangeListener {
-
     @Override
     public void entityChanged(ChangeEvent event) {
       switch (event.getType()) {

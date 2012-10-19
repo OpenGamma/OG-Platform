@@ -11,8 +11,6 @@ import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -29,7 +27,9 @@ import com.opengamma.util.paging.PagingRequest;
  * This class provides the source on top of a standard {@link ExchangeMaster}.
  */
 @PublicSPI
-public class MasterExchangeSource extends AbstractMasterSource<Exchange, ExchangeDocument, ExchangeMaster> implements ExchangeSource {
+public class MasterExchangeSource
+    extends AbstractMasterSource<Exchange, ExchangeDocument, ExchangeMaster>
+    implements ExchangeSource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -51,16 +51,6 @@ public class MasterExchangeSource extends AbstractMasterSource<Exchange, Exchang
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableExchange get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
-  }
-
-  @Override
-  public Exchange get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getObject();
-  }
-
   @Override
   public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);

@@ -8,7 +8,7 @@ package com.opengamma.transport.jaxrs;
 /**
  * RESTful response wrapper that ensures conversion via Fudge.
  * <p>
- * This allows Fudge basd responses to be sent by XML and JSON.
+ * This allows Fudge based responses to be sent by XML and JSON.
  */
 public final class FudgeResponse {
 
@@ -38,24 +38,28 @@ public final class FudgeResponse {
 
   //-------------------------------------------------------------------------
   @Override
-  public String toString() {
-    return "FudgeWrapper[" + _value + "]";
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof FudgeResponse)) return false;
-
-    FudgeResponse that = (FudgeResponse) o;
-
-    if (_value != null ? !_value.equals(that._value) : that._value != null) return false;
-
-    return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof FudgeResponse) {
+      FudgeResponse other = (FudgeResponse) obj;
+      if (_value != null ? !_value.equals(other._value) : other._value != null) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   @Override
   public int hashCode() {
     return _value != null ? _value.hashCode() : 0;
   }
+
+  @Override
+  public String toString() {
+    return "FudgeWrapper[" + _value + "]";
+  }
+
 }

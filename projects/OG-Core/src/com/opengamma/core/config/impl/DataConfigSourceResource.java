@@ -147,10 +147,10 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     if (versionCorrectionStr != null) {
       final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-      ConfigItem result = getConfigSource().get(type, name, versionCorrection);
+      ConfigItem<?> result = getConfigSource().get(type, name, versionCorrection);
       return responseOkFudge(result);
     } else {
-      ConfigItem result = getConfigSource().get(type, name, VersionCorrection.LATEST);
+      ConfigItem<?> result = getConfigSource().get(type, name, VersionCorrection.LATEST);
       return responseOkFudge(result);
     }
   }
@@ -219,6 +219,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     return bld.build();
   }
 
+  // TODO: put is not a RESTful URI!
   @PUT
   @Path("put")
   public Response put(
@@ -240,4 +241,5 @@ public class DataConfigSourceResource extends AbstractDataResource {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
     return bld.build();
   }
+
 }

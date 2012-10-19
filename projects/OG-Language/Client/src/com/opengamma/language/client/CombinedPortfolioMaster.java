@@ -8,13 +8,18 @@ package com.opengamma.language.client;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.portfolio.*;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioHistoryRequest;
+import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.PortfolioSearchRequest;
+import com.opengamma.master.portfolio.PortfolioSearchResult;
 
 /**
  * A {@link PortfolioMaster} that combines the behavior of the masters
