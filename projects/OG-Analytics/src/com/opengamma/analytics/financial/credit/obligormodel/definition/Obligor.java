@@ -3,8 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.obligormodel;
+package com.opengamma.analytics.financial.credit.obligormodel.definition;
 
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligormodel.Region;
+import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -17,7 +23,7 @@ public class Obligor {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Sort out the hashCode and equals methods
-  // TODO : Maybe add an explicit default flag?
+  // TODO : Should we include the recovery rate model as part of the obligors composition (private final RecoveryRateModel _recoveryRateModel;)?
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +42,9 @@ public class Obligor {
   private final CreditRatingMoodys _moodysCreditRating;
   private final CreditRatingStandardAndPoors _standardAndPoorsCreditRating;
   private final CreditRatingFitch _fitchCreditRating;
+
+  // Explicit flag to determine if the obligor has already defaulted prior to the current time
+  private final boolean _hasDefaulted;
 
   // The obligor industrial sector classification
   private final Sector _sector;
@@ -58,6 +67,7 @@ public class Obligor {
       CreditRatingMoodys moodysCreditRating,
       CreditRatingStandardAndPoors standardAndPoorsCreditRating,
       CreditRatingFitch fitchCreditRating,
+      boolean hasDefaulted,
       Sector sector,
       Region region,
       String country) {
@@ -103,6 +113,8 @@ public class Obligor {
     _standardAndPoorsCreditRating = standardAndPoorsCreditRating;
     _fitchCreditRating = fitchCreditRating;
 
+    _hasDefaulted = hasDefaulted;
+
     _sector = sector;
     _region = region;
     _country = country;
@@ -144,6 +156,10 @@ public class Obligor {
 
   public CreditRatingFitch getFitchCreditRating() {
     return _fitchCreditRating;
+  }
+
+  public boolean getHasDefaulted() {
+    return _hasDefaulted;
   }
 
   public Sector getSector() {

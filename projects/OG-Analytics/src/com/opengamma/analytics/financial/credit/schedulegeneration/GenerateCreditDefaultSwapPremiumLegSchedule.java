@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.schedulegeneration;
 
 import java.util.NavigableSet;
 import java.util.Set;
@@ -122,8 +122,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     Set<Double> timePointsInRange;
 
     if (includeSchedule) {
-
-      final int maturityIndex = cashflowSchedule.length - 1;
 
       if (cds.getProtectionStart()) {
         offset = cds.getProtectionOffset();
