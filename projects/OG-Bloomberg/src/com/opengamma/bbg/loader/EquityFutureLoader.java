@@ -5,7 +5,21 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
+import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_SPOT_TICKER;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;

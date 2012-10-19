@@ -14,8 +14,8 @@ import net.sf.ehcache.CacheManager;
 import com.google.common.collect.Lists;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
