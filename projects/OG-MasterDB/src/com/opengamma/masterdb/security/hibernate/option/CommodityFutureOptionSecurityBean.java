@@ -28,7 +28,7 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
- * A bean representation of a {@link com.opengamma.financial.security.option.CommodityFutureOptionSecurity}.
+ * A Hibernate bean representation of {@link com.opengamma.financial.security.option.CommodityFutureOptionSecurity}.
  */
 @BeanDefinition
 public class CommodityFutureOptionSecurityBean extends SecurityBean {

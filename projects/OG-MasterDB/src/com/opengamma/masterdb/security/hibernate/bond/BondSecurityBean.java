@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
@@ -26,7 +27,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * Hibernate bean for storing BondSecurity.
+ * A Hibernate bean representation of {@link BondSecurity}.
  */
 @BeanDefinition
 public class BondSecurityBean extends SecurityBean {

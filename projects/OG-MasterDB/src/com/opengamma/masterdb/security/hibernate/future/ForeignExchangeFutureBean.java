@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.masterdb.security.hibernate.future;
 
 import java.util.Map;
@@ -12,16 +17,15 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
+ * A Hibernate bean representation of {@link FXFutureSecurity}.
  */
-
 @BeanDefinition
 public class ForeignExchangeFutureBean extends FutureSecurityBean {
+
   @PropertyDefinition
   private CurrencyBean _numerator;
   @PropertyDefinition

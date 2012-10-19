@@ -41,10 +41,10 @@ import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
 /**
- * Hibernate bean for storage.
+ * A Hibernate bean for storage.
  */
-public final class FutureSecurityBeanOperation extends
-  AbstractSecurityBeanOperation<FutureSecurity, FutureSecurityBean> {
+public final class FutureSecurityBeanOperation
+    extends AbstractSecurityBeanOperation<FutureSecurity, FutureSecurityBean> {
 
   /**
    * Singleton.

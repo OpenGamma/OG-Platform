@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.marketdata;
 
 import java.util.Comparator;
@@ -7,7 +12,7 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 /**
  * Comparator for ManagableHistoricalTimeSeriesInfo that excludes UniqueIds and TS ObjectIds.
  */
-public class ManageableHistoricalTimeSeriesInfoComparator implements Comparator<ManageableHistoricalTimeSeriesInfo>{
+public class ManageableHistoricalTimeSeriesInfoComparator implements Comparator<ManageableHistoricalTimeSeriesInfo> {
 
   @Override
   public int compare(ManageableHistoricalTimeSeriesInfo first, ManageableHistoricalTimeSeriesInfo second) {

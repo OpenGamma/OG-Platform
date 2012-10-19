@@ -1,13 +1,17 @@
-package com.opengamma.core;
-
-import com.opengamma.id.ObjectId;
-
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
+package com.opengamma.core;
+
+import com.opengamma.id.ObjectId;
+
+/**
+ * Manage for object change listeners.
+ */
 public interface ObjectChangeListenerManager {
+
   /**
    * Adds a listener to the source.
    * <p>
@@ -31,4 +35,5 @@ public interface ObjectChangeListenerManager {
    * @param oid the identifier to unregister interest in
    * */
   void removeChangeListener(ObjectId oid, ObjectChangeListener listener);
+
 }

@@ -28,7 +28,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link CashSecurity}.
+ * A Hibernate bean representation of {@link CashSecurity}.
  */
 @BeanDefinition
 public class CashSecurityBean extends SecurityBean {
