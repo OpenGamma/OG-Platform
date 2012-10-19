@@ -8,13 +8,18 @@ package com.opengamma.language.client;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.position.*;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 
 /**
  * A {@link PositionMaster} that combines the behavior of the masters

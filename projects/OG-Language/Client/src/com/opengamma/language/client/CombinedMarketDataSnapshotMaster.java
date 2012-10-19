@@ -8,14 +8,17 @@ package com.opengamma.language.client;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.marketdatasnapshot.*;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
 /**
  * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
