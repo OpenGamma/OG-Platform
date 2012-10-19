@@ -5,14 +5,10 @@
 (function () {
     if (!window.Four) window.Four = {};
     /**
-     * Scales an Array of numbers to a new range
-     * @param {Array} arr Array to be scaled
-     * @param {Number} range_min New minimum range
-     * @param {Number} range_max New maximum range
-     * @returns {Array}
+     * If Webgl inspector, query the dom and log out the active buffers
      */
-    window.Four.scale = function (arr, range_min, range_max) {
-        var min = Math.min.apply(null, arr), max = Math.max.apply(null, arr);
-        return arr.map(function (val) {return ((val - min) / (max - min) * (range_max - range_min) + range_min);});
+    window.Four.buffercount = function () {
+        var live_buffer = '.buffer-item.listing-item', deleted_buffer = '.buffer-item.listing-item.buffer-item-deleted';
+        if ($(live_buffer).length) console.log($(live_buffer).length - $(deleted_buffer).length);
     };
 })();
