@@ -8,28 +8,40 @@ package com.opengamma.master.config.impl;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.util.functional.Functional.functional;
 
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import org.testng.collections.Sets;
-
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.id.*;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.MasterUtils;
-import com.opengamma.master.config.*;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.paging.Paging;
@@ -88,7 +100,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    *
@@ -103,7 +114,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigSearchResult<T> search(final ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
@@ -123,7 +133,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-    public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final ConfigDocument document = _store.get(objectId.getObjectId());
@@ -134,7 +144,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   public ConfigDocument add(ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
@@ -142,7 +151,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     ArgumentChecker.notNull(document.getObject().getName(), "document.object.name");
     ArgumentChecker.notNull(document.getObject().getValue(), "document.object.value");
 
-    final ConfigItem item = document.getObject();
+    final ConfigItem<?> item = document.getObject();
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
@@ -204,7 +213,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   //------------------------------------------------------------------------- 
-  @SuppressWarnings("unchecked")
   @Override
   public ConfigDocument get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "document.uniqueId");
@@ -214,7 +222,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     }
     return document;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
@@ -254,7 +262,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Document not found: " + objectId.getObjectId());
     }
-
+    
     if (replacementDocuments.isEmpty()) {
       _store.remove(objectId.getObjectId());
       _changeManager.entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);
@@ -274,7 +282,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
     }
   }
 
-
   @Override
   public UniqueId addVersion(ObjectIdentifiable objectId, ConfigDocument documentToAdd) {
     List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
@@ -284,7 +291,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
       return result.get(0);
     }
   }
-
 
   @Override
   public void removeVersion(UniqueId uniqueId) {
@@ -307,10 +313,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     ArgumentChecker.notNull(document.getName(), "document.name");
   }
 
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+  //-------------------------------------------------------------------------
   @Override
   public ConfigHistoryResult history(ConfigHistoryRequest request) {
     final Class<?> type = request.getType();
@@ -344,7 +347,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
           .asList()));
   }
 
-
   @Override
   public Map<UniqueId, ConfigDocument> get(Collection<UniqueId> uniqueIds) {
     Map<UniqueId, ConfigDocument> resultMap = newHashMap();
@@ -353,4 +355,5 @@ public class InMemoryConfigMaster implements ConfigMaster {
     }
     return resultMap;
   }
+
 }

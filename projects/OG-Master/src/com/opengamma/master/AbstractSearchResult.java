@@ -104,6 +104,12 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_versionCorrection, "versionCorrection");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -125,23 +131,27 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the version-correction that the data represents, not null if correctly created.
-   * @return the value of the property
+   * Gets the version-correction that the data represents, not null.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   * @return the value of the property, not null
    */
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
 
   /**
-   * Sets the version-correction that the data represents, not null if correctly created.
-   * @param versionCorrection  the new value of the property
+   * Sets the version-correction that the data represents, not null.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   * @param versionCorrection  the new value of the property, not null
    */
   public void setVersionCorrection(VersionCorrection versionCorrection) {
+    JodaBeanUtils.notNull(versionCorrection, "versionCorrection");
     this._versionCorrection = versionCorrection;
   }
 
   /**
    * Gets the the {@code versionCorrection} property.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
    * @return the property, not null
    */
   public final Property<VersionCorrection> versionCorrection() {
