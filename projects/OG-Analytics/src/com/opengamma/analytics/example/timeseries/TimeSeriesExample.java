@@ -1,11 +1,18 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.example.timeseries;
+
+import java.io.PrintStream;
+
+import javax.time.calendar.LocalDate;
 
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import java.io.PrintStream;
-import javax.time.calendar.LocalDate;
 
 public class TimeSeriesExample {
     public static void timeSeriesExample(PrintStream out) {

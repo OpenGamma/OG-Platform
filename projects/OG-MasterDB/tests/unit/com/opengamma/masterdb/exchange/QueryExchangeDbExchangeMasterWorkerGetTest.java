@@ -32,7 +32,7 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getExchange_nullUID() {
-    _exgMaster.get(null);
+    _exgMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

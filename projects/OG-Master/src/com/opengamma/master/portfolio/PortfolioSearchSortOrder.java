@@ -58,7 +58,7 @@ public enum PortfolioSearchSortOrder implements Comparator<PortfolioDocument> {
   NAME_ASC {
     @Override
     public int compare(PortfolioDocument obj1, PortfolioDocument obj2) {
-      return obj1.getPortfolio().getName().compareTo(obj2.getPortfolio().getName());
+      return obj1.getObject().getName().compareTo(obj2.getObject().getName());
     }
   },
   /**
@@ -67,7 +67,7 @@ public enum PortfolioSearchSortOrder implements Comparator<PortfolioDocument> {
   NAME_DESC {
     @Override
     public int compare(PortfolioDocument obj1, PortfolioDocument obj2) {
-      return obj2.getPortfolio().getName().compareTo(obj1.getPortfolio().getName());
+      return obj2.getObject().getName().compareTo(obj1.getObject().getName());
     }
   };
 

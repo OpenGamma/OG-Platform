@@ -72,7 +72,7 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
       }
       case SECURITY: {
         try {
-          final Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
+          final Security security = _securitySource.get(requirement.getTargetSpecification().getUniqueId());
           for (final ExternalId identifier : security.getExternalIdBundle()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
               return MarketDataUtils.createMarketDataValue(requirement);

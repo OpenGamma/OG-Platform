@@ -93,7 +93,7 @@ public class SnapshotVersionsFunction extends AbstractFunctionInvoker implements
     final Object[][] values = new Object[snapshots.size()][4];
     int i = 0;
     for (MarketDataSnapshotDocument document : snapshots) {
-      final ManageableMarketDataSnapshot documentSnapshot = document.getSnapshot();
+      final ManageableMarketDataSnapshot documentSnapshot = document.getObject();
       values[i][0] = document.getUniqueId();
       values[i][1] = document.getVersionFromInstant();
       values[i][2] = documentSnapshot.getName();

@@ -5,10 +5,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.fourier.EuropeanCallFourierTransform;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.GaussianMartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
-
 public class EuropeanCallFourierTransformTest {
   private static final  MartingaleCharacteristicExponent CE = new GaussianMartingaleCharacteristicExponent(0.2);
   private static final EuropeanCallFourierTransform FT = new EuropeanCallFourierTransform(CE);

@@ -173,7 +173,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
     final Security security;
     try {
-      security = getSecuritySourceImpl().getSecurity(securityId);
+      security = getSecuritySourceImpl().get(securityId);
     } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve security UID {}", securityId);
       return null;

@@ -57,7 +57,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
     List<ManageablePosition> result = new ArrayList<ManageablePosition>();
     if (getDocuments() != null) {
       for (PositionDocument doc : getDocuments()) {
-        result.add(doc.getPosition());
+        result.add(doc.getObject());
       }
     }
     return result;
@@ -69,7 +69,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
    * @return the first position, null if none
    */
   public ManageablePosition getFirstPosition() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getPosition() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
   }
 
   /**
@@ -85,7 +85,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getPosition();
+      return getDocuments().get(0).getObject();
     }
   }
 

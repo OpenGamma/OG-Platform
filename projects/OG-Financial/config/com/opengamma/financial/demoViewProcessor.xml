@@ -150,17 +150,13 @@
   
   <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
   </bean>
-
-  <bean id="mainViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
-   <property name="configMaster" ref="dbConfigMaster" />
-  </bean>
   
-  <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
+  <bean id="userConfigSource" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
   <bean id="combinedViewDefinitionRepository" class="com.opengamma.engine.view.AggregatingViewDefinitionRepository">
     <constructor-arg>
       <list>
-        <ref bean="mainViewDefinitionRepository" />
-        <ref bean="userViewDefinitionRepository" />
+        <ref bean="configMaster" />
+        <ref bean="userConfigSource" />
       </list>
     </constructor-arg>
   </bean>
@@ -173,7 +169,7 @@
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="regionSource" ref="sharedRegionSource"/>
-    <property name="configSource" ref="sharedConfigSource" />
+    <property name="configMaster" ref="sharedConfigSource" />
     <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
     <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
@@ -193,7 +189,7 @@
     <property name="exchangeSource" ref="sharedExchangeSource"/>
     <property name="holidaySource" ref="sharedHolidaySource"/>
     <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
-    <property name="configSource" ref="sharedConfigSource" />
+    <property name="configMaster" ref="sharedConfigSource" />
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
   </bean>
 
@@ -340,7 +336,7 @@
   </bean>
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="name" value="main" />
-    <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="configSource" ref="combinedConfigSource" />
     <property name="liveMarketDataSourceRegistry" ref="standardLiveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />

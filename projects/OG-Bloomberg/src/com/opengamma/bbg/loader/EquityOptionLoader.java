@@ -15,9 +15,9 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXPIRE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_PUT_CALL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_STRIKE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
-import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 
 import java.util.HashSet;

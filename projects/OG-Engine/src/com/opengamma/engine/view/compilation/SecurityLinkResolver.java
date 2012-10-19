@@ -316,40 +316,40 @@ public final class SecurityLinkResolver {
     }
 
     @Override
-    public Security getSecurity(UniqueId uniqueId) {
+    public Security get(UniqueId uniqueId) {
       Security security = _objectIdCache.get(uniqueId.getObjectId());
       if (security == null) {
-        security = _underlying.getSecurity(uniqueId);
+        security = _underlying.get(uniqueId);
         _objectIdCache.putIfAbsent(uniqueId.getObjectId(), security);
       }
       return security;
     }
 
     @Override
-    public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
       Security security = _objectIdCache.get(objectId);
       if (security == null) {
-        security = _underlying.getSecurity(objectId, versionCorrection);
+        security = _underlying.get(objectId, versionCorrection);
         _objectIdCache.putIfAbsent(objectId, security);
       }
       return security;
     }
 
     @Override
-    public Collection<Security> getSecurities(ExternalIdBundle bundle) {
-      return _underlying.getSecurities(bundle);
+    public Collection<Security> get(ExternalIdBundle bundle) {
+      return _underlying.get(bundle);
     }
 
     @Override
-    public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      return _underlying.getSecurities(bundle, versionCorrection);
+    public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+      return _underlying.get(bundle, versionCorrection);
     }
 
     @Override
-    public Security getSecurity(ExternalIdBundle bundle) {
+    public Security getSingle(ExternalIdBundle bundle) {
       Security security = _weakIdCache.get(bundle);
       if (security == null) {
-        security = _underlying.getSecurity(bundle);
+        security = _underlying.getSingle(bundle);
         if (security != null) {
           _weakIdCache.putIfAbsent(bundle, security);
         }
@@ -358,10 +358,10 @@ public final class SecurityLinkResolver {
     }
 
     @Override
-    public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
       Security security = _weakIdCache.get(bundle);
       if (security == null) {
-        security = _underlying.getSecurity(bundle, versionCorrection);
+        security = _underlying.getSingle(bundle, versionCorrection);
         if (security != null) {
           _weakIdCache.putIfAbsent(bundle, security);
         }

@@ -142,8 +142,8 @@
   
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="name" value="main" />
-    <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
-    <property name="namedMarketDataSpecificationRepository" ref="bloombergNamedMarketDataSpecificationRepository" />
+    <property name="configSource" ref="combinedConfigSource" />
+    <property name="namedMarketDataSpecificationRepository" ref="bbgNamedMarketDataSpecificationRepository" />
     <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />

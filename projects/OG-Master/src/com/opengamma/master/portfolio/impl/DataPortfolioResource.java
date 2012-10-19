@@ -5,35 +5,33 @@
  */
 package com.opengamma.master.portfolio.impl;
 
-import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractDocumentDataResource;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a portfolio.
  */
-public class DataPortfolioResource extends AbstractDataResource {
+public class DataPortfolioResource extends AbstractDocumentDataResource<ManageablePortfolio, PortfolioDocument> {
 
   /**
    * The portfolios resource.
@@ -45,8 +43,16 @@ public class DataPortfolioResource extends AbstractDataResource {
   private ObjectId _urlResourceId;
 
   /**
+   * Creates dummy resource for the purpose of url resolution.
+   *
+   */
+  DataPortfolioResource() {
+    _portfoliosResource = null;
+  }
+
+  /**
    * Creates the resource.
-   * 
+   *
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
@@ -58,9 +64,10 @@ public class DataPortfolioResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the portfolios resource.
-   * 
+   *
    * @return the portfolios resource, not null
    */
   public DataPortfolioMasterResource getPortfoliosResource() {
@@ -69,125 +76,77 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Gets the portfolio identifier from the URL.
-   * 
+   *
    * @return the unique identifier, not null
    */
-  public ObjectId getUrlPortfolioId() {
+  public ObjectId getUrlId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the portfolio master.
-   * 
+   *
    * @return the portfolio master, not null
    */
-  public PortfolioMaster getPortfolioMaster() {
+  public PortfolioMaster getMaster() {
     return getPortfoliosResource().getPortfolioMaster();
   }
 
-  //-------------------------------------------------------------------------
-  @GET
-  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId(), vc);
-    return responseOkFudge(result);
-  }
-
-  @POST
-  public Response update(@Context UriInfo uriInfo, PortfolioDocument request) {
-    if (getUrlPortfolioId().equals(request.getUniqueId().getObjectId()) == false) {
-      throw new IllegalArgumentException("Document objectId does not match URI");
-    }
-    PortfolioDocument result = getPortfolioMaster().update(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
-  }
-
-  @DELETE
-  public void remove() {
-    getPortfolioMaster().remove(getUrlPortfolioId().atLatestVersion());
-  }
-
-  //-------------------------------------------------------------------------
   @GET
   @Path("versions")
   public Response history(@Context UriInfo uriInfo) {
     PortfolioHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, PortfolioHistoryRequest.class);
-    if (getUrlPortfolioId().equals(request.getObjectId()) == false) {
+    if (getUrlId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    PortfolioHistoryResult result = getPortfolioMaster().history(request);
+    PortfolioHistoryResult result = getMaster().history(request);
     return responseOkFudge(result);
+  }
+
+  @GET
+  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
+    return super.get(versionAsOf, correctedTo);
+  }
+
+  @POST
+  public Response update(@Context UriInfo uriInfo, PortfolioDocument request) {
+    return super.update(uriInfo, request);
+  }
+
+  @DELETE
+  public void remove() {
+    super.remove();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    UniqueId uniqueId = getUrlPortfolioId().atVersion(versionId);
-    PortfolioDocument result = getPortfolioMaster().get(uniqueId);
-    return responseOkFudge(result);
+    return super.getVersioned(versionId);
   }
 
-  @POST
+
+  @PUT
   @Path("versions/{versionId}")
-  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, PortfolioDocument request) {
-    UniqueId uniqueId = getUrlPortfolioId().atVersion(versionId);
-    if (uniqueId.equals(request.getUniqueId()) == false) {
-      throw new IllegalArgumentException("Document uniqueId does not match URI");
-    }
-    PortfolioDocument result = getPortfolioMaster().correct(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
+  public Response replaceVersion(@PathParam("versionId") String versionId, List<PortfolioDocument> replacementDocuments) {
+    return super.replaceVersion(versionId, replacementDocuments);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Builds a URI for the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param objectId  the object identifier, not null
-   * @param vc  the version-correction locator, null for latest
-   * @return the URI, not null
-   */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
-    if (vc != null) {
-      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
-      bld.queryParam("correctedTo", vc.getCorrectedToString());
-    }
-    return bld.build(objectId.getObjectId());
+  @PUT
+  public Response replaceVersions(List<PortfolioDocument> replacementDocuments) {
+    return super.replaceVersions(replacementDocuments);
   }
 
-  /**
-   * Builds a URI for the versions of the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param objectId  the object identifier, not null
-   * @param request  the request, may be null
-   * @return the URI, not null
-   */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, PortfolioHistoryRequest request) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions");
-    if (request != null) {
-      RestUtils.encodeQueryParams(bld, request);
-    }
-    return bld.build(objectId.getObjectId());
+  @PUT
+  @Path("all")
+  public Response replaceAllVersions(List<PortfolioDocument> replacementDocuments) {
+    return super.replaceAllVersions(replacementDocuments);
   }
 
-  /**
-   * Builds a URI for a specific version of the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the unique identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    if (uniqueId.isLatest()) {
-      return uri(baseUri, uniqueId, null);
-    }
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}");
-    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
+  @Override
+  protected String getResourceName() {
+    return "portfolios";
   }
 
 }

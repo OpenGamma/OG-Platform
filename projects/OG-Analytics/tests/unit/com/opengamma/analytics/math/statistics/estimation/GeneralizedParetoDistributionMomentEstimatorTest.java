@@ -14,8 +14,6 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.GeneralizedParetoDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.analytics.math.statistics.estimation.DistributionParameterEstimator;
-import com.opengamma.analytics.math.statistics.estimation.GeneralizedParetoDistributionMomentEstimator;
 
 /**
  * 

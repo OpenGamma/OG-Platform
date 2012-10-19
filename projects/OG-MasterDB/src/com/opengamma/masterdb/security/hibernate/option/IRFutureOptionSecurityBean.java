@@ -29,7 +29,7 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
- * A bean representation of a {@link IRFutureOptionSecurity}.
+ * A Hibernate bean representation of {@link IRFutureOptionSecurity}.
  */
 @BeanDefinition
 public class IRFutureOptionSecurityBean extends SecurityBean {

@@ -15,7 +15,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
 
 /**
  *

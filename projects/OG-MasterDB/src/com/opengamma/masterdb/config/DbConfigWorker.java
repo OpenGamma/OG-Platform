@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -32,6 +33,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -52,7 +55,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * 
  */
-/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigDocument<?>> {
+/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigItem<?>, ConfigDocument> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigWorker.class);
@@ -88,30 +91,30 @@ import com.opengamma.util.paging.PagingRequest;
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<?> get(UniqueId uniqueId) {
+  public ConfigDocument get(UniqueId uniqueId) {
     return doGet(uniqueId, new ConfigDocumentExtractor(), "Config");
   }
 
   @Override
-  public ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     return doGetByOidInstants(objectId, versionCorrection, new ConfigDocumentExtractor(), "Config");
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  protected void mergeNonUpdatedFields(ConfigDocument<?> newDocument, ConfigDocument<?> oldDocument) {
-    if (newDocument.getValue() == null) {
+  protected void mergeNonUpdatedFields(ConfigDocument newDocument, ConfigDocument oldDocument) {
+    if (newDocument.getObject() == null) {
       ConfigDocument hackGenerics = newDocument;
-      hackGenerics.setValue(oldDocument.getValue());
+      hackGenerics.setObject(oldDocument.getObject());
     }
   }
 
   @Override
-  protected ConfigDocument<?> insert(ConfigDocument<?> document) {
+  protected ConfigDocument insert(ConfigDocument document) {
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getValue(), "document.value");
+    ArgumentChecker.notNull(document.getObject(), "document.value");
     
-    final Object value = document.getValue();
+    final Object value = document.getObject().getValue();
     final long docId = nextId("cfg_config_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId
@@ -143,7 +146,7 @@ import com.opengamma.util.paging.PagingRequest;
   }
 
   //-------------------------------------------------------------------------
-  protected ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
+  public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     ConfigMetaDataResult result = new ConfigMetaDataResult();
     if (request.isConfigTypes()) {
@@ -162,7 +165,7 @@ import com.opengamma.util.paging.PagingRequest;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  protected <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
+  public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
@@ -203,11 +206,11 @@ import com.opengamma.util.paging.PagingRequest;
     
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
-    if (request.getPagingRequest().equals(PagingRequest.ALL)) {
-      List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
-      for (ConfigDocument<?> configDocument : queryResult) {
-        if (request.getType().isInstance(configDocument.getValue())) {
-          result.getDocuments().add((ConfigDocument<T>) configDocument);
+    if (request.equals(PagingRequest.ALL)) {
+      List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
+      for (ConfigDocument configDocument : queryResult) {
+        if (request.getType().isInstance(configDocument.getObject().getValue())) {
+          result.getDocuments().add(configDocument);
         }
       }
       result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
@@ -215,10 +218,10 @@ import com.opengamma.util.paging.PagingRequest;
       final int count = namedJdbc.queryForInt(sql[1], args);
       result.setPaging(Paging.of(request.getPagingRequest(), count));
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
-        List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
-        for (ConfigDocument<?> configDocument : queryResult) {
-          if (request.getType().isInstance(configDocument.getValue())) {
-            result.getDocuments().add((ConfigDocument<T>) configDocument);
+        List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
+        for (ConfigDocument configDocument : queryResult) {
+          if (request.getType().isInstance(configDocument.getObject().getValue())) {
+            result.getDocuments().add(configDocument);
           }
         }
       }
@@ -228,9 +231,9 @@ import com.opengamma.util.paging.PagingRequest;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  protected <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
+  public <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getType(), "request.type");
+    //ArgumentChecker.notNull(request.getType(), "request.type");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     checkScheme(request.getObjectId());
     s_logger.debug("history {}", request);
@@ -242,10 +245,10 @@ import com.opengamma.util.paging.PagingRequest;
     
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
-      List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
-      for (ConfigDocument<?> configDocument : queryResult) {
-        if (request.getType().isInstance(configDocument.getValue())) {
-          result.getDocuments().add((ConfigDocument<T>) configDocument);
+      List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);
+      for (ConfigDocument configDocument : queryResult) {
+        if (request.getType() == null || request.getType().isInstance(configDocument.getObject().getValue())) {
+          result.getDocuments().add(configDocument);
         }
       }
       result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
@@ -253,10 +256,10 @@ import com.opengamma.util.paging.PagingRequest;
       final int count = namedJdbc.queryForInt(sql[1], args);
       result.setPaging(Paging.of(request.getPagingRequest(), count));
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
-        List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
-        for (ConfigDocument<?> configDocument : queryResult) {
-          if (request.getType().isInstance(configDocument.getValue())) {
-            result.getDocuments().add((ConfigDocument<T>) configDocument);
+        List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);
+        for (ConfigDocument configDocument : queryResult) {
+          if (request.getType() == null || request.getType().isInstance(configDocument.getObject().getValue())) {
+            result.getDocuments().add(configDocument);
           }
         }
       }
@@ -278,15 +281,15 @@ import com.opengamma.util.paging.PagingRequest;
 
   //-------------------------------------------------------------------------
   /**
-   * Mapper from SQL rows to a ConfigDocument<?>.
+   * Mapper from SQL rows to a ConfigDocument.
    */
-  private final class ConfigDocumentExtractor implements ResultSetExtractor<List<ConfigDocument<?>>> {
+  private final class ConfigDocumentExtractor implements ResultSetExtractor<List<ConfigDocument>> {
 
     private long _lastDocId = -1;
-    private List<ConfigDocument<?>> _documents = new ArrayList<ConfigDocument<?>>();
+    private List<ConfigDocument> _documents = new ArrayList<ConfigDocument>();
     
     @Override
-    public List<ConfigDocument<?>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public List<ConfigDocument> extractData(ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long docId = rs.getLong("DOC_ID");
         if (_lastDocId != docId) {
@@ -315,18 +318,30 @@ import com.opengamma.util.paging.PagingRequest;
       }
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
-      ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
+      ConfigItem item = ConfigItem.of(value);
+      item.setName(name);
+      ConfigDocument doc = new ConfigDocument(item);
       UniqueId uniqueId = createUniqueId(docOid, docId);
       doc.setUniqueId(uniqueId);
       IdUtils.setInto(value, uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
-      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setName(name);
-      doc.setValue(value);
+      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));     
       _documents.add(doc);
     }
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Override
+  public AbstractHistoryResult<ConfigDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {    
+    ConfigHistoryRequest historyRequest = new ConfigHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return (AbstractHistoryResult) history(historyRequest);
+  }
+  
 }

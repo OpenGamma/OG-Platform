@@ -22,7 +22,7 @@ import com.opengamma.masterdb.security.hibernate.OperationContext;
 import com.opengamma.util.money.Currency;
 
 /**
- * Bean/security conversion operations.
+ * Hibernate bean/security conversion operations.
  */
 public final class NonDeliverableFXForwardSecurityBeanOperation extends AbstractSecurityBeanOperation<NonDeliverableFXForwardSecurity, NonDeliverableFXForwardSecurityBean> {
 

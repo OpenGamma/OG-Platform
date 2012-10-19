@@ -39,7 +39,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
 
   /**
    * Creates an instance from a collection of documents.
-   * 
+   *
    * @param coll  the collection of documents to add, not null
    */
   public UserSearchResult(Collection<UserDocument> coll) {
@@ -49,14 +49,14 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
   //-------------------------------------------------------------------------
   /**
    * Gets the returned users from within the documents.
-   * 
+   *
    * @return the users, not null
    */
   public List<ManageableOGUser> getUsers() {
     List<ManageableOGUser> result = Lists.newArrayList();
     if (getDocuments() != null) {
       for (UserDocument doc : getDocuments()) {
-        result.add(doc.getUser());
+        result.add(doc.getObject());
       }
     }
     return result;
@@ -64,11 +64,11 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
 
   /**
    * Gets the first user, or null if no documents.
-   * 
+   *
    * @return the first user, null if none
    */
   public ManageableOGUser getFirstUser() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getUser() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
   }
 
   /**
@@ -76,7 +76,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
    * <p>
    * This throws an exception if more than 1 result is actually available.
    * Thus, this method implies an assumption about uniqueness of the queried user.
-   * 
+   *
    * @return the matching user, not null
    * @throws IllegalStateException if no user was found
    */
@@ -84,7 +84,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getUser();
+      return getDocuments().get(0).getObject();
     }
   }
 

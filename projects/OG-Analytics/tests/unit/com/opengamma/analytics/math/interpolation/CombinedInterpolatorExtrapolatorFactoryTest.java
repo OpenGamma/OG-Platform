@@ -11,13 +11,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
-
 /**
  * 
  */

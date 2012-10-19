@@ -12,6 +12,7 @@ import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,7 +36,7 @@ public class TestCalculationNode extends SimpleCalculationNode {
   }
 
   public TestCalculationNode() {
-    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new MockSecuritySource(),
+    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new InMemorySecuritySource(),
         new MockPositionSource()), new ViewProcessorQuerySender(
         new FudgeRequestSender() {
 

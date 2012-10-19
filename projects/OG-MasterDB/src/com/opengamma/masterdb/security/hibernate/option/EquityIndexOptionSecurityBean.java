@@ -29,7 +29,7 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
- * A bean representation of a {@link EquityIndexOptionSecurity}.
+ * A Hibernate bean representation of {@link EquityIndexOptionSecurity}.
  */
 @BeanDefinition
 public class EquityIndexOptionSecurityBean extends SecurityBean {

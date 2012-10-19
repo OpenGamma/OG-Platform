@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPresentValueFunction;
 
 /**
  * @deprecated Use the version of this function that does not refer to funding and forward curves

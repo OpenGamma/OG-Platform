@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
-import com.opengamma.analytics.math.function.special.LaguerrePolynomialFunction;
 import com.opengamma.util.tuple.Pair;
 
 /**

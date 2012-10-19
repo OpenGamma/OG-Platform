@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for function costs.

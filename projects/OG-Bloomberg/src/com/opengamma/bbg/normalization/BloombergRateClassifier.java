@@ -15,11 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergFXForwardScaleResolver;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;

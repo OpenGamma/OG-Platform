@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.money.Currency;
-
-import org.apache.commons.lang.ObjectUtils;
 
 /**
  * OG-Analytics derivative of the exchange traded Equity Index Option

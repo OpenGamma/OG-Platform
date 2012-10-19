@@ -9,10 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.regression.GeneralizedLeastSquaresRegression;
-import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-
 public class GeneralizedLeastSquaresRegressionTest {
   private static final double EPS = 1e-9;
 

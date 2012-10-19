@@ -95,9 +95,9 @@ public class MasterHistoricalTimeSeriesSourceTest {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     doc.setUniqueId(UID);
     
-    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getInfo()));
+    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getObject()));
     
-    doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
+    doc.getObject().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
     when(_mockMaster.search(request)).thenReturn(searchResult);
     
@@ -143,10 +143,10 @@ public class MasterHistoricalTimeSeriesSourceTest {
     HistoricalTimeSeriesInfoSearchResult searchResult = new HistoricalTimeSeriesInfoSearchResult();
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     doc.setUniqueId(UID);
-    doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
+    doc.getObject().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
     
-    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getInfo()));
+    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getObject()));
     
     for (boolean includeStart : new boolean[] {true, false})  {
       for (boolean includeEnd : new boolean[] {true, false}) {

@@ -66,7 +66,7 @@ public class MasterHolidaySourceTest {
     HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterHolidaySource test = new MasterHolidaySource(mock);
-    Holiday testResult = test.getHoliday(UID);
+    Holiday testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
     
     assertEquals(example(), testResult);
@@ -78,7 +78,7 @@ public class MasterHolidaySourceTest {
     HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
-    Holiday testResult = test.getHoliday(UID);
+    Holiday testResult = test.get(UID);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -91,7 +91,7 @@ public class MasterHolidaySourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     try {
-      test.getHoliday(UID);
+      test.get(UID);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -104,7 +104,7 @@ public class MasterHolidaySourceTest {
     HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
-    Holiday testResult = test.getHoliday(OID, VC);
+    Holiday testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -117,7 +117,7 @@ public class MasterHolidaySourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     try {
-      test.getHoliday(OID, VC);
+      test.get(OID, VC);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }

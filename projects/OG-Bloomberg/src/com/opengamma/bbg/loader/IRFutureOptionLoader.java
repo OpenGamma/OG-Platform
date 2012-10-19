@@ -5,17 +5,17 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_INTEREST_RATE_TYPE;
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_CURRENCY_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_INTEREST_RATE_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXERCISE_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXPIRE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_PUT_CALL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_STRIKE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;

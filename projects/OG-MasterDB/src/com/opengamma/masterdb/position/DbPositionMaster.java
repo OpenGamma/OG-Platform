@@ -43,6 +43,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -72,7 +74,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument> implements PositionMaster {
+public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePosition, PositionDocument> implements PositionMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);
@@ -205,12 +207,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   @Override
   protected PositionDocument insert(final PositionDocument document) {
-    ArgumentChecker.notNull(document.getPosition(), "document.position");
+    ArgumentChecker.notNull(document.getObject(), "document.position");
 
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
     final UniqueId positionUid = createUniqueId(positionOid, positionId);
-    final ManageablePosition position = document.getPosition();
+    final ManageablePosition position = document.getObject();
 
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
@@ -375,7 +377,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);
     }
-    return docs.get(0).getPosition().getTrades().get(0); // SQL loads desired trade as only trade
+    return docs.get(0).getObject().getTrades().get(0); // SQL loads desired trade as only trade
   }
 
   /**
@@ -395,7 +397,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);
     }
-    return docs.get(0).getPosition().getTrades().get(0); // SQL loads desired trade as only trade
+    return docs.get(0).getObject().getTrades().get(0); // SQL loads desired trade as only trade
   }
 
   //-------------------------------------------------------------------------
@@ -534,4 +536,14 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     }
   }
 
+  @Override
+  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

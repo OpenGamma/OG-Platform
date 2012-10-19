@@ -31,6 +31,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -59,7 +60,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument> implements ExchangeMaster {
+public class DbExchangeMaster extends AbstractDocumentDbMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMaster.class);
@@ -189,10 +190,10 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   @Override
   protected ExchangeDocument insert(final ExchangeDocument document) {
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableExchange exchange = document.getExchange();
+    final ManageableExchange exchange = document.getObject();
     final long docId = nextId("exg_exchange_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -273,9 +274,20 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setExchange(exchange);
+      doc.setObject(exchange);
       _documents.add(doc);
     }
   }
+  
+  public ExchangeHistoryResult historyByVersionsCorrections(AbstractHistoryRequest request){
+    ExchangeHistoryRequest exchangeHistoryRequest = new ExchangeHistoryRequest();
+    exchangeHistoryRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    exchangeHistoryRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    exchangeHistoryRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    exchangeHistoryRequest.setVersionsToInstant(request.getVersionsToInstant());
+    exchangeHistoryRequest.setObjectId(request.getObjectId());
+    return history(exchangeHistoryRequest);
+  }
 
+  
 }

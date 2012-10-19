@@ -32,7 +32,7 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getSecurity_nullUID() {
-    _secMaster.get(null);
+    _secMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

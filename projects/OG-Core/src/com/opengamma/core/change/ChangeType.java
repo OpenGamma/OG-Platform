@@ -18,16 +18,12 @@ public enum ChangeType {
    */
   ADDED,
   /**
-   * An entity was updated.
+   * An entity was changed.
    */
-  UPDATED,
+  CHANGED,
   /**
    * An entity was removed.
    */
   REMOVED,
-  /**
-   * An entity was corrected.
-   */
-  CORRECTED,
 
 }

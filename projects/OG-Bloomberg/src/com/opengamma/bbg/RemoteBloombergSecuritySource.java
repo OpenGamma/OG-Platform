@@ -96,7 +96,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle secKey) {
+  public Collection<Security> get(ExternalIdBundle secKey) {
     ArgumentChecker.notNull(secKey, "security key");
     RemoteSecurityMasterReceiver receiver = new RemoteSecurityMasterReceiver();
     s_logger.debug("sending getSecurities for {} to remote securityMaster", secKey);
@@ -118,12 +118,12 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }  
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    return getSecurities(bundle);
+  public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    return get(bundle);
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle secKey) {
+  public Security getSingle(ExternalIdBundle secKey) {
     ArgumentChecker.notNull(secKey, "security key");
     RemoteSecurityMasterReceiver receiver = new RemoteSecurityMasterReceiver();
     s_logger.debug("sending getSecurity for {} to remote securityMaster", secKey);
@@ -145,12 +145,12 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    return getSecurity(bundle);
+  public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    return getSingle(bundle);
   }
 
   @Override
-  public Security getSecurity(UniqueId uid) {
+  public Security get(UniqueId uid) {
     ArgumentChecker.notNull(uid, "unique identifier");
     RemoteSecurityMasterReceiver receiver = new RemoteSecurityMasterReceiver();
     s_logger.debug("sending getSecurity for {} to remote securityMaster", uid);
@@ -172,9 +172,9 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     // This is wrong
-    return getSecurity(objectId.atLatestVersion());
+    return get(objectId.atLatestVersion());
   }
 
   //-------------------------------------------------------------------------
@@ -262,7 +262,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
     throw new UnsupportedOperationException("Bulk loading of security not supported yet!");
   }
 

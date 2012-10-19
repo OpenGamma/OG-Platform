@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function2D;
-import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
-import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 
 /**
  * Tests related to the repeated one-dimensional integration to integrate 2-D functions.

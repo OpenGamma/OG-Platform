@@ -27,7 +27,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of a {@link FXDigitalOptionSecurity}.
+ * A Hibernate bean representation of {@link FXDigitalOptionSecurity}.
  */
 @BeanDefinition
 public class FXDigitalOptionSecurityBean extends SecurityBean {

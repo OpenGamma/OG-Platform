@@ -17,9 +17,6 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
-import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
-import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 
 /**
  * Tests the function exclusion group class.

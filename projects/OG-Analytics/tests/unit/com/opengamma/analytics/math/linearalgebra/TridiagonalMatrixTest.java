@@ -13,7 +13,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**

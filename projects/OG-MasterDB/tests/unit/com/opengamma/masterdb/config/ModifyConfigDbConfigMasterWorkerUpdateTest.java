@@ -17,6 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalId;
@@ -48,64 +49,64 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noConfigId() {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("Name");
-    doc.setValue(ExternalId.of("A", "B"));
-    _cfgMaster.update(doc);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("Name");
+    _cfgMaster.update(new ConfigDocument(item));
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("Name");
+    ConfigDocument doc = new ConfigDocument(item);
     doc.setUniqueId(uniqueId);
-    doc.setName("Name");
-    doc.setValue(ExternalId.of("A", "B"));
     _cfgMaster.update(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("Name");
+    ConfigDocument doc = new ConfigDocument(item);
     doc.setUniqueId(uniqueId);
-    doc.setName("Name");
-    doc.setValue(ExternalId.of("A", "B"));
     _cfgMaster.update(doc);
   }
 
   @Test
   public void test_update_getUpdateGet() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
-    
+
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> base = _cfgMaster.get(uniqueId, ExternalId.class);
-    ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);
-    input.setUniqueId(uniqueId);
+    ConfigDocument base = _cfgMaster.get(uniqueId);
+    ConfigItem<ExternalId> input = ConfigItem.of(ExternalId.of("A", "B"));
+
     input.setName("NewName");
-    input.setValue(ExternalId.of("A", "B"));
-    
-    ConfigDocument<ExternalId> updated = _cfgMaster.update(input);
+    ConfigDocument doc = new ConfigDocument(input);
+    doc.setUniqueId(uniqueId);
+
+    ConfigDocument updated = _cfgMaster.update(doc);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals("NewName", updated.getName());
-    assertEquals(ExternalId.of("A", "B"), updated.getValue());
-    
-    ConfigDocument<ExternalId> old = _cfgMaster.get(uniqueId, ExternalId.class);
+    assertEquals(ExternalId.of("A", "B"), updated.getObject().getValue());
+
+    ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getValue(), old.getValue());
-    
+    assertEquals(base.getObject().getValue(), old.getObject().getValue());
+
     ConfigHistoryRequest<ExternalId> search = new ConfigHistoryRequest<ExternalId>(base.getUniqueId(), null, now);
     search.setType(ExternalId.class);
-    
+
     ConfigHistoryResult<ExternalId> searchResult = _cfgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
@@ -113,44 +114,45 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
   @Test
   public void test_update_nameChangeNullValue() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
-    
+
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> base = _cfgMaster.get(uniqueId, ExternalId.class);
-    ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);
-    input.setUniqueId(uniqueId);
-    input.setName("NewName");
-    input.setValue(null);  // name change only
-    
-    ConfigDocument<ExternalId> updated = _cfgMaster.update(input);
+    ConfigDocument base = _cfgMaster.get(uniqueId);
+    //ConfigItem<ExternalId> input = ConfigItem.of(null);
+    ConfigDocument doc = new ConfigDocument(null);
+    //input.setName("NewName");
+    doc.setUniqueId(uniqueId);
+    doc.setName("NewName");
+
+    ConfigDocument updated = _cfgMaster.update(doc);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals("NewName", updated.getName());  // name changed
-    assertEquals(base.getValue(), updated.getValue());  // value unchanged
-    
-    ConfigDocument<ExternalId> old = _cfgMaster.get(uniqueId, ExternalId.class);
+    assertEquals(base.getObject().getValue(), updated.getObject().getValue());  // value unchanged
+
+    ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getValue(), old.getValue());
+    assertEquals(base.getObject().getValue(), old.getObject().getValue());
   }
 
   @Test
   public void test_update_rollback() {
     DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbConnector(), _cfgMaster.getUniqueIdScheme());
     w.setElSqlBundle(ElSqlBundle.of(new ElSqlConfig("TestRollback"), DbConfigMaster.class));
-    final ConfigDocument<ExternalId> base = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"), ExternalId.class);
+    final ConfigDocument base = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);
-    input.setUniqueId(uniqueId);
+    ConfigItem<ExternalId> input = ConfigItem.of(ExternalId.of("A", "B"));
+    ConfigDocument doc = new ConfigDocument(input);
+    doc.setUniqueId(uniqueId);
     input.setName("Name");
-    input.setValue(ExternalId.of("A", "B"));
     try {
-      w.update(input);
+      w.update(doc);
       Assert.fail();
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final ConfigDocument<ExternalId> test = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"), ExternalId.class);
-    
+    final ConfigDocument test = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"));
+
     assertEquals(base, test);
   }
 

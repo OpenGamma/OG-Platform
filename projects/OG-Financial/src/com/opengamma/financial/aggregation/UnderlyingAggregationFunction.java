@@ -41,7 +41,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private boolean _useAttributes;
   
   private ExternalScheme _preferredScheme;
-  private SecuritySource _secSource;;
+  private SecuritySource _secSource;
   private Comparator<Position> _comparator = new SimplePositionComparator();
   
   private static final String NOT_APPLICABLE = "N/A";
@@ -67,7 +67,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-      //Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      //Security underlying = _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       // we could use a historical time series source to look up the bundle at this point.
       String identifier = security.getUnderlyingId().getValue();
       return identifier != null ? identifier : NOT_APPLICABLE;
@@ -77,7 +77,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       if (underlying != null) {
         String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
         return identifier != null ? identifier : NOT_APPLICABLE;
@@ -91,7 +91,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityBarrierOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       if (underlying != null) {
         String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
         return identifier != null ? identifier : NOT_APPLICABLE;
@@ -165,7 +165,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _irFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      Security underlying = _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
       return identifier != null ? identifier : NOT_APPLICABLE;
     }
@@ -173,7 +173,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   private FinancialSecurityVisitor<String> _swaptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     public String visitSwaptionSecurity(SwaptionSecurity security) {
-      SwapSecurity underlying = (SwapSecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      SwapSecurity underlying = (SwapSecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       String name = underlying.getName();
       return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
     }    

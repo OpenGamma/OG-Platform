@@ -5,9 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
 
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 
 
 /**

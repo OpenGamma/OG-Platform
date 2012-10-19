@@ -24,7 +24,7 @@ import com.opengamma.masterdb.security.hibernate.OperationContext;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * A Hibernate helper.
  */
 public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecurityBeanOperation<EquityVarianceSwapSecurity, EquityVarianceSwapSecurityBean> {
 

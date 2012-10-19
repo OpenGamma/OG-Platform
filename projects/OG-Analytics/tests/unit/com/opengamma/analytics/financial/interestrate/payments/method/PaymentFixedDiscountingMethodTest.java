@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.interestrate.PresentValueParallelCurveS
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.financial.convention.calendar.Calendar;

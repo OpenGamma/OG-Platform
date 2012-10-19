@@ -28,6 +28,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserMaster;
@@ -43,7 +45,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * 
  */
-public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> implements UserMaster {
+public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, UserDocument> implements UserMaster {
   /** Logger. */
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMaster.class);
@@ -78,9 +80,9 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
 
   @Override
   protected UserDocument insert(UserDocument document) {
-    ArgumentChecker.notNull(document.getUser(), "document.user");
+    ArgumentChecker.notNull(document.getObject(), "document.user");
     
-    final ManageableOGUser user = document.getUser();
+    final ManageableOGUser user = document.getObject();
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -215,7 +217,7 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setUser(user);
+      doc.setObject(user);
       _documents.add(doc);
     }
   }
@@ -239,4 +241,14 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
     return new UserSearchResult(docs);
   }
 
+  @Override
+  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    UserHistoryRequest historyRequest = new UserHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
+  }
 }

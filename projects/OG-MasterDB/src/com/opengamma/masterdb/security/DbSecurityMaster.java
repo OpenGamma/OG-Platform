@@ -33,6 +33,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -63,7 +65,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument> implements SecurityMaster {
+public class DbSecurityMaster extends AbstractDocumentDbMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);
@@ -250,8 +252,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   protected void loadDetail(final SecurityMasterDetailProvider detailProvider, final List<SecurityDocument> docs) {
     if (detailProvider != null) {
       for (SecurityDocument doc : docs) {
-        if (!(doc.getSecurity() instanceof RawSecurity)) {
-          doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));
+        if (!(doc.getObject() instanceof RawSecurity)) {
+          doc.setObject(detailProvider.loadSecurityDetail(doc.getObject()));
         }
       }
     }
@@ -266,7 +268,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    */
   @Override
   protected SecurityDocument insert(final SecurityDocument document) {
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getObject(), "document.security");
     
     final long docId = nextId("sec_security_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
@@ -278,11 +280,11 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getSecurity().getName())
-      .addValue("sec_type", document.getSecurity().getSecurityType());
-    if (document.getSecurity() instanceof RawSecurity) {
+      .addValue("name", document.getObject().getName())
+      .addValue("sec_type", document.getObject().getSecurityType());
+    if (document.getObject() instanceof RawSecurity) {
       docArgs.addValue("detail_type", "R");
-    } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
+    } else if (document.getObject().getClass() == ManageableSecurity.class) {
       docArgs.addValue("detail_type", "M");
     } else {
       docArgs.addValue("detail_type", "D");
@@ -291,7 +293,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
-    for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
+    for (ExternalId id : document.getObject().getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
@@ -315,21 +317,21 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uniqueId
     final UniqueId uniqueId = createUniqueId(docOid, docId);
-    document.getSecurity().setUniqueId(uniqueId);
+    document.getObject().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     
     // store the detail
-    if (document.getSecurity() instanceof RawSecurity) {
-      storeRawSecurityDetail((RawSecurity) document.getSecurity());
+    if (document.getObject() instanceof RawSecurity) {
+      storeRawSecurityDetail((RawSecurity) document.getObject());
     } else {
       final SecurityMasterDetailProvider detailProvider = getDetailProvider();
       if (detailProvider != null) {
-        detailProvider.storeSecurityDetail(document.getSecurity());
+        detailProvider.storeSecurityDetail(document.getObject());
       }
     }
     
     // store attributes
-    Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
+    Map<String, String> attributes = new HashMap<String, String>(document.getObject().getAttributes());
     final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
     for (Map.Entry<String, String> entry : attributes.entrySet()) {
       final long securityAttrId = nextId("sec_security_attr_seq");
@@ -416,4 +418,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
   }
 
+  @Override
+  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

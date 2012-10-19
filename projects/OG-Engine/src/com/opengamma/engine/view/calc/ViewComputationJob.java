@@ -691,14 +691,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
     _viewDefinitionChangeListener = new ViewDefinitionChangeListener(this, getViewProcess().getDefinitionId());
-    getProcessContext().getViewDefinitionRepository().changeManager().addChangeListener(_viewDefinitionChangeListener);
+    getProcessContext().getConfigSource().changeManager().addChangeListener(_viewDefinitionChangeListener);
   }
 
   private void unsubscribeFromViewDefinition() {
     if (_viewDefinitionChangeListener == null) {
       return;
     }
-    getProcessContext().getViewDefinitionRepository().changeManager().removeChangeListener(_viewDefinitionChangeListener);
+    getProcessContext().getConfigSource().changeManager().removeChangeListener(_viewDefinitionChangeListener);
     _viewDefinitionChangeListener = null;
   }
 

@@ -11,10 +11,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 

@@ -106,7 +106,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
       return false;
     }
     final MarketDataSnapshotDocument document = (MarketDataSnapshotDocument) obj;
-    final ManageableMarketDataSnapshot marketDataSnapshot = document.getSnapshot();
+    final ManageableMarketDataSnapshot marketDataSnapshot = document.getObject();
     if (getSnapshotIds() != null && getSnapshotIds().contains(document.getObjectId()) == false) {
       return false;
     }

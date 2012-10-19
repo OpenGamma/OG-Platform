@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Pricing method for vanilla Equity Index Option transactions with Black function.

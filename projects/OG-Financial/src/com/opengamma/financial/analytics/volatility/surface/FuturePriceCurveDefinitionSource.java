@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.Instant;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -14,5 +14,5 @@ public interface FuturePriceCurveDefinitionSource {
 
   FuturePriceCurveDefinition<?> getDefinition(String name, String instrumentType);
 
-  FuturePriceCurveDefinition<?> getDefinition(String name, String instrumentType, Instant version);
+  FuturePriceCurveDefinition<?> getDefinition(String name, String instrumentType, VersionCorrection versionCorrection);
 }

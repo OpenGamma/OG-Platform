@@ -18,7 +18,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface PositionMaster extends AbstractMaster<PositionDocument>, ChangeProvider {
+public interface PositionMaster extends AbstractMaster<ManageablePosition, PositionDocument>, ChangeProvider {
 
   /**
    * Searches for positions matching the specified search criteria.

@@ -15,9 +15,6 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
-import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValues;
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 
 /**
  * 

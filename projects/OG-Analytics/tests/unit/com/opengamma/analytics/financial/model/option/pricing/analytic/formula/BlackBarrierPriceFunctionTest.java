@@ -8,6 +8,10 @@ package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
@@ -23,10 +27,6 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 public class BlackBarrierPriceFunctionTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 1);

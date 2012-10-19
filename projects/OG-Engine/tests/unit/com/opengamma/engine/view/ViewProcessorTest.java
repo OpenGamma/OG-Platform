@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,6 +33,7 @@ import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;

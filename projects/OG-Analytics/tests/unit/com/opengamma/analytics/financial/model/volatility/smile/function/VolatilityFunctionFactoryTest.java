@@ -10,9 +10,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.smile.function.SVIVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
-
 /**
  * 
  */

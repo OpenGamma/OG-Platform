@@ -109,13 +109,8 @@ public class EHCachingPositionSource implements PositionSource {
     _changeListener = new ChangeListener() {
       @Override
       public void entityChanged(ChangeEvent event) {
-        if (event.getBeforeId() != null) {
-          cleanCaches(event.getBeforeId());
-        }
-        if (event.getAfterId() != null) {
-          cleanCaches(event.getAfterId());
-        }
-        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
+        cleanCaches(event.getObjectId());        
+        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());
       }
     };
     underlying.changeManager().addChangeListener(_changeListener);
@@ -294,14 +289,12 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  private void cleanCaches(UniqueId id) {
-    // Only care where the unversioned ID has been cached since it now represents something else
-    UniqueId latestId = id.toLatest();
-    _portfolioNodeCache.remove(latestId);
-    _portfolioCache.remove(latestId);
-    _positionCache.remove(latestId);
-    _tradeCache.remove(latestId);
-    _frontCache.remove(latestId);
+  private void cleanCaches(ObjectId oid) {    
+    _portfolioNodeCache.remove(oid);
+    _portfolioCache.remove(oid);
+    _positionCache.remove(oid);
+    _tradeCache.remove(oid);
+    _frontCache.remove(oid);
   }
 
   //-------------------------------------------------------------------------

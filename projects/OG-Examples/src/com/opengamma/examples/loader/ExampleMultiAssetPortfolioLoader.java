@@ -88,7 +88,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);
     ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME, rootNode);
     PortfolioDocument portfolioDoc = new PortfolioDocument();
-    portfolioDoc.setPortfolio(portfolio);
+    portfolioDoc.setObject(portfolio);
     addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
     addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
     addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
@@ -102,7 +102,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   private void storeFinancialSecurity(final FinancialSecurity security) {
     SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     SecurityDocument toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(security);
+    toAddDoc.setObject(security);
     securityMaster.add(toAddDoc);
   }
 

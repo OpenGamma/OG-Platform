@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -78,7 +78,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected SecurityLoader _secLoader;
   protected HistoricalTimeSeriesSource _htsSource;
   protected WebPositionsResource _webPositionsResource;
-  protected MockSecuritySource _securitySource;
+  protected InMemorySecuritySource _securitySource;
   protected PositionMaster _positionMaster;
   protected List<ManageableTrade> _trades;
   protected UriInfo _uriInfo;
@@ -93,7 +93,7 @@ public abstract class AbstractWebPositionResourceTestCase {
     InMemoryHistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesResolver htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
     _htsSource = new MasterHistoricalTimeSeriesSource(htsMaster, htsResolver);
-    _securitySource = new MockSecuritySource();
+    _securitySource = new InMemorySecuritySource();
     _secLoader = new SecurityLoader() {
       
       @Override
@@ -143,7 +143,7 @@ public abstract class AbstractWebPositionResourceTestCase {
 
   protected void populateSecMaster() {
     SecurityDocument added = _secMaster.add(new SecurityDocument(EQUITY_SECURITY));
-    _securitySource.addSecurity(added.getSecurity());
+    _securitySource.addSecurity(added.getObject());
   }
   
   protected void populatePositionMaster() {
@@ -166,7 +166,7 @@ public abstract class AbstractWebPositionResourceTestCase {
     List<PositionDocument> docs = searchResult.getDocuments();
     assertNotNull(docs);
     assertEquals(1, docs.size());
-    ManageablePosition position = docs.get(0).getPosition();
+    ManageablePosition position = docs.get(0).getObject();
     assertEquals(BigDecimal.TEN, position.getQuantity());
     assertEquals(SECURITY_LINK, position.getSecurityLink());
     assertTrue(position.getTrades().isEmpty());
@@ -179,7 +179,7 @@ public abstract class AbstractWebPositionResourceTestCase {
     List<PositionDocument> docs = searchResult.getDocuments();
     assertNotNull(docs);
     assertEquals(1, docs.size());
-    ManageablePosition position = docs.get(0).getPosition();
+    ManageablePosition position = docs.get(0).getObject();
     assertEquals(BigDecimal.TEN, position.getQuantity());
     assertEquals(SECURITY_LINK, position.getSecurityLink());
     

@@ -47,7 +47,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
   public void test_correct_noPortfolioId() {
     ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(position);
+    doc.setObject(position);
     _prtMaster.correct(doc);
   }
 
@@ -83,7 +83,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
-    port.setRootNode(base.getPortfolio().getRootNode());
+    port.setRootNode(base.getObject().getRootNode());
     PortfolioDocument input = new PortfolioDocument(port);
     
     PortfolioDocument corrected = _prtMaster.correct(input);
@@ -93,7 +93,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals(_version2Instant, corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getPortfolio(), corrected.getPortfolio());
+    assertEquals(input.getObject(), corrected.getObject());
     
     PortfolioDocument old = _prtMaster.get(oldPortfolioId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -101,8 +101,8 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals(_version2Instant, old.getVersionToInstant());  // old version ended
     assertEquals(_version1Instant, old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());
-    assertEquals("TestPortfolio201", old.getPortfolio().getName());
-    assertEquals("TestNode211", old.getPortfolio().getRootNode().getName());
+    assertEquals("TestPortfolio201", old.getObject().getName());
+    assertEquals("TestNode211", old.getObject().getRootNode().getName());
     
     PortfolioDocument newer = _prtMaster.get(corrected.getUniqueId());
     assertEquals(corrected.getUniqueId(), newer.getUniqueId());
@@ -110,12 +110,12 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals(_version2Instant, newer.getVersionToInstant());
     assertEquals(now, newer.getCorrectionFromInstant());
     assertEquals(null, newer.getCorrectionToInstant());
-    assertEquals("NewName", newer.getPortfolio().getName());
-    assertEquals("TestNode211", newer.getPortfolio().getRootNode().getName());
-    assertEquals(old.getPortfolio().getRootNode().getUniqueId().toLatest(),
-        newer.getPortfolio().getRootNode().getUniqueId().toLatest());
-    assertEquals(false, old.getPortfolio().getRootNode().getUniqueId().getVersion().equals(
-        newer.getPortfolio().getRootNode().getUniqueId().getVersion()));
+    assertEquals("NewName", newer.getObject().getName());
+    assertEquals("TestNode211", newer.getObject().getRootNode().getName());
+    assertEquals(old.getObject().getRootNode().getUniqueId().toLatest(),
+        newer.getObject().getRootNode().getUniqueId().toLatest());
+    assertEquals(false, old.getObject().getRootNode().getUniqueId().getVersion().equals(
+        newer.getObject().getRootNode().getUniqueId().getVersion()));
     
     PortfolioHistoryRequest search = new PortfolioHistoryRequest(base.getUniqueId(), _version1Instant.plusSeconds(5), null);
     PortfolioHistoryResult searchResult = _prtMaster.history(search);

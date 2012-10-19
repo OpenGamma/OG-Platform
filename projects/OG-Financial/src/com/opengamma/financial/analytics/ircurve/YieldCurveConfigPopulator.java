@@ -10,7 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -62,14 +62,13 @@ public class YieldCurveConfigPopulator {
       for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
         final Currency ccy = currencyEntry.getKey();
         final YieldCurveDefinition definition = currencyEntry.getValue();
-        final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-        document.setName(curveName + "_" + ccy.getCode());
-        document.setValue(definition);
-        ConfigMasterUtils.storeByName(configMaster, document);
+        final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
+        item.setName(curveName + "_" + ccy.getCode());
+        ConfigMasterUtils.storeByName(configMaster, item);
         dumpDefinition(definition);
       }
     }
-     
+
     if (syntheticOnly) {
       final Map<String, Map<Currency, YieldCurveDefinition>> newCurveDefinitions = CurveDefinitionAndSpecifications.buildNewCurveDefinitions();
       for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : newCurveDefinitions.entrySet()) {
@@ -78,10 +77,9 @@ public class YieldCurveConfigPopulator {
         for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
           final Currency ccy = currencyEntry.getKey();
           final YieldCurveDefinition definition = currencyEntry.getValue();
-          final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-          document.setName(curveName + "_" + ccy.getCode());
-          document.setValue(definition);
-          ConfigMasterUtils.storeByName(configMaster, document);
+          final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
+          item.setName(curveName + "_" + ccy.getCode());
+          ConfigMasterUtils.storeByName(configMaster, item);
           dumpDefinition(definition);
         }
       }
@@ -92,41 +90,35 @@ public class YieldCurveConfigPopulator {
         for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
           final Currency ccy = currencyEntry.getKey();
           final YieldCurveDefinition definition = currencyEntry.getValue();
-          final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(
-              YieldCurveDefinition.class);
-          document.setName(curveName + "_" + ccy.getCode());
-          document.setValue(definition);
-          ConfigMasterUtils.storeByName(configMaster, document);
+          final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
+          item.setName(curveName + "_" + ccy.getCode());
+          ConfigMasterUtils.storeByName(configMaster, item);
           dumpDefinition(definition);
         }
       }
       final Currency ccy = Currency.AUD;
       final YieldCurveDefinition audDiscounting = CurveDefinitionAndSpecifications.buildSecondaryDiscountingAUDCurveDefinition();
-      ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-      document.setName("Discounting_" + ccy.getCode());
-      document.setValue(audDiscounting);
-      ConfigMasterUtils.storeByName(configMaster, document);
+      ConfigItem<YieldCurveDefinition> item = ConfigItem.of(audDiscounting);
+      item.setName("Discounting_" + ccy.getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
       dumpDefinition(audDiscounting);
-      
+
       final YieldCurveDefinition audForwardBasis3M = CurveDefinitionAndSpecifications.buildSecondaryForward3MBasisAUDCurveDefinition();
-      document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-      document.setName("ForwardBasis3M_" + ccy.getCode());
-      document.setValue(audForwardBasis3M);
-      ConfigMasterUtils.storeByName(configMaster, document);
+      item = ConfigItem.of(audForwardBasis3M);
+      item.setName("ForwardBasis3M_" + ccy.getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
       dumpDefinition(audForwardBasis3M);
-      
+
       final YieldCurveDefinition audForwardBasis6M = CurveDefinitionAndSpecifications.buildSecondaryForward6MBasisAUDCurveDefinition();
-      document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-      document.setName("ForwardBasis6M_" + ccy.getCode());
-      document.setValue(audForwardBasis6M);
-      ConfigMasterUtils.storeByName(configMaster, document);
+      item = ConfigItem.of(audForwardBasis6M);
+      item.setName("ForwardBasis6M_" + ccy.getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
       dumpDefinition(audForwardBasis6M);
-      
+
       final YieldCurveDefinition audSingle = CurveDefinitionAndSpecifications.buildSecondarySingleAUDCurveDefinition();
-      document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-      document.setName("Single_" + ccy.getCode());
-      document.setValue(audSingle);
-      ConfigMasterUtils.storeByName(configMaster, document);
+      item = ConfigItem.of(audSingle);
+      item.setName("Single_" + ccy.getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
       dumpDefinition(audSingle);
     }
   }
@@ -134,34 +126,28 @@ public class YieldCurveConfigPopulator {
   public static void populateCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {
     final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
     for (final Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
-      final ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(
-          CurveSpecificationBuilderConfiguration.class);
-      doc.setName("DEFAULT_" + entry.getKey().getCode());
-      doc.setValue(entry.getValue());
-      ConfigMasterUtils.storeByName(configMaster, doc);
+      final ConfigItem<CurveSpecificationBuilderConfiguration> item = ConfigItem.of(entry.getValue());
+      item.setName("DEFAULT_" + entry.getKey().getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
     }
   }
 
   public static void populateSyntheticCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {
     final Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = CurveDefinitionAndSpecifications.buildSyntheticCurveSpecificationBuilderConfigurations();
     for (final Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : syntheticConfigurations.entrySet()) {
-      final ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(
-          CurveSpecificationBuilderConfiguration.class);
-      doc.setName("SECONDARY_" + entry.getKey().getCode());
-      doc.setValue(entry.getValue());
-      ConfigMasterUtils.storeByName(configMaster, doc);
+      final ConfigItem<CurveSpecificationBuilderConfiguration> item = ConfigItem.of(entry.getValue());
+      item.setName("SECONDARY_" + entry.getKey().getCode());
+      ConfigMasterUtils.storeByName(configMaster, item);
     }
     final Currency ccy = Currency.AUD;
     final CurveSpecificationBuilderConfiguration audCurveSpec3M = CurveDefinitionAndSpecifications.buildSyntheticAUD3MCurveSpecification();
     final CurveSpecificationBuilderConfiguration audCurveSpec6M = CurveDefinitionAndSpecifications.buildSyntheticAUD6MCurveSpecification();
-    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
-    doc.setName("SECONDARY_3M_" + ccy.getCode());
-    doc.setValue(audCurveSpec3M);
-    ConfigMasterUtils.storeByName(configMaster, doc);
-    doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
-    doc.setName("SECONDARY_6M_" + ccy.getCode());
-    doc.setValue(audCurveSpec6M);
-    ConfigMasterUtils.storeByName(configMaster, doc);
+    ConfigItem<CurveSpecificationBuilderConfiguration> item = ConfigItem.of(audCurveSpec3M);
+    item.setName("SECONDARY_3M_" + ccy.getCode());
+    ConfigMasterUtils.storeByName(configMaster, item);
+    item = ConfigItem.of(audCurveSpec6M);
+    item.setName("SECONDARY_6M_" + ccy.getCode());
+    ConfigMasterUtils.storeByName(configMaster, item);
   }
 
 }

@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -39,26 +39,29 @@ public class ChangeEvent extends DirectBean implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The type of change that occurred.
+   * The type of change that occurred, not null.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ChangeType _type;
   /**
-   * The unique identifier of the entity after the change.
-   * It will be null when the entity was added.
+   * The begining of a timespan of the change of the entity, not null.
    */
   @PropertyDefinition
-  private UniqueId _beforeId;
+  private Instant _versionFrom;
   /**
-   * The unique identifier of the entity after the change.
-   * It will be null when the entity was removed.
+   * The end of a timespan of the change of the entity, not null.
    */
   @PropertyDefinition
-  private UniqueId _afterId;
+  private Instant _versionTo;
+  /**
+   * The object id of the entity, not null.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ObjectId _objectId;
   /**
    * The instant at which the change is recorded as happening, not null.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private Instant _versionInstant;
 
   /**
@@ -71,17 +74,19 @@ public class ChangeEvent extends DirectBean implements Serializable {
    * Creates an instance.
    * 
    * @param type  the type of change, not null
-   * @param beforeId  the unique identifier of the entity before the change, may be null
-   * @param afterId  the unique identifier of the entity after the change, may be null
+   * @param oid  the object id of the entity, not null
+   * @param versionFrom  the begining of a timespan of the change of the entity, not null
+   * @param versionTo  the end of a timespan of the change of the entity, may be null
    * @param versionInstant  the instant at which the change is recorded as happening, not null
    */
-  public ChangeEvent(final ChangeType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant) {
+  public ChangeEvent(final ChangeType type, final ObjectId oid, final Instant versionFrom, final Instant versionTo, final Instant versionInstant) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.isTrue(beforeId != null || afterId != null, "At least one id must be specified");
+    ArgumentChecker.notNull(oid, "oid");    
     ArgumentChecker.notNull(versionInstant, "versionInstant");
     setType(type);
-    setBeforeId(beforeId);
-    setAfterId(afterId);
+    setObjectId(oid);
+    setVersionFrom(versionFrom);
+    setVersionTo(versionTo);
     setVersionInstant(versionInstant);
   }
 
@@ -108,10 +113,12 @@ public class ChangeEvent extends DirectBean implements Serializable {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         return getType();
-      case 1466459386:  // beforeId
-        return getBeforeId();
-      case -1076033513:  // afterId
-        return getAfterId();
+      case 688684194:  // versionFrom
+        return getVersionFrom();
+      case -1407102605:  // versionTo
+        return getVersionTo();
+      case 90495162:  // objectId
+        return getObjectId();
       case 2084044265:  // versionInstant
         return getVersionInstant();
     }
@@ -124,17 +131,28 @@ public class ChangeEvent extends DirectBean implements Serializable {
       case 3575610:  // type
         setType((ChangeType) newValue);
         return;
-      case 1466459386:  // beforeId
-        setBeforeId((UniqueId) newValue);
+      case 688684194:  // versionFrom
+        setVersionFrom((Instant) newValue);
         return;
-      case -1076033513:  // afterId
-        setAfterId((UniqueId) newValue);
+      case -1407102605:  // versionTo
+        setVersionTo((Instant) newValue);
+        return;
+      case 90495162:  // objectId
+        setObjectId((ObjectId) newValue);
         return;
       case 2084044265:  // versionInstant
         setVersionInstant((Instant) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_type, "type");
+    JodaBeanUtils.notNull(_objectId, "objectId");
+    JodaBeanUtils.notNull(_versionInstant, "versionInstant");
+    super.validate();
   }
 
   @Override
@@ -145,8 +163,9 @@ public class ChangeEvent extends DirectBean implements Serializable {
     if (obj != null && obj.getClass() == this.getClass()) {
       ChangeEvent other = (ChangeEvent) obj;
       return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getBeforeId(), other.getBeforeId()) &&
-          JodaBeanUtils.equal(getAfterId(), other.getAfterId()) &&
+          JodaBeanUtils.equal(getVersionFrom(), other.getVersionFrom()) &&
+          JodaBeanUtils.equal(getVersionTo(), other.getVersionTo()) &&
+          JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
           JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant());
     }
     return false;
@@ -156,26 +175,28 @@ public class ChangeEvent extends DirectBean implements Serializable {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBeforeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAfterId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionFrom());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionTo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of change that occurred.
-   * @return the value of the property
+   * Gets the type of change that occurred, not null.
+   * @return the value of the property, not null
    */
   public ChangeType getType() {
     return _type;
   }
 
   /**
-   * Sets the type of change that occurred.
-   * @param type  the new value of the property
+   * Sets the type of change that occurred, not null.
+   * @param type  the new value of the property, not null
    */
   public void setType(ChangeType type) {
+    JodaBeanUtils.notNull(type, "type");
     this._type = type;
   }
 
@@ -189,64 +210,84 @@ public class ChangeEvent extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the entity after the change.
-   * It will be null when the entity was added.
+   * Gets the begining of a timespan of the change of the entity, not null.
    * @return the value of the property
    */
-  public UniqueId getBeforeId() {
-    return _beforeId;
+  public Instant getVersionFrom() {
+    return _versionFrom;
   }
 
   /**
-   * Sets the unique identifier of the entity after the change.
-   * It will be null when the entity was added.
-   * @param beforeId  the new value of the property
+   * Sets the begining of a timespan of the change of the entity, not null.
+   * @param versionFrom  the new value of the property
    */
-  public void setBeforeId(UniqueId beforeId) {
-    this._beforeId = beforeId;
+  public void setVersionFrom(Instant versionFrom) {
+    this._versionFrom = versionFrom;
   }
 
   /**
-   * Gets the the {@code beforeId} property.
-   * It will be null when the entity was added.
+   * Gets the the {@code versionFrom} property.
    * @return the property, not null
    */
-  public final Property<UniqueId> beforeId() {
-    return metaBean().beforeId().createProperty(this);
+  public final Property<Instant> versionFrom() {
+    return metaBean().versionFrom().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the entity after the change.
-   * It will be null when the entity was removed.
+   * Gets the end of a timespan of the change of the entity, not null.
    * @return the value of the property
    */
-  public UniqueId getAfterId() {
-    return _afterId;
+  public Instant getVersionTo() {
+    return _versionTo;
   }
 
   /**
-   * Sets the unique identifier of the entity after the change.
-   * It will be null when the entity was removed.
-   * @param afterId  the new value of the property
+   * Sets the end of a timespan of the change of the entity, not null.
+   * @param versionTo  the new value of the property
    */
-  public void setAfterId(UniqueId afterId) {
-    this._afterId = afterId;
+  public void setVersionTo(Instant versionTo) {
+    this._versionTo = versionTo;
   }
 
   /**
-   * Gets the the {@code afterId} property.
-   * It will be null when the entity was removed.
+   * Gets the the {@code versionTo} property.
    * @return the property, not null
    */
-  public final Property<UniqueId> afterId() {
-    return metaBean().afterId().createProperty(this);
+  public final Property<Instant> versionTo() {
+    return metaBean().versionTo().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the object id of the entity, not null.
+   * @return the value of the property, not null
+   */
+  public ObjectId getObjectId() {
+    return _objectId;
+  }
+
+  /**
+   * Sets the object id of the entity, not null.
+   * @param objectId  the new value of the property, not null
+   */
+  public void setObjectId(ObjectId objectId) {
+    JodaBeanUtils.notNull(objectId, "objectId");
+    this._objectId = objectId;
+  }
+
+  /**
+   * Gets the the {@code objectId} property.
+   * @return the property, not null
+   */
+  public final Property<ObjectId> objectId() {
+    return metaBean().objectId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the instant at which the change is recorded as happening, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Instant getVersionInstant() {
     return _versionInstant;
@@ -254,9 +295,10 @@ public class ChangeEvent extends DirectBean implements Serializable {
 
   /**
    * Sets the instant at which the change is recorded as happening, not null.
-   * @param versionInstant  the new value of the property
+   * @param versionInstant  the new value of the property, not null
    */
   public void setVersionInstant(Instant versionInstant) {
+    JodaBeanUtils.notNull(versionInstant, "versionInstant");
     this._versionInstant = versionInstant;
   }
 
@@ -284,15 +326,20 @@ public class ChangeEvent extends DirectBean implements Serializable {
     private final MetaProperty<ChangeType> _type = DirectMetaProperty.ofReadWrite(
         this, "type", ChangeEvent.class, ChangeType.class);
     /**
-     * The meta-property for the {@code beforeId} property.
+     * The meta-property for the {@code versionFrom} property.
      */
-    private final MetaProperty<UniqueId> _beforeId = DirectMetaProperty.ofReadWrite(
-        this, "beforeId", ChangeEvent.class, UniqueId.class);
+    private final MetaProperty<Instant> _versionFrom = DirectMetaProperty.ofReadWrite(
+        this, "versionFrom", ChangeEvent.class, Instant.class);
     /**
-     * The meta-property for the {@code afterId} property.
+     * The meta-property for the {@code versionTo} property.
      */
-    private final MetaProperty<UniqueId> _afterId = DirectMetaProperty.ofReadWrite(
-        this, "afterId", ChangeEvent.class, UniqueId.class);
+    private final MetaProperty<Instant> _versionTo = DirectMetaProperty.ofReadWrite(
+        this, "versionTo", ChangeEvent.class, Instant.class);
+    /**
+     * The meta-property for the {@code objectId} property.
+     */
+    private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
+        this, "objectId", ChangeEvent.class, ObjectId.class);
     /**
      * The meta-property for the {@code versionInstant} property.
      */
@@ -304,8 +351,9 @@ public class ChangeEvent extends DirectBean implements Serializable {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "type",
-        "beforeId",
-        "afterId",
+        "versionFrom",
+        "versionTo",
+        "objectId",
         "versionInstant");
 
     /**
@@ -319,10 +367,12 @@ public class ChangeEvent extends DirectBean implements Serializable {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           return _type;
-        case 1466459386:  // beforeId
-          return _beforeId;
-        case -1076033513:  // afterId
-          return _afterId;
+        case 688684194:  // versionFrom
+          return _versionFrom;
+        case -1407102605:  // versionTo
+          return _versionTo;
+        case 90495162:  // objectId
+          return _objectId;
         case 2084044265:  // versionInstant
           return _versionInstant;
       }
@@ -354,19 +404,27 @@ public class ChangeEvent extends DirectBean implements Serializable {
     }
 
     /**
-     * The meta-property for the {@code beforeId} property.
+     * The meta-property for the {@code versionFrom} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueId> beforeId() {
-      return _beforeId;
+    public final MetaProperty<Instant> versionFrom() {
+      return _versionFrom;
     }
 
     /**
-     * The meta-property for the {@code afterId} property.
+     * The meta-property for the {@code versionTo} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueId> afterId() {
-      return _afterId;
+    public final MetaProperty<Instant> versionTo() {
+      return _versionTo;
+    }
+
+    /**
+     * The meta-property for the {@code objectId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ObjectId> objectId() {
+      return _objectId;
     }
 
     /**

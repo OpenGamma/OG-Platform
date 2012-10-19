@@ -11,8 +11,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.maths.lowlevelapi.functions.utilities.Unique;
-
 /**
  * Tests the unique {@link Unique} functions.
  */

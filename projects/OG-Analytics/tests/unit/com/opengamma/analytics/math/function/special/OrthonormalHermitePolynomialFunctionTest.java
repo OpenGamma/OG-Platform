@@ -11,8 +11,6 @@ import org.apache.commons.math.util.MathUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
-import com.opengamma.analytics.math.function.special.HermitePolynomialFunction;
-import com.opengamma.analytics.math.function.special.OrthonormalHermitePolynomialFunction;
 
 /**
  * 

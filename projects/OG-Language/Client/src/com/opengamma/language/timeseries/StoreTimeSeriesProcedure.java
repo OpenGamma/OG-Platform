@@ -103,9 +103,9 @@ public class StoreTimeSeriesProcedure extends AbstractProcedureInvoker.SingleRes
     } else {
       document = documents.get(0);
     }
-    if (!name.equals(document.getInfo().getName())) {
+    if (!name.equals(document.getObject().getName())) {
       // Update the name
-      document.getInfo().setName(name);
+      document.getObject().setName(name);
       document = master.update(document);
     }
     return master.correctTimeSeriesDataPoints(document, timeSeries);

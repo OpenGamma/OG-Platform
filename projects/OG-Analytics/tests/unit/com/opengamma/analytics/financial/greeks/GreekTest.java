@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.greeks.Greek;
-import com.opengamma.analytics.financial.greeks.GreekVisitor;
-import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
-import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 
 /**

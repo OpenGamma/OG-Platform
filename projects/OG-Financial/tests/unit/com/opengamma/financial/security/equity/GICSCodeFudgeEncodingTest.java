@@ -12,7 +12,6 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
-import com.opengamma.financial.security.equity.GICSCode;
 
 /**
  * Test GICSCode Fudge support.

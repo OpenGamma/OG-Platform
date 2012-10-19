@@ -12,6 +12,7 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -26,8 +27,7 @@ import com.opengamma.util.tuple.Pair;
  * This class provides the source on top of a standard {@link MarketDataSnapshotMaster}.
  */
 @PublicSPI
-public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapshotDocument, MarketDataSnapshotMaster>
-    implements MarketDataSnapshotSource {
+public class MasterSnapshotSource extends AbstractMasterSource<StructuredMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotSource {
 
   /**
    * The listeners.
@@ -37,31 +37,22 @@ public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapsho
 
   /**
    * Creates an instance with an underlying master which does not override versions.
-   * 
+   *
    * @param master  the master, not null
    */
   public MasterSnapshotSource(final MarketDataSnapshotMaster master) {
     super(master);
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId) {
-    return getDocument(uniqueId).getSnapshot();
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public void addChangeListener(final UniqueId uniqueId, final MarketDataSnapshotChangeListener listener) {
     ChangeListener changeListener = new ChangeListener() {
       @Override
       public void entityChanged(ChangeEvent event) {
-        UniqueId changedId = event.getAfterId();
+        ObjectId changedId = event.getObjectId();
         if (changedId != null && changedId.getScheme().equals(uniqueId.getScheme()) && changedId.getValue().equals(uniqueId.getValue())) {
           //TODO This is over cautious in the case of corrections to non latest versions
-          if (uniqueId.getVersion() == null || changedId.getVersion().equals(uniqueId.getVersion())) {
-            listener.snapshotChanged(uniqueId);
-          }
+          listener.objectChanged(uniqueId.getObjectId());
         }
       }
     };
@@ -75,4 +66,6 @@ public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapsho
     getMaster().changeManager().removeChangeListener(changeListener);
   }
 
+
 }
+

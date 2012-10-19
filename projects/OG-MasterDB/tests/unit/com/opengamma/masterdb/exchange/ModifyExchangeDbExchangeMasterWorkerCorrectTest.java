@@ -95,7 +95,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getExchange(), corrected.getExchange());
+    assertEquals(input.getObject(), corrected.getObject());
     
     ExchangeDocument old = _exgMaster.get(UniqueId.of("DbExg", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -103,7 +103,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getExchange(), old.getExchange());
+    assertEquals(base.getObject(), old.getObject());
     
     ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), now, null);
     ExchangeHistoryResult searchResult = _exgMaster.history(search);

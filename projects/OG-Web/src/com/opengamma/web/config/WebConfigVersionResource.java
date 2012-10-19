@@ -61,8 +61,8 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    ConfigDocument<?> doc = data().getVersioned();
-    String jsonConfig = toJSON(doc.getValue());
+    ConfigDocument doc = data().getVersioned();
+    String jsonConfig = toJSON(doc.getObject().getValue());
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -93,12 +93,12 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ConfigDocument<?> latestDoc = data().getConfig();
-    ConfigDocument<?> versionedConfig = data().getVersioned();
+    ConfigDocument latestDoc = data().getConfig();
+    ConfigDocument versionedConfig = data().getVersioned();
     out.put("latestConfigDoc", latestDoc);
-    out.put("latestConfig", latestDoc.getValue());
+    out.put("latestConfig", latestDoc.getObject().getValue());
     out.put("configDoc", versionedConfig);
-    out.put("config", versionedConfig.getValue());
+    out.put("config", versionedConfig.getObject().getValue());
     out.put("configXml", createXML(versionedConfig));
     out.put("deleted", !latestDoc.isLatest());
     return out;

@@ -11,7 +11,7 @@ import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.UniqueIdBean;
 
 /**
- * A bean representation of a {@link Notional}.
+ * A Hibernate bean representation of {@link Notional}.
  */
 public class NotionalBean {
 

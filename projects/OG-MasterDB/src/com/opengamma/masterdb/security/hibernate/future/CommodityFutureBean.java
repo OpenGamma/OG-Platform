@@ -1,17 +1,22 @@
-package com.opengamma.masterdb.security.hibernate.future;
-
-import java.util.Map;
-
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
+ */
+package com.opengamma.masterdb.security.hibernate.future;
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.future.CommodityFutureSecurity;
+
+/**
+ * A Hibernate bean representation of {@link CommodityFutureSecurity}.
  */
 @BeanDefinition
 public abstract class CommodityFutureBean extends FutureSecurityBean {

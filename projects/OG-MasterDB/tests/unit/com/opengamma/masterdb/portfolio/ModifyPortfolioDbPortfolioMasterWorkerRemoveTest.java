@@ -55,7 +55,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getObject();
     assertNotNull(portfolio);
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestNode212", portfolio.getRootNode().getName());

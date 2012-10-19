@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.regression.LeastSquaresRegression;
-import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;

@@ -8,14 +8,13 @@ package com.opengamma.bloombergexample.tool;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.testng.annotations.Test;
 
 import com.opengamma.bloombergexample.DBTestUtils;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.component.tool.ToolContextUtils;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;

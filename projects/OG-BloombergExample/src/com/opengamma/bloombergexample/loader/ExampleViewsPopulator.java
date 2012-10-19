@@ -5,13 +5,13 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bloombergexample.tool.ExampleDatabasePopulator;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,8 +25,8 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -170,10 +170,8 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   }
 
   private void storeViewDefinition(ViewDefinition viewDefinition) {
-    ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
-    configDocument.setName(viewDefinition.getName());
-    configDocument.setValue(viewDefinition);
-    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), configDocument);
+    ConfigItem<ViewDefinition> configItem = ConfigItem.of(viewDefinition, viewDefinition.getName(), ViewDefinition.class);
+    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), configItem);
   }
 
 }

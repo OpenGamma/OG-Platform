@@ -11,7 +11,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.analytics.financial.model.volatility.local.ImpliedTreeResult;
 
 /**
  * 

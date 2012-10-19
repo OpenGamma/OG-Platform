@@ -216,7 +216,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   private UniqueId getSecurityUniqueId(ExternalIdBundle id) {
     UniqueId result = null;
-    Security security = data().getSecuritySource().getSecurity(id);
+    Security security = data().getSecuritySource().getSingle(id);
     if (security != null) {
       result = security.getUniqueId();
     } else {
@@ -232,7 +232,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   
   private URI addPosition(BigDecimal quantity, UniqueId secUid, Collection<ManageableTrade> trades) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
-    ExternalIdBundle secId = secDoc.getSecurity().getExternalIdBundle();
+    ExternalIdBundle secId = secDoc.getObject().getExternalIdBundle();
     ManageablePosition position = new ManageablePosition(quantity, secId);
     for (ManageableTrade trade : trades) {
       trade.setSecurityLink(new ManageableSecurityLink(secId));

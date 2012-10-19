@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -27,37 +28,26 @@ import com.opengamma.master.config.ConfigSearchSortOrder;
 @Test
 public class ConfigMasterIteratorTest {
 
-  private ConfigDocument<ExternalId> _doc1;
-  private ConfigDocument<ExternalId> _doc2;
-  private ConfigDocument<ExternalId> _doc3;
-  private ConfigDocument<ExternalId> _doc4;
+  private ConfigItem<ExternalId> _item1;
+  private ConfigItem<ExternalId> _item2;
+  private ConfigItem<ExternalId> _item3;
+  private ConfigItem<ExternalId> _item4;
 
   private ConfigMaster _configMaster;
 
+  @SuppressWarnings("unchecked")
   @BeforeMethod
   public void setUp() throws Exception {
-    ConfigDocument<ExternalId> doc1 = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc1.setName("Test1");
-    doc1.setValue(ExternalId.of("A", "B"));
-    _doc1 = doc1;
-    ConfigDocument<ExternalId> doc2 = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc2.setName("Test2");
-    doc2.setValue(ExternalId.of("C", "D"));
-    _doc2 = doc2;
-    ConfigDocument<ExternalId> doc3 = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc3.setName("Test3");
-    doc3.setValue(ExternalId.of("E", "F"));
-    _doc3 = doc3;
-    ConfigDocument<ExternalId> doc4 = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc4.setName("Test4");
-    doc4.setValue(ExternalId.of("G", "H"));
-    _doc4 = doc4;
+    _item1 = ConfigItem.of(ExternalId.of("A", "B"), "Test1");
+    _item2 = ConfigItem.of(ExternalId.of("C", "D"), "Test2");
+    _item3 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
+    _item4 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
     
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
-    _doc1 = configMaster.add(_doc1);
-    _doc2 = configMaster.add(_doc2);
-    _doc3 = configMaster.add(_doc3);
-    _doc4 = configMaster.add(_doc4);
+    _item1 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item1)).getObject();
+    _item2 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item2)).getObject();
+    _item3 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item3)).getObject();
+    _item4 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item4)).getObject();
     _configMaster = configMaster;
   }
 
@@ -85,22 +75,22 @@ public class ConfigMasterIteratorTest {
     ConfigMasterIterator<ExternalId> iterator = new ConfigMasterIterator<ExternalId>(_configMaster, request);
     assertEquals(true, iterator.hasNext());
     assertEquals(0, iterator.nextIndex());
-    assertEquals(_doc1, iterator.next());
+    assertEquals(_item1, iterator.next());
     assertEquals(1, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(1, iterator.nextIndex());
-    assertEquals(_doc2, iterator.next());
+    assertEquals(_item2, iterator.next());
     assertEquals(2, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(2, iterator.nextIndex());
-    assertEquals(_doc3, iterator.next());
+    assertEquals(_item3, iterator.next());
     assertEquals(3, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(3, iterator.nextIndex());
-    assertEquals(_doc4, iterator.next());
+    assertEquals(_item4, iterator.next());
     assertEquals(4, iterator.nextIndex());
     
     assertEquals(false, iterator.hasNext());

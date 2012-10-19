@@ -1,11 +1,16 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
+import java.io.PrintStream;
+
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-
-import java.io.PrintStream;
 
 // @export "classDefinition"
 public class MatrixExample {

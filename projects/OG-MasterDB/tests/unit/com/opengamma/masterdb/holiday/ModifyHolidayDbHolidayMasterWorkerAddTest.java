@@ -72,7 +72,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday testHoliday = test.getHoliday();
+    ManageableHoliday testHoliday = test.getObject();
     assertNotNull(testHoliday);
     assertEquals(uniqueId, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
@@ -102,7 +102,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday testHoliday = test.getHoliday();
+    ManageableHoliday testHoliday = test.getObject();
     assertNotNull(testHoliday);
     assertEquals(uniqueId, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
@@ -132,7 +132,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday testHoliday = test.getHoliday();
+    ManageableHoliday testHoliday = test.getObject();
     assertNotNull(testHoliday);
     assertEquals(uniqueId, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
@@ -162,7 +162,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday testHoliday = test.getHoliday();
+    ManageableHoliday testHoliday = test.getObject();
     assertNotNull(testHoliday);
     assertEquals(uniqueId, testHoliday.getUniqueId());
     assertEquals(name, test.getName());

@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.model.option.definition.EuropeanVanilla
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.TrinomialOptionModelDefinition;
-import com.opengamma.analytics.financial.model.option.pricing.tree.TrinomialOptionModel;
 import com.opengamma.analytics.financial.model.tree.RecombiningTrinomialTree;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;

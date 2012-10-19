@@ -7,6 +7,7 @@ package com.opengamma.master.config;
 
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -16,27 +17,27 @@ import com.opengamma.util.PublicSPI;
 public final class ConfigMasterUtils {
 
   /**
-   * Stores the document in the database ensuring a unique name.
+   * Stores the item in the database ensuring a unique name.
    * <p>
-   * This will read the current document with the specified name and
+   * This will read the current item with the specified name and
    * either add or update as necessary. Since the read and modify are two
    * separate steps, there is a race condition, thus this method is intended
    * for sensible setup purposes rather than ensuring uniqueness.
    * 
    * @param <T>  the configuration element type
    * @param master  the config master, not null
-   * @param document  the document to store, not null
+   * @param item  the item to store, not null
    * @return the updated result, not null
    */
-  public static <T> ConfigDocument<T> storeByName(final ConfigMaster master, final ConfigDocument<T> document) {
+  public static <T> ConfigItem<T> storeByName(final ConfigMaster master, final ConfigItem<T> item) {
 
     final int maxRetries = 10; //IGN-101 This is so high because the tests hammer this function with the same name
     int retries = 0;
 
-    if (document.getUniqueId() == null) {
+    if (item.getUniqueId() == null) {
       while (true) {
         try {
-          return storeByNameInner(master, document);
+          return storeByNameInner(master, item);
         } catch (IllegalArgumentException ex) {
           if (++retries == maxRetries) {
             throw ex;
@@ -47,31 +48,33 @@ public final class ConfigMasterUtils {
           }
         }
 
-        document.setUniqueId(null);
+        item.setUniqueId(null);
       }
     } else {
-      return storeByNameInner(master, document);
+      return storeByNameInner(master, item);
     }
   }
 
-  private static <T> ConfigDocument<T> storeByNameInner(final ConfigMaster master, final ConfigDocument<T> document) {
+  @SuppressWarnings("unchecked")
+  @Deprecated
+  private static <T> ConfigItem<T> storeByNameInner(final ConfigMaster master, final ConfigItem<T> item) {
     ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>();
-    searchRequest.setType(document.getType());
-    searchRequest.setName(document.getName());
+    searchRequest.setType(item.getType());
+    searchRequest.setName(item.getName());
     ConfigSearchResult<T> searchResult = master.search(searchRequest);
-    for (ConfigDocument<T> existingDoc : searchResult.getDocuments()) {
-      if (existingDoc.getValue().equals(document.getValue())) {
-        return existingDoc;
+    for (ConfigItem<T> existingItem : searchResult.getValues()) {
+      if (existingItem.getValue().equals(item.getValue())) {
+        return existingItem;
       }
     }
-    ConfigDocument<T> firstExistingDoc = searchResult.getFirstDocument();
-    if (firstExistingDoc == null) {
-      return master.add(document);
+    ConfigItem<T> firstExistingItem = searchResult.getFirstValue();
+    if (firstExistingItem == null) {
+      return (ConfigItem<T>) master.add(new ConfigDocument(item)).getObject();
     } else {
-      if (document.getUniqueId() == null) {
-        document.setUniqueId(firstExistingDoc.getUniqueId());
+      if (item.getUniqueId() == null) {
+        item.setUniqueId(firstExistingItem.getUniqueId());
       }
-      return master.update(document);
+      return (ConfigItem<T>) master.update(new ConfigDocument(item)).getObject();
     }
   }
 

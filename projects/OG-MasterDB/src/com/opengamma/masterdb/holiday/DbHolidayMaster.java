@@ -30,6 +30,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -60,7 +62,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> implements HolidayMaster {
+public class DbHolidayMaster extends AbstractDocumentDbMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);
@@ -219,13 +221,13 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    */
   @Override
   protected HolidayDocument insert(final HolidayDocument document) {
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
     final long docId = nextId("hol_holiday_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the holiday table
-    final ManageableHoliday holiday = document.getHoliday();
+    final ManageableHoliday holiday = document.getObject();
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
@@ -322,9 +324,19 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       if (providerScheme != null && providerValue != null) {
         doc.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
-      _holiday = doc.getHoliday();
+      _holiday = doc.getObject();
       _documents.add(doc);
     }
   }
 
+  @Override
+  public AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    HolidayHistoryRequest historyRequest = new HolidayHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

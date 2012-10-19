@@ -79,7 +79,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
     out.put("securityDoc", doc);
-    out.put("security", doc.getSecurity());
+    out.put("security", doc.getObject());
     out.put("deleted", !doc.isLatest());
     return out;
   }

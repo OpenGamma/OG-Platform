@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
@@ -114,7 +118,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      EquitySecurity underlying = (EquitySecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       if (underlying.getGicsCode() != null) {
         switch (_level) {
           case SECTOR:

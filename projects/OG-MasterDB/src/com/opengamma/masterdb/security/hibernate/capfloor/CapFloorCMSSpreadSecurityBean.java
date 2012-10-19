@@ -29,7 +29,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link CapFloorCMSSpreadSecurity}.
+ * A Hibernate bean representation of {@link CapFloorCMSSpreadSecurity}.
  */
 @BeanDefinition
 public class CapFloorCMSSpreadSecurityBean extends SecurityBean {

@@ -48,7 +48,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
   public static final long VIEW_CLIENT_TIMEOUT_MILLIS = 30000;
 
   //CSOFF: just constants
-  public static final String PATH_DEFINITION_REPOSITORY = "definitions";
   public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
   public static final String PATH_NAME = "name";
   public static final String PATH_CLIENTS = "clients";
@@ -128,11 +127,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
   @Path(PATH_NAME)
   public Response getName() {
     return responseOk(_viewProcessor.getName());
-  }
-
-  @Path(PATH_DEFINITION_REPOSITORY)
-  public DataViewDefinitionRepositoryResource getViewDefinitionRepository() {
-    return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
   }
   
   @Path(PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY)

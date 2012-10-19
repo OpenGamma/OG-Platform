@@ -62,7 +62,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
 
-    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getObject().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -82,9 +82,9 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
     RegionDocument latestDoc = data().getRegion();
     RegionDocument versionedRegion = data().getVersioned();
     out.put("latestRegionDoc", latestDoc);
-    out.put("latestRegion", latestDoc.getRegion());
+    out.put("latestRegion", latestDoc.getObject());
     out.put("regionDoc", versionedRegion);
-    out.put("region", versionedRegion.getRegion());
+    out.put("region", versionedRegion.getObject());
     out.put("deleted", !latestDoc.isLatest());
     out.put("regionParents", data().getRegionParents());
     out.put("regionChildren", data().getRegionChildren());

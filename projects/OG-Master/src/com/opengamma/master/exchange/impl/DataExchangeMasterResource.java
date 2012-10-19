@@ -40,7 +40,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param exchangeMaster  the underlying exchange master, not null
    */
   public DataExchangeMasterResource(final ExchangeMaster exchangeMaster) {
@@ -49,9 +49,10 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the exchange master.
-   * 
+   *
    * @return the exchange master, not null
    */
   public ExchangeMaster getExchangeMaster() {
@@ -82,7 +83,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   @Path("exchanges")
   public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
     ExchangeDocument result = getExchangeMaster().add(request);
-    URI createdUri = DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataExchangeResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -94,9 +95,10 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -107,7 +109,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

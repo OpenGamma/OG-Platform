@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -25,9 +23,11 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master.

@@ -5,12 +5,15 @@
  */
 package com.opengamma.masterdb.exchange;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -33,6 +36,7 @@ import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -70,6 +74,37 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
+    }
+  }
+
+  protected ObjectId setupTestData(Instant now) {
+    TimeSource origTimeSource = _exgMaster.getTimeSource();
+    try {
+      _exgMaster.setTimeSource(TimeSource.fixed(now));
+
+      final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
+      final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
+      ManageableExchange exchange = new ManageableExchange(bundle, "initial", region, null);
+      ExchangeDocument initialDoc = new ExchangeDocument(exchange);
+
+      _exgMaster.add(initialDoc);
+
+      ObjectId baseOid = initialDoc.getObjectId();
+
+      //------------------------------------------------------------------------------------------------------------------
+      List<ExchangeDocument> firstReplacement = newArrayList();
+      for (int i = 0; i < 5; i++) {
+        ManageableExchange ex = new ManageableExchange(bundle, "setup_" + i, region, null);
+        ExchangeDocument doc = new ExchangeDocument(ex);
+        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        firstReplacement.add(doc);
+      }
+      _exgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _exgMaster.replaceVersions(baseOid, firstReplacement);
+
+      return baseOid;
+    } finally {
+      _exgMaster.setTimeSource(origTimeSource);
     }
   }
 
@@ -195,7 +230,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
@@ -211,7 +246,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange102", test.getName());
@@ -227,7 +262,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange201", test.getName());
@@ -243,7 +278,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange202", test.getName());

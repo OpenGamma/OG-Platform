@@ -10,7 +10,7 @@ import com.opengamma.master.AbstractMaster;
 /**
  * A master for yield curve definitions.
  */
-public interface InterpolatedYieldCurveDefinitionMaster extends AbstractMaster<YieldCurveDefinitionDocument> {
+public interface InterpolatedYieldCurveDefinitionMaster extends AbstractMaster<YieldCurveDefinition, YieldCurveDefinitionDocument> {
 
   /**
    * Stores the document in the master, updating if it already exists, adding if not.

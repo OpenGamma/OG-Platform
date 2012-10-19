@@ -30,7 +30,7 @@ public class ExchangeUtils {
    * @return a pair of values, the end of trading period and the time zone or null if no exchange with that code was found.  Time can be null if defaultTime==null.
    */
   public static Pair<LocalTime, TimeZone> getTradingCloseTime(ExchangeSource exchangeSource, ExternalId isoMic, LocalDate today, LocalTime defaultTime) {
-    ManageableExchange exchange = (ManageableExchange) exchangeSource.getSingleExchange(isoMic);
+    ManageableExchange exchange = (ManageableExchange) exchangeSource.getSingle(isoMic);
     if (exchange != null) {
       for (ManageableExchangeDetail detail : exchange.getDetail()) {
         if (detail.getPhaseName().equals("Trading") && 

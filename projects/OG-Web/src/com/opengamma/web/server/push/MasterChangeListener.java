@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.web.server.push;
 
 import com.opengamma.web.server.push.rest.MasterType;
@@ -9,7 +14,9 @@ import com.opengamma.web.server.push.rest.MasterType;
 
   /**
    * Invoked when any data changes in a master.
-   * @param masterType The type of the master whose data has changed
+   * 
+   * @param masterType  the type of the master whose data has changed, not null
    */
   void masterChanged(MasterType masterType);
+
 }

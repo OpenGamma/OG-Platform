@@ -21,8 +21,6 @@ import java.util.TreeMap;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -39,6 +37,7 @@ import com.opengamma.bbg.BloombergFields;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergTickerParserEQOption;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -47,6 +46,7 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -513,7 +513,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   }
 
   private HistoricalTimeSeriesInfoDocument loadTimeSeries(HistoricalTimeSeriesInfoDocument timeSeriesInfo) {
-    ExternalIdBundle idBundle = timeSeriesInfo.getInfo().getExternalIdBundle().toBundle(LocalDate.now());
+    ExternalIdBundle idBundle = timeSeriesInfo.getObject().getExternalIdBundle().toBundle(LocalDate.now());
     return loadTimeSeries(idBundle);
   }
 
@@ -552,7 +552,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     if (loadedSec == null) {
       throw new OpenGammaRuntimeException("Failed to load security for " + ticker);
     }
-    return getToolContext().getSecurityMaster().get(loadedSec).getSecurity();
+    return getToolContext().getSecurityMaster().get(loadedSec).getObject();
   }
 
   /**

@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -25,6 +23,7 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -45,25 +44,12 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryHolidayMaster implements HolidayMaster {
+public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemHol";
-
-  /**
-   * A cache of holidays by identifier.
-   */
-  private final ConcurrentMap<ObjectId, HolidayDocument> _store = new ConcurrentHashMap<ObjectId, HolidayDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -74,7 +60,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemoryHolidayMaster(final ChangeManager changeManager) {
@@ -83,7 +69,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryHolidayMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -92,15 +78,19 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemoryHolidayMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
+  }
+
+  @Override
+  protected void validateDocument(HolidayDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getName(), "document.name");
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
   }
 
   //-------------------------------------------------------------------------
@@ -155,11 +145,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableHoliday holiday = document.getHoliday();
+    final ManageableHoliday holiday = document.getObject();
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -168,7 +158,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     _store.put(objectId, document);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -178,8 +168,8 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final HolidayDocument storedDocument = _store.get(uniqueId.getObjectId());
@@ -193,18 +183,18 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Holiday not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Holiday not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -218,7 +208,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-    
+
     final HolidayHistoryResult result = new HolidayHistoryResult();
     final HolidayDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
@@ -227,11 +217,4 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
 }

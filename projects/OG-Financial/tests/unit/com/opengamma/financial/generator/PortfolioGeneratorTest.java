@@ -21,7 +21,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.RawSecurity;
@@ -32,7 +32,7 @@ import com.opengamma.master.security.RawSecurity;
 @Test
 public class PortfolioGeneratorTest {
 
-  private PositionGenerator createSimplePositionGenerator(final MockSecuritySource source) {
+  private PositionGenerator createSimplePositionGenerator(final InMemorySecuritySource source) {
     return new SimplePositionGenerator<RawSecurity>(new StaticQuantityGenerator(10), new SecurityGenerator<RawSecurity>() {
       @Override
       public RawSecurity createSecurity() {
@@ -49,7 +49,7 @@ public class PortfolioGeneratorTest {
         return trade;
       }
       
-    }, new MockSecurityPersister(source));
+    }, new InMemorySecurityPersister(source));
   }
 
   private void testPositions(final Collection<Position> positions, final SecuritySource source) {
@@ -64,7 +64,7 @@ public class PortfolioGeneratorTest {
   }
 
   public void testSinglePosition() {
-    final MockSecuritySource source = new MockSecuritySource();
+    final InMemorySecuritySource source = new InMemorySecuritySource();
     final PortfolioGenerator generator = new PortfolioGenerator(new LeafPortfolioNodeGenerator(new StaticNameGenerator("NODE"), createSimplePositionGenerator(source), 1), new StaticNameGenerator(
         "PORTFOLIO"));
     final Portfolio portfolio = generator.createPortfolio();
@@ -76,7 +76,7 @@ public class PortfolioGeneratorTest {
   }
 
   public void testMultiplePosition() {
-    final MockSecuritySource source = new MockSecuritySource();
+    final InMemorySecuritySource source = new InMemorySecuritySource();
     final PortfolioGenerator generator = new PortfolioGenerator(new LeafPortfolioNodeGenerator(new StaticNameGenerator("NODE"), createSimplePositionGenerator(source), 100), new StaticNameGenerator(
         "PORTFOLIO"));
     final Portfolio portfolio = generator.createPortfolio();

@@ -14,10 +14,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * This class implements a sheet writer that facilitates writing rows to a csv file. The columns and their order are specified

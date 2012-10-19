@@ -17,7 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
@@ -69,54 +69,35 @@ public class DbConfigMasterTest extends DbTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_single_type() throws Exception {
-    ConfigDocument<ExternalId> addDoc = new ConfigDocument<ExternalId>(ExternalId.class);
-    addDoc.setName("Config test");
-    addDoc.setValue(ExternalId.of("A", "B"));
-    ConfigDocument<ExternalId> added = _cfgMaster.add(addDoc);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("Config test");
+
+    ConfigDocument added = _cfgMaster.add(new ConfigDocument(item));
     
-    ConfigDocument<ExternalId> loaded = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
+    ConfigDocument loaded = _cfgMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
     
-    ConfigDocument<ExternalId> loadedType = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
+    ConfigDocument loadedType = _cfgMaster.get(added.getUniqueId());
     assertEquals(added, loadedType);
   }
   
   //-------------------------------------------------------------------------
   @Test
   public void test_multiple_types() throws Exception {
-    ConfigDocument<ExternalId> identifierDoc = new ConfigDocument<ExternalId>(ExternalId.class);
+    ConfigItem<ExternalId> identifierDoc = ConfigItem.of(ExternalId.of("A", "B"));
     identifierDoc.setName("ExternalId test");
-    identifierDoc.setValue(ExternalId.of("A", "B"));
     
-    ConfigDocument<ExternalId> addedId = _cfgMaster.add(identifierDoc);
+    ConfigDocument addedId = _cfgMaster.add(new ConfigDocument(identifierDoc));
     
-    ConfigDocument<ExternalIdBundle> bundleDoc = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
+    ConfigItem<ExternalIdBundle> bundleDoc = ConfigItem.of(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
     bundleDoc.setName("Bundle test");
-    bundleDoc.setValue(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
-    ConfigDocument<ExternalIdBundle> addedBundle = _cfgMaster.add(bundleDoc);
+    ConfigDocument addedBundle = _cfgMaster.add(new ConfigDocument(bundleDoc));
     
-    ConfigDocument<ExternalId> loadedId = _cfgMaster.get(addedId.getUniqueId(), ExternalId.class);
+    ConfigDocument loadedId = _cfgMaster.get(addedId.getUniqueId());
     assertEquals(addedId, loadedId);
     
-    ConfigDocument<ExternalIdBundle> loadedBundle = _cfgMaster.get(addedBundle.getUniqueId(), ExternalIdBundle.class);
+    ConfigDocument loadedBundle = _cfgMaster.get(addedBundle.getUniqueId());
     assertEquals(addedBundle, loadedBundle);
-  }
-  
-  //-------------------------------------------------------------------------
-  @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_get_invalid_type() throws Exception {
-    ConfigDocument<ExternalId> identifierDoc = new ConfigDocument<ExternalId>(ExternalId.class);
-    identifierDoc.setName("ExternalId test");
-    identifierDoc.setValue(ExternalId.of("A", "B"));
-    
-    _cfgMaster.add(identifierDoc);
-    
-    ConfigDocument<ExternalIdBundle> bundleDoc = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
-    bundleDoc.setName("Bundle test");
-    bundleDoc.setValue(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
-    ConfigDocument<ExternalIdBundle> addedBundle = _cfgMaster.add(bundleDoc);
-    
-    _cfgMaster.get(addedBundle.getUniqueId(), ExternalId.class);    
   }
   
   //-------------------------------------------------------------------------

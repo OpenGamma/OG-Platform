@@ -46,7 +46,7 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<I
     final double[] conversionFactor = new double[n];
     for (int i = 0; i < n; i++) {
       final BondFutureDeliverable deliverable = basket.get(i);
-      final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSecurity(deliverable.getIdentifiers());
+      final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSingle(deliverable.getIdentifiers());
       if (bondSecurity == null) {
         throw new OpenGammaRuntimeException("No security found with identifiers " + deliverable.getIdentifiers());
       }

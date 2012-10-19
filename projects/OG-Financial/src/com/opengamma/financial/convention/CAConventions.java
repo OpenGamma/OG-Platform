@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.convention;
 
+import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
+
 import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
@@ -19,9 +22,6 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
-
-import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
-import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 /**
  * 

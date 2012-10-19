@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.integration;
 
-import com.opengamma.analytics.math.integration.Integrator1D;
-import com.opengamma.analytics.math.integration.SimpsonIntegrator1D;
 
 
 public class SimpsonIntegrator1DTest extends Integrator1DTestCase {

@@ -5,18 +5,19 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.core.ObjectChangeListener;
+import com.opengamma.id.ObjectId;
 
 /**
  * Listener providing callbacks when the market data snapshot changes.
  */
-public interface MarketDataSnapshotChangeListener {
+public interface MarketDataSnapshotChangeListener extends ObjectChangeListener {
 
   /**
-   * Callback that is invoked if the unique identifier now refers to a different snapshot.
+   * Callback that is invoked if the object identifier now refers to a different snapshot.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param oid the object identifier, not null
    */
-  void snapshotChanged(UniqueId uniqueId);
+  void objectChanged(ObjectId oid);
 
 }

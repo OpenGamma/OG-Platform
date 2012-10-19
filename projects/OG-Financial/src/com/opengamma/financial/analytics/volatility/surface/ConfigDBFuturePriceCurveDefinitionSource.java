@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -32,8 +31,8 @@ public class ConfigDBFuturePriceCurveDefinitionSource implements FuturePriceCurv
   }
 
   @Override
-  public FuturePriceCurveDefinition<?> getDefinition(final String name, final String instrumentType, final Instant version) {
-    return _configSource.getByName(FuturePriceCurveDefinition.class, name + "_" + instrumentType, version);
+  public FuturePriceCurveDefinition<?> getDefinition(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
+    return _configSource.getConfig(FuturePriceCurveDefinition.class, name + "_" + instrumentType, versionCorrection);
   }
 
 }

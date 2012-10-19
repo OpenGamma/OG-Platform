@@ -8,8 +8,8 @@ package com.opengamma.language.view;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
@@ -53,8 +53,8 @@ public class FetchViewDefinitionFunction extends AbstractFunctionInvoker impleme
     return _meta;
   }
 
-  public ViewDefinition invoke(ViewDefinitionRepository repository, UniqueId viewDefinitionId) {
-    final ViewDefinition viewDefinition = repository.getDefinition(viewDefinitionId);
+  public ViewDefinition invoke(ConfigSource configSource, UniqueId viewDefinitionId) {
+    final ViewDefinition viewDefinition = configSource.getConfig(ViewDefinition.class, viewDefinitionId);
     if (viewDefinition == null) {
       throw new InvokeInvalidArgumentException(0, "View definition not found");
     }
@@ -63,9 +63,9 @@ public class FetchViewDefinitionFunction extends AbstractFunctionInvoker impleme
 
   @Override
   protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
-    final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
+    final ConfigSource configSource = sessionContext.getGlobalContext().getViewProcessor().getConfigSource();
     final UniqueId viewDefinitionId = (UniqueId) parameters[0];
-    return invoke(repository, viewDefinitionId);
+    return invoke(configSource, viewDefinitionId);
   }
 
 }

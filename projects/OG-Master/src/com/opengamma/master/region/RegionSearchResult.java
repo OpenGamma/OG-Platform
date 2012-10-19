@@ -47,16 +47,17 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the returned regions from within the documents.
-   * 
+   *
    * @return the regions, not null
    */
   public List<ManageableRegion> getRegions() {
     List<ManageableRegion> result = new ArrayList<ManageableRegion>();
     if (getDocuments() != null) {
       for (RegionDocument doc : getDocuments()) {
-        result.add(doc.getRegion());
+        result.add(doc.getObject());
       }
     }
     return result;
@@ -64,11 +65,11 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
 
   /**
    * Gets the first region, or null if no documents.
-   * 
+   *
    * @return the first region, null if none
    */
   public ManageableRegion getFirstRegion() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getRegion() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
   }
 
   /**
@@ -76,7 +77,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
    * <p>
    * This throws an exception if more than 1 result is actually available.
    * Thus, this method implies an assumption about uniqueness of the queried region.
-   * 
+   *
    * @return the matching region, not null
    * @throws IllegalStateException if no region was found
    */
@@ -84,7 +85,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getRegion();
+      return getDocuments().get(0).getObject();
     }
   }
 

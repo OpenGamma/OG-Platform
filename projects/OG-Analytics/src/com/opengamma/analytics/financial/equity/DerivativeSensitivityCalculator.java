@@ -5,6 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
@@ -26,14 +34,6 @@ import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * This Calculator provides simple bump and reprice sensitivities for Derivatives

@@ -55,11 +55,11 @@ public final class CommonSynthetics {
           return null;
         }
         if (underlying instanceof ExternalId) {
-          return source.getSecurity(ExternalIdBundle.of((ExternalId) underlying));
+          return source.getSingle(ExternalIdBundle.of((ExternalId) underlying));
         } else if (underlying instanceof UniqueId) {
-          return source.getSecurity((UniqueId) underlying);
+          return source.get((UniqueId) underlying);
         } else if (underlying instanceof ExternalIdBundle) {
-          return source.getSecurity((ExternalIdBundle) underlying);
+          return source.getSingle((ExternalIdBundle) underlying);
         } else {
           throw new IllegalArgumentException("Bad underlying id - " + underlying);
         }

@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.future.method.BondFutureConversionFactorMethod;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;

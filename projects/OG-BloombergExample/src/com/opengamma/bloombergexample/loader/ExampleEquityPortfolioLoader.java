@@ -18,8 +18,6 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -28,13 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -106,7 +105,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
     SecurityMaster secMaster = getToolContext().getSecurityMaster();
     for (UniqueId uniqueId : loadSecurities) {
       SecurityDocument securityDocument = secMaster.get(uniqueId);
-      EquitySecurity security = (EquitySecurity) securityDocument.getSecurity();
+      EquitySecurity security = (EquitySecurity) securityDocument.getObject();
       GICSCode gics = security.getGicsCode();
       if (gics == null || gics.isPartial()) {
         continue;

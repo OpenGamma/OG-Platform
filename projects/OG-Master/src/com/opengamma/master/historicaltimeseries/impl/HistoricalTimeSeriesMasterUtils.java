@@ -157,7 +157,7 @@ public class HistoricalTimeSeriesMasterUtils {
       info.setExternalIdBundle(ExternalIdBundleWithDates.of(externalIdBundle));
       info.setName(description);
       HistoricalTimeSeriesInfoDocument htsInfoDoc = new HistoricalTimeSeriesInfoDocument();
-      htsInfoDoc.setInfo(info);
+      htsInfoDoc.setObject(info);
       
       HistoricalTimeSeriesInfoDocument addedInfoDoc = _htsMaster.add(htsInfoDoc);
       s_logger.info("Adding time series " + externalIdBundle + " from " + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime());

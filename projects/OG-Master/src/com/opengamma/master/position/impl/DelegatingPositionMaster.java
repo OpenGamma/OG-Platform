@@ -5,6 +5,9 @@
  */
 package com.opengamma.master.position.impl;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -111,9 +114,9 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
   }
 
   @Override
-  public void remove(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    chooseDelegate(uniqueId.getScheme()).remove(uniqueId);
+  public void remove(ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    chooseDelegate(objectIdentifiable.getObjectId().getScheme()).remove(objectIdentifiable);
   }
 
   @Override
@@ -133,4 +136,54 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
     return _changeManager;
   }
 
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, PositionDocument documentToAdd) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(documentToAdd, "documentToAdd");
+    return chooseDelegate(objectId.getObjectId().getScheme()).addVersion(objectId, documentToAdd);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<PositionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    return chooseDelegate(uniqueId.getScheme()).replaceVersion(uniqueId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<PositionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    return chooseDelegate(objectId.getObjectId().getScheme()).replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<PositionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    return chooseDelegate(objectId.getObjectId().getScheme()).replaceVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public UniqueId replaceVersion(PositionDocument replacementDocument) {
+    ArgumentChecker.notNull(replacementDocument, "replacementDocument");
+    ArgumentChecker.notNull(replacementDocument.getObjectId(), "replacementDocument.getObjectId");
+    return chooseDelegate(replacementDocument.getObjectId().getScheme()).replaceVersion(replacementDocument);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    chooseDelegate(uniqueId.getScheme()).removeVersion(uniqueId);
+  }
+  
+  @Override
+  public Map<UniqueId, PositionDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, PositionDocument> resultMap = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      PositionDocument doc = get(uniqueId);
+      resultMap.put(uniqueId, doc);
+    }
+    return resultMap;
+  }
 }

@@ -110,7 +110,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
 
   private UniqueId updateSecurity(ManageableSecurity security, UniqueId uid) {
     final SecurityDocument document = new SecurityDocument();
-    document.setSecurity(security);
+    document.setObject(security);
     document.setUniqueId(uid);
     getSecurityMaster().update(document);
     return document.getUniqueId();
@@ -118,7 +118,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
 
   private UniqueId addSecurity(ManageableSecurity security) {
     final SecurityDocument document = new SecurityDocument();
-    document.setSecurity(security);
+    document.setObject(security);
     SecurityDocument addedSecurity = getSecurityMaster().add(document);
     return addedSecurity.getUniqueId();
   }

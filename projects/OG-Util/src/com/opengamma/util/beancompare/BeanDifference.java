@@ -5,11 +5,12 @@
  */
 package com.opengamma.util.beancompare;
 
-import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.MetaProperty;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.joda.beans.MetaProperty;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Encapsulates the difference in a property's value between two instances of the same bean type.  Contains the

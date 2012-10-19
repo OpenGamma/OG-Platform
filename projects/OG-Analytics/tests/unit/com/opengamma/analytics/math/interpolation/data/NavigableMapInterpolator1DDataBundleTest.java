@@ -10,9 +10,6 @@ import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.interpolation.data.NavigableMapInterpolator1DDataBundle;
-
 /**
  * 
  */

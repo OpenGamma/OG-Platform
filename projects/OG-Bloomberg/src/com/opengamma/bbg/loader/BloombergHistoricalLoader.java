@@ -396,14 +396,14 @@ public class BloombergHistoricalLoader {
       if (++i % 100 == 0) {
         s_logger.info("Checking required updates for time series {} of {} ", i, documents.size());
       }
-      ManageableHistoricalTimeSeriesInfo info = doc.getInfo();
+      ManageableHistoricalTimeSeriesInfo info = doc.getObject();
       ExternalIdBundle idBundle = info.getExternalIdBundle().toBundle();
       
       // select start date
       LocalDate startDate = _startDate;
       if (startDate == null) {
         // lookup start date as one day after the latest point in the series
-        UniqueId htsId = doc.getInfo().getUniqueId();
+        UniqueId htsId = doc.getObject().getUniqueId();
         LocalDate latestDate = getLatestDate(htsId);
         if (isUpToDate(latestDate)) {
           s_logger.debug("Not scheduling update for up to date series {} from {}", htsId, latestDate);
@@ -427,10 +427,10 @@ public class BloombergHistoricalLoader {
       identifiers.add(idBundle);
       
       MetaDataKey metaDataKey = new MetaDataKey(idBundle, dataProvider, dataField);
-      ObjectId previous = metaDataKeyMap.put(metaDataKey, doc.getInfo().getTimeSeriesObjectId());
+      ObjectId previous = metaDataKeyMap.put(metaDataKey, doc.getObject().getTimeSeriesObjectId());
       if (previous != null) {
         // if we don't check here then the master might fail, but it doesn't always 
-        throw new OpenGammaRuntimeException("Duplicate time-series " + previous + " " + doc.getInfo().getTimeSeriesObjectId());
+        throw new OpenGammaRuntimeException("Duplicate time-series " + previous + " " + doc.getObject().getTimeSeriesObjectId());
       }
     }
     
@@ -470,7 +470,7 @@ public class BloombergHistoricalLoader {
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     
     for (HistoricalTimeSeriesInfoDocument htsInfoDoc : searchResult.getDocuments()) {
-      ManageableHistoricalTimeSeriesInfo tsInfo = htsInfoDoc.getInfo();
+      ManageableHistoricalTimeSeriesInfo tsInfo = htsInfoDoc.getObject();
 
       boolean valid = getIsValidOn(previousWeekDay, tsInfo);
       if (valid) {

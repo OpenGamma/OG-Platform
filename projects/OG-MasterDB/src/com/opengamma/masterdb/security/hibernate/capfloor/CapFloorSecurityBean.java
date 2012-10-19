@@ -29,7 +29,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link CapFloorSecurity}.
+ * A Hibernate bean representation of {@link CapFloorSecurity}.
  */
 @BeanDefinition
 public class CapFloorSecurityBean extends SecurityBean {

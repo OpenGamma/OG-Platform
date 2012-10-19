@@ -564,7 +564,7 @@ public final class BloombergDataUtils {
     PositionSearchResult searchResult = positionMaster.search(searchRequest);
     Set<ExternalIdBundle> securities = new HashSet<ExternalIdBundle>();
     for (PositionDocument doc : searchResult.getDocuments()) {
-      securities.add(doc.getPosition().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
+      securities.add(doc.getObject().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
     }
     return securities;
   }

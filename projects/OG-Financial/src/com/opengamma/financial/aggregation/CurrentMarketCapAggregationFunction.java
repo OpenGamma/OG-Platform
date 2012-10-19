@@ -5,7 +5,12 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
@@ -75,7 +80,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   private FinancialSecurityVisitor<Double> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<Double>() {
     @Override
     public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
-      EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      EquitySecurity underlying = (EquitySecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       return getCurrentMarketCap(underlying);
     }
   };

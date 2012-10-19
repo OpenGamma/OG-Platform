@@ -59,20 +59,20 @@ public class SimpleSecurityResolverTest {
     _securitySource = mock(SecuritySource.class);
     
     // By unique ID
-    when(_securitySource.getSecurity(_securityV1.getUniqueId())).thenReturn(_securityV1);
-    when(_securitySource.getSecurity(_securityV2.getUniqueId())).thenReturn(_securityV2);
-    when(_securitySource.getSecurity(UNKNOWN_UID)).thenThrow(new DataNotFoundException(""));
+    when(_securitySource.get(_securityV1.getUniqueId())).thenReturn(_securityV1);
+    when(_securitySource.get(_securityV2.getUniqueId())).thenReturn(_securityV2);
+    when(_securitySource.get(UNKNOWN_UID)).thenThrow(new DataNotFoundException(""));
     
     // By object ID and version-correction
-    when(_securitySource.getSecurity(_objectId, VersionCorrection.of(_securityV2ValidFrom.minusMillis(1), _now))).thenReturn(_securityV1);
-    when(_securitySource.getSecurity(_objectId, VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(_securityV2);
-    when(_securitySource.getSecurity(UNKNOWN_OID, VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123)))).thenThrow(new DataNotFoundException(""));
+    when(_securitySource.get(_objectId, VersionCorrection.of(_securityV2ValidFrom.minusMillis(1), _now))).thenReturn(_securityV1);
+    when(_securitySource.get(_objectId, VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(_securityV2);
+    when(_securitySource.get(UNKNOWN_OID, VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123)))).thenThrow(new DataNotFoundException(""));
     
     // By external ID bundle and version-correction
-    when(_securitySource.getSecurities(ExternalIdBundle.of(_securityExternalId), VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(Collections.singleton(_securityV2));
-    when(_securitySource.getSecurities(_intersectingExternalIdBundle, VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(Collections.singleton(_securityV2));
-    when(_securitySource.getSecurities(_intersectingExternalIdBundle, VersionCorrection.of(_securityV2ValidFrom.minusMillis(1), _now))).thenReturn(Collections.singleton(_securityV1));
-    when(_securitySource.getSecurity(UNKNOWN_BUNDLE)).thenThrow(new DataNotFoundException(""));
+    when(_securitySource.get(ExternalIdBundle.of(_securityExternalId), VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(Collections.singleton(_securityV2));
+    when(_securitySource.get(_intersectingExternalIdBundle, VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(Collections.singleton(_securityV2));
+    when(_securitySource.get(_intersectingExternalIdBundle, VersionCorrection.of(_securityV2ValidFrom.minusMillis(1), _now))).thenReturn(Collections.singleton(_securityV1));
+    when(_securitySource.get(UNKNOWN_BUNDLE)).thenThrow(new DataNotFoundException(""));
   }
 
   //-------------------------------------------------------------------------

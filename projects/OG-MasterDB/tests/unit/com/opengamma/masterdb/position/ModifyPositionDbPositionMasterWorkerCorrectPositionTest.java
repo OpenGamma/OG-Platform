@@ -49,7 +49,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   public void test_correct_noPositionId() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     _posMaster.correct(doc);
   }
 
@@ -90,7 +90,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getPosition(), corrected.getPosition());
+    assertEquals(input.getObject(), corrected.getObject());
     
     PositionDocument old = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -98,7 +98,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getPosition(), old.getPosition());
+    assertEquals(base.getObject(), old.getObject());
     
     PositionHistoryRequest search = new PositionHistoryRequest(base.getUniqueId(), now, null);
     PositionHistoryResult searchResult = _posMaster.history(search);

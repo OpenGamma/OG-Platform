@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.cube.InterpolatedDoublesCube;
 import com.opengamma.analytics.math.interpolation.InterpolatorND;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.Pair;

@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -42,23 +42,19 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
       Pair.of(0, FXVolQuoteType.ATM)};
     final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> volSurfaceDefinition =
         new VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>("DEFAULT_EURUSD_" + InstrumentTypeProperties.FOREX, target, expiryTenors, deltaAndTypes);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(volSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(volSurfaceDefinition));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>>
-  makeConfigDocument(final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>>(
-        VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>> makeConfig(final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> definition) {
+    final ConfigItem<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfig(final VolatilitySurfaceSpecification specification) {
+    final ConfigItem<VolatilitySurfaceSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());
+    return config;
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster, final UniqueIdentifiable target, final String currencyCrossString) {
@@ -67,6 +63,6 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_EURUSD_" + InstrumentTypeProperties.FOREX, target,
         SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
         surfaceInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(spec));
   }
 }
