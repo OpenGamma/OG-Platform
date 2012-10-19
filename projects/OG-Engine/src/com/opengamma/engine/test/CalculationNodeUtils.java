@@ -12,8 +12,6 @@ import javax.time.Instant;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;

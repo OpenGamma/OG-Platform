@@ -7,7 +7,6 @@ package com.opengamma.engine.test;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.id.IdUtils.isVersionCorrection;
 
 import java.util.Collection;
 import java.util.List;

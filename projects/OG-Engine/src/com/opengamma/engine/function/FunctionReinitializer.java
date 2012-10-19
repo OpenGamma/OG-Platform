@@ -8,7 +8,6 @@ package com.opengamma.engine.function;
 import java.util.Collection;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
