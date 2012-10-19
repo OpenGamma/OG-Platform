@@ -4,7 +4,7 @@
  */
 (function () {
     if (!window.JSThreeD) window.JSThreeD = {};
-    window.JSThreeD.Text3D = function (matlib, settings) {
+    window.Four.Text3D = function (matlib, settings) {
         var char_geometries = {};
         /**
          * Creates new or fetches cached 3D text geometry
