@@ -3,53 +3,78 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSThreeD) window.JSThreeD = {};
-    window.Four.Text3D = function (matlib, settings) {
-        var char_geometries = {};
-        /**
-         * Creates new or fetches cached 3D text geometry
-         * @param {String} str
-         * @param {Object} options text geometry options
-         * @returns {THREE.Geometry}
-         */
-        var create_geometry = function (str, options) {
-            var geometry;
-            if (char_geometries[str]) return char_geometries[str];
-            if (str === ' ') {
-                geometry = new THREE.Geometry();
-                geometry.boundingBox = {min: new THREE.Vector3(0, 0, 0), max: new THREE.Vector3(100, 0, 0)};
-                return geometry;
-            }
-            geometry = new THREE.TextGeometry(str, options);
-            geometry.computeBoundingBox();
-            return char_geometries[str] = geometry;
+    if (!window.Four) window.Four = {};
+    if (!Detector.webgl) throw new Error('JSThreeD.Matlib requires Detector.webgl');
+    var webgl = Detector.webgl ? true : false;
+    window.Four.Matlib = function () {
+        var matlib = {canvas: {}, cache: {}};
+        matlib.get_material = function (material, color) {
+            var name = material + '_' + color;
+            if (matlib.cache[name]) return matlib.cache[name];
+            matlib.cache[name] = matlib[material](color || void 0);
+            return matlib.cache[name];
         };
-        /**
-         * @param {String} str String you want to create
-         * @param {String} color text colour in hex
-         * @param {Boolean} preserve_kerning set to true to cache geometry without breaking it into characters
-         * @param {Boolean} bevel
-         * @returns {THREE.Mesh}
-         */
-        return function (str, color, preserve_kerning, bevel) {
-            var object, merged = new THREE.Geometry(),
-                material = matlib.get_material('phong', color), xpos = 0,
-                options = {
-                    size: settings.font_size, height: settings.font_height,
-                    font: settings.font_face_3d, weight: 'normal', style: 'normal',
-                    bevelEnabled: bevel || false, bevelSize: 0.6, bevelThickness: 0.6
-                };
-            if (preserve_kerning) return new THREE.Mesh(create_geometry(str, options), material);
-            str.split('').forEach(function (val) {
-                var text = create_geometry(val, options), mesh = new THREE.Mesh(text, material);
-                mesh.position.x = xpos + (val === '.' ? 5 : 0);                                   // space before
-                xpos = xpos + ((THREE.FontUtils.drawText(val).offset)) + (val === '.' ? 10 : 15); // space after
-                THREE.GeometryUtils.merge(merged, mesh);
+        matlib.canvas.compound_surface = function () {
+            return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.flat('0xbbbbbb')];
+        };
+        matlib.canvas.compound_surface_wire = function () {
+            return [matlib.canvas.wire('0xffffff')];
+        };
+        matlib.canvas.flat = function (color) {
+            return new THREE.MeshBasicMaterial({color: color, shading: THREE.FlatShading});
+        };
+        matlib.canvas.wire = function (color) {
+            return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
+        };
+        matlib.compound_grid_wire = function () {
+            return [
+                new THREE.MeshPhongMaterial({
+                    // color represents diffuse in THREE.MeshPhongMaterial
+                    ambient: 0x000000, color: 0xeeeeee, specular: 0xdddddd, emissive: 0x000000, shininess: 0
+                }),
+                matlib.wire(0xcccccc)
+            ];
+        };
+        matlib.compound_floor_wire = function () {
+            return [
+                new THREE.MeshPhongMaterial({
+                    ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
+                }),
+                matlib.wire(0xcccccc)
+            ];
+        };
+        matlib.compound_surface = function () {
+            if (!webgl) return matlib.canvas.compound_surface();
+            return [matlib.transparent(), matlib.vertex()];
+        };
+        matlib.compound_surface_wire = function () {
+            if (!webgl) return matlib.canvas.compound_surface_wire();
+            return [matlib.transparent(), matlib.wire('0x000000')];
+        };
+        matlib.wire = function (color) {
+            if (!webgl) return matlib.canvas.wire(color);
+            return new THREE.MeshBasicMaterial({color: color || 0x999999, wireframe: true});
+        };
+        matlib.transparent = function () {
+            return new THREE.MeshBasicMaterial({opacity: 0, transparent: true});
+        };
+        matlib.flat = function (color) {
+            if (!webgl) return matlib.canvas.flat(color);
+            return new THREE.MeshBasicMaterial({color: color, wireframe: false});
+        };
+        matlib.particles = function () {return new THREE.ParticleBasicMaterial({color: '0xbbbbbb', size: 1});};
+        matlib.phong = function (color) {
+            if (!webgl) return matlib.canvas.flat(color);
+            return new THREE.MeshPhongMaterial({
+                ambient: 0x000000, color: color, specular: 0x999999, shininess: 50, shading: THREE.SmoothShading
             });
-            merged.computeFaceNormals();
-            object = new THREE.Mesh(merged, material);
-            object.matrixAutoUpdate = false;
-            return object;
         };
+        matlib.texture = function (texture) {
+            return new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true});
+        };
+        matlib.vertex = function () {
+            return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors});
+        };
+        return matlib;
     };
 })();
