@@ -3,80 +3,83 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSurface3D) throw new Error('JSurface3D.Smile requires JSurface3D');
-    window.JSurface3D.Smile = function (js3d) {
-        var settings = js3d.settings, matlib = js3d.matlib;
-        var x = function () {
-            var obj = new THREE.Object3D();
-            (function () { // plane
-                var plane = new JSurface3D.Plane(js3d, 'smilex'),
-                    material = matlib.get_material('compound_grid_wire'),
-                    mesh = Four.multimaterial_object(plane, material);
-                mesh.rotation.x = Math.PI * 0.5;
-                mesh.position.y = settings.surface_y;
-                mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
+    if (!window.JSurface3D) throw new Error('JSurface3D.SurfacePlane requires JSurface3D');
+    window.JSurface3D.SurfacePlane = function (js3d) {
+        var group = new THREE.Object3D(), wiremesh, planemesh, buffer;
+        group.name = 'SurfacePlane';
+        group.init = function () {
+            var settings = js3d.settings, matlib = js3d.matlib, plane = new JSurface3D.Plane(js3d, 'surface'), i, wire;
+            if (!buffer) buffer = new Four.Buffer(js3d.renderer);
+            plane.verticesNeedUpdate = true;
+            for (i = 0; i < js3d.adjusted_vol.length; i++) {plane.vertices[i].y = js3d.adjusted_vol[i];} // extrude
+            wire = THREE.GeometryUtils.clone(plane);
+            plane.computeCentroids();
+            plane.computeFaceNormals();
+            plane.computeBoundingSphere();
+            (function () { // apply heatmap
+                if (!Detector.webgl) return;
+                var faces = 'abcd', face, color, vertex, index, i, k,
+                    min = Math.min.apply(null, js3d.adjusted_vol), max = Math.max.apply(null, js3d.adjusted_vol),
+                    hue_min = settings.vertex_shading_hue_min, hue_max = settings.vertex_shading_hue_max, hue;
+                for (i = 0; i < plane.faces.length; i ++) {
+                    face = plane.faces[i];
+                    for (k = 0; k < 4; k++) {
+                        index = face[faces.charAt(k)];
+                        vertex = plane.vertices[index];
+                        color = new THREE.Color(0xffffff);
+                        hue = ~~((vertex.y - min) / (max - min) * (hue_max - hue_min) + hue_min) / 360;
+                        color.setHSV(hue, 0.95, 0.7);
+                        face.vertexColors[k] = color;
+                    }
+                }
+            }());
+            // apply surface materials
+            plane.materials = matlib.get_material('compound_surface');
+            wire.materials = matlib.get_material('compound_surface_wire');
+            (function () { // clip/slice
+                var row, i, x, l,
+                    zlft = Math.abs(js3d.slice.lft_z_handle_position - js3d.z_segments) * js3d.x_segments,
+                    zrgt = Math.abs(js3d.slice.rgt_z_handle_position - js3d.z_segments) * js3d.x_segments,
+                    xlft = Math.abs(js3d.slice.lft_x_handle_position - js3d.x_segments),
+                    xrgt = Math.abs(js3d.slice.rgt_x_handle_position - js3d.x_segments),
+                    zmin = Math.min.apply(null, [zlft, zrgt]),
+                    zmax = Math.max.apply(null, [zlft, zrgt]),
+                    xmin = Math.min.apply(null, [xlft, xrgt]),
+                    xmax = Math.max.apply(null, [xlft, xrgt]);
+                for (i = 0, x = 0, row = 0, l = plane.faces.length; i < l; i++, x++) {
+                    var plane_face = plane.faces[i], wire_face = wire.faces[i];
+                    if (x === js3d.x_segments) x = 0, row++;
+                    if (
+                        (i < zmax) && (i > zmin - 1) && // z slice
+                        (i > xmin + row * js3d.x_segments -1) && (i < xmax + row * js3d.x_segments)  // x slice
+                    ) plane_face.materialIndex = wire_face.materialIndex = 1;
+                    else plane_face.materialIndex = wire_face.materialIndex = 0;
+                }
+            }());
+            // move wiremesh to account for Z-fighting
+            wiremesh = new THREE.Mesh(wire, new THREE.MeshFaceMaterial());
+            wiremesh.position.y = 0.01;
+            planemesh = new THREE.Mesh(plane, new THREE.MeshFaceMaterial());
+            group.add(planemesh);
+            group.add(wiremesh);
+            group.position.y = settings.floating_height;
+            group.matrixAutoUpdate = false;
+            group.updateMatrix();
+            group.children.forEach(function (mesh) {
+                mesh.doubleSided = true;
                 mesh.matrixAutoUpdate = false;
-                mesh.updateMatrix();
-                obj.add(mesh);
-            }());
-            (function () { // axis
-                var y_axis = JSurface3D.Axis({axis: 'y', right: true}, js3d);
-                y_axis.position.x = -(settings.surface_x / 2) - 25;
-                y_axis.position.y = 4;
-                y_axis.position.z = -(settings.surface_z / 2) - settings.smile_distance;
-                y_axis.rotation.y = Math.PI * 0.5;
-                y_axis.rotation.z = Math.PI * 0.5;
-                obj.add(y_axis);
-            }());
-            return obj;
+            });
+            js3d.interactive_meshes.add('surface', group.children[0]);
+//            buffer.add(wiremesh);
+//            buffer.add(planemesh);
         };
-        var z = function () {
-            var obj = new THREE.Object3D();
-            (function () { // plane
-                var plane = new JSurface3D.Plane(js3d, 'smiley'),
-                    material = matlib.get_material('compound_grid_wire'),
-                    mesh = Four.multimaterial_object(plane, material);
-                mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
-                mesh.rotation.z = Math.PI * 0.5;
-                mesh.matrixAutoUpdate = false;
-                mesh.updateMatrix();
-                obj.add(mesh);
-            }());
-            (function () { // axis
-                var y_axis = JSurface3D.Axis({axis: 'y'}, js3d);
-                y_axis.position.y = 4;
-                y_axis.position.z = (settings.surface_z / 2) + 5;
-                y_axis.position.x = (settings.surface_x / 2) + settings.smile_distance;
-                y_axis.rotation.z = Math.PI * 0.5;
-                obj.add(y_axis);
-            }());
-            return obj;
+        group.update = function () {
+            group.remove(wiremesh);
+            group.remove(planemesh);
+//            buffer.clear(wiremesh);
+//            buffer.clear(planemesh);
+            group.init(js3d);
         };
-        var shadows = function () {
-            var obj = new THREE.Object3D();
-            (function () { // x shadow
-                var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
-                    points = [{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}],
-                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
-                shadow.matrixAutoUpdate = false;
-                obj.add(shadow);
-            }());
-            (function () { // z shadow
-                var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
-                    points = [{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}],
-                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
-                shadow.matrixAutoUpdate = false;
-                obj.add(shadow);
-            }());
-            obj.position.y -= settings.floating_height;
-            return obj;
-        };
-        return function () {
-            var obj = new THREE.Object3D();
-            obj.add(x());
-            obj.add(z());
-            obj.add(shadows());
-            return obj;
-        };
+        return group
     };
 })();
