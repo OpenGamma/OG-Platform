@@ -1,7 +1,7 @@
 package com.opengamma.integration.copier;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;

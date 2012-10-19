@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalIdOrderConfig;
 import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 

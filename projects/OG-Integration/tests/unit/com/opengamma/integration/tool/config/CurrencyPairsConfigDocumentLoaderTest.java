@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.integration.tool.config.CurrencyPairsConfigDocumentLoader;
 
 public class CurrencyPairsConfigDocumentLoaderTest {
 

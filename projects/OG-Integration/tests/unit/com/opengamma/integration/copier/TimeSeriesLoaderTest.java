@@ -23,6 +23,8 @@ import org.apache.commons.io.IOUtils;
 import org.mockito.stubbing.OngoingStubbing;
 import org.testng.annotations.Test;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -41,8 +43,6 @@ import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeri
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 public class TimeSeriesLoaderTest {
   
