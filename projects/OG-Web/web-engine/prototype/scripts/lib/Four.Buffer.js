@@ -3,13 +3,13 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSThreeD) window.JSThreeD = {};
+    if (!window.Four) window.Four = {};
     if (!Detector.webgl) throw new Error('JSThreeD.Buffer requires Detector.webgl');
     /**
      * Buffer constructor
      * A buffer stores references to objects that requre their webgl buffers cleared together
      */
-    window.JSThreeD.Buffer = function (renderer) {
+    window.Four.Buffer = function (renderer) {
         var buffer = {};
         buffer.arr = [];
         buffer.add = function (object) {
