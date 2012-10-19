@@ -13,7 +13,7 @@
      * @param {String} color hex colour
      * @return {THREE.Object3D}
      */
-    window.JSThreeD.Tube = function (matlib, points, color) {
+    window.Four.Tube = function (matlib, points, color) {
         var group, line, tube, i = points.length - 1,
             merged = new THREE.Geometry(), material = matlib.get_material('flat', color);
         while (i--) {
