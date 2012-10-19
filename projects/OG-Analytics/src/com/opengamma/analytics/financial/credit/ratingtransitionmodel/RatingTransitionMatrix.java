@@ -12,13 +12,21 @@ public class RatingTransitionMatrix {
 
   private final int _numberOfRatingStates;
 
-  public RatingTransitionMatrix(final int numberOfRatingStates) {
+  private final double[][] _ratingTransitionMatrix;
+
+  public RatingTransitionMatrix(final int numberOfRatingStates, final double[][] ratingTransitionMatrix) {
 
     _numberOfRatingStates = numberOfRatingStates;
+
+    _ratingTransitionMatrix = ratingTransitionMatrix;
   }
 
   public int getNumberOfRatingStates() {
     return _numberOfRatingStates;
+  }
+
+  public double[][] getRatingTransitionMatrix() {
+    return _ratingTransitionMatrix;
   }
 
 }
