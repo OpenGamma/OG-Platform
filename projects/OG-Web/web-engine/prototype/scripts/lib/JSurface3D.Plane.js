@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSurface3D) throw new Error('JSSurface3D.Plane requires JSSurface3D');
+    if (!window.JSurface3D) throw new Error('JSurface3D.Plane requires JSurface3D');
     /**
      * Constructor for a plane with correct x / y vertex position spacing
      * @param {String} type 'surface', 'smilex' or 'smiley'
