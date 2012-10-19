@@ -6,7 +6,6 @@
 package com.opengamma.financial.generator;
 
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;

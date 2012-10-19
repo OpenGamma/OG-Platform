@@ -15,9 +15,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.ChangeProvidingDecorator;
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.position.*;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 
 /**
  * Wraps a position master to trap calls to record user based information to allow clean up and

@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.conversion;
 
-import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
-
-import javax.time.calendar.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.time.calendar.LocalDate;
+
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
 /**
  * 

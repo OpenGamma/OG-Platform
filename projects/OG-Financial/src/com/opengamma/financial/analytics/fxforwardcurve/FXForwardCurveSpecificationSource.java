@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
-import javax.time.Instant;
-
 import com.opengamma.id.VersionCorrection;
 
 /**

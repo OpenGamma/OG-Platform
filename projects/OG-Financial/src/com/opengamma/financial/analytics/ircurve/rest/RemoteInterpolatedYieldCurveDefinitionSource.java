@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;

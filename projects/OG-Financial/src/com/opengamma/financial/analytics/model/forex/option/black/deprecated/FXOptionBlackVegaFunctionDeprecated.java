@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

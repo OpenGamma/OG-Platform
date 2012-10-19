@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

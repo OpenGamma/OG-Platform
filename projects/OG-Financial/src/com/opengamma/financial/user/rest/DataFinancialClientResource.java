@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.user.FinancialClient;
-import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.DataConfigMasterResource;
 import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
 import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;

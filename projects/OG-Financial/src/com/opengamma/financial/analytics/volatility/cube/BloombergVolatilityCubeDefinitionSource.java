@@ -8,8 +8,6 @@ package com.opengamma.financial.analytics.volatility.cube;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.UniqueId;

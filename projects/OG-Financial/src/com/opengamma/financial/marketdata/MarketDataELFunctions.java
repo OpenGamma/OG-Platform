@@ -7,7 +7,6 @@ package com.opengamma.financial.marketdata;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.id.ExternalSchemes;

@@ -7,7 +7,7 @@ package com.opengamma.financial.view;
  
 import java.util.HashSet;
 import java.util.Set;
- 
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;

@@ -22,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.LongShort;
-import com.opengamma.financial.security.SecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 

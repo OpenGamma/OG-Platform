@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.Instant;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.VersionCorrection;

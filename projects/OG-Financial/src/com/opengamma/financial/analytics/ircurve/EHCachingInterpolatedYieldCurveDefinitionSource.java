@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.InstantProvider;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;

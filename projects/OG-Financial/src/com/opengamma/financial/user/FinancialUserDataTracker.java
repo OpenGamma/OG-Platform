@@ -6,7 +6,6 @@
 package com.opengamma.financial.user;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 
 /**
  * Tracks events trapped by the user data masters.

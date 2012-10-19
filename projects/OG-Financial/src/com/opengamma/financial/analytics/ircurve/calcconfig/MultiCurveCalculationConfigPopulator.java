@@ -12,7 +12,6 @@ import java.util.Map;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.ArgumentChecker;

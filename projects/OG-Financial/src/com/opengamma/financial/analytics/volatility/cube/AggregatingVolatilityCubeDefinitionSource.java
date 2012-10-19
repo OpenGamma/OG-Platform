@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.volatility.cube;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve.calcconfig;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.id.VersionCorrection;
 
 /**

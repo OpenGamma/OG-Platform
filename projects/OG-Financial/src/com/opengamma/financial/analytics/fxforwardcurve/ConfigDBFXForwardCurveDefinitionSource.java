@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
-import javax.time.Instant;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;

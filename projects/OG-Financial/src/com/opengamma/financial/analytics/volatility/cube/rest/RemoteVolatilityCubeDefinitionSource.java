@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.volatility.cube.rest;
 
 import java.net.URI;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.VersionCorrection;

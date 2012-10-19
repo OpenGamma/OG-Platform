@@ -7,9 +7,6 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Collection;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import com.google.common.collect.ImmutableList;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import javax.time.Instant;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.id.VersionCorrection;

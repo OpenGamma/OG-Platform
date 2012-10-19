@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.time.Instant;
 
-import com.opengamma.id.*;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,11 +17,12 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.paging.PagingRequest;
-import org.joda.beans.impl.direct.DirectMetaBean;
 
 /**
  * Request for searching for batches.

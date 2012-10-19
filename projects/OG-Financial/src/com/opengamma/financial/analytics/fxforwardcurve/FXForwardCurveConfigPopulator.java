@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;

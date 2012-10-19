@@ -7,10 +7,14 @@ package com.opengamma.financial.analytics.ircurve;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;

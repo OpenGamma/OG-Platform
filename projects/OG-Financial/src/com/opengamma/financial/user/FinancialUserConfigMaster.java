@@ -16,7 +16,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.ChangeProvidingDecorator;
-import com.opengamma.master.config.*;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 
 /**
  * Wraps a view definition repository to trap calls to record user based information to allow clean up and

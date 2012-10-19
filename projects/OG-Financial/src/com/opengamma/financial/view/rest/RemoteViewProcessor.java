@@ -15,7 +15,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;

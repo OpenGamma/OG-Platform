@@ -5,6 +5,8 @@
  */
 package com.opengamma.batch;
 
+import java.util.List;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
@@ -16,8 +18,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
-
-import java.util.List;
 
 /**
  * A master for storing and managing batch job runs.

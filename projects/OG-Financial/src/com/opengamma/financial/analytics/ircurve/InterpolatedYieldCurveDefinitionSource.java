@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
