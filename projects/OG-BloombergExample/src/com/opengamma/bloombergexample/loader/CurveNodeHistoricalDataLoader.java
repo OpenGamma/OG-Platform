@@ -9,7 +9,11 @@ package com.opengamma.bloombergexample.loader;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.functional.Functional.map;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
@@ -22,7 +26,13 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.analytics.ircurve.*;
+import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;

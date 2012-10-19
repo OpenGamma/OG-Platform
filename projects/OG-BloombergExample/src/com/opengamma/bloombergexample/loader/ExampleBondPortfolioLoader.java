@@ -7,16 +7,16 @@ package com.opengamma.bloombergexample.loader;
 
 import java.math.BigDecimal;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
