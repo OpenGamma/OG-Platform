@@ -75,8 +75,8 @@ $.register_module({
                         sel_val = $sel_select.val();
                         sel_pos = $sel_parent.data('pos');
                         entry = ag_opts.pluck('pos').indexOf(sel_pos);
-                    if (elem.is(menu.$dom.add)) return add_handler();
-                    if (elem.is(del_s)) return  del_handler(entry);
+                    if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
+                    if (elem.is(del_s)) return menu.stop(event), del_handler(entry);
                     if (elem.is($sel_checkbox)) return checkbox_handler(entry); 
                     if (elem.is($sel_select)) return select_handler(entry);
                 };

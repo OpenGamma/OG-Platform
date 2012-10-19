@@ -141,8 +141,8 @@ $.register_module({
                     ds_val = $source_select.val();
                     sel_pos = $parent.data('pos');
                     entry = query.pluck('pos').indexOf(sel_pos);
-                    if ($elem.is(menu.$dom.add)) return menu.add_handler();
-                    if ($elem.is(del_s)) return delete_handler(entry);
+                    if ($elem.is(menu.$dom.add)) return menu.stop(event), menu.add_handler();
+                    if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                     if ($elem.is($type_select)) return type_val = type_val.toLowerCase(), type_handler(entry);
                     if ($elem.is($source_select)) return source_handler(entry);
                     if ($elem.is(custom_s))
