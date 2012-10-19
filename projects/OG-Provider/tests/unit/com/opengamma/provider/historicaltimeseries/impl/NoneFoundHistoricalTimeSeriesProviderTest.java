@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
-import com.opengamma.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
