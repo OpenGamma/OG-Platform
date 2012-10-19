@@ -12,7 +12,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.id.*;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
 

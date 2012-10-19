@@ -5,9 +5,7 @@
  */
 package com.opengamma.masterdb.user;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -17,7 +15,6 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.util.PublicSPI;

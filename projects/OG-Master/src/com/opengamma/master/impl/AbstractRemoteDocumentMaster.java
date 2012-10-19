@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.*;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.region.RegionDocument;
 
 /**
  * Abstract base class for remote masters.

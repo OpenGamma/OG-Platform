@@ -5,7 +5,11 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,9 +25,23 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.*;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.SimpleAbstractInMemoryMaster;
-import com.opengamma.master.historicaltimeseries.*;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators;

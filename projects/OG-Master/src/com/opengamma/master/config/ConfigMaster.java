@@ -6,7 +6,6 @@
 package com.opengamma.master.config;
 
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 

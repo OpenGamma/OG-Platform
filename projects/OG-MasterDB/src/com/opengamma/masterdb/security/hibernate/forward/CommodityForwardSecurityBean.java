@@ -4,16 +4,23 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
-import com.opengamma.masterdb.security.hibernate.*;
-import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.masterdb.security.hibernate.ContractCategoryBean;
+import com.opengamma.masterdb.security.hibernate.CurrencyBean;
+import com.opengamma.masterdb.security.hibernate.ExpiryBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.UnitBean;
+import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies

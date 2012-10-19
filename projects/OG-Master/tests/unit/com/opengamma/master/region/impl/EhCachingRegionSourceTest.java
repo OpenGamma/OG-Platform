@@ -5,7 +5,10 @@
  */
 package com.opengamma.master.region.impl;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,7 +26,11 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.id.*;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.i18n.Country;

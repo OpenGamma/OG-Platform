@@ -8,12 +8,9 @@ package com.opengamma.master.config.impl;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.util.functional.Functional.functional;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.jodah.typetools.TypeResolver;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -29,7 +26,6 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.sun.jersey.api.client.GenericType;
 
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.

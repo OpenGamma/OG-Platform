@@ -6,9 +6,7 @@
 package com.opengamma.master.region;
 
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.core.region.Region;
 import com.opengamma.master.AbstractChangeProvidingMaster;
-import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
 /**

@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;

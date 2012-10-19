@@ -1,17 +1,18 @@
 package com.opengamma.masterdb.security.hibernate.future;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies

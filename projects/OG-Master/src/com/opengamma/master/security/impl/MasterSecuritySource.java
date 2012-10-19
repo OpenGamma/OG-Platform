@@ -7,7 +7,6 @@ package com.opengamma.master.security.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
@@ -17,7 +16,11 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
-import com.opengamma.master.security.*;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 

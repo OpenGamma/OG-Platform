@@ -7,7 +7,12 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.util.Map;
 
-import org.joda.beans.*;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -16,10 +21,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 
 /**
  * A document used to pass into and out of the historical time-series master.

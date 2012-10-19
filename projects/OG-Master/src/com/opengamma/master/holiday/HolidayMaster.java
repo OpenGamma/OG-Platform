@@ -5,10 +5,7 @@
  */
 package com.opengamma.master.holiday;
 
-import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.core.holiday.Holiday;
 import com.opengamma.master.AbstractChangeProvidingMaster;
-import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
 /**

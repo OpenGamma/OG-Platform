@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.config;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -16,14 +16,12 @@ import com.opengamma.core.ObjectChangeListenerManager;
 import com.opengamma.core.Source;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.*;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**

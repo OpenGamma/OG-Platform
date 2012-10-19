@@ -7,7 +7,6 @@ package com.opengamma.master.position;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;

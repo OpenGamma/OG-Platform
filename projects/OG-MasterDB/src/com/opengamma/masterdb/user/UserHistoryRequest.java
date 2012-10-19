@@ -5,19 +5,20 @@
  */
 package com.opengamma.masterdb.user;
 
+import java.util.Map;
+
 import javax.time.InstantProvider;
 
-import org.joda.beans.BeanDefinition;
-
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.master.AbstractHistoryRequest;
-import com.opengamma.util.PublicSPI;
-import java.util.Map;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for the history of an user.

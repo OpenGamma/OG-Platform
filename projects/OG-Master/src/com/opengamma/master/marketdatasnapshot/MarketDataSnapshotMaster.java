@@ -5,10 +5,8 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
-import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.AbstractChangeProvidingMaster;
-import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
 /**

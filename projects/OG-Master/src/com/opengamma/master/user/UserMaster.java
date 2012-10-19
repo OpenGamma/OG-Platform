@@ -7,7 +7,6 @@ package com.opengamma.master.user;
 
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.master.AbstractChangeProvidingMaster;
-import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
 /**

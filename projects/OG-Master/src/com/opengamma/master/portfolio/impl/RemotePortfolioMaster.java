@@ -13,7 +13,14 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.portfolio.*;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioHistoryRequest;
+import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.PortfolioSearchRequest;
+import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.api.client.GenericType;
 
