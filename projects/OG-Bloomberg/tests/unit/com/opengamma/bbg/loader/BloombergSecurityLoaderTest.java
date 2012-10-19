@@ -141,7 +141,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     SecurityDocument securityDocument = _securityMaster.get(uid);
     assertNotNull(securityDocument);
 
-    final Security fromSecMaster = securityDocument.getSecurity();
+    final Security fromSecMaster = securityDocument.getObject();
     assertNotNull(fromSecMaster);
 
     expected.accept(new FinancialSecurityVisitorAdapter<Void>() {
@@ -594,7 +594,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest(identifiers));
     assertNotNull(result);
     assertFalse(result.getDocuments().isEmpty());
-    assertNotNull(result.getFirstDocument().getSecurity());
+    assertNotNull(result.getFirstDocument().getObject());
   }
 
 }

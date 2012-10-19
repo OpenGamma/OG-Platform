@@ -42,8 +42,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.security.SecurityProvider;
 
 /**
  * Component factory for setting up a tool context.

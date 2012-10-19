@@ -102,7 +102,7 @@ public class InMemoryPortfolioMasterTest {
     assertEquals("MemPrt", addedDoc.getUniqueId().getScheme());
     assertEquals("1", addedDoc.getUniqueId().getValue());
     
-    ManageablePortfolio addedPortfolio = addedDoc.getPortfolio();
+    ManageablePortfolio addedPortfolio = addedDoc.getObject();
     assertNotNull(addedPortfolio);
     assertSame(origPortfolio, addedPortfolio);
     assertEquals(addedDoc.getUniqueId(), addedPortfolio.getUniqueId());    
@@ -137,7 +137,7 @@ public class InMemoryPortfolioMasterTest {
     PortfolioDocument storedDoc1 = _populatedMaster.get(_prt1.getUniqueId());
     assertNotSame(_prt1, storedDoc1);
     assertEquals(_prt1, storedDoc1);
-    assertStoredPortfolioNodes(storedDoc1.getPortfolio().getRootNode(), _prt1.getPortfolio().getRootNode());
+    assertStoredPortfolioNodes(storedDoc1.getObject().getRootNode(), _prt1.getObject().getRootNode());
   }
   
   public void test_getIsClone() {
@@ -151,7 +151,7 @@ public class InMemoryPortfolioMasterTest {
   }
   
   public void test_getNode() {
-    ManageablePortfolioNode prt1Root = _prt1.getPortfolio().getRootNode();
+    ManageablePortfolioNode prt1Root = _prt1.getObject().getRootNode();
     ManageablePortfolioNode storedPrt1Root = _populatedMaster.getNode(prt1Root.getUniqueId());
     assertNotSame(prt1Root, storedPrt1Root);
     assertEquals(prt1Root, storedPrt1Root);
@@ -198,7 +198,7 @@ public class InMemoryPortfolioMasterTest {
   
   public void test_search_filterByNodeId() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    ManageablePortfolioNode prt1Root = _prt1.getPortfolio().getRootNode();
+    ManageablePortfolioNode prt1Root = _prt1.getObject().getRootNode();
     ManageablePortfolioNode prt1RootChild1 = prt1Root.getChildNodes().get(0);
     ManageablePortfolioNode prt1RootChild1Child1 = prt1RootChild1.getChildNodes().get(0);
     request.addNodeObjectId(prt1RootChild1Child1.getUniqueId().getObjectId());

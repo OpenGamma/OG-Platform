@@ -8,9 +8,6 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
-import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
 import net.sf.ehcache.CacheManager;
 
 import org.joda.beans.BeanBuilder;
@@ -42,8 +39,6 @@ import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSer
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the historical time-series source.

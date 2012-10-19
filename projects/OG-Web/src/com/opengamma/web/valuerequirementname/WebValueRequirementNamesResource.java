@@ -17,8 +17,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -26,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractWebResource;
 
 /**

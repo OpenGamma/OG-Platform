@@ -1,4 +1,10 @@
 /**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+/**
  * <p>The classes in this package implement the back end for the analytics user interface. This displays analytics data
  * calculated for a view definition and portfolio. There UI for a view always has two main grids. The portfolio
  * grid shows analytics data calculated for positions and nodes in a portfolio. The primitives grid shows other
@@ -17,10 +23,5 @@
  * everything below it in the hierarchy are not. Threads that mutate the state must have exclusive access,
  * multiple reader threads can access the structure concurrently. {@link LockingAnalyticsView} is an
  * {@link AnalyticsView} implementation that decorates {@link SimpleAnalyticsView} and enforces this model.</p>
- */
-/*
- * Copyright (C) 201 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
  */
 package com.opengamma.web.server.push.analytics;

@@ -34,6 +34,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -61,7 +62,7 @@ import com.opengamma.util.paging.Paging;
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbMarketDataSnapshotMaster
-    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
+    extends AbstractDocumentDbMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
   static {
@@ -166,10 +167,10 @@ public class DbMarketDataSnapshotMaster
    */
   @Override
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
+    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
+    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getObject();
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -244,9 +245,19 @@ public class DbMarketDataSnapshotMaster
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSnapshot(marketDataSnapshot);
+      doc.setObject(marketDataSnapshot);
       _documents.add(doc);
     }
   }
 
+  @Override
+  public AbstractHistoryResult<MarketDataSnapshotDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    MarketDataSnapshotHistoryRequest historyRequest = new MarketDataSnapshotHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

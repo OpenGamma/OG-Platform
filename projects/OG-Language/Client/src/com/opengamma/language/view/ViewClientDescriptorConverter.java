@@ -10,8 +10,10 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 
 import java.util.Map;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.convert.TypeMap;
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -45,9 +47,9 @@ public class ViewClientDescriptorConverter extends AbstractTypeConverter {
       viewId = UniqueId.parse(view);
     } catch (IllegalArgumentException e) {
       // Not a unique identifier. Might be a view name ...
-      final ViewDefinition viewDefinition = conversionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository().getDefinition(view);
-      if (viewDefinition != null) {
-        viewId = viewDefinition.getUniqueId();
+      final ConfigItem<ViewDefinition> viewDefinitionItem = conversionContext.getGlobalContext().getViewProcessor().getConfigSource().get(ViewDefinition.class, view, VersionCorrection.LATEST);
+      if (viewDefinitionItem != null) {
+        viewId = viewDefinitionItem.getUniqueId();
       } else {
         conversionContext.setFail();
         return;

@@ -11,8 +11,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
-
 import cern.jet.random.engine.MersenneTwister64;
 
 /**

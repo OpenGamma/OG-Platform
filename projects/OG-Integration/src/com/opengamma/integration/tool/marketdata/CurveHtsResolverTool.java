@@ -27,6 +27,7 @@ import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
@@ -39,7 +40,6 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigMasterIterator;
@@ -171,8 +171,8 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
     ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
-    for (ConfigDocument<YieldCurveDefinition> doc : ConfigMasterIterator.iterable(configMaster, request)) {
-      results.add(doc.getValue());
+    for (ConfigItem<YieldCurveDefinition> item : ConfigMasterIterator.iterable(configMaster, request)) {
+      results.add(item.getValue());
     }
     return results;
   }
@@ -188,7 +188,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     Set<ExternalId> externalIds = newHashSet();
     for (String name : names) {
       s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getByName(YieldCurveDefinition.class, name, null);
+      YieldCurveDefinition curveDefinition = configSource.get(YieldCurveDefinition.class, name, null).getValue();
       if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {

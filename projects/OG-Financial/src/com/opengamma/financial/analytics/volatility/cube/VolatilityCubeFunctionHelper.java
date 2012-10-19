@@ -20,21 +20,23 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 public class VolatilityCubeFunctionHelper {
 
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilityCubeFunctionHelper.class);
-  
+
   private final Currency _currency;
   private final String _definitionName;
   private VolatilityCubeDefinition _definition;
 
-  
+
   public VolatilityCubeFunctionHelper(Currency currency, String definitionName) {
     _definitionName = definitionName;
     _currency = currency;
@@ -46,31 +48,31 @@ public class VolatilityCubeFunctionHelper {
       s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
       } else {
         s_logger.warn("Cube {} on {} has no identifier - cannot subscribe to updates", _definitionName, _currency);
       }
     }
     return _definition;
   }
-  
+
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
     return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
   }
-  
+
   public Currency getCurrency() {
     return _currency;
   }
-  
+
   public String getDefinitionName() {
     return _definitionName;
   }
-  
+
   public Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile(
-      final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+    final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
     final LocalDate curveDate = atInstant.toLocalDate();
@@ -85,15 +87,15 @@ public class VolatilityCubeFunctionHelper {
     expiry = eod;
     // }
     return new Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification>(atInstant.withTime(0, 0),
-        expiry, specification);
+      expiry, specification);
   }
 
   private VolatilityCubeDefinition getDefinition(FunctionCompilationContext context) {
     final VolatilityCubeDefinitionSource defnSource = OpenGammaCompilationContext
-    .getVolatilityCubeDefinitionSource(context);
+      .getVolatilityCubeDefinitionSource(context);
     return defnSource.getDefinition(_currency, _definitionName);
   }
-  
+
   private VolatilityCubeSpecification buildSpecification(LocalDate curveDate) {
     return null; //TODO this when we know how to resolve
   }

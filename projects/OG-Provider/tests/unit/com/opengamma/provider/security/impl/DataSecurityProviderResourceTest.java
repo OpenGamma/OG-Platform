@@ -23,7 +23,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.provider.security.SecurityProviderGetRequest;
 import com.opengamma.provider.security.SecurityProviderGetResult;
-import com.opengamma.provider.security.impl.DataSecurityProviderResource;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

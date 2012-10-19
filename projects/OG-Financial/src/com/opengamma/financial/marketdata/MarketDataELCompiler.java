@@ -48,7 +48,7 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
         eval.setVariable("x", original);
         switch (requirement.getTargetSpecification().getType()) {
           case SECURITY:
-            eval.setVariable("security", getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId()));
+            eval.setVariable("security", getSecuritySource().get(requirement.getTargetSpecification().getUniqueId()));
             break;
           case PRIMITIVE:
             if (requirement.getTargetSpecification().getIdentifier() != null) {

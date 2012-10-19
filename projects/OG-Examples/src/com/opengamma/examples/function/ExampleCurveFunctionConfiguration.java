@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
@@ -32,7 +33,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurv
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -69,7 +69,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
       searchRequest.setType(YieldCurveDefinition.class);
 
       final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-      for (final ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
+      for (final ConfigItem<YieldCurveDefinition> configDocument : searchResult.getValues()) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
         if (underscore <= 0) {

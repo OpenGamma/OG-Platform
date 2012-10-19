@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.maths.lowlevelapi.functions.utilities.Sum;
-
 
 /**
  * Tests the sum function

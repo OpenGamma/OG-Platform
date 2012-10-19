@@ -32,7 +32,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_get_nullUID() {
-    _prtMaster.get(null);
+    _prtMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

@@ -12,8 +12,6 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 

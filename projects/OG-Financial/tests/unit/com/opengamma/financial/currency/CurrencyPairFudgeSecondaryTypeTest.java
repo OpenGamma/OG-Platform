@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.currency;
 
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -15,8 +17,7 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 public class CurrencyPairFudgeSecondaryTypeTest {
 

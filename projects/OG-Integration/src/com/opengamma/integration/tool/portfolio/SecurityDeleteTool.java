@@ -8,14 +8,13 @@ package com.opengamma.integration.tool.portfolio;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -87,11 +86,11 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
     for (SecurityDocument securityDocument : securitySearchResult.getDocuments()) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
         getToolContext().getSecurityMaster().remove(securityDocument.getUniqueId());
-        s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
-            " (" + securityDocument.getSecurity().getName() + ")");
+        s_logger.warn("Deleted " + securityDocument.getObject().getUniqueId() + 
+            " (" + securityDocument.getObject().getName() + ")");
       } else {
-        s_logger.warn("Matched " + securityDocument.getSecurity().getUniqueId() + 
-            " (" + securityDocument.getSecurity().getName() + ")");
+        s_logger.warn("Matched " + securityDocument.getObject().getUniqueId() + 
+            " (" + securityDocument.getObject().getName() + ")");
       }
 
     }

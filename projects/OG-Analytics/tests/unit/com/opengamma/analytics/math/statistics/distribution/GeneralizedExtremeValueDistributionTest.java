@@ -11,9 +11,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.statistics.distribution.GeneralizedExtremeValueDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-
 public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 1.5;
   private static final double SIGMA = 0.6;

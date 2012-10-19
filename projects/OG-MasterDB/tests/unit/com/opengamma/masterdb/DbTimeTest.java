@@ -6,6 +6,7 @@
 package com.opengamma.masterdb;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,6 +60,7 @@ public class DbTimeTest extends DbTest {
 
   @Test
   public void test_writeRead_timestamp() {
+    try {
     // create test table
     String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
     getDbConnector().getJdbcTemplate().update(drop);
@@ -116,6 +118,9 @@ public class DbTimeTest extends DbTest {
     
     // tidy up
     getDbConnector().getJdbcTemplate().update(drop);
+    } catch (Exception ex) {
+      fail(ex.getMessage());
+    }
   }
 
 //  @Test

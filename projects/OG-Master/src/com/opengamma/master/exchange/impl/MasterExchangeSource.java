@@ -29,7 +29,7 @@ import com.opengamma.util.paging.PagingRequest;
  * This class provides the source on top of a standard {@link ExchangeMaster}.
  */
 @PublicSPI
-public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument, ExchangeMaster> implements ExchangeSource {
+public class MasterExchangeSource extends AbstractMasterSource<Exchange, ExchangeDocument, ExchangeMaster> implements ExchangeSource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -52,24 +52,24 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableExchange getExchange(UniqueId uniqueId) {
-    return getDocument(uniqueId).getExchange();
+  public ManageableExchange get(UniqueId uniqueId) {
+    return getDocument(uniqueId).getObject();
   }
 
   @Override
-  public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getExchange();
+  public Exchange get(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(objectId, versionCorrection).getObject();
   }
 
   @Override
-  public Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
     searchRequest.setVersionCorrection(getVersionCorrection());
     return getMaster().search(searchRequest).getExchanges();
   }
 
   @Override
-  public ManageableExchange getSingleExchange(ExternalId identifier) {
+  public ManageableExchange getSingle(ExternalId identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());
@@ -77,7 +77,7 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   }
 
   @Override
-  public ManageableExchange getSingleExchange(ExternalIdBundle identifiers) {
+  public ManageableExchange getSingle(ExternalIdBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());

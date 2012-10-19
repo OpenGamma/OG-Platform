@@ -8,8 +8,6 @@ package com.opengamma.master.region.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -23,6 +21,7 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionDocumentComparator;
@@ -42,25 +41,12 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryRegionMaster implements RegionMaster {
+public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<ManageableRegion, RegionDocument> implements RegionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemReg";
-
-  /**
-   * A cache of regions by identifier.
-   */
-  private final ConcurrentMap<ObjectId, RegionDocument> _store = new ConcurrentHashMap<ObjectId, RegionDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -71,7 +57,7 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemoryRegionMaster(final ChangeManager changeManager) {
@@ -80,7 +66,7 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryRegionMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -89,15 +75,12 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemoryRegionMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
   }
 
   //-------------------------------------------------------------------------
@@ -139,11 +122,11 @@ public class InMemoryRegionMaster implements RegionMaster {
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.region");
+
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableRegion region = document.getRegion();
+    final ManageableRegion region = document.getObject();
     region.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -152,7 +135,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     _store.put(objectId, document);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -161,8 +144,8 @@ public class InMemoryRegionMaster implements RegionMaster {
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.region");
+
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final RegionDocument storedDocument = _store.get(uniqueId.getObjectId());
@@ -176,18 +159,18 @@ public class InMemoryRegionMaster implements RegionMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Region not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Region not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -201,7 +184,7 @@ public class InMemoryRegionMaster implements RegionMaster {
   public RegionHistoryResult history(final RegionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-    
+
     final RegionHistoryResult result = new RegionHistoryResult();
     final RegionDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
@@ -211,10 +194,9 @@ public class InMemoryRegionMaster implements RegionMaster {
     return result;
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
+  protected void validateDocument(RegionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getObject(), "document.region");
   }
-
 }

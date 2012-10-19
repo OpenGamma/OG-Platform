@@ -12,8 +12,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.robust.TrimmedMeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.robust.WinsorizedMeanCalculator;
 
 /**
  * 

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -18,6 +17,7 @@ import org.apache.commons.cli.Options;
 import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractDualComponentTool;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The entry point for running OpenGamma batches. 

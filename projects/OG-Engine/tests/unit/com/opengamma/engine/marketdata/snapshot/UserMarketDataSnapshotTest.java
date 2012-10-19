@@ -44,7 +44,7 @@ public class UserMarketDataSnapshotTest {
 
     MarketDataSnapshotSource snapshotSource = mock(MarketDataSnapshotSource.class);
     UniqueId snapshotId = UniqueId.of("TestSnapshot", "1");
-    when(snapshotSource.getSnapshot(snapshotId)).thenReturn(snapshot);
+    when(snapshotSource.get(snapshotId)).thenReturn(snapshot);
     
     UniqueId testValueId = UniqueId.of("TestScheme", "Value1");
 

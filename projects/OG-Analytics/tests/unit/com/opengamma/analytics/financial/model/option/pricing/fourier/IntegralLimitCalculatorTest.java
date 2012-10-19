@@ -2,7 +2,6 @@ package com.opengamma.analytics.financial.model.option.pricing.fourier;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.fourier.IntegralLimitCalculator;
 import com.opengamma.analytics.math.ComplexMathUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;

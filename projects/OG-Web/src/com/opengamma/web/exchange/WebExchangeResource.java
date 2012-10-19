@@ -131,7 +131,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   }
 
   private URI updateExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
-    ManageableExchange exchange = data().getExchange().getExchange().clone();
+    ManageableExchange exchange = data().getExchange().getObject().clone();
     exchange.setName(name);
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of(idScheme, idValue)));
     exchange.setRegionIdBundle(ExternalIdBundle.of(ExternalId.of(regionScheme, regionValue)));
@@ -174,7 +174,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     FlexiBean out = super.createRootData();
     ExchangeDocument doc = data().getExchange();
     out.put("exchangeDoc", doc);
-    out.put("exchange", doc.getExchange());
+    out.put("exchange", doc.getObject());
     out.put("deleted", !doc.isLatest());
     return out;
   }

@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -29,15 +30,15 @@ public class ViewDefinitionChangeListener implements ChangeListener {
       // Locked to a specific version
       return;
     }
-    if (event.getBeforeId() == null) {
+    if (event.getType().equals(ChangeType.ADDED)) {
       // View definition created 
       return;
     }
-    if (event.getAfterId() == null) {
+    if (event.getType().equals(ChangeType.REMOVED)) {
       // View definition could have been deleted - do we want to stop the process?
       return;
     }
-    if (event.getBeforeId().getObjectId().equals(getViewDefinitionId().getObjectId())) {
+    if (event.getType().equals(ChangeType.CHANGED)) {
       getViewComputationJob().dirtyViewDefinition();
     }
   }

@@ -5,7 +5,21 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_FIRST_TRADE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_UNITS;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
+import static com.opengamma.bbg.BloombergConstants.FIELD_LAST_TRADEABLE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_QUOTED_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_QUOTE_UNITS;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;

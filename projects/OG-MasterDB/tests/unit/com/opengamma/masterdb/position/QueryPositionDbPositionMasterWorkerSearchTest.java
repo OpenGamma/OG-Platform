@@ -182,7 +182,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     position.getTrades().add(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     _posMaster.add(doc);
     assertNotNull(trade1.getUniqueId());
     assertNotNull(trade2.getUniqueId());
@@ -220,7 +220,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     position.addTrade(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     _posMaster.add(doc);
     assertNotNull(trade1.getUniqueId());
     assertNotNull(trade2.getUniqueId());
@@ -260,7 +260,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     position.addTrade(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     _posMaster.add(doc);
     assertNotNull(trade1.getUniqueId());
     assertNotNull(trade2.getUniqueId());

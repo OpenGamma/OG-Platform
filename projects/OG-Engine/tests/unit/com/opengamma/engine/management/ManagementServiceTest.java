@@ -109,7 +109,7 @@ public class ManagementServiceTest {
   private void addAnotherView(ViewProcessorImpl viewprocessor) {
     ViewDefinition anotherDefinition = new ViewDefinition(UniqueId.of("boo", "far"), ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
-    _env.getMockViewDefinitionRepository().addDefinition(anotherDefinition);
+    _env.getMockViewDefinitionRepository().put(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.attachToViewProcess(anotherDefinition.getUniqueId(), ExecutionOptions.infinite(MarketData.live()), false);
   }

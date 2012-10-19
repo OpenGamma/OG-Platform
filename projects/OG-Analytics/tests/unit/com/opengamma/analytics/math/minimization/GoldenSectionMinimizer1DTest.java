@@ -7,9 +7,6 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.minimization.GoldenSectionMinimizer1D;
-import com.opengamma.analytics.math.minimization.ScalarMinimizer;
-
 /**
  * 
  */

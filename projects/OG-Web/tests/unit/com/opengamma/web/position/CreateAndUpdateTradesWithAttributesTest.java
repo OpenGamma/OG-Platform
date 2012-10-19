@@ -260,7 +260,7 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   private ManageableTrade assertTrade(PositionDocument positionDocument) {
     assertNotNull(positionDocument);
     
-    ManageablePosition position = positionDocument.getPosition();
+    ManageablePosition position = positionDocument.getObject();
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     assertEquals(1, position.getTrades().size());
     ManageableTrade trade = position.getTrades().iterator().next();

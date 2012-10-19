@@ -5,7 +5,15 @@
  */
 package com.opengamma.masterdb;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.opengamma.util.functional.Functional.functional;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
@@ -21,14 +29,17 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.MasterUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -43,14 +54,14 @@ import com.opengamma.util.paging.PagingRequest;
  * This provides common implementations of methods in a standard {@link AbstractMaster}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
- * 
+ *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D> {
+public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractDbMaster implements AbstractMaster<T, D> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
-  
+
   /**
    * The change manager.
    */
@@ -58,7 +69,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param dbConnector  the database connector, not null
    * @param defaultScheme  the default scheme for unique identifier, not null
    */
@@ -70,7 +81,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Gets the change manager.
-   * 
+   *
    * @return the change manager, not null
    */
   public ChangeManager getChangeManager() {
@@ -79,7 +90,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Sets the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public void setChangeManager(final ChangeManager changeManager) {
@@ -88,9 +99,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the change manager that handles events.
-   * 
+   *
    * @return the change manager, not null if in use
    */
   public ChangeManager changeManager() {
@@ -98,9 +110,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Performs a standard get by unique identifier, handling exact version or latest.
-   * 
+   *
    * @param uniqueId  the unique identifier, not null
    * @param extractor  the extractor to use, not null
    * @param masterName  a name describing the contents of the master for an error message, not null
@@ -109,7 +122,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   protected D doGet(final UniqueId uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
-    
+
     if (uniqueId.isVersioned()) {
       return doGetById(uniqueId, extractor, masterName);
     } else {
@@ -119,7 +132,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Performs a standard get by object identifier at instants.
-   * 
+   *
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction locator, not null
    * @param extractor  the extractor to use, not null
@@ -127,13 +140,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the document, null if not found
    */
   protected D doGetByOidInstants(
-      final ObjectIdentifiable objectId, final VersionCorrection versionCorrection,
-      final ResultSetExtractor<List<D>> extractor, final String masterName) {
+    final ObjectIdentifiable objectId, final VersionCorrection versionCorrection,
+    final ResultSetExtractor<List<D>> extractor, final String masterName) {
     ArgumentChecker.notNull(objectId, "oid");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(extractor, "extractor");
     s_logger.debug("getByOidInstants {}", objectId);
-    
+
     final VersionCorrection vc = (versionCorrection.containsLatest() ? versionCorrection.withLatestFixed(now()) : versionCorrection);
     final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
@@ -147,7 +160,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Gets the SQL arguments to use for a standard get by object identifier at instants.
-   * 
+   *
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction locator with instants fixed, not null
    * @return the SQL arguments, not null
@@ -163,7 +176,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Performs a standard get by versioned unique identifier.
-   * 
+   *
    * @param uniqueId  the versioned unique identifier, not null
    * @param extractor  the extractor to use, not null
    * @param masterName  a name describing the contents of the master for an error message, not null
@@ -173,7 +186,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(extractor, "extractor");
     s_logger.debug("getById {}", uniqueId);
-    
+
     final DbMapSqlParameterSource args = argsGetById(uniqueId);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final String sql = getElSqlBundle().getSql("GetById", args);
@@ -186,7 +199,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Gets the SQL arguments to use for a standard get by versioned unique identifier.
-   * 
+   *
    * @param uniqueId  the versioned unique identifier, not null
    * @return the SQL arguments, not null
    */
@@ -198,9 +211,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Performs a standard history search.
-   * 
+   *
    * @param <R>  the document result type
    * @param request  the request, not null
    * @param result  the result to populate, not null
@@ -208,15 +222,15 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the populated result, not null
    */
   protected <R extends AbstractHistoryResult<D>> R doHistory(
-      final AbstractHistoryRequest request, final R result,
-      final ResultSetExtractor<List<D>> extractor) {
+    final AbstractHistoryRequest request, final R result,
+    final ResultSetExtractor<List<D>> extractor) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(result, "result");
     ArgumentChecker.notNull(extractor, "extractor");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     checkScheme(request.getObjectId());
     s_logger.debug("history {}", request);
-    
+
     final DbMapSqlParameterSource args = argsHistory(request);
     final String[] sql = {getElSqlBundle().getSql("History", args), getElSqlBundle().getSql("HistoryCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, extractor, result);
@@ -225,7 +239,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Gets the SQL arguments to use for searching the history of a document.
-   * 
+   *
    * @param request  the request, not null
    * @return the SQL arguments, not null
    */
@@ -252,19 +266,20 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Searches for documents with paging.
-   * 
+   *
    * @param pagingRequest  the paging request, not null
    * @param sql  the array of SQL, query and count, not null
    * @param args  the query arguments, not null
    * @param extractor  the extractor of results, not null
    * @param result  the object to populate, not null
    */
-  protected void searchWithPaging(
-      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
-      final ResultSetExtractor<List<D>> extractor, final AbstractDocumentsResult<D> result) {
-    
+  protected <T extends AbstractDocument> void searchWithPaging(
+    final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+    final ResultSetExtractor<List<T>> extractor, final AbstractDocumentsResult<T> result) {
+
     s_logger.debug("with args {}", args);
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (pagingRequest.equals(PagingRequest.ALL)) {
@@ -292,13 +307,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         return doAddInTransaction(document);
       }
     });
-    changeManager().entityChanged(ChangeType.ADDED, null, added.getUniqueId(), added.getVersionFromInstant());
+    changeManager().entityChanged(ChangeType.ADDED, added.getObjectId(), added.getVersionFromInstant(), added.getVersionToInstant(), now());
     return added;
   }
 
   /**
    * Processes the document add, within a retrying transaction.
-   * 
+   *
    * @param document  the document to add, not null
    * @return the added document, not null
    */
@@ -321,7 +336,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     s_logger.debug("update {}", document);
-    
+
     final UniqueId beforeId = document.getUniqueId();
     ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
     D updated = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
@@ -329,14 +344,14 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       public D doInTransaction(final TransactionStatus status) {
         return doUpdateInTransaction(document);
       }
-    });
-    changeManager().entityChanged(ChangeType.UPDATED, beforeId, updated.getUniqueId(), updated.getVersionFromInstant());
+    });    
+    changeManager().entityChanged(ChangeType.CHANGED, updated.getObjectId(), updated.getVersionFromInstant(), updated.getVersionToInstant(), now());
     return updated;
   }
 
   /**
    * Processes the document update, within a retrying transaction.
-   * 
+   *
    * @param document  the document to update, not null
    * @return the updated document, not null
    */
@@ -346,6 +361,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     // update old row
     final Instant now = now();
     oldDoc.setVersionToInstant(now);
+    oldDoc.setCorrectionToInstant(now);
     updateVersionToInstant(oldDoc);
     // insert new row
     document.setVersionFromInstant(now);
@@ -360,28 +376,32 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    checkScheme(uniqueId);
-    s_logger.debug("remove {}", uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    checkScheme(objectIdentifiable);
+    s_logger.debug("remove {}", objectIdentifiable);
     D removed = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
-        return doRemoveInTransaction(uniqueId);
+        return doRemoveInTransaction(objectIdentifiable);
       }
     });
-    changeManager().entityChanged(ChangeType.REMOVED, removed.getUniqueId(), null, removed.getVersionToInstant());
+    changeManager().entityChanged(ChangeType.REMOVED, removed.getObjectId(), removed.getVersionToInstant(), null, removed.getVersionToInstant());
   }
 
   /**
    * Processes the document update, within a retrying transaction.
    *
-   * @param uniqueId  the unique identifier to remove, not null
+   * @param objectIdentifiable the objectIdentifiable to remove, not null
    * @return the updated document, not null
    */
-  protected D doRemoveInTransaction(final UniqueId uniqueId) {
+  protected D doRemoveInTransaction(final ObjectIdentifiable objectIdentifiable) {
     // load old row
-    final D oldDoc = getCheckLatestVersion(uniqueId);
+    final D oldDoc = get(objectIdentifiable.getObjectId(), VersionCorrection.LATEST);
+    
+    if(oldDoc == null){
+      throw new DataNotFoundException("There is no document with oid:"+objectIdentifiable.getObjectId());
+    }
     // update old row
     final Instant now = now();
     oldDoc.setVersionToInstant(now);
@@ -395,7 +415,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     s_logger.debug("correct {}", document);
-    
+
     final UniqueId beforeId = document.getUniqueId();
     ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
     D corrected = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
@@ -404,13 +424,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         return doCorrectInTransaction(document);
       }
     });
-    changeManager().entityChanged(ChangeType.CORRECTED, beforeId, corrected.getUniqueId(), corrected.getVersionFromInstant());
+    changeManager().entityChanged(ChangeType.CHANGED, corrected.getObjectId(), corrected.getVersionFromInstant(), corrected.getVersionToInstant(), now());
     return corrected;
   }
 
   /**
    * Processes the document correction, within a retrying transaction.
-   * 
+   *
    * @param document  the document to correct, not null
    * @return the corrected document, not null
    */
@@ -432,12 +452,366 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     return document;
   }
 
+  @Override
+  public List<UniqueId> replaceVersion(final UniqueId uniqueId, final List<D> replacementDocuments) {
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    for (D replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "replacementDocument");
+    }
+    final Instant now = now();
+
+    ArgumentChecker.isTrue(MasterUtils.checkUniqueVersionsFrom(replacementDocuments), "No two versioned documents may have the same \"version from\" instant");
+
+    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<List<UniqueId>>() {
+      @Override
+      public List<UniqueId> doInTransaction(final TransactionStatus status) {
+        D storedDocument = get(uniqueId);
+        if (storedDocument == null) {
+          throw new DataNotFoundException("Document not found: " + uniqueId.getObjectId());
+        }
+        ArgumentChecker.isTrue(storedDocument.getCorrectionToInstant() == null, "we can replace only current document. The " + storedDocument.getUniqueId() + " is not current.");
+
+        Instant storedVersionFrom = storedDocument.getVersionFromInstant();
+        Instant storedVersionTo = storedDocument.getVersionToInstant();
+
+        ArgumentChecker.isTrue(
+          MasterUtils.checkVersionInstantsWithinRange(storedVersionFrom, storedVersionFrom, storedVersionTo, replacementDocuments, true),
+          "The versions must exactly match the version range of the original version being replaced.");
+
+        // we terminate the stored docuemnt (correction)
+        storedDocument.setCorrectionToInstant(now);
+        updateCorrectionToInstant(storedDocument);
+
+        
+
+        List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
+
+        List<D> newVersions = newArrayList();
+
+        Instant previousDocumentVersionTo = null;
+        if (orderedReplacementDocuments.isEmpty()) {
+          // since we don't have replacement documents we rather act as versionRemove than versionReplace
+          D previousDocument = getPreviousDocument(uniqueId.getObjectId(), now, storedVersionFrom);
+          if (previousDocument != null) {
+            // we terminate the previous docuemnt (correction)
+            previousDocument.setCorrectionToInstant(now);
+            updateCorrectionToInstant(previousDocument);
+            // and create new copy of it extending versionTo instant to storedDocument's versionFrom instant
+            previousDocument.setCorrectionFromInstant(now);
+            previousDocument.setCorrectionToInstant(null);
+            previousDocument.setVersionToInstant(storedVersionFrom);
+            previousDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
+            insert(previousDocument);
+            newVersions.add(previousDocument);
+            changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
+          }else{
+            changeManager().entityChanged(ChangeType.REMOVED, storedDocument.getObjectId(), null, null, now);  
+          }
+        } else {          
+          for (D replacementDocument : orderedReplacementDocuments) {
+            replacementDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
+            insert(replacementDocument);
+            newVersions.add(replacementDocument);            
+          }
+          changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
+        }
+        return MasterUtils.mapToUniqueIDs(newVersions);
+      }
+    });
+  }
+
+  private D getPreviousDocument(final ObjectId oid, final Instant now, final Instant thisVersionFrom) {
+    return historyByVersionsCorrections(new AbstractHistoryRequest() {
+      @Override
+      public Instant getCorrectionsFromInstant() {
+        return now;
+      }
+
+      @Override
+      public Instant getCorrectionsToInstant() {        
+        return now;
+      }
+
+      @Override
+      public ObjectId getObjectId() {
+        return oid;
+      }
+
+      @Override
+      public PagingRequest getPagingRequest() {
+        return PagingRequest.ONE;
+      }
+
+      @Override
+      public Instant getVersionsFromInstant() {
+        return thisVersionFrom.minus(1, TimeUnit.MILLISECONDS);
+      }
+
+      @Override
+      public Instant getVersionsToInstant() {
+        return thisVersionFrom.minus(1, TimeUnit.MILLISECONDS);
+      }
+    }).getFirstDocument();
+  }
+
+  private List<D> getAllCurrentDocuments(final ObjectId oid, final Instant now) {
+    return historyByVersionsCorrections(new AbstractHistoryRequest() {
+      @Override
+      public Instant getCorrectionsFromInstant() {
+        return now;
+      }
+
+      @Override
+      public Instant getCorrectionsToInstant() {
+        return now;
+      }
+
+      @Override
+      public ObjectId getObjectId() {
+        return oid;
+      }
+
+      @Override
+      public PagingRequest getPagingRequest() {
+        return PagingRequest.ALL;
+      }
+
+      @Override
+      public Instant getVersionsFromInstant() {
+        return null;
+      }
+
+      @Override
+      public Instant getVersionsToInstant() {
+        return null;
+      }
+    }).getDocuments();
+  }
+
+  private List<D> getCurrentDocumentsInRange(final ObjectId oid, final Instant now, final Instant from, final Instant to) {
+    return historyByVersionsCorrections(new AbstractHistoryRequest() {
+      @Override
+      public Instant getCorrectionsFromInstant() {
+        return now;
+      }
+
+      @Override
+      public Instant getCorrectionsToInstant() {
+        return now;
+      }
+
+      @Override
+      public ObjectId getObjectId() {
+        return oid;
+      }
+
+      @Override
+      public PagingRequest getPagingRequest() {
+        return PagingRequest.ALL;
+      }
+
+      @Override
+      public Instant getVersionsFromInstant() {
+        return from;
+      }
+
+      @Override
+      public Instant getVersionsToInstant() {
+        return to;
+      }
+    }).getDocuments();
+  }
+
+  private D getNextDocument(final ObjectId oid, final Instant now, final Instant thisVersionTo) {
+    return historyByVersionsCorrections(new AbstractHistoryRequest() {
+      @Override
+      public Instant getCorrectionsFromInstant() {
+        return now;
+      }
+
+      @Override
+      public Instant getCorrectionsToInstant() {
+        return now;
+      }
+
+      @Override
+      public ObjectId getObjectId() {
+        return oid;
+      }
+
+      @Override
+      public PagingRequest getPagingRequest() {
+        return PagingRequest.ONE;
+      }
+
+      @Override
+      public Instant getVersionsFromInstant() {
+        return thisVersionTo;
+      }
+
+      @Override
+      public Instant getVersionsToInstant() {
+        return thisVersionTo;
+      }
+    }).getFirstDocument();
+  }
+
+
+  @Override
+  public List<UniqueId> replaceAllVersions(final ObjectIdentifiable objectId, final List<D> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    final Instant now = now();
+
+    for (D replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument.getVersionFromInstant(), "Each replacement document must have version from defined.");
+    }
+
+    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<List<UniqueId>>() {
+      @Override
+      public List<UniqueId> doInTransaction(final TransactionStatus status) {
+
+        boolean terminatedAny = false;
+
+        List<D> storedDocuments = getAllCurrentDocuments(objectId.getObjectId(), now);
+
+        for (D storedDocument : storedDocuments) {
+          ArgumentChecker.isTrue(storedDocument.getCorrectionToInstant() == null, "we can replace only current documents. The " + storedDocument.getUniqueId() + " is not current.");
+        }
+        // terminating all current documents
+        for (D storedDocument : storedDocuments) {
+          storedDocument.setCorrectionToInstant(now);
+          updateCorrectionToInstant(storedDocument);
+          terminatedAny = true;
+        }
+
+        if (terminatedAny && replacementDocuments.isEmpty()) {
+          changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);          
+          return Collections.emptyList();
+        } else {
+          List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, null, null, replacementDocuments);
+          for (D replacementDocument : orderedReplacementDocuments) {
+            replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
+            insert(replacementDocument);                          
+          }
+          changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
+          return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
+        }
+      }
+    });
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(final ObjectIdentifiable objectId, final List<D> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    final Instant now = now();
+
+    if (!replacementDocuments.isEmpty()) {
+
+      for (D replacementDocument : replacementDocuments) {
+        ArgumentChecker.notNull(replacementDocument.getVersionFromInstant(), "Each replacement document must have version from defined.");
+      }
+      
+      final List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, null, null, replacementDocuments);
+
+      final Instant lowestVersionFrom = orderedReplacementDocuments.get(0).getVersionFromInstant();
+      final Instant highestVersionTo = orderedReplacementDocuments.get(orderedReplacementDocuments.size() - 1).getVersionToInstant();
+
+      return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<List<UniqueId>>() {
+        @Override
+        public List<UniqueId> doInTransaction(final TransactionStatus status) {
+
+          boolean terminatedAny = false;
+
+          List<D> storedDocuments = getCurrentDocumentsInRange(objectId.getObjectId(), now, lowestVersionFrom, highestVersionTo);
+
+          if (!storedDocuments.isEmpty()) {
+            for (D storedDocument : storedDocuments) {
+              ArgumentChecker.isTrue(storedDocument.getCorrectionToInstant() == null, "we can replace only current documents. The " + storedDocument.getUniqueId() + " is not current.");
+            }
+            
+            D earliestStoredDocument = storedDocuments.get(storedDocuments.size() - 1); 
+            D latestStoredDocument = storedDocuments.get(0);
+            
+
+            // terminating all current documents
+            for (D storedDocument : storedDocuments) {
+              storedDocument.setCorrectionToInstant(now);
+              updateCorrectionToInstant(storedDocument);
+              terminatedAny = true;
+            }
+            
+            if (earliestStoredDocument != null && earliestStoredDocument.getVersionFromInstant().isBefore(lowestVersionFrom)) {
+              // we need to make copy of the earliestStoredDocument                            
+              earliestStoredDocument.setVersionToInstant(lowestVersionFrom);
+              earliestStoredDocument.setCorrectionFromInstant(now);
+              earliestStoredDocument.setCorrectionToInstant(null);
+              earliestStoredDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
+              insert(earliestStoredDocument);            
+            }
+            if (latestStoredDocument != null && latestStoredDocument.getVersionToInstant() != null && highestVersionTo != null && latestStoredDocument.getVersionToInstant().isAfter(highestVersionTo)) {
+              // we need to make copy of the latestStoredDocument
+              latestStoredDocument.setVersionFromInstant(highestVersionTo);
+              latestStoredDocument.setCorrectionFromInstant(now);
+              latestStoredDocument.setCorrectionToInstant(null);
+              latestStoredDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
+              insert(latestStoredDocument);
+            }
+          }
+          if (terminatedAny && replacementDocuments.isEmpty()) {
+            changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);
+            return Collections.emptyList();
+          } else {
+            for (D replacementDocument : orderedReplacementDocuments) {
+              replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
+              insert(replacementDocument);                                         
+            }
+            changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
+            return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
+          }
+
+        }
+      });
+
+    }
+    // nothing to replace with
+    return Collections.emptyList();
+  }
+
+  @Override
+  final public void removeVersion(final UniqueId uniqueId) {
+    replaceVersion(uniqueId, Collections.<D>emptyList());
+  }
+
+  @Override
+  final public UniqueId replaceVersion(D replacementDocument) {
+    ArgumentChecker.notNull(replacementDocument, "replacementDocument");
+    List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+  @Override
+  final public UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
+    List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+
   //-------------------------------------------------------------------------
+
   /**
    * Merges any fields from the old document that have not been updated.
    * <p>
    * Masters can choose to accept a null value for a field to mean
-   * 
+   *
    * @param newDocument  the new document to merge into, not null
    * @param oldDocument  the old document to merge from, not null
    */
@@ -453,16 +827,17 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Inserts a new document.
-   * 
+   *
    * @param document  the document to insert, not null
    * @return the new document, not null
    */
   protected abstract D insert(D document);
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the document ensuring that it is the latest version.
-   * 
+   *
    * @param uniqueId  the unique identifier to load, not null
    * @return the loaded document, not null
    */
@@ -476,7 +851,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Updates the document row to mark the version as ended.
-   * 
+   *
    * @param document  the document to update, not null
    */
   protected void updateVersionToInstant(final D document) {
@@ -492,9 +867,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the document ensuring that it is the latest version.
-   * 
+   *
    * @param uniqueId  the unique identifier to load, not null
    * @return the loaded document, not null
    */
@@ -508,10 +884,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /**
    * Updates the document row to mark the correction as ended.
-   * 
+   *
    * @param document  the document to update, not null
    */
-  protected void updateCorrectionToInstant(final D document) {
+  protected void updateCorrectionToInstant(final AbstractDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
@@ -523,4 +899,25 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     }
   }
 
+  abstract public D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
+
+  /**
+   * Queries the history of an object.
+   * <p>
+   * The request must contain an object identifier to identify the object.
+   *
+   * @param request  the history request, not null
+   * @return the object history, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  abstract public AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
+
+  @Override
+  public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, D> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 }

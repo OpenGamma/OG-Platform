@@ -15,6 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -44,20 +45,18 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noConfigId() {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("Name");
-    doc.setValue(ExternalId.of("A", "B"));
-    _cfgMaster.correct(doc);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("Name");    
+    _cfgMaster.correct(new ConfigDocument(item));
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
+    ConfigItem<ExternalId> doc = ConfigItem.of(ExternalId.of("A", "B"));
     doc.setUniqueId(uniqueId);
-    doc.setName("Name");
-    doc.setValue(ExternalId.of("A", "B"));
-    _cfgMaster.correct(doc);
+    doc.setName("Name");   
+    _cfgMaster.correct(new ConfigDocument(doc));
   }
 
   @Test
@@ -65,28 +64,29 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> base = _cfgMaster.get(uniqueId, ExternalId.class);
-    ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);
+    ConfigDocument base = _cfgMaster.get(uniqueId);
+
+    ConfigItem<ExternalId> input = ConfigItem.of(ExternalId.of("A", "B"));
     input.setUniqueId(uniqueId);
     input.setName("NewName");
-    input.setValue(ExternalId.of("A", "B"));
+
     
-    ConfigDocument<ExternalId> corrected = _cfgMaster.correct(input);
+    ConfigDocument corrected = _cfgMaster.correct(new ConfigDocument(input));
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals("NewName", corrected.getName());
-    assertEquals(ExternalId.of("A", "B"), corrected.getValue());
+    assertEquals(ExternalId.of("A", "B"), corrected.getObject().getValue());
     
-    ConfigDocument<ExternalId> old = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getValue(), old.getValue());
+    assertEquals(base.getObject().getValue(), old.getObject().getValue());
     
     ConfigHistoryRequest<ExternalId> search = new ConfigHistoryRequest<ExternalId>(base.getUniqueId(), now, null);
     search.setType(ExternalId.class);
@@ -100,22 +100,20 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> base = _cfgMaster.get(uniqueId, ExternalId.class);
-    ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);
-    input.setUniqueId(uniqueId);
-    input.setName("NewName");
-    input.setValue(null);  // name change only
+    ConfigDocument base = _cfgMaster.get(uniqueId);
+    ConfigItem<ExternalId> input = (ConfigItem<ExternalId>) base.getObject();
+    input.setName("NewName"); // name change only
     
-    ConfigDocument<ExternalId> corrected = _cfgMaster.correct(input);
+    ConfigDocument corrected = _cfgMaster.correct(new ConfigDocument(input));
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals("NewName", corrected.getName());  // name changed
-    assertEquals(base.getValue(), corrected.getValue());  // value unchanged
+    assertEquals(base.getObject().getValue(), corrected.getObject().getValue());  // value unchanged
     
-    ConfigDocument<ExternalId> old = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getValue(), old.getValue());
+    assertEquals(base.getObject().getValue(), old.getObject().getValue());
   }
 
 }

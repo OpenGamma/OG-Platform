@@ -53,24 +53,24 @@ public class OrphanedPositionRemoverTest {
     
     _positionMaster = new InMemoryPositionMaster();
     _pos1 = new PositionDocument(new ManageablePosition(BigDecimal.ONE, SEC1));
-    _pos1.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos1.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
     _pos1 = _positionMaster.add(_pos1);
     
     _pos2 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(2), SEC2));
-    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
-    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos2.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos2.getObject().addTrade(JodaBeanUtils.clone(TRADE2));
     _pos2 = _positionMaster.add(_pos2);
     
     _pos3 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(3), SEC3));
-    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
-    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
-    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE3));
+    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE3));
     _pos3 = _positionMaster.add(_pos3);
     
     _pos4 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(3), SEC4));
-    _pos4.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
-    _pos4.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
-    _pos4.getPosition().addTrade(JodaBeanUtils.clone(TRADE3));
+    _pos4.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos4.getObject().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos4.getObject().addTrade(JodaBeanUtils.clone(TRADE3));
     _pos4 = _positionMaster.add(_pos4);
     
     _portfolioMaster = new InMemoryPortfolioMaster();
@@ -98,23 +98,23 @@ public class OrphanedPositionRemoverTest {
   public void removeOrphanedPosition() {
     
     PositionDocument positionDocument = _positionMaster.get(_pos1.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     positionDocument = _positionMaster.get(_pos2.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     positionDocument = _positionMaster.get(_pos3.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     positionDocument = _positionMaster.get(_pos4.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     
     OrphanedPositionRemover positionRemover = new OrphanedPositionRemover(_portfolioMaster, _positionMaster);
     positionRemover.run();
     
     positionDocument = _positionMaster.get(_pos1.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     positionDocument = _positionMaster.get(_pos2.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     positionDocument = _positionMaster.get(_pos3.getUniqueId());
-    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    AssertJUnit.assertNotNull(positionDocument.getObject());
     try {
     _positionMaster.get(_pos4.getUniqueId());
     AssertJUnit.fail("position 4 should have been removed");

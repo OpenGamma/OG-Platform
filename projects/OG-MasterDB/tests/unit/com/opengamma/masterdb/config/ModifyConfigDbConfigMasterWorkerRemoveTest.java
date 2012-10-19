@@ -47,14 +47,14 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     _cfgMaster.remove(uniqueId);
-    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
     assertEquals("TestConfig101", test.getName());
   }
 

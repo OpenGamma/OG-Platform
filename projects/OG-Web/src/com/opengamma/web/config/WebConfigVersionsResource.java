@@ -79,9 +79,9 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ConfigDocument<?> doc = data().getConfig();
+    ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
-    out.put("config", doc.getValue());
+    out.put("config", doc.getObject().getValue());
     out.put("deleted", !doc.isLatest());
     return out;
   }
@@ -90,10 +90,10 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   @Path("{versionId}")
   public WebConfigVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
-    ConfigDocument<?> doc = data().getConfig();
+    ConfigDocument doc = data().getConfig();
     UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
-      ConfigDocument<?> versioned = data().getConfigMaster().get(combined);
+      ConfigDocument versioned = data().getConfigMaster().get(combined);
       data().setVersioned(versioned);
     } else {
       data().setVersioned(doc);

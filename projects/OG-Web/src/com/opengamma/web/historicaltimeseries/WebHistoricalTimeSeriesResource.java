@@ -128,7 +128,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     FlexiBean out = super.createRootData();
     HistoricalTimeSeriesInfoDocument doc = data().getInfo();
     out.put("infoDoc", doc);
-    out.put("info", doc.getInfo());
+    out.put("info", doc.getObject());
     out.put("related", getRelatedTimeSeries());
     out.put("timeseries", data().getTimeSeries());
     out.put("deleted", !doc.isLatest());
@@ -137,10 +137,10 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
 
   private Collection<ManageableHistoricalTimeSeriesInfo> getRelatedTimeSeries() {
     HistoricalTimeSeriesInfoSearchRequest searchRequest = 
-        new HistoricalTimeSeriesInfoSearchRequest(data().getInfo().getInfo().getExternalIdBundle().toBundle());
+        new HistoricalTimeSeriesInfoSearchRequest(data().getInfo().getObject().getExternalIdBundle().toBundle());
     HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);    
     Collection<ManageableHistoricalTimeSeriesInfo> result = searchResult.getInfoList();
-    result.remove(data().getInfo().getInfo()); // remove the original time series itself from its related list
+    result.remove(data().getInfo().getObject()); // remove the original time series itself from its related list
     return result;
   }
   

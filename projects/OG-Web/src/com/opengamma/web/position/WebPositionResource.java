@@ -114,7 +114,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
   }
 
   private URI updatePosition(PositionDocument doc, BigDecimal quantity, Collection<ManageableTrade> trades) {
-    ManageablePosition position = doc.getPosition();
+    ManageablePosition position = doc.getObject();
     if (Objects.equal(position.getQuantity(), quantity) == false || trades != null) {
       position.setQuantity(quantity);
       position.getTrades().clear();
@@ -169,22 +169,22 @@ public class WebPositionResource extends AbstractWebPositionResource {
     // time-series information is in the wrong place.
     
     ObjectId tsObjectId = null;
-    if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
+    if (doc.getObject().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
       // Get the last price HTS for the security
       HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
       HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(
-          MarketDataRequirementNames.MARKET_VALUE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
+          MarketDataRequirementNames.MARKET_VALUE, doc.getObject().getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
       if (series != null) {
         tsObjectId = series.getUniqueId().getObjectId();
       }
     }
     
     out.put("positionDoc", doc);
-    out.put("position", doc.getPosition());
-    out.put("security", doc.getPosition().getSecurity());
+    out.put("position", doc.getObject());
+    out.put("security", doc.getObject().getSecurity());
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
-    out.put("attributes", doc.getPosition().getAttributes());
+    out.put("attributes", doc.getObject().getAttributes());
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
     out.put("tradeAttrModel", tradeAttributesModel);
     return out;
@@ -192,7 +192,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
 
   private TradeAttributesModel getTradeAttributesModel() {
     PositionDocument doc = data().getPosition();
-    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
+    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getObject());
     return getTradeAttributesModel;
   }
   

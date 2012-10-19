@@ -5,25 +5,18 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
-import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.copier.sheet.writer.SheetWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
-import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.util.generate.scripts.Scriptable;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.derby.iapi.services.io.ArrayUtil;
 
 /**
  * The portfolio saver tool

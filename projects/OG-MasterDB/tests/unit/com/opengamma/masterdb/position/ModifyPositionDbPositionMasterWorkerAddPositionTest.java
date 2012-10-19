@@ -62,7 +62,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument test = _posMaster.add(doc);
     
     UniqueId uniqueId = test.getUniqueId();
@@ -75,7 +75,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition testPosition = test.getPosition();
+    ManageablePosition testPosition = test.getObject();
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -93,7 +93,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument test = _posMaster.add(doc);
     
     Instant now = Instant.now(_posMaster.getTimeSource());
@@ -107,7 +107,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition testPosition = test.getPosition();
+    ManageablePosition testPosition = test.getObject();
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -141,7 +141,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument test = _posMaster.add(doc);
     
     Instant now = Instant.now(_posMaster.getTimeSource());
@@ -155,7 +155,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition testPosition = test.getPosition();
+    ManageablePosition testPosition = test.getObject();
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -194,7 +194,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());
@@ -217,7 +217,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "D"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument test = _posMaster.add(doc);
     
     UniqueId portfolioId = test.getUniqueId();
@@ -230,7 +230,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition testPosition = test.getPosition();
+    ManageablePosition testPosition = test.getObject();
     assertNotNull(testPosition);
     assertEquals(portfolioId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -256,7 +256,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_add_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());
@@ -290,7 +290,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());
@@ -312,7 +312,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());
@@ -334,7 +334,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "C"), offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), ExternalId.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());
@@ -361,7 +361,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument test = _posMaster.add(doc);
     
     UniqueId uniqueId = test.getUniqueId();
@@ -374,7 +374,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition testPosition = test.getPosition();
+    ManageablePosition testPosition = test.getObject();
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -406,7 +406,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
+    doc.setObject(position);
     PositionDocument added = _posMaster.add(doc);
     assertNotNull(added);
     assertNotNull(added.getUniqueId());

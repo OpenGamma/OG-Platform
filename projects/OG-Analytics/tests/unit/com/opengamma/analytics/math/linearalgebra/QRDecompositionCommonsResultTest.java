@@ -19,8 +19,6 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.QRDecompositionCommonsResult;
-import com.opengamma.analytics.math.linearalgebra.QRDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 

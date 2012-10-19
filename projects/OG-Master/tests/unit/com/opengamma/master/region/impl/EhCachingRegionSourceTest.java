@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.Instant;
@@ -21,6 +22,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
@@ -64,11 +67,11 @@ public class EhCachingRegionSourceTest {
   @Test
   public void test_getRegion_uniqueId() {
     assertEquals(0, _underlying.getCount().get());
-    Region first = _cachingRegionSource.getRegion(UID);
+    Region first = _cachingRegionSource.get(UID);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(TEST_REGION, first);
-    
-    Region second = _cachingRegionSource.getRegion(UID);
+
+    Region second = _cachingRegionSource.get(UID);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(first, second);
   }
@@ -77,11 +80,11 @@ public class EhCachingRegionSourceTest {
   public void test_getRegion_uniqueId_notAvailable() {
     UniqueId uid = UniqueId.of("X", "Y", "Z");
     assertEquals(0, _underlying.getCount().get());
-    Region first = _cachingRegionSource.getRegion(uid);
+    Region first = _cachingRegionSource.get(uid);
     assertEquals(1, _underlying.getCount().get());
     assertNull(first);
-    
-    Region second = _cachingRegionSource.getRegion(uid);
+
+    Region second = _cachingRegionSource.get(uid);
     assertEquals(1, _underlying.getCount().get());
     assertNull(second);
   }
@@ -89,11 +92,11 @@ public class EhCachingRegionSourceTest {
   @Test
   public void test_getRegion_objectId_versionCorrection() {
     assertEquals(0, _underlying.getCount().get());
-    Region first = _cachingRegionSource.getRegion(OID, VersionCorrection.LATEST);
+    Region first = _cachingRegionSource.get(OID, VersionCorrection.LATEST);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(TEST_REGION, first);
-    
-    Region second = _cachingRegionSource.getRegion(OID, VersionCorrection.LATEST);
+
+    Region second = _cachingRegionSource.get(OID, VersionCorrection.LATEST);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(first, second);
   }
@@ -101,11 +104,11 @@ public class EhCachingRegionSourceTest {
   @Test
   public void test_getRegion_objectId_versionCorrection_notAvailable() {
     assertEquals(0, _underlying.getCount().get());
-    Region first = _cachingRegionSource.getRegion(OID, VC);
+    Region first = _cachingRegionSource.get(OID, VC);
     assertEquals(1, _underlying.getCount().get());
     assertNull(first);
-    
-    Region second = _cachingRegionSource.getRegion(OID, VC);
+
+    Region second = _cachingRegionSource.get(OID, VC);
     assertEquals(1, _underlying.getCount().get());
     assertNull(second);
   }
@@ -113,12 +116,12 @@ public class EhCachingRegionSourceTest {
   @Test
   public void test_getRegions_externalIdBundle_versionCorrection() {
     assertEquals(0, _underlying.getCount().get());
-    Collection<? extends Region> firstRegions = _cachingRegionSource.getRegions(BUNDLE, VersionCorrection.LATEST);
+    Collection<? extends Region> firstRegions = _cachingRegionSource.get(BUNDLE, VersionCorrection.LATEST);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(1, firstRegions.size());
     assertTrue(firstRegions.contains(TEST_REGION));
-    
-    Collection<? extends Region> secondRegions = _cachingRegionSource.getRegions(BUNDLE, VersionCorrection.LATEST);
+
+    Collection<? extends Region> secondRegions = _cachingRegionSource.get(BUNDLE, VersionCorrection.LATEST);
     assertEquals(1, _underlying.getCount().get());
     assertEquals(firstRegions, secondRegions);
   }
@@ -126,11 +129,11 @@ public class EhCachingRegionSourceTest {
   @Test
   public void test_getRegions_externalIdBundle_versionCorrection_notAvailable() {
     assertEquals(0, _underlying.getCount().get());
-    Collection<? extends Region> firstRegions = _cachingRegionSource.getRegions(BUNDLE, VC);
+    Collection<? extends Region> firstRegions = _cachingRegionSource.get(BUNDLE, VC);
     assertEquals(1, _underlying.getCount().get());
     assertTrue(firstRegions.isEmpty());
-    
-    Collection<? extends Region> secondRegions = _cachingRegionSource.getRegions(BUNDLE, VC);
+
+    Collection<? extends Region> secondRegions = _cachingRegionSource.get(BUNDLE, VC);
     assertEquals(1, _underlying.getCount().get());
     assertTrue(secondRegions.isEmpty());
   }
@@ -208,7 +211,7 @@ public class EhCachingRegionSourceTest {
     }
 
     @Override
-    public Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
       _count.getAndIncrement();
       Collection<? extends Region> result = Collections.emptyList();
       if (_testRegion.getExternalIdBundle().equals(bundle) && versionCorrection.equals(VersionCorrection.LATEST)) {
@@ -218,7 +221,7 @@ public class EhCachingRegionSourceTest {
     }
     
     @Override
-    public Region getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
+    public Region get(ObjectId objectId, VersionCorrection versionCorrection) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getUniqueId().getObjectId().equals(objectId) && versionCorrection.equals(VersionCorrection.LATEST)) {
@@ -228,7 +231,7 @@ public class EhCachingRegionSourceTest {
     }
     
     @Override
-    public Region getRegion(UniqueId uniqueId) {
+    public Region get(UniqueId uniqueId) {
       _count.getAndIncrement();
       Region result = null;
       if (_testRegion.getUniqueId().equals(uniqueId)) {
@@ -264,7 +267,20 @@ public class EhCachingRegionSourceTest {
     public AtomicLong getCount() {
       return _count;
     }
-    
+
+    @Override
+    public Map<UniqueId, Region> get(Collection<UniqueId> uniqueIds) {
+      Map<UniqueId, Region> result = Maps.newHashMap();
+      for (UniqueId uniqueId : uniqueIds) {
+        try {
+          Region security = get(uniqueId);
+          result.put(uniqueId, security);
+        } catch (DataNotFoundException ex) {
+          // do nothing
+        }
+      }
+      return result;
+    }
   }
   
 }

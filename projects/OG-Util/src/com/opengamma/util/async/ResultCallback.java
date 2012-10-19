@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.async;
 
+import java.util.concurrent.ExecutorService;
+
 
 /**
  * Signals production of a result for a {@link AsynchronousResult} instance.

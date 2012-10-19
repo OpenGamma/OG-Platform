@@ -70,7 +70,7 @@ public class OrphanedPositionRemover {
       PositionSearchRequest searchRequest = new PositionSearchRequest();
       searchRequest.setPagingRequest(PagingRequest.ofPage(i, PAGE_SIZE));
       for (PositionDocument positionDocument : _positionMaster.search(searchRequest).getDocuments()) {
-        UniqueId positionId = positionDocument.getPosition().getUniqueId();
+        UniqueId positionId = positionDocument.getObject().getUniqueId();
         if (!validPositions.contains(positionId.getObjectId())) {
           result.add(positionId);
         }
@@ -96,7 +96,7 @@ public class OrphanedPositionRemover {
       PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
       searchRequest.setPagingRequest(PagingRequest.ofPage(i, PAGE_SIZE));
       for (PortfolioDocument portfolioDocument : _portfolioMaster.search(searchRequest).getDocuments()) {
-        accumulatePositionIdentifiers(portfolioDocument.getPortfolio().getRootNode(), result);
+        accumulatePositionIdentifiers(portfolioDocument.getObject().getRootNode(), result);
       }
     }
     return result;

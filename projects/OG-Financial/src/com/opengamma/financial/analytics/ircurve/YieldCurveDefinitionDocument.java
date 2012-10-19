@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * A document used to pass into and out of the yield curve definition master.
  */
 @BeanDefinition
-public class YieldCurveDefinitionDocument extends AbstractDocument implements Serializable {
+public class YieldCurveDefinitionDocument extends AbstractDocument<YieldCurveDefinition> implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -80,6 +80,7 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
    * The meta-bean for {@code YieldCurveDefinitionDocument}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("unchecked")
   public static YieldCurveDefinitionDocument.Meta meta() {
     return YieldCurveDefinitionDocument.Meta.INSTANCE;
   }
@@ -195,7 +196,7 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
   /**
    * The meta-bean for {@code YieldCurveDefinitionDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta {
+  public static class Meta extends AbstractDocument.Meta<YieldCurveDefinition> {
     /**
      * The singleton instance of the meta-bean.
      */

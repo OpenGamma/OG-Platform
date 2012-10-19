@@ -102,7 +102,7 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwapSecurity underlyingSwap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, COUNTERPARTY, payLeg, receiveLeg);
     underlyingSwap.setName("Receive fixed @ 2% v USD 3m Libor");
     final SecurityDocument toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(underlyingSwap);
+    toAddDoc.setObject(underlyingSwap);
     securityMaster.add(toAddDoc);
     final ZonedDateTime[] tradeDates = new ZonedDateTime[] {tradeDate, tradeDate};
     final ExternalId underlyingId = getSecurityPersister().storeSecurity(underlyingSwap).iterator().next();
@@ -128,10 +128,10 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwapSecurity underlyingSwap2 = new SwapSecurity(tradeDate, effectiveDate, maturityDate, COUNTERPARTY, payLeg, receiveLeg2);
     underlyingSwap2.setName("Receive fixed @ 1.825% v USD 3m Libor");
     SecurityDocument toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(underlyingSwap1);
+    toAddDoc.setObject(underlyingSwap1);
     securityMaster.add(toAddDoc);
     toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(underlyingSwap2);
+    toAddDoc.setObject(underlyingSwap2);
     securityMaster.add(toAddDoc);
     final ExternalId underlyingId1 = getSecurityPersister().storeSecurity(underlyingSwap1).iterator().next();
     final ExternalId underlyingId2 = getSecurityPersister().storeSecurity(underlyingSwap2).iterator().next();
@@ -157,10 +157,10 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwapSecurity underlyingSwap2 = new SwapSecurity(tradeDate, effectiveDate, maturityDate, COUNTERPARTY, receiveLeg, payLeg);
     underlyingSwap2.setName("Pay fixed @ 2% v USD 3m Libor");
     SecurityDocument toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(underlyingSwap1);
+    toAddDoc.setObject(underlyingSwap1);
     securityMaster.add(toAddDoc);
     toAddDoc = new SecurityDocument();
-    toAddDoc.setSecurity(underlyingSwap2);
+    toAddDoc.setObject(underlyingSwap2);
     securityMaster.add(toAddDoc);
     final ExternalId underlyingId1 = getSecurityPersister().storeSecurity(underlyingSwap1).iterator().next();
     final ExternalId underlyingId2 = getSecurityPersister().storeSecurity(underlyingSwap2).iterator().next();

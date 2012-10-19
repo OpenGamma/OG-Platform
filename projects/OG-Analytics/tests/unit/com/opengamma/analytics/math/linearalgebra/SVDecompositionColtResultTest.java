@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
@@ -14,7 +14,6 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.SingularValueDecomposition;
 
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionColtResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**

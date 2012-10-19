@@ -6,7 +6,7 @@
 package com.opengamma.master.user;
 
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface UserMaster extends AbstractMaster<UserDocument>, ChangeProvider {
+public interface UserMaster extends AbstractChangeProvidingMaster<ManageableOGUser, UserDocument>, ChangeProvider {
 
   /**
    * Searches for users matching the specified search criteria.

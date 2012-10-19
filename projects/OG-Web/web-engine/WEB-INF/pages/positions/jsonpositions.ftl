@@ -10,8 +10,8 @@
 	    "dataFields": ["id", "name", "quantity", "trades"]
     },
 	"data": [<#if searchResult??>
-	 <#list searchResult.documents as item>
-	   "${item.position.uniqueId.objectId}|${item.position.name}|${item.position.quantity}|${item.position.trades?size}"<#if item_has_next>,</#if>
+	 <#list searchResult.positions as position>
+	   "${position.uniqueId.objectId}|${position.name}|${position.quantity}|${position.trades?size}"<#if position_has_next>,</#if>
 	 </#list> </#if>]
 }
 </#escape>

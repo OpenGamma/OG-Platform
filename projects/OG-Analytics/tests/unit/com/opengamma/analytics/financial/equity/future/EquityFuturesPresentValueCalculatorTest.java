@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
-import com.opengamma.analytics.financial.equity.future.EquityFuturesPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
 

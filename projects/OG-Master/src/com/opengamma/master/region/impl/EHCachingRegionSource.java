@@ -5,7 +5,10 @@
  */
 package com.opengamma.master.region.impl;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.Collection;
+import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -14,6 +17,7 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
@@ -108,11 +112,11 @@ public class EHCachingRegionSource implements RegionSource {
   }
 
   @Override
-  public Region getRegion(UniqueId uniqueId) {
+  public Region get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     Region result = null;
     if (uniqueId.isLatest()) {
-      result = _underlying.getRegion(uniqueId);
+      result = _underlying.get(uniqueId);
       s_logger.debug("Caching region {}", result);
       _cache.put(new Element(uniqueId, result));
     } else {
@@ -124,7 +128,7 @@ public class EHCachingRegionSource implements RegionSource {
         }
       } else {
         s_logger.debug("Cache miss on {}", uniqueId);
-        result = _underlying.getRegion(uniqueId);
+        result = _underlying.get(uniqueId);
         s_logger.debug("Caching region {}", result);
         _cache.put(new Element(uniqueId, result));
       }
@@ -133,7 +137,7 @@ public class EHCachingRegionSource implements RegionSource {
   }
 
   @Override
-  public Region getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Region get(ObjectId objectId, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setVersionCorrection(versionCorrection);
     request.addObjectId(objectId);
@@ -145,7 +149,7 @@ public class EHCachingRegionSource implements RegionSource {
       result = (Region) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
-      result = _underlying.getRegion(objectId, versionCorrection);
+      result = _underlying.get(objectId, versionCorrection);
       s_logger.debug("Caching regions {}", result);
       _cache.put(new Element(request, result));
       if (result != null) {
@@ -157,7 +161,7 @@ public class EHCachingRegionSource implements RegionSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
     request.setVersionCorrection(versionCorrection);
     
@@ -168,7 +172,7 @@ public class EHCachingRegionSource implements RegionSource {
       result = (Collection<? extends Region>) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
-      result = _underlying.getRegions(bundle, versionCorrection);
+      result = _underlying.get(bundle, versionCorrection);
       s_logger.debug("Caching regions {}", result);
       element = new Element(request, result);
       if (_ttl != null) {
@@ -211,7 +215,21 @@ public class EHCachingRegionSource implements RegionSource {
     }
     return result;
   }
-  
+
+  @Override
+  public Map<UniqueId, Region> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, Region> result = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      try {
+        Region object = get(uniqueId);
+        result.put(uniqueId, object);
+      } catch (DataNotFoundException ex) {
+        // do nothing
+      }
+    }
+    return result;
+  }
+
   /**
    * Call this at the end of a unit test run to clear the state of EHCache.
    * It should not be part of a generic lifecycle method.

@@ -179,7 +179,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo info = test.getObject();
     assertNotNull(info);
     assertEquals(uniqueId, info.getUniqueId());
     assertEquals("N101", info.getName());
@@ -204,7 +204,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo info = test.getObject();
     assertNotNull(info);
     assertEquals(uniqueId, info.getUniqueId());
     assertEquals("N102", info.getName());
@@ -229,7 +229,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo info = test.getObject();
     assertNotNull(info);
     assertEquals(uniqueId, info.getUniqueId());
     assertEquals("N201", info.getName());
@@ -254,7 +254,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(_version3Instant, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo info = test.getObject();
     assertNotNull(info);
     assertEquals(uniqueId, info.getUniqueId());
     assertEquals("N202", info.getName());
@@ -279,7 +279,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version3Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo info = test.getObject();
     assertNotNull(info);
     assertEquals(uniqueId, info.getUniqueId());
     assertEquals("N203", info.getName());

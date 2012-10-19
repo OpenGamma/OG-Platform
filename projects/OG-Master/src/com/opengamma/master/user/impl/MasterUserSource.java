@@ -27,7 +27,7 @@ import com.opengamma.master.user.UserSearchRequest;
  * The {@link UserSource} interface provides exchanges to the application via a narrow API.
  * This class provides the source on top of a standard {@link UserMaster}.
  */
-public class MasterUserSource extends AbstractMasterSource<UserDocument, UserMaster> implements UserSource {
+public class MasterUserSource extends AbstractMasterSource<ManageableOGUser, UserDocument, UserMaster> implements UserSource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.

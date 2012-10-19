@@ -33,7 +33,7 @@ public final class RegionDocumentComparator implements Comparator<RegionDocument
   //-------------------------------------------------------------------------
   @Override
   public int compare(RegionDocument r1, RegionDocument r2) {
-    return RegionComparator.ASC.compare(r1.getRegion(), r2.getRegion());
+    return RegionComparator.ASC.compare(r1.getObject(), r2.getObject());
   }
 
 }

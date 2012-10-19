@@ -5,12 +5,15 @@
  */
 package com.opengamma.masterdb.config;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -31,8 +34,10 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -74,6 +79,35 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
+    }
+  }
+
+  protected ObjectId setupTestData(Instant now) {
+    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    try {
+      _cfgMaster.setTimeSource(TimeSource.fixed(now));
+
+      String initialValue = "initial";
+      ConfigItem<String> initial = ConfigItem.of(initialValue, "some_name");      
+      _cfgMaster.add(new ConfigDocument(initial));
+
+      ObjectId baseOid = initial.getObjectId();
+
+      //------------------------------------------------------------------------------------------------------------------
+      List<ConfigDocument> firstReplacement = newArrayList();
+      for (int i = 0; i < 5; i++) {
+        String val = "setup_" + i;
+        ConfigItem<String> item = ConfigItem.of(val, "some_name_"+i);
+        ConfigDocument doc = new ConfigDocument(item);
+        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        firstReplacement.add(doc);
+      }
+      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _cfgMaster.replaceVersions(baseOid.getObjectId(), firstReplacement);
+
+      return baseOid;
+    } finally {
+      _cfgMaster.setTimeSource(origTimeSource);
     }
   }
 
@@ -157,7 +191,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  protected void assert101(final ConfigDocument<ExternalId> test) {
+  protected void assert101(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -166,10 +200,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig101", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert102(final ConfigDocument<ExternalId> test) {
+  protected void assert102(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -178,10 +212,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1bInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig102", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert201(final ConfigDocument<ExternalId> test) {
+  protected void assert201(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -190,10 +224,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1cInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig201", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert202(final ConfigDocument<ExternalId> test) {
+  protected void assert202(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -201,7 +235,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
 }

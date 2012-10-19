@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.util.money.Currency;
 
 /**

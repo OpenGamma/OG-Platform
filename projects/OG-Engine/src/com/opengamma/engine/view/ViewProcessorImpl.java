@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -80,7 +81,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   // Injected inputs
   private final String _name;
-  private final ViewDefinitionRepository _viewDefinitionRepository;
+  private final ConfigSource _configSource;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
   private final ComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
@@ -119,7 +120,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   public ViewProcessorImpl(
       String name,
-      ViewDefinitionRepository viewDefinitionRepository,
+      ConfigSource configSource,
       NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
       ComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
@@ -135,7 +136,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       OverrideOperationCompiler overrideOperationCompiler,
       ViewResultListenerFactory viewResultListenerFactory) {
     _name = name;
-    _viewDefinitionRepository = viewDefinitionRepository;
+    _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
@@ -159,8 +160,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   @Override
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    return _viewDefinitionRepository;
+  public ConfigSource getConfigSource() {
+    return _configSource;
   }
 
   @Override
@@ -542,7 +543,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
-        _viewDefinitionRepository,
+        _configSource,
         _viewPermissionProvider,
         _marketDataProviderFactoryResolver,
         _functionCompilationService,

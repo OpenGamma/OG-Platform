@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.function.special.NaturalLogGammaFunction;
 
 public class NaturalLogGammaFunctionTest {
   private static final Function1D<Double, Double> LN_GAMMA = new NaturalLogGammaFunction();

@@ -150,7 +150,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday holiday = test.getHoliday();
+    ManageableHoliday holiday = test.getObject();
     assertNotNull(holiday);
     assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals(ExternalId.of("COPP_CLARK", "1"), test.getProviderId());
@@ -170,7 +170,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday holiday = test.getHoliday();
+    ManageableHoliday holiday = test.getObject();
     assertNotNull(holiday);
     assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday102", test.getName());
@@ -190,7 +190,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday holiday = test.getHoliday();
+    ManageableHoliday holiday = test.getObject();
     assertNotNull(holiday);
     assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday201", test.getName());
@@ -210,7 +210,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHoliday holiday = test.getHoliday();
+    ManageableHoliday holiday = test.getObject();
     assertNotNull(holiday);
     assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday202", test.getName());

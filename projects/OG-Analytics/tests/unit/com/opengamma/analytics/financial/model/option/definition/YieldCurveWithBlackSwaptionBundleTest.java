@@ -13,8 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
-import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 
 public class YieldCurveWithBlackSwaptionBundleTest {
 

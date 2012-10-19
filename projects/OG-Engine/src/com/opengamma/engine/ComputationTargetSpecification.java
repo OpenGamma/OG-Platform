@@ -134,7 +134,7 @@ public final class ComputationTargetSpecification implements Serializable {
         // Just use the identifier as given.
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
-        final Security security = securitySource.getSecurity(getUniqueId());
+        final Security security = securitySource.get(getUniqueId());
         // Package up the other identifiers
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getExternalIdBundle());
       default:

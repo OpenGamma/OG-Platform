@@ -8,6 +8,7 @@ package com.opengamma.bbg.loader;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_BOND_FUTURE_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DELIVERABLE_BONDS;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLV_DT_FIRST;
@@ -22,7 +23,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;

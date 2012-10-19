@@ -15,8 +15,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanOptionOnEuropeanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.BensoussanCrouhyGalaiOptionOnOptionModel;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.EuropeanOptionOnEuropeanVanillaOptionModel;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;

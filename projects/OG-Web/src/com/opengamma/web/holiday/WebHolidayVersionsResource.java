@@ -42,7 +42,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
   //-------------------------------------------------------------------------
 //  @GET
 //  public String getHTML() {
-//    HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
+//    HolidayHistoryRequest request = new HolidayHistoryRequest(data().getObject().getUniqueId());
 //    HolidayHistoryResult result = data().getHolidayMaster().history(request);
 //    
 //    FlexiBean out = createRootData();
@@ -79,7 +79,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
     FlexiBean out = super.createRootData();
     HolidayDocument doc = data().getHoliday();
     out.put("holidayDoc", doc);
-    out.put("holiday", doc.getHoliday());
+    out.put("holiday", doc.getObject());
     out.put("deleted", !doc.isLatest());
     return out;
   }

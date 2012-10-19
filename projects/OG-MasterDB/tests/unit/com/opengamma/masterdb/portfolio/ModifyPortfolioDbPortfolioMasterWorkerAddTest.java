@@ -57,7 +57,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     ManageablePortfolio mockPortfolio = mock(ManageablePortfolio.class);
     when(mockPortfolio.getName()).thenReturn("Test");
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(mockPortfolio);
+    doc.setObject(mockPortfolio);
     _prtMaster.add(doc);
   }
 
@@ -72,7 +72,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     PortfolioDocument test = _prtMaster.add(doc);
     
     UniqueId uniqueId = test.getUniqueId();
@@ -87,7 +87,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals(DocumentVisibility.VISIBLE, test.getVisibility());
     
-    ManageablePortfolio testPortfolio = test.getPortfolio();
+    ManageablePortfolio testPortfolio = test.getObject();
     assertEquals(uniqueId, testPortfolio.getUniqueId());
     assertEquals("Test", testPortfolio.getName());
     assertNotNull(testPortfolio.getAttributes());
@@ -120,7 +120,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     portfolio.addAttribute("A1", "V1");
     portfolio.addAttribute("A2", "V2");
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     PortfolioDocument test = _prtMaster.add(doc);
     
     UniqueId uniqueId = test.getUniqueId();
@@ -134,7 +134,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     
-    ManageablePortfolio testPortfolio = test.getPortfolio();
+    ManageablePortfolio testPortfolio = test.getObject();
     assertEquals(uniqueId, testPortfolio.getUniqueId());
     assertEquals("Test", testPortfolio.getName());
     assertNotNull(testPortfolio.getAttributes());
@@ -165,7 +165,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     PortfolioDocument added = _prtMaster.add(doc);
     
     PortfolioDocument test = _prtMaster.get(added.getUniqueId());
@@ -182,7 +182,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     portfolio.addAttribute("A1", "V1");
     portfolio.addAttribute("A2", "V2");
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     PortfolioDocument added = _prtMaster.add(doc);
     
     PortfolioDocument test = _prtMaster.get(added.getUniqueId());
@@ -194,7 +194,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     portfolio.addAttribute("A21", "V21");
     portfolio.addAttribute("A22", "V22");
     doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     added = _prtMaster.add(doc);
     
     test = _prtMaster.get(added.getUniqueId());
@@ -209,7 +209,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setPortfolio(portfolio);
+    doc.setObject(portfolio);
     doc.setVisibility(DocumentVisibility.HIDDEN);
     PortfolioDocument added = _prtMaster.add(doc);
     

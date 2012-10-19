@@ -13,7 +13,7 @@ import com.opengamma.util.PublicSPI;
  * Available sort orders for configs.
  */
 @PublicSPI
-public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
+public enum ConfigSearchSortOrder implements Comparator<ConfigDocument> {
   // this design is simple and perhaps not ideal, but it is effective for most use cases at the moment
 
   /**
@@ -21,7 +21,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   OBJECT_ID_ASC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj1.getObjectId().compareTo(obj2.getObjectId());
     }
   },
@@ -30,7 +30,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   OBJECT_ID_DESC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj2.getObjectId().compareTo(obj1.getObjectId());
     }
   },
@@ -39,7 +39,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   VERSION_FROM_INSTANT_ASC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj1.getVersionFromInstant().compareTo(obj2.getVersionFromInstant());
     }
   },
@@ -48,7 +48,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   VERSION_FROM_INSTANT_DESC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj2.getVersionFromInstant().compareTo(obj1.getVersionFromInstant());
     }
   },
@@ -57,7 +57,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   NAME_ASC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj1.getName().compareTo(obj2.getName());
     }
   },
@@ -66,7 +66,7 @@ public enum ConfigSearchSortOrder implements Comparator<ConfigDocument<?>> {
    */
   NAME_DESC {
     @Override
-    public int compare(ConfigDocument<?> obj1, ConfigDocument<?> obj2) {
+    public int compare(ConfigDocument obj1, ConfigDocument obj2) {
       return obj2.getName().compareTo(obj1.getName());
     }
   };

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -114,7 +114,7 @@
  *   <li>{@code lastTimestamps}: The timestamp of the last update the client received for each row.  Each item
  *   in {@code lastTimestamps} refers to the row at the same index in {@code rowIds}.  Therefore {@code rowIds} and
  *   {@code lastTimestamps} must be the same length.  If no previous result has been received for the row then
- *   {@code null} should be sent.</li>
+ *   null should be sent.</li>
  *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
  *   dependency graph should be included in the results.</li>
  *   <li>{@code fullConversionModeCells}: array of two-elements arrays with the row and column numbers of cells

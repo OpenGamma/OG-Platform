@@ -12,10 +12,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
-import com.opengamma.analytics.financial.model.option.definition.OptionExerciseFunction;
-import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
-import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

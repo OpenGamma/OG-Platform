@@ -5,35 +5,33 @@
  */
 package com.opengamma.master.marketdatasnapshot.impl;
 
-import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractDocumentDataResource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a snapshot.
  */
-public class DataMarketDataSnapshotResource extends AbstractDataResource {
+public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> {
 
   /**
    * The snapshots resource.
@@ -45,8 +43,16 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   private ObjectId _urlResourceId;
 
   /**
+   * Creates dummy resource for the purpose of url resolution.
+   *
+   */
+  DataMarketDataSnapshotResource() {
+    _snapshotsResource = null;
+  }
+  
+  /**
    * Creates the resource.
-   * 
+   *
    * @param snapshotsResource  the parent resource, not null
    * @param snapshotId  the snapshot unique identifier, not null
    */
@@ -58,9 +64,10 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the snapshots resource.
-   * 
+   *
    * @return the snapshots resource, not null
    */
   public DataMarketDataSnapshotMasterResource getMarketDataSnapshotsResource() {
@@ -69,125 +76,77 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
 
   /**
    * Gets the snapshot identifier from the URL.
-   * 
+   *
    * @return the unique identifier, not null
    */
-  public ObjectId getUrlMarketDataSnapshotId() {
+  public ObjectId getUrlId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the snapshot master.
-   * 
+   *
    * @return the snapshot master, not null
    */
-  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+  public MarketDataSnapshotMaster getMaster() {
     return getMarketDataSnapshotsResource().getMarketDataSnapshotMaster();
   }
 
-  //-------------------------------------------------------------------------
-  @GET
-  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(getUrlMarketDataSnapshotId(), vc);
-    return responseOkFudge(result);
-  }
-
-  @POST
-  public Response update(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
-    if (getUrlMarketDataSnapshotId().equals(request.getUniqueId().getObjectId()) == false) {
-      throw new IllegalArgumentException("Document objectId does not match URI");
-    }
-    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().update(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
-  }
-
-  @DELETE
-  public void remove() {
-    getMarketDataSnapshotMaster().remove(getUrlMarketDataSnapshotId().atLatestVersion());
-  }
-
-  //-------------------------------------------------------------------------
   @GET
   @Path("versions")
   public Response history(@Context UriInfo uriInfo) {
     MarketDataSnapshotHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, MarketDataSnapshotHistoryRequest.class);
-    if (getUrlMarketDataSnapshotId().equals(request.getObjectId()) == false) {
+    if (getUrlId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    MarketDataSnapshotHistoryResult result = getMarketDataSnapshotMaster().history(request);
+    MarketDataSnapshotHistoryResult result = getMaster().history(request);
     return responseOkFudge(result);
+  }
+
+  @GET
+  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
+    return super.get(versionAsOf, correctedTo);
+  }
+
+  @POST
+  public Response update(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
+    return super.update(uriInfo, request);
+  }
+
+  @DELETE
+  public void remove() {
+    super.remove();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    UniqueId uniqueId = getUrlMarketDataSnapshotId().atVersion(versionId);
-    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(uniqueId);
-    return responseOkFudge(result);
+    return super.getVersioned(versionId);
   }
 
-  @POST
+
+  @PUT
   @Path("versions/{versionId}")
-  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, MarketDataSnapshotDocument request) {
-    UniqueId uniqueId = getUrlMarketDataSnapshotId().atVersion(versionId);
-    if (uniqueId.equals(request.getUniqueId()) == false) {
-      throw new IllegalArgumentException("Document uniqueId does not match URI");
-    }
-    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().correct(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
+  public Response replaceVersion(@PathParam("versionId") String versionId, List<MarketDataSnapshotDocument> replacementDocuments) {
+    return super.replaceVersion(versionId, replacementDocuments);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Builds a URI for the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param objectId  the object identifier, not null
-   * @param vc  the version-correction locator, null for latest
-   * @return the URI, not null
-   */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}");
-    if (vc != null) {
-      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
-      bld.queryParam("correctedTo", vc.getCorrectedToString());
-    }
-    return bld.build(objectId.getObjectId());
+  @PUT
+  public Response replaceVersions(List<MarketDataSnapshotDocument> replacementDocuments) {
+    return super.replaceVersions(replacementDocuments);
   }
 
-  /**
-   * Builds a URI for the versions of the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param objectId  the object identifier, not null
-   * @param request  the request, may be null
-   * @return the URI, not null
-   */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, MarketDataSnapshotHistoryRequest request) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}/versions");
-    if (request != null) {
-      RestUtils.encodeQueryParams(bld, request);
-    }
-    return bld.build(objectId.getObjectId());
+  @PUT
+  @Path("all")
+  public Response replaceAllVersions(List<MarketDataSnapshotDocument> replacementDocuments) {
+    return super.replaceAllVersions(replacementDocuments);
   }
 
-  /**
-   * Builds a URI for a specific version of the resource.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the unique identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    if (uniqueId.isLatest()) {
-      return uri(baseUri, uniqueId, null);
-    }
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}/versions/{versionId}");
-    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
+  @Override
+  protected String getResourceName() {
+    return "snapshots";
   }
 
 }

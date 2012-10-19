@@ -91,7 +91,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
   }
 
   private ValueRequirement createRequirement(final FunctionExecutionContext context, final String field, final ExternalIdBundle identifiers) {
-    final Security security = context.getSecuritySource().getSecurity(identifiers);
+    final Security security = context.getSecuritySource().getSingle(identifiers);
     if (security != null) {
       return new ValueRequirement(field, new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId()), ValueProperties.none());
     } else {

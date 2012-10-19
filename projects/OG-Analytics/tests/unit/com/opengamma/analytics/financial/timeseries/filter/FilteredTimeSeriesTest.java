@@ -12,7 +12,6 @@ import javax.time.calendar.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.timeseries.filter.FilteredTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 

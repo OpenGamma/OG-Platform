@@ -11,10 +11,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.GaussianRadialBasisFunction;
-import com.opengamma.analytics.math.interpolation.InterpolatorND;
-import com.opengamma.analytics.math.interpolation.InverseMultiquadraticRadialBasisFunction;
-import com.opengamma.analytics.math.interpolation.RadialBasisFunctionInterpolatorND;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**

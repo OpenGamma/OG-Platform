@@ -7,7 +7,6 @@ package com.opengamma.financial.marketdata;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.id.ExternalSchemes;
@@ -43,11 +42,11 @@ public final class MarketDataELFunctions {
 
   public static Security getSecurity(final Object id) {
     if (id instanceof ExternalId) {
-      return getCompiler().getSecuritySource().getSecurity(ExternalIdBundle.of((ExternalId) id));
+      return getCompiler().getSecuritySource().getSingle(ExternalIdBundle.of((ExternalId) id));
     } else if (id instanceof UniqueId) {
-      return getCompiler().getSecuritySource().getSecurity((UniqueId) id);
+      return getCompiler().getSecuritySource().get((UniqueId) id);
     } else if (id instanceof ExternalIdBundle) {
-      return getCompiler().getSecuritySource().getSecurity((ExternalIdBundle) id);
+      return getCompiler().getSecuritySource().getSingle((ExternalIdBundle) id);
     } else if (id instanceof Security) {
       return (Security) id;
     } else {

@@ -5,7 +5,15 @@
  */
 package com.opengamma.masterdb.security.hibernate.bond;
 
-import static com.opengamma.masterdb.security.hibernate.Converters.*;
+import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
+import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
+import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.yieldConventionBeanToYieldConvention;
+import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;

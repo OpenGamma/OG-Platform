@@ -5,19 +5,18 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import com.opengamma.component.tool.AbstractTool;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
-
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 

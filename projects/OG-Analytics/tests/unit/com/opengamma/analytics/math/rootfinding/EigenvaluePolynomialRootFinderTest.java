@@ -16,8 +16,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
-import com.opengamma.analytics.math.rootfinding.EigenvaluePolynomialRootFinder;
-import com.opengamma.analytics.math.rootfinding.Polynomial1DRootFinder;
 
 /**
  * 

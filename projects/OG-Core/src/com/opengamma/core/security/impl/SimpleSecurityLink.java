@@ -170,13 +170,13 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   public Security resolve(SecuritySource source, VersionCorrection versionCorrection) {
     ObjectId objectId = getObjectId();
     if (objectId != null) {
-      Security target = source.getSecurity(objectId, versionCorrection);
+      Security target = (Security) source.get(objectId, versionCorrection);
       setTarget(target);
       return target;
     }
     ExternalIdBundle bundle = getExternalId();
     if (bundle.size() > 0) {
-      Security target = source.getSecurity(bundle, versionCorrection);
+      Security target = source.getSingle(bundle, versionCorrection);
       if (target != null) {
         setTarget(target);
         return target;

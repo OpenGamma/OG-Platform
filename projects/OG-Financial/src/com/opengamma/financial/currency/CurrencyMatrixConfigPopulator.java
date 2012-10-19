@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -8,11 +8,11 @@ package com.opengamma.financial.currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -24,8 +24,8 @@ public class CurrencyMatrixConfigPopulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixConfigPopulator.class);
 
-  private static final String[] DOLLARS_PER_UNIT_CURRENCIES = new String[] {"EUR", "GBP", "AUD", "NZD"};
-  private static final String[] UNITS_PER_DOLLAR_CURRENCIES = new String[] {"JPY", "CHF", "SEK", "CAD", "DKK", "BRL", "TWD", "MYR"};
+  private static final String[] DOLLARS_PER_UNIT_CURRENCIES = new String[]{"EUR", "GBP", "AUD", "NZD"};
+  private static final String[] UNITS_PER_DOLLAR_CURRENCIES = new String[]{"JPY", "CHF", "SEK", "CAD", "DKK", "BRL", "TWD", "MYR"};
   private static final String[] CURRENCIES = combine(DOLLARS_PER_UNIT_CURRENCIES, UNITS_PER_DOLLAR_CURRENCIES);
 
   private static String[] combine(final String[] a, final String[] b) {
@@ -56,9 +56,8 @@ public class CurrencyMatrixConfigPopulator {
   }
 
   private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyMatrix currencyMatrix) {
-    final ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>(CurrencyMatrix.class);
+    final ConfigItem<CurrencyMatrix> doc = ConfigItem.of(currencyMatrix);
     doc.setName(name);
-    doc.setValue(currencyMatrix);
     ConfigMasterUtils.storeByName(cfgMaster, doc);
   }
 

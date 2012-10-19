@@ -14,9 +14,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.ModeCalculator;
 
 /**
  * 

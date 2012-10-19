@@ -5,14 +5,14 @@
  */
 package com.opengamma.integration.marketdata;
 
-import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * 

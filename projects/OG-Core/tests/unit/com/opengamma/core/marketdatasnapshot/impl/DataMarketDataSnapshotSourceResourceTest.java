@@ -49,7 +49,7 @@ public class DataMarketDataSnapshotSourceResourceTest {
   public void testGetSnapshotByUid() {
     final StructuredMarketDataSnapshot target = new ManageableMarketDataSnapshot();
     
-    when(_underlying.getSnapshot(eq(UID))).thenReturn(target);
+    when(_underlying.get(eq(UID))).thenReturn(target);
     
     Response test = _resource.get(OID.toString(), UID.getVersion());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());

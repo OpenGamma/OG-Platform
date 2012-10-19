@@ -10,6 +10,7 @@ import java.util.Collections;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
@@ -32,7 +33,7 @@ import com.opengamma.util.money.Currency;
  * This class provides the source on top of a standard {@link HolidayMaster}.
  */
 @PublicSPI
-public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, HolidayMaster> implements HolidaySource {
+public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster> implements HolidaySource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -55,13 +56,13 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableHoliday getHoliday(UniqueId uniqueId) {
-    return getDocument(uniqueId).getHoliday();
+  public ManageableHoliday get(UniqueId uniqueId) {
+    return getDocument(uniqueId).getObject();
   }
 
   @Override
-  public ManageableHoliday getHoliday(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getHoliday();
+  public ManageableHoliday get(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(objectId, versionCorrection).getObject();
   }
 
   @Override
@@ -119,7 +120,7 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
     if (doc == null) {
       return false;
     }
-    return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
+    return Collections.binarySearch(doc.getObject().getHolidayDates(), dateToCheck) >= 0;
   }
 
   /**

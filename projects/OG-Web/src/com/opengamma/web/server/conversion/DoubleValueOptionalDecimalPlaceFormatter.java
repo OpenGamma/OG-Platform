@@ -6,7 +6,6 @@
 package com.opengamma.web.server.conversion;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * 

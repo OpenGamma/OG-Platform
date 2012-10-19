@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -96,7 +96,7 @@ public class ConfigSaver {
       try {
         PortfolioDocument portfolioDocument = _portfolioMaster.get(uniqueId);
         if (portfolioDocument != null) {
-          return portfolioDocument.getPortfolio().getName();
+          return portfolioDocument.getObject().getName();
         }
       } catch (DataNotFoundException dnfe) {
         if (_verbose) {
@@ -171,7 +171,7 @@ public class ConfigSaver {
   
   private List<ConfigEntry> docsToConfigEntries(ConfigSearchResult<Object> searchResult) {
     List<ConfigEntry> results = new ArrayList<ConfigEntry>();
-    for (ConfigDocument<Object> doc : searchResult.getDocuments()) {
+    for (ConfigItem<Object> doc : searchResult.getValues()) {
       ConfigEntry configEntry = new ConfigEntry();
       configEntry.setName(doc.getName());
       configEntry.setType(doc.getType().getCanonicalName());

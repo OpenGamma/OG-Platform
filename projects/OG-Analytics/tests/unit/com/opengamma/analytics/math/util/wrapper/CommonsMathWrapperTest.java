@@ -24,7 +24,6 @@ import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.number.ComplexNumber;
-import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
 
 /**
  * 

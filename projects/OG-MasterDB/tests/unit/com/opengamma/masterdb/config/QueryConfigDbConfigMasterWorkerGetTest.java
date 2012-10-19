@@ -37,40 +37,40 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getConfig_nullUID() {
-    _cfgMaster.get(null, Object.class);
+    _cfgMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getConfig_versioned_notFound() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
-    _cfgMaster.get(uniqueId, Object.class);
+    _cfgMaster.get(uniqueId);
   }
 
   @Test
   public void test_getConfig_versioned_oneConfigKey() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     assert101(test);
   }
 
   @Test
   public void test_getConfig_versioned_twoConfigKeys() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
-    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     assert102(test);
   }
 
   @Test
   public void test_getConfig_versioned_notLatest() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
-    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     assert201(test);
   }
 
   @Test
   public void test_getConfig_versioned_latest() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
-    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     assert202(test);
   }
 
@@ -78,13 +78,13 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getConfig_unversioned_notFound() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "0");
-    _cfgMaster.get(uniqueId, Object.class);
+    _cfgMaster.get(uniqueId);
   }
 
   @Test
   public void test_getConfig_unversioned() {
-    UniqueId oid = UniqueId.of("DbCfg", "201");
-    ConfigDocument<ExternalId> test = _cfgMaster.get(oid, ExternalId.class);
+    UniqueId uid = UniqueId.of("DbCfg", "201");
+    ConfigDocument test = _cfgMaster.get(uid);
     assert202(test);
   }
   
@@ -92,11 +92,11 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   @Test
   public void test_get_noType() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
-    ConfigDocument<?> test = _cfgMaster.get(uniqueId);
+    ConfigDocument test = _cfgMaster.get(uniqueId);
     assertNotNull(test);
-    if (test.getValue() instanceof ExternalId) {
+    if (test.getObject().getValue() instanceof ExternalId) {
       assertEquals(test.getType(), ExternalId.class);
-      assert101((ConfigDocument<ExternalId>)test);
+      assert101(test);
     } else {
       Assert.fail();
     }

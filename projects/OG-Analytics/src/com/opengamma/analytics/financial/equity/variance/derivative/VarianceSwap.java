@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.variance.derivative;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-
-import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * A Variance Swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,

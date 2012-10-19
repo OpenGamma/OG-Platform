@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.EquityInstrumentDefinition;
@@ -12,11 +17,6 @@ import com.opengamma.analytics.financial.equity.EquityInstrumentDefinitionVisito
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calendar aware version of an EquityIndexOption

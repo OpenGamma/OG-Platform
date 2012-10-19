@@ -186,7 +186,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
   public boolean matches(AbstractDocument obj) {
     if (obj instanceof UserDocument == false) {
       return false;
-    }
+    }    
     UserDocument document = (UserDocument) obj;
     ManageableOGUser user = document.getUser();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {

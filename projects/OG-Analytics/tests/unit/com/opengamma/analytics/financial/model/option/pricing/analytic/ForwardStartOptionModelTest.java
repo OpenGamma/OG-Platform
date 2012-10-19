@@ -17,9 +17,6 @@ import com.opengamma.analytics.financial.model.option.definition.EuropeanVanilla
 import com.opengamma.analytics.financial.model.option.definition.ForwardStartOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.ForwardStartOptionModel;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;

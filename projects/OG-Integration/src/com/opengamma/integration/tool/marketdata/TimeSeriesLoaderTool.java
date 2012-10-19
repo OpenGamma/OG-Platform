@@ -9,12 +9,12 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
 import com.opengamma.util.generate.scripts.Scriptable;

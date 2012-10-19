@@ -9,8 +9,8 @@ import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
+import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 
 /**
  * Represents a call to {@link ViewResultListener#cycleFragmentCompleted(ViewResultModel, ViewDeltaResultModel)}

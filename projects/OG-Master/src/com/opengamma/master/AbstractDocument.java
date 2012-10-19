@@ -35,8 +35,8 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractDocument extends DirectBean
-    implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable {
+public abstract class AbstractDocument<T extends UniqueIdentifiable> extends DirectBean
+  implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable {
 
   /**
    * The start of an interval that the version of the document is accurate for.
@@ -66,17 +66,24 @@ public abstract class AbstractDocument extends DirectBean
   private Instant _correctionToInstant;
 
   /**
+   * The object held by the document
+   */
+  @PropertyDefinition()
+  private T _object;
+
+  /**
    * Creates an instance.
    */
   public AbstractDocument() {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the unique identifier of the document.
    * <p>
    * This may be derived from an object held within the document.
-   * 
+   *
    * @return the unique identifier, may be null, not null when returned from a query
    */
   @Override
@@ -86,18 +93,19 @@ public abstract class AbstractDocument extends DirectBean
    * Sets the unique identifier of the document.
    * <p>
    * This may be stored in an object held within the document.
-   * 
+   *
    * @param uniqueId  the unique identifier, may be null
    */
   @Override
   public abstract void setUniqueId(UniqueId uniqueId);
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the object identifier of the document.
    * <p>
    * This may be derived from an object held within the document.
-   * 
+   *
    * @return the object identifier, may be null, not null when returned from a query
    */
   @Override
@@ -106,11 +114,12 @@ public abstract class AbstractDocument extends DirectBean
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Checks if this is the latest version and correction of the document.
    * <p>
    * An earlier version, or a deleted document, will return false.
-   * 
+   *
    * @return true if this is the latest document version/correction
    */
   public boolean isLatest() {
@@ -121,17 +130,20 @@ public abstract class AbstractDocument extends DirectBean
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractDocument}.
+   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  public static AbstractDocument.Meta meta() {
+  @SuppressWarnings("unchecked")
+  public static <R extends UniqueIdentifiable> AbstractDocument.Meta<R> meta() {
     return AbstractDocument.Meta.INSTANCE;
   }
   static {
     JodaBeanUtils.registerMetaBean(AbstractDocument.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractDocument.Meta metaBean() {
+  public AbstractDocument.Meta<T> metaBean() {
     return AbstractDocument.Meta.INSTANCE;
   }
 
@@ -146,10 +158,13 @@ public abstract class AbstractDocument extends DirectBean
         return getCorrectionFromInstant();
       case 973465896:  // correctionToInstant
         return getCorrectionToInstant();
+      case -1023368385:  // object
+        return getObject();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -165,6 +180,9 @@ public abstract class AbstractDocument extends DirectBean
       case 973465896:  // correctionToInstant
         setCorrectionToInstant((Instant) newValue);
         return;
+      case -1023368385:  // object
+        setObject((T) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -175,11 +193,12 @@ public abstract class AbstractDocument extends DirectBean
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDocument other = (AbstractDocument) obj;
+      AbstractDocument<?> other = (AbstractDocument<?>) obj;
       return JodaBeanUtils.equal(getVersionFromInstant(), other.getVersionFromInstant()) &&
           JodaBeanUtils.equal(getVersionToInstant(), other.getVersionToInstant()) &&
           JodaBeanUtils.equal(getCorrectionFromInstant(), other.getCorrectionFromInstant()) &&
-          JodaBeanUtils.equal(getCorrectionToInstant(), other.getCorrectionToInstant());
+          JodaBeanUtils.equal(getCorrectionToInstant(), other.getCorrectionToInstant()) &&
+          JodaBeanUtils.equal(getObject(), other.getObject());
     }
     return false;
   }
@@ -191,6 +210,7 @@ public abstract class AbstractDocument extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     return hash;
   }
 
@@ -314,12 +334,38 @@ public abstract class AbstractDocument extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the object held by the document
+   * @return the value of the property
+   */
+  public T getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the object held by the document
+   * @param object  the new value of the property
+   */
+  public void setObject(T object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<T> object() {
+    return metaBean().object().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code AbstractDocument}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta<T extends UniqueIdentifiable> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -343,6 +389,12 @@ public abstract class AbstractDocument extends DirectBean
     private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(
         this, "correctionToInstant", AbstractDocument.class, Instant.class);
     /**
+     * The meta-property for the {@code object} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<T> _object = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "object", AbstractDocument.class, Object.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -350,7 +402,8 @@ public abstract class AbstractDocument extends DirectBean
         "versionFromInstant",
         "versionToInstant",
         "correctionFromInstant",
-        "correctionToInstant");
+        "correctionToInstant",
+        "object");
 
     /**
      * Restricted constructor.
@@ -369,18 +422,21 @@ public abstract class AbstractDocument extends DirectBean
           return _correctionFromInstant;
         case 973465896:  // correctionToInstant
           return _correctionToInstant;
+        case -1023368385:  // object
+          return _object;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends AbstractDocument> builder() {
+    public BeanBuilder<? extends AbstractDocument<T>> builder() {
       throw new UnsupportedOperationException("AbstractDocument is an abstract class");
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends AbstractDocument> beanType() {
-      return AbstractDocument.class;
+    public Class<? extends AbstractDocument<T>> beanType() {
+      return (Class) AbstractDocument.class;
     }
 
     @Override
@@ -419,6 +475,14 @@ public abstract class AbstractDocument extends DirectBean
      */
     public final MetaProperty<Instant> correctionToInstant() {
       return _correctionToInstant;
+    }
+
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<T> object() {
+      return _object;
     }
 
   }

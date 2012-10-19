@@ -6,11 +6,10 @@
 package com.opengamma.maths.lowlevelapi.functions.utilities;
 
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-
-import com.opengamma.maths.lowlevelapi.functions.utilities.Negate;
 
 import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests the negate class 

@@ -8,7 +8,7 @@ package com.opengamma.financial.user;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -23,7 +23,7 @@ public class FinancialUserServices {
   private PortfolioMaster _userPortfolioMaster;
   private PositionMaster _userPositionMaster;
   private SecurityMaster _userSecurityMaster;
-  private ManageableViewDefinitionRepository _userViewDefinitionRepository;
+  private ConfigMaster _userConfigMaster;
   private InterpolatedYieldCurveDefinitionMaster _userInterpolatedYieldCurveDefinitionMaster;
   private MarketDataSnapshotMaster _userSnapshotMaster;
 
@@ -59,12 +59,12 @@ public class FinancialUserServices {
     return _userSecurityMaster;
   }
 
-  public void setUserViewDefinitionRepository(ManageableViewDefinitionRepository viewDefinitionRepository) {
-    _userViewDefinitionRepository = viewDefinitionRepository;
+  public void setUserConfigMaster(ConfigMaster configMaster) {
+    _userConfigMaster = configMaster;
   }
 
-  public ManageableViewDefinitionRepository getViewDefinitionRepository() {
-    return _userViewDefinitionRepository;
+  public ConfigMaster getConfigMaster() {
+    return _userConfigMaster;
   }
   
   public void setUserSnapshotMaster(MarketDataSnapshotMaster snapshotMaster) {

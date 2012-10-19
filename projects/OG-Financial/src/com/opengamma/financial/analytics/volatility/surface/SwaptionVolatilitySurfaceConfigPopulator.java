@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -28,7 +28,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   }
 
   /**
-   * @param definitionConfigMaster
+   * @param configMaster
    */
   private static void populateVolatilitySurfaceDefinitions(final ConfigMaster configMaster) {
     final Tenor[] timeToExpiry = new Tenor[] {Tenor.ofMonths(1), Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1),
@@ -41,25 +41,23 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT_USD_SWAPTION", Currency.USD,
         timeToExpiry, swapLength);
 
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(us));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> makeConfigDocument(final VolatilitySurfaceDefinition<Tenor, Tenor> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceDefinition<Tenor, Tenor>> makeConfig(final VolatilitySurfaceDefinition<Tenor, Tenor> definition) {
+    final ConfigItem<VolatilitySurfaceDefinition<Tenor, Tenor>> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfig(final VolatilitySurfaceSpecification specification) {
+    final ConfigItem<VolatilitySurfaceSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());
+    return config;
   }
 
   /**
-   * @param specConfigMaster
+   * @param configMaster
    */
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy",
@@ -67,6 +65,6 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT_USD_SWAPTION", Currency.USD,
         SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA,
         surfaceInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(us));
   }
 }

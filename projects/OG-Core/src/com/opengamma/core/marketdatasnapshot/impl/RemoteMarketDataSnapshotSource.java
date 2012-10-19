@@ -7,17 +7,19 @@ package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.net.URI;
 
+import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Provides remote access to an {@link MarketDataSnapshotSource}.
  */
-public class RemoteMarketDataSnapshotSource extends AbstractRemoteClient implements MarketDataSnapshotSource {
+public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<StructuredMarketDataSnapshot> implements MarketDataSnapshotSource {
 
   /**
    * Creates an instance.
@@ -30,13 +32,22 @@ public class RemoteMarketDataSnapshotSource extends AbstractRemoteClient impleme
 
   //-------------------------------------------------------------------------
   @Override
-  public StructuredMarketDataSnapshot getSnapshot(final UniqueId uniqueId) {
+  public StructuredMarketDataSnapshot get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataMarketDataSnapshotSourceResource.uriGet(getBaseUri(), uniqueId);
     return accessRemote(uri).get(StructuredMarketDataSnapshot.class);
   }
 
+  @Override
+  public StructuredMarketDataSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+        
+    URI uri = DataMarketDataSnapshotSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
+    return accessRemote(uri).get(StructuredMarketDataSnapshot.class);        
+  }
+  
   @Override
   public void addChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
     throw new UnsupportedOperationException();

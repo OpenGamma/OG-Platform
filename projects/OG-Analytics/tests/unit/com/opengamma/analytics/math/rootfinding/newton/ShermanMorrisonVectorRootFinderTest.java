@@ -8,8 +8,6 @@ package com.opengamma.analytics.math.rootfinding.newton;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
-import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.analytics.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 
 /**
  * 

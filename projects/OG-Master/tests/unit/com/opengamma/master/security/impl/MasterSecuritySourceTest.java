@@ -61,7 +61,7 @@ public class MasterSecuritySourceTest {
     SecurityDocument doc = new SecurityDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterSecuritySource test = new MasterSecuritySource(mock);
-    Security testResult = test.getSecurity(UID);
+    Security testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
     
     assertEquals(example(), testResult);
@@ -73,7 +73,7 @@ public class MasterSecuritySourceTest {
     SecurityDocument doc = new SecurityDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.getSecurity(UID);
+    Security testResult = test.get(UID);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -86,7 +86,7 @@ public class MasterSecuritySourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     try {
-      test.getSecurity(UID);
+      test.get(UID);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -99,7 +99,7 @@ public class MasterSecuritySourceTest {
     SecurityDocument doc = new SecurityDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.getSecurity(OID, VC);
+    Security testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -112,7 +112,7 @@ public class MasterSecuritySourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     try {
-      test.getSecurity(OID, VC);
+      test.get(OID, VC);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -131,7 +131,7 @@ public class MasterSecuritySourceTest {
     
     when(mock.search(request)).thenReturn(result);
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Collection<Security> testResult = test.getSecurities(BUNDLE);
+    Collection<Security> testResult = test.get(BUNDLE);
     verify(mock, times(1)).search(request);
     
     assertEquals(UID, testResult.iterator().next().getUniqueId());
@@ -151,7 +151,7 @@ public class MasterSecuritySourceTest {
     
     when(mock.search(request)).thenReturn(result);
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.getSecurity(BUNDLE);
+    Security testResult = test.getSingle(BUNDLE);
     verify(mock, times(1)).search(request);
     
     assertEquals(UID, testResult.getUniqueId());

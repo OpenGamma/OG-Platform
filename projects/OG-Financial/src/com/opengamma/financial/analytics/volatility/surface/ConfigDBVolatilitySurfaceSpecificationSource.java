@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.Instant;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -58,15 +57,15 @@ public class ConfigDBVolatilitySurfaceSpecificationSource implements VolatilityS
   }
 
   @Override
-  public VolatilitySurfaceSpecification getSpecification(final String name, final String instrumentType, final Instant version) {
-    final VolatilitySurfaceSpecification specification = _configSource.getByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType, version);
+  public VolatilitySurfaceSpecification getSpecification(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
+    final VolatilitySurfaceSpecification specification = _configSource.getConfig(VolatilitySurfaceSpecification.class, name + "_" + instrumentType, versionCorrection);
     if (specification == null && InstrumentTypeProperties.FOREX.equals(instrumentType)) {
       final String[] substrings = name.split("_");
       if (substrings.length == 2 && substrings[1].length() == 6) {
         final String firstCcy = substrings[1].substring(0, 3);
         final String secondCcy = substrings[1].substring(3, 6);
         final String reversedCcys = secondCcy + firstCcy;
-        return _configSource.getByName(VolatilitySurfaceSpecification.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType, version);
+        return _configSource.getConfig(VolatilitySurfaceSpecification.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType, versionCorrection);
       }
     }
     return specification;

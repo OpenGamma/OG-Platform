@@ -226,7 +226,21 @@
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
+    <fragment>/scripts/lib/Four.Matlib.js</fragment>
+    <fragment>/scripts/lib/Four.Buffer.js</fragment>
+    <fragment>/scripts/lib/Four.Tube.js</fragment>
+    <fragment>/scripts/lib/Four.Text3D.js</fragment>
+    <fragment>/scripts/lib/Four.InteractiveMeshes.js</fragment>
+    <fragment>/scripts/lib/Four.multimaterial_object.js</fragment>
+    <fragment>/scripts/lib/Four.scale.js</fragment>
+    <fragment>/scripts/lib/Four.buffercount.js</fragment>
     <fragment>/scripts/lib/jsurface3d.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.Plane.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.Slice.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.Smile.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.Hud.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.Axis.js</fragment>
+    <fragment>/scripts/lib/JSurface3D.SurfacePlane.js</fragment>
     <fragment>/scripts/lib/stats.js</fragment>
     <fragment>/scripts/lib/event.emitter.js</fragment>
   </bundle>

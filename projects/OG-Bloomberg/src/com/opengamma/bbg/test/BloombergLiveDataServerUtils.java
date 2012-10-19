@@ -19,8 +19,8 @@ import com.opengamma.bbg.referencedata.cache.AbstractInvalidFieldCachingReferenc
 import com.opengamma.bbg.referencedata.cache.AbstractValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**

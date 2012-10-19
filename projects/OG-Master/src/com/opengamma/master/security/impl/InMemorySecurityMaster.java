@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -25,6 +23,7 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -42,7 +41,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster implements SecurityMaster {
+public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
   // TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -50,19 +49,6 @@ public class InMemorySecurityMaster implements SecurityMaster {
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSec";
-
-  /**
-   * A cache of securities by identifier.
-   */
-  private final ConcurrentMap<ObjectId, SecurityDocument> _store = new ConcurrentHashMap<ObjectId, SecurityDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -73,7 +59,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemorySecurityMaster(final ChangeManager changeManager) {
@@ -82,7 +68,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemorySecurityMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -91,15 +77,12 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemorySecurityMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
   }
 
   //-------------------------------------------------------------------------
@@ -110,7 +93,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (request.isSecurityTypes()) {
       Set<String> types = new HashSet<String>();
       for (SecurityDocument doc : _store.values()) {
-        types.add(doc.getSecurity().getSecurityType());
+        types.add(doc.getObject().getSecurityType());
       }
       result.getSecurityTypes().addAll(types);
     }
@@ -157,18 +140,18 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.security");
+
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableSecurity security = document.getSecurity();
+    final ManageableSecurity security = document.getObject();
     security.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final SecurityDocument doc = new SecurityDocument(security);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
     return doc;
   }
 
@@ -177,8 +160,8 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    
+    ArgumentChecker.notNull(document.getObject(), "document.security");
+
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final SecurityDocument storedDocument = _store.get(uniqueId.getObjectId());
@@ -192,18 +175,18 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Security not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Security not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -217,7 +200,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-    
+
     final SecurityHistoryResult result = new SecurityHistoryResult();
     final SecurityDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
@@ -227,10 +210,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
     return result;
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
+  protected void validateDocument(SecurityDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getObject(), "document.security");
   }
-
 }

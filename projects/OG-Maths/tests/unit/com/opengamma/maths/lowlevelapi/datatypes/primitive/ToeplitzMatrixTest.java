@@ -8,8 +8,6 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.ToeplitzMatrix;
 
 /**
  * Tests the Toeplitz Matrix type

@@ -181,10 +181,10 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     
   }
 
-  protected String createXML(ConfigDocument<?> doc) {
+  protected String createXML(ConfigDocument doc) {
     String configXML = null;
     // get xml and pretty print it
-    FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(doc.getValue());
+    FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(doc.getObject().getValue());
     s_logger.debug("config doc {} converted to fudge {}", doc.getUniqueId(), msg);
     StringWriter buf = new StringWriter(1024);  
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), buf));

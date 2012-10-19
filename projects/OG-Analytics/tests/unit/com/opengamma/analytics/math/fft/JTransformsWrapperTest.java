@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.ComplexMathUtils;
 import com.opengamma.analytics.math.FunctionUtils;
-import com.opengamma.analytics.math.fft.JTransformsWrapper;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
 

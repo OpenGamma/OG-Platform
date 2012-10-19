@@ -42,7 +42,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param holidayMaster  the underlying holiday master, not null
    */
   public DataHolidayMasterResource(final HolidayMaster holidayMaster) {
@@ -51,9 +51,10 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the holiday master.
-   * 
+   *
    * @return the holiday master, not null
    */
   public HolidayMaster getHolidayMaster() {
@@ -85,7 +86,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   @Path("holidays")
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
-    URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataHolidayResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -97,9 +98,10 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI for holiday meta-data.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param request  the request, may be null
    * @return the URI, not null
@@ -114,7 +116,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -125,7 +127,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

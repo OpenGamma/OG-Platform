@@ -6,8 +6,8 @@
 package com.opengamma.financial.analytics.model.volatility.local;
 
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.DUPIRE_LOCAL_SURFACE_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_LOCAL_VOLATILITY_SURFACE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_DERIVATIVE_EPS;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_LOCAL_VOLATILITY_SURFACE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS_PARAMETERIZATION;
 
 import java.util.Collections;

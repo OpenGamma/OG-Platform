@@ -151,7 +151,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     Security security = null;
     if (_securitySource != null) {
       // 1 - see if the identifier can be resolved to a security
-      security = _securitySource.getSecurity(ExternalIdBundle.of(identifier));
+      security = _securitySource.getSingle(ExternalIdBundle.of(identifier));
       
       // 2 - see if the so-called Identifier is actually the UniqueId of a security
       // if (security == null) {

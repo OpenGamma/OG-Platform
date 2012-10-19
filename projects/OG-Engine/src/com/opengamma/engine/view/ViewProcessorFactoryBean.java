@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -35,8 +36,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorFactoryBean.class);
 
-  private String _name;
-  private ViewDefinitionRepository _viewDefinitionRepository;
+  private String _name;  
+  private ConfigSource _configSource;
   private NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
   private ComputationTargetResolver _computationTargetResolver;
   private CompiledFunctionService _functionCompilationService;
@@ -60,14 +61,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   public void setName(String name) {
     _name = name;
   }
-
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    return _viewDefinitionRepository;
-  }
-
-  public void setViewDefinitionRepository(ViewDefinitionRepository viewDefinitionRepository) {
-    _viewDefinitionRepository = viewDefinitionRepository;
-  }
   
   public NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
     return _namedMarketDataSpecificationRepository;
@@ -83,6 +76,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
     _computationTargetResolver = computationTargetResolver;
+  }
+
+  public ConfigSource getConfigSource() {
+    return _configSource;
+  }
+
+  public void setConfigSource(ConfigSource _configSource) {
+    this._configSource = _configSource;
   }
 
   public CompiledFunctionService getFunctionCompilationService() {
@@ -177,7 +178,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(_name, "id");
-    ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getNamedMarketDataSpecificationRepository(), "namedMarketDataSpecificationRepository");
     ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
     if (getFunctionResolver() == null) {
@@ -195,7 +195,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     checkInjectedInputs();
     return new ViewProcessorImpl(
         getName(),
-        getViewDefinitionRepository(),
+        getConfigSource(),
         getNamedMarketDataSpecificationRepository(),
         getComputationTargetResolver(),
         getFunctionCompilationService(),

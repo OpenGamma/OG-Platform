@@ -64,7 +64,7 @@ public class DataSecurityMasterResourceTest {
   public void testFindSecurity() {
     DataSecurityResource test = _resource.findSecurity("Test~A");
     assertSame(_resource, test.getSecuritiesResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlSecurityId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }
