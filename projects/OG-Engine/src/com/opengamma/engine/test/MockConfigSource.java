@@ -63,11 +63,11 @@ public class MockConfigSource implements ConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
-    List<ConfigItem<T>> list = newArrayList();
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {
+    List<ConfigItem<R>> list = newArrayList();
     for (ConfigItem<?> configItem : _store.values()) {
       if (clazz.isAssignableFrom(configItem.getType())) {
-        list.add((ConfigItem<T>) configItem);
+        list.add((ConfigItem<R>) configItem);
       }
     }
     return list;
@@ -75,23 +75,23 @@ public class MockConfigSource implements ConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    return (T) get(uniqueId).getValue();
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+    return (R) get(uniqueId).getValue();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    return (T) get(objectId, versionCorrection).getValue();
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    return (R) get(objectId, versionCorrection).getValue();
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
     return get(clazz, configName, versionCorrection).getValue();
   }
 
   @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
+  public <R> R getLatestByName(Class<R> clazz, String name) {
     return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
