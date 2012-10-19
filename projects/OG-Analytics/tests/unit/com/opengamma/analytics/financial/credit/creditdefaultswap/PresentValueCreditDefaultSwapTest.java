@@ -9,8 +9,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
@@ -18,7 +16,6 @@ import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
 import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRate;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
@@ -26,9 +23,10 @@ import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
 import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
+import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -90,13 +88,19 @@ public class PresentValueCreditDefaultSwapTest {
   private static final CreditRatingStandardAndPoors protectionBuyerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch protectionBuyerCreditRatingFitch = CreditRatingFitch.AA;
 
+  private static final boolean protectionBuyerHasDefaulted = false;
+
   private static final CreditRatingMoodys protectionSellerCreditRatingMoodys = CreditRatingMoodys.AA;
   private static final CreditRatingStandardAndPoors protectionSellerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch protectionSellerCreditRatingFitch = CreditRatingFitch.AA;
 
+  private static final boolean protectionSellerHasDefaulted = false;
+
   private static final CreditRatingMoodys referenceEntityCreditRatingMoodys = CreditRatingMoodys.AA;
   private static final CreditRatingStandardAndPoors referenceEntityCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch referenceEntityCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final boolean referenceEntityHasDefaulted = false;
 
   private static final Sector protectionBuyerSector = Sector.INDUSTRIALS;
   private static final Region protectionBuyerRegion = Region.NORTHAMERICA;
@@ -274,6 +278,7 @@ public class PresentValueCreditDefaultSwapTest {
       protectionBuyerCreditRatingMoodys,
       protectionBuyerCreditRatingStandardAndPoors,
       protectionBuyerCreditRatingFitch,
+      protectionBuyerHasDefaulted,
       protectionBuyerSector,
       protectionBuyerRegion,
       protectionBuyerCountry);
@@ -287,6 +292,7 @@ public class PresentValueCreditDefaultSwapTest {
       protectionSellerCreditRatingMoodys,
       protectionSellerCreditRatingStandardAndPoors,
       protectionSellerCreditRatingFitch,
+      protectionSellerHasDefaulted,
       protectionSellerSector,
       protectionSellerRegion,
       protectionSellerCountry);
@@ -300,6 +306,7 @@ public class PresentValueCreditDefaultSwapTest {
       referenceEntityCreditRatingMoodys,
       referenceEntityCreditRatingStandardAndPoors,
       referenceEntityCreditRatingFitch,
+      referenceEntityHasDefaulted,
       referenceEntitySector,
       referenceEntityRegion,
       referenceEntityCountry);
@@ -328,7 +335,7 @@ public class PresentValueCreditDefaultSwapTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      premiumLegCoupon,
+      /*premiumLegCoupon,*/
       recoveryRate,
       includeAccruedPremium,
       protectionStart);
@@ -465,7 +472,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
@@ -525,6 +532,138 @@ public class PresentValueCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   // Work-in-Progress
+
+  //@Test
+  public void testIRSPFECalc() {
+    System.out.println("Running simple IRS PFE calc...");
+
+    NormalRandomNumberGenerator normRand = new NormalRandomNumberGenerator(0.0, 1.0);
+
+    final int numberOfSims = 100000;
+
+    final double T = 10.0;
+    final double deltaT = 0.25;
+
+    final double r0 = 0.05;
+    final double a = 0.10;
+    final double b = 0.05;
+    final double sigma = 0.01;
+
+    final double swapRate = 0.0496;
+
+    int n = 50;
+
+    final double[] r = new double[n];
+
+    double Z = 0.0;
+
+    double[] epsilon = new double[n];
+
+    double[][] VFixed = new double[n][numberOfSims];
+    double[][] VFloat = new double[n][numberOfSims];
+    double[][] V = new double[n][numberOfSims];
+
+    double[][] EE = new double[41][numberOfSims];
+
+    r[0] = r0;
+
+    int counter = 1;
+
+    // ---------------------------------------------------------------
+
+    for (int alpha = 0; alpha < numberOfSims; alpha++) {
+
+      if (alpha % 100 == 0) {
+        System.out.println("Simulation = " + alpha);
+      }
+
+      // ---------------------------------------------------------------
+
+      epsilon = normRand.getVector(n);
+
+      // ---------------------------------------------------------------
+
+      // First generate the simulated rates at each timenode for this simulation
+
+      for (counter = 1; counter < 41; counter++) {
+        r[counter] = r[counter - 1] + a * (b - r[counter - 1]) * 0.25 + sigma * Math.sqrt(0.25) * epsilon[counter];
+      }
+
+      // ---------------------------------------------------------------
+
+      counter = 0;
+
+      int timeIndexCounter = 0;
+
+      // ---------------------------------------------------------------
+
+      // Now step through each of the simulation timenodes
+      for (double t = 0.0; t <= T; t += deltaT) {
+
+        // ---------------------------------------------------------------
+
+        // Loop through each of the remaining coupon dates
+        for (double tPrime = deltaT; tPrime <= (T - t); tPrime += deltaT) {
+
+          // ---------------------------------------------------------------
+
+          double B = (1 - Math.exp(-a * tPrime)) / a;
+          double A = Math.exp((b - sigma * sigma / (2 * a * a)) * (B - tPrime) + (-sigma * sigma * B * B / (4 * a)));
+
+          // Calculate the discount factor
+          Z = A * Math.exp(-B * r[counter]);
+
+          // ---------------------------------------------------------------
+
+          // Add this discount factor to the running total for the fixed leg
+          VFixed[timeIndexCounter][alpha] += Z;
+
+          // ---------------------------------------------------------------
+        }
+
+        VFloat[timeIndexCounter][alpha] = 1.0 - Z;
+
+        // ---------------------------------------------------------------
+
+        VFixed[timeIndexCounter][alpha] *= swapRate * 0.25;
+
+        V[timeIndexCounter][alpha] = VFixed[timeIndexCounter][alpha] - VFloat[timeIndexCounter][alpha];
+
+        EE[timeIndexCounter][alpha] = Math.max(V[timeIndexCounter][alpha], 0.0);
+
+        //System.out.println("alpha = " + alpha + ", t = " + t + "\t" + VFixed[timeIndexCounter][alpha] + "\t" + VFloat[timeIndexCounter][alpha] + "\t" + EE[timeIndexCounter]);
+
+        //System.out.println(timeIndexCounter);
+
+        //System.out.println(EE[timeIndexCounter][alpha]);
+
+        timeIndexCounter++;
+
+        counter++;
+      }
+
+      // ---------------------------------------------------------------
+
+      //EE[timeIndexCounter - 1] /= numberOfSims;
+
+      //System.out.println(EE[timeIndexCounter - 1]);
+    }
+
+    double[] EPE = new double[40];
+
+    for (int i = 0; i < 40; i++) {
+
+      for (int alpha = 0; alpha < numberOfSims; alpha++) {
+        EPE[i] += EE[i][alpha];
+      }
+      EPE[i] /= numberOfSims;
+
+      System.out.println(i + "\t" + EPE[i]);
+    }
+
+    // ---------------------------------------------------------------
+
+  }
 
   //@Test
   public void testPFECalculation() {

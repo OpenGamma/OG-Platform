@@ -8,6 +8,6 @@ package com.opengamma.analytics.financial.credit.ratingtransitionmodel;
 /**
  * Class to describe the model (e.g. CreditMetrics) for capturing rating transition dynamics
  */
-public class RatingTransitionModel {
+public abstract class RatingTransitionModel {
 
 }

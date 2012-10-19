@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
 import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
+import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -68,13 +68,19 @@ public class CalibrateHazardRateTest {
   private static final CreditRatingStandardAndPoors protectionBuyerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch protectionBuyerCreditRatingFitch = CreditRatingFitch.AA;
 
+  private static final boolean protectionBuyerHasDefaulted = false;
+
   private static final CreditRatingMoodys protectionSellerCreditRatingMoodys = CreditRatingMoodys.AA;
   private static final CreditRatingStandardAndPoors protectionSellerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch protectionSellerCreditRatingFitch = CreditRatingFitch.AA;
 
+  private static final boolean protectionSellerHasDefaulted = false;
+
   private static final CreditRatingMoodys referenceEntityCreditRatingMoodys = CreditRatingMoodys.AA;
   private static final CreditRatingStandardAndPoors referenceEntityCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch referenceEntityCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final boolean referenceEntityHasDefaulted = false;
 
   private static final Sector protectionBuyerSector = Sector.INDUSTRIALS;
   private static final Region protectionBuyerRegion = Region.NORTHAMERICA;
@@ -133,6 +139,7 @@ public class CalibrateHazardRateTest {
       protectionBuyerCreditRatingMoodys,
       protectionBuyerCreditRatingStandardAndPoors,
       protectionBuyerCreditRatingFitch,
+      protectionBuyerHasDefaulted,
       protectionBuyerSector,
       protectionBuyerRegion,
       protectionBuyerCountry);
@@ -146,6 +153,7 @@ public class CalibrateHazardRateTest {
       protectionSellerCreditRatingMoodys,
       protectionSellerCreditRatingStandardAndPoors,
       protectionSellerCreditRatingFitch,
+      protectionSellerHasDefaulted,
       protectionSellerSector,
       protectionSellerRegion,
       protectionSellerCountry);
@@ -159,6 +167,7 @@ public class CalibrateHazardRateTest {
       referenceEntityCreditRatingMoodys,
       referenceEntityCreditRatingStandardAndPoors,
       referenceEntityCreditRatingFitch,
+      referenceEntityHasDefaulted,
       referenceEntitySector,
       referenceEntityRegion,
       referenceEntityCountry);
@@ -187,7 +196,7 @@ public class CalibrateHazardRateTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      premiumLegCoupon,
+      /*premiumLegCoupon,*/
       recoveryRate,
       includeAccruedPremium,
       protectionStart);

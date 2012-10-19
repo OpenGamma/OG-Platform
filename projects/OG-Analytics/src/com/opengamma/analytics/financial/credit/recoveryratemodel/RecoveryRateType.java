@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.recoveryratemodel;
 
 /**
  * Enumerates the different types of recovery rate model obligors may have

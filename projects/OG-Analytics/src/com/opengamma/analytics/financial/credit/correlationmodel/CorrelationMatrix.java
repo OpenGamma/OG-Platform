@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.correlationmodel;
 
 /**
  * Generic class representing a matrix of correlations between obligors
  * Specific implementations of the class will be a particular type of correlation e.g. asset value correlation
  */
-public class CorrelationMatrix {
+public abstract class CorrelationMatrix {
 
 }
