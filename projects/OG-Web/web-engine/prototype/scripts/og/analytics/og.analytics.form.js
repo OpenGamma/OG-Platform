@@ -12,8 +12,8 @@ $.register_module({
     ],
     obj: function () {
         return function (selector) {
-            var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.AggregatorsMenu,
-                ds_dropmenu = og.analytics.DatasourcesMenu, Status, MastHead, events = {
+            var emitter = new EventEmitter(), ag_dropmenu = og.analytics.AggregatorsMenu,
+                ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
                     open: 'dropmenu:open',
@@ -49,92 +49,89 @@ $.register_module({
                 status.status = null;
                 return status;
             };
-            MastHead = function (template, search, aggregators, datasource) {
-                var MastHead = this, Form, ag_menu, ds_menu, vd_s = '.og-view',
+            FormCombo = function (template, search, aggregators, datasource) {
+                var FormCombo = this, ag_menu, ds_menu, vd_s = '.og-view',
                     fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
                     $form = $(selector).html(template), $ag = $('.og-aggregation', $form),
                     $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
                     status, ac_menu;
+                    keydown_handler = function (event) {
+                        if (event.keyCode !== 9) return;
+                        var $elem = $(this), shift_key = event.shiftKey,
+                            active_pos = function (elms, pos) {
+                                return $elem.is(elms[pos]());
+                            };
+                        if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
+                        if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
+                        if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
+                        if (shift_key && $elem.is($load_btn)) ds_menu.emitEvent(events.open);
+                        if (shift_key && active_pos($ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
+                        if (shift_key && active_pos($ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
+                    },
+                    button_handler = function (val) {
+                        if (val === 'OK') {
+                            if (ag_menu.is_opened()) {
+                                ds_menu.emitEvent(events.open).emitEvent(events.focus);
+                            } else if (ds_menu.is_opened()) {
+                                ds_menu.emitEvent(events.close);
+                                $load_btn.focus();
+                            }
+                        } else if (val === 'Cancel') {
+                            emitter.emitEvent(events.closeall);
+                            ac_menu.$input.select();
+                        }
+                    },
+                    click_handler = function (event) {
+                        var $elem = $(event.srcElement);
+                        if ($elem.is('button')) button_handler($elem.text());
+                    },
+                    close_dropmenu = function (menu) {
+                        if (menu === ds_menu) ag_menu.emitEvent(events.close);
+                        else ds_menu.emitEvent(events.close);
+                    },
+                    auto_combo_handler = function (even, ui) {
+                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
+                            $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
+                        } else $load_btn.addClass('og-disabled').off('click');
+                    },
+                    get_query = function () {
+                        if (!~ac_menu.$input.val().indexOf('Db')) return;
+                        og.analytics.url.main({
+                            viewdefinition: ac_menu.$input.val(),
+                            providers: ds_menu.get_query()
+                        });
+                    };
                 search.data.sort((function(i){ // sort by name
                     return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
                 })('name'));
-                return Form = function(){
-                    var form = this,
-                        keydown_handler = function (event) {
-                            if (event.keyCode !== 9) return;
-                            var $elem = $(this), shift_key = event.shiftKey,
-                                active_pos = function (elms, pos) {
-                                    return $elem.is(elms[pos]());
-                                };
-                            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
-                            if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
-                            if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
-                            if (shift_key && $elem.is($load_btn)) ds_menu.emitEvent(events.open);
-                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
-                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
-                        },
-                        button_handler = function (val) {
-                            if (val === 'OK') {
-                                if (ag_menu.is_opened()) {
-                                    ds_menu.emitEvent(events.open).emitEvent(events.focus);
-                                } else if (ds_menu.is_opened()) {
-                                    ds_menu.emitEvent(events.close);
-                                    $load_btn.focus();
-                                }
-                            } else if (val === 'Cancel') {
-                                emitter.emitEvent(events.closeall);
-                                ac_menu.$input.select();
-                            }
-                        },
-                        click_handler = function (event) {
-                            var $elem = $(event.srcElement);
-                            if ($elem.is('button')) button_handler($elem.text());
-                        },
-                        close_dropmenu = function (menu) {
-                            if (menu === ds_menu) ag_menu.emitEvent(events.close);
-                            else ds_menu.emitEvent(events.close);
-                        },
-                        auto_combo_handler = function (even, ui) {
-                            if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                                $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
-                            } else $load_btn.addClass('og-disabled').off('click');
-                        },
-                        get_query = function () {
-                            if (!~ac_menu.$input.val().indexOf('Db')) return;
-                            og.analytics.url.main({
-                                viewdefinition: ac_menu.$input.val(),
-                                providers: ds_menu.get_query()
-                            });
-                        };
-                    return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
-                        ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
-                        ac_menu.$input.on(ac_s, auto_combo_handler).select(),
-                        $.when(
-                            og.api.text({module: 'og.analytics.form_aggregation_tash'}),
-                            og.api.text({module: 'og.analytics.form_datasources_tash'})
-                        ).then(function (aggregation_markup, datasources_markup) {
-                            ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
-                                .addListener(events.opened, close_dropmenu),
-                            ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
-                                .addListener(events.opened, close_dropmenu),
-                            $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
-                            $load_btn.on('click', get_query);
-                        }),
-                        emitter.addListener(events.closeall, function () {
-                            close_dropmenu(ag_menu);
-                            close_dropmenu(ds_menu);
-                        }),
-                        og.views.common.layout.main.allowOverflow('north'),
-                        status = new Status(selector + ' .og-status'),
-                        form;
-                }, Form.prototype = EventEmitter.prototype, MastHead = new Form();
+                $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler);
+                ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data);
+                ac_menu.$input.on(ac_s, auto_combo_handler).select();
+                $.when(
+                    og.api.text({module: 'og.analytics.form_aggregation_tash'}),
+                    og.api.text({module: 'og.analytics.form_datasources_tash'})
+                ).then(function (aggregation_markup, datasources_markup) {
+                    ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
+                        .addListener(events.opened, close_dropmenu);
+                    ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
+                        .addListener(events.opened, close_dropmenu);
+                    $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
+                    $load_btn.on('click', get_query);
+                });
+                emitter.addListener(events.closeall, function () {
+                    close_dropmenu(ag_menu);
+                    close_dropmenu(ds_menu);
+                });
+                og.views.common.layout.main.allowOverflow('north');
+                status = new Status(selector + ' .og-status');
+                return FormCombo;
             };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get(),
                 {data: ['Live', 'Snapshot', 'Historical']}
-            ).then(MastHead);
+            ).then(FormCombo);
         };
     }
 });
