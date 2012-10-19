@@ -166,6 +166,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName) {
+        @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
       }
