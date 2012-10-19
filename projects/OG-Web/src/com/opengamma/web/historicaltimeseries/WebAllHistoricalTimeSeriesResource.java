@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.id.ExternalIdDisplayComparator;
 import com.opengamma.core.id.ExternalIdDisplayComparatorUtils;
 import com.opengamma.core.id.ExternalIdWithDatesDisplayComparator;
 import com.opengamma.core.id.ExternalIdWithDatesDisplayComparatorUtils;

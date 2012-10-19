@@ -16,7 +16,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 
 /**
  *

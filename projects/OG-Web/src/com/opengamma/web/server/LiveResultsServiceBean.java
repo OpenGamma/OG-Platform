@@ -12,7 +12,6 @@ import javax.servlet.ServletContext;
 import org.cometd.Bayeux;
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
