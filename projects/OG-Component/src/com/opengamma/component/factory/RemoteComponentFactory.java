@@ -17,7 +17,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;

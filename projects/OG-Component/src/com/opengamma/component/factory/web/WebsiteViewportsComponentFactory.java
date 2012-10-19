@@ -5,12 +5,21 @@
  */
 package com.opengamma.component.factory.web;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 
 import org.fudgemsg.FudgeContext;
-import org.joda.beans.*;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -45,13 +54,20 @@ import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewportResultsJsonWriter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
-import com.opengamma.web.server.push.rest.*;
-import com.opengamma.web.server.push.rest.json.*;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
+import com.opengamma.web.server.push.rest.AggregatorNamesResource;
+import com.opengamma.web.server.push.rest.LiveDataSourcesResource;
+import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.TimeSeriesResolverKeysResource;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
+import com.opengamma.web.server.push.rest.ViewsResource;
+import com.opengamma.web.server.push.rest.json.AnalyticsColumnGroupsMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.Compressor;
+import com.opengamma.web.server.push.rest.json.DependencyGraphGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.PortfolioGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.PrimitivesGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.ViewportResultsMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.ViewportVersionMessageBodyWriter;
 
 /**
  * Component factory for the main website viewports (for analytics).
