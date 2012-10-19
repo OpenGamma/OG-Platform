@@ -5,13 +5,18 @@
  */
 package com.opengamma.util.beancompare;
 
-import com.google.common.collect.ImmutableList;
-import com.opengamma.util.ArgumentChecker;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Compares two Joda beans of the same class and returns details of any differences.

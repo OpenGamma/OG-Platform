@@ -7,18 +7,32 @@ package com.opengamma.util.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
-import com.opengamma.util.db.*;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbConnectorFactoryBean;
+import com.opengamma.util.db.DbDialect;
+import com.opengamma.util.db.HSQLDbDialect;
+import com.opengamma.util.db.PostgresDbDialect;
+import com.opengamma.util.db.SqlServer2008DbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 

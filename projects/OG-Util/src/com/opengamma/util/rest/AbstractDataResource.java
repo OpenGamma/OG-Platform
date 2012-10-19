@@ -8,7 +8,6 @@ package com.opengamma.util.rest;
 import java.lang.reflect.Method;
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

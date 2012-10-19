@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
-import com.sun.jersey.api.client.GenericType;
 
 /**
  * Implementation of {@link com.opengamma.util.map.Map2} backed by a standard {@link java.util.concurrent.ConcurrentHashMap}.
