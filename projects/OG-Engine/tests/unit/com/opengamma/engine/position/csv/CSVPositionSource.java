@@ -153,7 +153,8 @@ public class CSVPositionSource implements PositionSource {
   }
 
   @Override
-  public Portfolio getPortfolio(UniqueId portfolioId) {
+  public Portfolio getPortfolio(UniqueId portfolioId, final VersionCorrection versionCorrection) {
+    // Ignore the version
     return getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
   }
 
@@ -172,7 +173,7 @@ public class CSVPositionSource implements PositionSource {
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId nodeId) {
+  public PortfolioNode getPortfolioNode(UniqueId nodeId, final VersionCorrection versionCorrection) {
     PortfolioNode node = _nodes.get(nodeId);
     if (node == null) {
       throw new DataNotFoundException("Unable to find node: " + nodeId);

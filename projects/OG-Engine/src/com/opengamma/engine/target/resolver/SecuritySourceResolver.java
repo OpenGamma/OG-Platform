@@ -33,7 +33,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
   // ObjectResolver
 
   @Override
-  public Security resolve(final UniqueId uniqueId) {
+  public Security resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     try {
       return getUnderlying().getSecurity(uniqueId);
     } catch (DataNotFoundException e) {

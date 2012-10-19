@@ -36,6 +36,7 @@ import com.opengamma.engine.target.resolver.PositionSourceResolver;
 import com.opengamma.engine.target.resolver.SecuritySourceResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -198,7 +199,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       final ObjectResolver<?> resolver = _resolvers.get(type);
       if (resolver != null) {
-        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId());
+        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId(), VersionCorrection.LATEST);
         if (resolved != null) {
           return ComputationTargetResolverUtils.createResolvedTarget(specification, resolved);
         } else {

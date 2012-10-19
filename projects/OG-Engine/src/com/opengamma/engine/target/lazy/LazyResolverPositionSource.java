@@ -48,12 +48,12 @@ public class LazyResolverPositionSource implements PositionSource, LazyResolver 
   }
 
   @Override
-  public Portfolio getPortfolio(final UniqueId uniqueId) {
-    Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+  public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
     if (portfolio == null) {
       return null;
     }
-    portfolio = new LazyResolvedPortfolio(getLazyResolveContext(), portfolio);
+    portfolio = new LazyResolvedPortfolio(new VersionedLazyResolveContext(getLazyResolveContext(), versionCorrection), portfolio);
     getLazyResolveContext().cachePortfolioNode(portfolio.getRootNode());
     return portfolio;
   }
@@ -70,12 +70,12 @@ public class LazyResolverPositionSource implements PositionSource, LazyResolver 
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(final UniqueId uniqueId) {
-    PortfolioNode portfolioNode = getUnderlying().getPortfolioNode(uniqueId);
+  public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    PortfolioNode portfolioNode = getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
     if (portfolioNode == null) {
       return null;
     }
-    portfolioNode = new LazyResolvedPortfolioNode(getLazyResolveContext(), portfolioNode);
+    portfolioNode = new LazyResolvedPortfolioNode(new VersionedLazyResolveContext(getLazyResolveContext(), versionCorrection), portfolioNode);
     getLazyResolveContext().cachePortfolioNode(portfolioNode);
     return portfolioNode;
   }

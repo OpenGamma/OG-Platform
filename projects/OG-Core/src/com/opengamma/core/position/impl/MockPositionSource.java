@@ -63,8 +63,9 @@ public class MockPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueId uniqueId) {
+  public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     Portfolio portfolio = _portfolios.get(uniqueId.getObjectId());
     if (portfolio == null) {
       throw new DataNotFoundException("Portfolio not found: " + uniqueId);
@@ -84,8 +85,9 @@ public class MockPositionSource implements PositionSource {
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+  public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     PortfolioNode node = _nodes.get(uniqueId.getObjectId());
     if (node == null) {
       throw new DataNotFoundException("PortfolioNode not found: " + uniqueId);

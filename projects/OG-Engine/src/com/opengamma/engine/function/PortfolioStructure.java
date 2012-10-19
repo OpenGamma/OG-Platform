@@ -11,6 +11,7 @@ import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -70,7 +71,7 @@ public class PortfolioStructure {
     if (parent == null) {
       return null;
     }
-    return getPositionSource().getPortfolioNode(parent);
+    return getPositionSource().getPortfolioNode(parent, VersionCorrection.LATEST);
   }
 
   /**
@@ -82,16 +83,17 @@ public class PortfolioStructure {
   public PortfolioNode getParentNode(final ComputationTarget position) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.isTrue(ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION).isCompatible(position.getType()), "position");
-    return getPositionSource().getPortfolioNode(position.getContextIdentifiers().get(position.getContextIdentifiers().size() - 1));
+    return getPositionSource().getPortfolioNode(position.getContextIdentifiers().get(position.getContextIdentifiers().size() - 1), VersionCorrection.LATEST);
   }
 
   /**
-   * Returns the root node for the portfolio containing the given node.
-   * This is equivalent to traversing up the tree until the root is found.
+   * Returns the root node for the portfolio containing the given node. This is equivalent to traversing up the tree until the root is found.
    * 
    * @param node the node to search for, not null
    * @return the root node, null if parent node hierarchy incomplete
+   * @deprecated This is broken as it assumes the "latest" version of the node returned
    */
+  @Deprecated
   public PortfolioNode getRootPortfolioNode(final PortfolioNode node) {
     ArgumentChecker.notNull(node, "node");
     return getRootPortfolioNodeImpl(node);
@@ -103,7 +105,9 @@ public class PortfolioStructure {
    * 
    * @param position the position to search for, not null
    * @return the root node, null if parent node hierarchy incomplete
+   * @deprecated This is broken as it assumes the "latest" version of the node returned
    */
+  @Deprecated
   public PortfolioNode getRootPortfolioNode(final ComputationTarget position) {
     final PortfolioNode node = getParentNode(position);
     if (node == null) {
@@ -112,10 +116,14 @@ public class PortfolioStructure {
     return getRootPortfolioNodeImpl(node);
   }
 
+  /**
+   * @deprecated This is broken as it assumes the "latest" version of the node returned
+   */
+  @Deprecated
   private PortfolioNode getRootPortfolioNodeImpl(PortfolioNode node) {
     UniqueId parent = node.getParentNodeId();
     while (parent != null) {
-      node = getPositionSource().getPortfolioNode(parent);
+      node = getPositionSource().getPortfolioNode(parent, VersionCorrection.LATEST);
       if (node == null) {
         // Position source is broken
         return null;

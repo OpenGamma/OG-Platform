@@ -60,7 +60,7 @@ public class MasterPositionSourceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3arg_nullMaster() throws Exception {
-    new MasterPositionSource(null, null, null);
+    new MasterPositionSource(null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -78,7 +78,7 @@ public class MasterPositionSourceTest {
     
     when(mockPortfolio.get(UID)).thenReturn(prtDoc);
     MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);
-    Portfolio testResult = test.getPortfolio(UID);
+    Portfolio testResult = test.getPortfolio(UID, VersionCorrection.LATEST);
     verify(mockPortfolio, times(1)).get(UID);
     
     assertEquals(UID, testResult.getUniqueId());
@@ -125,11 +125,11 @@ public class MasterPositionSourceTest {
     PositionSearchResult posResult = new PositionSearchResult();
     posResult.getDocuments().add(posDoc);
     
-    when(mockPortfolio.get(UID, VC)).thenReturn(prtDoc);
+    when(mockPortfolio.get(UID)).thenReturn(prtDoc);
     when(mockPosition.search(posRequest)).thenReturn(posResult);
-    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition, VC);
-    Portfolio testResult = test.getPortfolio(UID);
-    verify(mockPortfolio, times(1)).get(UID, VC);
+    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);
+    Portfolio testResult = test.getPortfolio(UID, VC);
+    verify(mockPortfolio, times(1)).get(UID);
     verify(mockPosition, times(1)).search(posRequest);
     
     assertEquals(UID, testResult.getUniqueId());
@@ -171,7 +171,7 @@ public class MasterPositionSourceTest {
     
     when(mockPortfolio.getNode(UID2)).thenReturn(manNode);
     MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);
-    PortfolioNode testResult = test.getPortfolioNode(UID2);
+    PortfolioNode testResult = test.getPortfolioNode(UID2, VersionCorrection.LATEST);
     verify(mockPortfolio, times(1)).getNode(UID2);
     
     assertEquals("Node", testResult.getName());
@@ -191,16 +191,9 @@ public class MasterPositionSourceTest {
     final PositionMaster mockPosition = mock(PositionMaster.class);
     final PositionDocument doc = new PositionDocument(new ManageablePosition(BigDecimal.TEN, ExternalId.of("B", "C")));
     doc.getPosition().setUniqueId(UID);
-    when(mockPosition.get(UID, VersionCorrection.LATEST)).thenReturn(doc);
     when(mockPosition.get(UID)).thenReturn(doc);
-    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition, VersionCorrection.LATEST);
+    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);
     Position testResult = test.getPosition(UID);
-    verify(mockPosition, times(1)).get(UID, VersionCorrection.LATEST);
-    assertEquals(UID, testResult.getUniqueId());
-    assertEquals(BigDecimal.TEN, testResult.getQuantity());
-    assertEquals(ExternalId.of("B", "C").toBundle(), testResult.getSecurityLink().getExternalId());
-    test = new MasterPositionSource(mockPortfolio, mockPosition);
-    testResult = test.getPosition(UID);
     verify(mockPosition, times(1)).get(UID);
     assertEquals(UID, testResult.getUniqueId());
     assertEquals(BigDecimal.TEN, testResult.getQuantity());

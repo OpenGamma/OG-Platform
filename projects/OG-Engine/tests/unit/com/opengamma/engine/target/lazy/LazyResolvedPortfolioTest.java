@@ -22,9 +22,8 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.engine.target.TargetResolverPortfolio;
-import com.opengamma.engine.target.lazy.LazyResolveContext;
-import com.opengamma.engine.target.lazy.LazyResolvedPortfolio;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -35,7 +34,7 @@ public class LazyResolvedPortfolioTest {
   
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"));
+    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
     final Portfolio portfolio = new LazyResolvedPortfolio(new LazyResolveContext(resolver.getSecuritySource()), underlying);
     assertEquals(portfolio.getAttributes(), underlying.getAttributes());
     portfolio.setAttributes(ImmutableMap.of("K1", "V1", "K2", "V2"));
@@ -50,7 +49,7 @@ public class LazyResolvedPortfolioTest {
 
   public void testSerialization_full() throws Exception {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"));
+    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
     Portfolio portfolio = new LazyResolvedPortfolio(new LazyResolveContext(resolver.getSecuritySource()), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(portfolio);
@@ -71,7 +70,7 @@ public class LazyResolvedPortfolioTest {
 
   public void testSerialization_targetResolver() throws Exception {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"));
+    final Portfolio underlying = resolver.getPositionSource().getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
     Portfolio portfolio = new LazyResolvedPortfolio(
         new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver, EHCacheUtils.createCacheManager())), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();

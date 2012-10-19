@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -55,7 +56,7 @@ public class FetchPortfolioFunction extends AbstractFunctionInvoker implements P
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final UniqueId identifier = (UniqueId) parameters[IDENTIFIER];
     try {
-      return sessionContext.getGlobalContext().getPositionSource().getPortfolio(identifier);
+      return sessionContext.getGlobalContext().getPositionSource().getPortfolio(identifier, VersionCorrection.LATEST);
     } catch (DataNotFoundException e) {
       throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier not found");
     }

@@ -8,6 +8,7 @@ package com.opengamma.engine.target.resolver;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.functional.Function2;
 
 /**
@@ -34,10 +35,10 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
   }
 
   @Override
-  public T resolve(final UniqueId uniqueId) {
-    T value = getFirst().resolve(uniqueId);
+  public T resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    T value = getFirst().resolve(uniqueId, versionCorrection);
     if (value == null) {
-      value = getSecond().resolve(uniqueId);
+      value = getSecond().resolve(uniqueId, versionCorrection);
     }
     return value;
   }

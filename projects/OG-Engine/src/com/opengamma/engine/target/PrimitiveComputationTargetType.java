@@ -9,6 +9,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Specialized form of {@link ObjectComputationTargetType} for primitive objects that can be converted directly to/from unique identifiers without an external resolver service. Instances also serve as
@@ -34,7 +35,12 @@ public final class PrimitiveComputationTargetType<T extends UniqueIdentifiable> 
   }
 
   public T resolve(final UniqueId identifier) {
-    return _resolver.resolve(identifier);
+    return _resolver.resolve(identifier, VersionCorrection.LATEST);
+  }
+
+  @Override
+  public T resolve(final UniqueId identifier, final VersionCorrection versionCorrection) {
+    return _resolver.resolve(identifier, versionCorrection);
   }
 
 }

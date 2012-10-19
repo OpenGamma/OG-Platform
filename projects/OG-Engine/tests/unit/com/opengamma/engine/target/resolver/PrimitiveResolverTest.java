@@ -10,6 +10,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -21,14 +22,14 @@ public class PrimitiveResolverTest {
 
   public void testCurrencyResolver() {
     final ObjectResolver<Currency> resolver = new CurrencyResolver();
-    assertEquals(resolver.resolve(Currency.GBP.getUniqueId()), Currency.GBP);
-    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar")), null);
+    assertEquals(resolver.resolve(Currency.GBP.getUniqueId(), VersionCorrection.LATEST), Currency.GBP);
+    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
   }
 
   public void testUnorderedCurrencyPairResolver() {
     final ObjectResolver<UnorderedCurrencyPair> resolver = new UnorderedCurrencyPairResolver();
-    assertEquals(resolver.resolve(UnorderedCurrencyPair.of(Currency.GBP, Currency.USD).getUniqueId()), UnorderedCurrencyPair.of(Currency.GBP, Currency.USD));
-    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar")), null);
+    assertEquals(resolver.resolve(UnorderedCurrencyPair.of(Currency.GBP, Currency.USD).getUniqueId(), VersionCorrection.LATEST), UnorderedCurrencyPair.of(Currency.GBP, Currency.USD));
+    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
   }
 
 }

@@ -46,8 +46,8 @@ public interface LazyResolver {
     protected abstract T lazy(T object, LazyResolveContext context);
 
     @Override
-    public T resolve(final UniqueId uniqueId) {
-      final T underlying = _underlying.resolve(uniqueId);
+    public T resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+      final T underlying = _underlying.resolve(uniqueId, versionCorrection);
       if (underlying == null) {
         return null;
       }

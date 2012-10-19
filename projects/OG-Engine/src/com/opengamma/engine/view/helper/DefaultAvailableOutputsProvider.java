@@ -25,6 +25,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -157,7 +158,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
    */
   protected Portfolio getPortfolio(UniqueId portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    return getPositionSource().getPortfolio(portfolioId);
+    return getPositionSource().getPortfolio(portfolioId, VersionCorrection.LATEST);
   }
 
   /**

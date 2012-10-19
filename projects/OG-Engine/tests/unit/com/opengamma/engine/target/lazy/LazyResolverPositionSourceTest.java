@@ -18,8 +18,6 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.target.MockComputationTargetResolver;
-import com.opengamma.engine.target.lazy.LazyResolveContext;
-import com.opengamma.engine.target.lazy.LazyResolverPositionSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -33,7 +31,7 @@ public class LazyResolverPositionSourceTest {
   public void testGetPortfolio_byUniqueId() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.unresolved();
     final LazyResolverPositionSource ps = new LazyResolverPositionSource(resolver.getPositionSource(), new LazyResolveContext(resolver.getSecuritySource()));
-    final Portfolio portfolio = ps.getPortfolio(UniqueId.of("Portfolio", "0"));
+    final Portfolio portfolio = ps.getPortfolio(UniqueId.of("Portfolio", "0"), VersionCorrection.LATEST);
     final Position position = portfolio.getRootNode().getPositions().iterator().next();
     assertEquals(position.getQuantity(), BigDecimal.ONE);
     assertNull(position.getSecurityLink().getTarget());
@@ -55,7 +53,7 @@ public class LazyResolverPositionSourceTest {
   public void testGetPortfolioNode_byUniqueId() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.unresolved();
     final LazyResolverPositionSource ps = new LazyResolverPositionSource(resolver.getPositionSource(), new LazyResolveContext(resolver.getSecuritySource()));
-    final PortfolioNode node = ps.getPortfolioNode(UniqueId.of("Node", "0"));
+    final PortfolioNode node = ps.getPortfolioNode(UniqueId.of("Node", "0"), VersionCorrection.LATEST);
     final Position position = node.getPositions().iterator().next();
     assertEquals(position.getQuantity(), BigDecimal.ONE);
     assertNull(position.getSecurityLink().getTarget());

@@ -113,7 +113,7 @@ public final class PortfolioCompiler {
     Portfolio portfolio;
     try {
       if (portfolioId.isVersioned()) {
-        portfolio = positionSource.getPortfolio(portfolioId);
+        portfolio = positionSource.getPortfolio(portfolioId, compilationContext.getResolverVersionCorrection());
       } else {
         portfolio = positionSource.getPortfolio(portfolioId.getObjectId(), compilationContext.getResolverVersionCorrection());
       }

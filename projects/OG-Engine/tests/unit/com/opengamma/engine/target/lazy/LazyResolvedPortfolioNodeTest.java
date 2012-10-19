@@ -20,9 +20,8 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.engine.target.TargetResolverPortfolioNode;
-import com.opengamma.engine.target.lazy.LazyResolveContext;
-import com.opengamma.engine.target.lazy.LazyResolvedPortfolioNode;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -33,7 +32,7 @@ public class LazyResolvedPortfolioNodeTest {
 
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"));
+    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"), VersionCorrection.LATEST);
     final PortfolioNode node = new LazyResolvedPortfolioNode(new LazyResolveContext(resolver.getSecuritySource()), underlying);
     assertEquals(node.getName(), underlying.getName());
     assertEquals(node.getParentNodeId(), underlying.getParentNodeId());
@@ -44,7 +43,7 @@ public class LazyResolvedPortfolioNodeTest {
 
   public void testSerialization_full() throws Exception {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"));
+    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"), VersionCorrection.LATEST);
     PortfolioNode node = new LazyResolvedPortfolioNode(new LazyResolveContext(resolver.getSecuritySource()), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(node);
@@ -58,7 +57,7 @@ public class LazyResolvedPortfolioNodeTest {
 
   public void testSerialization_targetResolver() throws Exception {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
-    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"));
+    final PortfolioNode underlying = resolver.getPositionSource().getPortfolioNode(UniqueId.of("Node", "0"), VersionCorrection.LATEST);
     PortfolioNode node = new LazyResolvedPortfolioNode(new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver,
         EHCacheUtils.createCacheManager())), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();

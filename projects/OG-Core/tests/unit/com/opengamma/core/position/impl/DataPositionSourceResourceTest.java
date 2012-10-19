@@ -55,7 +55,7 @@ public class DataPositionSourceResourceTest {
   public void testGetPortfolioByUid() {
     final SimplePortfolio target = new SimplePortfolio("Test");
     
-    when(_underlying.getPortfolio(eq(UID))).thenReturn(target);
+    when(_underlying.getPortfolio(eq(UID), eq(VersionCorrection.LATEST))).thenReturn(target);
     
     Response test = _resource.getPortfolio(OID.toString(), UID.getVersion(), "", "");
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -77,9 +77,9 @@ public class DataPositionSourceResourceTest {
   public void testGetNodeByUid() {
     final SimplePortfolioNode target = new SimplePortfolioNode("Test");
     
-    when(_underlying.getPortfolioNode(eq(UID))).thenReturn(target);
+    when(_underlying.getPortfolioNode(eq(UID), eq(VersionCorrection.LATEST))).thenReturn(target);
     
-    Response test = _resource.getNode(OID.toString(), UID.getVersion());
+    Response test = _resource.getNode(OID.toString(), UID.getVersion(), null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, ((FudgeResponse) test.getEntity()).getValue());
   }

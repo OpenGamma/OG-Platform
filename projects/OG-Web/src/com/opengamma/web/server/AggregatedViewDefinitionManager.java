@@ -30,6 +30,7 @@ import com.opengamma.financial.portfolio.save.SavePortfolio;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -166,7 +167,7 @@ public class AggregatedViewDefinitionManager {
     // anything in the position master. We end up rewriting the positions even though there is no need, then we cannot
     // clean them up when the portfolio is no longer required in case other portfolios have now referenced the new
     // positions.
-    Portfolio basePortfolio = _positionSource.getPortfolio(basePortfolioId);
+    Portfolio basePortfolio = _positionSource.getPortfolio(basePortfolioId, VersionCorrection.LATEST);
     Portfolio resolvedPortfolio =
         PortfolioCompiler.resolvePortfolio(basePortfolio, Executors.newSingleThreadExecutor(), _securitySource);
     List<AggregationFunction<?>> aggregationFunctions = Lists.newArrayListWithCapacity(aggregatorNames.size());

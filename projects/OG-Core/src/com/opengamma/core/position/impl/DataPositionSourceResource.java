@@ -74,11 +74,11 @@ public class DataPositionSourceResource extends AbstractDataResource {
       @QueryParam("versionAsOf") String versionAsOf,
       @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
+    final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     if (version != null) {
-      final Portfolio result = getPositionSource().getPortfolio(objectId.atVersion(version));
+      final Portfolio result = getPositionSource().getPortfolio(objectId.atVersion(version), vc);
       return responseOkFudge(result);
     } else {
-      final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       final Portfolio result = getPositionSource().getPortfolio(objectId, vc);
       return responseOkFudge(result);
     }
@@ -88,9 +88,12 @@ public class DataPositionSourceResource extends AbstractDataResource {
   @Path("nodes/{nodeId}")
   public Response getNode(
       @PathParam("nodeId") String idStr,
-      @QueryParam("version") String version) {
+      @QueryParam("version") String version,
+      @QueryParam("versionAsOf") String versionAsOf,
+      @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version));
+    final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version), vc);
     return responseOkFudge(result);
   }
 

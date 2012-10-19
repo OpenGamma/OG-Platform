@@ -23,6 +23,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -80,7 +81,7 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         if (positions != null) {
           try {
-            return positions.getPortfolioNode(targetSpec.getUniqueId()).getName();
+            return positions.getPortfolioNode(targetSpec.getUniqueId(), VersionCorrection.LATEST).getName();
           } catch (DataNotFoundException ex) {
             s_logger.warn("Node {} not found in position source", targetSpec);
           }

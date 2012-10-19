@@ -7,6 +7,7 @@ package com.opengamma.engine.target.resolver;
 
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A {@link ObjectResolver} for {@link ComputationTargetType#PRIMITIVE}.
@@ -14,7 +15,7 @@ import com.opengamma.id.UniqueId;
 public class PrimitiveResolver implements ObjectResolver<UniqueId> {
 
   @Override
-  public UniqueId resolve(final UniqueId uniqueId) {
+  public UniqueId resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     return uniqueId;
   }
 

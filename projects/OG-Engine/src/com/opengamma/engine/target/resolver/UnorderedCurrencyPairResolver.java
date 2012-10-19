@@ -7,6 +7,7 @@ package com.opengamma.engine.target.resolver;
 
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -15,7 +16,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class UnorderedCurrencyPairResolver implements ObjectResolver<UnorderedCurrencyPair> {
 
   @Override
-  public UnorderedCurrencyPair resolve(final UniqueId uniqueId) {
+  public UnorderedCurrencyPair resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
       return UnorderedCurrencyPair.of(uniqueId);
     } else {

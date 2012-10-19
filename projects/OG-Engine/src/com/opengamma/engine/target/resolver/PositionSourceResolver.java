@@ -30,7 +30,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Trade resolve(final UniqueId uniqueId) {
+    public Trade resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getTrade(uniqueId);
       } catch (DataNotFoundException e) {
@@ -49,7 +49,7 @@ public class PositionSourceResolver {
     // ObjectResolver
 
     @Override
-    public Position resolve(final UniqueId uniqueId) {
+    public Position resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPosition(uniqueId);
       } catch (DataNotFoundException e) {
@@ -82,9 +82,9 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public PortfolioNode resolve(final UniqueId uniqueId) {
+    public PortfolioNode resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
-        return getUnderlying().getPortfolioNode(uniqueId);
+        return getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
       } catch (DataNotFoundException e) {
         return null;
       }
