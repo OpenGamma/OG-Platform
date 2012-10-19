@@ -21,20 +21,27 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
+/**
+ * A mock config source for testing.
+ */
 public class MockConfigSource implements ConfigSource {
 
-  Map<ObjectId, ConfigItem<?>> _store = newHashMap();
-
-
-  ChangeManager _changeManager = new BasicChangeManager();
+  /**
+   * The map of data.
+   */
+  private final Map<ObjectId, ConfigItem<?>> _store = newHashMap();
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager = new BasicChangeManager();
   
   @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
-      if (clazz.isAssignableFrom(configItem.getType()) &&
-        configItem.getName().equals(configName))
+      if (clazz.isAssignableFrom(configItem.getType()) && configItem.getName().equals(configName)) {
         return (ConfigItem<T>) configItem;
+      }
     }
     return null;
   }
@@ -47,8 +54,9 @@ public class MockConfigSource implements ConfigSource {
   @Override
   public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
-      if (configItem.getObjectId().equals(objectId))        
+      if (configItem.getObjectId().equals(objectId)) {
         return configItem;
+      }
     }
     return null;
   }
@@ -58,8 +66,9 @@ public class MockConfigSource implements ConfigSource {
   public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
     List<ConfigItem<T>> list = newArrayList();
     for (ConfigItem<?> configItem : _store.values()) {
-      if (clazz.isAssignableFrom(configItem.getType()))
+      if (clazz.isAssignableFrom(configItem.getType())) {
         list.add((ConfigItem<T>) configItem);
+      }
     }
     return list;
   }
@@ -103,10 +112,11 @@ public class MockConfigSource implements ConfigSource {
 
   public ConfigItem<ViewDefinition> put(ViewDefinition viewDefinition) {
     ConfigItem<ViewDefinition> item = ConfigItem.of(viewDefinition);
-    if(item.getValue().getUniqueId() == null){
+    if (item.getValue().getUniqueId() == null) {
       item.getValue().setUniqueId(UniqueId.of(ViewDefinition.class.getName(), item.getValue().getName()));
     }
     _store.put(viewDefinition.getUniqueId().getObjectId(), item);
     return item;
   }
+
 }

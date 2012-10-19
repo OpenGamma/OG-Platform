@@ -28,20 +28,33 @@ import com.jolbox.bonecp.hooks.ConnectionState;
  */
 public class BoneCPHack implements ConnectionHook {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BoneCPHack.class);
 
   private static final Object HACK_PARTITION_FLAG = new Object();
 
+  /**
+   * The underlying connection.
+   */
   private final ConnectionHook _underlying;
 
-  public BoneCPHack(final ConnectionHook underlying) {
-    _underlying = underlying;
-  }
-
+  /**
+   * Creates an instance.
+   */
   public BoneCPHack() {
     this(null);
   }
 
+  /**
+   * Creates an instance decorating the underlying hook.
+   * 
+   * @param underlying  the underlying hook
+   */
+  public BoneCPHack(final ConnectionHook underlying) {
+    _underlying = underlying;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void onAcquire(ConnectionHandle connection) {
     if (_underlying != null) {
@@ -74,7 +87,7 @@ public class BoneCPHack implements ConnectionHook {
             if (!(connections instanceof TransferQueueWithBlockingOperationHook)) {
               final Method setFreeConnections = partition.getClass().getDeclaredMethod("setFreeConnections", TransferQueue.class);
               setFreeConnections.setAccessible(true);
-              setFreeConnections.invoke(partition, new TransferQueueWithBlockingOperationHook(connections));
+              setFreeConnections.invoke(partition, new TransferQueueWithBlockingOperationHook<ConnectionHandle>(connections));
             }
           }
         }

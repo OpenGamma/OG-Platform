@@ -28,7 +28,6 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
 
-
   /**
    * Gets a configuration element by unique identifier.
    * <p>
@@ -66,7 +65,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * A name lookup does not guarantee to match a single configuration element but it normally will.
    * This method returns all configurations that may match for {@link ConfigResolver} to choose from.
    *
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param configName  the configuration name, not null
    * @param versionCorrection  the version-correction, not null
@@ -74,34 +73,30 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
    */
-  <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection);  
+  <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection);  
 
   //-------------------------------------------------------------------------
   // TODO: remove below here
-
-
   /**
    * Searches for all configuration elements.
    * <p>
    * This will always return the version requested, ignoring any other version constraints
    * of the implementation.
    *
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param versionCorrection the version to fetch, null means latest
    * @return the versioned configuration elements, null if not found
    * @throws RuntimeException if an error occurs
    */
-  <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection);  
-  
-  // Old methods =======================================================================================================
-  
+  <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection);  
+
   /**
    * Gets a configuration element by unique identifier.
    * <p>
    * A unique identifier exactly specifies a single configuration at a single version-correction.
    * 
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param uniqueId  the unique identifier to find, not null
    * @return the matched configuration, not null
@@ -109,7 +104,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
-  <T> T getConfig(Class<T> clazz, UniqueId uniqueId);
+  <R> R getConfig(Class<R> clazz, UniqueId uniqueId);
 
   /**
    * Gets a configuration element by object identifier and version-correction.
@@ -117,7 +112,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * In combination, the object identifier and version-correction exactly specify
    * a single configuration at a single version-correction.
    * 
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param objectId  the object identifier to find, not null
    * @param versionCorrection  the version-correction, not null
@@ -126,7 +121,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
-  <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection);
+  <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
    * Gets a configuration element by name and version-correction.
@@ -135,7 +130,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * A name lookup does not guarantee to match a single configuration element but it normally will.
    * This method returns all configurations that may match for {@link ConfigResolver} to choose from.
    * 
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param configName  the configuration name, not null
    * @param versionCorrection  the version-correction, not null
@@ -143,7 +138,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
    */  
-  <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection);
+  <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection);
 
   /**
    * Searches for the latest version of a configuration element matching the specified name.
@@ -151,11 +146,12 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * This will always return the latest version, ignoring any other version constraints
    * of the implementation.
    * 
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param name  the element name to search for, wildcards allowed, not null
    * @return the latest configuration element matching the request, null if not found
    * @throws RuntimeException if an error occurs
    */
-  <T> T getLatestByName(Class<T> clazz, String name);
+  <R> R getLatestByName(Class<R> clazz, String name);
+
 }

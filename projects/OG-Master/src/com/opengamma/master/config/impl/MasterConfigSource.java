@@ -76,7 +76,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the underlying config master.
    *
@@ -94,7 +93,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
-
 
   /**
    * Gets the change manager.
@@ -127,7 +125,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Search for configuration elements using a request object.
    *
@@ -145,19 +142,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public String toString() {
-    String str = "MasterConfigSource[" + getMaster();
-    if (getVersionCorrection() != null) {
-      str += ",versionCorrection=" + getVersionCorrection();
-    }
-    return str + "]";
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  @Override
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings("unchecked")
   public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
     ConfigItem<?> item = getMaster().get(uniqueId).getObject();
     if (clazz.isAssignableFrom(item.getType())) {
@@ -180,7 +165,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   @Override
   public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     ConfigItem<T> result = get(clazz, configName, versionCorrection);
-    if(result != null){
+    if (result != null) {
       return result.getValue();
     }
     return null;
@@ -228,5 +213,14 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     return map;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterConfigSource[" + getMaster();
+    if (getVersionCorrection() != null) {
+      str += ",versionCorrection=" + getVersionCorrection();
+    }
+    return str + "]";
+  }
 
 }

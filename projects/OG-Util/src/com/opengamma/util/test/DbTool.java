@@ -807,8 +807,10 @@ public class DbTool extends Task {
     options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/create/{dbtype}/<for-all-masters>/<latest version>__create-<master>.sql.");
     options.addOption("dbscriptbasedir", "dbscriptbasedir", true, "Directory for reading db create scripts. " +
       "Optional. If not specified, the working directory is used.");
-    options.addOption("targetversion", "targetversion", true, "Version number for the end result database. 0 means latest. 1 means last but one etc. Optional. If not specified, assumes latest version.");
-    options.addOption("createversion", "createversion", true, "Version number to run the creation script from. 0 means latest. 1 means last but one etc. Optional. If not specified, defaults to {targetversion}.");
+    options.addOption("targetversion", "targetversion", true,
+        "Version number for the end result database. 0 means latest. 1 means last but one etc. Optional. If not specified, assumes latest version.");
+    options.addOption("createversion", "createversion", true,
+        "Version number to run the creation script from. 0 means latest. 1 means last but one etc. Optional. If not specified, defaults to {targetversion}.");
     options.addOption("testpropertiesdir", "testpropertiesdir", true, "Directory for reading test.properties. Only used with the --createstdb option. " +
       "Optional. If not specified, the working directory is used.");
 

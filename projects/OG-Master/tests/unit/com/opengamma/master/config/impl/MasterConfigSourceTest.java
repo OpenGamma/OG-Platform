@@ -30,7 +30,7 @@ public class MasterConfigSourceTest {
 
   private static final ConfigItem<ExternalId> ITEM;
   static {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(ExternalId.of("A", "B"));
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
     item.setName("Test");    
     ITEM = item;
   }

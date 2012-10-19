@@ -16,6 +16,9 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
+/**
+ * A mock security source.
+ */
 public class MockSecuritySource implements SecuritySource {
 
   @Override
@@ -57,4 +60,5 @@ public class MockSecuritySource implements SecuritySource {
   public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     throw new UnsupportedOperationException();
   }
+
 }

@@ -11,8 +11,6 @@ import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.region.ManageableRegion;
@@ -51,16 +49,6 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableRegion get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
-  }
-
-  @Override
-  public ManageableRegion get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getObject();
-  }
-
   @Override
   public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);

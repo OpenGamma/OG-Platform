@@ -54,7 +54,7 @@ public class DefaultHistoricalTimeSeriesResolverTest {
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigItem<HistoricalTimeSeriesRating> testDoc = new ConfigItem<HistoricalTimeSeriesRating>(createRules());
+    ConfigItem<HistoricalTimeSeriesRating> testDoc = ConfigItem.of(createRules());
     testDoc.setName(CONFIG_DOC_NAME);
     ConfigMasterUtils.storeByName(configMaster, testDoc);
   }
