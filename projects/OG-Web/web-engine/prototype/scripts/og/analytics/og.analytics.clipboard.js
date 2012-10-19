@@ -38,7 +38,7 @@ $.register_module({
                     clipboard.data = [];
                     while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
                         row.push({value: data[index++], type: clipboard.selection.type[lcv]});
-                    // if (!grid.selector.copyable) grid.selector.render();
+                    if (!grid.selector.copyable) grid.selector.render();
                 });
             clipboard.grid = grid;
             clipboard.selection = null;
