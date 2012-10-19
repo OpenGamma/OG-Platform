@@ -55,7 +55,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * 
  */
-/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigItem<?>, ConfigDocument> {
+/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigDocument> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigWorker.class);

@@ -39,7 +39,7 @@ import com.opengamma.util.paging.Paging;
 /**
  * An in-memory implementation of a portfolio master.
  */
-public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
+public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<PortfolioDocument> implements PortfolioMaster {
 
   /**
    * The default scheme used for each {@link UniqueId}.
@@ -87,6 +87,14 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Manage
     super(objectIdSupplier, changeManager);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  protected void validateDocument(PortfolioDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
@@ -256,11 +264,5 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Manage
       throw new DataNotFoundException("Node not found: " + nodeId);
     }
     return clonePortfolioNode(node);
-  }
-
-  @Override
-  protected void validateDocument(PortfolioDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
   }
 }

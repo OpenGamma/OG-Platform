@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -22,7 +21,7 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link InterpolatedYieldCurveDefinitionMaster}.
  */
-public class RemoteInterpolatedYieldCurveDefinitionMaster extends AbstractRemoteDocumentMaster<YieldCurveDefinition, YieldCurveDefinitionDocument> implements InterpolatedYieldCurveDefinitionMaster {
+public class RemoteInterpolatedYieldCurveDefinitionMaster extends AbstractRemoteDocumentMaster<YieldCurveDefinitionDocument> implements InterpolatedYieldCurveDefinitionMaster {
 
   /**
    * Creates an instance.

@@ -143,12 +143,12 @@ public class InMemoryUserMaster implements UserMaster {
     
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableOGUser user = document.getObject().clone();
+    final ManageableOGUser user = document.getUser().clone();
     user.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final UserDocument doc = new UserDocument();
-    doc.setObject(user);
+    doc.setUser(user);
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);

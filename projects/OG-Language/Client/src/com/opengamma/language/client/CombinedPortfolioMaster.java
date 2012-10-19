@@ -12,7 +12,6 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -25,9 +24,9 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
  * A {@link PortfolioMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedPortfolioMaster extends CombinedMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
+public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
 
-  /* package */CombinedPortfolioMaster(final CombiningMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster, ?> combining, final PortfolioMaster sessionMaster, final PortfolioMaster userMaster,
+  /* package */CombinedPortfolioMaster(final CombiningMaster<PortfolioDocument, PortfolioMaster, ?> combining, final PortfolioMaster sessionMaster, final PortfolioMaster userMaster,
       final PortfolioMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }

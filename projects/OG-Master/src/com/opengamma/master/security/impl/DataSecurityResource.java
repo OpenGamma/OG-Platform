@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -31,7 +30,8 @@ import com.opengamma.util.rest.RestUtils;
 /**
  * RESTful resource for a security.
  */
-public class DataSecurityResource extends AbstractDocumentDataResource<ManageableSecurity, SecurityDocument> {
+public class DataSecurityResource
+    extends AbstractDocumentDataResource<SecurityDocument> {
 
   /**
    * The securities resource.

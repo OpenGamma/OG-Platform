@@ -12,7 +12,6 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -25,9 +24,9 @@ import com.opengamma.master.position.PositionSearchResult;
  * A {@link PositionMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedPositionMaster extends CombinedMaster<ManageablePosition, PositionDocument, PositionMaster> implements PositionMaster {
+public class CombinedPositionMaster extends CombinedMaster<PositionDocument, PositionMaster> implements PositionMaster {
 
-  /* package */CombinedPositionMaster(final CombiningMaster<ManageablePosition, PositionDocument, PositionMaster, ?> combining, final PositionMaster sessionMaster, final PositionMaster userMaster,
+  /* package */CombinedPositionMaster(final CombiningMaster<PositionDocument, PositionMaster, ?> combining, final PositionMaster sessionMaster, final PositionMaster userMaster,
       final PositionMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }

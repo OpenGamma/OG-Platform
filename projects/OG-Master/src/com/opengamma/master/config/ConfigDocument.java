@@ -13,7 +13,10 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.impl.ConfigItem;
@@ -27,12 +30,18 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
+public class ConfigDocument extends AbstractDocument {
 
+  /**
+   * The config object held by the document.
+   */
+  @PropertyDefinition(set = "manual")
+  private ConfigItem<?> _object;
   /**
    * The config unique identifier.
    * This field is managed by the master but must be set for updates.
    */
+  @PropertyDefinition(get = "manual", set = "manual")
   private UniqueId _uniqueId;
   /**
    * The document name.
@@ -127,9 +136,13 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
   }
 
-  @Override
+  /**
+   * Sets the config item.
+   * 
+   * @param object  the config item
+   */
   public void setObject(ConfigItem<?> object) {
-    super.setObject(object);
+    _object = object;
     if (object != null) {
       if (_name == null && object.getName() != null) {
         _name = object.getName();
@@ -177,11 +190,25 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
+      case -294460212:  // uniqueId
+        return getUniqueId();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ConfigItem<?>) newValue);
+        return;
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
   }
 
@@ -191,7 +218,10 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      ConfigDocument other = (ConfigDocument) obj;
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -199,7 +229,36 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the config object held by the document.
+   * @return the value of the property
+   */
+  public ConfigItem<?> getObject() {
+    return _object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigItem<?>> object() {
+    return metaBean().object().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
+   * @return the property, not null
+   */
+  public final Property<UniqueId> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -213,15 +272,39 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code object} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ConfigItem<?>> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", ConfigDocument.class, (Class) ConfigItem.class);
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ConfigDocument.class, UniqueId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
+        "uniqueId");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
+        case -294460212:  // uniqueId
+          return _uniqueId;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -240,6 +323,22 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigItem<?>> object() {
+      return _object;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
+    }
+
   }
 
   ///CLOVER:ON

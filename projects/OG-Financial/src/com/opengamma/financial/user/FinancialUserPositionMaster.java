@@ -15,7 +15,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.ChangeProvidingDecorator;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -28,13 +27,13 @@ import com.opengamma.master.position.PositionSearchResult;
  * Wraps a position master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class FinancialUserPositionMaster extends AbstractFinancialUserMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class FinancialUserPositionMaster extends AbstractFinancialUserMaster<PositionDocument> implements PositionMaster {
 
   /**
    * The underlying master.
    */
   private final PositionMaster _underlying;
-  private final AbstractChangeProvidingMaster<ManageablePosition, PositionDocument> _changeProvidingMaster;
+  private final AbstractChangeProvidingMaster<PositionDocument> _changeProvidingMaster;
 
   /**
    * Creates an instance.

@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.config;
 
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -18,28 +17,30 @@ import com.opengamma.util.PublicSPI;
  * Many different kinds of configuration element may be stored in a single master.
  */
 @PublicSPI
-public interface ConfigMaster extends AbstractChangeProvidingMaster<ConfigItem<?>, ConfigDocument> {
+public interface ConfigMaster extends AbstractChangeProvidingMaster<ConfigDocument> {
 
   /**
    * Searches for configuration documents matching the specified search criteria.
    *
+   * @param <R>  the type of the config item
    * @param request  the search request, not null
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request);
+  <R> ConfigSearchResult<R> search(ConfigSearchRequest<R> request);
 
   /**
    * Queries the history of a single piece of configuration.
    * <p>
    * The request must contain an object identifier to identify the configuration.
    *
+   * @param <R>  the type of the config item
    * @param request  the history request, not null
    * @return the configuration history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request);  
-  
+  <R> ConfigHistoryResult<R> history(ConfigHistoryRequest<R> request);  
+
   /**
    * Queries the meta-data about the master.
    * <p>

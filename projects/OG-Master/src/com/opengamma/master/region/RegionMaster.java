@@ -15,8 +15,8 @@ import com.opengamma.util.PublicSPI;
  * The region master provides a uniform view over a set of region definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
-@PublicSPI                            
-public interface RegionMaster extends AbstractChangeProvidingMaster<ManageableRegion, RegionDocument>, ChangeProvider {
+@PublicSPI
+public interface RegionMaster extends AbstractChangeProvidingMaster<RegionDocument>, ChangeProvider {
 
   /**
    * Searches for regions matching the specified search criteria.

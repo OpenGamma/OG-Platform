@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -26,7 +25,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link MarketDataSnapshotMaster}.
  */
-public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
+public class RemoteMarketDataSnapshotMaster
+    extends AbstractRemoteDocumentMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
 
   /**
    * Creates an instance.

@@ -15,22 +15,22 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * Abstract base class for RESTful resources.
+ * 
+ * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDataResource<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractDataResource {
+public abstract class AbstractDocumentDataResource<D extends AbstractDocument> extends AbstractDataResource {
 
-  abstract protected AbstractMaster<T, D> getMaster();
+  protected abstract AbstractMaster<D> getMaster();
 
-  abstract protected String getResourceName();
+  protected abstract String getResourceName();
 
-  abstract protected ObjectId getUrlId();
-
+  protected abstract ObjectId getUrlId();
 
   //===================== ROUTING HELPERS ==============================================================================
   
@@ -117,8 +117,7 @@ public abstract class AbstractDocumentDataResource<T extends UniqueIdentifiable,
    * @param vc  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  // TODO replace it with something better
-  @Deprecated
+  // TODO replace URI with something better
   public URI uriAll(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/" + getResourceName() + "/{id}/all");
     if (vc != null) {

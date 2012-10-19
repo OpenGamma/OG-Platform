@@ -39,7 +39,9 @@ import com.opengamma.util.paging.Paging;
 /**
  * An in-memory implementation of a position master.
  */
-public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class InMemoryPositionMaster
+    extends SimpleAbstractInMemoryMaster<PositionDocument>
+    implements PositionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -50,7 +52,6 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
    * A cache of trades by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageableTrade> _storeTrades = new ConcurrentHashMap<ObjectId, ManageableTrade>();
-
 
   /**
    * Creates an instance.

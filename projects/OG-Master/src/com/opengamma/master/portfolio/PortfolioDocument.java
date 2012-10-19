@@ -32,18 +32,22 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> implements Serializable {
+public class PortfolioDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The portfolio object held by the document.
+   */
+  @PropertyDefinition
+  private ManageablePortfolio _object;
   /**
    * The portfolio unique identifier.
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
-
   /**
    * The visibility level of the portfolio.
    */
@@ -73,7 +77,6 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
    * The meta-bean for {@code PortfolioDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PortfolioDocument.Meta meta() {
     return PortfolioDocument.Meta.INSTANCE;
   }
@@ -89,6 +92,8 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
       case 1941332754:  // visibility
@@ -100,6 +105,9 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageablePortfolio) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -123,7 +131,8 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PortfolioDocument other = (PortfolioDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
           super.equals(obj);
     }
@@ -133,9 +142,35 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the portfolio object held by the document.
+   * @return the value of the property
+   */
+  public ManageablePortfolio getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the portfolio object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageablePortfolio object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageablePortfolio> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -196,12 +231,17 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
   /**
    * The meta-bean for {@code PortfolioDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageablePortfolio> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageablePortfolio> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", PortfolioDocument.class, ManageablePortfolio.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -217,6 +257,7 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId",
         "visibility");
 
@@ -229,6 +270,8 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
         case 1941332754:  // visibility
@@ -253,6 +296,14 @@ public class PortfolioDocument extends AbstractDocument<ManageablePortfolio> imp
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageablePortfolio> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

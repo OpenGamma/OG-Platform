@@ -315,12 +315,12 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigHistoryResult history(ConfigHistoryRequest request) {
+  public <R> ConfigHistoryResult<R> history(ConfigHistoryRequest<R> request) {
     final Class<?> type = request.getType();
     final ObjectId oid = request.getObjectId();
     PagingRequest pagingRequest = request.getPagingRequest();
-
-    return new ConfigHistoryResult(
+    
+    return new ConfigHistoryResult<R>(
       pagingRequest.select(
         functional(_store.keySet())
           .map(new Function1<ObjectId, ConfigDocument>() {
