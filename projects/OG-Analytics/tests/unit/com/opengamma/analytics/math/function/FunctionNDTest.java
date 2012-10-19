@@ -5,8 +5,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.FunctionND;
-
 public class FunctionNDTest {
   private static final FunctionND<Double, Double> F = new MyFunction(3);
   

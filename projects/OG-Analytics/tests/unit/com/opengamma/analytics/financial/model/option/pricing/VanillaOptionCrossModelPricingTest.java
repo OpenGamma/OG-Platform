@@ -30,7 +30,6 @@ import com.opengamma.analytics.financial.model.option.definition.RendlemanBartte
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.TrinomialOptionModelDefinition;
 import com.opengamma.analytics.financial.model.option.definition.TrisgeorgisBinomialOptionModelDefinition;
-import com.opengamma.analytics.financial.model.option.pricing.OptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;

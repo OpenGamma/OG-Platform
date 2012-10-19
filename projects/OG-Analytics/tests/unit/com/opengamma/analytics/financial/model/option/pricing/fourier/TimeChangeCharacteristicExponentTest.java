@@ -11,9 +11,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.fourier.CharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.StocasticClockCharcteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.TimeChangedCharacteristicExponent;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
 

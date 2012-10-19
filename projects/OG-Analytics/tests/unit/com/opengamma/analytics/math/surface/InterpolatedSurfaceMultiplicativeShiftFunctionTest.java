@@ -15,8 +15,6 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.analytics.math.surface.InterpolatedSurfaceMultiplicativeShiftFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

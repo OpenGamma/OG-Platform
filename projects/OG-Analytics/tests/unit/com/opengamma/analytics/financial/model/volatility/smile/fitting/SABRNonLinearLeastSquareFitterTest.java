@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.LeastSquareSmileFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 
 /**

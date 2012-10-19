@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.cube.InterpolatedFromSurfacesDoublesCube;
 import com.opengamma.analytics.math.cube.InterpolatedFromSurfacesDoublesCube.SurfacePlane;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;

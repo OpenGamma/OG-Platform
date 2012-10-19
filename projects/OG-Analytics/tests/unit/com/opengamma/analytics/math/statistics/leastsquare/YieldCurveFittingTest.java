@@ -24,8 +24,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.YieldCurveFittingFromSwapsTest;
 import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

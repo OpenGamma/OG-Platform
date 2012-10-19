@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.Assert;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.minimization.ScalarMinimizer;
 
 /**
  * 

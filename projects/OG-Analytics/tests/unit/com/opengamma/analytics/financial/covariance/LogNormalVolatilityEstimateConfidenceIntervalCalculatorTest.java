@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.covariance.LogNormalVolatilityEstimateConfidenceIntervalCalculator;
 import com.opengamma.analytics.math.statistics.ConfidenceInterval;
 
 /**

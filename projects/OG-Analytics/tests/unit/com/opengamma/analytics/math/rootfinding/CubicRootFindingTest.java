@@ -11,8 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
-import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
-import com.opengamma.analytics.math.rootfinding.CubicRootFinder;
 
 /**
  * 

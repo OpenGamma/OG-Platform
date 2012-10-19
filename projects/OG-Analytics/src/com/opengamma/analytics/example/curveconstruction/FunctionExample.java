@@ -6,12 +6,12 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
+import java.io.PrintStream;
+import java.util.Arrays;
+
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
-
-import java.io.PrintStream;
-import java.util.Arrays;
 
 // @export "classDefinition"
 public class FunctionExample {

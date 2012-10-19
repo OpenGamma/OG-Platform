@@ -13,8 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.schedule.MonthlyScheduleCalculator;
-import com.opengamma.analytics.financial.schedule.Schedule;
 import com.opengamma.util.time.DateUtils;
 
 /**

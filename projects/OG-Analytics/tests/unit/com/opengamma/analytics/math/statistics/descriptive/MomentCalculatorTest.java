@@ -15,16 +15,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PopulationStandardDeviationCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PopulationVarianceCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleCentralMomentCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleFisherKurtosisCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleNormalizedCentralMomentCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SamplePearsonKurtosisCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistribution;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;

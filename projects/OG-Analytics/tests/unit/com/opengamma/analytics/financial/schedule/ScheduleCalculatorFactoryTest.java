@@ -12,10 +12,6 @@ import javax.time.calendar.MonthOfYear;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.schedule.AnnualScheduleOnDayAndMonthCalculator;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.analytics.financial.schedule.WeeklyScheduleOnDayCalculator;
-
 /**
  * 
  */

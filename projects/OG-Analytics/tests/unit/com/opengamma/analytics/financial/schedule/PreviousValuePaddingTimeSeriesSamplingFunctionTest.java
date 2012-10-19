@@ -17,10 +17,6 @@ import javax.time.calendar.MonthOfYear;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.schedule.DailyScheduleCalculator;
-import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
-import com.opengamma.analytics.financial.schedule.PreviousValuePaddingTimeSeriesSamplingFunction;
-import com.opengamma.analytics.financial.schedule.WeeklyScheduleOnDayCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

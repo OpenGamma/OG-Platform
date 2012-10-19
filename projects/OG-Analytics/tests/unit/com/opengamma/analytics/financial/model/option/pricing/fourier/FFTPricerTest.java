@@ -11,11 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.EuropeanCallFourierTransform;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.FFTPricer;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.GaussianMartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;

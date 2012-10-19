@@ -9,9 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.covariance.CovarianceCalculator;
-import com.opengamma.analytics.financial.covariance.CovarianceMatrixCalculator;
-import com.opengamma.analytics.financial.covariance.HistoricalCovarianceCalculator;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

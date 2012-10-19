@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.calculator;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calculate security prices curve sensitivity for futures (bond and interest rate).

@@ -13,9 +13,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.function.HestonModelData;
-import com.opengamma.analytics.financial.model.volatility.smile.function.HestonVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**

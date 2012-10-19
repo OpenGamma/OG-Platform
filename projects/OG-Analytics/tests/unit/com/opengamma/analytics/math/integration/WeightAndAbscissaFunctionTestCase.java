@@ -9,9 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.integration.GaussianQuadratureData;
-import com.opengamma.analytics.math.integration.QuadratureWeightAndAbscissaFunction;
-
 /**
  * 
  */

@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.cube.DoublesCube;
 import com.opengamma.util.tuple.Triple;
 
 /**

@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;

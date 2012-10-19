@@ -6,12 +6,12 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
+import java.io.PrintStream;
+
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
-
-import java.io.PrintStream;
 
 public class YieldCurveExample {
     // @export constantYieldCurveDemo

@@ -10,9 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.minimization.NullTransform;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
-
 /**
  * 
  */

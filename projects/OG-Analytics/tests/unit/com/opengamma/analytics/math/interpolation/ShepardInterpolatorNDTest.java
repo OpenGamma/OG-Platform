@@ -7,9 +7,6 @@ package com.opengamma.analytics.math.interpolation;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.InterpolatorND;
-import com.opengamma.analytics.math.interpolation.ShepardInterpolatorND;
-
 /**
  * 
  */

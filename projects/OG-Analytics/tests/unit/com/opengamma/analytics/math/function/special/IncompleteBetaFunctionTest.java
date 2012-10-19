@@ -14,7 +14,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.function.special.IncompleteBetaFunction;
 
 public class IncompleteBetaFunctionTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);

@@ -12,7 +12,6 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;

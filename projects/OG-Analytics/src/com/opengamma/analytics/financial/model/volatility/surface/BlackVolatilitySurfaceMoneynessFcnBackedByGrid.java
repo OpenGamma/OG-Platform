@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.math.surface.Surface;
-
-import org.apache.commons.lang.Validate;
 
 /**
  *  A surface that contains the Black (implied) volatility  as a function of time to maturity and moneyness, m, defined

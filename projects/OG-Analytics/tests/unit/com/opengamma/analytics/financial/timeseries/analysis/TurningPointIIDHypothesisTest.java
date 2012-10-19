@@ -10,9 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.timeseries.analysis.IIDHypothesis;
-import com.opengamma.analytics.financial.timeseries.analysis.TurningPointIIDHypothesis;
-
 /**
  * 
  */

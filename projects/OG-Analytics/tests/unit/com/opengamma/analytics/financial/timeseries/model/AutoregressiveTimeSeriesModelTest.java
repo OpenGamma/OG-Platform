@@ -16,7 +16,6 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.analytics.financial.timeseries.model.AutoregressiveTimeSeriesModel;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

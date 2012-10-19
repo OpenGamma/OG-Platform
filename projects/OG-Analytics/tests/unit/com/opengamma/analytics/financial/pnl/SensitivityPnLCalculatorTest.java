@@ -13,9 +13,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.Greek;
-import com.opengamma.analytics.financial.pnl.SensitivityAndReturnDataBundle;
-import com.opengamma.analytics.financial.pnl.SensitivityPnLCalculator;
-import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.math.function.Function;

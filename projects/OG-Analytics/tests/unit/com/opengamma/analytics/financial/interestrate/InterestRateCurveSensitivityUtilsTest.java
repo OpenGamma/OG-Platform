@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
 import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.clean;
 import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.HashMap;

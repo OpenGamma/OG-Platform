@@ -7,9 +7,6 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.analytics.financial.model.finitedifference.OperatorSplittingFiniteDifference2D;
-
 public class OperatorSplittingTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();

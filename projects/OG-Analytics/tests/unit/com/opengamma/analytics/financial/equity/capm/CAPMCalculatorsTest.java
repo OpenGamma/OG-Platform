@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.capm.CAPMBetaCalculator;
-import com.opengamma.analytics.financial.equity.capm.CAPMExpectedReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.GeometricMeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;

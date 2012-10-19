@@ -5,12 +5,11 @@
  */
 package com.opengamma.analytics.math.utilities;
 
-import org.testng.annotations.Test;
-
-import com.opengamma.analytics.math.utilities.Diff;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
-import static org.testng.AssertJUnit.assertTrue;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests Diff 

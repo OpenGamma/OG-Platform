@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Market data required to price a Variance Swaps through static replication of a log-contract

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.interestrate;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
