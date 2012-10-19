@@ -12,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.time.Instant;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 

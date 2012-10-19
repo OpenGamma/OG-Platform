@@ -13,7 +13,6 @@ import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
-import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
@@ -24,7 +23,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
-import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**

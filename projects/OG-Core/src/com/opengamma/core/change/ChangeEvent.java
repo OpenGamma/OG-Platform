@@ -10,21 +10,21 @@ import java.util.Map;
 
 import javax.time.Instant;
 
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.*;
-
-import com.opengamma.id.ObjectId;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.ObjectId;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A description of changes to an entity.

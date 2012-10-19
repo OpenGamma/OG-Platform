@@ -6,19 +6,13 @@
 package com.opengamma.core.config;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.time.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Source;
-import com.opengamma.core.SourceWithExternalBundle;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 

@@ -8,7 +8,6 @@ package com.opengamma.core.change;
 import javax.time.Instant;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 
 /**
  * Implementation of {@link ChangeManager} to use when change notifications are not supported or never needed.

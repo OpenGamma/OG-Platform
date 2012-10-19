@@ -6,8 +6,6 @@
 package com.opengamma.core.holiday.impl;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
@@ -23,7 +21,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeBooleanWrapper;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Provides remote access to an {@link HolidaySource}.

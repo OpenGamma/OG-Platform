@@ -12,10 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.Source;
-import com.opengamma.core.region.Region;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.rest.AbstractRemoteClient;
 

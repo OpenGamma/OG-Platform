@@ -11,13 +11,14 @@ import static com.opengamma.util.functional.Functional.groupBy;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.id.*;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.functional.Function1;
-import com.opengamma.util.functional.Functional;
 
 /**
  * A source of snapshots that uses the scheme of the unique identifier to determine which

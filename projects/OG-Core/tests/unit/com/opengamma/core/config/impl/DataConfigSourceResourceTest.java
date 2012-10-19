@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 
 import javax.time.Instant;
@@ -22,14 +21,12 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
-import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

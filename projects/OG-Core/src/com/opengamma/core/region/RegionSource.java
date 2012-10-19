@@ -11,8 +11,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Source;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 

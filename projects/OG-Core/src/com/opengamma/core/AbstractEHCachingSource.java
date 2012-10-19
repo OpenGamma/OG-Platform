@@ -16,12 +16,20 @@ import java.util.concurrent.ConcurrentMap;
 import javax.time.Instant;
 import javax.time.calendar.Period;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.*;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -32,10 +40,6 @@ import com.opengamma.util.map.HashDeepMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.SoftValueHashMap2;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.

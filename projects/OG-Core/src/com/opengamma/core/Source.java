@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 
 /**

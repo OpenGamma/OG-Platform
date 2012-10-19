@@ -8,7 +8,6 @@ package com.opengamma.core.security.impl;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.AbstractSecuritySource;

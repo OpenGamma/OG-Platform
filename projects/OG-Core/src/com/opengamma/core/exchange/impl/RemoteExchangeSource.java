@@ -5,21 +5,20 @@
  */
 package com.opengamma.core.exchange.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.net.URI;
 import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
-import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.id.*;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
-import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**

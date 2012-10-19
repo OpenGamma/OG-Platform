@@ -11,10 +11,10 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.change.BasicChangeManager;
-import com.opengamma.core.change.ChangeManager;
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;

@@ -6,13 +6,8 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
 
-import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
-import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -20,7 +15,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Provides remote access to an {@link MarketDataSnapshotSource}.

@@ -6,6 +6,7 @@
 package com.opengamma.core.user;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**

@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -18,7 +17,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.sun.jersey.api.client.GenericType;
 
 /**

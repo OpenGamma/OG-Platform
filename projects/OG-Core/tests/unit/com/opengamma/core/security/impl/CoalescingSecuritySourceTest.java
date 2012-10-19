@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.test.MockSecuritySource;

@@ -9,7 +9,6 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
