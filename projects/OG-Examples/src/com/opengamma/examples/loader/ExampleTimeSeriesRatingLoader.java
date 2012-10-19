@@ -12,13 +12,13 @@ import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSerie
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;

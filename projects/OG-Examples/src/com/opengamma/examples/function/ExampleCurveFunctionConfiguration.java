@@ -16,7 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.engine.function.config.*;
+import com.opengamma.engine.function.config.FunctionConfiguration;
+import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
+import com.opengamma.engine.function.config.RepositoryConfiguration;
+import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
