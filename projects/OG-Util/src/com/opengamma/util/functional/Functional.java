@@ -24,9 +24,11 @@ import java.util.Set;
 import com.sun.jersey.api.client.GenericType;
 
 /**
- * Functional λ-flavoured java 
+ * Functional λ-flavoured java.
+ * 
+ * @param <S> the type of the iterable
  */
-public class Functional<S> implements Iterable<S> {
+public final class Functional<S> implements Iterable<S> {
 
   public static <T> T first(Collection<T> collection) {
     Iterator<T> it = collection.iterator();
@@ -146,13 +148,14 @@ public class Functional<S> implements Iterable<S> {
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static <T extends Comparable> List<T> sort(final Collection<T> coll) {
     List<T> list = new ArrayList<T>(coll);
     Collections.sort(list);
     return list;
   }
 
+  @SuppressWarnings("rawtypes")
   public static <T extends Comparable> List<T> sortBy(final Collection<T> coll, java.util.Comparator<? super T> comparator) {
     List<T> list = new ArrayList<T>(coll);
     Collections.sort(list, comparator);
