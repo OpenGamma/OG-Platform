@@ -3,10 +3,10 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSThreeD) window.JSThreeD = {};
+    if (!window.Four) window.Four = {};
     if (!Detector.webgl) throw new Error('JSThreeD.Matlib requires Detector.webgl');
     var webgl = Detector.webgl ? true : false;
-    window.JSThreeD.Matlib = function () {
+    window.Four.Matlib = function () {
         var matlib = {canvas: {}, cache: {}};
         matlib.get_material = function (material, color) {
             var name = material + '_' + color;
