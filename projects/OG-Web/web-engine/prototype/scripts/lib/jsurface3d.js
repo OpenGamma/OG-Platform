@@ -39,11 +39,12 @@
     var Surface = function (js3d) {
         var surface = this, settings = js3d.settings, matlib = js3d.matlib;
         /**
-         * Create the actual full surface object with axis. Removes any existing ones first
+         * Create 3D world, removes any existing geomerty first
          * @return {THREE.Object3D}
          */
         surface.create_world = function () {
             var groups = js3d.geometry_groups, buffers = js3d.buffers;
+            if (groups.surface) groups.animation_group.remove(groups.surface), buffers.surface.clear();
             js3d.interactive_meshes.remove('surface');
             groups.surface = new THREE.Object3D();
             groups.surface.name = 'Surface Group';
@@ -51,7 +52,8 @@
             groups.slice.name = 'Slice Group';
             groups.surface_top = new THREE.Object3D();
             groups.surface_bottom = new THREE.Object3D();
-            js3d.surface_plane.init();
+            if (typeof js3d.surface_plane === 'object') js3d.surface_plane.update();
+            else js3d.surface_plane.init();
             groups.slice.add(js3d.surface_plane);
             if (webgl) {
                 // create bottom grid
@@ -498,8 +500,12 @@
          */
         js3d.update = function () {
             js3d.surface.init_data();
-            js3d.surface_plane.update();
+            js3d.geometry_groups.animation_group.add(js3d.surface.create_world());
             if (webgl) js3d.slice.load();
+        };
+        js3d.update_surface_plane = function (new_data) {
+            js3d.surface.init_data(new_data);
+            js3d.surface_plane.update();
         };
         js3d.load = function () {
             var animation_group = js3d.geometry_groups.animation_group, camera;
