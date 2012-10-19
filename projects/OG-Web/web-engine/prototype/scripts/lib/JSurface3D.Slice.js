@@ -15,6 +15,25 @@
             .forEach(function (vertex) {vertex.z = -2.9;});
         return new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_handle_color));
     };
+    /**
+     * Slice Bar constructor
+     * @param {Object} matlib material library
+     * @param {Object} settings settings
+     * @param {String} orientation 'x' or 'z'
+     * @return {THREE.Mesh}
+     */
+    var SliceBar = function (matlib, settings, orientation) {
+        var geo = new THREE.CubeGeometry(settings['surface_' + orientation], 1, 2, 0, 0),
+            mesh = new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_bar_color));
+        if (orientation === 'x') mesh.position.z = settings.surface_z / 2 + 1.5 + settings.axis_offset;
+        if (orientation === 'z') {
+            mesh.position.x = -(settings.surface_x / 2) - 1.5 - settings.axis_offset;
+            mesh.rotation.y = -Math.PI * 0.5;
+        }
+        mesh.matrixAutoUpdate = false;
+        mesh.updateMatrix();
+        return mesh;
+    };
     window.JSurface3D.Slice = function (js3d) {
         var slice = this, matlib = js3d.matlib, settings = js3d.settings;
         slice.lft_x_handle_position = js3d.x_segments;
@@ -41,7 +60,7 @@
                 rx = slice['rgt_' + axis + '_handle'].position[axis];
             if (js3d.buffers.slice) js3d.buffers.slice.clear(slice[bar_lbl]);
             js3d.geometry_groups.slice.remove(slice[bar_lbl]);
-            slice[bar_lbl] = new JSurface3D.SliceBar(matlib, settings, axis);
+            slice[bar_lbl] = new SliceBar(matlib, settings, axis);
             vertices = slice[bar_lbl].geometry.vertices;
             vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
             vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
