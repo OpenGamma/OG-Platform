@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.maths.lowlevelapi.functions.utilities.Max;
-
 /**
  * Tests the Max() class for finding max value and index in vectors.
  */

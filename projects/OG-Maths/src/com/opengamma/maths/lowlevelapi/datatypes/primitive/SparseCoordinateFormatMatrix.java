@@ -11,13 +11,13 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Find;
+import com.opengamma.maths.lowlevelapi.functions.utilities.Find.condition;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Max;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Permute;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Sort;
+import com.opengamma.maths.lowlevelapi.functions.utilities.Sort.direction;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Unique;
 import com.opengamma.maths.lowlevelapi.functions.utilities.View;
-import com.opengamma.maths.lowlevelapi.functions.utilities.Find.condition;
-import com.opengamma.maths.lowlevelapi.functions.utilities.Sort.direction;
 
 /**
  * Converts or instantiates a matrix to Sparse Coordinate Format (COO). COO is a non optimal method of storing sparse matrix data and is generally used as

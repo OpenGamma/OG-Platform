@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.CompressedSparseColumnFormatMatrix;
-import com.opengamma.maths.lowlevelapi.linearalgebra.blas.BLAS2;
 
 /**
  * Tests the BLAS2 library

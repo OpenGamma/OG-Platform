@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.CompressedSparseColumnFormatMatrix;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.CompressedSparseRowFormatMatrix;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.SparseCoordinateFormatMatrix;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.SparseMatrix;
 
 /**
  *
