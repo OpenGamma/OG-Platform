@@ -3,121 +3,80 @@
  * Please see distribution for license.
  */
 (function () {
-    if (!window.JSurface3D) throw new Error('JSSurface3D.Slice requires JSSurface3D');
-    /**
-     * Slice handle constructor
-     * @return {THREE.Mesh}
-     */
-    var Handle = function (matlib, settings) {
-        var geo = new THREE.CubeGeometry(3, 1.2, 3, 2, 0, 0);
-        geo.vertices // move middle vertices out to a point
-            .filter(function (val) {return (val.x === 0 && val.z === -1.5);})
-            .forEach(function (vertex) {vertex.z = -2.9;});
-        return new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_handle_color));
-    };
-    window.JSurface3D.Slice = function (js3d) {
-        var slice = this, matlib = js3d.matlib, settings = js3d.settings;
-        slice.lft_x_handle_position = js3d.x_segments;
-        slice.rgt_x_handle_position = 0;
-        slice.lft_z_handle_position = js3d.z_segments;
-        slice.rgt_z_handle_position = 0;
-        slice.load = function () {
-            var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0),
-                mesh = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
-            mesh.matrixAutoUpdate = false;
-            mesh.updateMatrix();
-            slice.intersection_plane = mesh;
-            js3d.geometry_groups.surface_bottom.add(slice.intersection_plane);
-            slice.x();
-            slice.z();
-        };
-        slice.reset_handle_material = function () {
-            slice.lft_x_handle.material = slice.rgt_x_handle.material = slice.lft_z_handle.material =
-            slice.rgt_z_handle.material = matlib.get_material('phong', settings.slice_handle_color);
-        };
-        slice.create_slice_bar = function (axis) {
-            var vertices, bar_lbl = axis + '_bar',
-                lx = slice['lft_' + axis + '_handle'].position[axis],
-                rx = slice['rgt_' + axis + '_handle'].position[axis];
-            if (js3d.buffers.slice) js3d.buffers.slice.clear(slice[bar_lbl]);
-            js3d.geometry_groups.slice.remove(slice[bar_lbl]);
-            slice[bar_lbl] = new JSurface3D.SliceBar(matlib, settings, axis);
-            vertices = slice[bar_lbl].geometry.vertices;
-            vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
-            vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
-            if (!(Math.abs(lx) + Math.abs(rx) === settings['surface_' + axis])) // change color
-                slice[bar_lbl].material = matlib.get_material('phong', settings.slice_bar_color_active);
-            js3d.geometry_groups.slice.add(slice[bar_lbl]);
-        };
-        slice.x = function () {
-            var xpos = (settings.surface_x / 2), zpos = settings.surface_z / 2 + 1.5 + settings.axis_offset;
-            /**
-             * particle guide
-             * (dotted lines that guide the slice handles)
-             */
-            (function () {
-                var geo = new THREE.Geometry(), num_vertices = js3d.adjusted_xs.length, xparticles;
-                while (num_vertices--) geo.vertices.push(new THREE.Vector3(js3d.adjusted_xs[num_vertices], 0, 0));
-                xparticles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
-                xparticles.position.x += 0.1;
-                xparticles.position.z = zpos;
-                js3d.geometry_groups.surface_bottom.add(slice.x_particles = xparticles);
+    if (!window.JSurface3D) throw new Error('JSurface3D.Smile requires JSurface3D');
+    window.JSurface3D.Smile = function (js3d) {
+        var settings = js3d.settings, matlib = js3d.matlib;
+        var x = function () {
+            var obj = new THREE.Object3D();
+            (function () { // plane
+                var plane = new JSurface3D.Plane(js3d, 'smilex'),
+                    material = matlib.get_material('compound_grid_wire'),
+                    mesh = Four.multimaterial_object(plane, material);
+                mesh.rotation.x = Math.PI * 0.5;
+                mesh.position.y = settings.surface_y;
+                mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
+                mesh.matrixAutoUpdate = false;
+                mesh.updateMatrix();
+                obj.add(mesh);
             }());
-            /**
-             * handles
-             */
-            slice.lft_x_handle = new Handle(matlib, settings);
-            slice.lft_x_handle.position.x = -xpos;
-            slice.lft_x_handle.position.z = zpos;
-            slice.rgt_x_handle = new Handle(matlib, settings);
-            slice.rgt_x_handle.position.x = xpos;
-            slice.rgt_x_handle.position.z = zpos;
-            js3d.geometry_groups.surface_bottom.add(slice.lft_x_handle);
-            js3d.geometry_groups.surface_bottom.add(slice.rgt_x_handle);
-            js3d.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
-            js3d.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
-            slice.lft_x_handle.position.x = slice.x_particles.geometry.vertices[slice.lft_x_handle_position].x;
-            slice.rgt_x_handle.position.x = slice.x_particles.geometry.vertices[slice.rgt_x_handle_position].x;
-            /**
-             * slice bar
-             */
-            slice.create_slice_bar('x');
-        };
-        slice.z = function () {
-            var xpos = (settings.surface_x / 2) + 1.5 + settings.axis_offset, zpos = settings.surface_z / 2;
-            /**
-             * particle guide
-             * (dotted lines that guide the slice handles)
-             */
-            (function () {
-                var geo = new THREE.Geometry(), num_vertices = js3d.adjusted_zs.length, zparticles;
-                while (num_vertices--) geo.vertices.push(new THREE.Vector3(js3d.adjusted_zs[num_vertices], 0, 0));
-                zparticles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
-                zparticles.rotation.y = -Math.PI * 0.5;
-                zparticles.position.x = -xpos;
-                js3d.geometry_groups.surface_bottom.add(slice.z_particles = zparticles);
+            (function () { // axis
+                var y_axis = JSurface3D.Axis({axis: 'y', right: true}, js3d);
+                y_axis.position.x = -(settings.surface_x / 2) - 25;
+                y_axis.position.y = 4;
+                y_axis.position.z = -(settings.surface_z / 2) - settings.smile_distance;
+                y_axis.rotation.y = Math.PI * 0.5;
+                y_axis.rotation.z = Math.PI * 0.5;
+                obj.add(y_axis);
             }());
-            /**
-             * handles
-             */
-            slice.lft_z_handle = new Handle(matlib, settings);
-            slice.lft_z_handle.position.x = -xpos;
-            slice.lft_z_handle.position.z = -zpos;
-            slice.lft_z_handle.rotation.y = -Math.PI * 0.5;
-            slice.rgt_z_handle = new Handle(matlib, settings);
-            slice.rgt_z_handle.position.x = -xpos;
-            slice.rgt_z_handle.position.z = zpos;
-            slice.rgt_z_handle.rotation.y = -Math.PI * 0.5;
-            js3d.geometry_groups.surface_bottom.add(slice.lft_z_handle);
-            js3d.geometry_groups.surface_bottom.add(slice.rgt_z_handle);
-            js3d.interactive_meshes.add('lft_z_handle', slice.lft_z_handle);
-            js3d.interactive_meshes.add('rgt_z_handle', slice.rgt_z_handle);
-            slice.lft_z_handle.position.z = slice.z_particles.geometry.vertices[slice.lft_z_handle_position].x;
-            slice.rgt_z_handle.position.z = slice.z_particles.geometry.vertices[slice.rgt_z_handle_position].x;
-            /**
-             * slice bar
-             */
-            slice.create_slice_bar('z');
+            return obj;
+        };
+        var z = function () {
+            var obj = new THREE.Object3D();
+            (function () { // plane
+                var plane = new JSurface3D.Plane(js3d, 'smiley'),
+                    material = matlib.get_material('compound_grid_wire'),
+                    mesh = Four.multimaterial_object(plane, material);
+                mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
+                mesh.rotation.z = Math.PI * 0.5;
+                mesh.matrixAutoUpdate = false;
+                mesh.updateMatrix();
+                obj.add(mesh);
+            }());
+            (function () { // axis
+                var y_axis = JSurface3D.Axis({axis: 'y'}, js3d);
+                y_axis.position.y = 4;
+                y_axis.position.z = (settings.surface_z / 2) + 5;
+                y_axis.position.x = (settings.surface_x / 2) + settings.smile_distance;
+                y_axis.rotation.z = Math.PI * 0.5;
+                obj.add(y_axis);
+            }());
+            return obj;
+        };
+        var shadows = function () {
+            var obj = new THREE.Object3D();
+            (function () { // x shadow
+                var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
+                    points = [{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}],
+                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
+                shadow.matrixAutoUpdate = false;
+                obj.add(shadow);
+            }());
+            (function () { // z shadow
+                var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
+                    points = [{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}],
+                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
+                shadow.matrixAutoUpdate = false;
+                obj.add(shadow);
+            }());
+            obj.position.y -= settings.floating_height;
+            return obj;
+        };
+        return function () {
+            var obj = new THREE.Object3D();
+            obj.add(x());
+            obj.add(z());
+            obj.add(shadows());
+            return obj;
         };
     };
 })();
