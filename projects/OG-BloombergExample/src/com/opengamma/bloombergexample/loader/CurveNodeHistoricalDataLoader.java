@@ -31,7 +31,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigMasterIterator;
@@ -175,8 +174,8 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
     List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
     ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
-    for (ConfigDocument doc : ConfigMasterIterator.iterable(configMaster, request)) {
-      results.add((YieldCurveDefinition) doc.getObject().getValue());
+    for (ConfigItem<YieldCurveDefinition> item : ConfigMasterIterator.iterable(configMaster, request)) {
+      results.add(item.getValue());
     }
     return results;
   }

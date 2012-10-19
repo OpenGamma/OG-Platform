@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -27,7 +28,7 @@ import com.opengamma.util.paging.PagingRequest;
  * @param <T>  the type of the configuration item
  */
 @PublicSPI
-public class ConfigMasterIterator<T> implements Iterator<ConfigDocument<T>> {
+public class ConfigMasterIterator<T> implements Iterator<ConfigItem<T>> {
 
   /**
    * The master that is being used.
@@ -48,7 +49,7 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigDocument<T>> {
   /**
    * The current document, null if not fetched, at end or removed.
    */
-  private ConfigDocument<T> _current;
+  private ConfigItem<T> _current;
   /**
    * The overall index of the last retrived object.
    */
@@ -64,12 +65,12 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigDocument<T>> {
    * @param request  the request object, not null
    * @return an iterable suitable for use in a for-each loop, not null
    */
-  public static <R> Iterable<ConfigDocument<R>> iterable(final ConfigMaster master, final ConfigSearchRequest<R> request) {
+  public static <R> Iterable<ConfigItem<R>> iterable(final ConfigMaster master, final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(request, "request");
-    return new Iterable<ConfigDocument<R>>() {
+    return new Iterable<ConfigItem<R>>() {
       @Override
-      public Iterator<ConfigDocument<R>> iterator() {
+      public Iterator<ConfigItem<R>> iterator() {
         return new ConfigMasterIterator<R>(master, request);
       }
     };
@@ -100,7 +101,7 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigDocument<T>> {
   }
 
   @Override
-  public ConfigDocument<T> next() {
+  public ConfigItem<T> next() {
     if (hasNext() == false) {
       throw new NoSuchElementException("No more elements found");
     }
@@ -163,8 +164,9 @@ public class ConfigMasterIterator<T> implements Iterator<ConfigDocument<T>> {
     }
   }
 
-  private ConfigDocument<T> doNext() {
-    _current = _currentBatch.getDocuments().get(_batchIndex);
+  @SuppressWarnings("unchecked")
+  private ConfigItem<T> doNext() {
+    _current = (ConfigItem<T>) _currentBatch.getDocuments().get(_batchIndex).getObject();
     _batchIndex++;
     _overallIndex++;
     return _current;

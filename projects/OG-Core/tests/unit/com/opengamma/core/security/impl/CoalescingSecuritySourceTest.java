@@ -27,6 +27,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -38,49 +39,6 @@ import com.opengamma.util.test.Timeout;
  */
 @Test
 public class CoalescingSecuritySourceTest {
-
-  private static class MockSecuritySource implements SecuritySource {
-
-    @Override
-    public ChangeManager changeManager() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security get(UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Security> get(ExternalIdBundle bundle) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSingle(ExternalIdBundle bundle) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-  }
 
   private static void join(final CyclicBarrier barrier) {
     try {
