@@ -11,6 +11,6 @@
     },
     "data": [<#if searchResult??><#list searchResult.documents as doc>
         "${doc.object.uniqueId.objectId}|<#list doc.object.externalIdBundle.externalIds as identifier>${identifier}<#if identifier_has_next>, </#if></#list>|${doc.object.dataSource}|${doc.object.dataProvider}|${doc.object.dataField}|${doc.object.observationTime}"
-    <#if item_has_next>,</#if></#list> </#if>]
+    <#if doc_has_next>,</#if></#list> </#if>]
 }
 </#escape>
