@@ -79,6 +79,20 @@ public interface PositionSource extends ChangeProvider {
   Position getPosition(UniqueId uniqueId);
 
   /**
+   * Gets a position by its object identifier and version-correction.
+   * <p>
+   * In combination, the object identifier and version-correction exactly specify a single position at a single version-correction that can then be referenced by its unique identifier.
+   * 
+   * @param objectId the object identifier, not null
+   * @param versionCorrection the version-correction, not null
+   * @return the position, not null
+   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws DataNotFoundException if the position cannot be found
+   * @throws RuntimeException if an error occurs
+   */
+  Position getPosition(ObjectId objectId, VersionCorrection versionCorrection);
+
+  /**
    * Gets a trade by unique identifier.
    * <p>
    * A unique identifier exactly specifies a single trade at a single version-correction.

@@ -6,28 +6,28 @@
 package com.opengamma.engine.target;
 
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.target.resolver.Resolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Specialized form of {@link ObjectComputationTargetType} for primitive objects that can be converted directly to/from unique identifiers without an external resolver service. Instances also serve as
- * a {@link Resolver} so that they can be added to a {@link ComputationTargetResolver} to handle the type.
+ * a {@link ObjectResolver} so that they can be added to a {@link ComputationTargetResolver} to handle the type.
  * 
  * @param <T> the target object type
  */
-public final class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extends ObjectComputationTargetType<T> implements Resolver<T> {
+public final class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extends ObjectComputationTargetType<T> implements ObjectResolver<T> {
 
   private static final long serialVersionUID = 1L;
 
-  private final Resolver<T> _resolver;
+  private final ObjectResolver<T> _resolver;
 
-  private PrimitiveComputationTargetType(final ComputationTargetType type, final Class<T> clazz, final Resolver<T> resolver) {
+  private PrimitiveComputationTargetType(final ComputationTargetType type, final Class<T> clazz, final ObjectResolver<T> resolver) {
     super(type, clazz);
     _resolver = resolver;
   }
 
-  public static <T extends UniqueIdentifiable> PrimitiveComputationTargetType<T> of(final ComputationTargetType type, final Class<T> clazz, final Resolver<T> resolver) {
+  public static <T extends UniqueIdentifiable> PrimitiveComputationTargetType<T> of(final ComputationTargetType type, final Class<T> clazz, final ObjectResolver<T> resolver) {
     assert type.isTargetType(clazz);
     assert resolver != null;
     return new PrimitiveComputationTargetType<T>(type, clazz, resolver);

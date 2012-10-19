@@ -91,6 +91,13 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
   }
 
   @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getPosition(objectId, versionCorrection);
+  }
+
+  @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).getTrade(uniqueId);

@@ -16,7 +16,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.fudgemsg.ComputationTargetTypeFudgeBuilder;
 import com.opengamma.engine.target.resolver.CurrencyResolver;
 import com.opengamma.engine.target.resolver.PrimitiveResolver;
-import com.opengamma.engine.target.resolver.Resolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.UnorderedCurrencyPairResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -100,7 +100,7 @@ public abstract class ComputationTargetType implements Serializable {
     return ObjectComputationTargetType.of(defaultType(clazz, name), clazz);
   }
 
-  private static <T extends UniqueIdentifiable> PrimitiveComputationTargetType<T> defaultPrimitive(final Class<T> clazz, final String name, final Resolver<T> resolver) {
+  private static <T extends UniqueIdentifiable> PrimitiveComputationTargetType<T> defaultPrimitive(final Class<T> clazz, final String name, final ObjectResolver<T> resolver) {
     return PrimitiveComputationTargetType.of(defaultType(clazz, name), clazz, resolver);
   }
 

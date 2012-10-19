@@ -86,6 +86,14 @@ public class RemotePositionSource extends AbstractRemoteClient implements Positi
   }
 
   @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    URI uri = DataPositionSourceResource.uriGetPosition(getBaseUri(), objectId, versionCorrection);
+    return accessRemote(uri).get(Position.class);
+  }
+
+  @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     

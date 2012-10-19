@@ -623,7 +623,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
               } else {
                 // Identifier now resolved, but didn't before
                 s_logger.info("New resolution of {} to {}", target, resolved);
-                // TODO: Which other nodes were dependent on this failed? Things might be in the graph as a result of the failure?
+                // TODO: Which nodes were dependent on this failure? Things might be in the graph as a result of the failure that are now invalid?
                 System.err.println("TODO: new resolution of " + target + " to " + resolved);
               }
             } else {
@@ -647,6 +647,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         }
         if (invalidIdentifiers != null) {
           // Part of the dependency graph is now invalid
+          System.err.println("Invalidating dependency graph because of changes on " + invalidIdentifiers);
           break;
         }
         if (functionInitId != compiledViewDefinition.getFunctionInitId()) {
@@ -770,6 +771,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     getProcessContext().getViewDefinitionRepository().changeManager().removeChangeListener(_viewDefinitionChangeListener);
     _viewDefinitionChangeListener = null;
   }
+
+  // TODO: [PLAT-349] Want something similar to view definition subscription so that we can trigger a cycle if any of the resolved object identifiers used in our graph change. We
+  // won't get a cycle triggered if something is renamed and will now resolve against us but that is a hard problem to solve.
 
   //-------------------------------------------------------------------------
   private void replaceMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {

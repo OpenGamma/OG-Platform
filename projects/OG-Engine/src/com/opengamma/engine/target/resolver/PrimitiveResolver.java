@@ -9,9 +9,9 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 
 /**
- * A {@link Resolver} for {@link ComputationTargetType#PRIMITIVE}.
+ * A {@link ObjectResolver} for {@link ComputationTargetType#PRIMITIVE}.
  */
-public class PrimitiveResolver implements Resolver<UniqueId> {
+public class PrimitiveResolver implements ObjectResolver<UniqueId> {
 
   @Override
   public UniqueId resolve(final UniqueId uniqueId) {

@@ -92,6 +92,17 @@ public class LazyResolverPositionSource implements PositionSource, LazyResolver 
   }
 
   @Override
+  public Position getPosition(final ObjectId positionId, final VersionCorrection versionCorrection) {
+    Position position = getUnderlying().getPosition(positionId, versionCorrection);
+    if (position == null) {
+      return null;
+    }
+    position = new LazyResolvedPosition(getLazyResolveContext(), position);
+    getLazyResolveContext().cachePosition(position);
+    return position;
+  }
+
+  @Override
   public Trade getTrade(final UniqueId uniqueId) {
     Trade trade = getUnderlying().getTrade(uniqueId);
     if (trade == null) {

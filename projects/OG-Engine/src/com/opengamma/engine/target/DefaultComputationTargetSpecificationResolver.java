@@ -5,15 +5,11 @@
  */
 package com.opengamma.engine.target;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.id.ExternalIdOrderConfig;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataUtils;
+import com.opengamma.engine.target.resolver.IdentifierResolver;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -23,18 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultComputationTargetSpecificationResolver implements ComputationTargetSpecificationResolver {
 
-  /**
-   * Implementation stub to be associated with a type.
-   */
-  public interface Strategy {
-
-    UniqueId resolve(ExternalIdBundle identifiers, VersionCorrection versionCorrection);
-
-    UniqueId resolve(ObjectId identifier, VersionCorrection versionCorrection);
-
-  }
-
-  private final ComputationTargetTypeMap<Strategy> _resolve = new ComputationTargetTypeMap<Strategy>();
+  private final ComputationTargetTypeMap<IdentifierResolver> _resolve = new ComputationTargetTypeMap<IdentifierResolver>();
   private final ExternalIdOrderConfig _externalIdOrderConfig;
 
   public DefaultComputationTargetSpecificationResolver() {
@@ -46,33 +31,8 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
     _externalIdOrderConfig = externalIdOrderConfig;
   }
 
-  public void addStrategy(final ComputationTargetType type, final Strategy strategy) {
+  public void addResolver(final ComputationTargetType type, final IdentifierResolver strategy) {
     _resolve.put(type, strategy);
-  }
-
-  public void addSecurityResolverStrategy(final SecuritySource securitySource) {
-    addStrategy(ComputationTargetType.SECURITY, new Strategy() {
-
-      @Override
-      public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
-        final Security security = securitySource.getSecurity(identifiers, versionCorrection);
-        if (security == null) {
-          return null;
-        } else {
-          return security.getUniqueId();
-        }
-      }
-
-      @Override
-      public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
-        try {
-          return securitySource.getSecurity(identifier, versionCorrection).getUniqueId();
-        } catch (DataNotFoundException e) {
-          return null;
-        }
-      }
-
-    });
   }
 
   @Override
@@ -88,9 +48,9 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
           new ComputationTargetReferenceVisitor<ComputationTargetSpecification>() {
             @Override
             public ComputationTargetSpecification visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
-              final Strategy strategy = _resolve.get(requirement.getType());
-              if (strategy != null) {
-                final UniqueId uid = strategy.resolve(requirement.getIdentifiers(), versionCorrection);
+              final IdentifierResolver resolver = _resolve.get(requirement.getType());
+              if (resolver != null) {
+                final UniqueId uid = resolver.resolve(requirement.getIdentifiers(), versionCorrection);
                 if (uid != null) {
                   return requirement.replaceIdentifier(uid);
                 } else {
@@ -106,9 +66,9 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
             public ComputationTargetSpecification visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
               final UniqueId uid = specification.getUniqueId();
               if (uid.isLatest()) {
-                final Strategy strategy = _resolve.get(specification.getType());
-                if (strategy != null) {
-                  final UniqueId newUID = strategy.resolve(uid.getObjectId(), versionCorrection);
+                final IdentifierResolver resolver = _resolve.get(specification.getType());
+                if (resolver != null) {
+                  final UniqueId newUID = resolver.resolve(uid.getObjectId(), versionCorrection);
                   if (newUID != null) {
                     return specification.replaceIdentifier(newUID);
                   } else {

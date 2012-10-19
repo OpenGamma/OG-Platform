@@ -181,6 +181,7 @@ public class EHCachingPositionSource implements PositionSource {
   @Override
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
     Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
+    // TODO: should probably be sticking the portfolio in the front cache too
     _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
     return portfolio;
   }
@@ -242,6 +243,18 @@ public class EHCachingPositionSource implements PositionSource {
         _positionCache.put(new Element(position.getUniqueId(), position));
         return position;
       }
+    }
+  }
+
+  @Override
+  public Position getPosition(final ObjectId positionId, final VersionCorrection versionCorrection) {
+    Position position = getUnderlying().getPosition(positionId, versionCorrection);
+    Object f = _frontCache.putIfAbsent(position.getUniqueId(), position);
+    if (f instanceof Position) {
+      return (Position) f;
+    } else {
+      _positionCache.put(new Element(position.getUniqueId(), position));
+      return position;
     }
   }
 

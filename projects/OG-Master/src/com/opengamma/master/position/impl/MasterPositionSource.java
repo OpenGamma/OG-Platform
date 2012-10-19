@@ -209,6 +209,17 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   }
 
   @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final ManageablePosition position = getPositionMaster().get(objectId, versionCorrection).getPosition();
+    if (position == null) {
+      throw new DataNotFoundException("Unable to find position: " + objectId + " at " + versionCorrection);
+    }
+    return position.toPosition();
+  }
+
+  @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change

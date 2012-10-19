@@ -104,6 +104,17 @@ public class MockPositionSource implements PositionSource {
   }
 
   @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Position position = _positions.get(objectId);
+    if (position == null) {
+      throw new DataNotFoundException("Position not found: " + objectId);
+    }
+    return position;
+  }
+
+  @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     Trade trade = _trades.get(uniqueId.getObjectId());

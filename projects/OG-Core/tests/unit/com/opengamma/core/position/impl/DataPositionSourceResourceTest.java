@@ -90,7 +90,16 @@ public class DataPositionSourceResourceTest {
     
     when(_underlying.getPosition(eq(UID))).thenReturn(target);
     
-    Response test = _resource.getPosition(OID.toString(), UID.getVersion());
+    Response test = _resource.getPosition(OID.toString(), UID.getVersion(), null, null);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(target, test.getEntity());
+  }
+
+  @Test
+  public void testGetPositionByOid() {
+    final SimplePosition target = new SimplePosition(BigDecimal.ONE, EID);
+    when(_underlying.getPosition(eq(OID), eq(VC))).thenReturn(target);
+    Response test = _resource.getPosition(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }

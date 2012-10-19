@@ -20,13 +20,13 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class PrimitiveResolverTest {
 
   public void testCurrencyResolver() {
-    final Resolver<Currency> resolver = new CurrencyResolver();
+    final ObjectResolver<Currency> resolver = new CurrencyResolver();
     assertEquals(resolver.resolve(Currency.GBP.getUniqueId()), Currency.GBP);
     assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar")), null);
   }
 
   public void testUnorderedCurrencyPairResolver() {
-    final Resolver<UnorderedCurrencyPair> resolver = new UnorderedCurrencyPairResolver();
+    final ObjectResolver<UnorderedCurrencyPair> resolver = new UnorderedCurrencyPairResolver();
     assertEquals(resolver.resolve(UnorderedCurrencyPair.of(Currency.GBP, Currency.USD).getUniqueId()), UnorderedCurrencyPair.of(Currency.GBP, Currency.USD));
     assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar")), null);
   }

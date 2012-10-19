@@ -10,9 +10,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
- * A {@link Resolver} for {@link ComputationTargetType#CURRENCY}.
+ * A {@link ObjectResolver} for {@link ComputationTargetType#CURRENCY}.
  */
-public class CurrencyResolver implements Resolver<Currency> {
+public class CurrencyResolver implements ObjectResolver<Currency> {
 
   @Override
   public Currency resolve(final UniqueId uniqueId) {

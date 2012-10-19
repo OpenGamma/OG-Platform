@@ -10,9 +10,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * A {@link Resolver} for {@link ComputationTargetType#UNORDERED_CURRENCY_PAIR}.
+ * A {@link ObjectResolver} for {@link ComputationTargetType#UNORDERED_CURRENCY_PAIR}.
  */
-public class UnorderedCurrencyPairResolver implements Resolver<UnorderedCurrencyPair> {
+public class UnorderedCurrencyPairResolver implements ObjectResolver<UnorderedCurrencyPair> {
 
   @Override
   public UnorderedCurrencyPair resolve(final UniqueId uniqueId) {

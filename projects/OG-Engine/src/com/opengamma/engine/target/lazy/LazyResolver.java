@@ -8,9 +8,14 @@ package com.opengamma.engine.target.lazy;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.engine.target.resolver.IdentifierResolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.Resolver;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Marker interface for a target resolver that supports lazy operations.
@@ -22,16 +27,20 @@ public interface LazyResolver {
   void setLazyResolveContext(LazyResolveContext context);
 
   /**
-   * Base class of {@link Resolver} instances that are owned by a parent {@link LazyResolver}.
+   * Base class of {@link ObjectResolver} instances that are owned by a parent {@link LazyResolver}.
    */
-  public abstract static class ResolverImpl<T extends UniqueIdentifiable> implements Resolver<T> {
+  public abstract static class ResolverImpl<T extends UniqueIdentifiable> implements ObjectResolver<T> {
 
     private final LazyResolver _parent;
-    private final Resolver<T> _underlying;
+    private final ObjectResolver<T> _underlying;
 
-    public ResolverImpl(final LazyResolver parent, final Resolver<T> underlying) {
+    public ResolverImpl(final LazyResolver parent, final ObjectResolver<T> underlying) {
       _parent = parent;
       _underlying = underlying;
+    }
+
+    protected ObjectResolver<T> getUnderlying() {
+      return _underlying;
     }
 
     protected abstract T lazy(T object, LazyResolveContext context);
@@ -52,7 +61,7 @@ public interface LazyResolver {
    */
   public static class LazyPortfolioNodeResolver extends ResolverImpl<PortfolioNode> {
 
-    public LazyPortfolioNodeResolver(final LazyResolver parent, final Resolver<PortfolioNode> underlying) {
+    public LazyPortfolioNodeResolver(final LazyResolver parent, final ObjectResolver<PortfolioNode> underlying) {
       super(parent, underlying);
     }
 
@@ -66,15 +75,33 @@ public interface LazyResolver {
   /**
    * Lazy resolution of positions.
    */
-  public static class LazyPositionResolver extends ResolverImpl<Position> {
+  public static class LazyPositionResolver extends ResolverImpl<Position> implements IdentifierResolver {
 
     public LazyPositionResolver(final LazyResolver parent, final Resolver<Position> underlying) {
       super(parent, underlying);
     }
 
+    protected Resolver<Position> getUnderlying() {
+      return (Resolver<Position>) super.getUnderlying();
+    }
+
+    // ResolverImpl
+
     @Override
     public Position lazy(final Position object, final LazyResolveContext context) {
       return new LazyResolvedPosition(context, object);
+    }
+
+    // IdentifierResolver
+
+    @Override
+    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolve(identifiers, versionCorrection);
+    }
+
+    @Override
+    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolve(identifier, versionCorrection);
     }
 
   }
@@ -84,7 +111,7 @@ public interface LazyResolver {
    */
   public static class LazyTradeResolver extends ResolverImpl<Trade> {
 
-    public LazyTradeResolver(final LazyResolver parent, final Resolver<Trade> underlying) {
+    public LazyTradeResolver(final LazyResolver parent, final ObjectResolver<Trade> underlying) {
       super(parent, underlying);
     }
 

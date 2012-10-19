@@ -30,8 +30,9 @@ import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolver;
 import com.opengamma.engine.target.lazy.LazyResolverPositionSource;
 import com.opengamma.engine.target.resolver.ChainedResolver;
+import com.opengamma.engine.target.resolver.IdentifierResolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.PositionSourceResolver;
-import com.opengamma.engine.target.resolver.Resolver;
 import com.opengamma.engine.target.resolver.SecuritySourceResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -62,7 +63,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   /**
    * The per-type resolvers.
    */
-  private final ComputationTargetTypeMap<Resolver<?>> _resolvers = new ComputationTargetTypeMap<Resolver<?>>(ChainedResolver.CREATE);
+  private final ComputationTargetTypeMap<ObjectResolver<?>> _resolvers = new ComputationTargetTypeMap<ObjectResolver<?>>(ChainedResolver.CREATE);
 
   /**
    * The type-reductions used.
@@ -99,8 +100,6 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _securitySource = securitySource;
     if (securitySource != null) {
       addResolver(ComputationTargetType.SECURITY, new SecuritySourceResolver(securitySource));
-      _specificationResolver.addSecurityResolverStrategy(securitySource);
-      // TODO: tie this up with addResolver so that the resolution strategy gets added at the same time; e.g. if the resolver implements the CTSR.Strategy interface
     }
     _positionSource = positionSource;
     if (positionSource != null) {
@@ -116,15 +115,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   }
 
   /**
-   * Adds a resolver for use with targets of the given type.
+   * Adds a resolver for use with targets of the given type. If the resolver also implements the {@link IdentifierResolver} interface then it will be registered for target specification resolution as
+   * well as object resolution.
    * 
    * @param <T> the target type
    * @param type the type(s) to use this resolver for, never null
    * @param resolver the resolver to use, not null
    */
-  public <T extends UniqueIdentifiable> void addResolver(final ComputationTargetType type, final Resolver<T> resolver) {
+  public <T extends UniqueIdentifiable> void addResolver(final ComputationTargetType type, final ObjectResolver<T> resolver) {
     _resolvers.put(type, resolver, _resolvers.getFoldFunction());
     _baseTypes.put(type, type);
+    if (resolver instanceof IdentifierResolver) {
+      _specificationResolver.addResolver(type, (IdentifierResolver) resolver);
+    }
   }
 
   /**
@@ -193,7 +196,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     if (ComputationTargetType.NULL == type) {
       return ComputationTarget.NULL;
     } else {
-      final Resolver<?> resolver = _resolvers.get(type);
+      final ObjectResolver<?> resolver = _resolvers.get(type);
       if (resolver != null) {
         final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId());
         if (resolved != null) {
