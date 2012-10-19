@@ -139,7 +139,8 @@ import com.opengamma.util.tuple.Triple;
     }
     s_logger.debug("Rewriting {} to {}", hint, newHint);
     // Construct the rewritten job
-    final CalculationJob newJob = new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getRequiredJobIds(), job.getJobItems(), newHint);
+    final CalculationJob newJob = new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getResolverVersionCorrection(), job.getRequiredJobIds(), job.getJobItems(),
+        newHint);
     if (newTail != null) {
       for (CalculationJob tail : newTail) {
         newJob.addTail(tail);
@@ -233,7 +234,7 @@ import com.opengamma.util.tuple.Triple;
     private final Collection<CalculationJob> _tail;
 
     private WholeWatchedJob(final DispatchableJob creator, final CalculationJob job, final Context context) {
-      super(creator, new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), null, job.getJobItems(), job.getCacheSelectHint()));
+      super(creator, new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getResolverVersionCorrection(), null, job.getJobItems(), job.getCacheSelectHint()));
       _context = context;
       _tail = job.getTail();
       context.declareJobPending(job.getSpecification().getJobId());

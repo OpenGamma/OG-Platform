@@ -15,7 +15,6 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
@@ -167,11 +166,6 @@ public class MutableGlobalContext extends GlobalContext {
     removeOrReplaceValue(SECURITY_SOURCE, securitySource);
   }
   
-  public void setTargetSpecificationResolver(final ComputationTargetSpecificationResolver targetSpecificationResolver) {
-    ArgumentChecker.notNull(targetSpecificationResolver, "targetSpecificationResolver");
-    replaceValue(TARGET_SPECIFICATION_RESOLVER, targetSpecificationResolver);
-  }
-
   @Override
   public AggregatingTypeConverterProvider getTypeConverterProvider() {
     return getTypeConverterProviderImpl();

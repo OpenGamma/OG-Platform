@@ -14,9 +14,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -64,7 +62,6 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -96,7 +93,6 @@ public class ViewProcessorTestEnvironment {
   // Environment
   private ViewProcessorImpl _viewProcessor;
   private FunctionResolver _functionResolver;
-  private CachingComputationTargetResolver _cachingComputationTargetResolver;
   private ViewDefinitionRepository _viewDefinitionRepository;
   private ViewResultListenerFactory _viewResultListenerFactory;
 
@@ -105,7 +101,6 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setName("test");
 
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
-    PositionSource positionSource = getPositionSource() != null ? getPositionSource() : generatePositionSource();
     SecuritySource securitySource = getSecuritySource() != null ? getSecuritySource() : generateSecuritySource();
     FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext() != null ? getFunctionCompilationContext() : generateFunctionCompilationContext();
 
@@ -126,7 +121,6 @@ public class ViewProcessorTestEnvironment {
     MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
-    vpFactBean.setComputationTargetResolver(generateCachingComputationTargetResolver(positionSource, securitySource));
     vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
     vpFactBean.setViewPermissionProvider(new DefaultViewPermissionProvider());
     vpFactBean.setNamedMarketDataSpecificationRepository(new InMemoryNamedMarketDataSpecificationRepository());
@@ -142,8 +136,8 @@ public class ViewProcessorTestEnvironment {
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext() != null ? getFunctionExecutionContext() : generateFunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
-    SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, new DefaultComputationTargetResolver(
-        securitySource, positionSource), calcNodeQuerySender, "node", Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
+    SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, calcNodeQuerySender, "node", Executors.newCachedThreadPool(),
+        new DiscardingInvocationStatisticsGatherer());
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
@@ -159,7 +153,6 @@ public class ViewProcessorTestEnvironment {
         getMarketDataProvider().getAvailabilityProvider(),
         getFunctionResolver(),
         getFunctionCompilationContext(),
-        getCachingComputationTargetResolver(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
         (getDependencyGraphBuilderFactory() != null) ? getDependencyGraphBuilderFactory() : generateDependencyGraphBuilderFactory());
     return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
@@ -338,7 +331,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext generateFunctionCompilationContext() {
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setSecuritySource(getSecuritySource());
-    functionCompilationContext.setComputationTargetResolver(new DefaultComputationTargetResolver(getSecuritySource()));
+    functionCompilationContext.setComputationTargetResolver(new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource()));
     setFunctionCompilationContext(functionCompilationContext);
     return functionCompilationContext;
   }
@@ -358,16 +351,6 @@ public class ViewProcessorTestEnvironment {
     return _functionResolver;
   }
   
-  public CachingComputationTargetResolver getCachingComputationTargetResolver() {
-    return _cachingComputationTargetResolver;
-  }
-  
-  private CachingComputationTargetResolver generateCachingComputationTargetResolver(PositionSource positionSource,
-      SecuritySource securitySource) {
-    _cachingComputationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager());
-    return _cachingComputationTargetResolver;
-  }
-
   public ViewProcessImpl getViewProcess(ViewProcessorImpl viewProcessor, UniqueId viewClientId) {
     return viewProcessor.getViewProcessForClient(viewClientId);
   }

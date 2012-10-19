@@ -36,6 +36,7 @@ import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -51,7 +52,7 @@ public class RemoteNodeClientTest {
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
   protected static CalculationJob createTestCalculationJob() {
-    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), 0L, null, JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
+    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), 0L, VersionCorrection.LATEST, null, JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
   }
 
   public void simpleInvocation() {

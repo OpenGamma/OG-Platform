@@ -114,7 +114,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
       items.add(jobItem);
     }
     context.getExecutor().addJobToViewProcessorQuery(jobSpec, context.getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), _requiredJobs, items, getCacheSelectHint());
+    final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), context.getResolverVersionCorrection(), _requiredJobs, items, getCacheSelectHint());
     if (getTail() != null) {
       for (GraphFragment<F> tail : getTail()) {
         tail._blockCount = null;

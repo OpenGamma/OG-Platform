@@ -34,7 +34,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.DummyFunctionReinitializer;
@@ -42,6 +42,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -64,6 +65,7 @@ import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
@@ -267,6 +269,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()), 
         getHistoricalTimeSeriesMaster()));
+    context.setComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource()));
+    context.setComputationTargetSpecificationResolver(context.getComputationTargetResolver().getSpecificationResolver().atVersionCorrection(VersionCorrection.LATEST));
     return context;
   }
 
@@ -288,7 +292,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return result.iterator().next();
   }
 
-  private ComputedValue findMarketData(final ExternalIdBundleLookup lookup, final ComputationTargetSpecificationResolver resolver, final ValueRequirement requirement) {
+  private ComputedValue findMarketData(final ExternalIdBundleLookup lookup, final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ValueRequirement requirement) {
     final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, lookup.getExternalIds(requirement.getTargetReference()), null);
     if (value == null) {
       return null;
@@ -300,7 +304,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
     final ExternalIdBundleLookup lookup = new ExternalIdBundleLookup(compilationContext.getSecuritySource());
-    final ComputationTargetSpecificationResolver resolver = new ComputationTargetSpecificationResolver(null, compilationContext.getSecuritySource());
+    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetSpecificationResolver();
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (ValueRequirement requirement : requirements) {

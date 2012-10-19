@@ -30,6 +30,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
@@ -44,7 +45,7 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueSpecification>emptySet()));
-    CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, 123L, VersionCorrection.LATEST, null, items, CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(identifierMap, inputJob);
     CalculationJob outputJob = cycleObject(CalculationJob.class, inputJob);
     assertNotNull(outputJob);
@@ -72,7 +73,7 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     ValueSpecification inputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
         .get());
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(outputSpec)));
-    CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, VersionCorrection.LATEST, null, items, CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(identifierMap, inputJob);
     CalculationJob outputJob = cycleObject(CalculationJob.class, inputJob);
     assertNotNull(outputJob);
@@ -93,7 +94,7 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     final ComputationTargetSpecification target1 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "1"));
     final ComputationTargetSpecification target2 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "2"));
-    CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, null, Arrays.asList(
+    CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, VersionCorrection.LATEST, null, Arrays.asList(
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
         new CalculationJobItem("Bar", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
         new CalculationJobItem("Cow", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet())), CacheSelectHint.allShared());
@@ -110,7 +111,7 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     final ComputationTargetSpecification target1 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "1"));
     final ComputationTargetSpecification target2 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "2"));
-    CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, null, Arrays.asList(
+    CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, VersionCorrection.LATEST, null, Arrays.asList(
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
         new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
         new CalculationJobItem("Bar", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet())), CacheSelectHint.allShared());

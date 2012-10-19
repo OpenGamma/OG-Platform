@@ -33,11 +33,12 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -47,6 +48,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -66,7 +68,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   // TODO: We should probably be storing value specifications in the snapshot. The logic for resolving identifiers can then be shifted to a more
   // central location - e.g. graph construction when all forms of the identifier are known.
-  private static final ComputationTargetSpecificationResolver s_targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, null);
+  private static final ComputationTargetSpecificationResolver.AtVersionCorrection s_targetSpecificationResolver = new DefaultComputationTargetSpecificationResolver()
+      .atVersionCorrection(VersionCorrection.LATEST);
 
   private final MarketDataSnapshotSource _snapshotSource;
   private final ExternalIdBundleLookup _identifierLookup;

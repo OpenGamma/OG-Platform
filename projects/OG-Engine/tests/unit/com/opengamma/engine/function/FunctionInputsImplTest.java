@@ -16,12 +16,14 @@ import java.util.Collection;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.VersionCorrection;
 
 @Test
 public class FunctionInputsImplTest {
@@ -34,20 +36,20 @@ public class FunctionInputsImplTest {
       .get());
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");
   private static final ComputedValue VALUE2 = new ComputedValue(SPEC2, "2");
-  private static final ComputationTargetSpecificationResolver s_resolver = new ComputationTargetSpecificationResolver(null, null);
+  private static final ComputationTargetSpecificationResolver s_resolver = new DefaultComputationTargetSpecificationResolver();
 
-  @Test(expectedExceptions=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullValue() {
-    new FunctionInputsImpl(s_resolver, (ComputedValue) null);
+    new FunctionInputsImpl(s_resolver.atVersionCorrection(VersionCorrection.LATEST), (ComputedValue) null);
   }
-  
-  @Test(expectedExceptions=IllegalArgumentException.class)
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void cyclicalValue() {
-    new FunctionInputsImpl(s_resolver, new ComputedValue(SPEC1, new ComputedValue(SPEC1, "")));
+    new FunctionInputsImpl(s_resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(SPEC1, new ComputedValue(SPEC1, "")));
   }
-  
+
   public void getAll() {
-    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver, Arrays.asList(VALUE1, VALUE2));
+    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver.atVersionCorrection(VersionCorrection.LATEST), Arrays.asList(VALUE1, VALUE2));
 
     Collection<ComputedValue> values = inputs.getAllValues();
     assertNotNull(values);
@@ -55,21 +57,21 @@ public class FunctionInputsImplTest {
     assertTrue(values.contains(VALUE1));
     assertTrue(values.contains(VALUE2));
   }
-  
+
   public void getByName() {
-    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver, Arrays.asList(VALUE1, VALUE2));
+    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver.atVersionCorrection(VersionCorrection.LATEST), Arrays.asList(VALUE1, VALUE2));
 
     assertEquals("1", inputs.getValue("foo-1"));
     assertEquals("2", inputs.getValue("foo-2"));
     assertNull(inputs.getValue("foo-3"));
   }
-  
+
   public void getBySpec() {
-    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver, Arrays.asList(VALUE1, VALUE2));
+    FunctionInputsImpl inputs = new FunctionInputsImpl(s_resolver.atVersionCorrection(VersionCorrection.LATEST), Arrays.asList(VALUE1, VALUE2));
 
     assertEquals("1", inputs.getValue(REQ1));
     assertEquals("2", inputs.getValue(REQ2));
     assertNull(inputs.getValue("foo-3"));
   }
-  
+
 }

@@ -212,7 +212,8 @@ import com.opengamma.engine.view.calc.JobIdSource;
     } else {
       headHint = CacheSelectHint.privateValues(headPrivate);
     }
-    final CalculationJob head = new CalculationJob(job.getSpecification().withJobId(JobIdSource.getId()), job.getFunctionInitializationIdentifier(), null, headItems, headHint);
+    final CalculationJob head = new CalculationJob(job.getSpecification().withJobId(JobIdSource.getId()), job.getFunctionInitializationIdentifier(), job.getResolverVersionCorrection(), null,
+        headItems, headHint);
     // Construct the tail cache hint, job specification (using original ID) and job
     final CacheSelectHint tailHint;
     if (tailPrivate.size() > tailShared.size()) {
@@ -220,7 +221,7 @@ import com.opengamma.engine.view.calc.JobIdSource;
     } else {
       tailHint = CacheSelectHint.privateValues(tailPrivate);
     }
-    final CalculationJob tail = new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), null, tailItems, tailHint);
+    final CalculationJob tail = new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getResolverVersionCorrection(), null, tailItems, tailHint);
     // Create the watched job
     return new Split(creator, head, tail, creator.getResultReceiver(null));
   }

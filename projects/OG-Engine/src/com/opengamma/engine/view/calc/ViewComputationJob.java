@@ -37,6 +37,7 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -609,8 +610,44 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (compiledViewDefinition != null) {
       do {
         // Check that any resolved targets still resolve to the same value
-        for (Map.Entry<ComputationTargetReference, UniqueId> targets : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
-          System.out.println("TODO: resolve " + targets.getKey() + " to a target specification and check the unique ID is still " + targets.getValue());
+        final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver()
+            .getSpecificationResolver().atVersionCorrection(versionCorrection);
+        Set<UniqueId> invalidIdentifiers = null;
+        for (Map.Entry<ComputationTargetReference, UniqueId> target : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
+          final ComputationTargetSpecification resolved = resolver.getTargetSpecification(target.getKey());
+          if (CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED.equals(target.getValue())) {
+            if (resolved != null) {
+              if (resolved.getUniqueId() == null) {
+                // Target still resolved to NULL
+                s_logger.debug("No change resolving {}", target);
+              } else {
+                // Identifier now resolved, but didn't before
+                s_logger.info("New resolution of {} to {}", target, resolved);
+                // TODO: Which other nodes were dependent on this failed? Things might be in the graph as a result of the failure?
+                System.err.println("TODO: new resolution of " + target + " to " + resolved);
+              }
+            } else {
+              // Target still resolved to NULL
+              s_logger.debug("No change resolving {}", target);
+            }
+          } else {
+            if (target.getValue().equals(resolved.getUniqueId())) {
+              // No change
+              s_logger.debug("No change resolving {}", target);
+            } else {
+              // Identifier no longer resolved, or resolved differently
+              s_logger.info("New resolution of {} to {}", target, resolved);
+              // TODO: Which other nodes were dependent on this resolution? What about failed productions? Things might be in the graph as a result of a failure?
+              if (invalidIdentifiers == null) {
+                invalidIdentifiers = new HashSet<UniqueId>();
+              }
+              invalidIdentifiers.add(target.getValue());
+            }
+          }
+        }
+        if (invalidIdentifiers != null) {
+          // Part of the dependency graph is now invalid
+          break;
         }
         if (functionInitId != compiledViewDefinition.getFunctionInitId()) {
           // The function repository has been reinitialized which invalidates any previous graps

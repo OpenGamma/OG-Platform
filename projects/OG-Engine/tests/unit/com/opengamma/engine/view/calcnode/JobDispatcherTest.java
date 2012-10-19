@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Timeout;
 
@@ -54,7 +55,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), 0L, null, createTestJobItems(), CacheSelectHint.allPrivate());
+    return new CalculationJob(createTestJobSpec(), 0L, VersionCorrection.LATEST, null, createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {

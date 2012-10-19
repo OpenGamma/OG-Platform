@@ -19,10 +19,12 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.CacheNotifyingSecuritySource;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.target.ComputationTargetTypeProvider;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
+import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolver;
@@ -67,6 +69,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   private final ComputationTargetTypeMap<ComputationTargetType> _baseTypes = new ComputationTargetTypeMap<ComputationTargetType>();
 
+  private final DefaultComputationTargetSpecificationResolver _specificationResolver = new DefaultComputationTargetSpecificationResolver();
+
   private LazyResolveContext _lazyResolveContext;
 
   /**
@@ -95,6 +99,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _securitySource = securitySource;
     if (securitySource != null) {
       addResolver(ComputationTargetType.SECURITY, new SecuritySourceResolver(securitySource));
+      _specificationResolver.addSecurityResolverStrategy(securitySource);
+      // TODO: tie this up with addResolver so that the resolution strategy gets added at the same time; e.g. if the resolver implements the CTSR.Strategy interface
     }
     _positionSource = positionSource;
     if (positionSource != null) {
@@ -277,6 +283,11 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       return type;
     }
+  }
+
+  @Override
+  public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    return _specificationResolver;
   }
 
   /**

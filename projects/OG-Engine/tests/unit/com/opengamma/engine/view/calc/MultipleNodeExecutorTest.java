@@ -39,6 +39,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 
 /**
@@ -117,6 +118,11 @@ public class MultipleNodeExecutorTest {
       @Override
       protected long getFunctionInitId() {
         return 0;
+      }
+
+      @Override
+      protected VersionCorrection getResolverVersionCorrection() {
+        return VersionCorrection.LATEST;
       }
 
       @Override

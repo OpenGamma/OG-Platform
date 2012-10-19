@@ -104,7 +104,7 @@ public final class PortfolioCompiler {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
-    PositionSource positionSource = compilationContext.getServices().getComputationTargetResolver().getPositionSource();
+    PositionSource positionSource = compilationContext.getServices().getFunctionCompilationContext().getComputationTargetResolver().getPositionSource();
     if (positionSource == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
           + "' contains required portfolio outputs, but the compiler does not have access to a position source.");

@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -81,7 +80,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final String _name;
   private final ViewDefinitionRepository _viewDefinitionRepository;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
-  private final ComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
@@ -120,7 +118,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       String name,
       ViewDefinitionRepository viewDefinitionRepository,
       NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
-      ComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
       MarketDataProviderResolver marketDataProviderFactoryResolver,
@@ -136,7 +133,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _name = name;
     _viewDefinitionRepository = viewDefinitionRepository;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
-    _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
     _marketDataProviderFactoryResolver = marketDataProviderFactoryResolver;
@@ -535,7 +531,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
-        _computationTargetResolver,
         _computationCacheSource,
         _computationJobDispatcher,
         _viewProcessorQueryReceiver,

@@ -18,13 +18,14 @@ import org.testng.annotations.Test;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.function.EmptyFunctionInputs;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -33,6 +34,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -98,23 +100,23 @@ public class CurrencyMatrixSourcingFunctionTest {
   @Test
   public void testGetRequirementsAndExecute() {
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "liveDataSourcing").get();
-    final ComputationTargetSpecificationResolver resolver = new ComputationTargetSpecificationResolver(null, null);
-    
+    final ComputationTargetSpecificationResolver resolver = new DefaultComputationTargetSpecificationResolver();
+
     // Require value the "right" way up
     ComputationTarget outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME, "USD_GBP"));
     ValueRequirement outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
     Set<ValueRequirement> inRequirements = _function.getRequirements(_functionCompilationContext, outTarget, outRequirement);
-    assertEquals (1, inRequirements.size ());
+    assertEquals(1, inRequirements.size());
     ComputationTargetRequirement inRequirementTarget = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, ExternalId.of("LiveData", "USD_GBP"));
     ValueRequirement inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+    Set<ComputedValue> outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(
+        inRequirement.getValueName(), ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     ComputedValue output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
     assertEquals(_rateUSD_GBP, (double) (Double) output.getValue(), Double.MIN_NORMAL);
-    
+
     // Require value the "wrong" way up
     outTarget = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME, "GBP_USD"));
     outRequirement = new ValueRequirement(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME, outTarget.toSpecification());
@@ -122,8 +124,9 @@ public class CurrencyMatrixSourcingFunctionTest {
     assertEquals(1, inRequirements.size());
     inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext,
+        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+            ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);
@@ -147,8 +150,9 @@ public class CurrencyMatrixSourcingFunctionTest {
     assertEquals(1, inRequirements.size());
     inRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inRequirementTarget);
     assertTrue(inRequirements.contains(inRequirement));
-    outputs = _function.execute(_functionExecutionContext, new FunctionInputsImpl(resolver, new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
-        ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
+    outputs = _function.execute(_functionExecutionContext,
+        new FunctionInputsImpl(resolver.atVersionCorrection(VersionCorrection.LATEST), new ComputedValue(new ValueSpecification(inRequirement.getValueName(),
+            ComputationTargetSpecification.of(UniqueId.of("LiveData", "USD_GBP")), properties), _rateUSD_GBP)), outTarget, Collections.singleton(outRequirement));
     assertEquals(1, outputs.size());
     output = outputs.iterator().next();
     assertTrue(output.getValue() instanceof Double);

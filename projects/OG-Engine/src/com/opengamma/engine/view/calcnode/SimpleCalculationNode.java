@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -36,6 +35,7 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistedException;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -84,12 +84,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private final ViewComputationCacheSource _cacheSource;
   private final CompiledFunctionService _functionCompilationService;
-  private final ComputationTargetResolver _targetResolver; // TODO: this should be in the FunctionExecutionContext
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private final String _nodeId;
   private final ExecutorService _executorService;
-  private final ComputationTargetSpecificationResolver _targetSpecificationResolver; // TODO: this should be in the FunctionExecutionContext
   private boolean _writeBehindSharedCache;
   private boolean _writeBehindPrivateCache;
   private boolean _asynchronousTargetResolve;
@@ -98,24 +96,21 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution = new MaximumJobItemExecutionWatchdog();
 
   public SimpleCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
-      FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
+      FunctionExecutionContext functionExecutionContext, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
       ExecutorService executorService, FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
     super(functionExecutionContext);
     ArgumentChecker.notNull(cacheSource, "cacheSource");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
-    ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "calcNodeQuerySender");
     ArgumentChecker.notNull(nodeId, "nodeId");
     ArgumentChecker.notNull(functionInvocationStatistics, "functionInvocationStatistics");
     _cacheSource = cacheSource;
     _functionCompilationService = functionCompilationService;
-    _targetResolver = targetResolver;
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
     _executorService = executorService;
     _functionInvocationStatistics = functionInvocationStatistics;
-    _targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, getFunctionExecutionContext().getSecuritySource());
   }
 
   public ViewComputationCacheSource getCacheSource() {
@@ -127,11 +122,11 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   public ComputationTargetResolver getTargetResolver() {
-    return _targetResolver;
+    return getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver();
   }
 
   public ComputationTargetSpecificationResolver getTargetSpecificationResolver() {
-    return _targetSpecificationResolver;
+    return getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver().getSpecificationResolver();
   }
 
   public ViewProcessorQuerySender getViewProcessorQuerySender() {
@@ -361,6 +356,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private List<CalculationJobResultItem> executeJobItems(final Iterator<CalculationJobItem> jobItemItr, final List<CalculationJobResultItem> resultItems) throws AsynchronousHandleExecution {
+    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getTargetSpecificationResolver().atVersionCorrection(getJob().getResolverVersionCorrection());
     while (jobItemItr.hasNext()) {
       if (getJob().isCancelled()) {
         return null;
@@ -373,7 +369,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       } else {
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         try {
-          resultItem = invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
+          resultItem = invoke(resolver, jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
         } catch (AsynchronousExecution e) {
           final AsynchronousHandleOperation<List<CalculationJobResultItem>> async = new AsynchronousHandleOperation<List<CalculationJobResultItem>>();
           e.setResultListener(new ResultListener<CalculationJobResultItem>() {
@@ -478,7 +474,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return itemResult;
   }
 
-  private CalculationJobResultItem invoke(final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics) throws AsynchronousExecution {
+  private CalculationJobResultItem invoke(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final CalculationJobItem jobItem,
+      final DeferredInvocationStatistics statistics) throws AsynchronousExecution {
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
     ComputationTarget target = null;
@@ -543,7 +540,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return CalculationJobResultItem.missingInputs(missing);
       }
     }
-    final FunctionInputs functionInputs = new FunctionInputsImpl(getTargetSpecificationResolver(), inputs, missing);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(resolver, inputs, missing);
     if (target == null) {
       try {
         target = targetFuture.get();

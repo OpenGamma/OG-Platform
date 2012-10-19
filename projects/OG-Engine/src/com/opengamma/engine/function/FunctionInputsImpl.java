@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -33,23 +33,24 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private final ComputationTargetSpecificationResolver _resolver;
+  private final ComputationTargetSpecificationResolver.AtVersionCorrection _resolver;
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
   private final Map<String, ComputedValue> _valuesByRequirementName = new HashMap<String, ComputedValue>();
   private final Map<Pair<String, Object>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, Object>, ComputedValue[]>();
   private final Collection<ValueSpecification> _missingValues;
 
-  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final ComputedValue value) {
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ComputedValue value) {
     _resolver = resolver;
     _missingValues = Collections.emptySet();
     addValue(value);
   }
 
-  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final Collection<? extends ComputedValue> values) {
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final Collection<? extends ComputedValue> values) {
     this(resolver, values, Collections.<ValueSpecification>emptySet());
   }
 
-  public FunctionInputsImpl(final ComputationTargetSpecificationResolver resolver, final Collection<? extends ComputedValue> values, final Collection<ValueSpecification> missingValues) {
+  public FunctionInputsImpl(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final Collection<? extends ComputedValue> values,
+      final Collection<ValueSpecification> missingValues) {
     _resolver = resolver;
     _missingValues = missingValues;
     for (ComputedValue value : values) {

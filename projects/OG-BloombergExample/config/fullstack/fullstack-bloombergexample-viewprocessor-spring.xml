@@ -64,7 +64,6 @@
     <property name="viewComputationCache" ref="mainComputationCacheSource" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
     <property name="nodeIdentifier" value="local" />
     <property name="statisticsGatherer" ref="functionCosts" />

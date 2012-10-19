@@ -64,7 +64,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
     _uniqueId = uid;
   }
 
-  private ComputationTargetSpecification(final ComputationTargetReference parent, final ComputationTargetType type, final UniqueId uid) {
+  public/* [PLAT-444]: should be package visible */ComputationTargetSpecification(final ComputationTargetReference parent, final ComputationTargetType type, final UniqueId uid) {
     super(parent, type);
     _uniqueId = uid;
   }

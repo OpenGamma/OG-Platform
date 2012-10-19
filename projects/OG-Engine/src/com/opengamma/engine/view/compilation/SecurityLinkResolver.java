@@ -82,7 +82,8 @@ public final class SecurityLinkResolver {
    * @param versionCorrection  the version-correction, not null
    */
   public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext, VersionCorrection versionCorrection) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getComputationTargetResolver().getSecuritySource(), versionCorrection);
+    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getFunctionCompilationContext().getSecuritySource(),
+        versionCorrection);
   }
 
   //-------------------------------------------------------------------------

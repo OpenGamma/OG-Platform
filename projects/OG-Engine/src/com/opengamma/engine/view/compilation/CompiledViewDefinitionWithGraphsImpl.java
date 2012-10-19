@@ -29,6 +29,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinitionImpl implements CompiledViewDefinitionWithGraphs {
 
+  /**
+   * Marker for entries in the {@link #_resolutions} map that did not resolve.
+   */
+  public static final UniqueId NULL_RESOLVED = UniqueId.of("NULL", "NULL");
+
   private final Map<String, DependencyGraph> _graphsByConfiguration;
   private final long _functionInitId;
   private final Map<ComputationTargetReference, UniqueId> _resolutions;

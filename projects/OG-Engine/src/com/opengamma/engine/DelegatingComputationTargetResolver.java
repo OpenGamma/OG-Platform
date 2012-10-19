@@ -7,6 +7,7 @@ package com.opengamma.engine;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,6 +61,11 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   @Override
   public PositionSource getPositionSource() {
     return getUnderlying().getPositionSource();
+  }
+
+  @Override
+  public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    return getUnderlying().getSpecificationResolver();
   }
 
 }

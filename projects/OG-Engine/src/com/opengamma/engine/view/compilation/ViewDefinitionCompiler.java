@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -25,22 +28,31 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.depgraph.Housekeeper;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -131,7 +143,7 @@ public final class ViewDefinitionCompiler {
     }
     // TODO: return a Future that provides access to a completion metric to feedback to any interactive user
     return new Future<CompiledViewDefinitionWithGraphsImpl>() {
-      
+
       private volatile CompiledViewDefinitionWithGraphsImpl _result;
 
       /**
@@ -165,9 +177,11 @@ public final class ViewDefinitionCompiler {
       public boolean isDone() {
         return _result != null;
       }
-      
+
       @Override
       public CompiledViewDefinitionWithGraphsImpl get() throws InterruptedException, ExecutionException {
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>();
+        addLoggingTargetSpecificationResolvers(viewCompilationContext, resolutions);
         long t = -System.nanoTime();
         SpecificRequirementsCompiler.execute(viewCompilationContext);
         t += System.nanoTime();
@@ -181,7 +195,7 @@ public final class ViewDefinitionCompiler {
         t += System.nanoTime();
         s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
-        Map<ComputationTargetReference, UniqueId> resolutions = processResolutions(viewCompilationContext, portfolio);
+        getPortfolioResolutions(portfolio, resolutions);
         t += System.nanoTime();
         s_logger.info("Extracted resolved identifiers after {}ms", (double) t / 1e6);
         timer.finished();
@@ -190,7 +204,7 @@ public final class ViewDefinitionCompiler {
           outputDependencyGraphs(graphsByConfiguration);
         }
         if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getComputationTargetResolver().getSecuritySource());
+          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getFunctionCompilationContext().getComputationTargetResolver().getSecuritySource());
         }
         if (OUTPUT_FAILURE_REPORTS) {
           outputFailureReports(viewCompilationContext.getBuilders());
@@ -217,9 +231,8 @@ public final class ViewDefinitionCompiler {
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
-    final Collection<DependencyGraphBuilder> builders = context.getBuilders();
     final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    for (DependencyGraphBuilder builder : builders) {
+    for (DependencyGraphBuilder builder : context.getBuilders()) {
       final DependencyGraph graph = builder.getDependencyGraph();
       graph.removeUnnecessaryValues();
       result.put(builder.getCalculationConfigurationName(), graph);
@@ -228,17 +241,169 @@ public final class ViewDefinitionCompiler {
     return result;
   }
 
-  private static Map<ComputationTargetReference, UniqueId> processResolutions(final ViewCompilationContext context, final Portfolio portfolio) {
-    final Map<ComputationTargetReference, UniqueId> result = new HashMap<ComputationTargetReference, UniqueId>();
-    result.put(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getRootNode().getUniqueId().toLatest()), portfolio.getRootNode().getUniqueId());
+  /**
+   * Wraps an existing specification resolver to log all of the resolutions calls. This allows any values that were considered during the compilation to be recorded and returned as part of the
+   * compiled context. If the resolution of any of these would be different for a different version/correction then this compilation is no longer valid.
+   */
+  private static class LoggingSpecificationResolver implements ComputationTargetSpecificationResolver.AtVersionCorrection, ComputationTargetReferenceVisitor<ComputationTargetReference> {
+
+    private final ComputationTargetSpecificationResolver.AtVersionCorrection _underlying;
+    private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
+
+    public LoggingSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      _underlying = underlying;
+      _resolutions = resolutions;
+    }
+
+    private static final ComputationTargetTypeVisitor<Void, ComputationTargetType> s_getLeafType = new ComputationTargetTypeVisitor<Void, ComputationTargetType>() {
+
+      @Override
+      public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
+        final List<ComputationTargetType> result = new ArrayList<ComputationTargetType>(types.size());
+        boolean different = false;
+        for (ComputationTargetType type : types) {
+          final ComputationTargetType leafType = type.accept(s_getLeafType, null);
+          if (leafType != null) {
+            result.add(leafType);
+            different = true;
+          } else {
+            result.add(type);
+          }
+        }
+        if (different) {
+          ComputationTargetType type = result.get(0);
+          for (int i = 1; i < result.size(); i++) {
+            type = type.or(result.get(i));
+          }
+          return type;
+        } else {
+          return null;
+        }
+      }
+
+      @Override
+      public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final Void data) {
+        return types.get(types.size() - 1).accept(this, null);
+      }
+
+      @Override
+      public ComputationTargetType visitNullComputationTargetType(final Void data) {
+        return null;
+      }
+
+      @Override
+      public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
+        return null;
+      }
+
+    };
+
+    private ComputationTargetType getLeafType(final ComputationTargetType type) {
+      // TODO: Ought to reduce the type to its simplest form. This hasn't been a problem with the views & function repository I've been testing
+      // with but might be necessary in the general case as there will be duplicate values in the resolver cache.
+      return type.accept(s_getLeafType, null);
+    }
+
+    // ComputationTargetSpecificationResolver.AtVersionCorrection
+
+    @Override
+    public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
+      final ComputationTargetSpecification resolved = _underlying.getTargetSpecification(reference);
+      final ComputationTargetReference key = reference.accept(this);
+      if (key != null) {
+        UniqueId resolvedId = (resolved != null) ? resolved.getUniqueId() : CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED;
+        if (resolvedId == null) {
+          // Handle the case of the target being resolved to ComputationTargetSpecification.NULL
+          resolvedId = CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED;
+        }
+        final UniqueId previousId = _resolutions.putIfAbsent(key, resolvedId);
+        assert (previousId == null) || previousId.equals(resolvedId);
+      }
+      return resolved;
+    }
+
+    // ComputationTargetReferenceVisitor
+
+    @Override
+    public ComputationTargetReference visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+      final ComputationTargetType leafType = getLeafType(requirement.getType());
+      if (leafType != null) {
+        return MemoryUtils.instance(new ComputationTargetRequirement(leafType, requirement.getIdentifiers()));
+      } else {
+        return requirement;
+      }
+    }
+
+    @Override
+    public ComputationTargetReference visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+      if ((specification.getUniqueId() != null) && specification.getUniqueId().isLatest()) {
+        final ComputationTargetType leafType = getLeafType(specification.getType());
+        if (leafType != null) {
+          return MemoryUtils.instance(new ComputationTargetSpecification(leafType, specification.getUniqueId()));
+        } else {
+          return specification;
+        }
+      } else {
+        return null;
+      }
+    }
+
+  }
+
+  private static void addLoggingTargetSpecificationResolvers(final ViewCompilationContext context, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    for (DependencyGraphBuilder builder : context.getBuilders()) {
+      final FunctionCompilationContext functionContext = builder.getCompilationContext();
+      functionContext.setComputationTargetSpecificationResolver(new LoggingSpecificationResolver(functionContext.getComputationTargetSpecificationResolver(), resolutions));
+    }
+  }
+
+  private static void getPortfolioResolutions(final Portfolio portfolio, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getRootNode().getUniqueId().toLatest()), portfolio.getRootNode().getUniqueId());
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
+
+      /**
+       * Store details of the security link in the resolution cache. The link is assumed to be a record of the link to the object, for example is it held by strong (object id) or weak (external id)
+       * reference.
+       * 
+       * @param link the link to store - the identifier is taken from this along with the resolved unique identifier
+       */
+      private void store(final SecurityLink link) {
+        final ComputationTargetReference key;
+        final UniqueId uid;
+        if (link.getTarget() == null) {
+          if (link.getObjectId() != null) {
+            key = new ComputationTargetSpecification(ComputationTargetType.SECURITY, link.getObjectId().atLatestVersion());
+            uid = CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED;
+          } else if (!link.getExternalId().isEmpty()) {
+            key = new ComputationTargetRequirement(ComputationTargetType.SECURITY, link.getExternalId());
+            uid = CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED;
+          } else {
+            return;
+          }
+        } else {
+          uid = link.getTarget().getUniqueId();
+          if (link.getObjectId() != null) {
+            key = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid.toLatest());
+          } else if (!link.getExternalId().isEmpty()) {
+            key = new ComputationTargetRequirement(ComputationTargetType.SECURITY, link.getExternalId());
+          } else {
+            return;
+          }
+        }
+        final UniqueId existing = resolutions.putIfAbsent(MemoryUtils.instance(key), uid);
+        assert (existing == null) || existing.equals(uid);
+      }
+
       @Override
       public void preOrderOperation(final PortfolioNode node, final Position position) {
-        result.put(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest()), position.getUniqueId());
+        resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
+        store(position.getSecurityLink());
+        for (Trade trade : position.getTrades()) {
+          store(trade.getSecurityLink());
+        }
       }
+
     }).traverse(portfolio.getRootNode());
-    // TODO: fetch the resolver lookups from each graph builder
-    return result;
   }
 
   private static void outputDependencyGraphs(Map<String, DependencyGraph> graphsByConfiguration) {

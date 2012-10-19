@@ -17,7 +17,6 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
@@ -176,11 +175,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String SECURITY_SOURCE = "securitySource";
 
   /**
-   * Name under which the computation target specification resolver is bound.
-   */
-  protected static final String TARGET_SPECIFICATION_RESOLVER = "targetSpecResolver";
-
-  /**
    * Name under which a source of type converters is bound.
    */
   protected static final String TYPE_CONVERTER_PROVIDER = "typeConverterProvider";
@@ -213,7 +207,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
     setValue(PROCEDURE_DEFINITION_FILTER, new DefaultProcedureDefinitionFilter());
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
-    setValue(TARGET_SPECIFICATION_RESOLVER, new ComputationTargetSpecificationResolver(null, null));
     setValue(TYPE_CONVERTER_PROVIDER, new AggregatingTypeConverterProvider());
     setValue(VALUE_CONVERTER, new DefaultValueConverter());
   }
@@ -407,10 +400,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public SecuritySource getSecuritySource() {
     return getValue(SECURITY_SOURCE);
-  }
-
-  public ComputationTargetSpecificationResolver getTargetSpecificationResolver() {
-    return getValue(TARGET_SPECIFICATION_RESOLVER);
   }
 
   public TypeConverterProvider getTypeConverterProvider() {

@@ -7,6 +7,7 @@ package com.opengamma.engine;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 
@@ -59,5 +60,13 @@ public interface ComputationTargetResolver {
    * @return the position source, or null if none
    */
   PositionSource getPositionSource();
+
+  /**
+   * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This should return a resolver configured with the same sources that are used
+   * for strict target resolution.
+   * 
+   * @return the specification resolver, not null
+   */
+  ComputationTargetSpecificationResolver getSpecificationResolver();
 
 }

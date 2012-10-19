@@ -8,7 +8,6 @@ package com.opengamma.engine.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -38,7 +37,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private String _name;
   private ViewDefinitionRepository _viewDefinitionRepository;
   private NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
-  private ComputationTargetResolver _computationTargetResolver;
   private CompiledFunctionService _functionCompilationService;
   private FunctionResolver _functionResolver;
   private MarketDataProviderResolver _marketDataProviderResolver;
@@ -75,14 +73,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   public void setNamedMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository) {
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
-  }
-
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    _computationTargetResolver = computationTargetResolver;
   }
 
   public CompiledFunctionService getFunctionCompilationService() {
@@ -183,7 +173,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     if (getFunctionResolver() == null) {
       setFunctionResolver(new DefaultFunctionResolver(getFunctionCompilationService()));
     }
-    ArgumentChecker.notNullInjected(getComputationTargetResolver(), "computationTargetResolver");
     ArgumentChecker.notNullInjected(getMarketDataProviderResolver(), "marketDataProviderResolver");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
@@ -197,7 +186,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getName(),
         getViewDefinitionRepository(),
         getNamedMarketDataSpecificationRepository(),
-        getComputationTargetResolver(),
         getFunctionCompilationService(),
         getFunctionResolver(),
         getMarketDataProviderResolver(),

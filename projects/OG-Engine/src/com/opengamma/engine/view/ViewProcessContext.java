@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -36,7 +35,6 @@ public class ViewProcessContext {
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final ComputationTargetResolver _computationTargetResolver; // REVIEW andrew 2012-03-05 -- This isn't necessary as there is a resolver in the FunctionCompilationContext 
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
@@ -50,7 +48,6 @@ public class ViewProcessContext {
       MarketDataProviderResolver marketDataProviderResolver,
       CompiledFunctionService functionCompilationService,
       FunctionResolver functionResolver,
-      ComputationTargetResolver computationTargetResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher computationJobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
@@ -72,12 +69,11 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     _viewDefinitionRepository = viewDefinitionRepository;
     _viewPermissionProvider = viewPermissionProvider;
-    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(computationTargetResolver.getSecuritySource());
+    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(functionCompilationService.getFunctionCompilationContext().getSecuritySource());
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
     _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
-    _computationTargetResolver = computationTargetResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
@@ -174,16 +170,6 @@ public class ViewProcessContext {
   }
 
   /**
-   * Gets the computation target resvoler. The target resolver is capable of returning fully
-   * constructed portfolio graphs with all security and internal references resolved.
-   * 
-   * @return the computationTargetResolver, not null
-   */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  /**
    * Gets the dependency graph executor factory.
    * 
    * @return  the dependency graph executor factory, not null
@@ -208,8 +194,8 @@ public class ViewProcessContext {
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
-    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
-        getFunctionCompilationService().getExecutorService(), getDependencyGraphBuilderFactory());
+    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getFunctionCompilationService()
+        .getExecutorService(), getDependencyGraphBuilderFactory());
   }
 
 }

@@ -103,7 +103,6 @@ public final class DependencyGraphBuilder implements Cancelable {
   private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   private FunctionExclusionGroups _functionExclusionGroups;
-  private ComputationTargetSpecificationResolver _targetSpecificationResolver;
 
   // The resolve task is ref-counted once for the map (it is being used as a set)
   private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
@@ -213,9 +212,6 @@ public final class DependencyGraphBuilder implements Cancelable {
    */
   public void setCompilationContext(final FunctionCompilationContext compilationContext) {
     _compilationContext = compilationContext;
-    if (compilationContext != null) {
-      _targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, compilationContext.getSecuritySource());
-    }
   }
 
   /**
@@ -283,7 +279,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    return _targetSpecificationResolver.getTargetSpecification(reference);
+    return getCompilationContext().getComputationTargetSpecificationResolver().getTargetSpecification(reference);
   }
 
   protected MapEx<ResolveTask, ResolvedValueProducer> getTasks(final ValueSpecification valueSpecification) {

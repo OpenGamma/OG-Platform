@@ -23,10 +23,10 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -56,8 +56,6 @@ public class ComputationTargetResults {
    */
   private final FunctionCompilationContext _context;
 
-  private final ComputationTargetSpecificationResolver _targetSpecificationResolver;
-
   /**
    * Creates a new instance.
    * 
@@ -84,8 +82,6 @@ public class ComputationTargetResults {
     });
     _context = context.clone();
     _context.setComputationTargetResults(null);
-    _targetSpecificationResolver = new ComputationTargetSpecificationResolver(null, _context.getSecuritySource());
-    // TODO: the specification resolver should really be in the context and us not have the constructor calls to create local versions everywhere
   }
 
   /**
@@ -120,8 +116,8 @@ public class ComputationTargetResults {
    * 
    * @return the
    */
-  protected ComputationTargetSpecificationResolver getTargetSpecificationResolver() {
-    return _targetSpecificationResolver;
+  protected ComputationTargetSpecificationResolver.AtVersionCorrection getTargetSpecificationResolver() {
+    return getContext().getComputationTargetSpecificationResolver();
   }
 
   /**

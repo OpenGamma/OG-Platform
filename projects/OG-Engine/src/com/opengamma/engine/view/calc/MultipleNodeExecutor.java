@@ -34,6 +34,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
@@ -69,6 +70,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
 
   protected long getFunctionInitId() {
     return getCycle().getFunctionInitId();
+  }
+
+  protected VersionCorrection getResolverVersionCorrection() {
+    return getCycle().getVersionCorrection();
   }
 
   protected SingleComputationCycle getCycle() {

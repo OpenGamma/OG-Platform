@@ -36,17 +36,17 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    * Debugging flag for artificially limiting the size of all portfolios. Use this to truncate large portfolios to isolate error cases more easily. The default value is off but can be controlled by
    * the {@code SimplePortfolioNode.debugFlag} property.
    */
-  private static final boolean DEBUG_FLAG = System.getProperty("SimplePortfolioNode.debugFlag", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean DEBUG_FLAG = System.getProperty("SimplePortfolioNode.debugFlag", "TRUE").equalsIgnoreCase("TRUE");
   /**
    * Maximum number of nodes to present immediately underneath this node. This is only used if {@link #DEBUG_FLAG} is on. The default value is 1 but can be controlled by the
    * {@code SimplePortfolioNode.debugMaxNodes} property.
    */
-  private static final int DEBUG_MAX_NODES = Integer.parseInt(System.getProperty("SimplePortfolioNode.debugMaxNodes", "1"));
+  private static final int DEBUG_MAX_NODES = Integer.parseInt(System.getProperty("SimplePortfolioNode.debugMaxNodes", "5"));
   /**
    * Maximum number of positions to present immediately underneath this node. This is only used if {@link #DEBUG_FLAG} is on. The default value is 1 but can be controlled by the
    * {@code SimplePortfolioNode.debugMaxPositions} property.
    */
-  private static final int DEBUG_MAX_POSITIONS = Integer.parseInt(System.getProperty("SimplePortfolioNode.debugMaxPositions", "1"));
+  private static final int DEBUG_MAX_POSITIONS = Integer.parseInt(System.getProperty("SimplePortfolioNode.debugMaxPositions", "5"));
 
   /**
    * The unique identifier of the node.

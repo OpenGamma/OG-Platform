@@ -216,7 +216,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return _cycleId;
   }
 
-  private VersionCorrection getVersionCorrection() {
+  public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
 

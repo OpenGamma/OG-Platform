@@ -22,6 +22,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -67,7 +68,7 @@ public class CalculationNodeUtils {
     final CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(),
         getMockFunctionInputs(function),
         function.getResultSpecs());
-    final CalculationJob calcJob = new CalculationJob(jobSpec, 0L, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
+    final CalculationJob calcJob = new CalculationJob(jobSpec, 0L, VersionCorrection.LATEST, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;
   }
 

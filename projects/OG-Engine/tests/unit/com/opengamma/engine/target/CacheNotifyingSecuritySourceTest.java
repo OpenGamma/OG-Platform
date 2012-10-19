@@ -51,6 +51,11 @@ public class CacheNotifyingSecuritySourceTest {
     }
 
     @Override
+    public ComputationTargetSpecificationResolver getSpecificationResolver() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public ComputationTargetType simplifyType(final ComputationTargetType specification) {
       throw new UnsupportedOperationException();
     }

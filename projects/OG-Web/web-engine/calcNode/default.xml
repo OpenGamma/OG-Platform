@@ -289,7 +289,6 @@
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />
-    <property name="computationTargetResolver" ref="targetResolver" />
     <property name="viewProcessorQuery" ref="viewProcessorQuery" />
     <property name="executorService" ref="slaveThreads" />
     <property name="useWriteBehindSharedCache" value="true" />

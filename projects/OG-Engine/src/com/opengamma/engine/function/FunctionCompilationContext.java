@@ -10,6 +10,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
 
@@ -32,17 +33,9 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
   /**
-   * The name under which an instance of {@link SecuritySource} should be bound.
+   * The name under which the {@link ComputationTargetSpecificationResolver.AtVersionCorrection} instance should be bound.
    */
-  public static final String SECURITY_SOURCE_NAME = "securitySource";
-  /**
-   * The name under which an instance of {@link PortfolioStructure} should be bound.
-   */
-  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
-  /**
-   * The name under which the view calculation configuration should be bound.
-   */
-  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
+  public static final String COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME = "computationTargetSpecificationResolver";
   /**
    * The name under which the initialization reference of the functions should be bound.
    */
@@ -54,13 +47,23 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * The name under which the graph building blacklist should be bound.
    */
-  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist";
+  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
   /**
    * The name under which the graph execution blacklist should be bound.
    */
-  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
-
-  // TODO: [PLAT-2638] The blacklists should not really be here. 
+  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
+  /**
+   * The name under which an instance of {@link PortfolioStructure} should be bound.
+   */
+  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which the view calculation configuration should be bound.
+   */
+  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
 
   /**
    * Creates an empty function compilation context.
@@ -110,7 +113,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the source of result information on a target.
    * 
-   * @param computationTargetResults the source of target results
+   * @param computationTargetResults the source of target results, null to remove it from the context
    */
   public void setComputationTargetResults(final ComputationTargetResults computationTargetResults) {
     if (computationTargetResults == null) {
@@ -118,6 +121,24 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     } else {
       put(COMPUTATION_TARGET_RESULTS_NAME, computationTargetResults);
     }
+  }
+
+  /**
+   * Returns the service for resolving target references to specifications at the latched version/correction time.
+   * 
+   * @return the resolver service, null if none is available
+   */
+  public ComputationTargetSpecificationResolver.AtVersionCorrection getComputationTargetSpecificationResolver() {
+    return (ComputationTargetSpecificationResolver.AtVersionCorrection) get(COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME);
+  }
+
+  /**
+   * Sets the service for resolving target references to specifications at the latched version/correction time.
+   * 
+   * @param resolver the resolver to set, not null
+   */
+  public void setComputationTargetSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver) {
+    put(COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME, resolver);
   }
 
   /**

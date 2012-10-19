@@ -5,11 +5,10 @@
  */
 package com.opengamma.engine.target.lazy;
 
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DelegatingComputationTargetResolver;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
@@ -19,7 +18,7 @@ import com.opengamma.util.functional.Function2;
  * A target resolver that does not resolve the targets immediately but returns a deferred handle. This is excellent for consumers of the target that only care about it's unique identifier and don't
  * need the resolution but can obtain it if they do.
  */
-public final class LazyComputationTargetResolver implements ComputationTargetResolver {
+public final class LazyComputationTargetResolver extends DelegatingComputationTargetResolver {
 
   private static final ComputationTargetTypeMap<Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>> s_resolvers;
 
@@ -45,14 +44,8 @@ public final class LazyComputationTargetResolver implements ComputationTargetRes
     });
   }
 
-  private final ComputationTargetResolver _underlying;
-
   public LazyComputationTargetResolver(final ComputationTargetResolver underlying) {
-    _underlying = underlying;
-  }
-
-  protected ComputationTargetResolver getUnderlying() {
-    return _underlying;
+    super(underlying);
   }
 
   /**
@@ -86,18 +79,4 @@ public final class LazyComputationTargetResolver implements ComputationTargetRes
     return resolve(getUnderlying(), specification);
   }
 
-  @Override
-  public ComputationTargetType simplifyType(final ComputationTargetType type) {
-    return getUnderlying().simplifyType(type);
-  }
-
-  @Override
-  public SecuritySource getSecuritySource() {
-    return getUnderlying().getSecuritySource();
-  }
-
-  @Override
-  public PositionSource getPositionSource() {
-    return getUnderlying().getPositionSource();
-  }
 }

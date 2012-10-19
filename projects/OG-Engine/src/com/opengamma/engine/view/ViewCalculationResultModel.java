@@ -15,12 +15,11 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A container for the results of calculations performed when executing one cycle of a
- * {@link ViewCalculationConfiguration} within a {@link ViewDefinition}. 
+ * A container for the results of calculations performed when executing one cycle of a {@link ViewCalculationConfiguration} within a {@link ViewDefinition}.
  */
 @PublicAPI
 public interface ViewCalculationResultModel {
-  
+
   /**
    * Returns all terminal output target specifications present in the configuration.
    * 
@@ -29,15 +28,15 @@ public interface ViewCalculationResultModel {
   Collection<ComputationTargetSpecification> getAllTargets();
 
   /**
-   * Returns the computed values for a given target. The values are returned as a map from the value name and
-   * properties to the {@link ComputedValue}.
+   * Returns the computed values for a given target. The values are returned as a map from the value name and properties to the {@link ComputedValue}.
    * 
    * @param target the target to search for, not null
    * @return the computed values for this configuration, or null if the target does not exist in the view results
    */
   Map<Pair<String, ValueProperties>, ComputedValue> getValues(ComputationTargetSpecification target);
-  
-  // TODO: note that getValues should be querying on the target's unique identifier only as the caller may be passing in a more (or less) descriptive type component that will not be an exact match
+
+  // TODO: note that getValues should be querying on the target's unique identifier (and any context identifiers) and not the target type as the caller
+  // may be passing in a more (or less) descriptive type component that will not be an exact match
 
   /**
    * Returns all computed values for a given target.

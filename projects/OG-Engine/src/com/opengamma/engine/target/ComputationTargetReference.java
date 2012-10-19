@@ -250,4 +250,14 @@ public abstract class ComputationTargetReference implements Serializable {
     }
   }
 
+  /**
+   * Returns a new reference with the same type (and parent) but a different leaf identifier.
+   * 
+   * @return identifier the new identifier, not null
+   * @return the new reference object
+   */
+  public ComputationTargetSpecification replaceIdentifier(final UniqueId identifier) {
+    return new ComputationTargetSpecification(getParent(), getType(), identifier);
+  }
+
 }
