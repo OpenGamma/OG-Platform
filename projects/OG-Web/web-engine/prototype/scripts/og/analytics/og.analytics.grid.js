@@ -11,7 +11,7 @@ $.register_module({
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
-            })();
+            })(), do_not_expand = {DOUBLE: null, PRIMITIVE: null};
         var available = (function () {
             var nodes;
             var all = function (total) {
@@ -386,19 +386,23 @@ $.register_module({
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
-        constructor.prototype.range = function (selection) {
-            var grid = this, viewport = grid.meta.viewport, row_indices, col_indices, cols_len = viewport.cols.length,
-                types = [], available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
+        constructor.prototype.range = function (selection, expanded) {
+            var grid = this, viewport = grid.meta.viewport, row_indices,
+                col_indices, cols_len = viewport.cols.length, types = [], result = null,
+                available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
                     !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
             if (!available) return null;
             row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
             col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
-            return row_indices.map(function (row_idx) {
+            result = row_indices.map(function (row_idx) {
                 return col_indices.map(function (col_idx, idx) {
                     var cell = grid.data[row_idx * cols_len + col_idx];
                     return {value: cell, type: cell.t || selection.type[idx]};
                 });
             });
+            return !expanded ? result : result.every(function (row) {
+                return row.pluck('type').every(function (type) {return type in do_not_expand;});
+            }) ? result : null;
         };
         constructor.prototype.resize = function (handler) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
