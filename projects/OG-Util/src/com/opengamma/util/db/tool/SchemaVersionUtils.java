@@ -3,10 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.schema;
+package com.opengamma.util.db.tool;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -20,13 +19,11 @@ public final class SchemaVersionUtils {
   
   private static final Logger s_logger = LoggerFactory.getLogger(SchemaVersionUtils.class);
   
-  private static final String SCHEMA_VERSION_DIR = "com/opengamma/masterdb/schema"; 
-  
   private SchemaVersionUtils() {
   }
   
-  public static Integer readSchemaVersion(String schemaName) {
-    InputStream schemaVersionStream = ClassLoader.getSystemResourceAsStream(SCHEMA_VERSION_DIR + "/" + schemaName);
+  public static Integer readSchemaVersion(String path, String schemaName) {
+    InputStream schemaVersionStream = ClassLoader.getSystemResourceAsStream(path + "/" + schemaName);
     if (schemaVersionStream == null) {
       return null;
     }
@@ -38,10 +35,6 @@ public final class SchemaVersionUtils {
       s_logger.warn("Error reading schema version '" + schemaName + "'", e);
       return null;
     }
-  }
-  
-  public static File getSchemaVersionDir(final String outputDir) {
-    return new File(outputDir + File.separator + SCHEMA_VERSION_DIR);
   }
 
 }

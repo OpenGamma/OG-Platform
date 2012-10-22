@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.schema;
+package com.opengamma.util.db.tool;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +18,7 @@ import com.opengamma.util.test.DbTool;
 /**
  * Ant task which outputs files containing schema version information.
  */
-public class SchemaVersionTool extends Task {
+public class SchemaVersionTask extends Task {
 
   private String _dbScriptDir;
   private String _outputDir;
@@ -49,7 +49,7 @@ public class SchemaVersionTool extends Task {
       throw new BuildException("outputDir must be specified");
     }
     System.out.println("outputDir: " + getOutputDir());
-    final File outputDir = SchemaVersionUtils.getSchemaVersionDir(getOutputDir());
+    final File outputDir = new File(getOutputDir());
     if (outputDir.isFile()) {
       throw new BuildException("outputDir must be a directory");
     }
