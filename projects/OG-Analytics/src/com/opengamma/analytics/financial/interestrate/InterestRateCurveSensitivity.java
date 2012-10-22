@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class describing a the sensitivity of a some value (present value, par rate, etc) to the family of yield curves.
+ * Class containing data describing the sensitivity of some analytic value (present value, par rate, etc.) to a family of yield curves.
  */
 public class InterestRateCurveSensitivity {
 
   /**
-   * The map containing the sensitivity. The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
+   * The map containing the sensitivity. The map links the curve name to a list of pairs of cash flow time and sensitivity value.
    */
   private final Map<String, List<DoublesPair>> _sensitivity;
 
@@ -36,8 +36,8 @@ public class InterestRateCurveSensitivity {
   }
 
   /**
-   * Constructor from a map of sensitivity.
-   * @param sensitivity The map.
+   * Constructor from a map of sensitivity. The map links the curve name to a list of pairs of cash flow time and sensitivity value.
+   * @param sensitivity The map, not null
    */
   public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
@@ -46,8 +46,8 @@ public class InterestRateCurveSensitivity {
 
   /**
    * Builder from a curve name and a list of sensitivities.
-   * @param name The name.
-   * @param sensitivityCurve The sensitivity as a list.
+   * @param name The name, not null
+   * @param sensitivityCurve The sensitivity as a list, not null
    * @return The interest rate curve sensitivity.
    */
   public static InterestRateCurveSensitivity from(final String name, final List<DoublesPair> sensitivityCurve) {
