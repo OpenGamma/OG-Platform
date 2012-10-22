@@ -28,11 +28,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class SecurityDocument extends AbstractDocument<ManageableSecurity> implements Serializable {
+public class SecurityDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The security object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableSecurity _object;
   /**
    * The security unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -57,7 +62,6 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the name of the security.
    * <p>
@@ -74,7 +78,6 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
    * The meta-bean for {@code SecurityDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SecurityDocument.Meta meta() {
     return SecurityDocument.Meta.INSTANCE;
   }
@@ -90,6 +93,8 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
@@ -99,6 +104,9 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableSecurity) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -113,7 +121,8 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityDocument other = (SecurityDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -122,8 +131,34 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security object held by the document.
+   * @return the value of the property
+   */
+  public ManageableSecurity getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the security object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableSecurity object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableSecurity> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -158,12 +193,17 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
   /**
    * The meta-bean for {@code SecurityDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableSecurity> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableSecurity> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", SecurityDocument.class, ManageableSecurity.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -174,6 +214,7 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId");
 
     /**
@@ -185,6 +226,8 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -207,6 +250,14 @@ public class SecurityDocument extends AbstractDocument<ManageableSecurity> imple
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableSecurity> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

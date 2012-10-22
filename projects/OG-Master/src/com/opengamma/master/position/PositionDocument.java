@@ -28,11 +28,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class PositionDocument extends AbstractDocument<ManageablePosition> implements Serializable {
+public class PositionDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The position object held by the document.
+   */
+  @PropertyDefinition
+  private ManageablePosition _object;
   /**
    * The position unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -62,7 +67,6 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
    * The meta-bean for {@code PositionDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionDocument.Meta meta() {
     return PositionDocument.Meta.INSTANCE;
   }
@@ -78,6 +82,8 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
@@ -87,6 +93,9 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageablePosition) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -101,7 +110,8 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PositionDocument other = (PositionDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -110,8 +120,34 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the position object held by the document.
+   * @return the value of the property
+   */
+  public ManageablePosition getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the position object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageablePosition object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageablePosition> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -146,12 +182,17 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
   /**
    * The meta-bean for {@code PositionDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageablePosition> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageablePosition> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", PositionDocument.class, ManageablePosition.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -162,6 +203,7 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId");
 
     /**
@@ -173,6 +215,8 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -195,6 +239,14 @@ public class PositionDocument extends AbstractDocument<ManageablePosition> imple
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageablePosition> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

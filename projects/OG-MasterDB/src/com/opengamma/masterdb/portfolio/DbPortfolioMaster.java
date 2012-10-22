@@ -67,7 +67,9 @@ import com.opengamma.util.tuple.LongObjectPair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
+public class DbPortfolioMaster
+    extends AbstractDocumentDbMaster<PortfolioDocument>
+    implements PortfolioMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMaster.class);

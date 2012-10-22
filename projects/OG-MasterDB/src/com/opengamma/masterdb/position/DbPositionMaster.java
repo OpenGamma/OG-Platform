@@ -74,7 +74,9 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class DbPositionMaster
+    extends AbstractDocumentDbMaster<PositionDocument>
+    implements PositionMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);

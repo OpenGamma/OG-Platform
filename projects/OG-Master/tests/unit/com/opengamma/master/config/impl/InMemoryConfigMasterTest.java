@@ -52,6 +52,7 @@ public class InMemoryConfigMasterTest {
   private ConfigItem<ExternalIdBundle> _item3;
   private ConfigItem<ExternalIdBundle> _item4;
 
+  @SuppressWarnings("unchecked")
   @BeforeMethod
   public void setUp() {
     _testEmpty = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
@@ -76,6 +77,7 @@ public class InMemoryConfigMasterTest {
     new InMemoryConfigMaster((Supplier<ObjectId>) null);
   }
 
+  @SuppressWarnings("unchecked")
   public void test_defaultSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster();
     ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
@@ -84,6 +86,7 @@ public class InMemoryConfigMasterTest {
     assertEquals("MemCfg", added.getUniqueId().getScheme());
   }
 
+  @SuppressWarnings("unchecked")
   public void test_alternateSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdSupplier("Hello"));
     ConfigItem<ExternalId> item = ConfigItem.of(VAL1);

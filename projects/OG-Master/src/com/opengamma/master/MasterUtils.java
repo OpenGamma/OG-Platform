@@ -23,7 +23,13 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.functional.Functional;
 
+/**
+ * Utilities for managing masters.
+ * <p>
+ * This is a thread-safe static utility class.
+ */
 public class MasterUtils {
+
   public static <D extends AbstractDocument> List<D> adjustVersionInstants(Instant now, Instant from, Instant to, List<D> documents) {
     for (D document : documents) {
       Instant fromInstant = document.getVersionFromInstant();
@@ -40,7 +46,7 @@ public class MasterUtils {
         return fromA.compareTo(fromB);
       }
     });
-    final Instant latestDocumentVersionTo = copy.get(copy.size()-1).getVersionToInstant();
+    final Instant latestDocumentVersionTo = copy.get(copy.size() - 1).getVersionToInstant();
     D prevDocument = null;
     for (D document : copy) {
       document.setVersionToInstant(latestDocumentVersionTo == null ? to : latestDocumentVersionTo);
@@ -92,4 +98,5 @@ public class MasterUtils {
       }
     });
   }
+
 }

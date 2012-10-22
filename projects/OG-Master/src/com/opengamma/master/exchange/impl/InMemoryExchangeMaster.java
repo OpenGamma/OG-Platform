@@ -40,7 +40,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
+public class InMemoryExchangeMaster
+    extends SimpleAbstractInMemoryMaster<ExchangeDocument>
+    implements ExchangeMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -80,6 +82,13 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
    */
   public InMemoryExchangeMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     super(objectIdSupplier, changeManager);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void validateDocument(ExchangeDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
   }
 
   //-------------------------------------------------------------------------
@@ -192,12 +201,6 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
     }
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  protected void validateDocument(ExchangeDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
   }
 
 }

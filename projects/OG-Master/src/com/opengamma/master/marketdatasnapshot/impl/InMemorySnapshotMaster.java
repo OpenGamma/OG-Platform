@@ -37,7 +37,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This snapshot master does not support versioning of snapshots.
  */
-public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
+public class InMemorySnapshotMaster
+    extends SimpleAbstractInMemoryMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
   //TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -45,7 +47,6 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSnap";
-
 
   /**
    * Creates an instance.

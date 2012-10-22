@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
@@ -31,7 +30,8 @@ import com.opengamma.util.rest.RestUtils;
 /**
  * RESTful resource for a portfolio.
  */
-public class DataPortfolioResource extends AbstractDocumentDataResource<ManageablePortfolio, PortfolioDocument> {
+public class DataPortfolioResource
+    extends AbstractDocumentDataResource<PortfolioDocument> {
 
   /**
    * The portfolios resource.
@@ -64,7 +64,6 @@ public class DataPortfolioResource extends AbstractDocumentDataResource<Manageab
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the portfolios resource.
    *
@@ -84,7 +83,6 @@ public class DataPortfolioResource extends AbstractDocumentDataResource<Manageab
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the portfolio master.
    *

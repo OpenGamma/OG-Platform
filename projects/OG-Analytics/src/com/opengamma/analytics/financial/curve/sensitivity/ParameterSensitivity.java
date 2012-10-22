@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -99,6 +101,39 @@ public class ParameterSensitivity {
       result.put(nameCcy, (DoubleMatrix1D) MATRIX.scale(_sensitivity.get(nameCcy), factor));
     }
     return new ParameterSensitivity(result);
+  }
+
+  /**
+   * Create a new parameter sensitivity with the new sensitivity with all the values in a common currency.
+   * @param fxMatrix The matrix with relevant exchange rates.
+   * @param ccy The currency in which the sensitivity is converted.
+   * @return The converted sensitivity.
+   */
+  public ParameterSensitivity convert(final FXMatrix fxMatrix, final Currency ccy) {
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(fxMatrix, "FX Matrix");
+    ParameterSensitivity result = new ParameterSensitivity();
+    for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
+      final double fxRate = fxMatrix.getFxRate(nameCcy.getSecond(), ccy);
+      Pair<String, Currency> nameCcyNew = new ObjectsPair<String, Currency>(nameCcy.getFirst(), ccy);
+      DoubleMatrix1D sensiNew = (DoubleMatrix1D) MATRIX.scale(_sensitivity.get(nameCcy), fxRate);
+      result = result.plus(nameCcyNew, sensiNew);
+    }
+    return result;
+  }
+
+  /**
+   * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). 
+   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. The order is the one
+   * given by the keySet associated to the map.
+   * @return The sensitivity matrix.
+   */
+  public DoubleMatrix1D toMatrix() {
+    double[] psArray = new double[0];
+    for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
+      psArray = ArrayUtils.addAll(psArray, _sensitivity.get(nameCcy).getData());
+    }
+    return new DoubleMatrix1D(psArray);
   }
 
   /**

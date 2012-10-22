@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -31,7 +30,7 @@ import com.opengamma.util.rest.RestUtils;
 /**
  * RESTful resource for a snapshot.
  */
-public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> {
+public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource<MarketDataSnapshotDocument> {
 
   /**
    * The snapshots resource.
@@ -49,7 +48,7 @@ public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource
   DataMarketDataSnapshotResource() {
     _snapshotsResource = null;
   }
-  
+
   /**
    * Creates the resource.
    *
@@ -64,7 +63,6 @@ public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the snapshots resource.
    *
@@ -84,7 +82,6 @@ public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the snapshot master.
    *

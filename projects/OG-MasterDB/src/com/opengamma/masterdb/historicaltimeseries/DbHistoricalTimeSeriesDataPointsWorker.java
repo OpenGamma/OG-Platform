@@ -181,7 +181,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
         insertDataPointsCheckMaxDate(uniqueId, series);
-            return Pair.of(insertDataPoints(uniqueId, series, now), now);
+        return Pair.of(insertDataPoints(uniqueId, series, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());

@@ -70,7 +70,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMaster.class);

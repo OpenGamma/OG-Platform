@@ -55,7 +55,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * 
  */
-/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigItem<?>, ConfigDocument> {
+/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigDocument> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigWorker.class);
@@ -100,7 +100,6 @@ import com.opengamma.util.paging.PagingRequest;
     return doGetByOidInstants(objectId, versionCorrection, new ConfigDocumentExtractor(), "Config");
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   protected void mergeNonUpdatedFields(ConfigDocument newDocument, ConfigDocument oldDocument) {
     if (newDocument.getObject() == null) {
@@ -164,7 +163,6 @@ import com.opengamma.util.paging.PagingRequest;
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
@@ -230,7 +228,6 @@ import com.opengamma.util.paging.PagingRequest;
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   public <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     //ArgumentChecker.notNull(request.getType(), "request.type");
@@ -318,7 +315,7 @@ import com.opengamma.util.paging.PagingRequest;
       }
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
-      ConfigItem item = ConfigItem.of(value);
+      ConfigItem<?> item = ConfigItem.of(value);
       item.setName(name);
       ConfigDocument doc = new ConfigDocument(item);
       UniqueId uniqueId = createUniqueId(docOid, docId);

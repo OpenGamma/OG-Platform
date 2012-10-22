@@ -24,7 +24,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -33,7 +32,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link HistoricalTimeSeriesMaster}.
  */
-public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class RemoteHistoricalTimeSeriesMaster
+    extends AbstractRemoteDocumentMaster<HistoricalTimeSeriesInfoDocument>
+    implements HistoricalTimeSeriesMaster {
 
   /**
    * Creates an instance.

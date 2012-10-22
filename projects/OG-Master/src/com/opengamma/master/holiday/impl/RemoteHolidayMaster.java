@@ -20,7 +20,6 @@ import com.opengamma.master.holiday.HolidayMetaDataRequest;
 import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.api.client.GenericType;
@@ -28,7 +27,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link HolidayMaster}.
  */
-public class RemoteHolidayMaster extends AbstractRemoteDocumentMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
+public class RemoteHolidayMaster
+    extends AbstractRemoteDocumentMaster<HolidayDocument>
+    implements HolidayMaster {
 
   /**
    * Creates an instance.
@@ -181,4 +182,5 @@ public class RemoteHolidayMaster extends AbstractRemoteDocumentMaster<Manageable
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);
   }
+
 }

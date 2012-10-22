@@ -12,7 +12,6 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -26,9 +25,9 @@ import com.opengamma.master.security.SecuritySearchResult;
  * A {@link SecurityMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedSecurityMaster extends CombinedMaster<ManageableSecurity, SecurityDocument, SecurityMaster> implements SecurityMaster {
+public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
 
-  /* package */CombinedSecurityMaster(final CombiningMaster<ManageableSecurity, SecurityDocument, SecurityMaster, ?> combining, final SecurityMaster sessionMaster, final SecurityMaster userMaster,
+  /* package */CombinedSecurityMaster(final CombiningMaster<SecurityDocument, SecurityMaster, ?> combining, final SecurityMaster sessionMaster, final SecurityMaster userMaster,
                                       final SecurityMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }

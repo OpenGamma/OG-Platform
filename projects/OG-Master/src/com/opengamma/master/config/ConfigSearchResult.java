@@ -29,6 +29,7 @@ import com.opengamma.util.PublicSPI;
  * The returned documents will match the search criteria.
  * See {@link ConfigSearchRequest} for more details.
  * 
+ * @param <T>  the type of the underlying config
  */
 @PublicSPI
 @BeanDefinition

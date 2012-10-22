@@ -17,7 +17,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 
 /**
@@ -26,13 +25,13 @@ import com.opengamma.id.VersionCorrection;
  */
 public class ChangeProvidingDecorator {
 
-  static public <T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> AbstractChangeProvidingMaster<T, D> wrap(final AbstractMaster<T, D> underlying) {
+  public static <D extends AbstractDocument> AbstractChangeProvidingMaster<D> wrap(final AbstractMaster<D> underlying) {
     return wrap(underlying, TimeSource.system());
   }
 
-  static public <T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> AbstractChangeProvidingMaster<T, D> wrap(final AbstractMaster<T, D> underlying, final TimeSource timeSource) {
-    return new AbstractChangeProvidingMaster<T, D>() {
-      BasicChangeManager _changeManager = new BasicChangeManager();
+  public static <D extends AbstractDocument> AbstractChangeProvidingMaster<D> wrap(final AbstractMaster<D> underlying, final TimeSource timeSource) {
+    return new AbstractChangeProvidingMaster<D>() {
+      private final BasicChangeManager _changeManager = new BasicChangeManager();
 
       @Override
       public ChangeManager changeManager() {

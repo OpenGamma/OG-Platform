@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Objects;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.paging.PagingRequest;
@@ -36,7 +35,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extends DirectBean {
+public abstract class AbstractSearchRequest extends DirectBean {
 
   /**
    * The request for paging.
@@ -57,7 +56,6 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Sets the version-correction locator to search at, null for the latest.
    *
@@ -68,7 +66,6 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Checks if this search matches the specified document.
    *
@@ -89,20 +86,17 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractSearchRequest}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R extends UniqueIdentifiable> AbstractSearchRequest.Meta<R> meta() {
+  public static AbstractSearchRequest.Meta meta() {
     return AbstractSearchRequest.Meta.INSTANCE;
   }
   static {
     JodaBeanUtils.registerMetaBean(AbstractSearchRequest.Meta.INSTANCE);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public AbstractSearchRequest.Meta<T> metaBean() {
+  public AbstractSearchRequest.Meta metaBean() {
     return AbstractSearchRequest.Meta.INSTANCE;
   }
 
@@ -136,7 +130,7 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractSearchRequest<?> other = (AbstractSearchRequest<?>) obj;
+      AbstractSearchRequest other = (AbstractSearchRequest) obj;
       return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
           JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
     }
@@ -200,11 +194,10 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
   /**
    * The meta-bean for {@code AbstractSearchRequest}.
    */
-  public static class Meta<T extends UniqueIdentifiable> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -243,14 +236,13 @@ public abstract class AbstractSearchRequest<T extends UniqueIdentifiable> extend
     }
 
     @Override
-    public BeanBuilder<? extends AbstractSearchRequest<T>> builder() {
+    public BeanBuilder<? extends AbstractSearchRequest> builder() {
       throw new UnsupportedOperationException("AbstractSearchRequest is an abstract class");
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends AbstractSearchRequest<T>> beanType() {
-      return (Class) AbstractSearchRequest.class;
+    public Class<? extends AbstractSearchRequest> beanType() {
+      return AbstractSearchRequest.class;
     }
 
     @Override

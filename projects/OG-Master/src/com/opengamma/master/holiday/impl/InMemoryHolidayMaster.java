@@ -44,7 +44,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
+public class InMemoryHolidayMaster
+    extends SimpleAbstractInMemoryMaster<HolidayDocument>
+    implements HolidayMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -86,6 +88,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     super(objectIdSupplier, changeManager);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void validateDocument(HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
@@ -217,4 +220,5 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
+
 }

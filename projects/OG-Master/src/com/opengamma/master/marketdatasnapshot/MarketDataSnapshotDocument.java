@@ -34,11 +34,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarketDataSnapshot> implements Serializable {
+public class MarketDataSnapshotDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The snapshot object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableMarketDataSnapshot _object;
   /**
    * The snapshot document unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -76,7 +81,6 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the name of the snapshot.
    * <p>
@@ -94,7 +98,6 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
    * The meta-bean for {@code MarketDataSnapshotDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static MarketDataSnapshotDocument.Meta meta() {
     return MarketDataSnapshotDocument.Meta.INSTANCE;
   }
@@ -110,6 +113,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
@@ -119,6 +124,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableMarketDataSnapshot) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -133,7 +141,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataSnapshotDocument other = (MarketDataSnapshotDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -142,8 +151,34 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the snapshot object held by the document.
+   * @return the value of the property
+   */
+  public ManageableMarketDataSnapshot getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the snapshot object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableMarketDataSnapshot object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableMarketDataSnapshot> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -178,12 +213,17 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
   /**
    * The meta-bean for {@code MarketDataSnapshotDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableMarketDataSnapshot> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableMarketDataSnapshot> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", MarketDataSnapshotDocument.class, ManageableMarketDataSnapshot.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -194,6 +234,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId");
 
     /**
@@ -205,6 +246,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -227,6 +270,14 @@ public class MarketDataSnapshotDocument extends AbstractDocument<ManageableMarke
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableMarketDataSnapshot> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

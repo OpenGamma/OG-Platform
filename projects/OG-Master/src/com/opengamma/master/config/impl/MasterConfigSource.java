@@ -128,25 +128,25 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   /**
    * Search for configuration elements using a request object.
    *
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param request  the request object with value for search fields, not null
    * @return all configuration elements matching the request, not null
    */
-  public <T> List<ConfigItem<T>> search(final ConfigSearchRequest<T> request) {
+  public <R> List<ConfigItem<R>> search(final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
     request.setVersionCorrection(getVersionCorrection());
-    ConfigSearchResult<T> searchResult = getMaster().search(request);
+    ConfigSearchResult<R> searchResult = getMaster().search(request);
     return searchResult.getValues();
   }
 
   //-------------------------------------------------------------------------
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
     ConfigItem<?> item = getMaster().get(uniqueId).getObject();
     if (clazz.isAssignableFrom(item.getType())) {
-      return (T) item.getValue();
+      return (R) item.getValue();
     } else {
       return null;
     }
@@ -163,8 +163,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigItem<T> result = get(clazz, configName, versionCorrection);
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigItem<R> result = get(clazz, configName, versionCorrection);
     if (result != null) {
       return result.getValue();
     }
@@ -173,33 +173,33 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
     ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getObject();
     if (clazz.isAssignableFrom(item.getType())) {
-      return (T) item.getValue();
+      return (R) item.getValue();
     } else {
       return null;
     }
   }
 
   @Override
-  public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
+  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
     searchRequest.setName(configName);
     searchRequest.setVersionCorrection(versionCorrection);
     return functional(getMaster().search(searchRequest).getValues()).first();
   }
 
   @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {    
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {    
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
     searchRequest.setType(clazz);
     searchRequest.setVersionCorrection(versionCorrection);
     return getMaster().search(searchRequest).getValues();
   }
 
   @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
+  public <R> R getLatestByName(Class<R> clazz, String name) {
     return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 

@@ -60,7 +60,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbExchangeMaster extends AbstractDocumentDbMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
+public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument> implements ExchangeMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMaster.class);
@@ -279,7 +279,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ManageableExchang
     }
   }
   
-  public ExchangeHistoryResult historyByVersionsCorrections(AbstractHistoryRequest request){
+  public ExchangeHistoryResult historyByVersionsCorrections(AbstractHistoryRequest request) {
     ExchangeHistoryRequest exchangeHistoryRequest = new ExchangeHistoryRequest();
     exchangeHistoryRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     exchangeHistoryRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());

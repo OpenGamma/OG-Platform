@@ -296,9 +296,9 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      @SuppressWarnings("unused")
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
-
-
+      
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 3; i++) {
         String val = "replace_" + i;
@@ -362,8 +362,8 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      @SuppressWarnings("unused")
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
-
 
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 3; i++) {

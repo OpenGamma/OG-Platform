@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -24,9 +23,9 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
  * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedMarketDataSnapshotMaster extends CombinedMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
+public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
 
-  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
+  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
       final MarketDataSnapshotMaster sessionMaster, final MarketDataSnapshotMaster userMaster, final MarketDataSnapshotMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }

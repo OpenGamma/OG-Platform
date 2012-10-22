@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -23,14 +22,18 @@ import com.opengamma.master.ChangeProvidingDecorator;
  * Wraps a curve definition master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class FinancialUserInterpolatedYieldCurveDefinitionMaster extends AbstractFinancialUserMaster<YieldCurveDefinition, YieldCurveDefinitionDocument> implements InterpolatedYieldCurveDefinitionMaster {
+public class FinancialUserInterpolatedYieldCurveDefinitionMaster
+    extends AbstractFinancialUserMaster<YieldCurveDefinitionDocument>
+    implements InterpolatedYieldCurveDefinitionMaster {
+
   /**
    * The underlying master.
    */
   private final InterpolatedYieldCurveDefinitionMaster _underlying;
-
-  private final AbstractChangeProvidingMaster<YieldCurveDefinition, YieldCurveDefinitionDocument> _changeProvidingMaster;
-
+  /**
+   * The change providing master.
+   */
+  private final AbstractChangeProvidingMaster<YieldCurveDefinitionDocument> _changeProvidingMaster;
 
   /**
    * Creates an instance.

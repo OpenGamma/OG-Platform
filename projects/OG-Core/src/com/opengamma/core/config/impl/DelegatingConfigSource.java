@@ -75,13 +75,13 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
     Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     for (ConfigSource configSource : delegates.values()) {
-      ConfigItem<T> config = configSource.get(clazz, configName, versionCorrection);
+      ConfigItem<R> config = configSource.get(clazz, configName, versionCorrection);
       if (config != null) {
         return config;
       }
@@ -90,12 +90,12 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {
     Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     for (ConfigSource configSource : delegates.values()) {
-      Collection<ConfigItem<T>> config = configSource.getAll(clazz, versionCorrection);
+      Collection<ConfigItem<R>> config = configSource.getAll(clazz, versionCorrection);
       if (config != null && config.size() > 0) {
         return config;
       }
@@ -104,14 +104,14 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).getConfig(clazz, uniqueId);
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
@@ -119,14 +119,14 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
 
     Map<String, ConfigSource> delegates = getDelegates();
     for (ConfigSource configSource : delegates.values()) {
-      T config = configSource.getConfig(clazz, configName, versionCorrection);
+      R config = configSource.getConfig(clazz, configName, versionCorrection);
       if (config != null) {
         return config;
       }
@@ -135,7 +135,7 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
+  public <R> R getLatestByName(Class<R> clazz, String name) {
     return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
