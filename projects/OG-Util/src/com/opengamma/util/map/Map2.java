@@ -65,4 +65,11 @@ public interface Map2<K1, K2, V> extends Map<Pair<K1, K2>, V> {
    */
   boolean containsKey(K1 key1, K2 key2);
 
+  /**
+   * Removes all elements in the map with the first key.
+   * 
+   * @param key1 the first key
+   */
+  void removeAllKey1(K1 key1);
+
 }

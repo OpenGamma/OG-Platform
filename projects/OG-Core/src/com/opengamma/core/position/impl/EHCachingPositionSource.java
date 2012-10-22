@@ -5,8 +5,6 @@
  */
 package com.opengamma.core.position.impl;
 
-import java.util.Iterator;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -86,7 +84,8 @@ public class EHCachingPositionSource implements PositionSource {
    */
   private final ChangeManager _changeManager;
 
-  private final Map2<UniqueId, VersionCorrection, Object> _frontCache = new WeakValueHashMap2<UniqueId, VersionCorrection, Object>();
+  private final Map2<UniqueId, VersionCorrection, Object> _frontCacheByUID = new WeakValueHashMap2<UniqueId, VersionCorrection, Object>();
+  private final Map2<ObjectId, VersionCorrection, Object> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, Object>();
 
   /**
    * Creates the cache around an underlying position source.
@@ -147,105 +146,100 @@ public class EHCachingPositionSource implements PositionSource {
     return _cacheManager;
   }
 
-  // TODO: Copy the logic from EHCachingFinancialSecuritySource to deal with uid/vc pairs.
-  // TODO: Do something more efficient for cleaning out entries from Map2
-
-  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    Object f = _frontCache.get(uniqueId, versionCorrection);
+    Object f = _frontCacheByUID.get(uniqueId, versionCorrection);
     if (f instanceof Portfolio) {
       return (Portfolio) f;
     }
-    if (uniqueId.isLatest()) {
-      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
-      f = _frontCache.putIfAbsent(portfolio.getUniqueId(), versionCorrection, portfolio);
-      if (f instanceof Portfolio) {
-        return (Portfolio) f;
-      } else {
-        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-        return portfolio;
-      }
-    }
-    Element e = _portfolioCache.get(uniqueId);
+    final Pair<UniqueId, VersionCorrection> key = Pair.of(uniqueId, versionCorrection);
+    final Element e = _portfolioCache.get(key);
     if (e != null) {
       final Portfolio portfolio = (Portfolio) e.getObjectValue();
-      f = _frontCache.putIfAbsent(uniqueId, versionCorrection, portfolio);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;
       } else {
         return portfolio;
       }
     } else {
-      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
-      f = _frontCache.putIfAbsent(uniqueId, versionCorrection, portfolio);
+      final Portfolio portfolio = getUnderlying().getPortfolio(uniqueId, versionCorrection);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;
       } else {
-        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+        _portfolioCache.put(new Element(key, portfolio));
         return portfolio;
       }
     }
   }
 
   @Override
-  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
-    Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
-    // TODO: should probably be sticking the portfolio in the front cache too
-    _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-    return portfolio;
+  public Portfolio getPortfolio(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    Object f = _frontCacheByOID.get(objectId, versionCorrection);
+    if (f instanceof Portfolio) {
+      return (Portfolio) f;
+    }
+    final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
+    final Element e = _portfolioCache.get(key);
+    if (e != null) {
+      final Portfolio portfolio = (Portfolio) e.getObjectValue();
+      f = _frontCacheByOID.putIfAbsent(objectId, versionCorrection, portfolio);
+      if (f instanceof Portfolio) {
+        return (Portfolio) f;
+      } else {
+        return portfolio;
+      }
+    } else {
+      final Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
+      f = _frontCacheByOID.putIfAbsent(objectId, versionCorrection, portfolio);
+      if (f instanceof Portfolio) {
+        return (Portfolio) f;
+      } else {
+        _portfolioCache.put(new Element(key, portfolio));
+        return portfolio;
+      }
+    }
   }
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    Object f = _frontCache.get(uniqueId, versionCorrection);
+    Object f = _frontCacheByUID.get(uniqueId, versionCorrection);
     if (f instanceof PortfolioNode) {
       return (PortfolioNode) f;
     }
-    if (uniqueId.isLatest()) {
-      PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
-      f = _frontCache.putIfAbsent(node.getUniqueId(), versionCorrection, node);
-      if (f instanceof PortfolioNode) {
-        return (PortfolioNode) f;
-      } else {
-        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
-        return node;
-      }
-    }
-    Element e = _portfolioNodeCache.get(uniqueId);
+    final Pair<UniqueId, VersionCorrection> key = Pair.of(uniqueId, versionCorrection);
+    final Element e = _portfolioNodeCache.get(key);
     if (e != null) {
       final PortfolioNode node = (PortfolioNode) e.getObjectValue();
-      f = _frontCache.putIfAbsent(uniqueId, versionCorrection, node);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, node);
       if (f instanceof PortfolioNode) {
         return (PortfolioNode) f;
       } else {
-        return (PortfolioNode) e.getObjectValue();
+        return node;
       }
     } else {
-      PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
-      f = _frontCache.putIfAbsent(uniqueId, versionCorrection, node);
+      final PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, node);
       if (f instanceof PortfolioNode) {
         return (PortfolioNode) f;
       } else {
-        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
+        _portfolioNodeCache.put(new Element(key, node));
         return node;
       }
     }
   }
 
   @Override
-  public Position getPosition(UniqueId uniqueId) {
-    Object f = _frontCache.get(uniqueId, VersionCorrection.LATEST);
+  public Position getPosition(final UniqueId uniqueId) {
+    Object f = _frontCacheByUID.get(uniqueId, VersionCorrection.LATEST);
     if (f instanceof Position) {
       return (Position) f;
     }
-    if (uniqueId.isLatest()) {
-      return getUnderlying().getPosition(uniqueId);
-    }
-    Element e = _positionCache.get(uniqueId);
+    final Element e = _positionCache.get(uniqueId);
     if (e != null) {
       final Position position = (Position) e.getObjectValue();
-      f = _frontCache.putIfAbsent(uniqueId, VersionCorrection.LATEST, position);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, VersionCorrection.LATEST, position);
       if (f instanceof Position) {
         return (Position) f;
       } else {
@@ -253,11 +247,11 @@ public class EHCachingPositionSource implements PositionSource {
       }
     } else {
       final Position position = getUnderlying().getPosition(uniqueId);
-      f = _frontCache.putIfAbsent(uniqueId, VersionCorrection.LATEST, position);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, VersionCorrection.LATEST, position);
       if (f instanceof Position) {
         return (Position) f;
       } else {
-        _positionCache.put(new Element(position.getUniqueId(), position));
+        _positionCache.put(new Element(uniqueId, position));
         return position;
       }
     }
@@ -265,29 +259,42 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public Position getPosition(final ObjectId positionId, final VersionCorrection versionCorrection) {
-    Position position = getUnderlying().getPosition(positionId, versionCorrection);
-    Object f = _frontCache.putIfAbsent(position.getUniqueId(), VersionCorrection.LATEST, position);
+    Object f = _frontCacheByOID.get(positionId, versionCorrection);
     if (f instanceof Position) {
       return (Position) f;
+    }
+    final Pair<ObjectId, VersionCorrection> key = Pair.of(positionId, versionCorrection);
+    final Element e = _positionCache.get(key);
+    if (e != null) {
+      final Position position = (Position) e.getObjectValue();
+      f = _frontCacheByOID.putIfAbsent(positionId, versionCorrection, position);
+      if (f instanceof Position) {
+        return (Position) f;
+      } else {
+        return position;
+      }
     } else {
-      _positionCache.put(new Element(position.getUniqueId(), position));
-      return position;
+      final Position position = getUnderlying().getPosition(positionId, versionCorrection);
+      f = _frontCacheByOID.putIfAbsent(positionId, versionCorrection, position);
+      if (f instanceof Position) {
+        return (Position) f;
+      } else {
+        _positionCache.put(new Element(key, position));
+        return position;
+      }
     }
   }
 
   @Override
-  public Trade getTrade(UniqueId uniqueId) {
-    Object f = _frontCache.get(uniqueId, VersionCorrection.LATEST);
+  public Trade getTrade(final UniqueId uniqueId) {
+    Object f = _frontCacheByUID.get(uniqueId, VersionCorrection.LATEST);
     if (f instanceof Trade) {
       return (Trade) f;
     }
-    if (uniqueId.isLatest()) {
-      return getUnderlying().getTrade(uniqueId);
-    }
-    Element e = _tradeCache.get(uniqueId);
+    final Element e = _tradeCache.get(uniqueId);
     if (e != null) {
       final Trade trade = (Trade) e.getObjectValue();
-      f = _frontCache.putIfAbsent(uniqueId, VersionCorrection.LATEST, trade);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, VersionCorrection.LATEST, trade);
       if (f instanceof Trade) {
         return (Trade) f;
       } else {
@@ -295,17 +302,16 @@ public class EHCachingPositionSource implements PositionSource {
       }
     } else {
       final Trade trade = getUnderlying().getTrade(uniqueId);
-      f = _frontCache.putIfAbsent(uniqueId, VersionCorrection.LATEST, trade);
+      f = _frontCacheByUID.putIfAbsent(uniqueId, VersionCorrection.LATEST, trade);
       if (f instanceof Trade) {
         return (Trade) f;
       } else {
-        _tradeCache.put(new Element(trade.getUniqueId(), trade));
+        _tradeCache.put(new Element(uniqueId, trade));
         return trade;
       }
     }
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
@@ -320,6 +326,8 @@ public class EHCachingPositionSource implements PositionSource {
     _cacheManager.removeCache(PORTFOLIONODE_CACHE);
     _cacheManager.removeCache(POSITION_CACHE);
     _cacheManager.removeCache(TRADE_CACHE);
+    _frontCacheByUID.clear();
+    _frontCacheByOID.clear();
   }
 
   //-------------------------------------------------------------------------
@@ -328,14 +336,8 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolioCache.remove(latestId);
     _positionCache.remove(latestId);
     _tradeCache.remove(latestId);
-    // Note: this is very inefficient; can we get a better "remove all with key1" operation on Map2 ?
-    final Iterator<Pair<UniqueId, VersionCorrection>> itr = _frontCache.keySet().iterator();
-    while (itr.hasNext()) {
-      final Pair<UniqueId, VersionCorrection> element = itr.next();
-      if (latestId.equals(element.getFirst())) {
-        itr.remove();
-      }
-    }
+    _frontCacheByUID.removeAllKey1(latestId);
+    _frontCacheByOID.removeAllKey1(latestId.getObjectId());
   }
 
   //-------------------------------------------------------------------------

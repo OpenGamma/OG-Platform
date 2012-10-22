@@ -5,7 +5,8 @@
  */
 package com.opengamma.util.map;
 
-import com.google.common.collect.MapMaker;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 
 /**
  * Implementation of {@link Map2} that holds its values by weak reference. Keys are held by strong reference.
@@ -14,10 +15,34 @@ import com.google.common.collect.MapMaker;
  * @param <K2> key 2 type
  * @param <V> value type
  */
-public class WeakValueHashMap2<K1, K2, V> extends HashMap2<K1, K2, V> {
+public class WeakValueHashMap2<K1, K2, V> extends ReferenceHashMap2<K1, K2, V> {
 
-  protected MapMaker mapMaker() {
-    return super.mapMaker().weakValues();
+  private static final class Ref<K1, K2, V> extends WeakReference<V> {
+
+    private final ReferenceHashMap2<K1, K2, V>.ReferenceMap _map;
+    private final K2 _key;
+
+    private Ref(final V value, final ReferenceHashMap2<K1, K2, V>.ReferenceMap map, final K2 key) {
+      super(value);
+      _map = map;
+      _key = key;
+    }
+
+    private void housekeep() {
+      _map.housekeep(_key, this);
+    }
+
+  }
+
+  @Override
+  protected Reference<? extends V> createReference(final ReferenceHashMap2<K1, K2, V>.ReferenceMap map, K2 key, V value) {
+    return new Ref<K1, K2, V>(value, map, key);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void housekeep(final Reference<? extends V> ref) {
+    ((Ref<K1, K2, V>) ref).housekeep();
   }
 
 }

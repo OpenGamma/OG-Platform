@@ -14,17 +14,17 @@ import org.testng.annotations.Test;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Tests the {@link SoftValueHashMap2} implementation.
+ * Tests the {@link HashMap2} implementation.
  */
 @Test
-public class SoftValueHashMap2Test {
+public class HashMap2Test {
   
   public void testBasicOperations() {
-    final Map2<String, String, String> map = new SoftValueHashMap2<String, String, String> ();
+    final Map2<String, String, String> map = new HashMap2<String, String, String>();
     assertTrue(map.isEmpty());
     assertEquals(map.size(), 0);
-    assertEquals(map.put(Pair.of("A", "B"), "Foo".intern()), null);
-    assertEquals(map.put("B", "A", "Bar".intern()), null);
+    assertEquals(map.put(Pair.of("A", "B"), "Foo"), null);
+    assertEquals(map.put("B", "A", "Bar"), null);
     assertFalse(map.isEmpty());
     assertEquals(map.size(), 2);
     assertEquals(map.get(Pair.of("A", "B")), "Foo");
@@ -37,21 +37,15 @@ public class SoftValueHashMap2Test {
     assertTrue(map.containsKey("A", "B"));
     assertFalse(map.containsKey("X", "Y"));
     assertFalse(map.containsKey(Pair.of("X", "Y")));
-    assertTrue(map.containsValue("Bar".intern()));
-    assertTrue(map.containsValue("Foo".intern()));
-    assertFalse(map.containsValue(new String("Foo")));
-    assertFalse(map.containsValue("Cow".intern()));
     map.clear();
     assertTrue(map.isEmpty());
     assertEquals(map.size(), 0);
     assertFalse(map.containsKey(Pair.of("B", "A")));
     assertFalse(map.containsKey("A", "B"));
-    assertFalse(map.containsValue("Bar"));
-    assertFalse(map.containsValue("Foo"));
   }
   
   public void testRemove() {
-    final Map2<String, String, String> map = new SoftValueHashMap2<String, String, String>();
+    final Map2<String, String, String> map = new HashMap2<String, String, String>();
     map.put(Pair.of("A", "B"), "Foo");
     map.put("B", "A", "Bar");
     assertEquals(map.remove(Pair.of("B", "A")), "Bar");
@@ -64,20 +58,8 @@ public class SoftValueHashMap2Test {
     assertEquals(map.remove("A", "B"), null);
   }
   
-  public void testPutAll() {
-    final Map2<String, String, String> map1 = new SoftValueHashMap2<String, String, String>();
-    map1.put(Pair.of("A", "B"), "Foo");
-    map1.put("B", "A", "Bar");
-    final Map2<String, String, String> map2 = new SoftValueHashMap2<String, String, String>();
-    map2.put(Pair.of("X", "Y"), "Cow");
-    map2.put("Y", "X", "Dog");
-    map1.putAll(map2);
-    assertTrue(map1.containsKey("X", "Y"));
-    assertTrue(map1.containsKey(Pair.of("X", "Y")));
-  }
-
   public void testPutIfAbsent() {
-    final Map2<String, String, String> map = new SoftValueHashMap2<String, String, String>();
+    final Map2<String, String, String> map = new HashMap2<String, String, String>();
     assertEquals(map.put("A", "B", "Foo"), null);
     assertEquals(map.put(Pair.of("B", "A"), "Bar"), null);
     assertEquals(map.put(Pair.of("A", "B"), "Cow"), "Foo");
