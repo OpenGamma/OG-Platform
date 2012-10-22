@@ -168,10 +168,10 @@ public class DbMarketDataSnapshotMaster
    */
   @Override
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getObject();
+    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -246,7 +246,7 @@ public class DbMarketDataSnapshotMaster
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setObject(marketDataSnapshot);
+      doc.setSnapshot(marketDataSnapshot);
       _documents.add(doc);
     }
   }

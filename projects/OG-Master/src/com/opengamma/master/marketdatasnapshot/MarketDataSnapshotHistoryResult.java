@@ -58,7 +58,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
     List<ManageableMarketDataSnapshot> result = new ArrayList<ManageableMarketDataSnapshot>();
     if (getDocuments() != null) {
       for (MarketDataSnapshotDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getSnapshot());
       }
     }
     return result;
@@ -70,7 +70,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
    * @return the first snapshot, null if none
    */
   public ManageableMarketDataSnapshot getFirstSnapshot() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getSnapshot() : null;
   }
 
   /**
@@ -86,7 +86,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getSnapshot();
     }
   }
 

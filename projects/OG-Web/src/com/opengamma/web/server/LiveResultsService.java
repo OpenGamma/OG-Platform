@@ -333,7 +333,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
     Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
     for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(_snapshotMaster, snapshotSearchRequest)) {
-      ManageableMarketDataSnapshot snapshot = doc.getObject();
+      ManageableMarketDataSnapshot snapshot = doc.getSnapshot();
       if (snapshot.getUniqueId() == null) {
         s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
         continue;
