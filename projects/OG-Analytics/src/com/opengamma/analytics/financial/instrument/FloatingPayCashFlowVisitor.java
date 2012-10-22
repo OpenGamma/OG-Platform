@@ -37,7 +37,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
   }
 
   private FloatingPayCashFlowVisitor() {
-    super(Collections.<LocalDate, MultipleCurrencyAmount> emptyMap());
+    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
   }
 
   /**

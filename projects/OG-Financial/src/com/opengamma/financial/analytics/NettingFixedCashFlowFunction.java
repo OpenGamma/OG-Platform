@@ -14,7 +14,7 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.NettingFixedCashFlowVisitor;
+import com.opengamma.analytics.financial.instrument.NettedFixedCashFlowVisitor;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -51,7 +51,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  *
  */
 public class NettingFixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final NettingFixedCashFlowVisitor NETTING_CASH_FLOW_CALCULATOR = NettingFixedCashFlowVisitor.getInstance();
+  private static final NettedFixedCashFlowVisitor NETTING_CASH_FLOW_CALCULATOR = NettedFixedCashFlowVisitor.getInstance();
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
