@@ -11,7 +11,7 @@
     },
     "data" : [<#if searchResult??>
        <#list searchResult.documents as doc>
-           "${doc.uniqueId.objectId}|${doc.object.name}<#if type = ''>|${doc.object.value.class.simpleName}</#if>"<#if doc_has_next>,</#if>
+           "${doc.uniqueId.objectId}|${doc.config.name}<#if type = ''>|${doc.config.value.class.simpleName}</#if>"<#if doc_has_next>,</#if>
        </#list>
     </#if>]
 }

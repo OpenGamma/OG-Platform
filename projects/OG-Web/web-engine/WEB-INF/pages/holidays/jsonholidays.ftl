@@ -10,7 +10,7 @@
 	      "dataFields": ["id","name" <#if searchRequest.type = ''>, "type"</#if> ,"validFrom"]
     },
     "data" : [<#if searchResult??><#list searchResult.documents as doc>
-	    "${doc.uniqueId.objectId}|${doc.name}<#if searchRequest.type = ''>|${doc.object.type}</#if>|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
+	    "${doc.uniqueId.objectId}|${doc.name}<#if searchRequest.type = ''>|${doc.holiday.type}</#if>|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
 	</#list> </#if>]        
 }
 </#escape>
