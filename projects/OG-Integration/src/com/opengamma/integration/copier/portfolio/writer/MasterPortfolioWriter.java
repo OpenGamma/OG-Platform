@@ -264,7 +264,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   @Override
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 
-        _portfolioDocument.getObject().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
+        _portfolioDocument.getPortfolio().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
     String[] result = new String[stack.size()];
     int i = stack.size();
     while (!stack.isEmpty()) {
@@ -281,13 +281,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     if (!Arrays.equals(newPath, _currentPath)) {
 
       if (newPath.length == 0) {
-        _currentNode = _portfolioDocument.getObject().getRootNode();
+        _currentNode = _portfolioDocument.getPortfolio().getRootNode();
         _originalNode = _originalRoot;
       } else {
         if (_originalRoot != null) {
           _originalNode = findNode(newPath, _originalRoot);
         }
-        _currentNode = createNode(newPath, _portfolioDocument.getObject().getRootNode());
+        _currentNode = createNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
       }
 
       // Reset position map
@@ -368,7 +368,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
       _portfolioDocument = new PortfolioDocument();
-      _portfolioDocument.setObject(portfolio);
+      _portfolioDocument.setPortfolio(portfolio);
       _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
       _originalRoot = null;
       _originalNode = null;
@@ -383,14 +383,14 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
         ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
         _portfolioDocument = new PortfolioDocument();
-        _portfolioDocument.setObject(portfolio);
+        _portfolioDocument.setPortfolio(portfolio);
         _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
         _originalRoot = null;
         _originalNode = null;
         
       // If it does, create a new version of the existing portfolio (update)
       } else {
-        ManageablePortfolio portfolio = _portfolioDocument.getObject();
+        ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
         _originalRoot = portfolio.getRootNode();
         _originalNode = _originalRoot;
 
@@ -404,12 +404,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         }
 
         portfolio.setRootNode(rootNode);
-        _portfolioDocument.setObject(portfolio);
+        _portfolioDocument.setPortfolio(portfolio);
         _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
       }      
     }
     // Set current node to the root node
-    _currentNode = _portfolioDocument.getObject().getRootNode();
+    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
   }
 
   public PortfolioMaster getPortfolioMaster() {

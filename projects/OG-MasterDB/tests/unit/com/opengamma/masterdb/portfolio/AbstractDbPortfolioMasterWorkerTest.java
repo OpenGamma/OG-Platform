@@ -166,7 +166,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getObject();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio101", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
@@ -236,7 +236,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getObject();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio102", portfolio.getName());
     
@@ -254,7 +254,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getObject();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio201", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
@@ -286,7 +286,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getObject();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio202", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
@@ -318,7 +318,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePortfolio portfolio = test.getObject();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio301", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();

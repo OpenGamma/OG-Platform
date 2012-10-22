@@ -69,7 +69,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
     List<ManageablePortfolio> result = new ArrayList<ManageablePortfolio>();
     if (getDocuments() != null) {
       for (PortfolioDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getPortfolio());
       }
     }
     return result;
@@ -81,7 +81,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
    * @return the first portfolio, null if none
    */
   public ManageablePortfolio getFirstPortfolio() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getPortfolio() : null;
   }
 
   /**
@@ -97,7 +97,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getPortfolio();
     }
   }
 

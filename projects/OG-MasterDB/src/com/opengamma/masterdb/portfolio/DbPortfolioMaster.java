@@ -198,8 +198,8 @@ public class DbPortfolioMaster
    */
   @Override
   protected PortfolioDocument insert(final PortfolioDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
-    ArgumentChecker.notNull(document.getObject().getRootNode(), "document.portfolio.rootNode");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
     final Long portfolioId = nextId("prt_master_seq");
     final Long portfolioOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : portfolioId);
@@ -213,19 +213,19 @@ public class DbPortfolioMaster
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", StringUtils.defaultString(document.getObject().getName()))
+      .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()))
       .addValue("visibility", document.getVisibility().getVisibilityLevel());
     
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>(256);
     final List<DbMapSqlParameterSource> posList = new ArrayList<DbMapSqlParameterSource>(256);
-    insertBuildArgs(portfolioUid, null, document.getObject().getRootNode(), document.getUniqueId() != null,
+    insertBuildArgs(portfolioUid, null, document.getPortfolio().getRootNode(), document.getUniqueId() != null,
         portfolioId, portfolioOid, null, null,
         new AtomicInteger(1), 0, nodeList, posList);
     
     // the arguments for inserting into the portifolio_attribute table
     final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
-    for (Entry<String, String> entry : document.getObject().getAttributes().entrySet()) {
+    for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
       final long prtAttrId = nextId("prt_portfolio_attr_seq");
       final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
           .addValue("attr_id", prtAttrId)
@@ -247,7 +247,7 @@ public class DbPortfolioMaster
     getJdbcTemplate().batchUpdate(sqlAttributes, prtAttrList.toArray(new DbMapSqlParameterSource[prtAttrList.size()]));
     
     // set the uniqueId
-    document.getObject().setUniqueId(portfolioUid);
+    document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
     return document;
   }
@@ -346,7 +346,7 @@ public class DbPortfolioMaster
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
   }
 
   /**
@@ -366,7 +366,7 @@ public class DbPortfolioMaster
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
   }
 
   //-------------------------------------------------------------------------

@@ -91,7 +91,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   @Override
   protected void validateDocument(PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
   }
 
   //-------------------------------------------------------------------------
@@ -113,9 +113,9 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   
   private PortfolioDocument clonePortfolioDocument(PortfolioDocument document) {
     PortfolioDocument clone = JodaBeanUtils.clone(document);
-    ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getObject());
+    ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getPortfolio());
     portfolioClone.setRootNode(clonePortfolioNode(portfolioClone.getRootNode()));
-    clone.setObject(portfolioClone);
+    clone.setPortfolio(portfolioClone);
     return clone;
   }
   
@@ -132,7 +132,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   @Override
   public PortfolioDocument add(PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
@@ -142,14 +142,14 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     setDocumentId(document, clonedDoc, uniqueId);
     setVersionTimes(document, clonedDoc, now, null, now, null);
     _store.put(objectId, clonedDoc);
-    storeNodes(clonedDoc.getObject().getRootNode(), document.getObject().getRootNode(), uniqueId, null);
+    storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
     _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
   
   private void setDocumentId(final PortfolioDocument document, final PortfolioDocument clonedDoc, final UniqueId uniqueId) {
-    document.getObject().setUniqueId(uniqueId);
-    clonedDoc.getObject().setUniqueId(uniqueId);
+    document.getPortfolio().setUniqueId(uniqueId);
+    clonedDoc.getPortfolio().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     clonedDoc.setUniqueId(uniqueId);
   }
@@ -189,7 +189,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   public PortfolioDocument update(PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -199,14 +199,14 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     }
     
     final PortfolioDocument clonedDoc = clonePortfolioDocument(document);
-    removeNodes(storedDocument.getObject().getRootNode());
+    removeNodes(storedDocument.getPortfolio().getRootNode());
     
     setVersionTimes(document, clonedDoc, now, null, now, null);
     
     if (_store.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    storeNodes(clonedDoc.getObject().getRootNode(), document.getObject().getRootNode(), uniqueId, null);
+    storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
     _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
@@ -227,7 +227,7 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
     if (storedDocument == null) {
       throw new DataNotFoundException("Portfolio not found " + objectIdentifiable);
     }
-    removeNodes(storedDocument.getObject().getRootNode());
+    removeNodes(storedDocument.getPortfolio().getRootNode());
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 

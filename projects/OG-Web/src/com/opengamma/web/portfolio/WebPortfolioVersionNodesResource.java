@@ -36,7 +36,7 @@ public class WebPortfolioVersionNodesResource extends WebPortfolioNodesResource 
     data().setUriNodeId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     PortfolioDocument portfolioDoc = data().getVersioned();
-    Stack<ManageablePortfolioNode> nodes = portfolioDoc.getObject().getRootNode().findNodeStackByObjectId(oid);
+    Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectId(oid);
     if (nodes.isEmpty()) {
       throw new DataNotFoundException("PortfolioNode not found: " + idStr);
     }

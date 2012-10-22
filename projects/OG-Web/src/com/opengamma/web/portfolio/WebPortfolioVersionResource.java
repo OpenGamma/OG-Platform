@@ -52,7 +52,7 @@ public class WebPortfolioVersionResource extends WebPortfolioResource {
   private FlexiBean createPortfolioData() {
     PortfolioDocument doc = data().getVersioned();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
-    positionSearch.setPositionObjectIds(doc.getObject().getRootNode().getPositionIds());
+    positionSearch.setPositionObjectIds(doc.getPortfolio().getRootNode().getPositionIds());
     PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
     resolveSecurities(positionsResult.getPositions());
 
@@ -71,10 +71,10 @@ public class WebPortfolioVersionResource extends WebPortfolioResource {
     FlexiBean out = super.createRootData();
     PortfolioDocument doc = data().getVersioned();
     out.put("portfolioDoc", doc);
-    out.put("portfolio", doc.getObject());
-    out.put("childNodes", doc.getObject().getRootNode().getChildNodes());
+    out.put("portfolio", doc.getPortfolio());
+    out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
     out.put("deleted", !doc.isLatest());
-    out.put("rootNode", doc.getObject().getRootNode());
+    out.put("rootNode", doc.getPortfolio().getRootNode());
     return out;
   }
 

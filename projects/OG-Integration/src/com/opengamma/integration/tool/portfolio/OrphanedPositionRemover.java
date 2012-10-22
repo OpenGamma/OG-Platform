@@ -71,7 +71,7 @@ public class OrphanedPositionRemover {
     final Set<ObjectId> result = Sets.newHashSet();
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     for (PortfolioDocument portfolioDocument : PortfolioSearchIterator.iterable(_portfolioMaster, searchRequest)) {
-      accumulatePositionIdentifiers(portfolioDocument.getObject().getRootNode(), result);
+      accumulatePositionIdentifiers(portfolioDocument.getPortfolio().getRootNode(), result);
     }
     return result;
   }

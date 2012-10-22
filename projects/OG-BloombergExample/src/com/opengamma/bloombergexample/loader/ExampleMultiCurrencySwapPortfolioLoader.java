@@ -333,7 +333,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
     PortfolioDocument portfolioDoc = new PortfolioDocument();
-    portfolioDoc.setObject(portfolio);
+    portfolioDoc.setPortfolio(portfolio);
 
     for (SwapSecurity swap : swaps) {
       SecurityDocument swapToAddDoc = new SecurityDocument();

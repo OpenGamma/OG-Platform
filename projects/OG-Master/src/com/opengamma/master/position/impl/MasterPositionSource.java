@@ -137,9 +137,9 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolio manPrt;
     if (vc != null) {
-      manPrt = getPortfolioMaster().get(uniqueId, vc).getObject();
+      manPrt = getPortfolioMaster().get(uniqueId, vc).getPortfolio();
     } else {
-      manPrt = getPortfolioMaster().get(uniqueId).getObject();
+      manPrt = getPortfolioMaster().get(uniqueId).getPortfolio();
     }
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), vc);
@@ -161,7 +161,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getObject();
+    ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), versionCorrection);
     copyAttributes(manPrt, prt);
