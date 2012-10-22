@@ -31,6 +31,7 @@ import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromM
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveMarketDataFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveFromMarketQuotesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveMarketDataFunction;
@@ -79,10 +80,12 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     configs.add(new StaticFunctionConfiguration(MultiYieldCurveParRateMethodFunction.class.getName()));
     configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF", "CAD", "GBP", "AUD",
-        "EUR", "BRL", "HUF", "KRW", "MXN", "NZD", "JPY", "HKD", "CNY", "RUB"));
+        "EUR", "BRL", "HUF", "KRW", "MXN", "NZD", "JPY", "HKD", "CNY", "RUB", "ARS"));
     configs.add(functionConfiguration(FXImpliedYieldCurveFunction.class));
-    configs.add(functionConfiguration(FXImpliedYieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false",
-        "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "MYR"));
+    configs.add(functionConfiguration(FXImpliedYieldCurveDefaults.class, "0.0001", "0.0001", "1000",
+        DecompositionFactory.SV_COLT_NAME, "false", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "ARS", "AUD",
+        "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "EGP", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN",
+        "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "TRY", "TWD", "ZAR"));
 
 
     if (_configMaster != null) {
@@ -144,6 +147,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   }
 
   private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
+    configs.add(new StaticFunctionConfiguration(FXForwardCurveMarketDataFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromMarketQuotesFunction.class.getName()));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class.getName(),
         Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));

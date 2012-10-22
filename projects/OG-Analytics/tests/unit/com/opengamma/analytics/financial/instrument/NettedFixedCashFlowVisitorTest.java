@@ -40,8 +40,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class NettingFixedCashFlowVisitorTest {
-  private static final NettingFixedCashFlowVisitor VISITOR = NettingFixedCashFlowVisitor.getInstance();
+public class NettedFixedCashFlowVisitorTest {
+  private static final NettedFixedCashFlowVisitor VISITOR = NettedFixedCashFlowVisitor.getInstance();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_RECEIVE_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_MULTIPLE_CASHFLOWS = new HashSet<InstrumentDefinition<?>>();
