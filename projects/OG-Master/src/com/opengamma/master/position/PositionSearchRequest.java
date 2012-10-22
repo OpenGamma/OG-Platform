@@ -214,7 +214,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       return false;
     }
     final PositionDocument document = (PositionDocument) obj;
-    final ManageablePosition position = document.getObject();
+    final ManageablePosition position = document.getPosition();
     if (getPositionObjectIds() != null && getPositionObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }

@@ -59,7 +59,7 @@ public class OrphanedPositionRemover {
     final Set<UniqueId> result = Sets.newHashSet();
     PositionSearchRequest searchRequest = new PositionSearchRequest();
     for (PositionDocument positionDocument : PositionSearchIterator.iterable(_positionMaster, searchRequest)) {
-      UniqueId positionId = positionDocument.getObject().getUniqueId();
+      UniqueId positionId = positionDocument.getPosition().getUniqueId();
       if (!validPositions.contains(positionId.getObjectId())) {
         result.add(positionId);
       }

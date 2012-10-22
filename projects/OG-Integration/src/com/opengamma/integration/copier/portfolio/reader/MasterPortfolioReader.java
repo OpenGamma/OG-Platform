@@ -85,7 +85,7 @@ public class MasterPortfolioReader implements PortfolioReader {
     } else {
       ManageablePosition position;
       try {
-      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getObject();
+      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
       } catch (Throwable t) {
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
       }

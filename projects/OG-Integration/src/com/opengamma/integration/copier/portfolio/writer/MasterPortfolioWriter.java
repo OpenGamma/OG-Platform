@@ -133,10 +133,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
       // update position map (huh?)
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getObject());
+      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the updated position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getObject(),
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
           securities);
     }
 
@@ -149,10 +149,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _currentNode.addPosition(addedDoc.getUniqueId());
 
       // Update position map
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getObject());
+      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getObject(),
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
 
     } else {
@@ -178,7 +178,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
         PositionDocument firstDocument = searchResult.getFirstDocument();
         if (firstDocument != null) {
-          ManageablePosition existingPosition = firstDocument.getObject();
+          ManageablePosition existingPosition = firstDocument.getPosition();
           // Add the existing position to the portfolio
           _currentNode.addPosition(existingPosition.getUniqueId());
 
@@ -200,10 +200,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _currentNode.addPosition(addedDoc.getUniqueId());
 
       // Update position map
-      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getObject());
+      _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
       // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getObject(),
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(),
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
     }
   }

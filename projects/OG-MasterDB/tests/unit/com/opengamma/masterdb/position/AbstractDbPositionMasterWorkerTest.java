@@ -215,7 +215,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "100"), position.getProviderId());
@@ -238,7 +238,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "120"), position.getProviderId());
@@ -270,7 +270,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "121"), position.getProviderId());
@@ -302,7 +302,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "122"), position.getProviderId());
@@ -322,7 +322,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "123"), position.getProviderId());
@@ -363,7 +363,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "221"), position.getProviderId());
@@ -390,7 +390,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "222"), position.getProviderId());

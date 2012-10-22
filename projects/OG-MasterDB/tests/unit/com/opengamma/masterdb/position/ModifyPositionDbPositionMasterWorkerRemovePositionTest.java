@@ -59,7 +59,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageablePosition position = test.getObject();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());

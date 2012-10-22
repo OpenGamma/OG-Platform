@@ -209,9 +209,9 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePosition manPos;
     if (vc != null) {
-      manPos = getPositionMaster().get(posId, vc).getObject();
+      manPos = getPositionMaster().get(posId, vc).getPosition();
     } else {
-      manPos = getPositionMaster().get(posId).getObject();
+      manPos = getPositionMaster().get(posId).getPosition();
     }
     if (manPos == null) {
       throw new DataNotFoundException("Unable to find position: " + uniqueId);
@@ -281,7 +281,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       positionSearch.setVersionCorrection(versionCorrection);
       final PositionSearchResult positions = getPositionMaster().search(positionSearch);
       for (PositionDocument position : positions.getDocuments()) {
-        positionCache.put(position.getObjectId(), position.getObject());
+        positionCache.put(position.getObjectId(), position.getPosition());
       }
     } else {
       positionCache = null;

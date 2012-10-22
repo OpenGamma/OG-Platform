@@ -61,7 +61,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   public void test_update_noPositionId() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
-    doc.setObject(position);
+    doc.setPosition(position);
     _posMaster.update(doc);
   }
 
@@ -103,7 +103,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getPosition(), updated.getPosition());
     
     PositionDocument old = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -111,7 +111,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getObject(), old.getObject());
+    assertEquals(base.getPosition(), old.getPosition());
     
     PositionDocument old2 = _posMaster.get(ObjectId.of("DbPos", "121"), VersionCorrection.of(_version2Instant, _version2Instant));
     assertEquals(base.getUniqueId(), old2.getUniqueId());
@@ -143,7 +143,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getPosition(), updated.getPosition());
     
     PositionDocument old = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -151,11 +151,11 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getObject(), old.getObject());
+    assertEquals(base.getPosition(), old.getPosition());
     
     PositionDocument latestDoc = _posMaster.get(updated.getUniqueId());
     assertNotNull(latestDoc);
-    assertEquals(updated.getObject(), latestDoc.getObject());
+    assertEquals(updated.getPosition(), latestDoc.getPosition());
     
     PositionHistoryRequest search = new PositionHistoryRequest(base.getUniqueId(), null, now);
     PositionHistoryResult searchResult = _posMaster.history(search);
@@ -184,7 +184,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(version1.getUniqueId());
     assertNotNull(tradeA.getUniqueId());
     assertNotNull(tradeB.getUniqueId());
-    assertEquals(version1.getObject(), _posMaster.get(pos1.getUniqueId()).getObject());
+    assertEquals(version1.getPosition(), _posMaster.get(pos1.getUniqueId()).getPosition());
     
     ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos2.setUniqueId(version1.getUniqueId());
@@ -198,7 +198,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(version2);
     assertFalse(version1.getUniqueId().equals(version2.getUniqueId()));
     assertNotNull(tradeC.getUniqueId());
-    assertEquals(version2.getObject(), _posMaster.get(version2.getUniqueId()).getObject());
+    assertEquals(version2.getPosition(), _posMaster.get(version2.getUniqueId()).getPosition());
     
     //reload version1
     version1 = _posMaster.get(version1.getUniqueId());
@@ -234,7 +234,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(version1.getUniqueId());
     assertNotNull(tradeA.getUniqueId());
     assertNotNull(tradeB.getUniqueId());
-    assertEquals(version1.getObject(), _posMaster.get(pos1.getUniqueId()).getObject());
+    assertEquals(version1.getPosition(), _posMaster.get(pos1.getUniqueId()).getPosition());
 
     ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos2.setUniqueId(version1.getUniqueId());
@@ -250,7 +250,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(version2);
     assertFalse(version1.getUniqueId().equals(version2.getUniqueId()));
     assertNotNull(tradeC.getUniqueId());
-    assertEquals(version2.getObject(), _posMaster.get(version2.getUniqueId()).getObject());
+    assertEquals(version2.getPosition(), _posMaster.get(version2.getUniqueId()).getPosition());
 
     //reload version1
     version1 = _posMaster.get(version1.getUniqueId());

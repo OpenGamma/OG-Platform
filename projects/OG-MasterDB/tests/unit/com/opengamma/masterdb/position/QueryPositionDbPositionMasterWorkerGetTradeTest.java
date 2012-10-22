@@ -149,7 +149,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     position.getTrades().add(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setObject(position);
+    doc.setPosition(position);
     _posMaster.add(doc);
     assertNotNull(trade1.getUniqueId());
     assertNotNull(trade2.getUniqueId());
@@ -159,11 +159,11 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     PositionDocument storedDoc = _posMaster.get(position.getUniqueId());
     assertNotNull(storedDoc);
-    assertNotNull(storedDoc.getObject());
-    assertNotNull(storedDoc.getObject().getTrades());
-    assertEquals(2, storedDoc.getObject().getTrades().size());
-    assertTrue(storedDoc.getObject().getTrades().contains(trade1));
-    assertTrue(storedDoc.getObject().getTrades().contains(trade2));
+    assertNotNull(storedDoc.getPosition());
+    assertNotNull(storedDoc.getPosition().getTrades());
+    assertEquals(2, storedDoc.getPosition().getTrades().size());
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade1));
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade2));
   }
 
   @Test
@@ -184,7 +184,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     position.getTrades().add(trade2);
     
     PositionDocument doc = new PositionDocument();
-    doc.setObject(position);
+    doc.setPosition(position);
     _posMaster.add(doc);
     assertNotNull(trade1.getUniqueId());
     assertNotNull(trade2.getUniqueId());
@@ -194,11 +194,11 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     PositionDocument storedDoc = _posMaster.get(position.getUniqueId());
     assertNotNull(storedDoc);
-    assertNotNull(storedDoc.getObject());
-    assertNotNull(storedDoc.getObject().getTrades());
-    assertEquals(2, storedDoc.getObject().getTrades().size());
-    assertTrue(storedDoc.getObject().getTrades().contains(trade1));
-    assertTrue(storedDoc.getObject().getTrades().contains(trade2));
+    assertNotNull(storedDoc.getPosition());
+    assertNotNull(storedDoc.getPosition().getTrades());
+    assertEquals(2, storedDoc.getPosition().getTrades().size());
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade1));
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade2));
   }
 
 }
