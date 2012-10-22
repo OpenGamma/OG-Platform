@@ -84,7 +84,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
     final Element element = _configCache.get(uniqueId);
     if (element != null) {
-      return (R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue();
+      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue();
     }
     try {
       ConfigDocument doc = getMaster().get(uniqueId);
@@ -105,7 +105,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return ((R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue());
+      return ((R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue());
     }
     try {
       ConfigDocument doc = getMaster().get(objectId, versionCorrection);
@@ -128,7 +128,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, configName, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return (R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue();
+      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getConfig().getValue();
     }
     try {
 
@@ -155,7 +155,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, name, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return (ConfigItem<R>) (EHCacheUtils.<ConfigDocument>get(element)).getConfig();
+      return (ConfigItem<R>) ((ConfigDocument) EHCacheUtils.get(element)).getConfig();
     }
     try {
       
