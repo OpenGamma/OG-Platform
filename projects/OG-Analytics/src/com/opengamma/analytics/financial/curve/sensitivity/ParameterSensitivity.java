@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -119,6 +120,20 @@ public class ParameterSensitivity {
       result = result.plus(nameCcyNew, sensiNew);
     }
     return result;
+  }
+
+  /**
+   * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). 
+   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. The order is the one
+   * given by the keySet associated to the map.
+   * @return The sensitivity matrix.
+   */
+  public DoubleMatrix1D toMatrix() {
+    double[] psArray = new double[0];
+    for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
+      psArray = ArrayUtils.addAll(psArray, _sensitivity.get(nameCcy).getData());
+    }
+    return new DoubleMatrix1D(psArray);
   }
 
   /**

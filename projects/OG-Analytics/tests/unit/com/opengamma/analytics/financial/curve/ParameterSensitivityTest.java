@@ -38,7 +38,7 @@ public class ParameterSensitivityTest {
   private static final Pair<String, Currency> NAME_2_USD = new ObjectsPair<String, Currency>(NAME_2, USD);
   private static final Pair<String, Currency> NAME_2_EUR = new ObjectsPair<String, Currency>(NAME_2, EUR);
 
-  private static final double TOLERANCE = 1.0E-2;
+  private static final double TOLERANCE = 1.0E-5;
 
   @Test
   public void add() {
