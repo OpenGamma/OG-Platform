@@ -513,7 +513,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   }
 
   private HistoricalTimeSeriesInfoDocument loadTimeSeries(HistoricalTimeSeriesInfoDocument timeSeriesInfo) {
-    ExternalIdBundle idBundle = timeSeriesInfo.getObject().getExternalIdBundle().toBundle(LocalDate.now());
+    ExternalIdBundle idBundle = timeSeriesInfo.getInfo().getExternalIdBundle().toBundle(LocalDate.now());
     return loadTimeSeries(idBundle);
   }
 

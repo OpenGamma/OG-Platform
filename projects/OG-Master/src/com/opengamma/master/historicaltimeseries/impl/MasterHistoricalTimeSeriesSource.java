@@ -481,8 +481,8 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
     HistoricalTimeSeriesInfoDocument historicalTimeSeriesInfoDocument = getMaster().get(uniqueId);
-    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getObject() != null && historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle() != null) {
-      return historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle().toBundle();  
+    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getInfo() != null && historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle() != null) {
+      return historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle().toBundle();  
     } else {
       s_logger.warn("Cannot find time series info document, or info field is null, or id bundle is null, returning null");
       return null;

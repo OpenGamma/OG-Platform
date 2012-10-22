@@ -67,7 +67,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     info1.setObservationTime("OT1");
     info1.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE1));
     doc1 = new HistoricalTimeSeriesInfoDocument();
-    doc1.setObject(info1);
+    doc1.setInfo(info1);
     doc1 = testPopulated.add(doc1);
     info2 = new ManageableHistoricalTimeSeriesInfo();
     info2.setName("Name2");
@@ -77,7 +77,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     info2.setObservationTime("OT2");
     info2.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE2));
     doc2 = new HistoricalTimeSeriesInfoDocument();
-    doc2.setObject(info2);
+    doc2.setInfo(info2);
     doc2 = testPopulated.add(doc2);
   }
 
@@ -90,7 +90,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_defaultSupplier() {
     InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setObject(info1);
+    doc.setInfo(info1);
     HistoricalTimeSeriesInfoDocument added = master.add(doc);
     assertEquals("MemHts", added.getUniqueId().getScheme());
   }
@@ -98,7 +98,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_alternateSupplier() {
     InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdSupplier("Hello"));
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setObject(info1);
+    doc.setInfo(info1);
     HistoricalTimeSeriesInfoDocument added = master.add(doc);
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
@@ -225,29 +225,29 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setObject(info1);
+    doc.setInfo(info1);
     HistoricalTimeSeriesInfoDocument added = testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
     assertNotNull(added.getCorrectionFromInstant());
     assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
     assertEquals("Test", added.getUniqueId().getScheme());
     added.setUniqueId(null);
-    added.getObject().setTimeSeriesObjectId(null);
-    assertEquals(info1, added.getObject());
+    added.getInfo().setTimeSeriesObjectId(null);
+    assertEquals(info1, added.getInfo());
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setObject(info1);
+    doc.setInfo(info1);
     doc.setUniqueId(OTHER_UID);
     testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setObject(info1);
+    doc.setInfo(info1);
     doc.setUniqueId(doc1.getUniqueId());
     HistoricalTimeSeriesInfoDocument updated = testPopulated.update(doc);
     assertEquals(doc1.getUniqueId(), updated.getUniqueId());

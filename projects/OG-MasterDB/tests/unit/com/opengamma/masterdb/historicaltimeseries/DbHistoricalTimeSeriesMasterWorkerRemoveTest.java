@@ -60,7 +60,7 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTest extends AbstractDbHist
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(uniqueId, test.getObject().getUniqueId());
+    assertEquals(uniqueId, test.getInfo().getUniqueId());
   }
 
   //-------------------------------------------------------------------------

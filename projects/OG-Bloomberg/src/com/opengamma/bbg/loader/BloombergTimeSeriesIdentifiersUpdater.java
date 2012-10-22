@@ -111,7 +111,7 @@ public class BloombergTimeSeriesIdentifiersUpdater {
   private Map<ExternalId, HistoricalTimeSeriesInfoDocument> extractBuids(Iterable<HistoricalTimeSeriesInfoDocument> documents) {
     Map<ExternalId, HistoricalTimeSeriesInfoDocument> buids = Maps.newHashMap();
     for (HistoricalTimeSeriesInfoDocument doc : documents) {
-      ExternalIdBundleWithDates identifierBundleWithDates = doc.getObject().getExternalIdBundle();
+      ExternalIdBundleWithDates identifierBundleWithDates = doc.getInfo().getExternalIdBundle();
       ExternalIdBundle bundle = identifierBundleWithDates.toBundle();
       ExternalId buid = bundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID);
       if (buid == null) {
@@ -135,8 +135,8 @@ public class BloombergTimeSeriesIdentifiersUpdater {
     for (Entry<ExternalId, ExternalIdBundleWithDates> entry : buidToUpdated.entrySet()) {
       HistoricalTimeSeriesInfoDocument doc = buidDocMap.get(entry.getKey());
       ExternalIdBundleWithDates updatedId = entry.getValue();
-      if (doc != null && doc.getObject().getExternalIdBundle().equals(updatedId) == false) {
-        doc.getObject().setExternalIdBundle(updatedId);
+      if (doc != null && doc.getInfo().getExternalIdBundle().equals(updatedId) == false) {
+        doc.getInfo().setExternalIdBundle(updatedId);
         s_logger.debug("Updated {} with {}", doc.getUniqueId(), updatedId);
         _htsMaster.update(doc);
       }

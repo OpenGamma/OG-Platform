@@ -99,7 +99,7 @@ public class RemoteHistoricalTimeSeriesMaster
   @Override
   public HistoricalTimeSeriesInfoDocument add(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
 
     URI uri = DataHistoricalTimeSeriesMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
@@ -109,7 +109,7 @@ public class RemoteHistoricalTimeSeriesMaster
   @Override
   public HistoricalTimeSeriesInfoDocument update(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHistoricalTimeSeriesResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -139,7 +139,7 @@ public class RemoteHistoricalTimeSeriesMaster
   @Override
   public HistoricalTimeSeriesInfoDocument correct(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHistoricalTimeSeriesResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -219,7 +219,7 @@ public class RemoteHistoricalTimeSeriesMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -232,7 +232,7 @@ public class RemoteHistoricalTimeSeriesMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -245,7 +245,7 @@ public class RemoteHistoricalTimeSeriesMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

@@ -206,7 +206,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
       return false;
     }
     final HistoricalTimeSeriesInfoDocument document = (HistoricalTimeSeriesInfoDocument) obj;
-    ManageableHistoricalTimeSeriesInfo info = document.getObject();
+    ManageableHistoricalTimeSeriesInfo info = document.getInfo();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
