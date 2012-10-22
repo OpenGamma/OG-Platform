@@ -53,7 +53,7 @@ import com.opengamma.financial.analytics.FixedReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.FloatingResetsFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
-import com.opengamma.financial.analytics.NettingFixedCashFlowFunction;
+import com.opengamma.financial.analytics.NettedFixedCashFlowFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -1709,7 +1709,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
     functionConfigs.add(functionConfiguration(FixedPayCashFlowFunction.class));
     functionConfigs.add(functionConfiguration(FixedReceiveCashFlowFunction.class));
-    functionConfigs.add(functionConfiguration(NettingFixedCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(NettedFixedCashFlowFunction.class));
     functionConfigs.add(functionConfiguration(FloatingResetsFunction.class));
   }
 

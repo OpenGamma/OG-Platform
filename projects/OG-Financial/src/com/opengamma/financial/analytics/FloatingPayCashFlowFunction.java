@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics;
 
+import com.opengamma.analytics.financial.instrument.FloatingPayCashFlowVisitor;
+
 /**
  * 
  */
 public class FloatingPayCashFlowFunction {
-
+  private static final FloatingPayCashFlowVisitor FLOATING_CASH_FLOW_VISITOR = FloatingPayCashFlowVisitor.getInstance();
 }
