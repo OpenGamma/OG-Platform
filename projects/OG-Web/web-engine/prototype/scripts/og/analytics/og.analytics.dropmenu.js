@@ -19,9 +19,11 @@ $.register_module({
                 menu.state = 'closed';
                 menu.opened = false;
                 menu.data = data;
+                menu.events = events;
                 menu.$dom = {};
                 menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
                 menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                // Start Move to menu class
                 menu.$dom.toggle_prefix = $(dummy_s);
                 menu.$dom.toggle_infix = $(dummy_s);
                 menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
@@ -30,6 +32,7 @@ $.register_module({
                 menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
                 menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                 menu.$dom.opt_cp = menu.$dom.opt.clone(true);
+                // End Move to menu class
                 menu.addListener(events.open, menu.open.bind(menu))
                     .addListener(events.close, menu.close.bind(menu))
                     .addListener(events.focus, menu.focus.bind(menu));
@@ -52,7 +55,9 @@ $.register_module({
                     this.$dom.toggle.removeClass('og-active'), this.emitEvent(events.closed, [this]), this;
             }
         };
-        DropMenu.prototype.menu_handler = function () {}; // extend this method
+        DropMenu.prototype.menu_handler = function () {
+            throw new Error ('Inheriting class needs to extend this method');
+        };
         DropMenu.prototype.toggle_handler = function () {
             return this.opened ? this.close() : (this.open(), this.focus());
         };

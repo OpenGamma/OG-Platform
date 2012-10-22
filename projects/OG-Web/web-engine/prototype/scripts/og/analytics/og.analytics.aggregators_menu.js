@@ -8,7 +8,11 @@ $.register_module({
                 ag_opts = [], $query = $('.aggregation-selection', $dom.toggle), sel_val, sel_pos, $sel_parent,
                 $sel_select, $sel_checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
-                menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', menu_change_s = select_s,
+                menu_click_s = 'input, button, div.og-icon-delete, a.OG-link-add', menu_change_s = select_s,
+                events = { // Move to menu class
+                    queryselected: 'dropmenu:queryselected',
+                    querycancelled: 'dropmenu:querycancelled'
+                },
                 process_ag_opts = function () {
                     if(ag_opts.length) {
                         var i = 0, arr = [], query;
@@ -62,24 +66,33 @@ $.register_module({
                     else if (!$sel_checkbox[0].checked && ~entry) ag_opts[entry].required_field = false;
                     $sel_checkbox.focus();
                 },
+                button_handler = function (val) { // Move to menu class
+                    if (val === 'OK') 
+                        menu.emitEvent(menu.events.close).emitEvent(events.queryselected, [menu]);
+                    else if (val === 'Cancel') 
+                        menu.emitEvent(menu.events.close).emitEvent(events.querycancelled, [menu]);
+                },
                 toggle_handler = function (event){ // Move to menu class
                     menu.toggle_handler();
                     menu.opts[menu.opts.length-1].find('select').first().focus();
                 },
                 menu_handler = function (event) {
-                    var target = event.srcElement || event.target,
-                        elem = $(target), entry;
-                        $sel_parent = elem.parents(options_s);
+                    var $elem = $(event.srcElement || event.target), entry;
+                        $sel_parent = $elem.parents(options_s);
                         $sel_select = $sel_parent.find(select_s);
                         $sel_checkbox = $sel_parent.find(checkbox_s);
                         sel_val = $sel_select.val();
                         sel_pos = $sel_parent.data('pos');
                         entry = ag_opts.pluck('pos').indexOf(sel_pos);
-                    if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
-                    if (elem.is(del_s)) return menu.stop(event), del_handler(entry);
-                    if (elem.is($sel_checkbox)) return checkbox_handler(entry); 
-                    if (elem.is($sel_select)) return select_handler(entry);
+                    if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
+                    if ($elem.is(del_s)) return menu.stop(event), del_handler(entry);
+                    if ($elem.is($sel_checkbox)) return checkbox_handler(entry); 
+                    if ($elem.is($sel_select)) return select_handler(entry);
+                    if ($elem.is('button')) return button_handler($elem.text());
                 };
+            menu.get_query = function () {
+                return ag_opts.pluck('val');
+            };
             $dom.toggle_prefix.append('<span>Aggregated by</span>');
             $dom.toggle_infix.append('<span>then</span>');
             if ($dom) {
@@ -88,9 +101,6 @@ $.register_module({
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', menu_change_s, menu_handler);
                 }
             }
-            menu.get_query = function () {
-                return ag_opts.pluck('val');
-            };
             return menu;
         };
     }

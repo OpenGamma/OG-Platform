@@ -4,19 +4,21 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
         return function (config) {
-            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, query = [], ds_val, 
+            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, query = [], ds_val,
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
-                del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type', 
+                del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type',
                 source_s = '.source', menu_click_s = 'input, button, div.og-icon-delete, a.OG-link-add',
                 extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
                 date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',  resolver_keys = [],
                 corrections_s = '.corrections', $dom = menu.$dom,  $type_select, $source_select, $parent, $query,
                 $option, $extra_opts, $snapshot_opts, $historical_opts, $latest, $custom, $datepicker, snapshots = {},
-                events = {
-                    type_reset: 'dropmenu:ds:typereset',
-                    type_selected:'dropmenu:ds:typesselected',
-                    data_selected: 'dropmenu:ds:dataselected',
-                    opts_repositioned: 'dropmenu:ds:optsrespositioned'
+                events = { // Move to menu class
+                    typereset: 'dropmenu:ds:typereset',
+                    typeselected:'dropmenu:ds:typesselected',
+                    dataselected: 'dropmenu:ds:dataselected',
+                    optsrepositioned: 'dropmenu:ds:optsrespositioned',
+                    queryselected: 'dropmenu:queryselected',
+                    querycancelled: 'dropmenu:querycancelled'
                 },
                 populate_src_options = function (data) {
                     $parent.data('type', type_val).addClass(type_val);
@@ -37,7 +39,7 @@ $.register_module({
                         populate_src_options(resp.data[0].snapshots);
                     });
                     /*.pipe(function () { 
-                        $source_select.after($snapshot_opts.html()); 
+                        $source_select.after($snapshot_opts.html());
                     });*/
                 },
                 populate_historical = function () {
@@ -62,11 +64,12 @@ $.register_module({
                     return 0;
                 },
                 remove_entry = function (entry) {
-                    if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; reset_query
+                    if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; resetquery
                     if (~entry) query.splice(entry, 1);
                 },  
                 remove_orphans = function () {
-                    return reset_source_select(), $parent.removeClass($parent.data('type')).find('.extra-opts').remove();
+                    return reset_source_select(), $parent.removeClass($parent.data('type'))
+                        .find('.extra-opts').remove();
                 },
                 reset_query = function () {
                     return $query.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), remove_entry();
@@ -82,13 +85,14 @@ $.register_module({
                     if (type_val === default_type_txt){
                         if (menu.opts.length === 1 && query.length === 1) return remove_orphans(), reset_query();
                         return remove_entry(entry), remove_orphans(), display_query(), enable_extra_options(false);
-                        // emitEvent; type_selected
+                        // emitEvent; typeselected
                     }
                     if ($parent.hasClass($parent.data('type'))) remove_entry(entry), remove_orphans(), display_query();
                     switch (type_val) {
                         case 'live': populate_livedatasources(); break;
                         case 'snapshot': populate_marketdatasnapshots(); break;
                         case 'historical': populate_historical(); break;
+                        //no default
                     }
                 },
                 source_handler = function (entry) {
@@ -100,14 +104,14 @@ $.register_module({
                         query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:ds_val});
                     }
                     enable_extra_options(true);
-                    display_query(); // emitEvent; data_selected 
+                    display_query(); // emitEvent; dataselected 
                 },
                 delete_handler = function (entry) {
                     if (menu.opts.length === 1) return remove_orphans(), reset_query();
                     if ($type_select !== undefined) menu.del_handler($parent);
                     if (menu.opts.length) {
                         for (var i = ~entry ? entry : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
-                        if (~entry) return remove_entry(entry), display_query(); // emitEvent; opts_repositioned 
+                        if (~entry) return remove_entry(entry), display_query(); // emitEvent; optsrepositioned
                     }
                 },
                 enable_extra_options = function (val) {
@@ -117,8 +121,7 @@ $.register_module({
                     else $inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
                     $inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
                 },
-                date_handler = function () {
-                    // TODO AG: refocus custom but hide datepicker, remove duplication of entry retrieval
+                date_handler = function () { // TODO AG: refocus custom, hide datepicker, rm duplication entry retrieval
                     var entry = query.pluck('pos').indexOf(sel_pos);
                     $custom.addClass(active_s+ ' ' +date_selected_s); 
                     $latest.removeClass(active_s);
@@ -138,8 +141,13 @@ $.register_module({
                     menu.toggle_handler();
                     menu.opts[menu.opts.length-1].find('select').first().focus();
                 },
-                menu_handler = function (event) {
-                    // TODO AG: Refactor
+                button_handler = function (val) { // Move to menu class
+                    if (val === 'OK') 
+                        menu.emitEvent(menu.events.close).emitEvent(events.queryselected, [menu]);
+                    else if (val === 'Cancel') 
+                        menu.emitEvent(menu.events.close).emitEvent(events.querycancelled, [menu]);
+                },
+                menu_handler = function (event) { // TODO AG: Refactor
                     var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(parent_s);
                     $type_select = $parent.find(type_s);
@@ -156,9 +164,38 @@ $.register_module({
                     if ($elem.is(custom_s))
                         return $custom = $elem, $latest = $elem.siblings().filter(latest_s),
                             $custom.datepicker({onSelect: date_handler, dateFormat:'yy-mm-dd'}).datepicker('show');
-                    if ($elem.is(latest_s)) 
+                    if ($elem.is(latest_s))
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
+                    if ($elem.is('button')) return button_handler($elem.text());
                 };
+            menu.get_query = function () {
+                if (!query.length) return;
+                var arr = [];
+                query.forEach(function (entry) {
+                    var obj = {};
+                    switch (entry.type.toLowerCase()) {
+                        case 'historical':
+                            if (entry.date) {
+                                obj['marketDataType'] = 'fixedHistorical';
+                                obj['date'] = entry.date;
+                            } else obj.marketDataType = 'latestHistorical';
+                            obj['resolverKey'] = entry.src;
+                            break;
+                        case 'snapshot':
+                            obj['marketDataType'] = entry.type.toLowerCase();
+                            obj['snapshotId'] = snapshots[entry.src];
+                            break;
+                        case 'live':
+                            obj['marketDataType'] = entry.type.toLowerCase();
+                            obj['source'] = entry.src;
+                            break;
+
+                        //no default
+                    }
+                    arr.push(obj);
+                });
+                return arr;
+            };
             if ($dom) {
                 $dom.toggle_infix.append('<span>then</span>');
                 $query = $('.datasources-query', $dom.toggle);
@@ -171,7 +208,7 @@ $.register_module({
                     $snapshot_opts = $(wrapper).append(snapshot);
                     $historical_opts = $(wrapper).append(historical);
                     res_keys.data.data.forEach(function (entry) {
-                        resolver_keys.push(entry.split('|')[1]);        
+                        resolver_keys.push(entry.split('|')[1]);
                     });
                 });
                 if ($dom.toggle) $dom.toggle.on('click', toggle_handler);
@@ -179,35 +216,6 @@ $.register_module({
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);
                 }
             }
-            menu.get_query = function () {
-                if (!query.length) return;
-                var arr = [];
-                query.forEach(function (entry) {
-                    var obj = {};
-                    switch (entry.type.toLowerCase()) {
-                        case 'historical': {
-                            if (entry.date) {
-                                obj['marketDataType'] = 'fixedHistorical';
-                                obj['date'] = entry.date;
-                            } else obj.marketDataType = 'latestHistorical';
-                            obj['resolverKey'] = entry.src;
-                            break;
-                        } 
-                        case 'snapshot': {
-                            obj['marketDataType'] = entry.type.toLowerCase();
-                            obj['snapshotId'] = snapshots[entry.src];
-                            break;
-                        } 
-                        case 'live': {
-                            obj['marketDataType'] = entry.type.toLowerCase();
-                            obj['source'] = entry.src;
-                            break;
-                        }
-                    }
-                    arr.push(obj);
-                });
-                return arr;
-            };
             return menu;
         };
     }

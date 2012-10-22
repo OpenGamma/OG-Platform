@@ -20,7 +20,9 @@ $.register_module({
                     opened: 'dropmenu:opened',
                     close: 'dropmenu:close',
                     closed: 'dropmenu:closed',
-                    closeall: 'dropmenu:closeall'
+                    closeall: 'dropmenu:closeall',
+                    queryselected: 'dropmenu:queryselected',
+                    querycancelled: 'dropmenu:querycancelled'
                 };
             Status = function (selector) {
                 var status = this, interval, init = false;
@@ -61,29 +63,18 @@ $.register_module({
                             active_pos = function (elms, pos) {
                                 return $elem.is(elms[pos]());
                             };
-                        if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
-                        if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
-                        if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
-                        if (shift_key && $elem.is($load_btn)) ds_menu.emitEvent(events.open);
-                        if (shift_key && active_pos($ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
-                        if (shift_key && active_pos($ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
-                    },
-                    button_handler = function (val) {
-                        if (val === 'OK') {
-                            if (ag_menu.is_opened()) {
-                                ds_menu.emitEvent(events.open).emitEvent(events.focus);
-                            } else if (ds_menu.is_opened()) {
-                                ds_menu.emitEvent(events.close);
-                                $load_btn.focus();
-                            }
-                        } else if (val === 'Cancel') {
-                            emitter.emitEvent(events.closeall);
-                            ac_menu.$input.select();
-                        }
-                    },
-                    click_handler = function (event) {
-                        var $elem = $(event.srcElement);
-                        if ($elem.is('button')) button_handler($elem.text());
+                        if (!shift_key && ac_menu.state === 'focused')
+                            ag_menu.emitEvent(events.open);
+                        if (!shift_key && active_pos($ag_fcntrls,'last'))
+                            ds_menu.emitEvent(events.open);
+                        if (!shift_key && active_pos($ds_fcntrls, 'last'))
+                            ds_menu.emitEvent(events.close);
+                        if (shift_key && $elem.is($load_btn)) 
+                            ds_menu.emitEvent(events.open);
+                        if (shift_key && active_pos($ds_fcntrls, 'first')) 
+                            ag_menu.emitEvent(events.open);
+                        if (shift_key && active_pos($ag_fcntrls, 'first'))
+                            ag_menu.emitEvent(events.close);
                     },
                     close_dropmenu = function (menu) {
                         if (menu === ds_menu) ag_menu.emitEvent(events.close);
@@ -93,6 +84,14 @@ $.register_module({
                         if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
                             $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
                         } else $load_btn.addClass('og-disabled').off('click');
+                    },
+                    query_selected = function (menu) {
+                        if (menu === ag_menu) ds_menu.emitEvent(events.open).emitEvent(events.focus);
+                        else if (menu === ds_menu) $load_btn.focus();
+                    },
+                    query_cancelled = function (menu) {
+                        emitter.emitEvent(events.closeall);
+                        ac_menu.$input.select();
                     },
                     get_query = function () {
                         if (!~ac_menu.$input.val().indexOf('Db')) return;
@@ -105,26 +104,29 @@ $.register_module({
                 search.data.sort((function(i){ // sort by name
                     return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
                 })('name'));
-                $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler);
+                $form.on('keydown', fcntrls_s, keydown_handler);
                 ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data);
                 ac_menu.$input.on(ac_s, auto_combo_handler).select();
                 $.when(
                     og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                     og.api.text({module: 'og.analytics.form_datasources_tash'})
                 ).then(function (aggregation_markup, datasources_markup) {
-                    ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
-                        .addListener(events.opened, close_dropmenu);
-                    ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
-                        .addListener(events.opened, close_dropmenu);
+                    ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data});
+                    ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data});
+                    [ag_menu, ds_menu].forEach(function (menu) { 
+                        menu.addListener(events.opened, close_dropmenu)
+                            .addListener(events.queryselected, query_selected)
+                            .addListener(events.querycancelled, query_cancelled);
+                    });
                     $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                     $load_btn.on('click', get_query);
+                    emitter.addListener(events.closeall, function () {
+                        close_dropmenu(ag_menu);
+                        close_dropmenu(ds_menu);
+                    });
+                    og.views.common.layout.main.allowOverflow('north');
+                    status = new Status(selector + ' .og-status');
                 });
-                emitter.addListener(events.closeall, function () {
-                    close_dropmenu(ag_menu);
-                    close_dropmenu(ds_menu);
-                });
-                og.views.common.layout.main.allowOverflow('north');
-                status = new Status(selector + ' .og-status');
                 return FormCombo;
             };
             $.when(
