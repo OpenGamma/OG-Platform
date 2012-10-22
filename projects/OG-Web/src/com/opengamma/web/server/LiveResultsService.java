@@ -88,7 +88,6 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
   private final ViewProcessor _viewProcessor;
   private final MarketDataSnapshotMaster _snapshotMaster;
-  private final ConfigSource _configSource;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
@@ -98,7 +97,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
       final PositionSource positionSource, final SecuritySource securitySource,
       final PortfolioMaster userPortfolioMaster, final PositionMaster userPositionMaster,
-      final ConfigMaster userConfigMaster,
+      final ConfigMaster userViewDefinitionRepository,
       final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService,
       final FudgeContext fudgeContext, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
       final PortfolioAggregationFunctions portfolioAggregators, final ComputationTargetResolver computationTargetResolver) {
@@ -109,15 +108,14 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(userPortfolioMaster, "userPortfolioMaster");
     ArgumentChecker.notNull(userPositionMaster, "userPositionMaster");
-    ArgumentChecker.notNull(userConfigMaster, "userConfigMaster");
+    ArgumentChecker.notNull(userViewDefinitionRepository, "userViewDefinitionRepository");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(namedMarketDataSpecificationRepository, "namedMarketDataSpecificationRepository");
     ArgumentChecker.notNull(portfolioAggregators, "portfolioAggregators");
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
-
-    _configSource = new MasterConfigSource(userConfigMaster);
+    
     _viewProcessor = viewProcessor;
     _snapshotMaster = snapshotMaster;
     _user = user;
@@ -125,7 +123,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
     _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource, securitySource,
-      userConfigMaster, userPortfolioMaster, userPositionMaster,
+      viewProcessor.getConfigSource(), userViewDefinitionRepository, userPortfolioMaster, userPositionMaster,
       portfolioAggregators.getMappedFunctions());
     _computationTargetResolver = computationTargetResolver;
     viewProcessor.getConfigSource().changeManager().addChangeListener(new ChangeListener() {
@@ -293,7 +291,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   private List<Map<String, String>> getViewDefinitions() {
     List<Map<String, String>> result = new ArrayList<Map<String, String>>();
-    Collection<ConfigItem<ViewDefinition>> views = _configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
+      Collection<ConfigItem<ViewDefinition>> views = _viewProcessor.getConfigSource().getAll(ViewDefinition.class, VersionCorrection.LATEST);
     s_logger.debug("Available view entries: " + views);
     for (ConfigItem<ViewDefinition> view : views) {
       if (s_guidPattern.matcher(view.getName()).find()) {
@@ -466,7 +464,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   
   private boolean validateViewDefinitionId(UniqueId viewDefinitionId) {
     try {
-      return _configSource.get(viewDefinitionId) != null;
+      return _viewProcessor.getConfigSource().get(viewDefinitionId) != null;
     } catch (Exception e) {
       s_logger.warn("Error validating view definition ID " + viewDefinitionId, e);
       return false;

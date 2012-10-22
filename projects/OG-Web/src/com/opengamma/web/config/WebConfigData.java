@@ -498,15 +498,13 @@ public class WebConfigData extends DirectBean {
     /**
      * The meta-property for the {@code config} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ConfigDocument> _config = DirectMetaProperty.ofReadWrite(
-        this, "config", WebConfigData.class, (Class) ConfigDocument.class);
+        this, "config", WebConfigData.class, ConfigDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ConfigDocument> _versioned = DirectMetaProperty.ofReadWrite(
-        this, "versioned", WebConfigData.class, (Class) ConfigDocument.class);
+        this, "versioned", WebConfigData.class, ConfigDocument.class);
     /**
      * The meta-property for the {@code typeMap} property.
      */
