@@ -98,7 +98,8 @@ $.register_module({
                         if (!~ac_menu.$input.val().indexOf('Db')) return;
                         og.analytics.url.main({
                             viewdefinition: ac_menu.$input.val(),
-                            providers: ds_menu.get_query()
+                            providers: ds_menu.get_query(),
+                            aggregators: ag_menu.get_query()
                         });
                     };
                 search.data.sort((function(i){ // sort by name

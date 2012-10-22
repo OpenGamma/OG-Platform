@@ -89,7 +89,7 @@ $.register_module({
                 }
             }
             menu.get_query = function () {
-                return query;
+                return ag_opts.pluck('val');
             };
             return menu;
         };
