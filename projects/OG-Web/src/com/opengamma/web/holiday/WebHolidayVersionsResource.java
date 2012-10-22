@@ -79,7 +79,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
     FlexiBean out = super.createRootData();
     HolidayDocument doc = data().getHoliday();
     out.put("holidayDoc", doc);
-    out.put("holiday", doc.getObject());
+    out.put("holiday", doc.getHoliday());
     out.put("deleted", !doc.isLatest());
     return out;
   }

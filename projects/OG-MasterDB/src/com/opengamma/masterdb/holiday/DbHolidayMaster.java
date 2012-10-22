@@ -223,13 +223,13 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    */
   @Override
   protected HolidayDocument insert(final HolidayDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
     final long docId = nextId("hol_holiday_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the holiday table
-    final ManageableHoliday holiday = document.getObject();
+    final ManageableHoliday holiday = document.getHoliday();
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
@@ -326,7 +326,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       if (providerScheme != null && providerValue != null) {
         doc.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
-      _holiday = doc.getObject();
+      _holiday = doc.getHoliday();
       _documents.add(doc);
     }
   }

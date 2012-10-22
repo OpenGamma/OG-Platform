@@ -109,7 +109,7 @@ public class MasterHolidaySource
     if (doc == null) {
       return false;
     }
-    return Collections.binarySearch(doc.getObject().getHolidayDates(), dateToCheck) >= 0;
+    return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
   }
 
   /**

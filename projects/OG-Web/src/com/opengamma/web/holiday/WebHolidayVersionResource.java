@@ -73,12 +73,12 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
     HolidayDocument latestDoc = data().getHoliday();
     HolidayDocument versionedHoliday = data().getVersioned();
     out.put("latestHolidayDoc", latestDoc);
-    out.put("latestHoliday", latestDoc.getObject());
+    out.put("latestHoliday", latestDoc.getHoliday());
     out.put("holidayDoc", versionedHoliday);
-    out.put("holiday", versionedHoliday.getObject());
+    out.put("holiday", versionedHoliday.getHoliday());
     out.put("deleted", !latestDoc.isLatest());
     List<Pair<Year, List<LocalDate>>> map = new ArrayList<Pair<Year, List<LocalDate>>>();
-    List<LocalDate> dates = versionedHoliday.getObject().getHolidayDates();
+    List<LocalDate> dates = versionedHoliday.getHoliday().getHolidayDates();
     if (dates.size() > 0) {
       int year = dates.get(0).getYear();
       int start = 0;

@@ -130,10 +130,10 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
     FlexiBean out = super.createRootData();
     HolidayDocument doc = data().getHoliday();
     out.put("holidayDoc", doc);
-    out.put("holiday", doc.getObject());
+    out.put("holiday", doc.getHoliday());
     out.put("deleted", !doc.isLatest());
     List<Pair<Year, List<LocalDate>>> map = new ArrayList<Pair<Year, List<LocalDate>>>();
-    List<LocalDate> dates = doc.getObject().getHolidayDates();
+    List<LocalDate> dates = doc.getHoliday().getHolidayDates();
     if (dates.size() > 0) {
       int year = dates.get(0).getYear();
       int start = 0;

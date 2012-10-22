@@ -94,7 +94,7 @@ public class RemoteHolidayMaster
   @Override
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
 
     URI uri = DataHolidayMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(HolidayDocument.class, document);
@@ -104,7 +104,7 @@ public class RemoteHolidayMaster
   @Override
   public HolidayDocument update(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHolidayResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -134,7 +134,7 @@ public class RemoteHolidayMaster
   @Override
   public HolidayDocument correct(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHolidayResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -148,7 +148,7 @@ public class RemoteHolidayMaster
     for (HolidayDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
       ArgumentChecker.notNull(replacementDocument.getName(), "document.name");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.holiday");
+      ArgumentChecker.notNull(replacementDocument.getHoliday(), "document.holiday");
     }
     URI uri = (new DataHolidayResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -162,7 +162,7 @@ public class RemoteHolidayMaster
     for (HolidayDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
       ArgumentChecker.notNull(replacementDocument.getName(), "document.name");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.holiday");
+      ArgumentChecker.notNull(replacementDocument.getHoliday(), "document.holiday");
     }
     URI uri = (new DataHolidayResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -176,7 +176,7 @@ public class RemoteHolidayMaster
     for (HolidayDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
       ArgumentChecker.notNull(replacementDocument.getName(), "document.name");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.holiday");
+      ArgumentChecker.notNull(replacementDocument.getHoliday(), "document.holiday");
     }
     URI uri = (new DataHolidayResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
