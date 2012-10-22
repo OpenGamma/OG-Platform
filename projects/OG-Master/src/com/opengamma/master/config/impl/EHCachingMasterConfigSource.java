@@ -84,12 +84,12 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
     final Element element = _configCache.get(uniqueId);
     if (element != null) {
-      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue();
+      return (R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue();
     }
     try {
       ConfigDocument doc = getMaster().get(uniqueId);
       putValue(uniqueId.getObjectId(), doc, _configCache);
-      return (R) putValue(uniqueId, doc, _configCache).getObject().getValue();
+      return (R) putValue(uniqueId, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
       return EHCacheUtils.putException(uniqueId, ex, _configCache);
     }
@@ -105,14 +105,14 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return ((R) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue());
+      return ((R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue());
     }
     try {
       ConfigDocument doc = getMaster().get(objectId, versionCorrection);
-      ConfigItem<R> item = (ConfigItem<R>) doc.getObject();
+      ConfigItem<R> item = (ConfigItem<R>) doc.getConfig();
       putValue(item.getUniqueId().getObjectId(), doc, _configCache);
       putValue(item.getUniqueId(), doc, _configCache);
-      return (R) putValue(searchKey, doc, _configCache).getObject().getValue();
+      return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
       return EHCacheUtils.putException(searchKey, ex, _configCache);
     }
@@ -128,7 +128,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, configName, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return (R) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue();
+      return (R) (EHCacheUtils.<ConfigDocument>get(element)).getConfig().getValue();
     }
     try {
 
@@ -140,7 +140,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
       putValue(doc.getUniqueId(), doc, _configCache);
 
-      return (R) putValue(searchKey, doc, _configCache).getObject().getValue();
+      return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
       return putException(searchKey, ex, _configCache);
     }
@@ -155,7 +155,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, name, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return (ConfigItem<R>) ((ConfigDocument) EHCacheUtils.get(element)).getObject();
+      return (ConfigItem<R>) (EHCacheUtils.<ConfigDocument>get(element)).getConfig();
     }
     try {
       
@@ -168,7 +168,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
         putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
         putValue(doc.getUniqueId(), doc, _configCache);
       }
-      return (ConfigItem<R>) putValue(searchKey, doc, _configCache).getObject();
+      return (ConfigItem<R>) putValue(searchKey, doc, _configCache).getConfig();
     } catch (RuntimeException ex) {
       return EHCacheUtils.putException(searchKey, ex, _configCache);
     }

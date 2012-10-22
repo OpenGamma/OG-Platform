@@ -186,7 +186,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
     ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
     for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
-      results.add((YieldCurveDefinition) doc.getObject().getValue());
+      results.add((YieldCurveDefinition) doc.getConfig().getValue());
     }
     return results;
   }

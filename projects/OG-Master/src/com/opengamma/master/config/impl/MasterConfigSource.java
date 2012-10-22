@@ -144,7 +144,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   @Override
   @SuppressWarnings("unchecked")
   public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
-    ConfigItem<?> item = getMaster().get(uniqueId).getObject();
+    ConfigItem<?> item = getMaster().get(uniqueId).getConfig();
     if (clazz.isAssignableFrom(item.getType())) {
       return (R) item.getValue();
     } else {
@@ -154,12 +154,12 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   @Override
   public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getMaster().get(objectId, versionCorrection).getObject();
+    return getMaster().get(objectId, versionCorrection).getConfig();
   }
 
   @Override
   public ConfigItem<?> get(UniqueId uniqueId) {
-    return getMaster().get(uniqueId).getObject();
+    return getMaster().get(uniqueId).getConfig();
   }
 
   @Override
@@ -174,7 +174,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   @SuppressWarnings("unchecked")
   @Override
   public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getObject();
+    ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getConfig();
     if (clazz.isAssignableFrom(item.getType())) {
       return (R) item.getValue();
     } else {
@@ -208,7 +208,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     Map<UniqueId, ConfigDocument> result = getMaster().get(uniqueIds);
     Map<UniqueId, ConfigItem<?>> map = newHashMap();
     for (UniqueId uid : result.keySet()) {
-      map.put(uid, result.get(uid).getObject());
+      map.put(uid, result.get(uid).getConfig());
     }
     return map;
   }

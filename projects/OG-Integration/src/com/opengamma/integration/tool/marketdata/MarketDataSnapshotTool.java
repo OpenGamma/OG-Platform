@@ -141,7 +141,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
       ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
       request.setName(viewDefinitionName);
       for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, (ViewDefinition) doc.getObject().getValue(), viewExecutionOptions, task));
+        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, (ViewDefinition) doc.getConfig().getValue(), viewExecutionOptions, task));
         executor.execute(task);
       }
     }

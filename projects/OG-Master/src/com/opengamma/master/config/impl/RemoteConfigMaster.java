@@ -95,7 +95,7 @@ public class RemoteConfigMaster
   @Override
   public ConfigDocument add(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
 
     URI uri = DataConfigMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(ConfigDocument.class, document);
@@ -105,7 +105,7 @@ public class RemoteConfigMaster
   @Override
   public ConfigDocument update(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = DataConfigResource.uri(getBaseUri(), document.getUniqueId(), null);
@@ -136,7 +136,7 @@ public class RemoteConfigMaster
   @Override
   public ConfigDocument correct(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = DataConfigResource.uriVersion(getBaseUri(), document.getUniqueId());
@@ -149,7 +149,7 @@ public class RemoteConfigMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
 
     URI uri = DataConfigResource.uriVersion(getBaseUri(), uniqueId);
@@ -163,7 +163,7 @@ public class RemoteConfigMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
     URI uri = DataConfigResource.uriAll(getBaseUri(), objectId, null, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -176,7 +176,7 @@ public class RemoteConfigMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
     URI uri = DataConfigResource.uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

@@ -44,10 +44,10 @@ public class ConfigMasterIteratorTest {
     _item4 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
     
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
-    _item1 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item1)).getObject();
-    _item2 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item2)).getObject();
-    _item3 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item3)).getObject();
-    _item4 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item4)).getObject();
+    _item1 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item1)).getConfig();
+    _item2 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item2)).getConfig();
+    _item3 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item3)).getConfig();
+    _item4 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item4)).getConfig();
     _configMaster = configMaster;
   }
 

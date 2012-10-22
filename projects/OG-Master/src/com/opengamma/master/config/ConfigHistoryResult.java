@@ -67,8 +67,8 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
     List<ConfigItem<T>> result = new ArrayList<ConfigItem<T>>();    
     if (getDocuments() != null) {
       for (ConfigDocument doc : getDocuments()) {
-        if (_gt.getRawClass().isAssignableFrom(doc.getObject().getType())) {
-          result.add((ConfigItem<T>) doc.getObject());
+        if (_gt.getRawClass().isAssignableFrom(doc.getConfig().getType())) {
+          result.add((ConfigItem<T>) doc.getConfig());
         }
       }
     }
@@ -83,7 +83,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
   @SuppressWarnings("unchecked")
   public ConfigItem<T> getFirstValue() {     
     if (getDocuments().size() > 0) {
-      ConfigItem<?> firstItem = getDocuments().get(0).getObject();
+      ConfigItem<?> firstItem = getDocuments().get(0).getConfig();
       if (_gt.getRawClass().isAssignableFrom(firstItem.getType())) {        
         return (ConfigItem<T>) firstItem; 
       }

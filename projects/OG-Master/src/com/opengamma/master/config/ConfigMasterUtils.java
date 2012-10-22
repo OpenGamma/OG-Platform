@@ -68,12 +68,12 @@ public final class ConfigMasterUtils {
     }
     ConfigItem<T> firstExistingItem = searchResult.getFirstValue();
     if (firstExistingItem == null) {
-      return (ConfigItem<T>) master.add(new ConfigDocument(item)).getObject();
+      return (ConfigItem<T>) master.add(new ConfigDocument(item)).getConfig();
     } else {
       if (item.getUniqueId() == null) {
         item.setUniqueId(firstExistingItem.getUniqueId());
       }
-      return (ConfigItem<T>) master.update(new ConfigDocument(item)).getObject();
+      return (ConfigItem<T>) master.update(new ConfigDocument(item)).getConfig();
     }
   }
 
