@@ -64,7 +64,7 @@ public class MasterTimeSeriesWriter implements TimeSeriesWriter {
         info.setExternalIdBundle(ExternalIdBundleWithDates.of(htsId.toBundle()));
         info.setName(dataProvider + " " + dataField + " - " + htsId.getValue());
         HistoricalTimeSeriesInfoDocument infoDoc = new HistoricalTimeSeriesInfoDocument();
-        infoDoc.setObject(info);
+        infoDoc.setInfo(info);
         infoDoc = _htsMaster.add(infoDoc);
 
         oId = infoDoc.getObjectId();

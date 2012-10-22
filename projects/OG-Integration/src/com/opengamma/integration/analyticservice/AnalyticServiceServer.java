@@ -278,7 +278,7 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
       
       PortfolioDocument portfolioDocument = getPortfolioMaster().get(_portfolioId, VersionCorrection.LATEST);
       s_logger.debug("Updating portfolio {} with {}", portfolioDocument.getUniqueId(), _trade);
-      ManageablePortfolio portfolio = portfolioDocument.getObject();
+      ManageablePortfolio portfolio = portfolioDocument.getPortfolio();
       ManageablePortfolioNode root = portfolio.getRootNode();
 
       ManageablePosition position = new ManageablePosition();

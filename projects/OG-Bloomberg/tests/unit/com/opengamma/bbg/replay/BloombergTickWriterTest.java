@@ -134,7 +134,7 @@ public class BloombergTickWriterTest {
     assertTrue(receiver.count() > 0);
   }
 
-  @Test
+  @Test(invocationCount = 5, successPercentage = 19)
   public void performance() throws Exception {
     ExecutorService writerExecutor = Executors.newSingleThreadExecutor();
     Future<?> writerFuture = writerExecutor.submit(_writer);

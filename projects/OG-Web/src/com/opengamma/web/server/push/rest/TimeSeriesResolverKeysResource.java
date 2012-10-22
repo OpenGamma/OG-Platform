@@ -13,11 +13,11 @@ import javax.ws.rs.Path;
 import org.json.JSONArray;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigMasterIterator;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.util.ArgumentChecker;
 
@@ -53,8 +53,8 @@ public class TimeSeriesResolverKeysResource {
     ConfigSearchRequest<HistoricalTimeSeriesRating> request =
         new ConfigSearchRequest<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
     List<String> keyNames = Lists.newArrayList();
-    for (ConfigItem<HistoricalTimeSeriesRating> item : ConfigMasterIterator.iterable(_configMaster, request)) {
-      keyNames.add(item.getName());
+    for (ConfigDocument doc : ConfigSearchIterator.iterable(_configMaster, request)) {
+      keyNames.add(doc.getName());
     }
     return new JSONArray(keyNames).toString();
   }

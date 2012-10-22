@@ -52,7 +52,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     UniqueId uniqueId = UniqueId.of("DbSec", "101");
     ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(security);
+    doc.setSecurity(security);
     _secMaster.update(doc);
   }
 
@@ -94,7 +94,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getSecurity(), updated.getSecurity());
     
     SecurityDocument old = _secMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -102,7 +102,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getObject(), old.getObject());
+    assertEquals(base.getSecurity(), old.getSecurity());
     
     SecurityHistoryRequest search = new SecurityHistoryRequest(base.getUniqueId(), null, now);
     search.setFullDetail(false);

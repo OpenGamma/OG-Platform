@@ -69,13 +69,13 @@ public class StoreSecurityProcedure extends AbstractProcedureInvoker.SingleResul
     if (identifier == null) {
       security.setExternalIdBundle(security.getExternalIdBundle().withoutScheme(ExternalScheme.of("UID")));
       document = master.add(document);
-      security = document.getObject();
+      security = document.getSecurity();
       security.setExternalIdBundle(security.getExternalIdBundle().withExternalId(document.getUniqueId().toExternalId()));
       document = master.update(document);
     } else {
       document = master.update(document);
     }
-    return ExternalSchemeRank.DEFAULT.getPreferredIdentifier(document.getObject().getExternalIdBundle());
+    return ExternalSchemeRank.DEFAULT.getPreferredIdentifier(document.getSecurity().getExternalIdBundle());
   }
 
   public static ExternalId invoke(final SessionContext sessionContext, final ManageableSecurity security, final UniqueId identifier, final MasterID master) {

@@ -66,19 +66,19 @@ public class PortfolioIdFunction extends AbstractFunctionInvoker implements Publ
 
       @Override
       public boolean include(PortfolioDocument document) {
-        final String name = document.getObject().getName();
+        final String name = document.getPortfolio().getName();
         return name.charAt(0) != '.';
       }
 
       @Override
       public void accept(PortfolioDocument document, MasterID master, boolean masterUnique, boolean clientUnique) {
-        final ManageablePortfolio portfolio = document.getObject();
+        final ManageablePortfolio portfolio = document.getPortfolio();
         resultIds.add(portfolio.getUniqueId());
       }
 
       @Override
       public int compare(PortfolioDocument o1, PortfolioDocument o2) {
-        return o1.getObject().getName().compareToIgnoreCase(o2.getObject().getName());
+        return o1.getPortfolio().getName().compareToIgnoreCase(o2.getPortfolio().getName());
       }
 
     });

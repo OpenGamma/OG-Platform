@@ -28,8 +28,8 @@ public final class NettedFixedCashFlowFromDateCalculator {
   }
 
   /**
-   * Returns the dates and amount of all netted cash-flows of an instrument after a date (inclusive). If there are no cash-flows on or after this
-   * date, the result is an empty map. 
+   * Returns the dates and amount of all netted cash-flows of an instrument after a date (inclusive). The map returned is sorted on dates. 
+   * If there are no cash-flows on or after this date, the result is an empty map. 
    * @param instrument The instrument, not null
    * @param date The date from which to calculate fixed cash flows, not null
    * @return A map containing all netted fixed cash-flows from the date (inclusive) 
@@ -43,8 +43,8 @@ public final class NettedFixedCashFlowFromDateCalculator {
   }
 
   /**
-   * Returns the dates and amount of all netted cash-flows of an instrument after a date (inclusive). If there are no cash-flows on or after this
-   * date, the result is an empty map. 
+   * Returns the dates and amount of all netted cash-flows of an instrument after a date (inclusive). The map returned is sorted on dates. 
+   * If there are no cash-flows on or after this date, the result is an empty map. 
    * @param instrument The instrument, not null
    * @param fixingSeries The fixing series for the instrument (if required)
    * @param date The date from which to calculate fixed cash flows, not null   

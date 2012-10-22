@@ -241,7 +241,10 @@ public class DbUserMaster
       }
     }
     
-    return new UserSearchResult(docs);
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    UserSearchResult result = new UserSearchResult(vc);
+    result.getDocuments().addAll(docs);
+    return result;
   }
 
   @Override

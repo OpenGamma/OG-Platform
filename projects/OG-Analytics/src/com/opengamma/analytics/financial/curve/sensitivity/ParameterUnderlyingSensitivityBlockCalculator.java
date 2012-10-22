@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.curve.sensitivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -156,7 +155,7 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
         sensiClean[loopcurve][loops] += sensiDirty[startDirtyParameter[loopcurve][indexOtherSensiCurve[loopcurve].length] + loops];
       }
     }
-    final HashMap<Pair<String, Currency>, DoubleMatrix1D> result = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     for (int loopcurve = 0; loopcurve < nbSensitivityCurve; loopcurve++) {
       result.put(new ObjectsPair<String, Currency>(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
     }

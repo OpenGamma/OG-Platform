@@ -59,7 +59,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
     
-    for (UniqueId parentId : data().getRegion().getObject().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -77,7 +77,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
 
-    for (UniqueId parentId : data().getRegion().getObject().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -240,7 +240,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   private URI updateRegion(String name, String fullName, RegionClassification classification, String countryISO, String currencyISO, String timeZoneId) {
     ManageableRegion region = new ManageableRegion();
     region.setUniqueId(data().getRegion().getUniqueId());
-    region.setParentRegionIds(data().getRegion().getObject().getParentRegionIds());
+    region.setParentRegionIds(data().getRegion().getRegion().getParentRegionIds());
     region.setName(name);
     region.setFullName(fullName);
     region.setClassification(classification);
@@ -286,7 +286,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     FlexiBean out = super.createRootData();
     RegionDocument doc = data().getRegion();
     out.put("regionDoc", doc);
-    out.put("region", doc.getObject());
+    out.put("region", doc.getRegion());
     out.put("deleted", !doc.isLatest());
     out.put("regionParents", data().getRegionParents());
     out.put("regionChildren", data().getRegionChildren());

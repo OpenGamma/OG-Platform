@@ -83,7 +83,7 @@ public class RemoteRegionMaster
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
 
     URI uri = DataRegionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(RegionDocument.class, document);
@@ -93,7 +93,7 @@ public class RemoteRegionMaster
   @Override
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataRegionResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -123,7 +123,7 @@ public class RemoteRegionMaster
   @Override
   public RegionDocument correct(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataRegionResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -136,7 +136,7 @@ public class RemoteRegionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (RegionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.region");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
     }
     URI uri = (new DataRegionResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -149,7 +149,7 @@ public class RemoteRegionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (RegionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.region");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
     }
     URI uri = (new DataRegionResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -163,7 +163,7 @@ public class RemoteRegionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (RegionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.region");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
     }
     URI uri = (new DataRegionResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

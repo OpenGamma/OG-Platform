@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -46,6 +47,15 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public PositionSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the returned positions from within the documents.
@@ -56,7 +66,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
     List<ManageablePosition> result = new ArrayList<ManageablePosition>();
     if (getDocuments() != null) {
       for (PositionDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getPosition());
       }
     }
     return result;
@@ -68,7 +78,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    * @return the first position, null if none
    */
   public ManageablePosition getFirstPosition() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getPosition() : null;
   }
 
   /**
@@ -84,7 +94,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getPosition();
     }
   }
 

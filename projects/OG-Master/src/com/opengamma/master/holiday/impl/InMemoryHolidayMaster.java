@@ -93,7 +93,7 @@ public class InMemoryHolidayMaster
   protected void validateDocument(HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
   }
 
   //-------------------------------------------------------------------------
@@ -148,11 +148,11 @@ public class InMemoryHolidayMaster
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableHoliday holiday = document.getObject();
+    final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -171,7 +171,7 @@ public class InMemoryHolidayMaster
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();

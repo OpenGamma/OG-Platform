@@ -173,7 +173,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
       return false;
     }
     final ExchangeDocument document = (ExchangeDocument) obj;
-    final ManageableExchange exchange = document.getObject();
+    final ManageableExchange exchange = document.getExchange();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }

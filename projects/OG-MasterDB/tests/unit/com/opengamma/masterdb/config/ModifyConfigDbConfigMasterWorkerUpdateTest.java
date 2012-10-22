@@ -93,7 +93,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals("NewName", updated.getName());
-    assertEquals(ExternalId.of("A", "B"), updated.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), updated.getConfig().getValue());
 
     ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -102,7 +102,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getObject().getValue(), old.getObject().getValue());
+    assertEquals(base.getConfig().getValue(), old.getConfig().getValue());
 
     ConfigHistoryRequest<ExternalId> search = new ConfigHistoryRequest<ExternalId>(base.getUniqueId(), null, now);
     search.setType(ExternalId.class);
@@ -126,13 +126,13 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     ConfigDocument updated = _cfgMaster.update(doc);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals("NewName", updated.getName());  // name changed
-    assertEquals(base.getObject().getValue(), updated.getObject().getValue());  // value unchanged
+    assertEquals(base.getConfig().getValue(), updated.getConfig().getValue());  // value unchanged
 
     ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getObject().getValue(), old.getObject().getValue());
+    assertEquals(base.getConfig().getValue(), old.getConfig().getValue());
   }
 
   @Test

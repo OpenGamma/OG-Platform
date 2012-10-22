@@ -6,8 +6,6 @@
 package com.opengamma.bloombergexample.tool;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -16,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
@@ -29,6 +26,7 @@ import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -39,7 +37,7 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
@@ -212,9 +210,9 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
           getToolContext().getHistoricalTimeSeriesMaster(),
           getToolContext().getHistoricalTimeSeriesProvider(),
           new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
-
-      Collection<EquitySecurity> securities = readEquitySecurities();
-      for (final EquitySecurity security : securities) {
+      
+      for (SecurityDocument doc : readEquitySecurities()) {
+        Security security = doc.getSecurity();
         loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       }
       for (Set<ExternalId> externalIds : externalIdSets) {
@@ -228,17 +226,11 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private Collection<EquitySecurity> readEquitySecurities() {
-    List<EquitySecurity> result = Lists.newArrayList();
+  private Iterable<SecurityDocument> readEquitySecurities() {
     SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setSecurityType(EquitySecurity.SECURITY_TYPE);
-    SecuritySearchResult searchResult = securityMaster.search(request);
-    List<SecurityDocument> documents = searchResult.getDocuments();
-    for (SecurityDocument securityDocument : documents) {
-      result.add((EquitySecurity) securityDocument.getObject());
-    }
-    return result;
+    return SecuritySearchIterator.iterable(securityMaster, request);
   }
 
   private void loadEquityPortfolio() {

@@ -81,7 +81,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
     FlexiBean out = super.createRootData();
     ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
-    out.put("config", doc.getObject().getValue());
+    out.put("config", doc.getConfig().getValue());
     out.put("deleted", !doc.isLatest());
     return out;
   }

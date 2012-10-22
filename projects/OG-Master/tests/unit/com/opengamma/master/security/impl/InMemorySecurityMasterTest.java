@@ -53,10 +53,10 @@ public class InMemorySecurityMasterTest {
     testEmpty = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
     testPopulated = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
     doc1 = new SecurityDocument();
-    doc1.setObject(SEC1);
+    doc1.setSecurity(SEC1);
     doc1 = testPopulated.add(doc1);
     doc2 = new SecurityDocument();
-    doc2.setObject(SEC2);
+    doc2.setSecurity(SEC2);
     doc2 = testPopulated.add(doc2);
   }
 
@@ -69,7 +69,7 @@ public class InMemorySecurityMasterTest {
   public void test_defaultSupplier() {
     InMemorySecurityMaster master = new InMemorySecurityMaster();
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(SEC1);
+    doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
     assertEquals("MemSec", added.getUniqueId().getScheme());
   }
@@ -77,7 +77,7 @@ public class InMemorySecurityMasterTest {
   public void test_alternateSupplier() {
     InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdSupplier("Hello"));
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(SEC1);
+    doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
@@ -174,27 +174,27 @@ public class InMemorySecurityMasterTest {
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(SEC1);
+    doc.setSecurity(SEC1);
     SecurityDocument added = testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
     assertNotNull(added.getCorrectionFromInstant());
     assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
     assertEquals("Test", added.getUniqueId().getScheme());
-    assertSame(SEC1, added.getObject());
+    assertSame(SEC1, added.getSecurity());
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(SEC1);
+    doc.setSecurity(SEC1);
     doc.setUniqueId(OTHER_UID);
     testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setObject(SEC1);
+    doc.setSecurity(SEC1);
     doc.setUniqueId(doc1.getUniqueId());
     SecurityDocument updated = testPopulated.update(doc);
     assertEquals(doc1.getUniqueId(), updated.getUniqueId());

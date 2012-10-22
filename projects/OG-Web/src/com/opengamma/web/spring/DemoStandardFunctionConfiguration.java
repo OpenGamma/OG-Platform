@@ -48,17 +48,18 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.FixedPayCashFlowFunction;
-import com.opengamma.financial.analytics.FixedReceiveCashFlowFunction;
-import com.opengamma.financial.analytics.FloatingResetsFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
-import com.opengamma.financial.analytics.NettingFixedCashFlowFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
+import com.opengamma.financial.analytics.cashflow.FixedPayCashFlowFunction;
+import com.opengamma.financial.analytics.cashflow.FixedReceiveCashFlowFunction;
+import com.opengamma.financial.analytics.cashflow.FloatingPayCashFlowFunction;
+import com.opengamma.financial.analytics.cashflow.FloatingReceiveCashFlowFunction;
+import com.opengamma.financial.analytics.cashflow.NettedFixedCashFlowFunction;
 import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
@@ -1705,12 +1706,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_RECEIVE_CASH_FLOWS);
     addSummingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
-    addSummingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FLOATING_PAY_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FLOATING_RECEIVE_CASH_FLOWS);
     functionConfigs.add(functionConfiguration(FixedPayCashFlowFunction.class));
     functionConfigs.add(functionConfiguration(FixedReceiveCashFlowFunction.class));
-    functionConfigs.add(functionConfiguration(NettingFixedCashFlowFunction.class));
-    functionConfigs.add(functionConfiguration(FloatingResetsFunction.class));
+    functionConfigs.add(functionConfiguration(FloatingPayCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(FloatingReceiveCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(NettedFixedCashFlowFunction.class));
   }
 
   private static void addExternallyProvidedSensitivitiesFunctions(final List<FunctionConfiguration> functionConfigs) {

@@ -22,6 +22,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Tool to generate a template for doing field mapping tasks
@@ -40,8 +41,9 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolCont
       SecuritySearchRequest searchRequest = new SecuritySearchRequest();
       searchRequest.setName("*");
       searchRequest.setSecurityType(securityType);
+      searchRequest.setPagingRequest(PagingRequest.ONE);
       SecuritySearchResult search = securityMaster.search(searchRequest);
-      s_logger.info("Search returned " + search.getDocuments().size() + " securities");
+      s_logger.info("Search returned " + search.getPaging().getTotalItems() + " securities");
       dumpSecurityStructure(csvWriter, securityType, search.getFirstSecurity());
     }
     csvWriter.close();

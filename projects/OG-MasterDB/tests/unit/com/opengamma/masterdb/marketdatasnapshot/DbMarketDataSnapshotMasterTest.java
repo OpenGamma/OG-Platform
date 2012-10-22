@@ -186,8 +186,8 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
   }
 
   private void assertEquivalent(MarketDataSnapshotDocument added, MarketDataSnapshotDocument loaded) {
-    ManageableMarketDataSnapshot addedSnapshot = added.getObject();
-    ManageableMarketDataSnapshot loadedSnapshot = loaded.getObject();
+    ManageableMarketDataSnapshot addedSnapshot = added.getSnapshot();
+    ManageableMarketDataSnapshot loadedSnapshot = loaded.getSnapshot();
     assertEquivalent(addedSnapshot, loadedSnapshot);
   }
 

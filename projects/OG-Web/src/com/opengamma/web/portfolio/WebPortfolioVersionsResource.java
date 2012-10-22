@@ -69,7 +69,7 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
     FlexiBean out = super.createRootData();
     PortfolioDocument doc = data().getPortfolio();
     out.put("portfolioDoc", doc);
-    out.put("portfolio", doc.getObject());
+    out.put("portfolio", doc.getPortfolio());
     out.put("deleted", !doc.isLatest());
     return out;
   }

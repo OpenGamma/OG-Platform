@@ -23,8 +23,9 @@ import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
@@ -65,15 +66,12 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
    */
   @Override 
   protected void doRun() {
-    // load all bond securities
-    final SecuritySearchResult securityShells = loadAllBondSecurities();
-    
     // create shell portfolio
     final ManageablePortfolio portfolio = createPortfolio();
     final ManageablePortfolioNode rootNode = portfolio.getRootNode();
     
     // add each security to the portfolio
-    for (SecurityDocument shellDoc : securityShells.getDocuments()) {
+    for (SecurityDocument shellDoc : loadAllBondSecurities()) {
       // load the full detail of the security
       final BondSecurity security = loadFullSecurity(shellDoc);
       
@@ -95,21 +93,17 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
   /**
    * Loads all securities from the master.
    * <p>
-   * This loads all the securities into memory.
-   * However, by setting "full detail" to false, only minimal information is loaded.
-   * <p>
-   * An alternate approach to scalability would be to batch the results using the
-   * paging controls of the search request.
+   * This obtains an iterator over the securities.
+   * This avoids loading the potentially large number of bonds into memory.
    * 
-   * @return all securities in the security master, not null
+   * @return iterable of all bond securities in the security master, not null
    */
-  protected SecuritySearchResult loadAllBondSecurities() {
+  protected Iterable<SecurityDocument> loadAllBondSecurities() {
     SecuritySearchRequest secSearch = new SecuritySearchRequest();
     secSearch.setFullDetail(false);
     secSearch.setSecurityType(BondSecurity.SECURITY_TYPE);
-    SecuritySearchResult securities = getToolContext().getSecurityMaster().search(secSearch);
-    s_logger.info("Found {} securities", securities.getDocuments().size());
-    return securities;
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    return SecuritySearchIterator.iterable(securityMaster, secSearch);
   }
 
   /**
@@ -123,9 +117,9 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
    * @return the equity security, not null
    */
   protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
-    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getObject().getName());
+    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
     SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
-    BondSecurity sec = (BondSecurity) doc.getObject();
+    BondSecurity sec = (BondSecurity) doc.getSecurity();
     return sec;
   }
 

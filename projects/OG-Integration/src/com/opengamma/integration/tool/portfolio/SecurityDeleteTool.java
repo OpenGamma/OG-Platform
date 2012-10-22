@@ -17,8 +17,9 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
@@ -80,17 +81,16 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
       securitySearchRequest.setExternalIdValue(
           getCommandLine().getOptionValue(EXTERNAL_ID_VALUES_OPT));
     }
-
-    SecuritySearchResult securitySearchResult = getToolContext().getSecurityMaster().search(securitySearchRequest);
-
-    for (SecurityDocument securityDocument : securitySearchResult.getDocuments()) {
+    
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    for (SecurityDocument securityDocument : SecuritySearchIterator.iterable(securityMaster, securitySearchRequest)) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
-        getToolContext().getSecurityMaster().remove(securityDocument.getUniqueId());
-        s_logger.warn("Deleted " + securityDocument.getObject().getUniqueId() + 
-            " (" + securityDocument.getObject().getName() + ")");
+        securityMaster.remove(securityDocument.getUniqueId());
+        s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
+            " (" + securityDocument.getSecurity().getName() + ")");
       } else {
-        s_logger.warn("Matched " + securityDocument.getObject().getUniqueId() + 
-            " (" + securityDocument.getObject().getName() + ")");
+        s_logger.warn("Matched " + securityDocument.getSecurity().getUniqueId() + 
+            " (" + securityDocument.getSecurity().getName() + ")");
       }
 
     }

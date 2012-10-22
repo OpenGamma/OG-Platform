@@ -29,7 +29,7 @@ public class MasterSecurityPersister extends SecurityPersister {
   @Override
   protected void storeSecurityImpl(final ManageableSecurity security) {
     final SecurityDocument doc = new SecurityDocument();
-    doc.setObject(security);
+    doc.setSecurity(security);
     getSecurityMaster().add(doc);
   }
 

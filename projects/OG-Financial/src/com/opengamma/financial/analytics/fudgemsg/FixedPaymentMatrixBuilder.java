@@ -19,20 +19,20 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Maps;
-import com.opengamma.financial.analytics.PaymentScheduleMatrix;
+import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  *
  */
-@FudgeBuilderFor(PaymentScheduleMatrix.class)
-public class PaymentScheduleMatrixBuilder implements FudgeBuilder<PaymentScheduleMatrix> {
+@FudgeBuilderFor(FixedPaymentMatrix.class)
+public class FixedPaymentMatrixBuilder implements FudgeBuilder<FixedPaymentMatrix> {
   private static final String DATES_FIELD = "dates";
   private static final String MCA_FIELD = "mca";
   private static final String MAX_AMOUNTS_FIELD = "maxAmounts";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final PaymentScheduleMatrix object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedPaymentMatrix object) {
     final MutableFudgeMsg message = serializer.newMessage();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : object.getValues().entrySet()) {
       serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
@@ -43,7 +43,7 @@ public class PaymentScheduleMatrixBuilder implements FudgeBuilder<PaymentSchedul
   }
 
   @Override
-  public PaymentScheduleMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public FixedPaymentMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final List<FudgeField> dateFields = message.getAllByName(DATES_FIELD);
     final List<FudgeField> mcaFields = message.getAllByName(MCA_FIELD);
     final Map<LocalDate, MultipleCurrencyAmount> values = Maps.newHashMapWithExpectedSize(dateFields.size());
@@ -53,7 +53,7 @@ public class PaymentScheduleMatrixBuilder implements FudgeBuilder<PaymentSchedul
       values.put(date, mca);
     }
     final int maxAmounts = message.getInt(MAX_AMOUNTS_FIELD);
-    return new PaymentScheduleMatrix(values, maxAmounts);
+    return new FixedPaymentMatrix(values, maxAmounts);
   }
 
 }

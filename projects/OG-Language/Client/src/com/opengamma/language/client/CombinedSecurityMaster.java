@@ -46,13 +46,19 @@ public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, Sec
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     final SecuritySearchResult result = new SecuritySearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      SecuritySearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      SecuritySearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      SecuritySearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }

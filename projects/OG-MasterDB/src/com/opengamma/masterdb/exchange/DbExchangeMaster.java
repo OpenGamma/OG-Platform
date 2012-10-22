@@ -105,7 +105,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final ExchangeSearchResult result = new ExchangeSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final ExchangeSearchResult result = new ExchangeSearchResult(vc);
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -113,7 +115,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -190,10 +192,10 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   @Override
   protected ExchangeDocument insert(final ExchangeDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableExchange exchange = document.getObject();
+    final ManageableExchange exchange = document.getExchange();
     final long docId = nextId("exg_exchange_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -274,7 +276,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setObject(exchange);
+      doc.setExchange(exchange);
       _documents.add(doc);
     }
   }

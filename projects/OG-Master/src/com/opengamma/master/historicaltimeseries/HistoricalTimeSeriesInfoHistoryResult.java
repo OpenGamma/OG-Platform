@@ -55,7 +55,7 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
     List<ManageableHistoricalTimeSeriesInfo> result = new ArrayList<ManageableHistoricalTimeSeriesInfo>();
     if (getDocuments() != null) {
       for (HistoricalTimeSeriesInfoDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getInfo());
       }
     }
     return result;
@@ -67,7 +67,7 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
    * @return the first series information, null if none
    */
   public ManageableHistoricalTimeSeriesInfo getFirstInfo() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getInfo() : null;
   }
 
   /**
@@ -83,7 +83,7 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getInfo();
     }
   }
 

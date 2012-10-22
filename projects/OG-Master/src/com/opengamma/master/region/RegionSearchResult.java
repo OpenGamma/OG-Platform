@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -46,6 +47,15 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public RegionSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
 
   /**
@@ -57,7 +67,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
     List<ManageableRegion> result = new ArrayList<ManageableRegion>();
     if (getDocuments() != null) {
       for (RegionDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getRegion());
       }
     }
     return result;
@@ -69,7 +79,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
    * @return the first region, null if none
    */
   public ManageableRegion getFirstRegion() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getRegion() : null;
   }
 
   /**
@@ -85,7 +95,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getRegion();
     }
   }
 

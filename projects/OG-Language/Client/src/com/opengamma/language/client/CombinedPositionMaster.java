@@ -40,13 +40,19 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
   public PositionSearchResult search(final PositionSearchRequest request) {
     final PositionSearchResult result = new PositionSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      PositionSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      PositionSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      PositionSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }

@@ -11,7 +11,7 @@
     },
     "data": [<#if searchResult??>
       <#list searchResult.documents as doc>
-	       "${doc.object.uniqueId.objectId}|${doc.object.rootNode.uniqueId.objectId}|${doc.object.name}|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
+	       "${doc.portfolio.uniqueId.objectId}|${doc.portfolio.rootNode.uniqueId.objectId}|${doc.portfolio.name}|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
 	    </#list> </#if>]
 }
 </#escape>

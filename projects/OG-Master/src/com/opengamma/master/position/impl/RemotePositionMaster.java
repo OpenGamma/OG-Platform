@@ -85,7 +85,7 @@ public class RemotePositionMaster
   @Override
   public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
 
     URI uri = DataPositionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(PositionDocument.class, document);
@@ -95,7 +95,7 @@ public class RemotePositionMaster
   @Override
   public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPositionResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -125,7 +125,7 @@ public class RemotePositionMaster
   @Override
   public PositionDocument correct(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPositionResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -149,7 +149,7 @@ public class RemotePositionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -162,7 +162,7 @@ public class RemotePositionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -175,7 +175,7 @@ public class RemotePositionMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

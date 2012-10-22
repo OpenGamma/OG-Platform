@@ -75,7 +75,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     PositionDocument positionDocument = _positionMaster.get(uid);
     assertNotNull(positionDocument);
     
-    ManageablePosition position = positionDocument.getObject();
+    ManageablePosition position = positionDocument.getPosition();
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(3, trades.size());
@@ -101,7 +101,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     PositionDocument positionDocument = _positionMaster.get(uid);
     assertNotNull(positionDocument);
     
-    ManageablePosition position = positionDocument.getObject();
+    ManageablePosition position = positionDocument.getPosition();
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertTrue(trades.isEmpty());
@@ -119,7 +119,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     PositionDocument positionDocument = _positionMaster.get(uid);
     assertNotNull(positionDocument);
     
-    ManageablePosition position = positionDocument.getObject();
+    ManageablePosition position = positionDocument.getPosition();
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertTrue(trades.isEmpty());

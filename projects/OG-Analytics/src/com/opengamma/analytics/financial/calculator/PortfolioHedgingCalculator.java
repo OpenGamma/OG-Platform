@@ -30,7 +30,7 @@ public class PortfolioHedgingCalculator {
    * Computes the quantity of each reference instrument that optimally hedge a given sensitivity.
    * @param ps The parameter sensitivity of the portfolio to hedge.
    * @param rs The parameter sensitivities of the reference instruments.
-   * @param w The related parameters weight matrix.
+   * @param w The related parameters weight matrix. // TODO: order of curves in w? Should we use the yieldCurveBundle to have the order (and all curves).
    * @param fxMatrix The matrix with exchange rates.
    * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
    * Note that the output is the optimal hedge quantity and not the portoflio equivalent. The hedge has the opposite sign of wrt the equivalent.

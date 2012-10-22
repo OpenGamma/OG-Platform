@@ -68,7 +68,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     FlexiBean out = createRootData();
     ConfigDocument doc = data().getConfig();
-    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getObject().getValue(), doc.getType()));
+    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getConfig().getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -192,7 +192,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     FlexiBean out = super.createRootData();
     ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
-    out.put("config", doc.getObject().getValue());
+    out.put("config", doc.getConfig().getValue());
     out.put("deleted", !doc.isLatest());
     return out;
   }

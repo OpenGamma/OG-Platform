@@ -40,13 +40,19 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }

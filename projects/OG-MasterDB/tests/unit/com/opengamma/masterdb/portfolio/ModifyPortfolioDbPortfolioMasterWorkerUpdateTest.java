@@ -51,7 +51,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   public void test_update_noPortfolioId() {
     ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setObject(position);
+    doc.setPortfolio(position);
     _prtMaster.update(doc);
   }
 
@@ -86,11 +86,11 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     
     UniqueId oldPortfolioId = UniqueId.of("DbPrt", "101", "0");
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);
-    Map<String, String> oldAttr = base.getObject().getAttributes();
+    Map<String, String> oldAttr = base.getPortfolio().getAttributes();
     assertNotNull(oldAttr);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
-    port.setRootNode(base.getObject().getRootNode());
+    port.setRootNode(base.getPortfolio().getRootNode());
     Map<String, String> newAttr = getNewAttributes();
     port.setAttributes(newAttr);
     PortfolioDocument input = new PortfolioDocument(port);
@@ -102,7 +102,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getPortfolio(), updated.getPortfolio());
     
     PortfolioDocument old = _prtMaster.get(oldPortfolioId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -110,9 +110,9 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals("TestPortfolio101", old.getObject().getName());
-    assertEquals("TestNode111", old.getObject().getRootNode().getName());
-    assertEquals(base.getObject().getAttributes(), old.getObject().getAttributes());
+    assertEquals("TestPortfolio101", old.getPortfolio().getName());
+    assertEquals("TestNode111", old.getPortfolio().getRootNode().getName());
+    assertEquals(base.getPortfolio().getAttributes(), old.getPortfolio().getAttributes());
     
     PortfolioDocument newer = _prtMaster.get(updated.getUniqueId());
     assertEquals(updated.getUniqueId(), newer.getUniqueId());
@@ -120,13 +120,13 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(null, newer.getVersionToInstant());
     assertEquals(now, newer.getCorrectionFromInstant());
     assertEquals(null, newer.getCorrectionToInstant());
-    assertEquals("NewName", newer.getObject().getName());
-    assertEquals("TestNode111", newer.getObject().getRootNode().getName());
-    assertEquals(old.getObject().getRootNode().getUniqueId().toLatest(),
-        newer.getObject().getRootNode().getUniqueId().toLatest());
-    assertEquals(false, old.getObject().getRootNode().getUniqueId().getVersion().equals(
-        newer.getObject().getRootNode().getUniqueId().getVersion()));
-    assertEquals(newAttr, newer.getObject().getAttributes());
+    assertEquals("NewName", newer.getPortfolio().getName());
+    assertEquals("TestNode111", newer.getPortfolio().getRootNode().getName());
+    assertEquals(old.getPortfolio().getRootNode().getUniqueId().toLatest(),
+        newer.getPortfolio().getRootNode().getUniqueId().toLatest());
+    assertEquals(false, old.getPortfolio().getRootNode().getUniqueId().getVersion().equals(
+        newer.getPortfolio().getRootNode().getUniqueId().getVersion()));
+    assertEquals(newAttr, newer.getPortfolio().getAttributes());
     
     PortfolioHistoryRequest search = new PortfolioHistoryRequest(base.getUniqueId(), null, now);
     PortfolioHistoryResult searchResult = _prtMaster.history(search);
@@ -134,8 +134,8 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(updated.getUniqueId(), searchResult.getDocuments().get(0).getUniqueId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getUniqueId());
     
-    assertEquals(newAttr, searchResult.getDocuments().get(0).getObject().getAttributes());
-    assertEquals(oldAttr, searchResult.getDocuments().get(1).getObject().getAttributes());
+    assertEquals(newAttr, searchResult.getDocuments().get(0).getPortfolio().getAttributes());
+    assertEquals(oldAttr, searchResult.getDocuments().get(1).getPortfolio().getAttributes());
   }
 
   private Map<String, String> getNewAttributes() {

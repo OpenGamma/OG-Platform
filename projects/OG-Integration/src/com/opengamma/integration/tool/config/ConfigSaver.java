@@ -96,7 +96,7 @@ public class ConfigSaver {
       try {
         PortfolioDocument portfolioDocument = _portfolioMaster.get(uniqueId);
         if (portfolioDocument != null) {
-          return portfolioDocument.getObject().getName();
+          return portfolioDocument.getPortfolio().getName();
         }
       } catch (DataNotFoundException dnfe) {
         if (_verbose) {

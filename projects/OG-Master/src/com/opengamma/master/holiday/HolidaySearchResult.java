@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -46,6 +47,15 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public HolidaySearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the returned holidays from within the documents.
@@ -56,7 +66,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
     List<ManageableHoliday> result = new ArrayList<ManageableHoliday>();
     if (getDocuments() != null) {
       for (HolidayDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getHoliday());
       }
     }
     return result;
@@ -68,7 +78,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
    * @return the first holiday, null if none
    */
   public ManageableHoliday getFirstHoliday() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getHoliday() : null;
   }
 
   /**
@@ -84,7 +94,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getHoliday();
     }
   }
 

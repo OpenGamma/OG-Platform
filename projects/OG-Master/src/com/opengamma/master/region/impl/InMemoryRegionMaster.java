@@ -124,11 +124,11 @@ public class InMemoryRegionMaster
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableRegion region = document.getObject();
+    final ManageableRegion region = document.getRegion();
     region.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -146,7 +146,7 @@ public class InMemoryRegionMaster
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -199,6 +199,6 @@ public class InMemoryRegionMaster
   @Override
   protected void validateDocument(RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
   }
 }

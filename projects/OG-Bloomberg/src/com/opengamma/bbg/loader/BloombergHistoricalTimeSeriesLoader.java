@@ -146,13 +146,13 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
     
     Set<ExternalId> missing = new HashSet<ExternalId>(externalIds);
     for (HistoricalTimeSeriesInfoDocument doc : searchResult.getDocuments()) {
-      Set<ExternalId> intersection = Sets.intersection(doc.getObject().getExternalIdBundle().toBundle().getExternalIds(), externalIds).immutableCopy();
+      Set<ExternalId> intersection = Sets.intersection(doc.getInfo().getExternalIdBundle().toBundle().getExternalIds(), externalIds).immutableCopy();
       if (intersection.size() == 1) {
         ExternalId identifier = intersection.iterator().next();
         missing.remove(identifier);
         result.put(identifier, doc.getUniqueId());
       } else {
-        throw new OpenGammaRuntimeException("Unable to match single identifier: " + doc.getObject().getExternalIdBundle());
+        throw new OpenGammaRuntimeException("Unable to match single identifier: " + doc.getInfo().getExternalIdBundle());
       }
     }
     return missing;
@@ -265,19 +265,19 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
         if (searchResult.getDocuments().size() == 0) {
           // add new
           HistoricalTimeSeriesInfoDocument doc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
-          UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), timeSeries);
+          UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
           result.put(bundleToIdentifier.get(bundleWithDates), uniqueId);
         } else {
           // update existing
           HistoricalTimeSeriesInfoDocument doc = searchResult.getDocuments().get(0);
-          HistoricalTimeSeries existingSeries = _htsMaster.getTimeSeries(doc.getObject().getTimeSeriesObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofLatestPoint());
+          HistoricalTimeSeries existingSeries = _htsMaster.getTimeSeries(doc.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofLatestPoint());
           if (existingSeries.getTimeSeries().size() > 0) {
             LocalDate latestTime = existingSeries.getTimeSeries().getLatestTime();
             timeSeries = timeSeries.subSeries(latestTime, false, timeSeries.getLatestTime(), true);
           }
           UniqueId uniqueId = existingSeries.getUniqueId();
           if (timeSeries.size() > 0) {
-            uniqueId = _htsMaster.updateTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), timeSeries);
+            uniqueId = _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
           }
           result.put(bundleToIdentifier.get(bundleWithDates), uniqueId);
         }
@@ -294,7 +294,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(uniqueId);
-    ManageableHistoricalTimeSeriesInfo info = doc.getObject();
+    ManageableHistoricalTimeSeriesInfo info = doc.getInfo();
     ExternalIdBundle externalIdBundle = info.getExternalIdBundle().toBundle();
     String dataSource = info.getDataSource();
     String dataProvider = info.getDataProvider();
@@ -303,7 +303,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
     if (series == null) {
       return false;
     }
-    _htsMaster.correctTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), series);
+    _htsMaster.correctTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), series);
     return true;
   }
 

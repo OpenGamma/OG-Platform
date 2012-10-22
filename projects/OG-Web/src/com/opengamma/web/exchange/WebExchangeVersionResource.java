@@ -68,9 +68,9 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
     ExchangeDocument latestDoc = data().getExchange();
     ExchangeDocument versionedExchange = data().getVersioned();
     out.put("latestExchangeDoc", latestDoc);
-    out.put("latestExchange", latestDoc.getObject());
+    out.put("latestExchange", latestDoc.getExchange());
     out.put("exchangeDoc", versionedExchange);
-    out.put("exchange", versionedExchange.getObject());
+    out.put("exchange", versionedExchange.getExchange());
     out.put("deleted", !latestDoc.isLatest());
     return out;
   }

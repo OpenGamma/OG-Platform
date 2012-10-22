@@ -139,11 +139,11 @@ public class InMemorySnapshotMaster
   @Override
   public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableMarketDataSnapshot snapshot = document.getObject();
+    final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
     snapshot.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
@@ -159,7 +159,7 @@ public class InMemorySnapshotMaster
   public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     final UniqueId uniqueId = document.getUniqueId();
     validateUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -212,6 +212,6 @@ public class InMemorySnapshotMaster
   @Override
   protected void validateDocument(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
   }
 }

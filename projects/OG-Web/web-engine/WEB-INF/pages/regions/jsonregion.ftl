@@ -18,7 +18,7 @@
     "parent": [
             <#list regionParents as item>
             {
-                "name": "${item.object.name}",
+                "name": "${item.region.name}",
                 "id": "${item.uniqueId.objectId}"
             }<#if item_has_next>,</#if>
 		</#list>
@@ -26,7 +26,7 @@
     "child": [
     	<#list regionChildren as item>
             {
-                "name": "${item.object.name}",
+                "name": "${item.region.name}",
                 "id": "${item.uniqueId.objectId}"
             }<#if item_has_next>,</#if>
 		</#list>

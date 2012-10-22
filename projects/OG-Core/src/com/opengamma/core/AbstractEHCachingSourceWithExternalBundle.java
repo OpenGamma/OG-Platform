@@ -69,8 +69,8 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     super(underlying, cacheManager);
     EHCacheUtils.addCache(cacheManager, this.getClass().getName() + BUNDLE_CACHE);
     EHCacheUtils.addCache(cacheManager, this.getClass().getName() + BUNDLE_HINT_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_CACHE);
-    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_HINT_CACHE);
+    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, this.getClass().getName() + BUNDLE_CACHE);
+    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, this.getClass().getName() + BUNDLE_HINT_CACHE);
   }
 
   //-------------------------------------------------------------------------

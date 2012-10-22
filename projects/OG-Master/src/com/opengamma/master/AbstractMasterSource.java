@@ -139,13 +139,13 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
   @SuppressWarnings("unchecked")
   @Override
   public V get(UniqueId uniqueId) {
-    return (V) getDocument(uniqueId).getObject();
+    return (V) getDocument(uniqueId).getValue();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public V get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return (V) getMaster().get(objectId, versionCorrection).getObject();
+    return (V) getMaster().get(objectId, versionCorrection).getValue();
   }
 
   @Override

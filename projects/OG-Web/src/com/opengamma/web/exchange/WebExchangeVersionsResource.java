@@ -79,7 +79,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     FlexiBean out = super.createRootData();
     ExchangeDocument doc = data().getExchange();
     out.put("exchangeDoc", doc);
-    out.put("exchange", doc.getObject());
+    out.put("exchange", doc.getExchange());
     out.put("deleted", !doc.isLatest());
     return out;
   }

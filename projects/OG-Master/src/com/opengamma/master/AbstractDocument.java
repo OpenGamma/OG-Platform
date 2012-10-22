@@ -73,11 +73,11 @@ public abstract class AbstractDocument extends DirectBean
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the principal object held in the document.
+   * Gets the principal value held in the document.
    *
-   * @return the principal object of the document, may be null
+   * @return the principal value of the document, may be null
    */
-  public abstract UniqueIdentifiable getObject();
+  public abstract UniqueIdentifiable getValue();
 
   //-------------------------------------------------------------------------
   /**

@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
@@ -33,9 +32,10 @@ import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurv
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigMasterIterator;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -74,7 +74,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
       // tightly coupled to the ConfigDbInterpolatedYieldCurveSource and MarketInstrumentImpliedYieldCurveFunction classes
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<YieldCurveDefinition>();
       searchRequest.setType(YieldCurveDefinition.class);
-      for (final ConfigItem<YieldCurveDefinition> configDocument : ConfigMasterIterator.iterable(_configMaster, searchRequest)) {
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(_configMaster, searchRequest)) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
         if (underscore <= 0) {

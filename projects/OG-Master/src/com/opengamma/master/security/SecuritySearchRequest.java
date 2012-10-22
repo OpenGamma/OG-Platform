@@ -202,7 +202,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       return false;
     }
     SecurityDocument document = (SecurityDocument) obj;
-    ManageableSecurity security = document.getObject();
+    ManageableSecurity security = document.getSecurity();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
