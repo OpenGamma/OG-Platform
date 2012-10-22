@@ -143,7 +143,7 @@ public abstract class AbstractWebPositionResourceTestCase {
 
   protected void populateSecMaster() {
     SecurityDocument added = _secMaster.add(new SecurityDocument(EQUITY_SECURITY));
-    _securitySource.addSecurity(added.getObject());
+    _securitySource.addSecurity(added.getSecurity());
   }
   
   protected void populatePositionMaster() {

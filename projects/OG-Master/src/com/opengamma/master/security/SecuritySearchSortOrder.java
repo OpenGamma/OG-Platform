@@ -76,7 +76,7 @@ public enum SecuritySearchSortOrder implements Comparator<SecurityDocument> {
   SECURITY_TYPE_ASC {
     @Override
     public int compare(SecurityDocument obj1, SecurityDocument obj2) {
-      return obj1.getObject().getSecurityType().compareTo(obj2.getObject().getSecurityType());
+      return obj1.getSecurity().getSecurityType().compareTo(obj2.getSecurity().getSecurityType());
     }
   },
   /**
@@ -85,7 +85,7 @@ public enum SecuritySearchSortOrder implements Comparator<SecurityDocument> {
   SECURITY_TYPE_DESC {
     @Override
     public int compare(SecurityDocument obj1, SecurityDocument obj2) {
-      return obj2.getObject().getSecurityType().compareTo(obj1.getObject().getSecurityType());
+      return obj2.getSecurity().getSecurityType().compareTo(obj1.getSecurity().getSecurityType());
     }
   };
 

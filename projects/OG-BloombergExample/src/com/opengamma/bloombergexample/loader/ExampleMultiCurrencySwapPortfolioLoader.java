@@ -337,7 +337,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
 
     for (SwapSecurity swap : swaps) {
       SecurityDocument swapToAddDoc = new SecurityDocument();
-      swapToAddDoc.setObject(swap);
+      swapToAddDoc.setSecurity(swap);
       securityMaster.add(swapToAddDoc);
       ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
       PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));

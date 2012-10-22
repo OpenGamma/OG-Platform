@@ -246,7 +246,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           SecurityDocument updateDoc = new SecurityDocument(security);
           updateDoc.setUniqueId(foundSecurity.getUniqueId());
           try {
-            return _securityMaster.update(updateDoc).getObject();
+            return _securityMaster.update(updateDoc).getSecurity();
           } catch (Throwable t) {
             s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage());
             return null;
@@ -258,7 +258,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Not found, so add it
     SecurityDocument addDoc = new SecurityDocument(security);
     SecurityDocument result = _securityMaster.add(addDoc);
-    return result.getObject();
+    return result.getSecurity();
   }
   
   @Override

@@ -86,11 +86,11 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
     for (SecurityDocument securityDocument : SecuritySearchIterator.iterable(securityMaster, securitySearchRequest)) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
         securityMaster.remove(securityDocument.getUniqueId());
-        s_logger.warn("Deleted " + securityDocument.getObject().getUniqueId() + 
-            " (" + securityDocument.getObject().getName() + ")");
+        s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
+            " (" + securityDocument.getSecurity().getName() + ")");
       } else {
-        s_logger.warn("Matched " + securityDocument.getObject().getUniqueId() + 
-            " (" + securityDocument.getObject().getName() + ")");
+        s_logger.warn("Matched " + securityDocument.getSecurity().getUniqueId() + 
+            " (" + securityDocument.getSecurity().getName() + ")");
       }
 
     }

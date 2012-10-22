@@ -102,7 +102,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   private void storeFinancialSecurity(final FinancialSecurity security) {
     SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     SecurityDocument toAddDoc = new SecurityDocument();
-    toAddDoc.setObject(security);
+    toAddDoc.setSecurity(security);
     securityMaster.add(toAddDoc);
   }
 

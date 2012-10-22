@@ -69,11 +69,11 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
     SecurityDocument latestSecDoc = data().getSecurity();
     SecurityDocument versionedSecurity = data().getVersioned();
     out.put("latestSecurityDoc", latestSecDoc);
-    out.put("latestSecurity", latestSecDoc.getObject());
+    out.put("latestSecurity", latestSecDoc.getSecurity());
     out.put("securityDoc", versionedSecurity);
-    out.put("security", versionedSecurity.getObject());
+    out.put("security", versionedSecurity.getSecurity());
     out.put("deleted", !latestSecDoc.isLatest());
-    addSecuritySpecificMetaData(versionedSecurity.getObject(), out);
+    addSecuritySpecificMetaData(versionedSecurity.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
     return out;
   }

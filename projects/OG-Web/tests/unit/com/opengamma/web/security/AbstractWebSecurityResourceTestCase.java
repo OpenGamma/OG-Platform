@@ -85,7 +85,7 @@ public abstract class AbstractWebSecurityResourceTestCase {
       securities = Lists.newArrayList();
       _securities.put(clone.getClass(), securities);
     }
-    securities.add((FinancialSecurity) secDoc.getObject());
+    securities.add((FinancialSecurity) secDoc.getSecurity());
   }
 
 }

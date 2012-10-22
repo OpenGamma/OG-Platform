@@ -552,7 +552,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     if (loadedSec == null) {
       throw new OpenGammaRuntimeException("Failed to load security for " + ticker);
     }
-    return getToolContext().getSecurityMaster().get(loadedSec).getObject();
+    return getToolContext().getSecurityMaster().get(loadedSec).getSecurity();
   }
 
   /**
