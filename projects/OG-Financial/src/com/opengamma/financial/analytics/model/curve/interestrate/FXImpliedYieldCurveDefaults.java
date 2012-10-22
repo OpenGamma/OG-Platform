@@ -8,9 +8,12 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
@@ -84,6 +87,20 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     }
+  }
+  
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+      return super.getRequirements(context, target, desiredValue);
+    }
+    final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
+    if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
   }
 
   @Override
