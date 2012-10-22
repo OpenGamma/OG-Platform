@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine;
 
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A resolver from a target specification to a real target.
@@ -21,6 +21,42 @@ public interface ComputationTargetResolver {
   // TODO: move to com.opengamma.engine.target.resolver
 
   /**
+   * Partial application of {@link ComputationTargetResolver} for a given version/correction. This provides methods which do not include the version/correction parameter but are equivalent to calling
+   * the original methods with a fixed value.
+   */
+  interface AtVersionCorrection {
+
+    /**
+     * Resolves the specification to a real target, using the bound version/correction for any deep resolution of the object. An instance of this will be bound to the function compilation and
+     * execution contexts that is correctly configured for the view. Any functions can then use this for all resolutions and not have to be aware of version/correction issues.
+     * 
+     * @param specification the specification to resolve, not null
+     * @return the resolved target, null if not found
+     */
+    ComputationTarget resolve(ComputationTargetSpecification specification);
+
+    /**
+     * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This is the resolver bound to the parent {@link ComputationTargetResolver}
+     * that is applied to the same version/correction as this instance.
+     * 
+     * @return the specification resolver, not null
+     */
+    ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver();
+
+    /**
+     * Simplifies the type to the simplest form that this resolver will recognize. For example {@code CTSpec[FooSecurity, Sec~1]} might be simplified to {@code CTSpec[SECURITY, Sec~1]} if the same
+     * resolution will take place regardless of whether the type is a security or a sub-class of it. If no simplification is possible, the original type may be returned.
+     * <p>
+     * Note that it is always correct to return the type object unchanged.
+     * 
+     * @param type the type to simplify, not null
+     * @return the simplified type, not null
+     */
+    ComputationTargetType simplifyType(ComputationTargetType type);
+
+  }
+
+  /**
    * Resolves the specification to a real target.
    * <p>
    * The specification contains a {@link UniqueId} that refers to a real target, such as a portfolio or security. The resolver converts this reference back to the original fully formed object. The
@@ -28,9 +64,10 @@ public interface ComputationTargetResolver {
    * describes the target object.
    * 
    * @param specification the specification to resolve, not null
+   * @param versionCorrection the version/correction time to perform any deep resolutions at, not null
    * @return the resolved target, null if not found
    */
-  ComputationTarget resolve(ComputationTargetSpecification specification);
+  ComputationTarget resolve(ComputationTargetSpecification specification, VersionCorrection versionCorrection);
 
   /**
    * Simplifies the type to the simplest form that this resolver will recognize. For example {@code CTSpec[FooSecurity, Sec~1]} might be simplified to {@code CTSpec[SECURITY, Sec~1]} if the same
@@ -45,21 +82,11 @@ public interface ComputationTargetResolver {
 
   /**
    * Returns the {@link SecuritySource} associated with the resolver, if any. If there is no security source then the resolver will not be able to resolve {@link ComputationTargetType#SECURITY}
-   * targets. Structures returned by the source will be fully resolved, as they would be if returned from the {@link #resolve} method. A security source should only be obtained from a resolver if the
-   * same resolution semantics are necessary.
+   * targets. When portfolios are retrieved, the objects are fully resolved using this security source.
    * 
    * @return the security source, or null if none
    */
   SecuritySource getSecuritySource();
-
-  /**
-   * Returns the {@link PositionSource} associated with the resolver, if any. If there is no position source then the resolver may not be able to resolve {@link ComputationTargetType#POSITION},
-   * {@link ComputationTargetType#PORTFOLIO_NODE}, or {@link ComputationTargetType#TRADE} targets. Structures returned by the source will be fully resolved, as they would be if returned from the
-   * {@link #resolve} method. A position source should only be obtained from a resolver if the same resolution semantics are necessary.
-   * 
-   * @return the position source, or null if none
-   */
-  PositionSource getPositionSource();
 
   /**
    * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This should return a resolver configured with the same sources that are used
@@ -68,5 +95,14 @@ public interface ComputationTargetResolver {
    * @return the specification resolver, not null
    */
   ComputationTargetSpecificationResolver getSpecificationResolver();
+
+  /**
+   * Partially applies the {@link #resolve} operation for the given version/correction. Any calls made on the returned instance are equivalent to calling methods on this with the supplied
+   * version/correction parameter.
+   * 
+   * @param versionCorrection the version/correction to use, not null
+   * @return the partial application, not null
+   */
+  AtVersionCorrection atVersionCorrection(VersionCorrection versionCorrection);
 
 }

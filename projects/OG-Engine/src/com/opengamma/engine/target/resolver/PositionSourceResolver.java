@@ -6,6 +6,7 @@
 package com.opengamma.engine.target.resolver;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
@@ -75,6 +76,41 @@ public class PositionSourceResolver {
 
   }
 
+  private static class PortfolioResolver extends PositionSourceResolver implements Resolver<Portfolio> {
+
+    public PortfolioResolver(final PositionSource underlying) {
+      super(underlying);
+    }
+
+    // ObjectResolver
+
+    @Override
+    public Portfolio resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+      try {
+        return getUnderlying().getPortfolio(uniqueId, versionCorrection);
+      } catch (DataNotFoundException e) {
+        return null;
+      }
+    }
+
+    // IdentifierResolver
+
+    @Override
+    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return null;
+    }
+
+    @Override
+    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      try {
+        return getUnderlying().getPortfolio(identifier, versionCorrection).getUniqueId();
+      } catch (DataNotFoundException e) {
+        return null;
+      }
+    }
+
+  }
+
   private static class PortfolioNodeResolver extends PositionSourceResolver implements ObjectResolver<PortfolioNode> {
 
     public PortfolioNodeResolver(final PositionSource underlying) {
@@ -111,6 +147,10 @@ public class PositionSourceResolver {
 
   public ObjectResolver<PortfolioNode> portfolioNode() {
     return new PortfolioNodeResolver(getUnderlying());
+  }
+
+  public Resolver<Portfolio> portfolio() {
+    return new PortfolioResolver(getUnderlying());
   }
 
 }

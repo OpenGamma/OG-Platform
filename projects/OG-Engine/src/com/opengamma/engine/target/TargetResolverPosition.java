@@ -23,7 +23,7 @@ public class TargetResolverPosition extends TargetResolverPositionOrTrade implem
   private transient volatile Collection<Trade> _trades;
   private final Map<String, String> _attributes;
 
-  public TargetResolverPosition(final ComputationTargetResolver targetResolver, final Position copyFrom) {
+  public TargetResolverPosition(final ComputationTargetResolver.AtVersionCorrection targetResolver, final Position copyFrom) {
     super(targetResolver, copyFrom);
     final Collection<Trade> trades = copyFrom.getTrades();
     _tradeSpecs = new ComputationTargetSpecification[trades.size()];

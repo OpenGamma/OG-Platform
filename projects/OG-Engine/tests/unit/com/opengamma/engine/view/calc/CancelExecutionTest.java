@@ -149,7 +149,7 @@ public class CancelExecutionTest {
     final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
     final MockSecuritySource securitySource = new MockSecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();
-    compilationContext.setComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
+    compilationContext.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
     final ViewComputationCacheSource computationCacheSource = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     final FunctionInvocationStatisticsGatherer functionInvocationStatistics = new DiscardingInvocationStatisticsGatherer();
     final ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();

@@ -279,7 +279,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    return getCompilationContext().getComputationTargetSpecificationResolver().getTargetSpecification(reference);
+    return getCompilationContext().getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(reference);
   }
 
   protected MapEx<ResolveTask, ResolvedValueProducer> getTasks(final ValueSpecification valueSpecification) {

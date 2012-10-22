@@ -35,7 +35,6 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistedException;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -122,11 +121,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   public ComputationTargetResolver getTargetResolver() {
-    return getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver();
-  }
-
-  public ComputationTargetSpecificationResolver getTargetSpecificationResolver() {
-    return getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver().getSpecificationResolver();
+    return getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
   }
 
   public ViewProcessorQuerySender getViewProcessorQuerySender() {
@@ -356,7 +351,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private List<CalculationJobResultItem> executeJobItems(final Iterator<CalculationJobItem> jobItemItr, final List<CalculationJobResultItem> resultItems) throws AsynchronousHandleExecution {
-    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getTargetSpecificationResolver().atVersionCorrection(getJob().getResolverVersionCorrection());
+    final ComputationTargetResolver.AtVersionCorrection resolver = getTargetResolver().atVersionCorrection(getJob().getResolverVersionCorrection());
     while (jobItemItr.hasNext()) {
       if (getJob().isCancelled()) {
         return null;
@@ -474,7 +469,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return itemResult;
   }
 
-  private CalculationJobResultItem invoke(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final CalculationJobItem jobItem,
+  private CalculationJobResultItem invoke(final ComputationTargetResolver.AtVersionCorrection resolver, final CalculationJobItem jobItem,
       final DeferredInvocationStatistics statistics) throws AsynchronousExecution {
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
@@ -483,11 +478,11 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       targetFuture = getExecutorService().submit(new Callable<ComputationTarget>() {
         @Override
         public ComputationTarget call() {
-          return getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
+          return resolver.resolve(jobItem.getComputationTargetSpecification());
         }
       });
     } else {
-      target = LazyComputationTargetResolver.resolve(getTargetResolver(), jobItem.getComputationTargetSpecification());
+      target = LazyComputationTargetResolver.resolve(resolver, jobItem.getComputationTargetSpecification());
       if (target == null) {
         return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
       }
@@ -540,7 +535,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return CalculationJobResultItem.missingInputs(missing);
       }
     }
-    final FunctionInputs functionInputs = new FunctionInputsImpl(resolver, inputs, missing);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(resolver.getSpecificationResolver(), inputs, missing);
     if (target == null) {
       try {
         target = targetFuture.get();

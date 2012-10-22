@@ -18,7 +18,7 @@ import com.opengamma.id.UniqueId;
  */
 public class LazyTargetResolverPortfolioNode extends LazyTargetResolverObject implements PortfolioNode {
 
-  public LazyTargetResolverPortfolioNode(final ComputationTargetResolver resolver, final ComputationTargetSpecification specification) {
+  public LazyTargetResolverPortfolioNode(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification specification) {
     super(resolver, specification);
   }
 

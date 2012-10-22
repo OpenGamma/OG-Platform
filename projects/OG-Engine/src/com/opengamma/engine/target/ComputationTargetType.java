@@ -8,6 +8,7 @@ package com.opengamma.engine.target;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionOrTrade;
@@ -15,8 +16,8 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.fudgemsg.ComputationTargetTypeFudgeBuilder;
 import com.opengamma.engine.target.resolver.CurrencyResolver;
-import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.engine.target.resolver.PrimitiveResolver;
 import com.opengamma.engine.target.resolver.UnorderedCurrencyPairResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -36,6 +37,10 @@ public abstract class ComputationTargetType implements Serializable {
 
   private static final WeakInstanceCache<ComputationTargetType> s_computationTargetTypes = new WeakInstanceCache<ComputationTargetType>();
 
+  /**
+   * A full portfolio structure. This will seldom be needed for calculations - the root node is usually more important from an aggregation perspective.
+   */
+  public static final ObjectComputationTargetType<Portfolio> PORTFOLIO = defaultObject(Portfolio.class, "PORTFOLIO");
   /**
    * An ordered list of positions and other portfolio nodes.
    */

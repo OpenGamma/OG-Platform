@@ -269,8 +269,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()), 
         getHistoricalTimeSeriesMaster()));
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource()));
-    context.setComputationTargetSpecificationResolver(context.getComputationTargetResolver().getSpecificationResolver().atVersionCorrection(VersionCorrection.LATEST));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource()));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     return context;
   }
 
@@ -304,7 +304,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
     final ExternalIdBundleLookup lookup = new ExternalIdBundleLookup(compilationContext.getSecuritySource());
-    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetSpecificationResolver();
+    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetResolver().getSpecificationResolver();
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (ValueRequirement requirement : requirements) {

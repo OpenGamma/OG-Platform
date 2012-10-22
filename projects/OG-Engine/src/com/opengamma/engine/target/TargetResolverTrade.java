@@ -29,7 +29,7 @@ public class TargetResolverTrade extends TargetResolverPositionOrTrade implement
   private final LocalDate _premiumDate;
   private final OffsetTime _premiumTime;
 
-  public TargetResolverTrade(final ComputationTargetResolver targetResolver, final Trade copyFrom) {
+  public TargetResolverTrade(final ComputationTargetResolver.AtVersionCorrection targetResolver, final Trade copyFrom) {
     super(targetResolver, copyFrom);
     _attributes = copyFrom.getAttributes();
     _counterparty = copyFrom.getCounterparty();

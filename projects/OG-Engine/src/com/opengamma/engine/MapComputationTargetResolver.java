@@ -8,11 +8,11 @@ package com.opengamma.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,10 +34,9 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
    */
   private final DefaultComputationTargetSpecificationResolver _specificationResolver = new DefaultComputationTargetSpecificationResolver();
 
-  //-------------------------------------------------------------------------
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    return _backingMap.get(specification); 
+  public ComputationTarget resolve(ComputationTargetSpecification specification, VersionCorrection versionCorrection) {
+    return _backingMap.get(specification);
   }
 
   @Override
@@ -61,13 +60,30 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
   }
 
   @Override
-  public PositionSource getPositionSource() {
-    return null;
+  public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    return _specificationResolver;
   }
 
   @Override
-  public ComputationTargetSpecificationResolver getSpecificationResolver() {
-    return _specificationResolver;
+  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+    final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver = MapComputationTargetResolver.this.getSpecificationResolver().atVersionCorrection(versionCorrection);
+    return new AtVersionCorrection() {
+
+      @Override
+      public ComputationTarget resolve(ComputationTargetSpecification specification) {
+        return MapComputationTargetResolver.this.resolve(specification, versionCorrection);
+      }
+
+      @Override
+      public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
+        return specificationResolver;
+      }
+
+      @Override
+      public ComputationTargetType simplifyType(ComputationTargetType type) {
+        return MapComputationTargetResolver.this.simplifyType(type);
+      }
+    };
   }
 
   /**

@@ -21,11 +21,13 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -114,7 +116,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   }
 
   @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
     ComputationTarget result = _frontTargetCache.get(specification);
     if (result != null) {
       return result;
@@ -147,7 +149,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         }
       }
     }
-    result = super.resolve(specification);
+    result = super.resolve(specification, versionCorrection);
     if (result != null) {
       final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, result.getValue());
       if (existing == null) {
@@ -162,8 +164,26 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   }
 
   @Override
-  public ComputationTargetType simplifyType(final ComputationTargetType type) {
-    return super.simplifyType(type);
+  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+    final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver = getSpecificationResolver().atVersionCorrection(versionCorrection);
+    return new ComputationTargetResolver.AtVersionCorrection() {
+
+      @Override
+      public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+        return DefaultCachingComputationTargetResolver.this.resolve(specification, versionCorrection);
+      }
+
+      @Override
+      public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
+        return specificationResolver;
+      }
+
+      @Override
+      public ComputationTargetType simplifyType(final ComputationTargetType type) {
+        return DefaultCachingComputationTargetResolver.this.simplifyType(type);
+      }
+
+    };
   }
 
   @Override

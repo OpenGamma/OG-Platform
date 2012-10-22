@@ -25,9 +25,9 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.MockComputationTargetResolver;
-import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Tests the {@link LazyComputationTargetResolver} class and the stub objects it uses.
@@ -38,7 +38,7 @@ public class LazyComputationTargetResolverTest {
   public void testPortfolioNode() {
     final MockComputationTargetResolver mock = MockComputationTargetResolver.unresolved();
     final ComputationTargetResolver resolver = new LazyComputationTargetResolver(mock);
-    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Node", "0")));
+    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Node", "0")), VersionCorrection.LATEST);
     final PortfolioNode node = target.getPortfolioNode();
     assertEquals(node.getUniqueId(), UniqueId.of("Node", "0"));
     assertEquals(mock.getResolveCalls(), 0);
@@ -69,7 +69,7 @@ public class LazyComputationTargetResolverTest {
   public void testPosition() {
     final MockComputationTargetResolver mock = MockComputationTargetResolver.unresolved();
     final ComputationTargetResolver resolver = new LazyComputationTargetResolver(mock);
-    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, UniqueId.of("Position", "0")));
+    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, UniqueId.of("Position", "0")), VersionCorrection.LATEST);
     final Position position = target.getPosition();
     assertEquals(position.getUniqueId(), UniqueId.of("Position", "0"));
     assertEquals(mock.getResolveCalls(), 0);
@@ -92,7 +92,7 @@ public class LazyComputationTargetResolverTest {
   public void testTrade() {
     final MockComputationTargetResolver mock = MockComputationTargetResolver.unresolved();
     final ComputationTargetResolver resolver = new LazyComputationTargetResolver(mock);
-    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, UniqueId.of("Trade", "0")));
+    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, UniqueId.of("Trade", "0")), VersionCorrection.LATEST);
     final Trade trade = target.getTrade();
     assertEquals(trade.getUniqueId(), UniqueId.of("Trade", "0"));
     assertEquals(mock.getResolveCalls(), 0);
@@ -118,7 +118,7 @@ public class LazyComputationTargetResolverTest {
   public void testSecurity() {
     final MockComputationTargetResolver mock = MockComputationTargetResolver.unresolved();
     final ComputationTargetResolver resolver = new LazyComputationTargetResolver(mock);
-    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "0")));
+    final ComputationTarget target = resolver.resolve(new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Security", "0")), VersionCorrection.LATEST);
     final Security security = target.getSecurity();
     assertEquals(mock.getResolveCalls(), 1);
     assertEquals(security.getSecurityType(), "MOCK");

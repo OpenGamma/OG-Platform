@@ -10,7 +10,6 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
 
@@ -25,17 +24,13 @@ import com.opengamma.util.PublicAPI;
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
-   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   * The name under which the {@link ComputationTargetResolver.AtVersionCorrection} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
   /**
    * The name under which the {@link ComputationTargetResults} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
-  /**
-   * The name under which the {@link ComputationTargetSpecificationResolver.AtVersionCorrection} instance should be bound.
-   */
-  public static final String COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME = "computationTargetSpecificationResolver";
   /**
    * The name under which the initialization reference of the functions should be bound.
    */
@@ -56,6 +51,10 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+  /**
+   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   */
+  public static final String RAW_COMPUTATION_TARGET_RESOLVER = "rawComputationTargetResolver";
   /**
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
@@ -83,13 +82,12 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   }
 
   /**
-   * Gets the computation target resolver. Functions should not need to access this directly - their computation target will always be resolved when they are invoked. It may be used to access the full
-   * target object referenced by a "desiredValue".
+   * Gets the computation target resolver configured for the correct version/correction. Functions shouldn't need to access this directly as their target will always be resolved when they are invoked.
    * 
    * @return the computation target resolver, null if not in the context
    */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return (ComputationTargetResolver) get(COMPUTATION_TARGET_RESOLVER);
+  public ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
+    return (ComputationTargetResolver.AtVersionCorrection) get(COMPUTATION_TARGET_RESOLVER);
   }
 
   /**
@@ -97,8 +95,27 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * 
    * @param computationTargetResolver the target resolver
    */
-  public void setComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+  public void setComputationTargetResolver(final ComputationTargetResolver.AtVersionCorrection computationTargetResolver) {
     put(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  }
+
+  /**
+   * Gets the raw computation target resolver. Functions should not need to access this directly - the resolver returned by {@link #getComputationTargetResolver} is correctly configured for the
+   * version/correction time the owning view process needs.
+   * 
+   * @return the computation target resolver, null if not in the context
+   */
+  public ComputationTargetResolver getRawComputationTargetResolver() {
+    return (ComputationTargetResolver) get(RAW_COMPUTATION_TARGET_RESOLVER);
+  }
+
+  /**
+   * Sets the computation target resolver.
+   * 
+   * @param computationTargetResolver the target resolver
+   */
+  public void setRawComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+    put(RAW_COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
   }
 
   /**
@@ -121,24 +138,6 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     } else {
       put(COMPUTATION_TARGET_RESULTS_NAME, computationTargetResults);
     }
-  }
-
-  /**
-   * Returns the service for resolving target references to specifications at the latched version/correction time.
-   * 
-   * @return the resolver service, null if none is available
-   */
-  public ComputationTargetSpecificationResolver.AtVersionCorrection getComputationTargetSpecificationResolver() {
-    return (ComputationTargetSpecificationResolver.AtVersionCorrection) get(COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME);
-  }
-
-  /**
-   * Sets the service for resolving target references to specifications at the latched version/correction time.
-   * 
-   * @param resolver the resolver to set, not null
-   */
-  public void setComputationTargetSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver) {
-    put(COMPUTATION_TARGET_SPECIFICATION_RESOLVER_NAME, resolver);
   }
 
   /**

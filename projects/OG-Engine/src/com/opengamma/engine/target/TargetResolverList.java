@@ -16,17 +16,17 @@ import com.opengamma.engine.ComputationTargetSpecification;
  */
 /* package */abstract class TargetResolverList<T> extends AbstractList<T> {
 
-  private final ComputationTargetResolver _resolver;
+  private final ComputationTargetResolver.AtVersionCorrection _resolver;
   private final ComputationTargetSpecification[] _specifications;
   private final Object[] _resolved;
 
-  public TargetResolverList(final ComputationTargetResolver resolver, final ComputationTargetSpecification[] specifications) {
+  public TargetResolverList(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification[] specifications) {
     _resolver = resolver;
     _specifications = specifications;
     _resolved = new Object[specifications.length];
   }
 
-  protected ComputationTargetResolver getTargetResolver() {
+  protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
     return _resolver;
   }
 

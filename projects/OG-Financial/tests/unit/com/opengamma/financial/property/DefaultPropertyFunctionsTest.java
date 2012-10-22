@@ -327,7 +327,7 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = createPositionSource(securities);
     context.setPortfolioStructure(new PortfolioStructure(positions));
     context.setSecuritySource(securities);
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities, positions));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securities, positions));
     return context;
   }
 

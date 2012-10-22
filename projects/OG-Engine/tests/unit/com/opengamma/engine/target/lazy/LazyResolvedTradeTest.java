@@ -21,9 +21,8 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.engine.target.TargetResolverTrade;
-import com.opengamma.engine.target.lazy.LazyResolveContext;
-import com.opengamma.engine.target.lazy.LazyResolvedTrade;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -35,7 +34,7 @@ public class LazyResolvedTradeTest {
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Trade underlying = resolver.getPositionSource().getTrade(UniqueId.of("Trade", "0"));
-    Trade trade = new LazyResolvedTrade(new LazyResolveContext(resolver.getSecuritySource()), underlying);
+    Trade trade = new LazyResolvedTrade(new LazyResolveContext(resolver.getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), underlying);
     assertEquals(trade.getAttributes(), underlying.getAttributes());
     trade.setAttributes(ImmutableMap.of("K1", "V1"));
     assertEquals(trade.getAttributes(), underlying.getAttributes());
@@ -54,7 +53,7 @@ public class LazyResolvedTradeTest {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Trade underlying = resolver.getPositionSource().getTrade(UniqueId.of("Trade", "0"));
     underlying.setAttributes(ImmutableMap.of("K1", "V1"));
-    Trade trade = new LazyResolvedTrade(new LazyResolveContext(resolver.getSecuritySource()), underlying);
+    Trade trade = new LazyResolvedTrade(new LazyResolveContext(resolver.getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(trade);
     final Object result = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
@@ -77,7 +76,7 @@ public class LazyResolvedTradeTest {
     final Trade underlying = resolver.getPositionSource().getTrade(UniqueId.of("Trade", "0"));
     underlying.setAttributes(ImmutableMap.of("K1", "V1"));
     Trade trade = new LazyResolvedTrade(new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver,
-        EHCacheUtils.createCacheManager())), underlying);
+        EHCacheUtils.createCacheManager())).atVersionCorrection(VersionCorrection.LATEST), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(trade);
     final Object result = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();

@@ -138,6 +138,15 @@ public class ComputationTargetResolverUtils {
     return new ComputationTarget(resolvedType, contextIdentifiers, target);
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T extends ComputationTargetReference> T simplifyType(final T reference, final ComputationTargetType oldType, final ComputationTargetType newType) {
+    if ((newType == null) || (newType == oldType)) {
+      return reference;
+    } else {
+      return (T) reference.replaceType(newType);
+    }
+  }
+
   /**
    * Simplifies the type within a reference to the simplest form that the resolver will recognize. For example {@code CTSpec[FooSecurity, Sec~1]} might be simplified to {@code CTSpec[SECURITY, Sec~1]}
    * if the same resolution will take place regardless of whether the type is a security or a sub-class of it. If no simplification is possible, the original reference may be returned.
@@ -147,15 +156,13 @@ public class ComputationTargetResolverUtils {
    * @param resolver the resolver to simplify against, not null
    * @return the simplified reference, not null
    */
-  @SuppressWarnings("unchecked")
   public static <T extends ComputationTargetReference> T simplifyType(final T reference, final ComputationTargetResolver resolver) {
-    final ComputationTargetType oldType = reference.getType();
-    final ComputationTargetType newType = resolver.simplifyType(oldType);
-    if ((newType == null) || (newType == oldType)) {
-      return reference;
-    } else {
-      return (T) reference.replaceType(newType);
-    }
+    return simplifyType(reference, reference.getType(), resolver.simplifyType(reference.getType()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T extends ComputationTargetReference> T simplifyType(final T reference, final ComputationTargetResolver.AtVersionCorrection resolver) {
+    return simplifyType(reference, reference.getType(), resolver.simplifyType(reference.getType()));
   }
 
 }

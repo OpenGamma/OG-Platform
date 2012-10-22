@@ -161,7 +161,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
-    context.setComputationTargetResolver(getTargetResolver());
+    context.setRawComputationTargetResolver(getTargetResolver());
     if (getCompilationBlacklist() != null) {
       context.setGraphBuildingBlacklist(new DefaultFunctionBlacklistQuery(getCompilationBlacklist()));
     }

@@ -24,7 +24,7 @@ public final class LazyResolvedTrade extends LazyResolvedPositionOrTrade<Trade> 
 
   private static final long serialVersionUID = 1L;
 
-  public LazyResolvedTrade(final LazyResolveContext context, final Trade underlying) {
+  public LazyResolvedTrade(final LazyResolveContext.AtVersionCorrection context, final Trade underlying) {
     super(context, underlying);
   }
 
@@ -79,7 +79,7 @@ public final class LazyResolvedTrade extends LazyResolvedPositionOrTrade<Trade> 
   }
 
   @Override
-  protected TargetResolverTrade targetResolverObject(final ComputationTargetResolver resolver) {
+  protected TargetResolverTrade targetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver) {
     return new TargetResolverTrade(resolver, this);
   }
 

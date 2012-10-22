@@ -31,7 +31,7 @@ public class TestCalculationNode extends SimpleCalculationNode {
   private static FunctionCompilationContext compilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     context.setSecuritySource(new MockSecuritySource());
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource(), new MockPositionSource()));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource(), new MockPositionSource()));
     return context;
   }
 

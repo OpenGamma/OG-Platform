@@ -79,7 +79,7 @@ public class ViewDefinitionCompilerTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
-    functionCompilationContext.setComputationTargetResolver(new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
+    functionCompilationContext.setRawComputationTargetResolver(new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
         EHCacheUtils.createCacheManager()));
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
     cfs.initialize();
@@ -121,7 +121,7 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
         EHCacheUtils.createCacheManager());
-    functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
+    functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, executorService,
         new DependencyGraphBuilderFactory());
@@ -168,7 +168,7 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
-    functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
+    functionCompilationContext.setRawComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, executorService,
         new DependencyGraphBuilderFactory());
@@ -204,7 +204,7 @@ public class ViewDefinitionCompilerTest {
     cfs.initialize();
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
-    compilationContext.setComputationTargetResolver(computationTargetResolver);
+    compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, executorService,
         new DependencyGraphBuilderFactory());
@@ -240,7 +240,7 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
         .createCacheManager());
-    compilationContext.setComputationTargetResolver(computationTargetResolver);
+    compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, executorService,
         new DependencyGraphBuilderFactory());
@@ -278,7 +278,7 @@ public class ViewDefinitionCompilerTest {
     final SecuritySource securitySource = new MockSecuritySource();
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource),
         EHCacheUtils.createCacheManager());
-    compilationContext.setComputationTargetResolver(computationTargetResolver);
+    compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
     final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.compileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext,
         executorService, new DependencyGraphBuilderFactory()), Instant.now(), VersionCorrection.LATEST);

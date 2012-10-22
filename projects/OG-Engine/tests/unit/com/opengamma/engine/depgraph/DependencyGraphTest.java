@@ -16,6 +16,7 @@ import com.opengamma.engine.function.resolver.ComputationTargetFilter;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Test {@link DependencyGraph}.
@@ -33,7 +34,7 @@ public class DependencyGraphTest {
     }
     DependencyGraph filtered = graph.subGraph(ApplyToAllTargets.INSTANCE);
     assertEquals(filtered.getDependencyNodes(), graph.getDependencyNodes());
-    filtered = graph.subGraph(new ComputationTargetFilter(new DefaultComputationTargetResolver()) {
+    filtered = graph.subGraph(new ComputationTargetFilter(new DefaultComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST)) {
       @Override
       public boolean accept(final ComputationTarget target) {
         return target.getUniqueId().getValue().compareTo("5") >= 0;

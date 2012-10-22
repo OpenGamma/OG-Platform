@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -46,7 +45,7 @@ public class CacheNotifyingSecuritySourceTest {
     private final List<UniqueIdentifiable> _passed = new LinkedList<UniqueIdentifiable>();
 
     @Override
-    public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
     }
 
@@ -62,11 +61,6 @@ public class CacheNotifyingSecuritySourceTest {
 
     @Override
     public SecuritySource getSecuritySource() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public PositionSource getPositionSource() {
       throw new UnsupportedOperationException();
     }
 
@@ -95,6 +89,11 @@ public class CacheNotifyingSecuritySourceTest {
       ArgumentChecker.notNull(targets, "targets");
       ArgumentChecker.isFalse(targets.isEmpty(), "targets.isEmpty");
       _passed.addAll(targets);
+    }
+
+    @Override
+    public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
     }
 
   }

@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine;
 
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,8 +44,8 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   }
 
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    return getUnderlying().resolve(specification);
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
+    return getUnderlying().resolve(specification, versionCorrection);
   }
 
   @Override
@@ -59,13 +59,13 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   }
 
   @Override
-  public PositionSource getPositionSource() {
-    return getUnderlying().getPositionSource();
+  public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    return getUnderlying().getSpecificationResolver();
   }
 
   @Override
-  public ComputationTargetSpecificationResolver getSpecificationResolver() {
-    return getUnderlying().getSpecificationResolver();
+  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+    return getUnderlying().atVersionCorrection(versionCorrection);
   }
 
 }

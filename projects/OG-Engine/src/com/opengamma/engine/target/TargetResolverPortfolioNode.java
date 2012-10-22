@@ -30,7 +30,7 @@ public final class TargetResolverPortfolioNode extends TargetResolverObject impl
   private transient volatile List<Position> _positions;
   private final String _name;
 
-  public TargetResolverPortfolioNode(final ComputationTargetResolver targetResolver, final PortfolioNode copyFrom) {
+  public TargetResolverPortfolioNode(final ComputationTargetResolver.AtVersionCorrection targetResolver, final PortfolioNode copyFrom) {
     super(targetResolver);
     _uniqueId = copyFrom.getUniqueId();
     _parentNodeId = copyFrom.getParentNodeId();

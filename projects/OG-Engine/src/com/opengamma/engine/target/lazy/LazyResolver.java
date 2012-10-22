@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target.lazy;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -43,7 +44,7 @@ public interface LazyResolver {
       return _underlying;
     }
 
-    protected abstract T lazy(T object, LazyResolveContext context);
+    protected abstract T lazy(T object, LazyResolveContext.AtVersionCorrection context);
 
     @Override
     public T resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
@@ -51,7 +52,23 @@ public interface LazyResolver {
       if (underlying == null) {
         return null;
       }
-      return lazy(underlying, _parent.getLazyResolveContext());
+      return lazy(underlying, _parent.getLazyResolveContext().atVersionCorrection(versionCorrection));
+    }
+
+  }
+
+  /**
+   * Lazy resolution of portfolios.
+   */
+  public static class LazyPortfolioResolver extends ResolverImpl<Portfolio> {
+
+    public LazyPortfolioResolver(final LazyResolver parent, final ObjectResolver<Portfolio> underlying) {
+      super(parent, underlying);
+    }
+
+    @Override
+    public Portfolio lazy(final Portfolio object, final LazyResolveContext.AtVersionCorrection context) {
+      return new LazyResolvedPortfolio(context, object);
     }
 
   }
@@ -66,7 +83,7 @@ public interface LazyResolver {
     }
 
     @Override
-    public PortfolioNode lazy(final PortfolioNode object, final LazyResolveContext context) {
+    public PortfolioNode lazy(final PortfolioNode object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedPortfolioNode(context, object);
     }
 
@@ -88,7 +105,7 @@ public interface LazyResolver {
     // ResolverImpl
 
     @Override
-    public Position lazy(final Position object, final LazyResolveContext context) {
+    public Position lazy(final Position object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedPosition(context, object);
     }
 
@@ -116,7 +133,7 @@ public interface LazyResolver {
     }
 
     @Override
-    public Trade lazy(final Trade object, final LazyResolveContext context) {
+    public Trade lazy(final Trade object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedTrade(context, object);
     }
 

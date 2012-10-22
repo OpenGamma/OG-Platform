@@ -50,7 +50,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Security getSecurity(final UniqueId uniqueId) {
     final Security security = getUnderlying().getSecurity(uniqueId);
     if (security != null) {
-      getCache().cacheSecurities(Collections.singleton(security));
+      getCache().cacheTargets(Collections.singleton(security));
     }
     return security;
   }
@@ -59,7 +59,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
     final Map<UniqueId, Security> securities = getUnderlying().getSecurities(uniqueIds);
     if (!securities.isEmpty()) {
-      getCache().cacheSecurities(securities.values());
+      getCache().cacheTargets(securities.values());
     }
     return securities;
   }
@@ -68,7 +68,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Security getSecurity(final ObjectId objectId, final VersionCorrection versionCorrection) {
     final Security security = getUnderlying().getSecurity(objectId, versionCorrection);
     if (security != null) {
-      getCache().cacheSecurities(Collections.singleton(security));
+      getCache().cacheTargets(Collections.singleton(security));
     }
     return security;
   }
@@ -77,7 +77,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     final Collection<Security> securities = getUnderlying().getSecurities(bundle, versionCorrection);
     if (!securities.isEmpty()) {
-      getCache().cacheSecurities(securities);
+      getCache().cacheTargets(securities);
     }
     return securities;
   }
@@ -86,7 +86,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
     final Collection<Security> securities = getUnderlying().getSecurities(bundle);
     if (!securities.isEmpty()) {
-      getCache().cacheSecurities(securities);
+      getCache().cacheTargets(securities);
     }
     return securities;
   }
@@ -95,7 +95,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Security getSecurity(final ExternalIdBundle bundle) {
     final Security security = getUnderlying().getSecurity(bundle);
     if (security != null) {
-      getCache().cacheSecurities(Collections.singleton(security));
+      getCache().cacheTargets(Collections.singleton(security));
     }
     return security;
   }
@@ -104,7 +104,7 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   public Security getSecurity(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     final Security security = getUnderlying().getSecurity(bundle, versionCorrection);
     if (security != null) {
-      getCache().cacheSecurities(Collections.singleton(security));
+      getCache().cacheTargets(Collections.singleton(security));
     }
     return security;
   }

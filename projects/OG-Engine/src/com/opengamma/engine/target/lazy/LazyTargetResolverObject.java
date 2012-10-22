@@ -17,16 +17,16 @@ import com.opengamma.id.UniqueIdentifiable;
  */
 /* package */abstract class LazyTargetResolverObject implements UniqueIdentifiable {
 
-  private final ComputationTargetResolver _resolver;
+  private final ComputationTargetResolver.AtVersionCorrection _resolver;
   private final ComputationTargetSpecification _spec;
   private volatile ComputationTarget _resolved;
 
-  public LazyTargetResolverObject(final ComputationTargetResolver resolver, final ComputationTargetSpecification spec) {
+  public LazyTargetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification spec) {
     _resolver = resolver;
     _spec = spec;
   }
 
-  protected ComputationTargetResolver getTargetResolver() {
+  protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
     return _resolver;
   }
 

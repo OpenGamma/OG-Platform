@@ -27,7 +27,7 @@ import com.opengamma.id.UniqueId;
   private final ComputationTargetSpecification _securitySpec;
   private transient volatile ComputationTarget _security;
 
-  public TargetResolverPositionOrTrade(final ComputationTargetResolver targetResolver, final PositionOrTrade copyFrom) {
+  public TargetResolverPositionOrTrade(final ComputationTargetResolver.AtVersionCorrection targetResolver, final PositionOrTrade copyFrom) {
     super(targetResolver);
     _uniqueId = copyFrom.getUniqueId();
     _quantity = copyFrom.getQuantity();

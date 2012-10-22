@@ -25,7 +25,7 @@ public final class LazyResolvedPortfolioNode extends LazyResolvedObject<Portfoli
   private volatile List<Position> _positions;
   private volatile List<PortfolioNode> _childNodes;
 
-  public LazyResolvedPortfolioNode(final LazyResolveContext context, final PortfolioNode underlying) {
+  public LazyResolvedPortfolioNode(final LazyResolveContext.AtVersionCorrection context, final PortfolioNode underlying) {
     super(context, underlying);
   }
 
@@ -98,7 +98,7 @@ public final class LazyResolvedPortfolioNode extends LazyResolvedObject<Portfoli
   }
 
   @Override
-  protected TargetResolverPortfolioNode targetResolverObject(final ComputationTargetResolver resolver) {
+  protected TargetResolverPortfolioNode targetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver) {
     return new TargetResolverPortfolioNode(resolver, this);
   }
 

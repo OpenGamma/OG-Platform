@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -153,7 +154,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @return The name of the target
    */
   private String getTargetName(final ComputationTargetSpecification targetSpec) {
-    ComputationTarget target = _computationTargetResolver.resolve(targetSpec);
+    ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
     if (target != null) {
       return target.getName();
     } else {

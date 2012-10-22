@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
  */
 public class LazyTargetResolverTrade extends LazyTargetResolverPositionOrTrade implements Trade {
 
-  public LazyTargetResolverTrade(final ComputationTargetResolver resolver, final ComputationTargetSpecification specification) {
+  public LazyTargetResolverTrade(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification specification) {
     super(resolver, specification);
   }
 

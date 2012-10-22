@@ -7,16 +7,18 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -104,24 +106,17 @@ public final class PortfolioCompiler {
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
-    PositionSource positionSource = compilationContext.getServices().getFunctionCompilationContext().getComputationTargetResolver().getPositionSource();
-    if (positionSource == null) {
-      throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
-          + "' contains required portfolio outputs, but the compiler does not have access to a position source.");
+    final ComputationTargetResolver resolver = compilationContext.getServices().getFunctionCompilationContext().getRawComputationTargetResolver();
+    final ComputationTargetResolver.AtVersionCorrection versioned = resolver.atVersionCorrection(compilationContext.getResolverVersionCorrection());
+    final ComputationTargetSpecification specification = versioned.getSpecificationResolver().getTargetSpecification(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, portfolioId));
+    if (specification == null) {
+      throw new OpenGammaRuntimeException("Unable to identify portfolio '" + portfolioId + "' for view '" + compilationContext.getViewDefinition().getName() + "'");
     }
-    // If the portfolio identifier is versioned then that must be used, otherwise it is the requested resolution version.
-    Portfolio portfolio;
-    try {
-      if (portfolioId.isVersioned()) {
-        portfolio = positionSource.getPortfolio(portfolioId, compilationContext.getResolverVersionCorrection());
-      } else {
-        portfolio = positionSource.getPortfolio(portfolioId.getObjectId(), compilationContext.getResolverVersionCorrection());
-      }
-    } catch (DataNotFoundException ex) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource +
-          "' used by view definition '" + compilationContext.getViewDefinition().getName() + "'", ex);
+    final ComputationTarget target = versioned.resolve(specification);
+    if (target == null) {
+      throw new OpenGammaRuntimeException("Unable to resolve '" + specification + "' for view '" + compilationContext.getViewDefinition().getName() + "'");
     }
-    return portfolio;
+    return target.getValue(ComputationTargetType.PORTFOLIO);
   }
 
   /**

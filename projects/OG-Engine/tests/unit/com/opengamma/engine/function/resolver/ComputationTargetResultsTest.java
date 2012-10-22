@@ -163,7 +163,7 @@ public class ComputationTargetResultsTest {
     final PositionSource positionSource = Mockito.mock(PositionSource.class);
     Mockito.when(positionSource.getPosition(POSITION.getUniqueId())).thenReturn(POSITION);
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), context);
     cfs.initialize();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(cfs);

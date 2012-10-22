@@ -34,6 +34,7 @@ import com.opengamma.engine.target.lazy.LazyResolvedTrade;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -69,22 +70,24 @@ public class MockComputationTargetResolver extends MapComputationTargetResolver 
 
       @Override
       protected Portfolio portfolio(final Portfolio portfolio) {
-        return new TargetResolverPortfolio(this, portfolio);
+        return new TargetResolverPortfolio(atVersionCorrection(VersionCorrection.LATEST), portfolio);
       }
 
       @Override
       protected PortfolioNode portfolioNode(final PortfolioNode node) {
-        return new TargetResolverPortfolioNode(this, node);
+        return new TargetResolverPortfolioNode(atVersionCorrection(VersionCorrection.LATEST), node);
       }
 
       @Override
       protected Position position(final Position position) {
-        return new TargetResolverPosition(this, new LazyResolvedPosition(new LazyResolveContext(getSecuritySource()), new SimplePosition(position)));
+        return new TargetResolverPosition(atVersionCorrection(VersionCorrection.LATEST), new LazyResolvedPosition(
+            new LazyResolveContext(getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), new SimplePosition(position)));
       }
 
       @Override
       protected Trade trade(final Trade trade) {
-        return new TargetResolverTrade(this, new LazyResolvedTrade(new LazyResolveContext(getSecuritySource()), new SimpleTrade(trade)));
+        return new TargetResolverTrade(atVersionCorrection(VersionCorrection.LATEST), new LazyResolvedTrade(
+            new LazyResolveContext(getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), new SimpleTrade(trade)));
       }
 
       @Override
@@ -188,9 +191,9 @@ public class MockComputationTargetResolver extends MapComputationTargetResolver 
   }
 
   @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
     _resolveCalls++;
-    return super.resolve(specification);
+    return super.resolve(specification, versionCorrection);
   }
 
   public int getResolveCalls() {
@@ -202,7 +205,6 @@ public class MockComputationTargetResolver extends MapComputationTargetResolver 
     return _securitySource;
   }
 
-  @Override
   public PositionSource getPositionSource() {
     return _positionSource;
   }

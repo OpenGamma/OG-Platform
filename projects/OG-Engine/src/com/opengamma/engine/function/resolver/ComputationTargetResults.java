@@ -82,6 +82,8 @@ public class ComputationTargetResults {
     });
     _context = context.clone();
     _context.setComputationTargetResults(null);
+    // TODO: This is bad; we shouldn't be taking the clone at construction as we might miss things. What if we had "lifecycle" methods like spring beans
+    // so we can iterate through a context and call "init" when the context is fully constructed (and pass in a reference then to the context).
   }
 
   /**
@@ -107,7 +109,7 @@ public class ComputationTargetResults {
    * 
    * @return the target resolver, not null
    */
-  protected ComputationTargetResolver getTargetResolver() {
+  protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
     return getContext().getComputationTargetResolver();
   }
 
@@ -117,7 +119,7 @@ public class ComputationTargetResults {
    * @return the
    */
   protected ComputationTargetSpecificationResolver.AtVersionCorrection getTargetSpecificationResolver() {
-    return getContext().getComputationTargetSpecificationResolver();
+    return getContext().getComputationTargetResolver().getSpecificationResolver();
   }
 
   /**

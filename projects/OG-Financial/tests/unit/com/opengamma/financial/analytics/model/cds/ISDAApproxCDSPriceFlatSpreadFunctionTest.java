@@ -50,7 +50,7 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
     final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-    functionCompilationContext.setComputationTargetResolver(targetResolver);
+    functionCompilationContext.setRawComputationTargetResolver(targetResolver);
     
     CDS_SECURITY.setUniqueId(UniqueId.of("dummy_scheme", "dummy_value"));
   }

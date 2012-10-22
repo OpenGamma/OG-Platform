@@ -57,7 +57,7 @@ public class DefaultCompiledFunctionResolverTest {
 
   private FunctionCompilationContext createFunctionCompilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver());
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
     return context;
   }
 
@@ -339,7 +339,7 @@ public class DefaultCompiledFunctionResolverTest {
     final ComputationTarget target = new ComputationTarget(ComputationTargetType.of(SimplePosition.class), mock(SimplePosition.class));
     final ParameterizedFunction pfn = function(new TestContextPositionFunction(), "1");
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
+    final ComputationTargetResolver.AtVersionCorrection targetResolver = Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class);
     Mockito.when(targetResolver.resolve(target.toSpecification())).thenReturn(target);
     context.setComputationTargetResolver(targetResolver);
     final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(context);
@@ -423,7 +423,7 @@ public class DefaultCompiledFunctionResolverTest {
     final ParameterizedFunction pfn2 = function(new TestTradeFunction(), "2");
     final ParameterizedFunction pfn3 = function(new TestPositionOrTradeFunction(), "3");
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
+    final ComputationTargetResolver.AtVersionCorrection targetResolver = Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class);
     Mockito.when(targetResolver.resolve(target1.toSpecification())).thenReturn(target1);
     Mockito.when(targetResolver.resolve(target2.toSpecification())).thenReturn(target2);
     context.setComputationTargetResolver(targetResolver);
@@ -451,7 +451,7 @@ public class DefaultCompiledFunctionResolverTest {
     final ParameterizedFunction pfn1 = function(new TestPositionFunction(), "1");
     final ParameterizedFunction pfn2 = function(new TestTradeFunction(), "2");
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
+    final ComputationTargetResolver.AtVersionCorrection targetResolver = Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class);
     Mockito.when(targetResolver.resolve(target.toSpecification())).thenReturn(target);
     context.setComputationTargetResolver(targetResolver);
     final DefaultCompiledFunctionResolver resolver = new DefaultCompiledFunctionResolver(context);

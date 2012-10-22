@@ -27,7 +27,7 @@ public final class TargetResolverPortfolio extends TargetResolverObject implemen
   private transient volatile PortfolioNode _rootNode;
   private final String _name;
 
-  public TargetResolverPortfolio(final ComputationTargetResolver targetResolver, final Portfolio copyFrom) {
+  public TargetResolverPortfolio(final ComputationTargetResolver.AtVersionCorrection targetResolver, final Portfolio copyFrom) {
     super(targetResolver);
     _attributes = copyFrom.getAttributes();
     _uniqueId = copyFrom.getUniqueId();

@@ -331,7 +331,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext generateFunctionCompilationContext() {
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setSecuritySource(getSecuritySource());
-    functionCompilationContext.setComputationTargetResolver(new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource()));
+    functionCompilationContext.setRawComputationTargetResolver(new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource()));
     setFunctionCompilationContext(functionCompilationContext);
     return functionCompilationContext;
   }

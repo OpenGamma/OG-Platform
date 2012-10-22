@@ -459,7 +459,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     }
   };
 
-  private static ValueSpecification reduceMemory(final ValueSpecification valueSpec, final ComputationTargetResolver resolver) {
+  private static ValueSpecification reduceMemory(final ValueSpecification valueSpec, final ComputationTargetResolver.AtVersionCorrection resolver) {
     final ComputationTargetSpecification oldTargetSpec = valueSpec.getTargetSpecification();
     final ComputationTargetSpecification newTargetSpec = ComputationTargetResolverUtils.simplifyType(oldTargetSpec, resolver);
     if (newTargetSpec == oldTargetSpec) {
@@ -469,7 +469,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     }
   }
 
-  private static Collection<ValueSpecification> reduceMemory(final Set<ValueSpecification> specifications, final ComputationTargetResolver resolver) {
+  private static Collection<ValueSpecification> reduceMemory(final Set<ValueSpecification> specifications, final ComputationTargetResolver.AtVersionCorrection resolver) {
     if (specifications.size() == 1) {
       final ValueSpecification specification = specifications.iterator().next();
       final ValueSpecification reducedSpecification = reduceMemory(specification, resolver);
@@ -491,7 +491,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   @Override
   public Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(
       final String valueName, final ComputationTarget target, final ValueProperties constraints) {
-    final ComputationTargetResolver resolver = getFunctionCompilationContext().getComputationTargetResolver();
+    final ComputationTargetResolver.AtVersionCorrection resolver = getFunctionCompilationContext().getComputationTargetResolver();
     // TODO [PLAT-2286] Don't key the cache by target specification as the contexts may vary. E.g. the (PORTFOLIO_NODE/POSITION, node0, pos0) target
     // will have considered all the rules for (POSITION, pos0). We want to share this, not duplicate the effort (and the storage)
     final ComputationTargetSpecification targetSpecification = MemoryUtils.instance(ComputationTargetResolverUtils.simplifyType(target.toSpecification(), resolver));

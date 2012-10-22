@@ -35,6 +35,7 @@ import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
@@ -142,7 +143,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   }
   
   private String getTargetName(final ComputationTargetSpecification targetSpec) {
-    ComputationTarget target = getComputationTargetResolver().resolve(targetSpec);
+    ComputationTarget target = getComputationTargetResolver().resolve(targetSpec, VersionCorrection.LATEST);
     if (target != null) {
       return target.getName();
     } else {

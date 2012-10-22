@@ -28,7 +28,6 @@ import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver
 import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolver;
-import com.opengamma.engine.target.lazy.LazyResolverPositionSource;
 import com.opengamma.engine.target.resolver.ChainedResolver;
 import com.opengamma.engine.target.resolver.IdentifierResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
@@ -105,6 +104,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _positionSource = positionSource;
     if (positionSource != null) {
       final PositionSourceResolver resolver = new PositionSourceResolver(positionSource);
+      addResolver(ComputationTargetType.PORTFOLIO, new LazyResolver.LazyPortfolioResolver(this, resolver.portfolio()));
       addResolver(ComputationTargetType.PORTFOLIO_NODE, new LazyResolver.LazyPortfolioNodeResolver(this, resolver.portfolioNode()));
       addResolver(ComputationTargetType.POSITION, new LazyResolver.LazyPositionResolver(this, resolver.position()));
       addResolver(ComputationTargetType.TRADE, new LazyResolver.LazyTradeResolver(this, resolver.trade()));
@@ -162,8 +162,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
   @Override
   public SecuritySource getSecuritySource() {
-    if (getLazyResolveContext().getTargetResolver() != null) {
-      return new CacheNotifyingSecuritySource(getSecuritySourceImpl(), getLazyResolveContext().getTargetResolver());
+    if (getLazyResolveContext().getRawTargetResolver() != null) {
+      return new CacheNotifyingSecuritySource(getSecuritySourceImpl(), getLazyResolveContext().getRawTargetResolver());
     } else {
       return getSecuritySourceImpl();
     }
@@ -174,13 +174,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * 
    * @return the position source, may be null
    */
-  public PositionSource getPositionSourceImpl() {
+  protected PositionSource getPositionSource() {
     return _positionSource;
-  }
-
-  @Override
-  public PositionSource getPositionSource() {
-    return new LazyResolverPositionSource(getPositionSourceImpl(), getLazyResolveContext());
   }
 
   /**
@@ -189,17 +184,18 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The key method of this class, implementing {@code ComputationTargetResolver}. It examines the specification and resolves the most appropriate target.
    * 
    * @param specification the specification to resolve, not null
+   * @param versionCorrection the version/correction timestamp to use for the resolution, not null
    * @return the resolved target, null if not found
    */
   @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
     final ComputationTargetType type = specification.getType();
     if (ComputationTargetType.NULL == type) {
       return ComputationTarget.NULL;
     } else {
       final ObjectResolver<?> resolver = _resolvers.get(type);
       if (resolver != null) {
-        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId(), VersionCorrection.LATEST);
+        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId(), versionCorrection);
         if (resolved != null) {
           return ComputationTargetResolverUtils.createResolvedTarget(specification, resolved);
         } else {
@@ -294,6 +290,29 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     return _specificationResolver;
   }
 
+  @Override
+  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+    final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver = getSpecificationResolver().atVersionCorrection(versionCorrection);
+    return new ComputationTargetResolver.AtVersionCorrection() {
+
+      @Override
+      public ComputationTargetType simplifyType(final ComputationTargetType type) {
+        return DefaultComputationTargetResolver.this.simplifyType(type);
+      }
+
+      @Override
+      public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+        return DefaultComputationTargetResolver.this.resolve(specification, versionCorrection);
+      }
+
+      @Override
+      public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
+        return specificationResolver;
+      }
+
+    };
+  }
+
   /**
    * Returns a string suitable for debugging.
    * 
@@ -301,7 +320,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[securitySource=" + getSecuritySourceImpl() + ",positionSource=" + getPositionSourceImpl() + "]";
+    return getClass().getSimpleName() + "[securitySource=" + getSecuritySourceImpl() + ",positionSource=" + getPositionSource() + "]";
   }
 
   // ComputationTargetTypeProvider

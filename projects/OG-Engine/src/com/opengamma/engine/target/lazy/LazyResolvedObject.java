@@ -16,15 +16,15 @@ import com.opengamma.engine.target.TargetResolverObject;
  */
 /* package */abstract class LazyResolvedObject<T> implements Serializable {
 
-  private final LazyResolveContext _context;
+  private final LazyResolveContext.AtVersionCorrection _context;
   private final T _underlying;
 
-  protected LazyResolvedObject(final LazyResolveContext context, final T underlying) {
+  protected LazyResolvedObject(final LazyResolveContext.AtVersionCorrection context, final T underlying) {
     _context = context;
     _underlying = underlying;
   }
 
-  protected LazyResolveContext getLazyResolveContext() {
+  protected LazyResolveContext.AtVersionCorrection getLazyResolveContext() {
     return _context;
   }
 
@@ -32,7 +32,7 @@ import com.opengamma.engine.target.TargetResolverObject;
     return _underlying;
   }
 
-  protected abstract TargetResolverObject targetResolverObject(final ComputationTargetResolver resolver);
+  protected abstract TargetResolverObject targetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver);
 
   protected abstract Serializable simpleObject();
 

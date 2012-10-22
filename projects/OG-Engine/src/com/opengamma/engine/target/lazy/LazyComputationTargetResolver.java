@@ -12,6 +12,7 @@ import com.opengamma.engine.DelegatingComputationTargetResolver;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.functional.Function2;
 
 /**
@@ -20,25 +21,25 @@ import com.opengamma.util.functional.Function2;
  */
 public final class LazyComputationTargetResolver extends DelegatingComputationTargetResolver {
 
-  private static final ComputationTargetTypeMap<Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>> s_resolvers;
+  private static final ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>> s_resolvers;
 
   static {
-    s_resolvers = new ComputationTargetTypeMap<Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>>();
-    s_resolvers.put(ComputationTargetType.PORTFOLIO_NODE, new Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>() {
+    s_resolvers = new ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>>();
+    s_resolvers.put(ComputationTargetType.PORTFOLIO_NODE, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>() {
       @Override
-      public ComputationTarget execute(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification) {
+      public ComputationTarget execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return ComputationTargetResolverUtils.createResolvedTarget(specification, new LazyTargetResolverPortfolioNode(underlying, specification));
       }
     });
-    s_resolvers.put(ComputationTargetType.POSITION, new Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>() {
+    s_resolvers.put(ComputationTargetType.POSITION, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>() {
       @Override
-      public ComputationTarget execute(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification) {
+      public ComputationTarget execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return ComputationTargetResolverUtils.createResolvedTarget(specification, new LazyTargetResolverPosition(underlying, specification));
       }
     });
-    s_resolvers.put(ComputationTargetType.TRADE, new Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget>() {
+    s_resolvers.put(ComputationTargetType.TRADE, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget>() {
       @Override
-      public ComputationTarget execute(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification) {
+      public ComputationTarget execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return ComputationTargetResolverUtils.createResolvedTarget(specification, new LazyTargetResolverTrade(underlying, specification));
       }
     });
@@ -55,12 +56,21 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
    * @param specification the specification to resolve
    * @return the target
    */
-  public static ComputationTarget resolve(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification) {
-    final Function2<ComputationTargetResolver, ComputationTargetSpecification, ComputationTarget> resolver = s_resolvers.get(specification.getType());
+  public static ComputationTarget resolve(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
+    final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget> resolver = s_resolvers.get(specification.getType());
     if (resolver != null) {
       return resolver.execute(underlying, specification);
     } else {
       return underlying.resolve(specification);
+    }
+  }
+
+  public static ComputationTarget resolve(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
+    final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, ComputationTarget> resolver = s_resolvers.get(specification.getType());
+    if (resolver != null) {
+      return resolver.execute(underlying.atVersionCorrection(versionCorrection), specification);
+    } else {
+      return underlying.resolve(specification, versionCorrection);
     }
   }
 
@@ -75,8 +85,8 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
   }
 
   @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    return resolve(getUnderlying(), specification);
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
+    return resolve(getUnderlying(), specification, versionCorrection);
   }
 
 }

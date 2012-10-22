@@ -15,7 +15,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 
 /* package */abstract class LazyTargetResolverPositionOrTrade extends LazyTargetResolverObject implements PositionOrTrade {
 
-  public LazyTargetResolverPositionOrTrade(final ComputationTargetResolver resolver, final ComputationTargetSpecification specification) {
+  public LazyTargetResolverPositionOrTrade(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification specification) {
     super(resolver, specification);
   }
 

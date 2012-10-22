@@ -21,16 +21,16 @@ import com.opengamma.engine.ComputationTargetResolver;
 public class TargetResolverObject implements Serializable {
 
   private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
-  private static final ConcurrentMap<ComputationTargetResolver, Integer> s_resolver2identifier = new MapMaker().weakKeys().makeMap();
-  private static final ConcurrentMap<Integer, ComputationTargetResolver> s_identifier2resolver = new MapMaker().weakValues().makeMap();
+  private static final ConcurrentMap<ComputationTargetResolver.AtVersionCorrection, Integer> s_resolver2identifier = new MapMaker().weakKeys().makeMap();
+  private static final ConcurrentMap<Integer, ComputationTargetResolver.AtVersionCorrection> s_identifier2resolver = new MapMaker().weakValues().makeMap();
 
-  private transient ComputationTargetResolver _targetResolver;
+  private transient ComputationTargetResolver.AtVersionCorrection _targetResolver;
 
-  protected TargetResolverObject(final ComputationTargetResolver targetResolver) {
+  protected TargetResolverObject(final ComputationTargetResolver.AtVersionCorrection targetResolver) {
     _targetResolver = targetResolver;
   }
 
-  protected ComputationTargetResolver getTargetResolver() {
+  protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
     return _targetResolver;
   }
 

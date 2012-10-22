@@ -31,7 +31,7 @@ public final class LazyResolvedPosition extends LazyResolvedPositionOrTrade<Posi
    * @param underlying the underlying, un-resolved position
    * @param context the lazy resolution context
    */
-  public LazyResolvedPosition(final LazyResolveContext context, final Position underlying) {
+  public LazyResolvedPosition(final LazyResolveContext.AtVersionCorrection context, final Position underlying) {
     super(context, underlying);
   }
 
@@ -66,7 +66,7 @@ public final class LazyResolvedPosition extends LazyResolvedPositionOrTrade<Posi
   }
 
   @Override
-  protected TargetResolverPosition targetResolverObject(final ComputationTargetResolver targetResolver) {
+  protected TargetResolverPosition targetResolverObject(final ComputationTargetResolver.AtVersionCorrection targetResolver) {
     return new TargetResolverPosition(targetResolver, this);
   }
 

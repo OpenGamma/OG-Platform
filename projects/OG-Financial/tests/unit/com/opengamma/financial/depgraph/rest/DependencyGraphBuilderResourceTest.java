@@ -96,7 +96,7 @@ public class DependencyGraphBuilderResourceTest {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     final MockSecuritySource securities = new MockSecuritySource();
     context.setSecuritySource(securities);
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securities));
     return new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), context);
   }
 

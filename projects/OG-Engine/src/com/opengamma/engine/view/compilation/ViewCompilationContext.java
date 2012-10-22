@@ -12,12 +12,12 @@ import java.util.Map;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.VersionCorrection;
@@ -38,8 +38,7 @@ public class ViewCompilationContext {
     _services = compilationServices;
     final Map<String, DependencyGraphBuilder> configurationGraphs = new HashMap<String, DependencyGraphBuilder>();
     final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
-    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationServices.getFunctionCompilationContext().getComputationTargetResolver().getSpecificationResolver()
-        .atVersionCorrection(resolverVersionCorrection);
+    final ComputationTargetResolver.AtVersionCorrection resolver = compilationServices.getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(resolverVersionCorrection);
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = compilationServices.getDependencyGraphBuilder().newInstance();
       builder.setCalculationConfigurationName(configName);
@@ -47,7 +46,7 @@ public class ViewCompilationContext {
       final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
       compilationContext.setViewCalculationConfiguration(calcConfig);
-      compilationContext.setComputationTargetSpecificationResolver(resolver);
+      compilationContext.setComputationTargetResolver(resolver);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
       compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext));
       final DefaultCompiledFunctionResolver functionResolver = new DefaultCompiledFunctionResolver(compilationContext, transformedRules);

@@ -14,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -24,6 +23,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -294,7 +294,7 @@ import com.opengamma.util.tuple.Pair;
   private static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
       return null;
     }
 
@@ -309,12 +309,12 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public PositionSource getPositionSource() {
-      return null;
+    public ComputationTargetSpecificationResolver getSpecificationResolver() {
+      throw new UnsupportedOperationException();
     }
 
     @Override
-    public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
     }
 

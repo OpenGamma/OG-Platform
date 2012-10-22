@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueId;
    * @param underlying the underlying, un-resolved position
    * @param context the lazy resolution context
    */
-  public LazyResolvedPositionOrTrade(final LazyResolveContext context, final T underlying) {
+  public LazyResolvedPositionOrTrade(final LazyResolveContext.AtVersionCorrection context, final T underlying) {
     super(context, underlying);
   }
 

@@ -20,9 +20,8 @@ import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
 import com.opengamma.engine.target.TargetResolverPosition;
-import com.opengamma.engine.target.lazy.LazyResolveContext;
-import com.opengamma.engine.target.lazy.LazyResolvedPosition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -34,7 +33,7 @@ public class LazyResolvedPositionTest {
   public void testBasicMethods() {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Position underlying = resolver.getPositionSource().getPosition(UniqueId.of("Position", "0"));
-    final Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource()), underlying);
+    final Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), underlying);
     assertEquals(position.getAttributes(), underlying.getAttributes());
     assertEquals(position.getQuantity(), underlying.getQuantity());
     assertEquals(position.getTrades().size(), underlying.getTrades().size());
@@ -44,7 +43,7 @@ public class LazyResolvedPositionTest {
   public void testSerialization_full() throws Exception {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Position underlying = resolver.getPositionSource().getPosition(UniqueId.of("Position", "0"));
-    Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource()), underlying);
+    Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource(), null).atVersionCorrection(VersionCorrection.LATEST), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(position);
     final Object resultObject = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
@@ -60,7 +59,7 @@ public class LazyResolvedPositionTest {
     final MockComputationTargetResolver resolver = MockComputationTargetResolver.resolved();
     final Position underlying = resolver.getPositionSource().getPosition(UniqueId.of("Position", "0"));
     Position position = new LazyResolvedPosition(new LazyResolveContext(resolver.getSecuritySource(), new DefaultCachingComputationTargetResolver(resolver,
-        EHCacheUtils.createCacheManager())), underlying);
+        EHCacheUtils.createCacheManager())).atVersionCorrection(VersionCorrection.LATEST), underlying);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     new ObjectOutputStream(baos).writeObject(position);
     final Object resultObject = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();

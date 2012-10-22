@@ -163,7 +163,7 @@ public class DepGraphTestHelper {
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
       final FunctionCompilationContext context = new FunctionCompilationContext();
       final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-      context.setComputationTargetResolver(targetResolver);
+      context.setRawComputationTargetResolver(targetResolver);
       _builder.setCompilationContext(context);
       final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
       compilationService.initialize();

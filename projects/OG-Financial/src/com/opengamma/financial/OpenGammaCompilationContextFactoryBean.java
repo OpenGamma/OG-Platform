@@ -192,7 +192,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
       OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
     }
     context.setSecuritySource(getSecuritySource());
-    context.setComputationTargetResolver(getComputationTargetResolver());
+    context.setRawComputationTargetResolver(getComputationTargetResolver());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
   }
 

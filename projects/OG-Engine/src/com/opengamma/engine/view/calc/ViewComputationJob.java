@@ -610,8 +610,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (compiledViewDefinition != null) {
       do {
         // Check that any resolved targets still resolve to the same value
-        final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getComputationTargetResolver()
-            .getSpecificationResolver().atVersionCorrection(versionCorrection);
+        final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+            .getRawComputationTargetResolver().getSpecificationResolver().atVersionCorrection(versionCorrection);
         Set<UniqueId> invalidIdentifiers = null;
         for (Map.Entry<ComputationTargetReference, UniqueId> target : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
           final ComputationTargetSpecification resolved = resolver.getTargetSpecification(target.getKey());

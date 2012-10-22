@@ -23,7 +23,7 @@ public final class LazyResolvedPortfolio extends LazyResolvedObject<Portfolio> i
 
   private volatile PortfolioNode _rootNode;
 
-  public LazyResolvedPortfolio(final LazyResolveContext context, final Portfolio underlying) {
+  public LazyResolvedPortfolio(final LazyResolveContext.AtVersionCorrection context, final Portfolio underlying) {
     super(context, underlying);
   }
 
@@ -70,7 +70,7 @@ public final class LazyResolvedPortfolio extends LazyResolvedObject<Portfolio> i
   }
 
   @Override
-  protected TargetResolverPortfolio targetResolverObject(final ComputationTargetResolver resolver) {
+  protected TargetResolverPortfolio targetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver) {
     return new TargetResolverPortfolio(resolver, this);
   }
 

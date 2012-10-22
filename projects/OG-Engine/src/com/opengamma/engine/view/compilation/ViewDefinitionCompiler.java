@@ -32,7 +32,8 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -45,6 +46,7 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver.AtVersionCorrection;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueRequirement;
@@ -204,7 +206,7 @@ public final class ViewDefinitionCompiler {
           outputDependencyGraphs(graphsByConfiguration);
         }
         if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getFunctionCompilationContext().getComputationTargetResolver().getSecuritySource());
+          outputLiveDataRequirements(graphsByConfiguration);
         }
         if (OUTPUT_FAILURE_REPORTS) {
           outputFailureReports(viewCompilationContext.getBuilders());
@@ -349,11 +351,39 @@ public final class ViewDefinitionCompiler {
     }
 
   }
+  
+  private static class ComputationTargetResolverStub implements ComputationTargetResolver.AtVersionCorrection {
+    
+    private final ComputationTargetResolver.AtVersionCorrection _underlying;
+    private final ComputationTargetSpecificationResolver.AtVersionCorrection _specificationResolver;
+    
+    public ComputationTargetResolverStub(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver) {
+      _underlying = underlying;
+      _specificationResolver = specificationResolver;
+    }
+
+    @Override
+    public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+      return _underlying.resolve(specification);
+    }
+
+    @Override
+    public AtVersionCorrection getSpecificationResolver() {
+      return _specificationResolver;
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(final ComputationTargetType type) {
+      return _underlying.simplifyType(type);
+    }
+    
+  }
 
   private static void addLoggingTargetSpecificationResolvers(final ViewCompilationContext context, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     for (DependencyGraphBuilder builder : context.getBuilders()) {
       final FunctionCompilationContext functionContext = builder.getCompilationContext();
-      functionContext.setComputationTargetSpecificationResolver(new LoggingSpecificationResolver(functionContext.getComputationTargetSpecificationResolver(), resolutions));
+      final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
+      functionContext.setComputationTargetResolver(new ComputationTargetResolverStub(resolver, new LoggingSpecificationResolver(resolver.getSpecificationResolver(), resolutions)));
     }
   }
 
@@ -421,7 +451,7 @@ public final class ViewDefinitionCompiler {
     s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
 
-  private static void outputLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration, SecuritySource secMaster) {
+  private static void outputLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       String configName = entry.getKey();
