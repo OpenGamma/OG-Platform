@@ -57,7 +57,7 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
     List<ManageableExchange> result = new ArrayList<ManageableExchange>();
     if (getDocuments() != null) {
       for (ExchangeDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getExchange());
       }
     }
     return result;
@@ -69,7 +69,7 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
    * @return the first exchange, null if none
    */
   public ManageableExchange getFirstExchange() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getExchange() : null;
   }
 
   /**
@@ -85,7 +85,7 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getExchange();
     }
   }
 

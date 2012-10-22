@@ -88,7 +88,7 @@ public class InMemoryExchangeMaster
   @Override
   protected void validateDocument(ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
   }
 
   //-------------------------------------------------------------------------
@@ -131,11 +131,11 @@ public class InMemoryExchangeMaster
   @Override
   public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableExchange exchange = document.getObject().clone();
+    final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -152,7 +152,7 @@ public class InMemoryExchangeMaster
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
