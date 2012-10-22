@@ -99,7 +99,6 @@ $.register_module({
                         fixed: false
                     });
                     selector.render(regions.length ? regions : null, rectangle);
-                    grid.clipboard.viewport(selector.selection());
                 }
             })();
             selector.busy = (function (busy) {
@@ -118,11 +117,11 @@ $.register_module({
         };
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.render = function (regions, rectangle) {
-            var selector = this, grid = selector.grid, selection, data, copyable;
+            var selector = this, grid = selector.grid, data, copyable;
             if (!selector.regions && !regions) return grid.clipboard.clear();
             if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
             $(grid.id + ' ' + overlay).remove();
-            copyable =  (selector.copyable = grid.clipboard.has(selection = selector.selection())) ? ' OG-g-cop' : '';
+            copyable =  (selector.copyable = grid.clipboard.has(selector.selection())) ? ' OG-g-cop' : '';
             selector.regions.forEach(function (region) {
                 $('<div class="' + overlay.substring(1) + copyable + '" />')
                     .css(region.position).css(region.dimensions)

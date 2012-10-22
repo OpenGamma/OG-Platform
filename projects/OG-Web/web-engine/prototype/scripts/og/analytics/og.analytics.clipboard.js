@@ -29,20 +29,17 @@ $.register_module({
         };
         var constructor = function (grid) {
             var clipboard = this;
-            clipboard.data = null;
-            clipboard.dataman = new og.analytics.Data(grid.source, true /* bypass type check */)
-                .on('data', function (data) {
-                    var lcv, index = 0,
-                        rows = clipboard.selection.rows.length,
-                        cols = clipboard.selection.cols.length, row;
-                    clipboard.data = [];
-                    while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
-                        row.push({value: data[index++], type: clipboard.selection.type[lcv]});
-                    if (!grid.selector.copyable) grid.selector.render();
-                });
-            clipboard.grid = grid;
-            clipboard.selection = null;
-            grid.on('select', function (selection) {clipboard.viewport(selection);});
+            clipboard.data = clipboard.selection = null;
+            clipboard.dataman = new og.analytics.Data(grid.source, true).on('data', data_handler, clipboard);
+            clipboard.grid = grid.on('select', function (selection) {clipboard.viewport(selection);});
+        };
+        var data_handler = function (data) {
+            var clipboard = this, grid = clipboard.grid, lcv, index = 0, selection = clipboard.selection,
+                rows = selection.rows.length, cols = selection.cols.length, row;
+            clipboard.data = [];
+            while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
+                row.push({value: data[index++], type: clipboard.selection.type[lcv]});
+            if (!grid.selector.copyable) grid.selector.render();
         };
         var format = function (cell) {
             if (typeof cell.value === 'undefined') return '';
@@ -51,33 +48,33 @@ $.register_module({
             return typeof cell.value.v === 'string' ? cell.value.v : '';
         };
         var same_viewport = function (one, two) {
+            if ((!one || !two) && one !== two) return false; // if either viewport is null
             return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
         };
         var select = function (text) {textarea.val(text).focus().select();};
         constructor.prototype.clear = function () {
             var clipboard = this;
-            if (clipboard.selection) clipboard.dataman.viewport(null), clipboard.selection = clipboard.data = null;
+            if (clipboard.selection) clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
         };
         constructor.prototype.has = function (selection) {
-            if (!selection) return false;
             var clipboard = this, grid = clipboard.grid;
-            return !!(clipboard.data || (clipboard.data = grid.range(selection)));
+            clipboard.viewport(selection);
+            return !!selection && !!(clipboard.data || (clipboard.data = grid.range(selection)));
         };
         constructor.prototype.select = function () {
-            var clipboard = this;
-            if (!clipboard.data) return og.dev.warn(module.name + ': no data to select');
-            if (!$.isArray(clipboard.data)) return select(format(clipboard.data));
-            select(clipboard.data.map(function (row) {
-                return row.map(function (cell) {return format(cell);}).join('\t');
-            }).join('\n'));
+            var clipboard = this, data = clipboard.data;
+            if (!data || !data.length) return og.dev.warn(module.name + ': no data to select'), select('');
+            select(data.map(function (r) {return r.map(function (c) {return format(c);}).join('\t');}).join('\n'));
         };
         constructor.prototype.viewport = function (selection) {
-            var clipboard = this, grid = clipboard.grid;
-            if (clipboard.selection && selection && same_viewport(clipboard.selection, selection)) return;
-            clipboard.selection = selection;
-            clipboard.data = null;
-            if (grid.range(selection)) return;
-            clipboard.dataman.viewport(selection);
+            var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport;
+            if (selection === null) return clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
+            grid_data = grid.range(selection);
+            if (same_viewport(clipboard.selection, selection)) if (same_viewport(selection, data_viewport))
+                return grid_data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data) : null;
+            return (clipboard.selection = selection) && grid_data ?
+                (clipboard.dataman.viewport(null), clipboard.data = grid_data)
+                    : (clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols}), clipboard.data = null);
         };
         $(function () {
             node = (textarea = $('<textarea />').appendTo('body')
