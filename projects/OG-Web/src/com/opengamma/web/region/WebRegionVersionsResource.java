@@ -79,7 +79,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
     FlexiBean out = super.createRootData();
     RegionDocument doc = data().getRegion();
     out.put("regionDoc", doc);
-    out.put("region", doc.getObject());
+    out.put("region", doc.getRegion());
     out.put("deleted", !doc.isLatest());
     return out;
   }

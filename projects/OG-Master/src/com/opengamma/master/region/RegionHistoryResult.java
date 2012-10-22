@@ -57,7 +57,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
     List<ManageableRegion> result = new ArrayList<ManageableRegion>();
     if (getDocuments() != null) {
       for (RegionDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getRegion());
       }
     }
     return result;
@@ -69,7 +69,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
    * @return the first region, null if none
    */
   public ManageableRegion getFirstRegion() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getRegion() : null;
   }
 
   /**
@@ -85,7 +85,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getRegion();
     }
   }
 
