@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlock;
@@ -58,7 +58,7 @@ public final class MarketQuoteSensitivityBlockCalculator {
     ArgumentChecker.notNull(units, "Units");
     ParameterSensitivity result = new ParameterSensitivity();
     for (final Pair<String, Currency> nameCcy : parameterSensitivity.getAllNamesCurrency()) {
-      HashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+      LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
       Pair<CurveBuildingBlock, DoubleMatrix2D> unitPair = units.getBlock(nameCcy.getFirst());
       final double[] oneCurveSensiArray = ((DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond())).getData();
       for (final String name2 : unitPair.getFirst().getAllNames()) {
