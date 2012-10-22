@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.cashflow;
 
 import java.util.Map;
 import java.util.NavigableMap;
@@ -21,16 +21,16 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class PaymentScheduleMatrix {
+public class FixedPaymentMatrix {
   private final NavigableMap<LocalDate, MultipleCurrencyAmount> _values;
   private final int _maxCurrencyAmounts;
 
-  public PaymentScheduleMatrix() {
+  public FixedPaymentMatrix() {
     _values = new TreeMap<LocalDate, MultipleCurrencyAmount>();
     _maxCurrencyAmounts = 0;
   }
 
-  public PaymentScheduleMatrix(final Map<LocalDate, MultipleCurrencyAmount> values) {
+  public FixedPaymentMatrix(final Map<LocalDate, MultipleCurrencyAmount> values) {
     ArgumentChecker.notNull(values, "values");
     _values = new TreeMap<LocalDate, MultipleCurrencyAmount>(values);
     int count = 0;
@@ -42,14 +42,14 @@ public class PaymentScheduleMatrix {
     _maxCurrencyAmounts = count;
   }
 
-  public PaymentScheduleMatrix(final Map<LocalDate, MultipleCurrencyAmount> values, final int maxCurrencyAmounts) {
+  public FixedPaymentMatrix(final Map<LocalDate, MultipleCurrencyAmount> values, final int maxCurrencyAmounts) {
     ArgumentChecker.notNull(values, "values");
     ArgumentChecker.notNegative(maxCurrencyAmounts, "max currency amounts");
     _values = new TreeMap<LocalDate, MultipleCurrencyAmount>(values);
     _maxCurrencyAmounts = maxCurrencyAmounts;
   }
 
-  public PaymentScheduleMatrix add(final Map<LocalDate, MultipleCurrencyAmount> payments) {
+  public FixedPaymentMatrix add(final Map<LocalDate, MultipleCurrencyAmount> payments) {
     ArgumentChecker.notNull(payments, "payments");
     final Map<LocalDate, MultipleCurrencyAmount> values = new TreeMap<LocalDate, MultipleCurrencyAmount>(_values);
     int count = getMaxCurrencyAmounts();
@@ -65,10 +65,10 @@ public class PaymentScheduleMatrix {
         values.put(date, mca);
       }
     }
-    return new PaymentScheduleMatrix(values, count);
+    return new FixedPaymentMatrix(values, count);
   }
 
-  public PaymentScheduleMatrix add(final PaymentScheduleMatrix matrix) {
+  public FixedPaymentMatrix add(final FixedPaymentMatrix matrix) {
     ArgumentChecker.notNull(matrix, "matrix");
     return add(matrix.getValues());
   }
@@ -121,7 +121,7 @@ public class PaymentScheduleMatrix {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PaymentScheduleMatrix other = (PaymentScheduleMatrix) obj;
+    final FixedPaymentMatrix other = (FixedPaymentMatrix) obj;
     return ObjectUtils.equals(_values, other._values);
   }
 

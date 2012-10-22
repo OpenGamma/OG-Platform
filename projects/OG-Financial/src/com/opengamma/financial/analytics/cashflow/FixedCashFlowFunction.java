@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.cashflow;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,8 +13,8 @@ import java.util.TreeMap;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.instrument.FixedPayCashFlowVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -27,7 +27,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
@@ -44,17 +43,27 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- *
+ * 
  */
-public class FixedPayCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FixedPayCashFlowVisitor FIXED_CASH_FLOW_CALCULATOR = FixedPayCashFlowVisitor.getInstance();
+public abstract class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;
-
+  private final String _valueRequirementName;
+  private final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> _cashFlowVisitor;
+  
+  public FixedCashFlowFunction(final String valueRequirementName, InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> cashFlowVisitor) {
+    ArgumentChecker.notNull(valueRequirementName, "value requirement name");
+    ArgumentChecker.notNull(cashFlowVisitor, "cash-flow visitor");
+    _valueRequirementName = valueRequirementName;
+    _cashFlowVisitor = cashFlowVisitor;
+  }
+  
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
@@ -82,17 +91,17 @@ public class FixedPayCashFlowFunction extends AbstractFunction.NonCompiledInvoke
     final InstrumentDefinition<?> definition = ((FinancialSecurity) target.getSecurity()).accept(_visitor);
     final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
     if (inputs.getAllValues().isEmpty()) {
-      cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(FIXED_CASH_FLOW_CALCULATOR));
+      cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
     } else {
       HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
       if (fixingSeries == null) {
-        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(FIXED_CASH_FLOW_CALCULATOR));        
+        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));        
       } else {
-        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(FIXED_CASH_FLOW_CALCULATOR, fixingSeries.getTimeSeries()));
+        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
       }
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.FIXED_PAY_CASH_FLOWS, target.toSpecification(), createValueProperties()
-        .get()), new PaymentScheduleMatrix(cashFlows)));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties()
+        .get()), new FixedPaymentMatrix(cashFlows)));
   }
 
   @Override
@@ -110,7 +119,7 @@ public class FixedPayCashFlowFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FIXED_PAY_CASH_FLOWS, target.toSpecification(), createValueProperties().get()));
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override
@@ -119,5 +128,4 @@ public class FixedPayCashFlowFunction extends AbstractFunction.NonCompiledInvoke
     InstrumentDefinition<?> definition = security.accept(_visitor);
     return _definitionConverter.getConversionTimeSeriesRequirements(security, definition);
   }
-
 }

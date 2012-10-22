@@ -102,25 +102,33 @@ public final class ValueRequirementNames {
    */
   public static final String HISTORICAL_FX_TIME_SERIES = "Historical FX Time Series";
   /**
-   * The cash-flows of a security or portfolio
+   * The dates and payment amounts to be paid of the cash-flows of a security or portfolio
    */
   public static final String FIXED_PAY_CASH_FLOWS = "Pay Fixed Cash-Flows";
   /**
-   * The cash-flows of a security or portfolio
+   * The dates and payment amounts to be received of the cash-flows of a security or portfolio
    */
   public static final String FIXED_RECEIVE_CASH_FLOWS = "Receive Fixed Cash-Flows";
   /**
-   * The cash-flows of a security or portfolio
+   * The dates and netted amounts of the fixed cash-flows of a security or portfolio
    */
   public static final String NETTED_FIXED_CASH_FLOWS = "Netted Fixed Cash-Flows";
   /**
-   * The reset dates and indices of a security or portfolio
+   * The payment dates, amounts and indices of the pay cash-flows of a security or portfolio
    */
-  public static final String RESET_DATES = "Reset Dates";
+  public static final String FLOATING_PAY_CASH_FLOWS = "Pay Floating Cash-Flows";
+  /**
+   * The payment dates, amounts and indices of the receive cash-flows of a security or portfolio
+   */
+  public static final String FLOATING_RECEIVE_CASH_FLOWS = "Receive Floating Cash-Flows";
+  /**
+   * The projected cash-flows to be paid of a security or portfolio
+   */
+  public static final String PROJECTED_FLOATING_PAY_CASH_FLOWS = "Projected Floating Pay Cash-Flows";
   /**
    * The projected cash-flows of a security or portfolio
    */
-  public static final String PROJECTED_CASH_FLOWS = "Projected Cash Flows";
+  public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
   
   ///// Curves  
   /**

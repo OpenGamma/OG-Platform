@@ -20,15 +20,15 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.financial.analytics.ResetScheduleMatrix;
+import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-@FudgeBuilderFor(ResetScheduleMatrix.class)
-public class ResetScheduleMatrixBuilder implements FudgeBuilder<ResetScheduleMatrix> {
+@FudgeBuilderFor(FloatingPaymentMatrix.class)
+public class FloatingPaymentMatrixBuilder implements FudgeBuilder<FloatingPaymentMatrix> {
   private static final String DATES_FIELD = "dates";
   private static final String PAIRS_FIELD = "pairs";
   private static final String CA_FIELD = "ca";
@@ -36,7 +36,7 @@ public class ResetScheduleMatrixBuilder implements FudgeBuilder<ResetScheduleMat
   private static final String MAX_AMOUNTS_FIELD = "maxAmounts";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ResetScheduleMatrix object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FloatingPaymentMatrix object) {
     final MutableFudgeMsg message = serializer.newMessage();
     for (final Map.Entry<LocalDate, List<Pair<CurrencyAmount, String>>> entry : object.getValues().entrySet()) {
       serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
@@ -52,7 +52,7 @@ public class ResetScheduleMatrixBuilder implements FudgeBuilder<ResetScheduleMat
   }
 
   @Override
-  public ResetScheduleMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public FloatingPaymentMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final List<FudgeField> dateFields = message.getAllByName(DATES_FIELD);
     final List<FudgeField> pairsField = message.getAllByName(PAIRS_FIELD);
     final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values = Maps.newHashMapWithExpectedSize(dateFields.size());
@@ -70,7 +70,7 @@ public class ResetScheduleMatrixBuilder implements FudgeBuilder<ResetScheduleMat
       values.put(date, list);
     }
     final int maxAmounts = message.getInt(MAX_AMOUNTS_FIELD);
-    return new ResetScheduleMatrix(values, maxAmounts);
+    return new FloatingPaymentMatrix(values, maxAmounts);
   }
 
 }

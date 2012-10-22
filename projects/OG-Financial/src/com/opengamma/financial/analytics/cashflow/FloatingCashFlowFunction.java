@@ -1,23 +1,23 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.cashflow;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
-import javax.time.CalendricalException;
 import javax.time.calendar.LocalDate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.NettedFixedCashFlowFromDateCalculator;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -29,9 +29,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
@@ -48,20 +46,28 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * 
  */
-public class NettedFixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
-  /** Property name for the date field */
-  public static final String PROPERTY_DATE = "Date";
-  private static final Logger s_logger = LoggerFactory.getLogger(NettedFixedCashFlowFunction.class);
-  private static final NettedFixedCashFlowFromDateCalculator NETTING_CASH_FLOW_CALCULATOR = NettedFixedCashFlowFromDateCalculator.getInstance();
+public abstract class FloatingCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;
-
+  private final String _valueRequirementName;
+  private final InstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> _cashFlowVisitor;
+  
+  public FloatingCashFlowFunction(final String valueRequirementName, final InstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> cashFlowVisitor) {
+    ArgumentChecker.notNull(valueRequirementName, "value requirement names");
+    ArgumentChecker.notNull(cashFlowVisitor, "cash-flow visitor");
+    _valueRequirementName = valueRequirementName;
+    _cashFlowVisitor = cashFlowVisitor;
+  }
+  
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
@@ -86,24 +92,31 @@ public class NettedFixedCashFlowFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final InstrumentDefinition<?> definition = ((FinancialSecurity) target.getSecurity()).accept(_visitor);
-    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final String dateString = desiredValue.getConstraint(PROPERTY_DATE);
-    final LocalDate date = LocalDate.parse(dateString);
+    FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final InstrumentDefinition<?> definition = security.accept(_visitor);
     final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
     if (inputs.getAllValues().isEmpty()) {
-      cashFlows = NETTING_CASH_FLOW_CALCULATOR.getCashFlows(definition, date);
+      cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
     } else {
-      final HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
+      HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
       if (fixingSeries == null) {
-        cashFlows = NETTING_CASH_FLOW_CALCULATOR.getCashFlows(definition, date);
+        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));        
       } else {
-        cashFlows = NETTING_CASH_FLOW_CALCULATOR.getCashFlows(definition, fixingSeries.getTimeSeries(), date);
+        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
       }
     }
-    final ValueProperties properties = createValueProperties().with(PROPERTY_DATE, dateString).get();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.NETTED_FIXED_CASH_FLOWS, target.toSpecification(), properties),
-        new PaymentScheduleMatrix(cashFlows)));
+    final String label = security.accept(CashFlowFunctionHelper.getReferenceIndexVisitor());
+    final Map<LocalDate, List<Pair<CurrencyAmount, String>>> result = Maps.newHashMap();
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : cashFlows.entrySet()) {
+      final MultipleCurrencyAmount mca = entry.getValue();
+      final List<Pair<CurrencyAmount, String>> list = Lists.newArrayListWithCapacity(mca.size());
+      for (final CurrencyAmount ca : mca) {
+        list.add(Pair.of(ca, label));
+      }
+      result.put(entry.getKey(), list);
+    }
+    return Collections.singleton(new ComputedValue(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties()
+        .get()), new FloatingPaymentMatrix(result)));
   }
 
   @Override
@@ -121,28 +134,16 @@ public class NettedFixedCashFlowFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().withAny(PROPERTY_DATE).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.NETTED_FIXED_CASH_FLOWS, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> dates = constraints.getValues(PROPERTY_DATE);
-    if (dates == null || dates.size() != 1) {
-      s_logger.error("Must supply a date from which to calculate the cash-flows");
-      return null;
-    }
-    final String date = Iterables.getOnlyElement(dates);
-    try {
-      LocalDate.parse(date);
-    } catch (final CalendricalException e) {
-      s_logger.error("Could not parse date {} - must be in form YYYY-MM-DD", date);
-      return null;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<?> definition = security.accept(_visitor);
+    InstrumentDefinition<?> definition = security.accept(_visitor);
     return _definitionConverter.getConversionTimeSeriesRequirements(security, definition);
   }
+  
+  
 
 }

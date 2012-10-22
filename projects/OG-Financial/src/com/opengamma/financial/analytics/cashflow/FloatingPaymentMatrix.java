@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.cashflow;
 
 import java.util.List;
 import java.util.Map;
@@ -22,16 +22,16 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class ResetScheduleMatrix {
+public class FloatingPaymentMatrix {
   private final NavigableMap<LocalDate, List<Pair<CurrencyAmount, String>>> _values;
   private final int _maxEntries;
 
-  public ResetScheduleMatrix() {
+  public FloatingPaymentMatrix() {
     _values = new TreeMap<LocalDate, List<Pair<CurrencyAmount, String>>>();
     _maxEntries = 0;
   }
 
-  public ResetScheduleMatrix(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values) {
+  public FloatingPaymentMatrix(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values) {
     ArgumentChecker.notNull(values, "values");
     _values = new TreeMap<LocalDate, List<Pair<CurrencyAmount, String>>>(values);
     int count = 0;
@@ -43,14 +43,14 @@ public class ResetScheduleMatrix {
     _maxEntries = count;
   }
 
-  public ResetScheduleMatrix(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values, final int maxEntries) {
+  public FloatingPaymentMatrix(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values, final int maxEntries) {
     ArgumentChecker.notNull(values, "values");
     ArgumentChecker.notNegative(maxEntries, "max entries");
     _values = new TreeMap<LocalDate, List<Pair<CurrencyAmount, String>>>(values);
     _maxEntries = maxEntries;
   }
 
-  public ResetScheduleMatrix add(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> resets) {
+  public FloatingPaymentMatrix add(final Map<LocalDate, List<Pair<CurrencyAmount, String>>> resets) {
     ArgumentChecker.notNull(resets, "resets");
     final Map<LocalDate, List<Pair<CurrencyAmount, String>>> values = new TreeMap<LocalDate, List<Pair<CurrencyAmount, String>>>(_values);
     for (final Map.Entry<LocalDate, List<Pair<CurrencyAmount, String>>> entry : resets.entrySet()) {
@@ -64,10 +64,10 @@ public class ResetScheduleMatrix {
         values.put(date, newList);
       }
     }
-    return new ResetScheduleMatrix(values);
+    return new FloatingPaymentMatrix(values);
   }
 
-  public ResetScheduleMatrix add(final ResetScheduleMatrix matrix) {
+  public FloatingPaymentMatrix add(final FloatingPaymentMatrix matrix) {
     ArgumentChecker.notNull(matrix, "matrix");
     return add(matrix.getValues());
   }
@@ -123,7 +123,7 @@ public class ResetScheduleMatrix {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ResetScheduleMatrix other = (ResetScheduleMatrix) obj;
+    final FloatingPaymentMatrix other = (FloatingPaymentMatrix) obj;
     return ObjectUtils.equals(_values, other._values);
   }
 
