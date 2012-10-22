@@ -15,7 +15,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.ChangeProvidingDecorator;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -28,13 +27,13 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
  * Wraps a portfolio master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class FinancialUserPortfolioMaster extends AbstractFinancialUserMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
+public class FinancialUserPortfolioMaster extends AbstractFinancialUserMaster<PortfolioDocument> implements PortfolioMaster {
 
   /**
    * The underlying master.
    */
   private final PortfolioMaster _underlying;
-  private final AbstractChangeProvidingMaster<ManageablePortfolio, PortfolioDocument> _changeProvidingMaster;
+  private final AbstractChangeProvidingMaster<PortfolioDocument> _changeProvidingMaster;
 
   /**
    * Creates an instance.

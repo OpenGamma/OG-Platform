@@ -62,7 +62,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHolidayMaster extends AbstractDocumentDbMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
+public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> implements HolidayMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);

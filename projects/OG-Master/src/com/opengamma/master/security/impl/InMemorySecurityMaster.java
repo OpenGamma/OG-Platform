@@ -41,7 +41,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
+public class InMemorySecurityMaster
+    extends SimpleAbstractInMemoryMaster<SecurityDocument>
+    implements SecurityMaster {
   // TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 

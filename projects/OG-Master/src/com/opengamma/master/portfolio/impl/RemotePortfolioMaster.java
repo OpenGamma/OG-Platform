@@ -13,7 +13,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -27,7 +26,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link PortfolioMaster}.
  */
-public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
+public class RemotePortfolioMaster
+    extends AbstractRemoteDocumentMaster<PortfolioDocument>
+    implements PortfolioMaster {
 
   /**
    * Creates an instance.

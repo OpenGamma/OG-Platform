@@ -32,7 +32,6 @@ import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractDocumentsResult;
@@ -57,7 +56,7 @@ import com.opengamma.util.paging.PagingRequest;
  *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractDbMaster implements AbstractMaster<T, D> {
+public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
@@ -78,7 +77,6 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the change manager.
    *
@@ -99,7 +97,6 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the change manager that handles events.
    *
@@ -110,7 +107,6 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Performs a standard get by unique identifier, handling exact version or latest.
    *
@@ -270,6 +266,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   /**
    * Searches for documents with paging.
    *
+   * @param <T>  the type of the document
    * @param pagingRequest  the paging request, not null
    * @param sql  the array of SQL, query and count, not null
    * @param args  the query arguments, not null
@@ -399,8 +396,8 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
     // load old row
     final D oldDoc = get(objectIdentifiable.getObjectId(), VersionCorrection.LATEST);
     
-    if(oldDoc == null){
-      throw new DataNotFoundException("There is no document with oid:"+objectIdentifiable.getObjectId());
+    if (oldDoc == null) {
+      throw new DataNotFoundException("There is no document with oid:" + objectIdentifiable.getObjectId());
     }
     // update old row
     final Instant now = now();
@@ -489,7 +486,6 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
 
         List<D> newVersions = newArrayList();
 
-        Instant previousDocumentVersionTo = null;
         if (orderedReplacementDocuments.isEmpty()) {
           // since we don't have replacement documents we rather act as versionRemove than versionReplace
           D previousDocument = getPreviousDocument(uniqueId.getObjectId(), now, storedVersionFrom);
@@ -505,7 +501,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
             insert(previousDocument);
             newVersions.add(previousDocument);
             changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
-          }else{
+          } else {
             changeManager().entityChanged(ChangeType.REMOVED, storedDocument.getObjectId(), null, null, now);  
           }
         } else {          
@@ -623,39 +619,39 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
     }).getDocuments();
   }
 
-  private D getNextDocument(final ObjectId oid, final Instant now, final Instant thisVersionTo) {
-    return historyByVersionsCorrections(new AbstractHistoryRequest() {
-      @Override
-      public Instant getCorrectionsFromInstant() {
-        return now;
-      }
-
-      @Override
-      public Instant getCorrectionsToInstant() {
-        return now;
-      }
-
-      @Override
-      public ObjectId getObjectId() {
-        return oid;
-      }
-
-      @Override
-      public PagingRequest getPagingRequest() {
-        return PagingRequest.ONE;
-      }
-
-      @Override
-      public Instant getVersionsFromInstant() {
-        return thisVersionTo;
-      }
-
-      @Override
-      public Instant getVersionsToInstant() {
-        return thisVersionTo;
-      }
-    }).getFirstDocument();
-  }
+//  private D getNextDocument(final ObjectId oid, final Instant now, final Instant thisVersionTo) {
+//    return historyByVersionsCorrections(new AbstractHistoryRequest() {
+//      @Override
+//      public Instant getCorrectionsFromInstant() {
+//        return now;
+//      }
+//
+//      @Override
+//      public Instant getCorrectionsToInstant() {
+//        return now;
+//      }
+//
+//      @Override
+//      public ObjectId getObjectId() {
+//        return oid;
+//      }
+//
+//      @Override
+//      public PagingRequest getPagingRequest() {
+//        return PagingRequest.ONE;
+//      }
+//
+//      @Override
+//      public Instant getVersionsFromInstant() {
+//        return thisVersionTo;
+//      }
+//
+//      @Override
+//      public Instant getVersionsToInstant() {
+//        return thisVersionTo;
+//      }
+//    }).getFirstDocument();
+//  }
 
 
   @Override
@@ -694,7 +690,9 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
             replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
             insert(replacementDocument);                          
           }
-          changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
+          Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
+          Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+          changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
           return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
         }
       }
@@ -749,7 +747,8 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
               earliestStoredDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
               insert(earliestStoredDocument);            
             }
-            if (latestStoredDocument != null && latestStoredDocument.getVersionToInstant() != null && highestVersionTo != null && latestStoredDocument.getVersionToInstant().isAfter(highestVersionTo)) {
+            if (latestStoredDocument != null && latestStoredDocument.getVersionToInstant() != null &&
+                highestVersionTo != null && latestStoredDocument.getVersionToInstant().isAfter(highestVersionTo)) {
               // we need to make copy of the latestStoredDocument
               latestStoredDocument.setVersionFromInstant(highestVersionTo);
               latestStoredDocument.setCorrectionFromInstant(now);
@@ -766,7 +765,9 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
               replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
               insert(replacementDocument);                                         
             }
-            changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
+            Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
+            Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+            changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
             return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
           }
 
@@ -779,12 +780,12 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   }
 
   @Override
-  final public void removeVersion(final UniqueId uniqueId) {
+  public final void removeVersion(final UniqueId uniqueId) {
     replaceVersion(uniqueId, Collections.<D>emptyList());
   }
 
   @Override
-  final public UniqueId replaceVersion(D replacementDocument) {
+  public final UniqueId replaceVersion(D replacementDocument) {
     ArgumentChecker.notNull(replacementDocument, "replacementDocument");
     List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
     if (result.isEmpty()) {
@@ -795,7 +796,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   }
 
   @Override
-  final public UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
+  public final UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
     List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
     if (result.isEmpty()) {
       return null;
@@ -899,7 +900,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
     }
   }
 
-  abstract public D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
+  public abstract D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
   /**
    * Queries the history of an object.
@@ -910,7 +911,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
    * @return the object history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  abstract public AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
+  public abstract AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
 
   @Override
   public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {

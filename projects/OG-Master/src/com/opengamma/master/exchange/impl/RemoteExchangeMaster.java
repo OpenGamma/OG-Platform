@@ -18,7 +18,6 @@ import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
-import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.api.client.GenericType;
@@ -26,7 +25,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link ExchangeMaster}.
  */
-public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
+public class RemoteExchangeMaster
+    extends AbstractRemoteDocumentMaster<ExchangeDocument>
+    implements ExchangeMaster {
 
   /**
    * Creates an instance.

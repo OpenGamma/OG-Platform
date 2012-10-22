@@ -41,7 +41,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<ManageableRegion, RegionDocument> implements RegionMaster {
+public class InMemoryRegionMaster
+    extends SimpleAbstractInMemoryMaster<RegionDocument>
+    implements RegionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.

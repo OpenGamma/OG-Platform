@@ -56,7 +56,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
     List<ManageableOGUser> result = Lists.newArrayList();
     if (getDocuments() != null) {
       for (UserDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getUser());
       }
     }
     return result;
@@ -68,7 +68,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
    * @return the first user, null if none
    */
   public ManageableOGUser getFirstUser() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getUser() : null;
   }
 
   /**
@@ -84,7 +84,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getUser();
     }
   }
 

@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.money.Currency;
@@ -34,7 +35,10 @@ public class ParameterSensitivityTest {
   private static final Currency EUR = Currency.EUR;
   private static final Pair<String, Currency> NAME_1_USD = new ObjectsPair<String, Currency>(NAME_1, USD);
   private static final Pair<String, Currency> NAME_1_EUR = new ObjectsPair<String, Currency>(NAME_1, EUR);
+  private static final Pair<String, Currency> NAME_2_USD = new ObjectsPair<String, Currency>(NAME_2, USD);
   private static final Pair<String, Currency> NAME_2_EUR = new ObjectsPair<String, Currency>(NAME_2, EUR);
+
+  private static final double TOLERANCE = 1.0E-5;
 
   @Test
   public void add() {
@@ -74,20 +78,34 @@ public class ParameterSensitivityTest {
   }
 
   @Test
+  public void convert() {
+    FXMatrix fxMatrix = new FXMatrix(EUR, USD, 1.25);
+    ParameterSensitivity sensi = new ParameterSensitivity();
+    sensi = sensi.plus(NAME_1_USD, SENSI_1_1);
+    sensi = sensi.plus(NAME_1_EUR, SENSI_1_2);
+    sensi = sensi.plus(NAME_2_EUR, SENSI_2_1);
+    ParameterSensitivity sensiUSDConverted = sensi.convert(fxMatrix, USD);
+    ParameterSensitivity sensiUSDExpected = new ParameterSensitivity();
+    sensiUSDExpected = sensiUSDExpected.plus(NAME_1_USD, SENSI_1_1);
+    sensiUSDExpected = sensiUSDExpected.plus(NAME_1_USD, (DoubleMatrix1D) MATRIX.scale(SENSI_1_2, fxMatrix.getFxRate(EUR, USD)));
+    sensiUSDExpected = sensiUSDExpected.plus(NAME_2_USD, (DoubleMatrix1D) MATRIX.scale(SENSI_2_1, fxMatrix.getFxRate(EUR, USD)));
+    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensiUSDExpected, sensiUSDConverted, TOLERANCE));
+  }
+
+  @Test
   public void compare() {
-    double tolerance = 1.0E-2;
     ParameterSensitivity sensi1 = new ParameterSensitivity();
     sensi1 = sensi1.plus(NAME_1_USD, SENSI_1_1);
     sensi1 = sensi1.plus(NAME_2_EUR, SENSI_2_1);
     ParameterSensitivity sensi2 = new ParameterSensitivity();
     sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
     sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi2, tolerance));
-    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(2.0), sensi2, tolerance));
-    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(1.000001), sensi2, tolerance));
+    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi2, TOLERANCE));
+    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(2.0), sensi2, TOLERANCE));
+    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(1.000001), sensi2, TOLERANCE));
     ParameterSensitivity sensi3 = new ParameterSensitivity();
     sensi3 = sensi3.plus(NAME_1_USD, SENSI_1_1);
-    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi3, tolerance));
+    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi3, TOLERANCE));
   }
 
 }

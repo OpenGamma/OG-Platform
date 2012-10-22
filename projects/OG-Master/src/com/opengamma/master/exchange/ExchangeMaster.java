@@ -15,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface ExchangeMaster extends AbstractChangeProvidingMaster<ManageableExchange, ExchangeDocument> {
+public interface ExchangeMaster extends AbstractChangeProvidingMaster<ExchangeDocument> {
 
   /**
    * Searches for exchanges matching the specified search criteria.

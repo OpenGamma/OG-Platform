@@ -28,11 +28,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class ExchangeDocument extends AbstractDocument<ManageableExchange> implements Serializable {
+public class ExchangeDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The exchange object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableExchange _object;
   /**
    * The exchange unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -73,7 +78,6 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
    * The meta-bean for {@code ExchangeDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeDocument.Meta meta() {
     return ExchangeDocument.Meta.INSTANCE;
   }
@@ -89,6 +93,8 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
@@ -98,6 +104,9 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableExchange) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -112,7 +121,8 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExchangeDocument other = (ExchangeDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -121,8 +131,34 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exchange object held by the document.
+   * @return the value of the property
+   */
+  public ManageableExchange getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the exchange object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableExchange object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableExchange> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -157,12 +193,17 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
   /**
    * The meta-bean for {@code ExchangeDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableExchange> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableExchange> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", ExchangeDocument.class, ManageableExchange.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -173,6 +214,7 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId");
 
     /**
@@ -184,6 +226,8 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -206,6 +250,14 @@ public class ExchangeDocument extends AbstractDocument<ManageableExchange> imple
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableExchange> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

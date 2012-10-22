@@ -101,7 +101,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);
-    ConfigItem<ExternalId> input = (ConfigItem<ExternalId>) base.getObject();
+    ConfigItem<?> input = base.getObject();
     input.setName("NewName"); // name change only
     
     ConfigDocument corrected = _cfgMaster.correct(new ConfigDocument(input));

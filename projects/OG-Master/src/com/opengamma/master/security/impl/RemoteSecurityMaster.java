@@ -13,7 +13,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -28,7 +27,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link SecurityMaster}.
  */
-public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
+public class RemoteSecurityMaster
+    extends AbstractRemoteDocumentMaster<SecurityDocument>
+    implements SecurityMaster {
 
   /**
    * Creates an instance.

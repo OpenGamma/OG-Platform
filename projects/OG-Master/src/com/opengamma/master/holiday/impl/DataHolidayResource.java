@@ -24,14 +24,13 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a holiday.
  */
-public class DataHolidayResource extends AbstractDocumentDataResource<ManageableHoliday, HolidayDocument> {
+public class DataHolidayResource extends AbstractDocumentDataResource<HolidayDocument> {
 
   /**
    * The holidays resource.
@@ -49,7 +48,7 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
   DataHolidayResource() {
     _holidaysResource = null;
   }
-  
+
   /**
    * Creates the resource.
    *
@@ -64,7 +63,6 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the holidays resource.
    *
@@ -84,7 +82,6 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the holiday master.
    *
@@ -94,7 +91,6 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
   protected HolidayMaster getMaster() {
     return getHolidaysResource().getHolidayMaster();
   }
-
 
   //-------------------------------------------------------------------------
   @GET
@@ -129,7 +125,6 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
     return super.getVersioned(versionId);
   }
 
-
   @PUT
   @Path("versions/{versionId}")
   public Response replaceVersion(@PathParam("versionId") String versionId, List<HolidayDocument> replacementDocuments) {
@@ -151,4 +146,5 @@ public class DataHolidayResource extends AbstractDocumentDataResource<Manageable
   protected String getResourceName() {
     return "holidays";
   }
+
 }

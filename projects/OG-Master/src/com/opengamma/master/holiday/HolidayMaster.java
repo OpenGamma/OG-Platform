@@ -15,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface HolidayMaster extends AbstractChangeProvidingMaster<ManageableHoliday, HolidayDocument> {
+public interface HolidayMaster extends AbstractChangeProvidingMaster<HolidayDocument> {
 
   /**
    * Queries the meta-data about the master.

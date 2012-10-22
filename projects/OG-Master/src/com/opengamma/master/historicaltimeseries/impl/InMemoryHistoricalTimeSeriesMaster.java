@@ -52,7 +52,9 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 /**
  * An in-memory implementation of a historical time-series master.
  */
-public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class InMemoryHistoricalTimeSeriesMaster
+    extends SimpleAbstractInMemoryMaster<HistoricalTimeSeriesInfoDocument>
+    implements HistoricalTimeSeriesMaster {
 
   /**
    * The default scheme used for each {@link UniqueId}.
@@ -97,6 +99,22 @@ public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMa
    */
   public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     super(objectIdSupplier, changeManager);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void validateDocument(HistoricalTimeSeriesInfoDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    if (document.getUniqueId() != null) {
+      validateId(document.getUniqueId());
+    }
+    ArgumentChecker.notNull(document.getObject(), "document.series");
+    ArgumentChecker.notNull(document.getObject().getExternalIdBundle(), "document.series.identifiers");
+    ArgumentChecker.isTrue(document.getObject().getExternalIdBundle().toBundle().getExternalIds().size() > 0, "document.series.identifiers must not be empty");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataSource()), "document.series.dataSource must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataProvider()), "document.series.dataProvider must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataField()), "document.series.dataField must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getObservationTime()), "document.series.observationTime must not be blank");
   }
 
   //-------------------------------------------------------------------------
@@ -375,20 +393,6 @@ public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMa
     } catch (NumberFormatException ex) {
       throw new IllegalArgumentException("Invalid objectId " + objectId);
     }
-  }
-
-  protected void validateDocument(HistoricalTimeSeriesInfoDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    if (document.getUniqueId() != null) {
-      validateId(document.getUniqueId());
-    }
-    ArgumentChecker.notNull(document.getObject(), "document.series");
-    ArgumentChecker.notNull(document.getObject().getExternalIdBundle(), "document.series.identifiers");
-    ArgumentChecker.isTrue(document.getObject().getExternalIdBundle().toBundle().getExternalIds().size() > 0, "document.series.identifiers must not be empty");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataSource()), "document.series.dataSource must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataProvider()), "document.series.dataProvider must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataField()), "document.series.dataField must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getObservationTime()), "document.series.observationTime must not be blank");
   }
 
 }

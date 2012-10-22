@@ -13,7 +13,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
@@ -26,7 +25,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link RegionMaster}.
  */
-public class RemoteRegionMaster extends AbstractRemoteDocumentMaster<ManageableRegion, RegionDocument> implements RegionMaster {
+public class RemoteRegionMaster
+    extends AbstractRemoteDocumentMaster<RegionDocument>
+    implements RegionMaster {
 
   /**
    * Creates an instance.

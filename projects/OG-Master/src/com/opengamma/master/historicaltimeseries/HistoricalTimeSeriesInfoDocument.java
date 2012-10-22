@@ -13,6 +13,7 @@ import org.joda.beans.DerivedProperty;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -31,7 +32,13 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<ManageableHistoricalTimeSeriesInfo> {
+public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
+
+  /**
+   * The info object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableHistoricalTimeSeriesInfo _object;
 
   /**
    * Creates an instance.
@@ -78,7 +85,6 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
    * The meta-bean for {@code HistoricalTimeSeriesInfoDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesInfoDocument.Meta meta() {
     return HistoricalTimeSeriesInfoDocument.Meta.INSTANCE;
   }
@@ -94,6 +100,8 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
@@ -103,6 +111,9 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableHistoricalTimeSeriesInfo) newValue);
+        return;
       case -294460212:  // uniqueId
         if (quiet) {
           return;
@@ -119,7 +130,8 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesInfoDocument other = (HistoricalTimeSeriesInfoDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -128,8 +140,34 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the info object held by the document.
+   * @return the value of the property
+   */
+  public ManageableHistoricalTimeSeriesInfo getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the info object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableHistoricalTimeSeriesInfo object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableHistoricalTimeSeriesInfo> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -147,12 +185,17 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
   /**
    * The meta-bean for {@code HistoricalTimeSeriesInfoDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableHistoricalTimeSeriesInfo> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableHistoricalTimeSeriesInfo> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", HistoricalTimeSeriesInfoDocument.class, ManageableHistoricalTimeSeriesInfo.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -163,6 +206,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId");
 
     /**
@@ -174,6 +218,8 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
       }
@@ -196,6 +242,14 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument<Manageabl
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableHistoricalTimeSeriesInfo> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

@@ -62,7 +62,7 @@ import com.opengamma.util.paging.Paging;
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbMarketDataSnapshotMaster
-    extends AbstractDocumentDbMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument>
+    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
   static {

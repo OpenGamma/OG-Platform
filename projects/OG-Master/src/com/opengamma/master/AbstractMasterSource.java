@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <M>  the type of the master
  */
 @PublicSPI
-public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument<? extends V>, M extends AbstractChangeProvidingMaster<? extends V, ? extends D>>
+public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument, M extends AbstractChangeProvidingMaster<? extends D>>
   implements Source<V>, VersionedSource, ObjectChangeListenerManager {
 
   /**
@@ -136,14 +136,16 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public V get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
+    return (V) getDocument(uniqueId).getObject();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public V get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getMaster().get(objectId, versionCorrection).getObject();
+    return (V) getMaster().get(objectId, versionCorrection).getObject();
   }
 
   @Override

@@ -65,7 +65,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbSecurityMaster extends AbstractDocumentDbMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
+public class DbSecurityMaster
+    extends AbstractDocumentDbMaster<SecurityDocument>
+    implements SecurityMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);

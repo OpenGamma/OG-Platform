@@ -24,14 +24,13 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for an exchange.
  */
-public class DataExchangeResource extends AbstractDocumentDataResource<ManageableExchange, ExchangeDocument> {
+public class DataExchangeResource extends AbstractDocumentDataResource<ExchangeDocument> {
 
   /**
    * The exchanges resource.
@@ -49,7 +48,7 @@ public class DataExchangeResource extends AbstractDocumentDataResource<Manageabl
   DataExchangeResource() {
     _exchangesResource = null;
   }
-  
+
   /**
    * Creates the resource.
    *
@@ -64,7 +63,6 @@ public class DataExchangeResource extends AbstractDocumentDataResource<Manageabl
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the exchanges resource.
    *
@@ -84,7 +82,6 @@ public class DataExchangeResource extends AbstractDocumentDataResource<Manageabl
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the exchange master.
    *

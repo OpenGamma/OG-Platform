@@ -15,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface SecurityMaster extends AbstractChangeProvidingMaster<ManageableSecurity, SecurityDocument> {
+public interface SecurityMaster extends AbstractChangeProvidingMaster<SecurityDocument> {
 
   /**
    * Queries the meta-data about the master.

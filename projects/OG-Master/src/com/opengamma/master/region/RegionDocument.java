@@ -33,11 +33,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class RegionDocument extends AbstractDocument<ManageableRegion> implements Serializable {
+public class RegionDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The region object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableRegion _object;
   /**
    * The region unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -79,7 +84,6 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
    * The meta-bean for {@code RegionDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static RegionDocument.Meta meta() {
     return RegionDocument.Meta.INSTANCE;
   }
@@ -95,6 +99,8 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
       case 205149932:  // providerId
@@ -106,6 +112,9 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableRegion) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -123,7 +132,8 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RegionDocument other = (RegionDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
           super.equals(obj);
     }
@@ -133,9 +143,35 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region object held by the document.
+   * @return the value of the property
+   */
+  public ManageableRegion getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the region object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableRegion object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableRegion> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -201,12 +237,17 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
   /**
    * The meta-bean for {@code RegionDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableRegion> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableRegion> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", RegionDocument.class, ManageableRegion.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -222,6 +263,7 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId",
         "providerId");
 
@@ -234,6 +276,8 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
         case 205149932:  // providerId
@@ -258,6 +302,14 @@ public class RegionDocument extends AbstractDocument<ManageableRegion> implement
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableRegion> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

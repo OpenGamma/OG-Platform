@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
@@ -31,7 +30,8 @@ import com.opengamma.util.rest.RestUtils;
 /**
  * RESTful resource for an region.
  */
-public class DataRegionResource extends AbstractDocumentDataResource<ManageableRegion, RegionDocument> {
+public class DataRegionResource
+    extends AbstractDocumentDataResource<RegionDocument> {
 
   /**
    * The regions resource.

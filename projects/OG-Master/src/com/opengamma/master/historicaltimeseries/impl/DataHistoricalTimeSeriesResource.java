@@ -24,14 +24,13 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for accessing time-series info.
  */
-public class DataHistoricalTimeSeriesResource extends AbstractDocumentDataResource<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> {
+public class DataHistoricalTimeSeriesResource extends AbstractDocumentDataResource<HistoricalTimeSeriesInfoDocument> {
 
   /**
    * The time-series resource.

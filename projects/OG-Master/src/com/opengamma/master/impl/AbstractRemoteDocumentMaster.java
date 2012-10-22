@@ -17,7 +17,6 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
 
@@ -25,8 +24,12 @@ import com.opengamma.master.AbstractMaster;
  * Abstract base class for remote masters.
  * <p>
  * A remote master provides a client-side view of a remote master over REST.
+ * 
+ * @param <D>  the type of the document
  */
-public abstract class AbstractRemoteDocumentMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractRemoteMaster implements AbstractMaster<T, D> {
+public abstract class AbstractRemoteDocumentMaster<D extends AbstractDocument>
+    extends AbstractRemoteMaster
+    implements AbstractMaster<D> {
 
   /**
    * Creates an instance.
@@ -47,9 +50,9 @@ public abstract class AbstractRemoteDocumentMaster<T extends UniqueIdentifiable,
     super(baseUri, changeManager);
   }
 
-
+  //-------------------------------------------------------------------------
   @Override
-  final public UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
+  public final UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
     List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
     if (result.isEmpty()) {
       return null;
@@ -58,14 +61,13 @@ public abstract class AbstractRemoteDocumentMaster<T extends UniqueIdentifiable,
     }
   }
 
-
   @Override
-  final public void removeVersion(final UniqueId uniqueId) {
+  public final void removeVersion(final UniqueId uniqueId) {
     replaceVersion(uniqueId, Collections.<D>emptyList());
   }
 
   @Override
-  final public UniqueId replaceVersion(D replacementDocument) {
+  public final UniqueId replaceVersion(D replacementDocument) {
     List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
     if (result.isEmpty()) {
       return null;

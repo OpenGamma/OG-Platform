@@ -33,11 +33,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class HolidayDocument extends AbstractDocument<ManageableHoliday> implements Serializable {
+public class HolidayDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The holiday object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableHoliday _object;
   /**
    * The holiday unique identifier.
    * This field is managed by the master but must be set for updates.
@@ -78,7 +83,6 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Creates a name based on the holiday.
    */
@@ -106,7 +110,6 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
    * The meta-bean for {@code HolidayDocument}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HolidayDocument.Meta meta() {
     return HolidayDocument.Meta.INSTANCE;
   }
@@ -122,6 +125,8 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        return getObject();
       case -294460212:  // uniqueId
         return getUniqueId();
       case 3373707:  // name
@@ -135,6 +140,9 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -1023368385:  // object
+        setObject((ManageableHoliday) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -155,7 +163,8 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HolidayDocument other = (HolidayDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getObject(), other.getObject()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
           super.equals(obj);
@@ -166,10 +175,36 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObject());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the holiday object held by the document.
+   * @return the value of the property
+   */
+  public ManageableHoliday getObject() {
+    return _object;
+  }
+
+  /**
+   * Sets the holiday object held by the document.
+   * @param object  the new value of the property
+   */
+  public void setObject(ManageableHoliday object) {
+    this._object = object;
+  }
+
+  /**
+   * Gets the the {@code object} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableHoliday> object() {
+    return metaBean().object().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -260,12 +295,17 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
   /**
    * The meta-bean for {@code HolidayDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta<ManageableHoliday> {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code object} property.
+     */
+    private final MetaProperty<ManageableHoliday> _object = DirectMetaProperty.ofReadWrite(
+        this, "object", HolidayDocument.class, ManageableHoliday.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -286,6 +326,7 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "object",
         "uniqueId",
         "name",
         "providerId");
@@ -299,6 +340,8 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1023368385:  // object
+          return _object;
         case -294460212:  // uniqueId
           return _uniqueId;
         case 3373707:  // name
@@ -325,6 +368,14 @@ public class HolidayDocument extends AbstractDocument<ManageableHoliday> impleme
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code object} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableHoliday> object() {
+      return _object;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null

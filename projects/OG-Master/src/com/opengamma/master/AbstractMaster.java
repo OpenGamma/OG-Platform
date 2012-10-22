@@ -12,7 +12,6 @@ import java.util.Map;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -27,7 +26,7 @@ import com.opengamma.util.PublicSPI;
  * @param <D>  the type of the document
  */
 @PublicSPI
-public interface AbstractMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> {
+public interface AbstractMaster<D extends AbstractDocument> {
 
   /**
    * Gets a document by unique identifier.
@@ -132,7 +131,6 @@ public interface AbstractMaster<T extends UniqueIdentifiable, D extends Abstract
   // TODO: deprecate
 
   //-------------------------------------------------------------------------
-
   /**
    * Replaces a single version of the document in the data store.
    * <p>
