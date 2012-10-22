@@ -62,6 +62,11 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableSecurity getValue() {
+    return getObject();
+  }
+
   /**
    * Gets the name of the security.
    * <p>

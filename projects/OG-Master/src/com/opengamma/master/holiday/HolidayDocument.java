@@ -83,6 +83,11 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableHoliday getValue() {
+    return getObject();
+  }
+
   /**
    * Creates a name based on the holiday.
    */

@@ -136,6 +136,11 @@ public class ConfigDocument extends AbstractDocument {
     }
   }
 
+  @Override
+  public ConfigItem<?> getValue() {
+    return getObject();
+  }
+
   /**
    * Sets the config item.
    * 

@@ -76,7 +76,7 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
 
   //-------------------------------------------------------------------------
   @Override
-  public YieldCurveDefinition getObject() {
+  public YieldCurveDefinition getValue() {
     return _yieldCurveDefinition;
   }
 

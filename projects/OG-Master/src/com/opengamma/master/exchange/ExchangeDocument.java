@@ -62,10 +62,16 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableExchange getValue() {
+    return getObject();
+  }
+
   /**
    * Gets the name of the exchange.
    * <p>
    * This is derived from the exchange itself.
+   * 
    * @return the name, null if no name
    */
   public String getName() {

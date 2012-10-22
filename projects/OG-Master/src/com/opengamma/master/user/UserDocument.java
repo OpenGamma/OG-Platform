@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -64,7 +63,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifiable getObject() {
+  public ManageableOGUser getValue() {
     return getUser();
   }
 
