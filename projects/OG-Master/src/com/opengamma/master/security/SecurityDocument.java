@@ -34,16 +34,16 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The security object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableSecurity _security;
+  /**
    * The security unique identifier.
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
-  /**
-   * The security.
-   */
-  @PropertyDefinition
-  private ManageableSecurity _security;
 
   /**
    * Creates an instance.
@@ -62,6 +62,11 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableSecurity getValue() {
+    return getSecurity();
+  }
+
   /**
    * Gets the name of the security.
    * <p>
@@ -93,10 +98,10 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
       case 949122880:  // security
         return getSecurity();
+      case -294460212:  // uniqueId
+        return getUniqueId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -104,11 +109,11 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
       case 949122880:  // security
         setSecurity((ManageableSecurity) newValue);
+        return;
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -121,8 +126,8 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityDocument other = (SecurityDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+      return JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -131,9 +136,34 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security object held by the document.
+   * @return the value of the property
+   */
+  public ManageableSecurity getSecurity() {
+    return _security;
+  }
+
+  /**
+   * Sets the security object held by the document.
+   * @param security  the new value of the property
+   */
+  public void setSecurity(ManageableSecurity security) {
+    this._security = security;
+  }
+
+  /**
+   * Gets the the {@code security} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableSecurity> security() {
+    return metaBean().security().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -166,31 +196,6 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security.
-   * @return the value of the property
-   */
-  public ManageableSecurity getSecurity() {
-    return _security;
-  }
-
-  /**
-   * Sets the security.
-   * @param security  the new value of the property
-   */
-  public void setSecurity(ManageableSecurity security) {
-    this._security = security;
-  }
-
-  /**
-   * Gets the the {@code security} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableSecurity> security() {
-    return metaBean().security().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code SecurityDocument}.
    */
   public static class Meta extends AbstractDocument.Meta {
@@ -200,22 +205,22 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueId} property.
-     */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", SecurityDocument.class, UniqueId.class);
-    /**
      * The meta-property for the {@code security} property.
      */
     private final MetaProperty<ManageableSecurity> _security = DirectMetaProperty.ofReadWrite(
         this, "security", SecurityDocument.class, ManageableSecurity.class);
     /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", SecurityDocument.class, UniqueId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "uniqueId",
-        "security");
+        "security",
+        "uniqueId");
 
     /**
      * Restricted constructor.
@@ -226,10 +231,10 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -294460212:  // uniqueId
-          return _uniqueId;
         case 949122880:  // security
           return _security;
+        case -294460212:  // uniqueId
+          return _uniqueId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -251,19 +256,19 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> uniqueId() {
-      return _uniqueId;
-    }
-
-    /**
      * The meta-property for the {@code security} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ManageableSecurity> security() {
       return _security;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
     }
 
   }

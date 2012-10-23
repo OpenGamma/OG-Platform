@@ -62,7 +62,7 @@ public class MasterRegionSourceTest {
     RegionDocument doc = new RegionDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterRegionSource test = new MasterRegionSource(mock);
-    Region testResult = test.getRegion(UID);
+    Region testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
     
     assertEquals(example(), testResult);
@@ -74,7 +74,7 @@ public class MasterRegionSourceTest {
     RegionDocument doc = new RegionDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterRegionSource test = new MasterRegionSource(mock, VC);
-    Region testResult = test.getRegion(UID);
+    Region testResult = test.get(UID);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -87,7 +87,7 @@ public class MasterRegionSourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterRegionSource test = new MasterRegionSource(mock, VC);
     try {
-      test.getRegion(UID);
+      test.get(UID);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -100,7 +100,7 @@ public class MasterRegionSourceTest {
     RegionDocument doc = new RegionDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterRegionSource test = new MasterRegionSource(mock, VC);
-    Region testResult = test.getRegion(OID, VC);
+    Region testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -113,7 +113,7 @@ public class MasterRegionSourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterRegionSource test = new MasterRegionSource(mock, VC);
     try {
-      test.getRegion(OID, VC);
+      test.get(OID, VC);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }

@@ -13,10 +13,6 @@ import java.util.BitSet;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.analytics.math.minimization.NullTransform;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
-import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
 
 /**
  * 

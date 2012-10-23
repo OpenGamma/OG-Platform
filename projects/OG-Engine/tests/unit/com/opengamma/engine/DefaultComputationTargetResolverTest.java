@@ -29,7 +29,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -48,7 +47,7 @@ public class DefaultComputationTargetResolverTest {
   private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
 
   public void test_constructor() {
-    SecuritySource secSource = new MockSecuritySource();
+    SecuritySource secSource = new InMemorySecuritySource();
     PositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertSame(secSource, test.getSecuritySource());
@@ -62,7 +61,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_portfolioNode() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     SimplePortfolio p = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
     p.getRootNode().addChildNode(NODE);
@@ -74,7 +73,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_position() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     SimplePortfolio p = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
     p.getRootNode().addPosition(POSITION);
@@ -87,7 +86,7 @@ public class DefaultComputationTargetResolverTest {
 
   public void test_resolve_trade() {
     OffsetDateTime now = OffsetDateTime.now();
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     SimplePortfolio portfolio = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
     SimplePosition position = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
@@ -103,7 +102,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_security() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     secSource.addSecurity(SECURITY);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
@@ -113,7 +112,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_primitive() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Foo", "Bar"));
@@ -122,7 +121,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_currency() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.CURRENCY, UniqueId.of("CurrencyISO", "USD"));
@@ -131,7 +130,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_unorderedCurrencyPair() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UniqueId.of("UnorderedCurrencyPair", "GBPEUR"));
@@ -140,7 +139,7 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_resolve_null() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertExpected(ComputationTarget.NULL, test.resolve(ComputationTargetSpecification.NULL, VersionCorrection.LATEST));
@@ -148,21 +147,21 @@ public class DefaultComputationTargetResolverTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void test_resolve_nullSpecification() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     test.resolve(null, VersionCorrection.LATEST);
   }
 
   public void test_resolve_notFound() {
-    MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertNull(test.resolve(new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar")), VersionCorrection.LATEST));
   }
 
   public void test_simplifyType() {
-    final MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     // No changes
@@ -178,21 +177,21 @@ public class DefaultComputationTargetResolverTest {
   }
 
   public void test_typeProvider_getSimple() {
-    final MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertEquals(test.getSimpleTypes().size(), 7);
   }
 
   public void test_typeProvider_getAdditional() {
-    final MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertEquals(test.getAdditionalTypes().size(), 0);
   }
 
   public void test_typeProvider_getAll() {
-    final MockSecuritySource secSource = new MockSecuritySource();
+    InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertEquals(test.getAllTypes().size(), test.getAdditionalTypes().size() + test.getSimpleTypes().size());

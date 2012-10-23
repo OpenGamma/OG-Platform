@@ -40,7 +40,29 @@ public abstract class GeneratorInstrument {
     return _name;
   }
 
+  /**
+   * Generate an instrument compatible with the generator from a reference date, one period and a market quote.
+   * @param date The reference date. In general it is "today" or the trade date.
+   * @param tenor The instrument tenor. When only one tenor is provided, the instrument will be spot starting or something similar (instrument dependent).
+   * @param marketQuote The instrument market quote.
+   * @param notional The instrument notional.
+   * @param objects The instrument specific extra data (like FX rates, ...)
+   * @return The instrument.
+   */
   public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects);
+
+  /**
+   * Generate an instrument compatible with the generator from a reference date, two periods and a market quote.
+   * @param date The reference date. In general it is "today" or the trade date.
+   * @param startTenor The instrument start tenor. The exact meaning is instrument dependent. In general it is the period from spot to the effective date.
+   * @param endTenor The instrument end tenor. The exact meaning is instrument dependent. In general it is the period from spot to the maturity date.
+   * @param marketQuote The instrument market quote.
+   * @param notional The instrument notional.
+   * @param objects The instrument specific extra data (like FX rates, ...)
+   * @return The instrument.
+   */
+  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double marketQuote, final double notional,
+      final Object... objects);
 
   @Override
   public int hashCode() {

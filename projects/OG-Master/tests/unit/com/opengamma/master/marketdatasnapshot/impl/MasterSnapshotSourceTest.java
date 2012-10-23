@@ -40,7 +40,7 @@ public class MasterSnapshotSourceTest {
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterSnapshotSource test = new MasterSnapshotSource(mock);
-    StructuredMarketDataSnapshot testResult = test.getSnapshot(UID);
+    StructuredMarketDataSnapshot testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
 
     assertEquals(example(), testResult);
@@ -54,7 +54,7 @@ public class MasterSnapshotSourceTest {
     new MarketDataSnapshotDocument(example());
     when(mock.get(UID)).thenThrow(new DataNotFoundException("Some message"));
     MasterSnapshotSource test = new MasterSnapshotSource(mock);
-    test.getSnapshot(UID);
+    test.get(UID);
   }
 
   //-------------------------------------------------------------------------

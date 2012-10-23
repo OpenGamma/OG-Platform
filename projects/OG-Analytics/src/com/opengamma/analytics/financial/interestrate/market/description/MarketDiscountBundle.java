@@ -391,6 +391,9 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
+  /**
+   * Returns all curves names. The order is the natural order of String.
+   */
   public Set<String> getAllNames() {
     Set<String> names = new TreeSet<String>();
     Set<Currency> ccySet = _discountingCurves.keySet();

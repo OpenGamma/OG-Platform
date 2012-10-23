@@ -10,8 +10,8 @@
 	      "dataFields": ["id", "name", "validFrom"]
 	},
     "data": [<#if searchResult??>
-     <#list searchResult.documents as item>
-    	"${item.uniqueId.objectId}|${item.region.name}|${item.versionFromInstant}|${item.region.getCountry()}"<#if item_has_next>,</#if>
+     <#list searchResult.documents as doc>
+    	"${doc.uniqueId.objectId}|${doc.region.name}|${doc.versionFromInstant}|${doc.region.getCountry()}"<#if doc_has_next>,</#if>
 	   </#list> </#if>]
 }
 </#escape>

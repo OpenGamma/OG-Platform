@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -35,7 +36,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageablePortfolio extends DirectBean implements MutableUniqueIdentifiable {
+public class ManageablePortfolio extends DirectBean implements MutableUniqueIdentifiable, UniqueIdentifiable {
 
   /**
    * The portfolio tree unique identifier.

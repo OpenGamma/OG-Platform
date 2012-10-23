@@ -581,7 +581,7 @@ $.register_module({
                 },
                 del: function (config) {
                     config = config || {};
-                    var root = this.root, method = [root], meta, view_id = str(config.view_id);
+                    var root = this.root, method = [root], meta, view_id = config.view_id;
                     meta = check({
                         bundle: {method: root + '#del', config: config},
                         required: [{all_of: ['view_id']}]
@@ -592,19 +592,20 @@ $.register_module({
                 },
                 grid: {
                     depgraphs: {
-                        root: 'views/{{view_id}}/portfolio/depgraphs',
+                        root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
                         del: not_implemented.partial('del'),
                         get: not_available.partial('get'),
                         structure: {
-                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}',
+                            root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
                             get: function (config) {
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#get', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id']}]
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id']}]
                                 });
-                                method[1] = str(config.view_id);
-                                method[4] = str(config.graph_id);
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
                                 return request(method, {data: data, meta: meta});
                             },
                             put: not_available.partial('put'),
@@ -612,26 +613,28 @@ $.register_module({
                         },
                         put: function (config) {
                             var root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'row', 'col'],
+                                fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                             });
                             meta.type = 'POST';
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
+                            method[2] = config.grid_type;
                             fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
                             return request(method, {data: data, meta: meta});
                         },
                         viewports: {
-                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/viewports',
+                            root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports',
                             get: function (config) {
                                 config = config || {};
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#get', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id', 'viewport_id']}]
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id', 'viewport_id']}]
                                 });
                                 method[1] = config.view_id;
+                                method[2] = config.grid_type;
                                 method[4] = config.graph_id;
                                 method.push(config.viewport_id);
                                 return request(method, {data: data, meta: meta});
@@ -639,7 +642,7 @@ $.register_module({
                             put: function (config) {
                                 config = config || {};
                                 var root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['view_id', 'graph_id', 'viewport_id', 'rows', 'columns'],
+                                    fields = ['view_id', 'grid_type', 'graph_id', 'viewport_id', 'rows', 'columns'],
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
                                     required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns']}]
@@ -650,44 +653,61 @@ $.register_module({
                                 data.expanded = !!config.expanded;
                                 data['clientId'] = api.id;
                                 method[1] = config.view_id;
+                                method[2] = config.grid_type;
                                 method[4] = config.graph_id;
                                 if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
                                 return request(method, {data: data, meta: meta});
                             },
-                            del: not_available.partial('del')
+                            del: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#del', config: config},
+                                    required: [{all_of: ['view_id', 'grid_type', 'graph_id', 'viewport_id']}]
+                                });
+                                meta.type = 'DELETE';
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                method.push(config.viewport_id);
+                                return request(method, {data: {}, meta: meta});
+                            }
                         }
                     },
                     structure: {
-                        root: 'views/{{view_id}}/portfolio',
+                        root: 'views/{{view_id}}/{{grid_type}}',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#get', config: config},
-                                required: [{all_of: ['view_id']}]
+                                required: [{all_of: ['view_id', 'grid_type']}]
                             });
-                            return request(((method[1] = str(config.view_id)), method), {data: data, meta: meta});
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            return request(method, {data: data, meta: meta});
                         },
                         put: not_available.partial('put'),
                         del: not_available.partial('del')
                     },
                     viewports: {
-                        root: 'views/{{view_id}}/portfolio/viewports',
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#get', config: config},
-                                required: [{all_of: ['view_id', 'viewport_id']}]
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
                             });
                             method[1] = config.view_id;
+                            method[2] = config.grid_type;
                             method.push(config.viewport_id);
                             return request(method, {data: data, meta: meta});
                         },
                         put: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'viewport_id', 'rows', 'columns'],
+                                fields = ['view_id', 'grid_type', 'viewport_id', 'rows', 'columns'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
                                 required: [{all_of: ['view_id', 'rows', 'columns']}]
@@ -698,10 +718,23 @@ $.register_module({
                             data.expanded = !!config.expanded;
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
+                            method[2] = config.grid_type;
                             if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
                             return request(method, {data: data, meta: meta});
                         },
-                        del: not_available.partial('del')
+                        del: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#del', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
+                            });
+                            meta.type = 'DELETE';
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method.push(config.viewport_id);
+                            return request(method, {data: {}, meta: meta});
+                        }
                     }
                 }
             }

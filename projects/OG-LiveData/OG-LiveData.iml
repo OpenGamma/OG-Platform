@@ -57,7 +57,7 @@
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/sources/ehcache-core-1.7.2.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/redis/jedis/sources/jedis-2.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/redis/jedis/sources/jedis-src-2.1.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

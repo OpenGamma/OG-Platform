@@ -17,9 +17,6 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.analytics.financial.timeseries.filter.FilteredTimeSeries;
-import com.opengamma.analytics.financial.timeseries.filter.SpikeDoubleTimeSeriesFilter;
-import com.opengamma.analytics.financial.timeseries.filter.TimeSeriesFilter;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 

@@ -7,8 +7,8 @@ package com.opengamma.component.tool;
 
 import java.io.File;
 
-import com.opengamma.util.db.tool.DbUpgradeOperation;
 import com.opengamma.util.db.tool.DbToolContext;
+import com.opengamma.util.db.tool.DbUpgradeOperation;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**

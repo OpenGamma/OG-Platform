@@ -75,7 +75,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
       @QueryParam("id") List<String> externalIdStrs) {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
-    Collection<? extends Region> result = getRegionSource().getRegions(bundle, vc);
+    Collection<? extends Region> result = getRegionSource().get(bundle, vc);
     return responseOkFudge(FudgeListWrapper.of(result));
   }
 
@@ -88,11 +88,11 @@ public class DataRegionSourceResource extends AbstractDataResource {
       @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
-      final Region result = getRegionSource().getRegion(objectId.atVersion(version));
+      final Region result = getRegionSource().get(objectId.atVersion(version));
       return responseOkFudge(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-      Region result = getRegionSource().getRegion(objectId, vc);
+      Region result = getRegionSource().get(objectId, vc);
       return responseOkFudge(result);
     }
   }

@@ -15,7 +15,6 @@ import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleFisherKurtosisCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
-import com.opengamma.analytics.math.statistics.distribution.LaplaceDistribution;
 
 public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;

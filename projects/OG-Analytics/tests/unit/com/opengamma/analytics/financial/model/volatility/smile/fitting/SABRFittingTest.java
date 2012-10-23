@@ -18,8 +18,6 @@ import cern.jet.random.engine.MersenneTwister;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.LeastSquareSmileFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;

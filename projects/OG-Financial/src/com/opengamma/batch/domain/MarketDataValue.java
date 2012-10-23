@@ -5,24 +5,24 @@
  */
 package com.opengamma.batch.domain;
 
-import com.opengamma.batch.BatchMaster;
-import com.opengamma.engine.ComputationTargetSpecification;
-
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.*;
-
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.batch.BatchMaster;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 
 @BeanDefinition
 public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
@@ -248,24 +248,24 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
    * /
    * package com.opengamma.batch.domain;
    * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * 
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * import org.joda.beans.*;
-   * import org.joda.beans.impl.direct.*;
-   * 
    * import java.util.Map;
+   * 
    * import org.joda.beans.BeanBuilder;
+   * import org.joda.beans.BeanDefinition;
    * import org.joda.beans.JodaBeanUtils;
    * import org.joda.beans.MetaProperty;
    * import org.joda.beans.Property;
+   * import org.joda.beans.PropertyDefinition;
    * import org.joda.beans.impl.direct.DirectBean;
    * import org.joda.beans.impl.direct.DirectBeanBuilder;
    * import org.joda.beans.impl.direct.DirectMetaBean;
    * import org.joda.beans.impl.direct.DirectMetaProperty;
    * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+   * 
+   * import com.opengamma.batch.BatchMaster;
+   * import com.opengamma.engine.ComputationTargetSpecification;
+   * import com.opengamma.id.ObjectId;
+   * import com.opengamma.id.ObjectIdentifiable;
    * 
    * @BeanDefinition
    * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
@@ -291,24 +291,24 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
    * /
    * package com.opengamma.batch.domain;
    * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * 
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * import org.joda.beans.*;
-   * import org.joda.beans.impl.direct.*;
-   * 
    * import java.util.Map;
+   * 
    * import org.joda.beans.BeanBuilder;
+   * import org.joda.beans.BeanDefinition;
    * import org.joda.beans.JodaBeanUtils;
    * import org.joda.beans.MetaProperty;
    * import org.joda.beans.Property;
+   * import org.joda.beans.PropertyDefinition;
    * import org.joda.beans.impl.direct.DirectBean;
    * import org.joda.beans.impl.direct.DirectBeanBuilder;
    * import org.joda.beans.impl.direct.DirectMetaBean;
    * import org.joda.beans.impl.direct.DirectMetaProperty;
    * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+   * 
+   * import com.opengamma.batch.BatchMaster;
+   * import com.opengamma.engine.ComputationTargetSpecification;
+   * import com.opengamma.id.ObjectId;
+   * import com.opengamma.id.ObjectIdentifiable;
    * 
    * @BeanDefinition
    * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
@@ -334,24 +334,24 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
    * /
    * package com.opengamma.batch.domain;
    * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * 
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * import org.joda.beans.*;
-   * import org.joda.beans.impl.direct.*;
-   * 
    * import java.util.Map;
+   * 
    * import org.joda.beans.BeanBuilder;
+   * import org.joda.beans.BeanDefinition;
    * import org.joda.beans.JodaBeanUtils;
    * import org.joda.beans.MetaProperty;
    * import org.joda.beans.Property;
+   * import org.joda.beans.PropertyDefinition;
    * import org.joda.beans.impl.direct.DirectBean;
    * import org.joda.beans.impl.direct.DirectBeanBuilder;
    * import org.joda.beans.impl.direct.DirectMetaBean;
    * import org.joda.beans.impl.direct.DirectMetaProperty;
    * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+   * 
+   * import com.opengamma.batch.BatchMaster;
+   * import com.opengamma.engine.ComputationTargetSpecification;
+   * import com.opengamma.id.ObjectId;
+   * import com.opengamma.id.ObjectIdentifiable;
    * 
    * @BeanDefinition
    * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {

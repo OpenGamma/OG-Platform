@@ -9,14 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.riskreward.JensenAlphaCalculator;
-import com.opengamma.analytics.financial.riskreward.MTwoPerformanceCalculator;
-import com.opengamma.analytics.financial.riskreward.MarketRiskAdjustedPerformanceCalculator;
-import com.opengamma.analytics.financial.riskreward.RiskAdjustedPerformanceCalculator;
-import com.opengamma.analytics.financial.riskreward.SharpeRatioCalculator;
-import com.opengamma.analytics.financial.riskreward.TTwoPerformanceCalculator;
-import com.opengamma.analytics.financial.riskreward.TotalRiskAlphaCalculator;
-import com.opengamma.analytics.financial.riskreward.TreynorRatioCalculator;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.InterpolatorND;
-import com.opengamma.analytics.math.interpolation.KrigingInterpolatorND;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**

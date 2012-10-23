@@ -131,9 +131,13 @@ $.register_module({
                     .on('click', '.og-load', function () {
                         if (!~auto_combo_menu[0].value.indexOf('Db')) return;
                         og.analytics.url.main({
-                            type: 'portfolio', depgraph: false,
                             viewdefinition: auto_combo_menu[0].value,
-                            providers: [{'marketDataType': 'live', 'source': 'Bloomberg'}]
+                            providers: [
+                                {'marketDataType': 'live', 'source': 'Bloomberg'},
+                                {'marketDataType': 'live', 'source': 'Activ'},
+                                {'marketDataType': 'live', 'source': 'TullettPrebon'},
+                                {'marketDataType': 'live', 'source': 'ICAP'}
+                            ]
                         });
                     })
                     .on('click', '.og-menu-aggregation button', function () {

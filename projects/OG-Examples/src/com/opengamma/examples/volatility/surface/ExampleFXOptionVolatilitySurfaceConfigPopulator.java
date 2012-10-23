@@ -5,15 +5,15 @@
  */
 package com.opengamma.examples.volatility.surface;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -49,20 +49,13 @@ public class ExampleFXOptionVolatilitySurfaceConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(volSurfaceDefinition));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>>
+  private static ConfigItem<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>>
   makeConfigDocument(final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>>(
-        VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+    return ConfigItem.of(definition, definition.getName(), VolatilitySurfaceDefinition.class);
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
+    return ConfigItem.of(specification, specification.getName(), VolatilitySurfaceSpecification.class);
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster, final UniqueIdentifiable target, final String currencyCrossString) {

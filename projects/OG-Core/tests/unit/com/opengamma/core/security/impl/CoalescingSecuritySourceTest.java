@@ -24,9 +24,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -38,49 +38,6 @@ import com.opengamma.util.test.Timeout;
  */
 @Test
 public class CoalescingSecuritySourceTest {
-
-  private static class MockSecuritySource implements SecuritySource {
-
-    @Override
-    public ChangeManager changeManager() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSecurity(UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Security> getSecurities(ExternalIdBundle bundle) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSecurity(ExternalIdBundle bundle) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-  }
 
   private static void join(final CyclicBarrier barrier) {
     try {
@@ -111,7 +68,7 @@ public class CoalescingSecuritySourceTest {
       int _state;
 
       @Override
-      public Security getSecurity(final UniqueId uid) {
+      public Security get(final UniqueId uid) {
         assertEquals(_state++, 0);
         join(barrier); //1
         assertEquals(uid, uidA);
@@ -121,7 +78,7 @@ public class CoalescingSecuritySourceTest {
       }
 
       @Override
-      public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uids) {
+      public Map<UniqueId, Security> get(final Collection<UniqueId> uids) {
         assertEquals(_state++, 1);
         assertEquals(uids.size(), 2);
         assertTrue(uids.contains(uidB));
@@ -141,7 +98,7 @@ public class CoalescingSecuritySourceTest {
       final Future<?> a = exec.submit(new Runnable() {
         @Override
         public void run() {
-          final Security s = coalescing.getSecurity(uidA);
+          final Security s = coalescing.get(uidA);
           assertSame(s, secA);
         }
       });
@@ -149,7 +106,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier);
-          final Security s = coalescing.getSecurity(uidB);
+          final Security s = coalescing.get(uidB);
           assertSame(s, secB);
         }
       });
@@ -157,7 +114,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier);
-          final Security s = coalescing.getSecurity(uidC);
+          final Security s = coalescing.get(uidC);
           assertSame(s, secC);
         }
       });
@@ -184,7 +141,7 @@ public class CoalescingSecuritySourceTest {
       int _state;
 
       @Override
-      public Security getSecurity(final UniqueId uid) {
+      public Security get(final UniqueId uid) {
         assertEquals(_state++, 0);
         join(barrier1);
         assertEquals(uid, uidA);
@@ -194,7 +151,7 @@ public class CoalescingSecuritySourceTest {
       }
 
       @Override
-      public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uids) {
+      public Map<UniqueId, Security> get(final Collection<UniqueId> uids) {
         assertEquals(_state++, 1);
         assertEquals(uids.size(), 2);
         assertTrue(uids.contains(uidB));
@@ -219,7 +176,7 @@ public class CoalescingSecuritySourceTest {
       final Future<?> a = exec.submit(new Runnable() {
         @Override
         public void run() {
-          final Security s = coalescing.getSecurity(uidA);
+          final Security s = coalescing.get(uidA);
           assertSame(s, secA);
         }
       });
@@ -227,7 +184,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier1);
-          final Security s = coalescing.getSecurity(uidB);
+          final Security s = coalescing.get(uidB);
           assertSame(s, secB);
         }
       });
@@ -235,7 +192,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier2); // 1
-          final Security s = coalescing.getSecurity(uidC);
+          final Security s = coalescing.get(uidC);
           assertSame(s, secC);
         }
       });
@@ -262,7 +219,7 @@ public class CoalescingSecuritySourceTest {
       int _state;
 
       @Override
-      public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uids) {
+      public Map<UniqueId, Security> get(final Collection<UniqueId> uids) {
         final Map<UniqueId, Security> result = Maps.newHashMapWithExpectedSize(uids.size());
         if (++_state == 1) {
           assertEquals(uids.size(), 2);
@@ -296,7 +253,7 @@ public class CoalescingSecuritySourceTest {
       final Future<?> a = exec.submit(new Runnable() {
         @Override
         public void run() {
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidA, uidB));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidA, uidB));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidA), secA);
           assertSame(result.get(uidB), secB);
@@ -306,7 +263,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier);
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidA, uidC));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidA, uidC));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidA), secA);
           assertSame(result.get(uidC), secC);
@@ -316,7 +273,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier);
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidB, uidC));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidB, uidC));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidB), secB);
           assertSame(result.get(uidC), secC);
@@ -345,7 +302,7 @@ public class CoalescingSecuritySourceTest {
       int _state;
 
       @Override
-      public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uids) {
+      public Map<UniqueId, Security> get(final Collection<UniqueId> uids) {
         final Map<UniqueId, Security> result = Maps.newHashMapWithExpectedSize(uids.size());
         if (++_state == 1) {
           assertEquals(uids.size(), 2);
@@ -384,7 +341,7 @@ public class CoalescingSecuritySourceTest {
       final Future<?> a = exec.submit(new Runnable() {
         @Override
         public void run() {
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidA, uidB));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidA, uidB));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidA), secA);
           assertSame(result.get(uidB), secB);
@@ -394,7 +351,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier1);
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidA, uidC));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidA, uidC));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidA), secA);
           assertSame(result.get(uidC), secC);
@@ -404,7 +361,7 @@ public class CoalescingSecuritySourceTest {
         @Override
         public void run() {
           join(barrier2); //1
-          final Map<UniqueId, Security> result = coalescing.getSecurities(Arrays.asList(uidB, uidC));
+          final Map<UniqueId, Security> result = coalescing.get(Arrays.asList(uidB, uidC));
           assertEquals(result.size(), 2);
           assertSame(result.get(uidB), secB);
           assertSame(result.get(uidC), secC);
@@ -423,36 +380,36 @@ public class CoalescingSecuritySourceTest {
   public void testGetSecurity_byObjectId() {
     final SecuritySource underlying = Mockito.mock(SecuritySource.class);
     final SecuritySource coalescing = new CoalescingSecuritySource(underlying);
-    coalescing.getSecurity(ObjectId.of("Test", "Test"), VersionCorrection.LATEST);
-    Mockito.verify(underlying).getSecurity(ObjectId.of("Test", "Test"), VersionCorrection.LATEST);
+    coalescing.get(ObjectId.of("Test", "Test"), VersionCorrection.LATEST);
+    Mockito.verify(underlying).get(ObjectId.of("Test", "Test"), VersionCorrection.LATEST);
   }
 
   public void testGetSecurities_byExternalIdBundleVersionCorrection() {
     final SecuritySource underlying = Mockito.mock(SecuritySource.class);
     final SecuritySource coalescing = new CoalescingSecuritySource(underlying);
-    coalescing.getSecurities(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
-    Mockito.verify(underlying).getSecurities(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
+    coalescing.get(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
+    Mockito.verify(underlying).get(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
   }
 
   public void testGetSecurities_byExternalIdBundle() {
     final SecuritySource underlying = Mockito.mock(SecuritySource.class);
     final SecuritySource coalescing = new CoalescingSecuritySource(underlying);
-    coalescing.getSecurities(ExternalIdBundle.EMPTY);
-    Mockito.verify(underlying).getSecurities(ExternalIdBundle.EMPTY);
+    coalescing.get(ExternalIdBundle.EMPTY);
+    Mockito.verify(underlying).get(ExternalIdBundle.EMPTY);
   }
 
   public void testGetSecurity_byExternalIdBundle() {
     final SecuritySource underlying = Mockito.mock(SecuritySource.class);
     final SecuritySource coalescing = new CoalescingSecuritySource(underlying);
-    coalescing.getSecurity(ExternalIdBundle.EMPTY);
-    Mockito.verify(underlying).getSecurity(ExternalIdBundle.EMPTY);
+    coalescing.get(ExternalIdBundle.EMPTY);
+    Mockito.verify(underlying).get(ExternalIdBundle.EMPTY);
   }
 
   public void testGetSecurity_byExternalIdBundleVersionCorrection() {
     final SecuritySource underlying = Mockito.mock(SecuritySource.class);
     final SecuritySource coalescing = new CoalescingSecuritySource(underlying);
-    coalescing.getSecurity(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
-    Mockito.verify(underlying).getSecurity(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
+    coalescing.get(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
+    Mockito.verify(underlying).get(ExternalIdBundle.EMPTY, VersionCorrection.LATEST);
   }
 
 }

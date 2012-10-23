@@ -33,6 +33,7 @@ import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -51,9 +52,8 @@ import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.test.MockConfigSource;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.test.MockSecuritySource;
-import com.opengamma.engine.test.MockViewDefinitionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -147,7 +147,7 @@ public class CancelExecutionTest {
     final CompiledFunctionService compilationService = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), compilationContext);
     compilationService.initialize();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
-    final MockSecuritySource securitySource = new MockSecuritySource();
+    final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();
     compilationContext.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
     final ViewComputationCacheSource computationCacheSource = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
@@ -161,9 +161,9 @@ public class CancelExecutionTest {
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
-    MockViewDefinitionRepository viewDefinitionRepository = new MockViewDefinitionRepository();
-    viewDefinitionRepository.addDefinition(viewDefinition);
-    final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, computationCacheSource,
+    MockConfigSource configSource = new MockConfigSource();
+    configSource.put(viewDefinition);
+    final ViewProcessContext vpc = new ViewProcessContext(configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, computationCacheSource,
         jobDispatcher, viewProcessorQueryReceiver, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;

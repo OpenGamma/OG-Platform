@@ -65,7 +65,7 @@ public class DataExchangeMasterResourceTest {
   public void testFindExchange() {
     DataExchangeResource test = _resource.findExchange("Test~A");
     assertSame(_resource, test.getExchangesResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlExchangeId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }

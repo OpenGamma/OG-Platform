@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.surface.StringValue;
-
 public class StringValueTest {
 
   private static final double TOLERANCE = 1.0E-10;

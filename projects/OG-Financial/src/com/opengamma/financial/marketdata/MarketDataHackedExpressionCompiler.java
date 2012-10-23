@@ -63,7 +63,7 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
         @Override
         public ExternalIdBundle visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
           try {
-            return getSecuritySource().getSecurity(specification.getUniqueId()).getExternalIdBundle();
+            return getSecuritySource().get(specification.getUniqueId()).getExternalIdBundle();
           } catch (DataNotFoundException ex) {
             return null;
           }

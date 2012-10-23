@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -37,12 +38,13 @@ public interface ViewProcessor {
   String getName();
 
   /** 
-   * Gets this view processor's view definition repository containing the {@link ViewDefinition}s available for
+   * Gets this view processor's config source containing the configuration available for
    * computation.
    * 
-   * @return the view definition repository, not null
+   * @return the config source, not null
    */
-  ViewDefinitionRepository getViewDefinitionRepository();
+  ConfigSource getConfigSource();
+  
   
   /** 
    * Gets this view processor's market data provider repository containing named, pre-built market data specifications

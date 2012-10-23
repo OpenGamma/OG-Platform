@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.time.Tenor;
@@ -30,11 +30,10 @@ public class VolatilityCubeConfigPopulator {
   }
 
   public static ConfigMaster populateVolatilityCubeConfigMaster(ConfigMaster cfgMaster) {
-    ConfigDocument<VolatilityCubeDefinition> doc = new ConfigDocument<VolatilityCubeDefinition>(VolatilityCubeDefinition.class);
-    doc.setName("DEFAULT_USD");
-    doc.setValue(createDefaultDefinition());
-    s_logger.debug("Populating vol cube defn " + doc.getName());
-    ConfigMasterUtils.storeByName(cfgMaster, doc);
+    ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultDefinition());
+    item.setName("DEFAULT_USD");
+    s_logger.debug("Populating vol cube defn " + item.getName());
+    ConfigMasterUtils.storeByName(cfgMaster, item);
     return cfgMaster;
   }
 

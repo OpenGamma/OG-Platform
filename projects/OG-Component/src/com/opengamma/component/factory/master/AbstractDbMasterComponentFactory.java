@@ -5,8 +5,16 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +23,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.masterdb.schema.SchemaVersionUtils;
 import com.opengamma.util.ArgumentChecker;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Base component factory for all {@link AbstractDbMaster} implementations.

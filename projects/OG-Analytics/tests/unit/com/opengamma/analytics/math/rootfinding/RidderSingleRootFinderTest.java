@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.rootfinding;
 
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 
 
 /**

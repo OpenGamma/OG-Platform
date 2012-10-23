@@ -5,17 +5,18 @@
  */
 package com.opengamma.integration.viewer;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.test.TestProperties;
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
-import java.util.concurrent.Executors;
 
 /**
  * Launcher for the remote engine viewer.

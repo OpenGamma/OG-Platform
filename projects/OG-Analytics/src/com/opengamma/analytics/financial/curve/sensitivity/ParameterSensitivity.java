@@ -5,13 +5,15 @@
  */
 package com.opengamma.analytics.financial.curve.sensitivity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -33,20 +35,20 @@ public class ParameterSensitivity {
    * The map containing the sensitivity. The map linked a pair curve (String)/currency to vector of sensitivities (sensitivities to parameters/inputs).
    * The sensitivity is expressed in the currency of the pair. 
    */
-  private final Map<Pair<String, Currency>, DoubleMatrix1D> _sensitivity;
+  private final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> _sensitivity;
 
   /**
    * Default constructor, creating an empty HashMap for the sensitivity.
    */
   public ParameterSensitivity() {
-    _sensitivity = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    _sensitivity = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
   }
 
   /**
    * Private constructor.
    * @param sensitivity The map with the sensitivities. The map is used directly, not copied.
    */
-  public ParameterSensitivity(Map<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
+  public ParameterSensitivity(LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
     _sensitivity = sensitivity;
   }
 
@@ -59,7 +61,7 @@ public class ParameterSensitivity {
   public ParameterSensitivity plus(final Pair<String, Currency> nameCcy, final DoubleMatrix1D sensitivity) {
     ArgumentChecker.notNull(nameCcy, "Name/currency");
     ArgumentChecker.notNull(sensitivity, "Matrix");
-    final Map<Pair<String, Currency>, DoubleMatrix1D> result = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     result.putAll(_sensitivity);
     if (result.containsKey(nameCcy)) {
       result.put(nameCcy, (DoubleMatrix1D) MATRIX.add(result.get(nameCcy), sensitivity));
@@ -76,7 +78,7 @@ public class ParameterSensitivity {
    */
   public ParameterSensitivity plus(final ParameterSensitivity other) {
     ArgumentChecker.notNull(other, "Sensitivity to add");
-    final Map<Pair<String, Currency>, DoubleMatrix1D> result = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     result.putAll(_sensitivity);
     for (final Pair<String, Currency> nameCcy : other._sensitivity.keySet()) {
       if (result.containsKey(nameCcy)) {
@@ -94,11 +96,47 @@ public class ParameterSensitivity {
    * @return The multiplied sensitivity.
    */
   public ParameterSensitivity multiplyBy(final double factor) {
-    final Map<Pair<String, Currency>, DoubleMatrix1D> result = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
       result.put(nameCcy, (DoubleMatrix1D) MATRIX.scale(_sensitivity.get(nameCcy), factor));
     }
     return new ParameterSensitivity(result);
+  }
+
+  /**
+   * Create a new parameter sensitivity with the new sensitivity with all the values in a common currency.
+   * @param fxMatrix The matrix with relevant exchange rates.
+   * @param ccy The currency in which the sensitivity is converted.
+   * @return The converted sensitivity.
+   */
+  public ParameterSensitivity convert(final FXMatrix fxMatrix, final Currency ccy) {
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(fxMatrix, "FX Matrix");
+    ParameterSensitivity result = new ParameterSensitivity();
+    for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
+      final double fxRate = fxMatrix.getFxRate(nameCcy.getSecond(), ccy);
+      Pair<String, Currency> nameCcyNew = new ObjectsPair<String, Currency>(nameCcy.getFirst(), ccy);
+      DoubleMatrix1D sensiNew = (DoubleMatrix1D) MATRIX.scale(_sensitivity.get(nameCcy), fxRate);
+      result = result.plus(nameCcyNew, sensiNew);
+    }
+    return result;
+  }
+
+  /**
+   * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). 
+   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. 
+   * The matrix order is the natural one for the <String, Currency> key (as implemented in TreeSet). 
+   * TODO: REVIEW if this is the correct order. Do we need externally provided list of name/currency in case some are not present in the sensitivity?
+   * @return The sensitivity matrix.
+   */
+  public DoubleMatrix1D toMatrix() {
+    double[] psArray = new double[0];
+    Set<Pair<String, Currency>> pairs = _sensitivity.keySet();
+    TreeSet<Pair<String, Currency>> pairsOrdered = new TreeSet<Pair<String, Currency>>(pairs);
+    for (final Pair<String, Currency> nameCcy : pairsOrdered) {
+      psArray = ArrayUtils.addAll(psArray, _sensitivity.get(nameCcy).getData());
+    }
+    return new DoubleMatrix1D(psArray);
   }
 
   /**

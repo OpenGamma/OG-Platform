@@ -18,7 +18,7 @@ import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
 /**
- * 
+ * A Hibernate helper.
  */
 public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOperation<EquitySecurity, EquitySecurityBean> {
 

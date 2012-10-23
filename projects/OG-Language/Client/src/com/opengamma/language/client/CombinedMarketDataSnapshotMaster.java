@@ -5,7 +5,13 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
+
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -34,15 +40,30 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
+  }
+
+  @Override
+  public Map<UniqueId, MarketDataSnapshotDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, MarketDataSnapshotDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));      
+    }
+    return map;
   }
 
   /**
@@ -71,6 +92,6 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
         return master.history(request);
       }
     }).each(request.getObjectId().getScheme());
-  }
+  }  
 
 }

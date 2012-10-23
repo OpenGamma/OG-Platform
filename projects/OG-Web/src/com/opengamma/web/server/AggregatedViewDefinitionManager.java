@@ -18,19 +18,20 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.financial.aggregation.AggregationFunction;
 import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.portfolio.save.SavePortfolio;
-import com.opengamma.financial.view.AddViewDefinitionRequest;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -45,8 +46,8 @@ public class AggregatedViewDefinitionManager {
 
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
-  private final ViewDefinitionRepository _viewDefinitionRepository;
-  private final ManageableViewDefinitionRepository _userViewDefinitionRepository;
+  private final ConfigSource _viewDefinitionRepository;
+  private final ConfigMaster _userViewDefinitionRepository;
   private final PortfolioMaster _userPortfolioMaster;
   private final Map<String, AggregationFunction<?>> _portfolioAggregators;
   private final SavePortfolio _portfolioSaver;
@@ -57,8 +58,8 @@ public class AggregatedViewDefinitionManager {
 
   public AggregatedViewDefinitionManager(PositionSource positionSource,
                                          SecuritySource securitySource,
-                                         ViewDefinitionRepository viewDefinitionRepository,
-                                         ManageableViewDefinitionRepository userViewDefinitionRepository,
+                                         ConfigSource viewDefinitionRepository,
+                                         ConfigMaster userViewDefinitionRepository,
                                          PortfolioMaster userPortfolioMaster,
                                          PositionMaster userPositionMaster,
                                          Map<String, AggregationFunction<?>> portfolioAggregators) {
@@ -89,7 +90,7 @@ public class AggregatedViewDefinitionManager {
     // TODO: what about changes to the base view definition?
     ArgumentChecker.notNull(baseViewDefinitionId, "baseViewDefinitionId");
     ArgumentChecker.notNull(aggregatorNames, "aggregatorNames");
-    ViewDefinition baseViewDefinition = _viewDefinitionRepository.getDefinition(baseViewDefinitionId);
+    ViewDefinition baseViewDefinition = (ViewDefinition) _viewDefinitionRepository.get(baseViewDefinitionId).getValue();
     if (baseViewDefinition == null) {
       throw new OpenGammaRuntimeException("Unknown view definition with unique ID " + baseViewDefinitionId);
     }
@@ -113,8 +114,10 @@ public class AggregatedViewDefinitionManager {
         ViewDefinition aggregatedViewDefinition = baseViewDefinition.copyWith(aggregatedViewDefinitionName,
                                                                               aggregatedPortfolioReference.incrementReferenceCount(),
                                                                               baseViewDefinition.getMarketDataUser());
-        AddViewDefinitionRequest addViewDefinitionRequest = new AddViewDefinitionRequest(aggregatedViewDefinition);
-        UniqueId viewDefinitionId = _userViewDefinitionRepository.addViewDefinition(addViewDefinitionRequest);
+        
+        ConfigItem<ViewDefinition> configItem = ConfigItem.of(aggregatedViewDefinition);
+        configItem.setName(aggregatedViewDefinition.getName());
+        UniqueId viewDefinitionId = _userViewDefinitionRepository.add(new ConfigDocument(configItem)).getUniqueId();
         aggregatedViewDefinitionReference = new ViewDefinitionReference(viewDefinitionId, aggregatedPortfolioReference);
         _aggregatedViewDefinitions.put(aggregatedViewDefinitionKey, aggregatedViewDefinitionReference);
       }
@@ -149,7 +152,7 @@ public class AggregatedViewDefinitionManager {
           Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pair.of(portfolioReference.getBasePortfolioId(), aggregatorNames);
           _aggregatedPortfolios.remove(aggregatedPortfolioKey);
         }
-        _userViewDefinitionRepository.removeViewDefinition(viewDefinitionReference.getViewDefinitionId());
+        _userViewDefinitionRepository.remove(viewDefinitionReference.getViewDefinitionId());
         _aggregatedViewDefinitions.remove(aggregatedViewDefinitionKey);
       }
     } finally {

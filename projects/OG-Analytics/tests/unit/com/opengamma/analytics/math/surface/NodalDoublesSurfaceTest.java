@@ -11,7 +11,6 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

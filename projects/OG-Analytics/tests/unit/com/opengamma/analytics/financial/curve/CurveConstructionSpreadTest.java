@@ -27,7 +27,6 @@ import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivity
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
-import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldExisiting;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldFixed;
@@ -37,6 +36,7 @@ import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInte
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedAnchor;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldNelsonSiegel;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldPeriodicInterpolated;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterUnderlyingSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;

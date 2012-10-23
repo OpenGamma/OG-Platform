@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.var.StudentTVaRParameters;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 
 /**

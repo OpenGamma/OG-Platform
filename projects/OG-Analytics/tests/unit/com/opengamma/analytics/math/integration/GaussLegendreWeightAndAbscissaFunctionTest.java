@@ -7,9 +7,6 @@ package com.opengamma.analytics.math.integration;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.integration.GaussLegendreWeightAndAbscissaFunction;
-import com.opengamma.analytics.math.integration.QuadratureWeightAndAbscissaFunction;
-
 /**
  * 
  */

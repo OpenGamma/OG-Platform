@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -50,7 +51,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -408,10 +408,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   }
 
   private void storeViewDefinition(final ViewDefinition viewDefinition) {
-    final ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
-    configDocument.setName(viewDefinition.getName());
-    configDocument.setValue(viewDefinition);
-    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), configDocument);
+    final ConfigItem<ViewDefinition> config = ConfigItem.of(viewDefinition, viewDefinition.getName(), ViewDefinition.class);
+    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), config);
   }
 
 }

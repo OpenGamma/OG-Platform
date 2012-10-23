@@ -27,14 +27,16 @@ import com.opengamma.web.server.conversion.LabelFormatter;
 
   @Override
   public String formatForDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
-    return "Volatility Surface (" + value.getXs().length + " x " + value.getYs().length + ")";
+    int xSize = value.getUniqueXValues().size();
+    int ySize = Sets.newHashSet(value.getYs()).size();
+    return "Volatility Surface (" + xSize + " x " + ySize + ")";
   }
 
   /**
-   * <p>Returns a map containing the x-axis labels and values, y-axis labels and values, and volatility values. The lists
-   * of axis labels are sorted and have no duplicate values (which isn't necessarily true of the underlying data). The
-   * volatility data list contains a value for every combination of x and y values. If there is no corresponding value
-   * in the underlying data the volatility value will be {@code null}.</p>
+   * <p>Returns a map containing the x-axis labels and values, y-axis labels and values, axis titles and volatility
+   * values. The lists of axis labels are sorted and have no duplicate values (which isn't necessarily true of the
+   * underlying data). The volatility data list contains a value for every combination of x and y values. If there is
+   * no corresponding value in the underlying data the volatility value will be {@code null}.</p>
    * <p>The axis values are numeric values which correspond to the axis labels. It is unspecified what they
    * actually represent but their relative sizes show the relationship between the label values.
    * This allows the labels to be properly laid out on the plot axes.</p>
@@ -43,18 +45,20 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * and the UI shouldn't attempt to plot the surface.</p>
    * @return {x_labels: [...],
    *          x_values: [...],
+   *          x_title: "X Axis Title",
    *          y_labels: [...],
    *          y_values: [...],
+   *          y_title: "Y Axis Title",
    *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
   @SuppressWarnings("unchecked")
   @Override
-  public Map<String, Object> formatForExpandedDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+  public Map<String, Object> formatForExpandedDisplay(VolatilitySurfaceData surface, ValueSpecification valueSpec) {
     Map<String, Object> results = Maps.newHashMap();
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
-    SortedSet xVals = value.getUniqueXValues();
-    SortedSet yVals = Sets.newTreeSet((Iterable) Arrays.asList(value.getYs()));
+    SortedSet xVals = surface.getUniqueXValues();
+    SortedSet yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
     List<String> xLabels = getAxisLabels(xVals);
     List<String> yLabels = getAxisLabels(yVals);
     // numeric values corresponding to the axis labels to help with plotting the surface
@@ -63,7 +67,7 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     List<Double> vol = Lists.newArrayListWithCapacity(xVals.size() * yVals.size());
     for (Object yVal : yVals) {
       for (Object xVal : xVals) {
-        vol.add(value.getVolatility(xVal, yVal));
+        vol.add(surface.getVolatility(xVal, yVal));
       }
       CollectionUtils.addIgnoreNull(yAxisValues, getAxisValue(yVal));
     }
@@ -80,7 +84,9 @@ import com.opengamma.web.server.conversion.LabelFormatter;
       results.put("x_values", xAxisValues);
     }
     results.put("x_labels", xLabels);
+    results.put("x_title", surface.getXLabel());
     results.put("y_labels", yLabels);
+    results.put("y_title", surface.getYLabel());
     results.put("vol", vol);
     return results;
   }

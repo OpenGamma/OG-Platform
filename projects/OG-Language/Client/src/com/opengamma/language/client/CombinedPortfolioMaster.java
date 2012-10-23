@@ -5,6 +5,11 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
+
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -35,13 +40,19 @@ public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, P
   public PortfolioSearchResult search(final PortfolioSearchRequest request) {
     final PortfolioSearchResult result = new PortfolioSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }
@@ -88,4 +99,12 @@ public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, P
     }).each(nodeId.getScheme());
   }
 
+  @Override
+  public Map<UniqueId, PortfolioDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, PortfolioDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 }

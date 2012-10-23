@@ -18,6 +18,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -27,12 +29,12 @@ import com.opengamma.util.PublicSPI;
  * The returned documents will match the search criteria.
  * See {@link ConfigSearchRequest} for more details.
  * 
- * @param <T>  the document type
+ * @param <T>  the type of the underlying config
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T>> {
-
+public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> {
+  
   /**
    * Creates an instance.
    */
@@ -41,11 +43,20 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
 
   /**
    * Creates an instance from a collection of documents.
-   * 
-   * @param coll  the collection of documents to add, not null
+   *
+   * @param documents  the collection of documents to add, not null
    */
-  public ConfigSearchResult(Collection<ConfigDocument<T>> coll) {
-    super(coll);
+  public ConfigSearchResult(Collection<ConfigDocument> documents) {
+    super(documents);
+  }
+
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   *
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public ConfigSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
   }
 
   //-------------------------------------------------------------------------
@@ -54,11 +65,12 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
    * 
    * @return the configuration values, not null
    */
-  public List<T> getValues() {
-    List<T> result = new ArrayList<T>();
+  @SuppressWarnings("unchecked")
+  public List<ConfigItem<T>> getValues() {
+    List<ConfigItem<T>> result = new ArrayList<ConfigItem<T>>();
     if (getDocuments() != null) {
-      for (ConfigDocument<T> doc : getDocuments()) {
-        result.add(doc.getValue());
+      for (ConfigDocument doc : getDocuments()) {
+        result.add((ConfigItem<T>) doc.getConfig());
       }
     }
     return result;
@@ -69,8 +81,8 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
    * 
    * @return the first configuration value, null if none
    */
-  public T getFirstValue() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getValue() : null;
+  public ConfigItem<T> getFirstValue() {
+    return getValues().size() > 0 ? getValues().get(0) : null;
   }
 
   /**
@@ -82,11 +94,11 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
    * @return the matching config, not null
    * @throws IllegalStateException if no config was found
    */
-  public T getSingleValue() {
+  public ConfigItem<T> getSingleValue() {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getValue();
+      return getValues().get(0);
     }
   }
 
@@ -142,7 +154,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
   /**
    * The meta-bean for {@code ConfigSearchResult}.
    */
-  public static class Meta<T> extends AbstractSearchResult.Meta<ConfigDocument<T>> {
+  public static class Meta<T> extends AbstractSearchResult.Meta<ConfigDocument> {
     /**
      * The singleton instance of the meta-bean.
      */

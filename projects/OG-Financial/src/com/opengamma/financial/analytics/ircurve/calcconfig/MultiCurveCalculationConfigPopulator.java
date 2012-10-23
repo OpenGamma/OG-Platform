@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -42,22 +42,21 @@ public class MultiCurveCalculationConfigPopulator {
         ComputationTargetSpecification.of(Currency.JPY), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveJPYInstrumentConfig(discountingCurveName, forward6MCurveName));
     final MultiCurveCalculationConfig defaultCHFConfig = new MultiCurveCalculationConfig("DefaultTwoCurveCHFConfig", new String[] {discountingCurveName, forward6MCurveName},
         ComputationTargetSpecification.of(Currency.CHF), MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, getTwoCurveCHFInstrumentConfig(discountingCurveName, forward6MCurveName));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultUSDConfig));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultGBPConfig));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultEURConfig));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultJPYConfig));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultCHFConfig));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDThreeCurveConfig()));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDDiscountingCurveConfig()));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDForwardCurvesConfig()));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getSingleAUDCurveConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultUSDConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultGBPConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultEURConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultJPYConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(defaultCHFConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(getAUDThreeCurveConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(getAUDDiscountingCurveConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(getAUDForwardCurvesConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(getSingleAUDCurveConfig()));
   }
 
-  private static ConfigDocument<MultiCurveCalculationConfig> makeConfigDocument(final MultiCurveCalculationConfig curveConfig) {
-    final ConfigDocument<MultiCurveCalculationConfig> configDocument = new ConfigDocument<MultiCurveCalculationConfig>(MultiCurveCalculationConfig.class);
-    configDocument.setName(curveConfig.getCalculationConfigName());
-    configDocument.setValue(curveConfig);
-    return configDocument;
+  private static ConfigItem<MultiCurveCalculationConfig> makeConfig(final MultiCurveCalculationConfig curveConfig) {
+    final ConfigItem<MultiCurveCalculationConfig> config = ConfigItem.of(curveConfig);
+    config.setName(curveConfig.getCalculationConfigName());
+    return config;
   }
 
   private static LinkedHashMap<String, CurveInstrumentConfig> getTwoCurveUSDInstrumentConfig(final String discountingCurveName, final String forward3MCurveName) {

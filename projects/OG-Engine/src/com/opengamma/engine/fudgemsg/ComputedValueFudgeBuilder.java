@@ -104,11 +104,13 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     }
     FudgeField requirementField = message.getByName(REQUIREMENTS_FIELD_NAME);
     if (requirementField != null) {
+      @SuppressWarnings("unchecked")
       Set<ValueRequirement> requirements = deserializer.fieldValueToObject(Set.class, requirementField);
       computedValue.setRequirements(requirements);
     }
     FudgeField missingInputsField = message.getByName(MISSING_INPUTS_FIELD_NAME);
     if (missingInputsField != null) {
+      @SuppressWarnings("unchecked")
       Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, missingInputsField);
       computedValue.setMissingInputs(missingInputs);
     }

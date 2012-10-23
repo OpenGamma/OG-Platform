@@ -8,7 +8,6 @@ package com.opengamma.integration.component;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.component.factory.source.HistoricalTimeSeriesSourceComponentFactory;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.FieldMappingHistoricalTimeSeriesResolver;

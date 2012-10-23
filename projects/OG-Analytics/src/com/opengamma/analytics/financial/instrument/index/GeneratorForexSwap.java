@@ -122,6 +122,9 @@ public class GeneratorForexSwap extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The Forex swap starts at spot and end at spot+tenor.
+   */
   public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double forwardPoints, final double notional, final Object... objects) {
     ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
     ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
@@ -133,6 +136,25 @@ public class GeneratorForexSwap extends GeneratorInstrument {
     }
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, _businessDayConvention, _calendar, _endOfMonth);
+    return new ForexSwapDefinition(_currency1, _currency2, startDate, endDate, notional, fx, forwardPoints);
+  }
+
+  @Override
+  /**
+   * The Forex swap starts at spot+startTenor and end at spot+endTenor.
+   */
+  public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double forwardPoints, final double notional, final Object... objects) {
+    ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
+    ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
+    Double fx;
+    if (objects[0] instanceof Double) {
+      fx = (Double) objects[0];
+    } else {
+      fx = ((FXMatrix) objects[0]).getFxRate(_currency1, _currency2);
+    }
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _businessDayConvention, _calendar, _endOfMonth);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spot, endTenor, _businessDayConvention, _calendar, _endOfMonth);
     return new ForexSwapDefinition(_currency1, _currency2, startDate, endDate, notional, fx, forwardPoints);
   }
 

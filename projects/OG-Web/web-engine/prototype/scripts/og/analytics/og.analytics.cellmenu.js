@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.CellMenu',
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
-        var module = this, icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small',
+        var module = this, icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', open_inplace = '.og-icon-down-chevron',
             expand_class = 'og-expanded', panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
             mapping = og.common.gadgets.mapping, typemap = mapping.type_map,
             onlydepgraphs = []; // a list of datatypes that only support depgraph gadgets
@@ -17,11 +17,15 @@ $.register_module({
             if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
                 (cellmenu.menu = $(template)).hide().on('mouseleave', function () {
-                    clearTimeout(timer), cellmenu.menu.removeClass(expand_class);
+                    clearTimeout(timer), cellmenu.menu.removeClass(expand_class), cellmenu.hide();
                 }).on('mouseenter', open_icon, function () {
                     timer = clearTimeout(timer), setTimeout(function () {cellmenu.menu.addClass(expand_class);}, 500);
+				}).on('mouseenter', function () {
+                    $.data(cellmenu, 'hover', true);
                 }).on('click', open_icon, function () {
                     cellmenu.menu.addClass(expand_class);
+				}).on('click', open_inplace, function () {
+                    console.log('open dialog in place here');	
                 }).on('mouseenter', icons, function () {
                     var panel = panels[$(this).text() - 1];
                     panels.forEach(function (val) {og.analytics.containers[val].highlight(true, val === panel);});
@@ -38,17 +42,25 @@ $.register_module({
                         || (cell.col < (depgraph ? 1 : 2)) || (cell.right > parent.width())
                         || (depgraph && $.inArray(type, onlydepgraphs) > -1);
                     if (hide) cellmenu.hide(); else cellmenu.show();
-                }).on('cellhoverout', function () {cellmenu.hide();}).elements.parent.append(cellmenu.menu);
+                }).on('cellhoverout', function () {
+					setTimeout(function () {if(!$(cellmenu).data('hover')) cellmenu.hide();}, 100);			
+				});
+				
             });
         };
         constructor.prototype.hide = function () {
             var cellmenu = this;
-            if (cellmenu.menu && cellmenu.menu.length) cellmenu.menu.hide();
+            if (cellmenu.menu && cellmenu.menu.length) {
+				cellmenu.menu.hide();
+				$.data(cellmenu, 'hover', false);
+			}
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
-            if (cellmenu.menu && cellmenu.menu.length)
-                cellmenu.menu.css({top: current.top, left: current.right - width}).show();
+			
+            if (cellmenu.menu && cellmenu.menu.length){
+				(cellmenu.menu).appendTo($('body')).css({top: current.top, left: current.right - width}).show();
+			}
         };
         return constructor;
     }

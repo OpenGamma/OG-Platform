@@ -19,9 +19,9 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.AbstractResolver;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolver;
-import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.util.ArgumentChecker;
 
 /**

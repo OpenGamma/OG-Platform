@@ -83,15 +83,15 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
     SecurityMasterResponseMessage responseMessage = new SecurityMasterResponseMessage();
     switch(messageType) {
       case GET_SECURITIES_BY_KEY:
-        Collection<Security> securities = _securitySource.getSecurities(secMasterRequest.getSecKey());
+        Collection<Security> securities = _securitySource.get(secMasterRequest.getSecKey());
         responseMessage.setSecurities(Collections.unmodifiableCollection(securities));
         break;
       case GET_SECURITY_BY_KEY:
-        sec = _securitySource.getSecurity(secMasterRequest.getSecKey());
+        sec = _securitySource.getSingle(secMasterRequest.getSecKey());
         responseMessage.setSecurity(sec);
         break;
       case GET_SECURITY_BY_IDENTITY:
-        sec = _securitySource.getSecurity(secMasterRequest.getUniqueId());
+        sec = _securitySource.get(secMasterRequest.getUniqueId());
         responseMessage.setSecurity(sec);
         break;
       default:

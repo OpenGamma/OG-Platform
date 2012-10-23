@@ -66,7 +66,7 @@ public class DataPortfolioMasterResourceTest {
   public void testFindPortfolio() {
     DataPortfolioResource test = _resource.findPortfolio("Test~PortA");
     assertSame(_resource, test.getPortfoliosResource());
-    assertEquals(ObjectId.of("Test", "PortA"), test.getUrlPortfolioId());
+    assertEquals(ObjectId.of("Test", "PortA"), test.getUrlId());
   }
 
   @Test

@@ -79,11 +79,11 @@ public class DataHolidaySourceResource extends AbstractDataResource {
     
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
-      final Holiday result = getHolidaySource().getHoliday(objectId.atVersion(version));
+      final Holiday result = getHolidaySource().get(objectId.atVersion(version));
       return responseOkFudge(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-      Holiday result = getHolidaySource().getHoliday(objectId, vc);
+      Holiday result = getHolidaySource().get(objectId, vc);
       return responseOkFudge(result);
     }
   }

@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -46,10 +47,20 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public RegionSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
+
   /**
    * Gets the returned regions from within the documents.
-   * 
+   *
    * @return the regions, not null
    */
   public List<ManageableRegion> getRegions() {
@@ -64,7 +75,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
 
   /**
    * Gets the first region, or null if no documents.
-   * 
+   *
    * @return the first region, null if none
    */
   public ManageableRegion getFirstRegion() {
@@ -76,7 +87,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
    * <p>
    * This throws an exception if more than 1 result is actually available.
    * Thus, this method implies an assumption about uniqueness of the queried region.
-   * 
+   *
    * @return the matching region, not null
    * @throws IllegalStateException if no region was found
    */

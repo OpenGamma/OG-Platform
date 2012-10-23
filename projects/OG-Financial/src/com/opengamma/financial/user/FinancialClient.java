@@ -7,6 +7,7 @@ package com.opengamma.financial.user;
 
 import javax.time.Instant;
 
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,10 +36,6 @@ public class FinancialClient {
    */
   private final FinancialUserSecurityMaster _securityMaster;
   /**
-   * The view definition master.
-   */
-  private final FinancialUserManageableViewDefinitionRepository _viewDefinitionMaster;
-  /**
    * The yield curve master.
    */
   private final FinancialUserInterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
@@ -50,6 +47,10 @@ public class FinancialClient {
    * Contains the timestamp of the last time something was requested.
    */
   private volatile Instant _lastAccessed;
+  /**
+   * The config source
+   */
+  private ConfigMaster _configMaster;
 
   /**
    * Creates an instance.
@@ -67,7 +68,7 @@ public class FinancialClient {
     _portfolioMaster = new FinancialUserPortfolioMaster(this, services.getPortfolioMaster());
     _positionMaster = new FinancialUserPositionMaster(this, services.getPositionMaster());
     _securityMaster = new FinancialUserSecurityMaster(this, services.getSecurityMaster());
-    _viewDefinitionMaster = new FinancialUserManageableViewDefinitionRepository(this, services.getViewDefinitionRepository());
+    _configMaster = new FinancialUserConfigMaster(this, services.getConfigMaster());
     _interpolatedYieldCurveDefinitionMaster = new FinancialUserInterpolatedYieldCurveDefinitionMaster(this, services.getInterpolatedYieldCurveDefinitionMaster());
     _snapshotMaster = new FinancialUserSnapshotMaster(this, services.getSnapshotMaster());
   }
@@ -153,9 +154,9 @@ public class FinancialClient {
    * 
    * @return the value of the property
    */
-  public FinancialUserManageableViewDefinitionRepository getViewDefinitionMaster() {
+  public ConfigMaster getConfigMaster() {
     updateLastAccessed();
-    return _viewDefinitionMaster;
+    return _configMaster;
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.master.user;
@@ -34,16 +34,16 @@ public class UserDocument extends AbstractDocument implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The exchange unique identifier.
-   * This field is managed by the master but must be set for updates.
-   */
-  @PropertyDefinition
-  private UniqueId _uniqueId;
-  /**
-   * The user.
+   * The user object held by the document.
    */
   @PropertyDefinition
   private ManageableOGUser _user;
+  /**
+   * The user unique identifier.
+   * This field is managed by the master but must be set for updates.
+   */
+  @PropertyDefinition
+  private UniqueId _uniqueId;  
 
   /**
    * Creates an instance.
@@ -62,6 +62,11 @@ public class UserDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableOGUser getValue() {
+    return getUser();
+  }
+
   /**
    * Gets the display name of the user.
    * <p>
@@ -93,10 +98,10 @@ public class UserDocument extends AbstractDocument implements Serializable {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
       case 3599307:  // user
         return getUser();
+      case -294460212:  // uniqueId
+        return getUniqueId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -104,11 +109,11 @@ public class UserDocument extends AbstractDocument implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
       case 3599307:  // user
         setUser((ManageableOGUser) newValue);
+        return;
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -121,8 +126,8 @@ public class UserDocument extends AbstractDocument implements Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       UserDocument other = (UserDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
+      return JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -131,14 +136,39 @@ public class UserDocument extends AbstractDocument implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exchange unique identifier.
+   * Gets the user object held by the document.
+   * @return the value of the property
+   */
+  public ManageableOGUser getUser() {
+    return _user;
+  }
+
+  /**
+   * Sets the user object held by the document.
+   * @param user  the new value of the property
+   */
+  public void setUser(ManageableOGUser user) {
+    this._user = user;
+  }
+
+  /**
+   * Gets the the {@code user} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableOGUser> user() {
+    return metaBean().user().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the user unique identifier.
    * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
@@ -147,7 +177,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
   }
 
   /**
-   * Sets the exchange unique identifier.
+   * Sets the user unique identifier.
    * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
@@ -166,31 +196,6 @@ public class UserDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the user.
-   * @return the value of the property
-   */
-  public ManageableOGUser getUser() {
-    return _user;
-  }
-
-  /**
-   * Sets the user.
-   * @param user  the new value of the property
-   */
-  public void setUser(ManageableOGUser user) {
-    this._user = user;
-  }
-
-  /**
-   * Gets the the {@code user} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableOGUser> user() {
-    return metaBean().user().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code UserDocument}.
    */
   public static class Meta extends AbstractDocument.Meta {
@@ -200,22 +205,22 @@ public class UserDocument extends AbstractDocument implements Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueId} property.
-     */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", UserDocument.class, UniqueId.class);
-    /**
      * The meta-property for the {@code user} property.
      */
     private final MetaProperty<ManageableOGUser> _user = DirectMetaProperty.ofReadWrite(
         this, "user", UserDocument.class, ManageableOGUser.class);
     /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", UserDocument.class, UniqueId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "uniqueId",
-        "user");
+        "user",
+        "uniqueId");
 
     /**
      * Restricted constructor.
@@ -226,10 +231,10 @@ public class UserDocument extends AbstractDocument implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -294460212:  // uniqueId
-          return _uniqueId;
         case 3599307:  // user
           return _user;
+        case -294460212:  // uniqueId
+          return _uniqueId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -251,19 +256,19 @@ public class UserDocument extends AbstractDocument implements Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> uniqueId() {
-      return _uniqueId;
-    }
-
-    /**
      * The meta-property for the {@code user} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ManageableOGUser> user() {
       return _user;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
     }
 
   }

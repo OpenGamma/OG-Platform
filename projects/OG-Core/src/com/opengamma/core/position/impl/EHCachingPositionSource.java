@@ -110,18 +110,7 @@ public class EHCachingPositionSource implements PositionSource {
     _changeListener = new ChangeListener() {
       @Override
       public void entityChanged(ChangeEvent event) {
-        // Only care where the unversioned ID has been cached since it now represents something else
-        UniqueId latestId = null;
-        if (event.getBeforeId() != null) {
-          latestId = event.getBeforeId().toLatest();
-        }
-        if (event.getAfterId() != null) {
-          latestId = event.getAfterId().toLatest();
-        }
-        if (latestId != null) {
-          cleanCaches(latestId);
-        }
-        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
+        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());
       }
     };
     underlying.changeManager().addChangeListener(_changeListener);
@@ -196,6 +185,9 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public Portfolio getPortfolio(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    if (versionCorrection.containsLatest()) {
+      return getUnderlying().getPortfolio(objectId, versionCorrection);
+    }
     Object f = _frontCacheByOID.get(objectId, versionCorrection);
     if (f instanceof Portfolio) {
       return (Portfolio) f;
@@ -228,6 +220,9 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    if (versionCorrection.containsLatest()) {
+      return getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
+    }
     Object f = _frontCacheByUID.get(uniqueId, versionCorrection);
     if (f instanceof PortfolioNode) {
       return (PortfolioNode) f;
@@ -278,6 +273,9 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public Position getPosition(final ObjectId positionId, final VersionCorrection versionCorrection) {
+    if (versionCorrection.containsLatest()) {
+      return getUnderlying().getPosition(positionId, versionCorrection);
+    }
     Object f = _frontCacheByOID.get(positionId, versionCorrection);
     if (f instanceof Position) {
       return (Position) f;
@@ -351,17 +349,6 @@ public class EHCachingPositionSource implements PositionSource {
     _frontCacheByOID.clear();
   }
 
-  //-------------------------------------------------------------------------
-  private void cleanCaches(UniqueId latestId) {
-    _portfolioNodeCache.remove(latestId);
-    _portfolioCache.remove(latestId);
-    _positionCache.remove(latestId);
-    _tradeCache.remove(latestId);
-    _frontCacheByUID.removeAllKey1(latestId);
-    _frontCacheByOID.removeAllKey1(latestId.getObjectId());
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getUnderlying() + "]";

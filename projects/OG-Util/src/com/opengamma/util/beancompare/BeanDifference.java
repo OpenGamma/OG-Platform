@@ -5,16 +5,18 @@
  */
 package com.opengamma.util.beancompare;
 
-import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.MetaProperty;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.joda.beans.MetaProperty;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Encapsulates the difference in a property's value between two instances of the same bean type.  Contains the
  * property that differs, the values from each bean and the path to the property (if it is a child bean of the
  * bean at the root of the comparison).
+ * 
  * @param <P> Type of the field that differs between the two beans.
  * @see BeanCompare#compare(org.joda.beans.Bean, org.joda.beans.Bean)
  */
@@ -33,11 +35,24 @@ public class BeanDifference<P> {
   private final P _value2;
 
   /**
-   * @param property Property that differed between the two beans, not null
-   * @param value1 Value of the property in bean 1, can be null
-   * @param value2 Value of the property in bean 2, can be null
-   * @param path Path from the root bean to the bean where the difference was found.  If the difference is in
-   * a property of the root bean this should be an empty list
+   * Creates an instance.
+   * 
+   * @param property  the property that differed between the two beans, not null
+   * @param value1  the value of the property in bean 1, can be null
+   * @param value2  the value of the property in bean 2, can be null
+   */
+  public BeanDifference(MetaProperty<? extends P> property, P value1, P value2) {
+    this(property, value1, value2, Collections.<MetaProperty<?>>emptyList());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param property  the property that differed between the two beans, not null
+   * @param value1  the value of the property in bean 1, can be null
+   * @param value2  the value of the property in bean 2, can be null
+   * @param path  the path from the root bean to the bean where the difference was found,
+   *  if the difference is in a property of the root bean this should be an empty list
    */
   public BeanDifference(MetaProperty<? extends P> property, P value1, P value2, List<MetaProperty<?>> path) {
     ArgumentChecker.notNull(property, "property");
@@ -48,32 +63,29 @@ public class BeanDifference<P> {
     _path = path;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param property Property that differed between the two beans, not null
-   * @param value1 Value of the property in bean 1, can be null
-   * @param value2 Value of the property in bean 2, can be null
-   * a property of the root bean this should be an empty list
-   */
-  public BeanDifference(MetaProperty<? extends P> property, P value1, P value2) {
-    this(property, value1, value2, Collections.<MetaProperty<?>>emptyList());
-  }
-
-  /**
-   * @return The property which has a different value in the two beans
+   * Gets the property.
+   * 
+   * @return the property which has a different value in the two beans
    */
   public MetaProperty<? extends P> getProperty() {
     return _property;
   }
 
   /**
-   * @return The property value in the first bean
+   * Gets the property value in the first bean.
+   * 
+   * @return the property value in the first bean
    */
   public P getValue1() {
     return _value1;
   }
 
   /**
-   * @return The property value in the second bean
+   * Gets the property value in the second bean.
+   * 
+   * @return the property value in the second bean
    */
   public P getValue2() {
     return _value2;
@@ -101,20 +113,24 @@ public class BeanDifference<P> {
    * </pre>
    * Comparing two instances of {@code Foo} where {@code Baz} has a different name would yield a {@code BeanDifference}
    * with a path {@code [Foo:bar, Bar:baz]} and a property {@code Baz:name}.
-   * @return The properties leading to the bean at the root of the comparison to the bean where the difference was
-   * found.  Returns an empty list if the difference is in a property of the root bean.
+   * 
+   * @return the properties leading to the bean at the root of the comparison to the bean where
+   *  the difference was found. Returns an empty list if the difference is in a property of the root bean.
    */
   public List<MetaProperty<?>> getPath() {
     return _path;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    BeanDifference that = (BeanDifference) o;
-
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    BeanDifference<?> that = (BeanDifference<?>) obj;
     if (!_path.equals(that._path)) {
       return false;
     }
@@ -143,4 +159,5 @@ public class BeanDifference<P> {
   public String toString() {
     return "BeanDifference{_property=" + _property + ", _value1=" + _value1 + ", _value2=" + _value2 + ", _path=" + _path + "}";
   }
+
 }

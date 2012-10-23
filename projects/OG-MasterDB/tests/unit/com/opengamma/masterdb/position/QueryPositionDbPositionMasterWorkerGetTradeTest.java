@@ -46,7 +46,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getTrade_nullUID() {
-    _posMaster.get(null);
+    _posMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

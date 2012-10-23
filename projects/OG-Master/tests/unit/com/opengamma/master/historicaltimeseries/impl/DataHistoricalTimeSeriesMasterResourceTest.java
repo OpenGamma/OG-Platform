@@ -66,7 +66,7 @@ public class DataHistoricalTimeSeriesMasterResourceTest {
   public void testFindHistoricalTimeSeries() {
     DataHistoricalTimeSeriesResource test = _resource.findHistoricalTimeSeries("Test~A");
     assertSame(_resource, test.getParentResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlInfoId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }

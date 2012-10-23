@@ -64,7 +64,7 @@ public class DataMarketDataSnapshotMasterResourceTest {
   public void testFindMarketDataSnapshot() {
     DataMarketDataSnapshotResource test = _resource.findMarketDataSnapshot("Test~A");
     assertSame(_resource, test.getMarketDataSnapshotsResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlMarketDataSnapshotId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }

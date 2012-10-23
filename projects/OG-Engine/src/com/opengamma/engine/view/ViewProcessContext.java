@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -28,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewProcessContext {
 
-  private final ViewDefinitionRepository _viewDefinitionRepository;
+  private final ConfigSource _configSource;
   private final ViewPermissionProvider _viewPermissionProvider;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
@@ -43,7 +44,7 @@ public class ViewProcessContext {
   private final OverrideOperationCompiler _overrideOperationCompiler;
 
   public ViewProcessContext(
-      ViewDefinitionRepository viewDefinitionRepository,
+      ConfigSource configSource,
       ViewPermissionProvider viewPermissionProvider,
       MarketDataProviderResolver marketDataProviderResolver,
       CompiledFunctionService functionCompilationService,
@@ -55,7 +56,7 @@ public class ViewProcessContext {
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
       OverrideOperationCompiler overrideOperationCompiler) {
-    ArgumentChecker.notNull(viewDefinitionRepository, "viewDefinitionRepository");
+    ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
@@ -67,7 +68,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
-    _viewDefinitionRepository = viewDefinitionRepository;
+    _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
     final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(functionCompilationService.getFunctionCompilationContext().getSecuritySource());
     _liveDataOverrideInjector = liveDataOverrideInjector;
@@ -85,12 +86,12 @@ public class ViewProcessContext {
 
   // -------------------------------------------------------------------------
   /**
-   * Gets the view definition repository
+   * Gets the config source
    * 
-   * @return the view definition repository, not null
+   * @return the config source, not null
    */
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    return _viewDefinitionRepository;
+  public ConfigSource getConfigSource() {
+    return _configSource;
   }
   
   /**

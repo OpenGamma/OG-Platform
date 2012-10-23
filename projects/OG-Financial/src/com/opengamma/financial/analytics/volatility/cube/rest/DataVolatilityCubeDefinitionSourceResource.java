@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.volatility.cube.rest;
 
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -71,8 +70,8 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
       @QueryParam("name") String name) {
     final Currency currency = Currency.parse(currencyStr);
     if (versionAsOfStr != null) {
-      final Instant versionAsOf = VersionCorrection.parse(versionAsOfStr, null).getVersionAsOf();
-      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(currency, name, versionAsOf);
+      final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, null);
+      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(currency, name, versionCorrection);
       return responseOkFudge(result);
     } else {
       VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(currency, name);

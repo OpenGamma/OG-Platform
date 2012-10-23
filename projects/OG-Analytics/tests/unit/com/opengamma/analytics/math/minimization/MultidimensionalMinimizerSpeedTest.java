@@ -16,14 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
-import com.opengamma.analytics.math.minimization.ConjugateDirectionVectorMinimizer;
-import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimizer;
-import com.opengamma.analytics.math.minimization.Minimizer;
-import com.opengamma.analytics.math.minimization.MinimizerWithGradient;
-import com.opengamma.analytics.math.minimization.NelderMeadDownhillSimplexMinimizer;
-import com.opengamma.analytics.math.minimization.QuasiNewtonVectorMinimizer;
-import com.opengamma.analytics.math.minimization.ScalarMinimizer;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

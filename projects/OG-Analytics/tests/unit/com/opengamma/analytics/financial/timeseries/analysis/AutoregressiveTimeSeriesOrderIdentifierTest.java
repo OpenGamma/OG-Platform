@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
-import com.opengamma.analytics.financial.timeseries.analysis.AutoregressiveTimeSeriesPACFOrderIdentifier;
 import com.opengamma.analytics.financial.timeseries.model.AutoregressiveTimeSeriesModel;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;

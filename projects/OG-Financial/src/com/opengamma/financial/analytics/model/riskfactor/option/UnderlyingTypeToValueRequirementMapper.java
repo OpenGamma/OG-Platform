@@ -31,7 +31,7 @@ public class UnderlyingTypeToValueRequirementMapper {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          Security optionUnderlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+          Security optionUnderlying = secMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
           if (optionUnderlying == null) {
             throw new DataNotFoundException("Don't have security for underlying of " + option);
           }

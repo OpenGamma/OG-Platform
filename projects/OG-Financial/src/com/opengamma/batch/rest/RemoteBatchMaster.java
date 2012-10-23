@@ -6,24 +6,20 @@
 package com.opengamma.batch.rest;
 
 
+import java.net.URI;
+import java.util.List;
+
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.impl.AbstractRemoteMaster;
-import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Provides access to a remote {@link com.opengamma.financial.batch.BatchMaster}.

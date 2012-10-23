@@ -14,9 +14,6 @@ import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshin
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDensity;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 
 /**

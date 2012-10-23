@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
-
 /**
  * Tests related to the seasonal curve. Usually used in a multiplicative way for PriceIndexCurve construction.
  */

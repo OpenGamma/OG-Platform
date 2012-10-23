@@ -18,8 +18,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -54,9 +54,8 @@ public class DefaultHistoricalTimeSeriesResolverTest {
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigDocument<HistoricalTimeSeriesRating> testDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
+    ConfigItem<HistoricalTimeSeriesRating> testDoc = ConfigItem.of(createRules());
     testDoc.setName(CONFIG_DOC_NAME);
-    testDoc.setValue(createRules());
     ConfigMasterUtils.storeByName(configMaster, testDoc);
   }
 

@@ -103,7 +103,7 @@ public class MasterPortfolioReader implements PortfolioReader {
         
           Security underlying;
           try {
-            underlying = _securitySource.getSecurity(id.toBundle());
+            underlying = _securitySource.getSingle(id.toBundle());
             if (underlying != null) {
               return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
                   position, 

@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.InverseTridiagonalMatrixCalculator;
-import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**

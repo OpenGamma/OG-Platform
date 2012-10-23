@@ -8,7 +8,9 @@ package com.opengamma.component.tool;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,7 @@ public final class ToolContextUtils {
    * The default classifier chain for selecting components from a server
    */
   private static final List<String> DEFAULT_CLASSIFIER_CHAIN =
-      Arrays.asList("central", "main", "default", "shared", "combined");
+      Arrays.asList("main", "combined", "shared", "central", "default");
 
   /**
    * Restricted constructor.
@@ -49,7 +51,7 @@ public final class ToolContextUtils {
    * The context should be closed after use.
    * 
    * @param configResourceLocation  the location of the context resource file, not null
-   * @param toolContextClazz        the type of tool context to return
+   * @param toolContextClazz  the type of tool context to return, not null
    * @return the context, not null
    */
   public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz) {
@@ -63,66 +65,17 @@ public final class ToolContextUtils {
    * The context should be closed after use.
    *
    * @param configResourceLocation  the location of the context resource file, not null
-   * @param toolContextClazz        the type of tool context to return
-   * @param classifierChain         the classifier chain to use when determining which components to select
+   * @param toolContextClazz  the type of tool context to return, not null
+   * @param classifierChain  the classifier chain to use when determining which components to select
    * @return the context, not null
    */
   public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz, List<String> classifierChain) {
-
     configResourceLocation = configResourceLocation.trim();
+    
     if (configResourceLocation.startsWith("http://")) {
-
-      // Fix passed-in URI
-      if (!configResourceLocation.endsWith("/jax")) {
-        if (configResourceLocation.endsWith("/")) {
-          configResourceLocation += "jax";
-        } else {
-          configResourceLocation += "/jax";
-        }
-      }
-
-      // Get the remote component server using the supplied URI
-      RemoteComponentServer remoteComponentServer = new RemoteComponentServer(URI.create(configResourceLocation));
-      ComponentServer componentServer = remoteComponentServer.getComponentServer();
-
-      // Attempt to build a tool context of the specified type
-      ToolContext toolContext;
-      try {
-        toolContext = toolContextClazz.newInstance();
-      } catch (Throwable t) {
-        return null;
-      }
-
-      // Populate the tool context from the remote component server
-      for (MetaProperty<?> metaProperty : toolContext.metaBean().metaPropertyIterable()) {
-        if (!metaProperty.name().equals("contextManager")) {
-          try {
-            ComponentInfo componentInfo =
-                getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
-            if (componentInfo == null) {
-              s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                  " because no appropriate component was found on the server");
-              continue;
-            }
-            String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
-            if (clazzName == null) {
-              s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                  " because no remote access class could be identified");
-              continue;
-            }
-            Class<?> clazz = Class.forName(clazzName);
-            metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
-            s_logger.info("Populated tool context " + metaProperty.name() + " with " + metaProperty.get(toolContext));
-          } catch (Throwable e) {
-            s_logger.warn("Could not populate tool context " + metaProperty.name() + " because: " +
-                e.getMessage());
-          }
-        }
-      }
-      return toolContext;
-
-    // Populate the tool context from a local properties file
-    } else {
+      return createToolContextByHttp(configResourceLocation, toolContextClazz, classifierChain);
+      
+    } else {  // use local file
       ComponentManager manager = new ComponentManager("toolcontext");
       manager.start(configResourceLocation);
       ComponentRepository repo = manager.getRepository();
@@ -130,21 +83,70 @@ public final class ToolContextUtils {
     }
   }
 
-  private static ComponentInfo getComponentInfo(ComponentServer componentServer, List<String> preferenceList, Class<?> type) {
-    if (preferenceList != null) {
-      for (String preference : preferenceList) {
+  private static ToolContext createToolContextByHttp(String configResourceLocation, Class<? extends ToolContext> toolContextClazz, List<String> classifierChain) {
+    configResourceLocation = StringUtils.stripEnd(configResourceLocation, "/");
+    if (configResourceLocation.endsWith("/jax") == false) {
+      configResourceLocation += "/jax";
+    }
+    
+    // Get the remote component server using the supplied URI
+    RemoteComponentServer remoteComponentServer = new RemoteComponentServer(URI.create(configResourceLocation));
+    ComponentServer componentServer = remoteComponentServer.getComponentServer();
+    
+    // Attempt to build a tool context of the specified type
+    ToolContext toolContext;
+    try {
+      toolContext = toolContextClazz.newInstance();
+    } catch (Throwable t) {
+      return null;
+    }
+    
+    // Populate the tool context from the remote component server
+    for (MetaProperty<?> metaProperty : toolContext.metaBean().metaPropertyIterable()) {
+      if (!metaProperty.name().equals("contextManager")) {
         try {
-          ComponentInfo componentInfo = componentServer.getComponentInfo(type, preference);
-          if (componentInfo != null) {
-            return componentInfo;
+          ComponentInfo componentInfo = getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
+          if (componentInfo == null) {
+            s_logger.warn("Unable to populate tool context '" + metaProperty.name() +
+                "', no appropriate component found on the server");
+            continue;
           }
-        } catch (IllegalArgumentException iae) {
-          // do nothing and try the next one.
+          String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+          if (clazzName == null) {
+            s_logger.warn("Unable to populate tool context '" + metaProperty.name() +
+                "', no remote access class found");
+            continue;
+          }
+          Class<?> clazz = Class.forName(clazzName);
+          metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
+          s_logger.info("Populated tool context '" + metaProperty.name() + "' with " + metaProperty.get(toolContext));
+        } catch (Throwable ex) {
+          s_logger.warn("Unable to populate tool context '" + metaProperty.name() + "': " + ex.getMessage());
         }
       }
     }
-    List<ComponentInfo> componentInfos = componentServer.getComponentInfos(type);
-    return componentInfos.size() == 0 ? null : componentInfos.get(0);
+    return toolContext;
+  }
+
+  private static ComponentInfo getComponentInfo(ComponentServer componentServer, List<String> preferenceList, Class<?> type) {
+    Map<String, ComponentInfo> infos = componentServer.getComponentInfoMap(type);
+    if (preferenceList != null) {
+      for (String preference : preferenceList) {
+        ComponentInfo componentInfo = infos.get(preference);
+        if (componentInfo != null) {
+          return componentInfo;
+        }
+      }
+    }
+    infos.remove("test");
+    if (infos.size() == 0) {
+      return null;
+    }
+    if (infos.size() > 1) {
+      s_logger.warn("Multiple remote components match: " + type.getSimpleName() + "::" + infos.keySet());
+      return null;
+    }
+    return infos.values().iterator().next();
   }
 
 }

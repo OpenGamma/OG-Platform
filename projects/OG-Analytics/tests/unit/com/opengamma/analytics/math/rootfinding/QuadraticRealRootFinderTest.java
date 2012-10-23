@@ -12,8 +12,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
-import com.opengamma.analytics.math.rootfinding.Polynomial1DRootFinder;
-import com.opengamma.analytics.math.rootfinding.QuadraticRealRootFinder;
 
 /**
  * 

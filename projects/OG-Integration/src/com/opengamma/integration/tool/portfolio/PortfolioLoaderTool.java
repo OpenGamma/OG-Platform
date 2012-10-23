@@ -7,6 +7,7 @@ package com.opengamma.integration.tool.portfolio;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
@@ -17,9 +18,9 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.util.generate.scripts.Scriptable;
 

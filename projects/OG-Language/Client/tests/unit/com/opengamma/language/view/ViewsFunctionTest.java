@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.language.view;
@@ -12,11 +12,13 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.financial.view.AddViewDefinitionRequest;
-import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 
 /**
  * Tests the {@link ViewsFunction} class.
@@ -24,30 +26,30 @@ import com.opengamma.id.UniqueId;
 @Test
 public class ViewsFunctionTest {
 
-  private ViewDefinitionRepository createRepository() {
-    final InMemoryViewDefinitionRepository repository = new InMemoryViewDefinitionRepository();
-    repository.addViewDefinition(new AddViewDefinitionRequest(new ViewDefinition(UniqueId.of("View", "1", "1"), "One", "Test")));
-    repository.addViewDefinition(new AddViewDefinitionRequest(new ViewDefinition(UniqueId.of("View", "2", "1"), "Two", "Test")));
-    repository.addViewDefinition(new AddViewDefinitionRequest(new ViewDefinition(UniqueId.of("View", "3", "1"), "Three", "Test")));
-    return repository;
+  private ConfigSource createConfigSource() {
+    final InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "1", "1"), "One", "Test"))));
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "2", "1"), "Two", "Test"))));
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "3", "1"), "Three", "Test"))));
+    return new MasterConfigSource(configMaster);
   }
 
   public void testAllViews() {
-    final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, null);
+    final ConfigSource source = createConfigSource();
+    final Map<UniqueId, String> result = ViewsFunction.invoke(source, null);
     assertEquals(result.size(), 3);
   }
 
   public void testNamedViewPresent() {
-    final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, "Two");
+    final ConfigSource source = createConfigSource();
+    final Map<UniqueId, String> result = ViewsFunction.invoke(source, "Two");
     assertEquals(result.size(), 1);
     assertTrue(result.keySet().contains(UniqueId.of("View", "2", "1")));
   }
 
   public void testNamedViewMissing() {
-    final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, "Four");
+    final ConfigSource source = createConfigSource();
+    final Map<UniqueId, String> result = ViewsFunction.invoke(source, "Four");
     assertEquals(result.size(), 0);
   }
 

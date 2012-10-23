@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.irfutureoption;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -22,7 +21,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -33,13 +31,6 @@ import com.opengamma.util.money.Currency;
  * Provides the market price for the security of a position as a value on the position
  */
 public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends AbstractFunction.NonCompiledInvoker {
-  
-  private SecuritySource _securitySource;
-  
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-  }
   
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,

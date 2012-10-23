@@ -32,7 +32,7 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getHoliday_nullUID() {
-    _holMaster.get(null);
+    _holMaster.get((UniqueId)null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

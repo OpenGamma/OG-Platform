@@ -46,7 +46,7 @@ public final class EquityFuturesRatesSensitivityCalculator {
     Validate.notNull(future, "null future");
     Validate.notNull(dataBundle, "null data bundle");
     if (!(dataBundle.getFundingCurve() instanceof YieldCurve)) {
-      throw new IllegalArgumentException("Can only handle YieldCurve");
+      throw new IllegalArgumentException("Calculator expects a YieldCurve. Perhaps it has encountered a discount curve?");
     }
     final YieldCurve discCrv = (YieldCurve) dataBundle.getFundingCurve();
     final String discCrvName = discCrv.getCurve().getName();

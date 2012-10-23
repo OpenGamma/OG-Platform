@@ -24,6 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
@@ -37,7 +38,6 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
-import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 
 /**
  * Component factory for the market data provider resolver.

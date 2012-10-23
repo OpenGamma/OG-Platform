@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.listener.ViewResultListener;
 
 /**

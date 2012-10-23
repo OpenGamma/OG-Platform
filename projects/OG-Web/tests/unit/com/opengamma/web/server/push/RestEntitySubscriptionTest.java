@@ -57,7 +57,7 @@ public class RestEntitySubscriptionTest {
     // this REST request should set up a subscription for object ID Tst~101
     _webPushTestUtils.readFromPath(restUrl, clientId);
     // send a change event
-    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, _uidV1.getObjectId(), null, null, Instant.now());
     // connect to the long-polling URL to receive notification of the change
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
     WebPushTestUtils.checkJsonResults(json, restUrl);
@@ -68,7 +68,7 @@ public class RestEntitySubscriptionTest {
     String clientId = _webPushTestUtils.handshake();
     String restUrl = "/jax/testsub/" + _uidStr;
     _webPushTestUtils.readFromPath(restUrl, clientId);
-    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, _uidV1.getObjectId(), null, null, Instant.now());
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
     WebPushTestUtils.checkJsonResults(json, restUrl);
   }
@@ -84,8 +84,8 @@ public class RestEntitySubscriptionTest {
     String restUrl2 = "/jax/test/" + uid2Str;
     _webPushTestUtils.readFromPath(restUrl1, clientId);
     _webPushTestUtils.readFromPath(restUrl2, clientId);
-    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
-    _changeManager.entityChanged(ChangeType.UPDATED, uid2V1, uid2V2, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, _uidV1.getObjectId(), null, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, uid2V1.getObjectId(), null, null, Instant.now());
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
     WebPushTestUtils.checkJsonResults(json, restUrl1, restUrl2);
   }
@@ -98,7 +98,7 @@ public class RestEntitySubscriptionTest {
     // where to send the update
     _webPushTestUtils.readFromPath(restUrl);
     // send a change event that we should never see
-    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, _uidV1.getObjectId(), null, null, Instant.now());
     String result = _webPushTestUtils.readFromPath("/updates/" + clientId);
     assertEquals("", result);
   }
@@ -109,7 +109,7 @@ public class RestEntitySubscriptionTest {
     // this REST request shouldn't set up a subscription because the client ID doesn't match an existing client connection
     _webPushTestUtils.readFromPath(restUrl);
     // send a change event that we should never see
-    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.CHANGED, _uidV1.getObjectId(), null, null, Instant.now());
     // will throw an exception because the URL is unknown
     _webPushTestUtils.readFromPath("/updates/abc");
   }

@@ -216,7 +216,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   private UniqueId getSecurityUniqueId(ExternalIdBundle id) {
     UniqueId result = null;
-    Security security = data().getSecuritySource().getSecurity(id);
+    Security security = data().getSecuritySource().getSingle(id);
     if (security != null) {
       result = security.getUniqueId();
     } else {

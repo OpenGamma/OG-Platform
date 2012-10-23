@@ -28,6 +28,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -44,7 +45,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -94,7 +94,7 @@ public class DependencyGraphBuilderResourceTest {
 
     });
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final MockSecuritySource securities = new MockSecuritySource();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     context.setSecuritySource(securities);
     context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securities));
     return new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), context);

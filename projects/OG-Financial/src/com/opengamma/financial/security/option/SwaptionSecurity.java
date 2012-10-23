@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.security.option;
 
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.LongShort;
-import com.opengamma.id.ExternalId;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,8 +19,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import javax.time.calendar.ZonedDateTime;
-import java.util.Map;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.LongShort;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 
 /**
  * A security for equity options.

@@ -10,7 +10,6 @@ import javax.time.calendar.LocalDate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.covariance.HistoricalVolatilityCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;

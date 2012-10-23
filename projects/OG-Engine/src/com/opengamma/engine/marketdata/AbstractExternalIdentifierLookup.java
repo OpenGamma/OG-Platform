@@ -40,7 +40,7 @@ import com.opengamma.util.functional.Function1;
         @Override
         public ExternalIdBundle execute(final UniqueId uid) {
           try {
-            return securitySource.getSecurity(uid).getExternalIdBundle();
+            return securitySource.get(uid).getExternalIdBundle();
           } catch (DataNotFoundException e) {
             return null;
           }

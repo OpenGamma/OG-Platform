@@ -29,7 +29,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -59,7 +61,11 @@ public class YieldCurveFunctionHelper {
       s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+        /* TODO Rather than VersionCorrection.LATEST it should take the actual VersionCorrection from the ViewComputationJob. Currenly Engine is not supprting that */
+        // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
+        // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
+        // which easily replaces the function reinitialiser mechanism and will result if a proper implementation of version/correction handling.
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
       } else {
         s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
       }

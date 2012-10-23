@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -39,8 +37,7 @@ public class ConfigDBVolatilityCubeDefinitionSource implements VolatilityCubeDef
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency ccy, String name, InstantProvider version) {
-    final Instant versionInstant = (version != null) ? version.toInstant() : null;
-    return _configSource.getByName(VolatilityCubeDefinition.class, name + "_" + ccy.getCode(), versionInstant);
+  public VolatilityCubeDefinition getDefinition(Currency ccy, String name, VersionCorrection versionCorrection) {    
+    return _configSource.getConfig(VolatilityCubeDefinition.class, name + "_" + ccy.getCode(), versionCorrection);
   }
 }

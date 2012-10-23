@@ -7,8 +7,6 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseSymmetricMatrix;
-
 /**
  * Tests the symmetric matrix class
  */

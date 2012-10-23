@@ -68,7 +68,6 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     this(historicalTimeSeriesSource, securitySource, null);
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public void subscribe(ValueRequirement valueRequirement) {
     subscribe(Collections.singleton(valueRequirement));

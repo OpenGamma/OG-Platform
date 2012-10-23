@@ -12,8 +12,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.UserSource;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.user.ManageableOGUser;
@@ -27,7 +25,7 @@ import com.opengamma.master.user.UserSearchRequest;
  * The {@link UserSource} interface provides exchanges to the application via a narrow API.
  * This class provides the source on top of a standard {@link UserMaster}.
  */
-public class MasterUserSource extends AbstractMasterSource<UserDocument, UserMaster> implements UserSource {
+public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument, UserMaster> implements UserSource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -50,23 +48,10 @@ public class MasterUserSource extends AbstractMasterSource<UserDocument, UserMas
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableOGUser getUser(UniqueId uniqueId) {
-    return getDocument(uniqueId).getUser();
-  }
-
-  @Override
-  public ManageableOGUser getUser(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getUser();
-  }
-
-  @Override
   public Collection<? extends OGUser> getUsers(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    UserSearchRequest searchRequest = new UserSearchRequest(bundle);
-    searchRequest.setVersionCorrection(getVersionCorrection());
-    return getMaster().search(searchRequest).getUsers();
+    throw new UnsupportedOperationException();
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public OGUser getUser(String userId, VersionCorrection versionCorrection) {
     UserSearchRequest searchRequest = new UserSearchRequest();

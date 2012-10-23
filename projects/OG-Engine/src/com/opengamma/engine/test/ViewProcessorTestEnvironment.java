@@ -11,11 +11,12 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -34,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorFactoryBean;
 import com.opengamma.engine.view.ViewProcessorImpl;
@@ -93,7 +93,7 @@ public class ViewProcessorTestEnvironment {
   // Environment
   private ViewProcessorImpl _viewProcessor;
   private FunctionResolver _functionResolver;
-  private ViewDefinitionRepository _viewDefinitionRepository;
+  private ConfigSource _configSource;
   private ViewResultListenerFactory _viewResultListenerFactory;
 
   public void init() {
@@ -104,7 +104,7 @@ public class ViewProcessorTestEnvironment {
     SecuritySource securitySource = getSecuritySource() != null ? getSecuritySource() : generateSecuritySource();
     FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext() != null ? getFunctionCompilationContext() : generateFunctionCompilationContext();
 
-    ViewDefinitionRepository viewDefinitionRepository = getViewDefinitionRepository() != null ? getViewDefinitionRepository() : generateViewDefinitionRepository();
+    ConfigSource configSource = getConfigSource() != null ? getConfigSource() : generateConfigSource();
 
     InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
     vpFactBean.setComputationCacheSource(cacheSource);
@@ -121,10 +121,10 @@ public class ViewProcessorTestEnvironment {
     MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
-    vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
+    vpFactBean.setConfigSource(configSource);
     vpFactBean.setViewPermissionProvider(new DefaultViewPermissionProvider());
     vpFactBean.setNamedMarketDataSpecificationRepository(new InMemoryNamedMarketDataSpecificationRepository());
-    _viewDefinitionRepository = viewDefinitionRepository;
+    _configSource = configSource;
 
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();
     FudgeRequestDispatcher calcNodeQueryRequestDispatcher = new FudgeRequestDispatcher(calcNodeQueryReceiver);
@@ -179,27 +179,27 @@ public class ViewProcessorTestEnvironment {
     return testDefinition;
   }
   
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    return _viewDefinitionRepository;
+  public ConfigSource getConfigSource() {
+    return _configSource;
   }
   
-  public MockViewDefinitionRepository getMockViewDefinitionRepository() {
-    return (MockViewDefinitionRepository) _viewDefinitionRepository;
+  public MockConfigSource getMockViewDefinitionRepository() {
+    return (MockConfigSource) _configSource;
   }
   
-  public void setViewDefinitionRepository(ViewDefinitionRepository viewDefinitionRepository) {
-    _viewDefinitionRepository = viewDefinitionRepository;
+  public void setConfigSource(ConfigSource configSource) {
+    _configSource = configSource;
   }
   
   public void setViewResultListenerFactory(ViewResultListenerFactory viewResultListenerFactory) {
     _viewResultListenerFactory = viewResultListenerFactory;
   }
 
-  private ViewDefinitionRepository generateViewDefinitionRepository() {
-    MockViewDefinitionRepository repository = new MockViewDefinitionRepository();
+  private ConfigSource generateConfigSource() {
+    MockConfigSource repository = new MockConfigSource();
     ViewDefinition defaultDefinition = getViewDefinition() != null ? getViewDefinition() : generateViewDefinition();
-    repository.addDefinition(defaultDefinition);
-    setViewDefinitionRepository(repository);
+    repository.put(defaultDefinition);
+    setConfigSource(repository);
     return repository;
   }
   
@@ -287,7 +287,7 @@ public class ViewProcessorTestEnvironment {
   }
   
   private SecuritySource generateSecuritySource() {
-    SecuritySource securitySource = new MockSecuritySource();
+    SecuritySource securitySource = new InMemorySecuritySource();
     setSecuritySource(securitySource);
     return securitySource;
   }
@@ -298,12 +298,6 @@ public class ViewProcessorTestEnvironment {
   
   public void setPositionSource(PositionSource positionSource) {
     _positionSource = positionSource;
-  }
-  
-  private PositionSource generatePositionSource() {
-    PositionSource positionSource = new MockPositionSource();
-    setPositionSource(positionSource);
-    return positionSource;
   }
   
   public FunctionExecutionContext getFunctionExecutionContext() {

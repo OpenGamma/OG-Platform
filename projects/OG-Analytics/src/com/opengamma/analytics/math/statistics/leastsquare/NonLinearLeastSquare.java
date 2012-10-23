@@ -64,7 +64,8 @@ public class NonLinearLeastSquare {
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
-  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      final DoubleMatrix1D startPos) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
     final int n = x.getNumberOfElements();
@@ -83,7 +84,8 @@ public class NonLinearLeastSquare {
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
-  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final double sigma, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final double sigma, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      final DoubleMatrix1D startPos) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
     Validate.notNull(sigma, "sigma");
@@ -104,8 +106,8 @@ public class NonLinearLeastSquare {
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
-  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
-      final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma,
+      final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D startPos) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
     Validate.notNull(sigma, "sigma");
@@ -182,8 +184,9 @@ public class NonLinearLeastSquare {
    * @param startPos Initial value of the parameters
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma, final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
-      final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma,
+      final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad,
+      final DoubleMatrix1D startPos) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
     Validate.notNull(x, "sigma");
@@ -245,7 +248,8 @@ public class NonLinearLeastSquare {
    * @param startPos  Initial value of the parameters
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final DoubleMatrix1D startPos) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, null);
   }
@@ -261,8 +265,8 @@ public class NonLinearLeastSquare {
    * on the step size is applied.
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos,
-      final DoubleMatrix1D maxJumps) {
+  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final DoubleMatrix1D startPos, final DoubleMatrix1D maxJumps) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, maxJumps);
   }
@@ -313,8 +317,8 @@ public class NonLinearLeastSquare {
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos,
-      final Function1D<DoubleMatrix1D, Boolean> constraints, final DoubleMatrix1D maxJumps) {
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final Function1D<DoubleMatrix1D, Boolean> constraints,
+      final DoubleMatrix1D maxJumps) {
 
     Validate.notNull(observedValues, "observedValues");
     Validate.notNull(sigma, " sigma");
@@ -452,7 +456,7 @@ public class NonLinearLeastSquare {
           while (newChiSqr > oldChiSqr) {
             //if even a tiny move along the negative eigenvalue cannot improve chiSqr, then exit
             if (counter > 10 || Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
-              LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recommended that a different starting point is used.");
+              LOGGER.warn("Saddle point detected, but no improvement to chi^2 possible by moving away. It is recommended that a different starting point is used.");
               return finish(newAlpha, decmp, oldChiSqr, jacobian, theta, sigma);
             }
             scale /= 2.0;
@@ -535,18 +539,20 @@ public class NonLinearLeastSquare {
     return finish(alpha, decmp, newChiSqr, jacobian, newTheta, sigma);
   }
 
-  private LeastSquareResults finish(final DoubleMatrix2D alpha, final DecompositionResult decmp, final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta,
-      final DoubleMatrix1D sigma) {
+  private LeastSquareResults finish(final DoubleMatrix2D alpha, final DecompositionResult decmp, final double newChiSqr, final DoubleMatrix2D jacobian,
+      final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
     final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     final DoubleMatrix2D inverseJacobian = decmp.solve(bT);
     return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
   }
 
-  private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
+  private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma,
+      final DoubleMatrix1D theta) {
     final int n = observedValues.getNumberOfElements();
     final DoubleMatrix1D modelValues = func.evaluate(theta);
-    Validate.isTrue(n == modelValues.getNumberOfElements(), "Number of data points different between model (" + modelValues.getNumberOfElements() + ") and observed (" + n + ")");
+    Validate.isTrue(n == modelValues.getNumberOfElements(), "Number of data points different between model (" + modelValues.getNumberOfElements() + ") and observed ("
+        + n + ")");
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = (observedValues.getEntry(i) - modelValues.getEntry(i)) / sigma.getEntry(i);

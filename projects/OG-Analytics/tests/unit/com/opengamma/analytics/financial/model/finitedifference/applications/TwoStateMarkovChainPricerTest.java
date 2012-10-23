@@ -15,8 +15,6 @@ import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainPricer;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 
 /**

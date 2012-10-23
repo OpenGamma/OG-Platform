@@ -149,6 +149,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
     if (!getType().isCompatible(other.getType())) {
       return false;
     }
+    // TODO: should be checking the parent as well
     return getUniqueId().equals(other.getUniqueId());
   }
 

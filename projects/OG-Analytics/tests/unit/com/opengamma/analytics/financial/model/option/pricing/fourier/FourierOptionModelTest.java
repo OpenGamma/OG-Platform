@@ -19,9 +19,6 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.pricing.OptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.FourierOptionModel;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.GaussianMartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;

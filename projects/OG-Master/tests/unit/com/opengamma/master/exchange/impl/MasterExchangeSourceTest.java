@@ -61,7 +61,7 @@ public class MasterExchangeSourceTest {
     ExchangeDocument doc = new ExchangeDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterExchangeSource test = new MasterExchangeSource(mock);
-    Exchange testResult = test.getExchange(UID);
+    Exchange testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
     
     assertEquals(example(), testResult);
@@ -73,7 +73,7 @@ public class MasterExchangeSourceTest {
     ExchangeDocument doc = new ExchangeDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getExchange(UID);
+    Exchange testResult = test.get(UID);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -86,7 +86,7 @@ public class MasterExchangeSourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     try {
-      test.getExchange(UID);
+      test.get(UID);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -99,7 +99,7 @@ public class MasterExchangeSourceTest {
     ExchangeDocument doc = new ExchangeDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getExchange(OID, VC);
+    Exchange testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
@@ -112,7 +112,7 @@ public class MasterExchangeSourceTest {
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     try {
-      test.getExchange(OID, VC);
+      test.get(OID, VC);
     } finally {
       verify(mock, times(1)).get(OID, VC);
     }
@@ -131,7 +131,7 @@ public class MasterExchangeSourceTest {
     
     when(mock.search(request)).thenReturn(result);
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getSingleExchange(ID);
+    Exchange testResult = test.getSingle(ID);
     verify(mock, times(1)).search(request);
     
     assertEquals(example(), testResult);
@@ -148,7 +148,7 @@ public class MasterExchangeSourceTest {
     
     when(mock.search(request)).thenReturn(result);
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getSingleExchange(ID);
+    Exchange testResult = test.getSingle(ID);
     verify(mock, times(1)).search(request);
     
     assertEquals(null, testResult);
@@ -166,7 +166,7 @@ public class MasterExchangeSourceTest {
     
     when(mock.search(request)).thenReturn(result);
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getSingleExchange(BUNDLE);
+    Exchange testResult = test.getSingle(BUNDLE);
     verify(mock, times(1)).search(request);
     
     assertEquals(example(), testResult);

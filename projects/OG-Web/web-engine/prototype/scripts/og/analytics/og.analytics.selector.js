@@ -4,11 +4,11 @@
  */
 $.register_module({
     name: 'og.analytics.Selector',
-    dependencies: ['og.analytics.Grid', 'og.common.events'],
+    dependencies: ['og.analytics.Grid', 'og.analytics.Clipboard', 'og.common.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
-            var selector = this, grid_offset, grid_width, grid_height, fixed_width;
+            var selector = this, grid_offset, grid_width, grid_height, fixed_width, max_scroll_top;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -18,7 +18,7 @@ $.register_module({
                 else if (over_fixed && (auto_scroll.scroll = auto_scroll.scroll || scroll_body.find(overlay).length))
                     scroll_body.scrollLeft(scroll_left - increment);
                 if (y < grid.meta.header_height) scroll_body.scrollTop(scroll_top - increment);
-                else if (y > grid_height) scroll_body.scrollTop(scroll_top + increment);
+                else if (y > grid_height) scroll_body.scrollTop(Math.min(scroll_top + increment, max_scroll_top));
                 auto_scroll.timeout = setTimeout(function () {
                     auto_scroll(event, scroll_body.scrollTop(), scroll_body.scrollLeft(), start);
                 }, interval);
@@ -32,10 +32,12 @@ $.register_module({
                 selector.busy(false);
             };
             var initialize = function () {
+                var meta = grid.meta, viewport = grid.meta.viewport;
                 grid_offset = grid.offset;
-                grid_width = grid.elements.parent.width();
-                grid_height = grid.elements.parent.height();
-                fixed_width = grid.meta.columns.width.fixed;
+                grid_width = meta.columns.width.fixed + viewport.width;
+                grid_height = viewport.scroll_height + meta.header_height;
+                fixed_width = meta.columns.width.fixed;
+                max_scroll_top = viewport.height - viewport.scroll_height + meta.scrollbar_size;
                 $(grid.id + ' ' + overlay).remove();
             };
             var mousedown_observer = function (event) {
@@ -49,6 +51,10 @@ $.register_module({
                 if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
                 selector.busy(true);
+                setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
+                    if (!selector.registered) selector.registered = !!grid.elements.parent
+                        .blurkill(function () {selector.registered = false; selector.clear();});
+                });
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
@@ -59,7 +65,6 @@ $.register_module({
             var mousemove = (function () {
                 var resolution = 6, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                 return function (start, event, reset) {
-                    event.preventDefault();
                     if (reset) counter = 0;
                     if (counter++ % resolution) return;
                     if (counter > resolution) counter = 1;
@@ -93,26 +98,18 @@ $.register_module({
                         },
                         fixed: false
                     });
-                    render(regions, rectangle);
+                    selector.render(regions.length ? regions : null, rectangle);
+                    grid.clipboard.viewport(selector.selection());
                 }
             })();
-            var render = function (regions, rectangle) {
-                if (!selector.regions && !regions) return;
-                if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
-                $(grid.id + ' ' + overlay).remove();
-                selector.regions.forEach(function (region) {
-                    $('<div class="' + overlay.substring(1) + '" />').css(region.position).css(region.dimensions)
-                        .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
-                });
-            };
             selector.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             selector.events = {select: []};
             selector.grid = grid;
-            selector.regions = null;
             selector.rectangle = null;
-            grid.on('mousedown', mousedown_observer).on('render', render); // initialize
+            selector.regions = null;
+            grid.on('mousedown', mousedown_observer).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
             var selector = this;
@@ -120,9 +117,23 @@ $.register_module({
             selector.regions = selector.rectangle = null;
         };
         constructor.prototype.on = og.common.events.on;
+        constructor.prototype.render = function (regions, rectangle) {
+            var selector = this, grid = selector.grid, selection, data, copyable;
+            if (!selector.regions && !regions) return grid.clipboard.clear();
+            if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
+            $(grid.id + ' ' + overlay).remove();
+            copyable =  (selector.copyable = grid.clipboard.has(selection = selector.selection())) ? ' OG-g-cop' : '';
+            selector.regions.forEach(function (region) {
+                $('<div class="' + overlay.substring(1) + copyable + '" />')
+                    .css(region.position).css(region.dimensions)
+                    .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
+            });
+            if (selector.copyable) grid.clipboard.select();
+        };
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
+            var selector = this, grid = this.grid, meta = grid.meta,
+                bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
@@ -131,8 +142,8 @@ $.register_module({
             for (lcv = 0; lcv < scan.length; lcv += 1)
                 if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
                 else if (scan[lcv] > bottom_right.right) break;
-            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
-            return {rows: rows, cols: cols};
+            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(meta.available[lcv]);
+            return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
         };
         return constructor;
     }

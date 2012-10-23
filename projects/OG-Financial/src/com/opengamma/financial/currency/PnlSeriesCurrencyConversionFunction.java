@@ -34,10 +34,12 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 // TODO jonathan 2012-02-01 -- added this for immediate demo needs. Need to revisit and fully implement.
 
@@ -75,7 +77,11 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId());
+        // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
+        // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
+        // which easily replaces the function reinitialiser mechanism and will result if a proper implementation of version/correction handling. In this instance we
+        // just want to request FX rate time series.
+        context.getFunctionReinitializer().reinitializeFunction(this, Pair.of(matrix.getUniqueId().getObjectId(), VersionCorrection.LATEST));
       }
     }
   }

@@ -11,8 +11,6 @@ import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.region.ManageableRegion;
@@ -29,7 +27,7 @@ import com.opengamma.util.paging.PagingRequest;
  * This class provides the source on top of a standard {@link RegionMaster}.
  */
 @PublicSPI
-public class MasterRegionSource extends AbstractMasterSource<RegionDocument, RegionMaster> implements RegionSource {
+public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocument, RegionMaster> implements RegionSource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -52,17 +50,7 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableRegion getRegion(UniqueId uniqueId) {
-    return getDocument(uniqueId).getRegion();
-  }
-
-  @Override
-  public ManageableRegion getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getRegion();
-  }
-
-  @Override
-  public Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
     request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getRegions();

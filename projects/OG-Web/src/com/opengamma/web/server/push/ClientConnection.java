@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
-import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -129,12 +128,7 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, U
   public void entityChanged(ChangeEvent event) {
     s_logger.debug("Received ChangeEvent {}", event);
     synchronized (_lock) {
-      ObjectId objectId;
-      if (event.getType() == ChangeType.REMOVED) {
-        objectId = event.getBeforeId().getObjectId();
-      } else {
-        objectId = event.getAfterId().getObjectId();
-      }
+      ObjectId objectId = event.getObjectId();      
       Collection<String> urls = _entityUrls.removeAll(objectId);
       removeSubscriptions(urls);
       if (!urls.isEmpty()) {

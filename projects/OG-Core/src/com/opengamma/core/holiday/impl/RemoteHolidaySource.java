@@ -9,6 +9,7 @@ import java.net.URI;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -20,12 +21,11 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeBooleanWrapper;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Provides remote access to an {@link HolidaySource}.
  */
-public class RemoteHolidaySource extends AbstractRemoteClient implements HolidaySource {
+public class RemoteHolidaySource extends AbstractRemoteSource<Holiday> implements HolidaySource {
 
   /**
    * Creates an instance.
@@ -38,7 +38,7 @@ public class RemoteHolidaySource extends AbstractRemoteClient implements Holiday
 
   //-------------------------------------------------------------------------
   @Override
-  public Holiday getHoliday(final UniqueId uniqueId) {
+  public Holiday get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataHolidaySourceResource.uriGet(getBaseUri(), uniqueId);
@@ -46,7 +46,7 @@ public class RemoteHolidaySource extends AbstractRemoteClient implements Holiday
   }
 
   @Override
-  public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+  public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     

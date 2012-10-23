@@ -53,7 +53,7 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
 
   public static StructuredMarketDataSnapshot invoke(final SessionContext context, final UniqueId uid) {
     try {
-      return context.getGlobalContext().getMarketDataSnapshotSource().getSnapshot(uid);
+      return context.getGlobalContext().getMarketDataSnapshotSource().get(uid);
     } catch (DataNotFoundException ex) {
       throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier not found");
     } catch (IllegalArgumentException e) {

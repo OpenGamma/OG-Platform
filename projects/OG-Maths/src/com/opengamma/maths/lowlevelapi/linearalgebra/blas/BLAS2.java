@@ -14,12 +14,12 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.MatrixPrimitive;
 import com.opengamma.maths.highlevelapi.datatypes.primitive.OGArrayType;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.CompressedSparseColumnFormatMatrix;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.CompressedSparseRowFormatMatrix;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseSymmetricMatrix;
+import com.opengamma.maths.lowlevelapi.datatypes.primitive.MatrixPrimitive;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.PackedMatrix;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.SparseCoordinateFormatMatrix;
 import com.opengamma.maths.lowlevelapi.linearalgebra.blas.blas2kernelabstractions.BLAS2DGEMVKernelAbstraction;

@@ -31,6 +31,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -104,7 +105,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final ExchangeSearchResult result = new ExchangeSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final ExchangeSearchResult result = new ExchangeSearchResult(vc);
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -112,7 +115,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -277,5 +280,16 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       _documents.add(doc);
     }
   }
+  
+  public ExchangeHistoryResult historyByVersionsCorrections(AbstractHistoryRequest request) {
+    ExchangeHistoryRequest exchangeHistoryRequest = new ExchangeHistoryRequest();
+    exchangeHistoryRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    exchangeHistoryRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    exchangeHistoryRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    exchangeHistoryRequest.setVersionsToInstant(request.getVersionsToInstant());
+    exchangeHistoryRequest.setObjectId(request.getObjectId());
+    return history(exchangeHistoryRequest);
+  }
 
+  
 }

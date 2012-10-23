@@ -220,8 +220,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunctionDep
       }
     }
     requirements.add(getVolatilityRequirement(surfaceName, currency));
-    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()),
-        new String[] {fundingCurveName, forwardCurveName });
+    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
     if (tsRequirements == null) {
       return null;
     }
@@ -284,8 +283,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunctionDep
     if (ticker != null) {
       final String prefix = ticker.substring(0, 2);
       return prefix;
-    } else {
-      throw new OpenGammaRuntimeException("Could not determine whether option was Standard (OPT) or MidCurve (MIDCURVE).");
-    }
+    } 
+    throw new OpenGammaRuntimeException("Could not determine whether option was Standard (OPT) or MidCurve (MIDCURVE).");
   }
 }

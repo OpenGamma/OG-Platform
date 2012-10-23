@@ -12,8 +12,12 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -29,6 +33,13 @@ import com.opengamma.util.PublicSPI;
 public abstract class AbstractSearchResult<D extends AbstractDocument> extends AbstractDocumentsResult<D> {
 
   /**
+   * The version-correction that the data represents, not null.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private VersionCorrection _versionCorrection = VersionCorrection.LATEST;
+
+  /**
    * Creates an instance.
    */
   public AbstractSearchResult() {
@@ -37,10 +48,10 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   /**
    * Creates an instance from a collection of documents.
    * 
-   * @param coll  the collection of documents to add, not null
+   * @param documents  the collection of documents to add, not null
    */
-  public AbstractSearchResult(Collection<D> coll) {
-    super(coll);
+  public AbstractSearchResult(Collection<D> documents) {
+    super(documents);
   }
 
   //-------------------------------------------------------------------------
@@ -75,12 +86,27 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2031293866:  // versionCorrection
+        return getVersionCorrection();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2031293866:  // versionCorrection
+        setVersionCorrection((VersionCorrection) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_versionCorrection, "versionCorrection");
+    super.validate();
   }
 
   @Override
@@ -89,7 +115,9 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      AbstractSearchResult<?> other = (AbstractSearchResult<?>) obj;
+      return JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -97,7 +125,37 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the version-correction that the data represents, not null.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   * @return the value of the property, not null
+   */
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+
+  /**
+   * Sets the version-correction that the data represents, not null.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   * @param versionCorrection  the new value of the property, not null
+   */
+  public void setVersionCorrection(VersionCorrection versionCorrection) {
+    JodaBeanUtils.notNull(versionCorrection, "versionCorrection");
+    this._versionCorrection = versionCorrection;
+  }
+
+  /**
+   * Gets the the {@code versionCorrection} property.
+   * This defaults to LATEST, but should be set to the actual version-correction of the results.
+   * @return the property, not null
+   */
+  public final Property<VersionCorrection> versionCorrection() {
+    return metaBean().versionCorrection().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -112,15 +170,30 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code versionCorrection} property.
+     */
+    private final MetaProperty<VersionCorrection> _versionCorrection = DirectMetaProperty.ofReadWrite(
+        this, "versionCorrection", AbstractSearchResult.class, VersionCorrection.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "versionCorrection");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2031293866:  // versionCorrection
+          return _versionCorrection;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -140,6 +213,14 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code versionCorrection} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VersionCorrection> versionCorrection() {
+      return _versionCorrection;
+    }
+
   }
 
   ///CLOVER:ON

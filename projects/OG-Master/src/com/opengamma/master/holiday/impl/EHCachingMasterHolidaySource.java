@@ -25,8 +25,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class EHCachingMasterHolidaySource extends MasterHolidaySource {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingMasterHolidaySource.class);
-  
   /**
    * Cache key for holidays.
    */
@@ -59,6 +59,11 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
+   */
   public CacheManager getCacheManager() {
     return _cacheManager;
   }

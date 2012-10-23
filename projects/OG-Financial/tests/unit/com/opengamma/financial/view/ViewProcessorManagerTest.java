@@ -26,6 +26,7 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -33,18 +34,19 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.test.Timeout;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test the ViewProcessorManager class.
@@ -65,7 +67,7 @@ public class ViewProcessorManagerTest {
 
         @Override
         public void init(final FunctionCompilationContext context) {
-          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), UniqueId.of("Test", "Watched"));
+          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), Pair.of(UniqueId.of("Test", "Watched").getObjectId(), VersionCorrection.LATEST));
         }
 
       });
@@ -123,7 +125,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewDefinitionRepository getViewDefinitionRepository() {
+    public ConfigSource getConfigSource() {
       return null;
     }
 
@@ -195,15 +197,15 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public void entityChanged(ChangeType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
+    public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {      
     }
 
     public void notifyListenerUnwatchedIdentifier() {
-      _listener.entityChanged(new ChangeEvent(ChangeType.UPDATED, UniqueId.of("Test", "Unwatched"), UniqueId.of("Test", "UnwatchedNew"), Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Unwatched"), null, null, Instant.now()));
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.entityChanged(new ChangeEvent(ChangeType.UPDATED, UniqueId.of("Test", "Watched"), UniqueId.of("Test", "WatchedNew"), Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Unwatched"), null, null, Instant.now()));
     }
   }
 

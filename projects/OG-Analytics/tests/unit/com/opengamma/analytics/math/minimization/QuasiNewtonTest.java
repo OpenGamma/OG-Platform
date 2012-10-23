@@ -7,11 +7,6 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.minimization.BroydenFletcherGoldfarbShannoInverseHessianUpdate;
-import com.opengamma.analytics.math.minimization.DavidonFletcherPowellInverseHessianUpdate;
-import com.opengamma.analytics.math.minimization.QuasiNewtonInverseHessianUpdate;
-import com.opengamma.analytics.math.minimization.QuasiNewtonVectorMinimizer;
-
 /**
  * 
  */

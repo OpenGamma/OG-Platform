@@ -36,6 +36,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -66,7 +67,9 @@ import com.opengamma.util.tuple.LongObjectPair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocument> implements PortfolioMaster {
+public class DbPortfolioMaster
+    extends AbstractDocumentDbMaster<PortfolioDocument>
+    implements PortfolioMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMaster.class);
@@ -107,7 +110,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final PortfolioSearchResult result = new PortfolioSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final PortfolioSearchResult result = new PortfolioSearchResult(vc);
+    
     final List<ObjectId> portfolioObjectIds = request.getPortfolioObjectIds();
     final List<ObjectId> nodeObjectIds = request.getNodeObjectIds();
     if ((portfolioObjectIds != null && portfolioObjectIds.size() == 0) ||
@@ -115,7 +120,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -471,4 +476,14 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
   }
 
+  @Override
+  public AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

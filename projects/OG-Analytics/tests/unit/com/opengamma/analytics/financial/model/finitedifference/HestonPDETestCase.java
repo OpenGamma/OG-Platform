@@ -9,11 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition2D;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusion2DPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition2D;
-import com.opengamma.analytics.financial.model.finitedifference.SecondDerivativeBoundaryCondition2D;
 import com.opengamma.analytics.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;

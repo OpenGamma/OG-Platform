@@ -39,7 +39,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
   @Override
   public Security resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     try {
-      return getUnderlying().getSecurity(uniqueId);
+      return getUnderlying().get(uniqueId);
     } catch (DataNotFoundException e) {
       return null;
     }
@@ -49,7 +49,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
 
   @Override
   public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
-    final Security security = getUnderlying().getSecurity(identifiers, versionCorrection);
+    final Security security = getUnderlying().getSingle(identifiers, versionCorrection);
     if (security == null) {
       return null;
     } else {
@@ -72,7 +72,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
   @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     try {
-      return getUnderlying().getSecurity(identifier, versionCorrection).getUniqueId();
+      return getUnderlying().get(identifier, versionCorrection).getUniqueId();
     } catch (DataNotFoundException e) {
       return null;
     }

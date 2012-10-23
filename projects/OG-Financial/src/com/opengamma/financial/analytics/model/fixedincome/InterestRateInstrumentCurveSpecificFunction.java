@@ -204,7 +204,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       curveWithRequestedCurveRequirements.add(new ValueRequirement(requirement.getValueName(), requirement.getTargetReference(), properties.get()));
     }
     requirements.addAll(curveWithRequestedCurveRequirements);
-    final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, curveNames, security.accept(_visitor), _definitionConverter);
+    final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
     if (timeSeriesRequirements == null) {
       return null;
     }

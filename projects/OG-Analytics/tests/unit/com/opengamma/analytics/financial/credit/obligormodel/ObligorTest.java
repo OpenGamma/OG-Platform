@@ -7,13 +7,7 @@ package com.opengamma.analytics.financial.credit.obligormodel;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Obligor;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
+import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 
 /**
  * Class to test the implementation of the obligor class 
@@ -37,6 +31,8 @@ public class ObligorTest {
   private static final CreditRatingStandardAndPoors obligorCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
   private static final CreditRatingFitch obligorCreditRatingFitch = CreditRatingFitch.AA;
 
+  private static final boolean obligorHasDefaulted = false;
+
   private static final Sector obligorSector = Sector.INDUSTRIALS;
   private static final Region obligorRegion = Region.NORTHAMERICA;
   private static final String obligorCountry = "United States";
@@ -48,7 +44,7 @@ public class ObligorTest {
   public void testNullObligorTickerField() {
 
     new Obligor(null, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -58,7 +54,7 @@ public class ObligorTest {
   public void testEmptyObligorTickerField() {
 
     new Obligor("", obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -68,7 +64,7 @@ public class ObligorTest {
   public void testNullObligorShortNameField() {
 
     new Obligor(obligorTicker, null, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -78,7 +74,7 @@ public class ObligorTest {
   public void testEmptyObligorShortNameField() {
 
     new Obligor(obligorTicker, "", obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -88,7 +84,7 @@ public class ObligorTest {
   public void testNullObligorREDCodeField() {
 
     new Obligor(obligorTicker, obligorShortName, null, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -98,7 +94,7 @@ public class ObligorTest {
   public void testEmptyObligorShortREDCodeField() {
 
     new Obligor(obligorTicker, obligorShortName, "", obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -108,7 +104,7 @@ public class ObligorTest {
   public void testNullObligorCompositeRatingField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, null, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -118,7 +114,7 @@ public class ObligorTest {
   public void testNullObligorImpliedRatingField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, null, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -128,7 +124,7 @@ public class ObligorTest {
   public void testNullObligorCreditRatingMoodysField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, null, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -138,7 +134,7 @@ public class ObligorTest {
   public void testNullObligorCreditRatingStandardAndPoorsField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, null,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -148,7 +144,7 @@ public class ObligorTest {
   public void testNullObligorCreditRatingFitchField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        null, obligorSector, obligorRegion, obligorCountry);
+        null, obligorHasDefaulted, obligorSector, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -158,7 +154,7 @@ public class ObligorTest {
   public void testNullObligorSectorField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, null, obligorRegion, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, null, obligorRegion, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -168,7 +164,7 @@ public class ObligorTest {
   public void testNullObligorRegionField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, null, obligorCountry);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, null, obligorCountry);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -178,7 +174,7 @@ public class ObligorTest {
   public void testNullObligorCountryField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, null);
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, null);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -188,7 +184,7 @@ public class ObligorTest {
   public void testEmptyObligorCountryField() {
 
     new Obligor(obligorTicker, obligorShortName, obligorREDCode, obligorCompositeRating, obligorImpliedRating, obligorCreditRatingMoodys, obligorCreditRatingStandardAndPoors,
-        obligorCreditRatingFitch, obligorSector, obligorRegion, "");
+        obligorCreditRatingFitch, obligorHasDefaulted, obligorSector, obligorRegion, "");
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

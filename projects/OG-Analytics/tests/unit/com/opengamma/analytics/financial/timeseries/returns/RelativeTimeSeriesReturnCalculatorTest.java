@@ -9,7 +9,6 @@ import javax.time.calendar.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

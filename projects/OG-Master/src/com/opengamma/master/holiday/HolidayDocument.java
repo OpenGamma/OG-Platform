@@ -39,6 +39,11 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The holiday object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableHoliday _holiday;
+  /**
    * The holiday unique identifier.
    * This field is managed by the master but must be set for updates.
    */
@@ -56,11 +61,6 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    */
   @PropertyDefinition
   private ExternalId _providerId;
-  /**
-   * The holiday.
-   */
-  @PropertyDefinition
-  private ManageableHoliday _holiday;
 
   /**
    * Creates an instance.
@@ -72,7 +72,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    * Creates an instance from a holiday.
    * <p>
    * This will call {@link #createName()} to build a suitable name.
-   * 
+   *
    * @param holiday  the holiday, not null
    */
   public HolidayDocument(final Holiday holiday) {
@@ -83,6 +83,11 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableHoliday getValue() {
+    return getHoliday();
+  }
+
   /**
    * Creates a name based on the holiday.
    */
@@ -125,14 +130,14 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 1091905624:  // holiday
+        return getHoliday();
       case -294460212:  // uniqueId
         return getUniqueId();
       case 3373707:  // name
         return getName();
       case 205149932:  // providerId
         return getProviderId();
-      case 1091905624:  // holiday
-        return getHoliday();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -140,6 +145,9 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 1091905624:  // holiday
+        setHoliday((ManageableHoliday) newValue);
+        return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
@@ -148,9 +156,6 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
         return;
       case 205149932:  // providerId
         setProviderId((ExternalId) newValue);
-        return;
-      case 1091905624:  // holiday
-        setHoliday((ManageableHoliday) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -163,10 +168,10 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HolidayDocument other = (HolidayDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+      return JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
           super.equals(obj);
     }
     return false;
@@ -175,11 +180,36 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the holiday object held by the document.
+   * @return the value of the property
+   */
+  public ManageableHoliday getHoliday() {
+    return _holiday;
+  }
+
+  /**
+   * Sets the holiday object held by the document.
+   * @param holiday  the new value of the property
+   */
+  public void setHoliday(ManageableHoliday holiday) {
+    this._holiday = holiday;
+  }
+
+  /**
+   * Gets the the {@code holiday} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableHoliday> holiday() {
+    return metaBean().holiday().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -268,31 +298,6 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the holiday.
-   * @return the value of the property
-   */
-  public ManageableHoliday getHoliday() {
-    return _holiday;
-  }
-
-  /**
-   * Sets the holiday.
-   * @param holiday  the new value of the property
-   */
-  public void setHoliday(ManageableHoliday holiday) {
-    this._holiday = holiday;
-  }
-
-  /**
-   * Gets the the {@code holiday} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableHoliday> holiday() {
-    return metaBean().holiday().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code HolidayDocument}.
    */
   public static class Meta extends AbstractDocument.Meta {
@@ -301,6 +306,11 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code holiday} property.
+     */
+    private final MetaProperty<ManageableHoliday> _holiday = DirectMetaProperty.ofReadWrite(
+        this, "holiday", HolidayDocument.class, ManageableHoliday.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
@@ -317,19 +327,14 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
         this, "providerId", HolidayDocument.class, ExternalId.class);
     /**
-     * The meta-property for the {@code holiday} property.
-     */
-    private final MetaProperty<ManageableHoliday> _holiday = DirectMetaProperty.ofReadWrite(
-        this, "holiday", HolidayDocument.class, ManageableHoliday.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "holiday",
         "uniqueId",
         "name",
-        "providerId",
-        "holiday");
+        "providerId");
 
     /**
      * Restricted constructor.
@@ -340,14 +345,14 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1091905624:  // holiday
+          return _holiday;
         case -294460212:  // uniqueId
           return _uniqueId;
         case 3373707:  // name
           return _name;
         case 205149932:  // providerId
           return _providerId;
-        case 1091905624:  // holiday
-          return _holiday;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -368,6 +373,14 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code holiday} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ManageableHoliday> holiday() {
+      return _holiday;
+    }
+
     /**
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
@@ -390,14 +403,6 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<ExternalId> providerId() {
       return _providerId;
-    }
-
-    /**
-     * The meta-property for the {@code holiday} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ManageableHoliday> holiday() {
-      return _holiday;
     }
 
   }

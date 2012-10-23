@@ -7,10 +7,8 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Collection;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import com.google.common.collect.ImmutableList;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -45,10 +43,9 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
-    Instant lockedVersion = Instant.of(version);
+  public YieldCurveDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
     for (InterpolatedYieldCurveDefinitionSource source : _sources) {
-      YieldCurveDefinition definition = source.getDefinition(currency, name, lockedVersion);
+      YieldCurveDefinition definition = source.getDefinition(currency, name, versionCorrection);
       if (definition != null) {
         return definition;
       }

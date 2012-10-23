@@ -34,16 +34,16 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The exchange object held by the document.
+   */
+  @PropertyDefinition
+  private ManageableExchange _exchange;
+  /**
    * The exchange unique identifier.
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
-  /**
-   * The exchange.
-   */
-  @PropertyDefinition
-  private ManageableExchange _exchange;
 
   /**
    * Creates an instance.
@@ -62,10 +62,16 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ManageableExchange getValue() {
+    return getExchange();
+  }
+
   /**
    * Gets the name of the exchange.
    * <p>
    * This is derived from the exchange itself.
+   * 
    * @return the name, null if no name
    */
   public String getName() {
@@ -93,10 +99,10 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
       case 1989774883:  // exchange
         return getExchange();
+      case -294460212:  // uniqueId
+        return getUniqueId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -104,11 +110,11 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
       case 1989774883:  // exchange
         setExchange((ManageableExchange) newValue);
+        return;
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -121,8 +127,8 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExchangeDocument other = (ExchangeDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+      return JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -131,9 +137,34 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exchange object held by the document.
+   * @return the value of the property
+   */
+  public ManageableExchange getExchange() {
+    return _exchange;
+  }
+
+  /**
+   * Sets the exchange object held by the document.
+   * @param exchange  the new value of the property
+   */
+  public void setExchange(ManageableExchange exchange) {
+    this._exchange = exchange;
+  }
+
+  /**
+   * Gets the the {@code exchange} property.
+   * @return the property, not null
+   */
+  public final Property<ManageableExchange> exchange() {
+    return metaBean().exchange().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -166,31 +197,6 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exchange.
-   * @return the value of the property
-   */
-  public ManageableExchange getExchange() {
-    return _exchange;
-  }
-
-  /**
-   * Sets the exchange.
-   * @param exchange  the new value of the property
-   */
-  public void setExchange(ManageableExchange exchange) {
-    this._exchange = exchange;
-  }
-
-  /**
-   * Gets the the {@code exchange} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableExchange> exchange() {
-    return metaBean().exchange().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code ExchangeDocument}.
    */
   public static class Meta extends AbstractDocument.Meta {
@@ -200,22 +206,22 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueId} property.
-     */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ExchangeDocument.class, UniqueId.class);
-    /**
      * The meta-property for the {@code exchange} property.
      */
     private final MetaProperty<ManageableExchange> _exchange = DirectMetaProperty.ofReadWrite(
         this, "exchange", ExchangeDocument.class, ManageableExchange.class);
     /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ExchangeDocument.class, UniqueId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "uniqueId",
-        "exchange");
+        "exchange",
+        "uniqueId");
 
     /**
      * Restricted constructor.
@@ -226,10 +232,10 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -294460212:  // uniqueId
-          return _uniqueId;
         case 1989774883:  // exchange
           return _exchange;
+        case -294460212:  // uniqueId
+          return _uniqueId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -251,19 +257,19 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> uniqueId() {
-      return _uniqueId;
-    }
-
-    /**
      * The meta-property for the {@code exchange} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ManageableExchange> exchange() {
       return _exchange;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
     }
 
   }

@@ -10,9 +10,14 @@ import java.util.List;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.masterdb.security.hibernate.bond.*;
+import com.opengamma.masterdb.security.hibernate.bond.CouponTypeBean;
+import com.opengamma.masterdb.security.hibernate.bond.GuaranteeTypeBean;
+import com.opengamma.masterdb.security.hibernate.bond.IssuerTypeBean;
+import com.opengamma.masterdb.security.hibernate.bond.MarketBean;
+import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
-import com.opengamma.masterdb.security.hibernate.future.*;
+import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
+import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
 
 /**
  * HibernateSecurityMaster session and utility methods.

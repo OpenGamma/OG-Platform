@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
@@ -43,38 +43,34 @@ public class IRFutureOptionSurfaceConfigPopulator {
     final VolatilitySurfaceDefinition<Integer, Double> euVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_EUR_IR_FUTURE_OPTION",
         Currency.EUR, futureOptionNumbers, strikes);
     final FuturePriceCurveDefinition<Integer> euFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_EUR_IR_FUTURE_PRICE", Currency.EUR, futureOptionNumbers);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFuturePriceCurveDefinition));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euVolSurfaceDefinition));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euFuturePriceCurveDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usFuturePriceCurveDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(euVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(euFuturePriceCurveDefinition));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<Integer, Double> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceDefinition<Integer, Double>> makeConfig(final VolatilitySurfaceDefinition<Integer, Double> definition) {
+    final ConfigItem<VolatilitySurfaceDefinition<Integer, Double>> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfig(final VolatilitySurfaceSpecification specification) {
+    final ConfigItem<VolatilitySurfaceSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());
+    return config;
   }
 
-  private static ConfigDocument<FuturePriceCurveDefinition<Integer>> makeConfigDocument(final FuturePriceCurveDefinition<Integer> definition) {
-    final ConfigDocument<FuturePriceCurveDefinition<Integer>> configDocument = new ConfigDocument<FuturePriceCurveDefinition<Integer>>(FuturePriceCurveDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<FuturePriceCurveDefinition<Integer>> makeConfig(final FuturePriceCurveDefinition<Integer> definition) {
+    final ConfigItem<FuturePriceCurveDefinition<Integer>> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<FuturePriceCurveSpecification> makeConfigDocument(final FuturePriceCurveSpecification specification) {
-    final ConfigDocument<FuturePriceCurveSpecification> configDocument = new ConfigDocument<FuturePriceCurveSpecification>(FuturePriceCurveSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<FuturePriceCurveSpecification> makeConfig(final FuturePriceCurveSpecification specification) {
+    final ConfigItem<FuturePriceCurveSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());   
+    return config;
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
@@ -86,8 +82,8 @@ public class IRFutureOptionSurfaceConfigPopulator {
         SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
         usSurfaceInstrumentProvider);
     final FuturePriceCurveSpecification usFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_USD_IR_FUTURE_PRICE", Currency.USD, usCurveInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFutureCurveDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usFutureCurveDefinition));
     final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider euSurfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ER", "Comdty",
         MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775, "CME");
     final FuturePriceCurveInstrumentProvider<Number> euCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ER", "Comdty",
@@ -96,7 +92,7 @@ public class IRFutureOptionSurfaceConfigPopulator {
         SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
         euSurfaceInstrumentProvider);
     final FuturePriceCurveSpecification euFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_EUR_IR_FUTURE_PRICE", Currency.EUR, euCurveInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euVolSurfaceDefinition));
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euFutureCurveDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(euVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(euFutureCurveDefinition));
   }
 }

@@ -28,8 +28,6 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.Sensitivity;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
-import com.opengamma.analytics.financial.var.parametric.ParametricVaRDataBundle;
-import com.opengamma.analytics.financial.var.parametric.VaRCovarianceMatrixCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.Matrix;

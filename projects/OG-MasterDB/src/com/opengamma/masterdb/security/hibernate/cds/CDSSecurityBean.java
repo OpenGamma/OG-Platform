@@ -27,7 +27,7 @@ import com.opengamma.masterdb.security.hibernate.StubTypeBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * Bean representation of {@link CDSSecurity}
+ * A Hibernate bean representation of {@link CDSSecurity}.
  * @author Martin Traverse
  */
 @BeanDefinition

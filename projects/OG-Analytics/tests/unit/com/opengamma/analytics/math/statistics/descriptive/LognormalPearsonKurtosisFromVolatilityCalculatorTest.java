@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function2D;
-import com.opengamma.analytics.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
 
 /**
  * 

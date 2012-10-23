@@ -27,11 +27,11 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.target.lazy.LazyResolveContext;
 import com.opengamma.engine.target.lazy.LazyResolvedPosition;
 import com.opengamma.engine.target.lazy.LazyResolvedTrade;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -46,7 +46,7 @@ public class MockComputationTargetResolver extends MapComputationTargetResolver 
    */
   public static final LocalDate TODAY = Clock.systemDefaultZone().today();
 
-  private final MockSecuritySource _securitySource = new MockSecuritySource();
+  private final InMemorySecuritySource _securitySource = new InMemorySecuritySource();
   private final MockPositionSource _positionSource = new MockPositionSource();
 
   private int _portfolioId;

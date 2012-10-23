@@ -13,11 +13,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
+<<<<<<< HEAD
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
+=======
+>>>>>>> 5c8cd6eeb727135f551a03b49dfae96007a359f9
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,7 +30,10 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+<<<<<<< HEAD
 import com.opengamma.financial.security.FinancialSecurityTypes;
+=======
+>>>>>>> 5c8cd6eeb727135f551a03b49dfae96007a359f9
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -43,21 +50,18 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   private ISDAApproxCDSPriceFlatSpreadFunction testItem;
 
   @BeforeClass
-  public static void initBeforeClass()
-  {
+  public static void initBeforeClass() {
     securitySource = new MockSecuritySource();
     functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
     final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
     functionCompilationContext.setRawComputationTargetResolver(targetResolver);
-    
     CDS_SECURITY.setUniqueId(UniqueId.of("dummy_scheme", "dummy_value"));
   }
 
   @BeforeMethod
-  public void beforeEachMethod()
-  {
+  public void beforeEachMethod() {
     testItem = new ISDAApproxCDSPriceFlatSpreadFunction();
   }
 
@@ -68,7 +72,7 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   @Test
   public void getRequirements() {
-    
+
     ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, ComputationTargetType.SECURITY, CDS_SECURITY.getUniqueId(),
         ValueProperties
           .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
@@ -78,12 +82,12 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
           .get());
     
     Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY), requirement);
+
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 2);
 
     TreeSet<String> r = new TreeSet<String>();
-    for (ValueRequirement valueRequirement : result)
-    {
+    for (ValueRequirement valueRequirement : result) {
       r.add(valueRequirement.toString());
     }
 

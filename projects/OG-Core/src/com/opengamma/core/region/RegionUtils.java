@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;

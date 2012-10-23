@@ -8,9 +8,6 @@ package com.opengamma.analytics.math.regression;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.regression.LeastSquaresRegression;
-import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-
 public class LeastSquaresRegressionTest {
 
   @Test

@@ -29,6 +29,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.util.test.DbTest;
 
 /**

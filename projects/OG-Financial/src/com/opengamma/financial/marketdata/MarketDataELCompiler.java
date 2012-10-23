@@ -55,13 +55,13 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
 
             @Override
             public Void visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
-              eval.setVariable("security", getSecuritySource().getSecurity(requirement.getIdentifiers()));
+              eval.setVariable("security", getSecuritySource().getSingle(requirement.getIdentifiers()));
               return null;
             }
 
             @Override
             public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
-              eval.setVariable("security", getSecuritySource().getSecurity(specification.getUniqueId()));
+              eval.setVariable("security", getSecuritySource().get(specification.getUniqueId()));
               return null;
             }
 

@@ -64,12 +64,11 @@ public class BasicChangeManagerTest {
       @Override
       public void entityChanged(ChangeEvent event) {
         assertEquals(ChangeType.ADDED, event.getType());
-        assertEquals(UID_A_B_1, event.getBeforeId());
-        assertEquals(null, event.getAfterId());
+        assertEquals(UID_A_B_1.getObjectId(), event.getObjectId());
         assertEquals(NOW, event.getVersionInstant());
       }
     });
-    _changeManager.entityChanged(ChangeType.ADDED, UID_A_B_1, null, NOW);
+    _changeManager.entityChanged(ChangeType.ADDED, UID_A_B_1.getObjectId(), NOW, NOW, NOW);
   }
 
   public void test_fire_remove() {
@@ -77,38 +76,37 @@ public class BasicChangeManagerTest {
       @Override
       public void entityChanged(ChangeEvent event) {
         assertEquals(ChangeType.REMOVED, event.getType());
-        assertEquals(UID_A_B_1, event.getBeforeId());
-        assertEquals(null, event.getAfterId());
+        assertEquals(UID_A_B_1.getObjectId(), event.getObjectId());
         assertEquals(NOW, event.getVersionInstant());
       }
     });
-    _changeManager.entityChanged(ChangeType.REMOVED, UID_A_B_1, null, NOW);
+    _changeManager.entityChanged(ChangeType.REMOVED, UID_A_B_1.getObjectId(), NOW, NOW, NOW);
   }
 
   public void test_fire_update() {
     _changeManager.addChangeListener(new ChangeListener() {
       @Override
       public void entityChanged(ChangeEvent event) {
-        assertEquals(ChangeType.UPDATED, event.getType());
-        assertEquals(UID_A_B_1, event.getBeforeId());
-        assertEquals(UID_A_B_2, event.getAfterId());
+        assertEquals(ChangeType.CHANGED, event.getType());
+        assertEquals(UID_A_B_1.getObjectId(), event.getObjectId());
+        assertEquals(UID_A_B_2.getObjectId(), event.getObjectId());
         assertEquals(NOW, event.getVersionInstant());
       }
     });
-    _changeManager.entityChanged(ChangeType.UPDATED, UID_A_B_1, UID_A_B_2, NOW);
+    _changeManager.entityChanged(ChangeType.CHANGED, UID_A_B_1.getObjectId(), NOW, NOW, NOW);
   }
 
   public void test_fire_correct() {
     _changeManager.addChangeListener(new ChangeListener() {
       @Override
       public void entityChanged(ChangeEvent event) {
-        assertEquals(ChangeType.CORRECTED, event.getType());
-        assertEquals(UID_A_B_1, event.getBeforeId());
-        assertEquals(UID_A_B_2, event.getAfterId());
+        assertEquals(ChangeType.CHANGED, event.getType());
+        assertEquals(UID_A_B_1.getObjectId(), event.getObjectId());
+        assertEquals(UID_A_B_2.getObjectId(), event.getObjectId());
         assertEquals(NOW, event.getVersionInstant());
       }
     });
-    _changeManager.entityChanged(ChangeType.CORRECTED, UID_A_B_1, UID_A_B_2, NOW);
+    _changeManager.entityChanged(ChangeType.CHANGED, UID_A_B_1.getObjectId(), NOW, NOW, NOW);
   }
 
 }

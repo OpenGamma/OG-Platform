@@ -115,11 +115,16 @@
 
 /* Selection Overlay */
 .OG-g-sel {
-    background: #42669a;
+    background: #ff0000;
     opacity: 0.4;
     filter:alpha(opacity=40);
     z-index: 1;
     position: absolute;
+}
+
+/* Selection Overlay Copyable */
+.OG-g-cop {
+    background: #42669a;
 }
 
 /* Indicator arrows */

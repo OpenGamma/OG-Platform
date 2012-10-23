@@ -20,6 +20,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -68,7 +69,7 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
       @PathParam("snapshotId") String idStr,
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final StructuredMarketDataSnapshot result = getMarketDataSnapshotSource().getSnapshot(objectId.atVersion(version));
+    final StructuredMarketDataSnapshot result = getMarketDataSnapshotSource().get(objectId.atVersion(version));
     return responseOkFudge(result);
   }
 
@@ -88,4 +89,32 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
     return bld.build(uniqueId.getObjectId());
   }
 
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param objectId  the object identifier, may be null
+   * @return the URI, not null
+   */
+  public static URI uriGet(URI baseUri, ObjectId objectId) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("snapshots/{snapshotId}");
+    return bld.build(objectId);
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param objectId  the object identifier, may be null
+   * @param vc  the version-correction, null means latest
+   * @return the URI, not null
+   */
+  public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("snapshots/{snapshotId}");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
+    }
+    return bld.build(objectId);
+  }
 }

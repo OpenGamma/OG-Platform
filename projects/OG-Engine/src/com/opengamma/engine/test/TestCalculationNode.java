@@ -11,6 +11,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
