@@ -93,7 +93,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDbMaster
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "snp_db");
+    checkSchemaVersion(master.getSchemaVersion(), "snp");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

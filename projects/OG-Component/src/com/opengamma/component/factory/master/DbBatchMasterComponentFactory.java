@@ -64,7 +64,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "rsk_db");
+    checkSchemaVersion(master.getSchemaVersion(), "rsk");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
