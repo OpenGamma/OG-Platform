@@ -102,18 +102,6 @@ $.register_module({
                     });
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
-            grid.on('render', function () {
-                grid.elements.main.find('.node').each(function (idx, val) {
-                    var $node = $(this);
-                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
-                });
-            }).on('mousedown', function (event) {
-                var $target = $(event.target), row;
-                if (!$target.is('.node')) return;
-                grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
-                grid.resize().selector.clear();
-                return false; // kill bubbling if it's a node
-            });
         };
         var init_elements = function () {
             var grid = this, config = grid.config, elements, cellmenu,
@@ -123,7 +111,14 @@ $.register_module({
                 .on('click', '.OG-g-h-set-name a', function (event) {
                     return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
                 })
-                .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
+                .on('mousedown', function (event) {
+                    var $target = $(event.target), row;
+                    event.preventDefault();
+                    if (!$target.is('.node')) return fire(grid.events.mousedown, event), void 0;
+                    grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
+                    grid.resize().selector.clear();
+                    return false; // kill bubbling if it's a node
+                })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                     return function (event) {
@@ -147,9 +142,7 @@ $.register_module({
                         fire(grid.events.cellhoverin, cell);
                     };
                 })(last_x = null, last_y = null, page_x, page_y, last_corner))
-                .on('mouseleave', function (event) {
-                    if (last_corner) (last_corner = null), fire(grid.events.cellhoverout, cell);
-                });
+                .on('mouseleave', function (event) {(last_corner = null), fire(grid.events.cellhoverout, cell);});
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
             elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
@@ -269,6 +262,10 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 grid.updated(+new Date);
                 grid.dataman.busy(false);
+                grid.elements.main.find('.node').each(function (idx, val) {
+                    var $node = $(this);
+                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
+                });
                 fire(grid.events.render);
             };
         })();

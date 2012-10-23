@@ -49,10 +49,17 @@ $.register_module({
             TIME_SERIES: function (value, standalone) {
                 if (!standalone) return '**TIME SERIES**';
                 var rows, cols;
+                var pad = function (minute) {return minute < 10 ? '0' + minute : minute;};
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];
-                return cols.join('\t') + '\n' + rows.map(function (row) {return row.join('\t');}).join('\n');
+                return cols.join('\t') + '\n' + rows.map(function (row) {
+                    var date = new Date(row[0]);
+                    row[0] = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1) + '-' + pad(date.getUTCDate()) +
+                        '  ' + pad(date.getUTCHours()) + ':' + pad(date.getUTCMinutes()) + ':' +
+                        pad(date.getUTCSeconds());
+                    return row.join('\t');
+                }).join('\n');
             },
             UNKNOWN: function (value, standalone) {
                 var type = value.t;
