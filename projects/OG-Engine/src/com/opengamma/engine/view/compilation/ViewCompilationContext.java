@@ -56,7 +56,7 @@ public class ViewCompilationContext {
       configurationGraphs.put(configName, builder);
     }
     _configurationGraphs = configurationGraphs;
-    _resolverVersionCorrection = resolverVersionCorrection; // TODO: this needs to be known by the builders
+    _resolverVersionCorrection = resolverVersionCorrection;
   }
 
   public ViewDefinition getViewDefinition() {

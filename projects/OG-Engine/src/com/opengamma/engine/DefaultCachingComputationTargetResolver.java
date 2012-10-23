@@ -8,14 +8,12 @@ package com.opengamma.engine;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import com.google.common.collect.MapMaker;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -30,6 +28,9 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.map.Map2;
+import com.opengamma.util.map.WeakValueHashMap2;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A computation target resolver implementation that caches another implementation.
@@ -57,7 +58,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final ConcurrentMap<UniqueId, UniqueIdentifiable> _frontObjectCache = new MapMaker().softValues().makeMap();
+  private final Map2<UniqueId, VersionCorrection, UniqueIdentifiable> _frontObjectCache = new WeakValueHashMap2<UniqueId, VersionCorrection, UniqueIdentifiable>();
 
   /**
    * The cache of "live" targets that have already been resolved. These are keyed by their exact target specifications.
@@ -65,7 +66,8 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final ConcurrentMap<ComputationTargetSpecification, ComputationTarget> _frontTargetCache = new MapMaker().softValues().makeMap();
+  private final Map2<ComputationTargetSpecification, VersionCorrection, ComputationTarget> _frontTargetCache =
+      new WeakValueHashMap2<ComputationTargetSpecification, VersionCorrection, ComputationTarget>();
 
   private final LazyResolveContext _lazyResolveContext;
 
@@ -93,7 +95,6 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     } else {
       _lazyResolveContext = new LazyResolveContext(underlying.getSecuritySource(), this);
     }
-    _frontTargetCache.put(ComputationTargetSpecification.NULL, ComputationTarget.NULL);
   }
 
   public void clear() {
@@ -117,31 +118,41 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
-    ComputationTarget result = _frontTargetCache.get(specification);
+    if (specification == ComputationTargetSpecification.NULL) {
+      return ComputationTarget.NULL;
+    }
+    ComputationTarget result = _frontTargetCache.get(specification, versionCorrection);
     if (result != null) {
       return result;
     }
     final UniqueId uid = specification.getUniqueId();
-    UniqueIdentifiable target = _frontObjectCache.get(uid);
+    UniqueIdentifiable target = _frontObjectCache.get(uid, versionCorrection);
     if (target != null) {
       // The cached object may be from an earlier lookup with a different resolution strategy. For example
       // CTSpec[PRIMITIVE, Foo~Bar] will store the UniqueId object in the cache which is not suitable to
       // return for CTSpec[SECURITY, Foo~Bar].
       if (specification.getType().isCompatible(target)) {
-        return ComputationTargetResolverUtils.createResolvedTarget(specification, target);
+        result = ComputationTargetResolverUtils.createResolvedTarget(specification, target);
+        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, versionCorrection, result);
+        if (newResult != null) {
+          return newResult;
+        } else {
+          return result;
+        }
       }
     }
-    final Element e = _computationTarget.get(uid);
+    final Pair<UniqueId, VersionCorrection> key = Pair.of(uid, versionCorrection);
+    final Element e = _computationTarget.get(key);
     if (e != null) {
       target = (UniqueIdentifiable) e.getValue();
       if (specification.getType().isCompatible(target)) {
-        final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, target);
+        final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, versionCorrection, target);
         if (existing != null) {
           result = ComputationTargetResolverUtils.createResolvedTarget(specification, existing);
         } else {
           result = ComputationTargetResolverUtils.createResolvedTarget(specification, target);
         }
-        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, result);
+        final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, versionCorrection, result);
         if (newResult != null) {
           return newResult;
         } else {
@@ -151,11 +162,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
     result = super.resolve(specification, versionCorrection);
     if (result != null) {
-      final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, result.getValue());
+      final UniqueIdentifiable existing = _frontObjectCache.putIfAbsent(uid, versionCorrection, result.getValue());
       if (existing == null) {
-        addToCacheImpl(uid, result.getValue());
+        addToCacheImpl(key, result.getValue());
       }
-      final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, result);
+      final ComputationTarget newResult = _frontTargetCache.putIfAbsent(specification, versionCorrection, result);
       if (newResult != null) {
         result = newResult;
       }
@@ -164,9 +175,9 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   }
 
   @Override
-  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+  public CachingComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
     final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver = getSpecificationResolver().atVersionCorrection(versionCorrection);
-    return new ComputationTargetResolver.AtVersionCorrection() {
+    return new CachingComputationTargetResolver.AtVersionCorrection() {
 
       @Override
       public ComputationTarget resolve(final ComputationTargetSpecification specification) {
@@ -183,30 +194,39 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         return DefaultCachingComputationTargetResolver.this.simplifyType(type);
       }
 
+      @Override
+      public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets) {
+        DefaultCachingComputationTargetResolver.this.cacheTargets(targets, versionCorrection);
+      }
+
     };
   }
 
   @Override
+  @Deprecated
   public void cachePositions(Collection<Position> positions) {
-    cacheTargets(positions);
+    cacheTargets(positions, VersionCorrection.LATEST);
   }
 
   @Override
+  @Deprecated
   public void cacheTrades(Collection<Trade> trades) {
-    cacheTargets(trades);
+    cacheTargets(trades, VersionCorrection.LATEST);
   }
 
   @Override
+  @Deprecated
   public void cacheSecurities(Collection<Security> securities) {
-    cacheTargets(securities);
+    cacheTargets(securities, VersionCorrection.LATEST);
   }
 
   @Override
+  @Deprecated
   public void cachePortfolioNodes(final Collection<PortfolioNode> nodes) {
-    cacheTargets(nodes);
+    cacheTargets(nodes, VersionCorrection.LATEST);
   }
 
-  private void addToCacheImpl(final UniqueId identifier, final UniqueIdentifiable target) {
+  private void addToCacheImpl(final Pair<UniqueId, VersionCorrection> key, final UniqueIdentifiable target) {
     // Don't allow re-entrance to the cache; serialization of a LazyResolver can try to write entries to the
     // cache. Put them into the frontCache only so that we can do a quick lookup if they stay in memory. The
     // problem is that spooling a big root portfolio node to disk can try to resolve and cache all of the
@@ -214,7 +234,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     if (LazyResolveContext.isWriting()) {
       return;
     }
-    Element e = new Element(identifier, target);
+    Element e = new Element(key, target);
     // If the cache is going to write to disk and two threads hit this then one gets blocked; better to let the
     // second one carry on with something else and the first can do "cache writing" duties until the queue is
     // clear.
@@ -235,17 +255,17 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
   }
 
-  protected void cacheTarget(final UniqueIdentifiable target) {
+  protected void cacheTarget(final UniqueIdentifiable target, final VersionCorrection versionCorrection) {
     final UniqueId uid = target.getUniqueId();
-    if (_frontObjectCache.putIfAbsent(uid, target) == null) {
-      addToCacheImpl(uid, target);
+    if (_frontObjectCache.putIfAbsent(uid, versionCorrection, target) == null) {
+      addToCacheImpl(Pair.of(uid, versionCorrection), target);
     }
   }
 
   @Override
-  public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets) {
+  public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets, final VersionCorrection versionCorrection) {
     for (UniqueIdentifiable target : targets) {
-      cacheTarget(target);
+      cacheTarget(target, versionCorrection);
     }
   }
 

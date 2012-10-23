@@ -609,42 +609,29 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     if (compiledViewDefinition != null) {
       do {
+        // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure?
         // Check that any resolved targets still resolve to the same value
         final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
             .getRawComputationTargetResolver().getSpecificationResolver().atVersionCorrection(versionCorrection);
         Set<UniqueId> invalidIdentifiers = null;
+        long t = 0;
         for (Map.Entry<ComputationTargetReference, UniqueId> target : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
+          t -= System.nanoTime();
           final ComputationTargetSpecification resolved = resolver.getTargetSpecification(target.getKey());
-          if (CompiledViewDefinitionWithGraphsImpl.NULL_RESOLVED.equals(target.getValue())) {
-            if (resolved != null) {
-              if (resolved.getUniqueId() == null) {
-                // Target still resolved to NULL
-                s_logger.debug("No change resolving {}", target);
-              } else {
-                // Identifier now resolved, but didn't before
-                s_logger.info("New resolution of {} to {}", target, resolved);
-                // TODO: Which nodes were dependent on this failure? Things might be in the graph as a result of the failure that are now invalid?
-                System.err.println("TODO: new resolution of " + target + " to " + resolved);
-              }
-            } else {
-              // Target still resolved to NULL
-              s_logger.debug("No change resolving {}", target);
-            }
+          t += System.nanoTime();
+          if (target.getValue().equals(resolved.getUniqueId())) {
+            // No change
+            s_logger.debug("No change resolving {}", target);
           } else {
-            if (target.getValue().equals(resolved.getUniqueId())) {
-              // No change
-              s_logger.debug("No change resolving {}", target);
-            } else {
-              // Identifier no longer resolved, or resolved differently
-              s_logger.info("New resolution of {} to {}", target, resolved);
-              // TODO: Which other nodes were dependent on this resolution? What about failed productions? Things might be in the graph as a result of a failure?
-              if (invalidIdentifiers == null) {
-                invalidIdentifiers = new HashSet<UniqueId>();
-              }
-              invalidIdentifiers.add(target.getValue());
+            // Identifier no longer resolved, or resolved differently
+            s_logger.info("New resolution of {} to {}", target, resolved);
+            if (invalidIdentifiers == null) {
+              invalidIdentifiers = new HashSet<UniqueId>();
             }
+            invalidIdentifiers.add(target.getValue());
           }
         }
+        System.err.println(compiledViewDefinition.getResolvedIdentifiers().size() + " resolutions checked in " + ((double) t / 1e6) + "ms");
         if (invalidIdentifiers != null) {
           // Part of the dependency graph is now invalid
           System.err.println("Invalidating dependency graph because of changes on " + invalidIdentifiers);

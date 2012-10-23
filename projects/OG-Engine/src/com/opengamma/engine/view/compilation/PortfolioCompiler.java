@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -18,6 +19,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -38,10 +40,11 @@ public final class PortfolioCompiler {
   /**
    * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
    * 
-   * @param compilationContext  the context of the view definition compilation
+   * @param compilationContext the context of the view definition compilation
+   * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio execute(ViewCompilationContext compilationContext) {
+  protected static Portfolio execute(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -64,11 +67,12 @@ public final class PortfolioCompiler {
       // Actually need the portfolio now
       if (portfolio == null) {
         portfolio = getPortfolio(compilationContext);
+        resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, compilationContext.getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
       }
       
       // Add portfolio requirements to the dependency graph
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
-      final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder);
+      final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions);
       PortfolioNodeTraverser.parallel(traversalCallback, compilationContext.getServices().getExecutorService()).traverse(portfolio.getRootNode());
 
       // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.

@@ -117,6 +117,8 @@ public class PositionSourceResolver {
       super(underlying);
     }
 
+    // ObjectResolver
+
     @Override
     public PortfolioNode resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {

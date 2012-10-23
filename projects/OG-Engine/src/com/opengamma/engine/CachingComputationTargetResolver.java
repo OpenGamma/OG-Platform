@@ -12,6 +12,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -19,6 +20,12 @@ import com.opengamma.id.UniqueIdentifiable;
 public interface CachingComputationTargetResolver extends ComputationTargetResolver {
 
   // [PLAT-444]: move to com.opengamma.engine.target
+
+  interface AtVersionCorrection extends ComputationTargetResolver.AtVersionCorrection {
+
+    void cacheTargets(Collection<? extends UniqueIdentifiable> targets);
+
+  }
 
   /**
    * Hints that a collection of positions should be cached as computation targets.
@@ -59,8 +66,11 @@ public interface CachingComputationTargetResolver extends ComputationTargetResol
   /**
    * Hints that a collection of targets should be cached.
    * 
-   * @param targets the resolved targets to cache
+   * @param targets the resolved targets to cache, not null and not containing null
+   * @param versionCorrection the cached version/correction resolution time, not null
    */
-  void cacheTargets(Collection<? extends UniqueIdentifiable> targets);
+  void cacheTargets(Collection<? extends UniqueIdentifiable> targets, VersionCorrection versionCorrection);
+
+  AtVersionCorrection atVersionCorrection(VersionCorrection versionCorrection);
 
 }

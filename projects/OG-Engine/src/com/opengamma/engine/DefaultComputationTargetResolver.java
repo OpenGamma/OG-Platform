@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.target.CacheNotifyingSecuritySource;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -156,17 +155,9 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * 
    * @return the security source, may be null
    */
-  protected SecuritySource getSecuritySourceImpl() {
-    return _securitySource;
-  }
-
   @Override
   public SecuritySource getSecuritySource() {
-    if (getLazyResolveContext().getRawTargetResolver() != null) {
-      return new CacheNotifyingSecuritySource(getSecuritySourceImpl(), getLazyResolveContext().getRawTargetResolver());
-    } else {
-      return getSecuritySourceImpl();
-    }
+    return _securitySource;
   }
 
   /**
@@ -320,7 +311,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[securitySource=" + getSecuritySourceImpl() + ",positionSource=" + getPositionSource() + "]";
+    return getClass().getSimpleName() + "[securitySource=" + getSecuritySource() + ",positionSource=" + getPositionSource() + "]";
   }
 
   // ComputationTargetTypeProvider

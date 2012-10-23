@@ -9,7 +9,6 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.engine.target.resolver.IdentifierResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.Resolver;
 import com.opengamma.id.ExternalIdBundle;
@@ -30,12 +29,12 @@ public interface LazyResolver {
   /**
    * Base class of {@link ObjectResolver} instances that are owned by a parent {@link LazyResolver}.
    */
-  public abstract static class ResolverImpl<T extends UniqueIdentifiable> implements ObjectResolver<T> {
+  public abstract static class ObjectResolverImpl<T extends UniqueIdentifiable> implements ObjectResolver<T> {
 
     private final LazyResolver _parent;
     private final ObjectResolver<T> _underlying;
 
-    public ResolverImpl(final LazyResolver parent, final ObjectResolver<T> underlying) {
+    public ObjectResolverImpl(final LazyResolver parent, final ObjectResolver<T> underlying) {
       _parent = parent;
       _underlying = underlying;
     }
@@ -58,11 +57,36 @@ public interface LazyResolver {
   }
 
   /**
+   * Base class of {@link Resolver} instances that are owned by a parent {@link LazyResolver}.
+   */
+  public abstract static class ResolverImpl<T extends UniqueIdentifiable> extends ObjectResolverImpl<T> implements Resolver<T> {
+
+    public ResolverImpl(final LazyResolver parent, final Resolver<T> underlying) {
+      super(parent, underlying);
+    }
+
+    protected Resolver<T> getUnderlying() {
+      return (Resolver<T>) super.getUnderlying();
+    }
+
+    @Override
+    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolve(identifiers, versionCorrection);
+    }
+
+    @Override
+    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolve(identifier, versionCorrection);
+    }
+
+  }
+
+  /**
    * Lazy resolution of portfolios.
    */
   public static class LazyPortfolioResolver extends ResolverImpl<Portfolio> {
 
-    public LazyPortfolioResolver(final LazyResolver parent, final ObjectResolver<Portfolio> underlying) {
+    public LazyPortfolioResolver(final LazyResolver parent, final Resolver<Portfolio> underlying) {
       super(parent, underlying);
     }
 
@@ -76,7 +100,7 @@ public interface LazyResolver {
   /**
    * Lazy resolution of portfolio nodes.
    */
-  public static class LazyPortfolioNodeResolver extends ResolverImpl<PortfolioNode> {
+  public static class LazyPortfolioNodeResolver extends ObjectResolverImpl<PortfolioNode> {
 
     public LazyPortfolioNodeResolver(final LazyResolver parent, final ObjectResolver<PortfolioNode> underlying) {
       super(parent, underlying);
@@ -92,14 +116,10 @@ public interface LazyResolver {
   /**
    * Lazy resolution of positions.
    */
-  public static class LazyPositionResolver extends ResolverImpl<Position> implements IdentifierResolver {
+  public static class LazyPositionResolver extends ResolverImpl<Position> {
 
     public LazyPositionResolver(final LazyResolver parent, final Resolver<Position> underlying) {
       super(parent, underlying);
-    }
-
-    protected Resolver<Position> getUnderlying() {
-      return (Resolver<Position>) super.getUnderlying();
     }
 
     // ResolverImpl
@@ -109,24 +129,12 @@ public interface LazyResolver {
       return new LazyResolvedPosition(context, object);
     }
 
-    // IdentifierResolver
-
-    @Override
-    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
-      return getUnderlying().resolve(identifiers, versionCorrection);
-    }
-
-    @Override
-    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
-      return getUnderlying().resolve(identifier, versionCorrection);
-    }
-
   }
 
   /**
    * Lazy resolution of trades.
    */
-  public static class LazyTradeResolver extends ResolverImpl<Trade> {
+  public static class LazyTradeResolver extends ObjectResolverImpl<Trade> {
 
     public LazyTradeResolver(final LazyResolver parent, final ObjectResolver<Trade> underlying) {
       super(parent, underlying);

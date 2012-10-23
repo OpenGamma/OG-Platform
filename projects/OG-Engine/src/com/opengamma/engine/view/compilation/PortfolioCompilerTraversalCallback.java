@@ -16,8 +16,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -36,15 +40,41 @@ import com.opengamma.util.tuple.Pair;
   private final ResultModelDefinition _resultModelDefinition;
   private final ConcurrentMap<UniqueId, Set<Pair<String, ValueProperties>>> _nodeRequirements = new ConcurrentHashMap<UniqueId, Set<Pair<String, ValueProperties>>>();
   private final DependencyGraphBuilder _builder;
+  private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
 
-  public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder) {
+  public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     _calculationConfiguration = calculationConfiguration;
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _builder = builder;
+    _resolutions = resolutions;
   }
 
   protected void addValueRequirement(final ValueRequirement valueRequirement) {
     _builder.addTarget(valueRequirement);
+  }
+
+  /**
+   * Store details of the security link in the resolution cache. The link is assumed to be a record of the link to the object, for example is it held by strong (object id) or weak (external id)
+   * reference.
+   * 
+   * @param link the link to store - the identifier is taken from this along with the resolved unique identifier
+   */
+  private void store(final SecurityLink link) {
+    final ComputationTargetReference key;
+    final UniqueId uid;
+    if (link.getTarget() != null) {
+      uid = link.getTarget().getUniqueId();
+      if (link.getObjectId() != null) {
+        key = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid.toLatest());
+      } else if (!link.getExternalId().isEmpty()) {
+        key = new ComputationTargetRequirement(ComputationTargetType.SECURITY, link.getExternalId());
+      } else {
+        return;
+      }
+      final UniqueId existing = _resolutions.putIfAbsent(MemoryUtils.instance(key), uid);
+      assert (existing == null) || existing.equals(uid);
+    }
   }
 
   @Override
@@ -61,10 +91,12 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
+    _resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
     final Security security = position.getSecurity();
     if (security == null) {
       return;
     }
+    store(position.getSecurityLink());
     final String securityType = security.getSecurityType();
     Set<Pair<String, ValueProperties>> requiredOutputs;
     if ((_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE)
@@ -86,9 +118,9 @@ import com.opengamma.util.tuple.Pair;
         }
       }
     }
-    if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-      final Collection<Trade> trades = position.getTrades();
-      if (!trades.isEmpty()) {
+    final Collection<Trade> trades = position.getTrades();
+    if (!trades.isEmpty()) {
+      if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
         requiredOutputs = _calculationConfiguration.getTradeRequirementsBySecurityType().get(securityType);
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
           for (Trade trade : trades) {
@@ -99,6 +131,9 @@ import com.opengamma.util.tuple.Pair;
             }
           }
         }
+      }
+      for (Trade trade : position.getTrades()) {
+        store(trade.getSecurityLink());
       }
     }
   }

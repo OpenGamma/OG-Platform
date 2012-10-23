@@ -17,7 +17,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.id.VersionCorrection;
 
 /**
@@ -30,7 +29,7 @@ public class LazyResolveContext {
    */
   public class AtVersionCorrection extends LazyResolveContext {
 
-    private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
+    private final CachingComputationTargetResolver.AtVersionCorrection _targetResolver;
     private final VersionCorrection _versionCorrection;
 
     public AtVersionCorrection(final LazyResolveContext context, final VersionCorrection versionCorrection) {
@@ -59,8 +58,50 @@ public class LazyResolveContext {
       return security;
     }
 
-    public ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
+    public CachingComputationTargetResolver.AtVersionCorrection getTargetResolver() {
       return _targetResolver;
+    }
+
+    public void cacheSecurity(final Security security) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(Collections.singleton(security));
+      }
+    }
+
+    public void cachePosition(final Position position) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(Collections.singleton(position));
+      }
+    }
+
+    public void cachePositions(final Collection<Position> positions) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(positions);
+      }
+    }
+
+    public void cachePortfolioNode(final PortfolioNode portfolioNode) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(Collections.singleton(portfolioNode));
+      }
+    }
+
+    public void cachePortfolioNodes(final Collection<PortfolioNode> portfolioNodes) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(portfolioNodes);
+      }
+    }
+
+    public void cacheTrade(final Trade trade) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(Collections.singleton(trade));
+      }
+    }
+
+    public void cacheTrades(final Collection<Trade> trades) {
+      if (getTargetResolver() != null) {
+        getTargetResolver().cacheTargets(trades);
+      }
     }
 
   }
@@ -84,48 +125,6 @@ public class LazyResolveContext {
 
   public CachingComputationTargetResolver getRawTargetResolver() {
     return _targetResolver;
-  }
-
-  public void cacheSecurity(final Security security) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(Collections.singleton(security));
-    }
-  }
-
-  public void cachePosition(final Position position) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(Collections.singleton(position));
-    }
-  }
-
-  public void cachePositions(final Collection<Position> positions) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(positions);
-    }
-  }
-
-  public void cachePortfolioNode(final PortfolioNode portfolioNode) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(Collections.singleton(portfolioNode));
-    }
-  }
-
-  public void cachePortfolioNodes(final Collection<PortfolioNode> portfolioNodes) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(portfolioNodes);
-    }
-  }
-
-  public void cacheTrade(final Trade trade) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(Collections.singleton(trade));
-    }
-  }
-
-  public void cacheTrades(final Collection<Trade> trades) {
-    if (getRawTargetResolver() != null) {
-      getRawTargetResolver().cacheTargets(trades);
-    }
   }
 
   /**

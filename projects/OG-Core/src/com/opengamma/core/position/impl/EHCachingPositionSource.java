@@ -146,6 +146,25 @@ public class EHCachingPositionSource implements PositionSource {
     return _cacheManager;
   }
 
+  private PortfolioNode addToFrontCache(final PortfolioNode node, final VersionCorrection versionCorrection) {
+    Object f = _frontCacheByUID.putIfAbsent(node.getUniqueId(), versionCorrection, node);
+    if (f instanceof PortfolioNode) {
+      return (PortfolioNode) f;
+    } else {
+      for (PortfolioNode childNode : node.getChildNodes()) {
+        addToFrontCache(childNode, versionCorrection);
+      }
+      for (Position position : node.getPositions()) {
+        f = _frontCacheByUID.putIfAbsent(position.getUniqueId(), VersionCorrection.LATEST, position);
+        if (f instanceof Position) {
+          position = (Position) f;
+        }
+        _frontCacheByOID.put(position.getUniqueId().getObjectId(), versionCorrection, position);
+      }
+      return node;
+    }
+  }
+
   @Override
   public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     Object f = _frontCacheByUID.get(uniqueId, versionCorrection);
@@ -160,6 +179,7 @@ public class EHCachingPositionSource implements PositionSource {
       if (f instanceof Portfolio) {
         return (Portfolio) f;
       } else {
+        addToFrontCache(portfolio.getRootNode(), versionCorrection);
         return portfolio;
       }
     } else {
@@ -184,18 +204,22 @@ public class EHCachingPositionSource implements PositionSource {
     final Element e = _portfolioCache.get(key);
     if (e != null) {
       final Portfolio portfolio = (Portfolio) e.getObjectValue();
-      f = _frontCacheByOID.putIfAbsent(objectId, versionCorrection, portfolio);
+      f = _frontCacheByUID.putIfAbsent(portfolio.getUniqueId(), versionCorrection, portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;
       } else {
+        _frontCacheByOID.put(objectId, versionCorrection, portfolio);
+        addToFrontCache(portfolio.getRootNode(), versionCorrection);
         return portfolio;
       }
     } else {
       final Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
-      f = _frontCacheByOID.putIfAbsent(objectId, versionCorrection, portfolio);
+      f = _frontCacheByUID.putIfAbsent(portfolio.getUniqueId(), versionCorrection, portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;
       } else {
+        _frontCacheByOID.put(objectId, versionCorrection, portfolio);
+        addToFrontCache(portfolio.getRootNode(), versionCorrection);
         _portfolioCache.put(new Element(key, portfolio));
         return portfolio;
       }
@@ -212,15 +236,10 @@ public class EHCachingPositionSource implements PositionSource {
     final Element e = _portfolioNodeCache.get(key);
     if (e != null) {
       final PortfolioNode node = (PortfolioNode) e.getObjectValue();
-      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, node);
-      if (f instanceof PortfolioNode) {
-        return (PortfolioNode) f;
-      } else {
-        return node;
-      }
+      return addToFrontCache(node, versionCorrection);
     } else {
       final PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
-      f = _frontCacheByUID.putIfAbsent(uniqueId, versionCorrection, node);
+      f = addToFrontCache(node, versionCorrection);
       if (f instanceof PortfolioNode) {
         return (PortfolioNode) f;
       } else {
@@ -275,10 +294,12 @@ public class EHCachingPositionSource implements PositionSource {
       }
     } else {
       final Position position = getUnderlying().getPosition(positionId, versionCorrection);
-      f = _frontCacheByOID.putIfAbsent(positionId, versionCorrection, position);
+      f = _frontCacheByUID.putIfAbsent(position.getUniqueId(), VersionCorrection.LATEST, position);
       if (f instanceof Position) {
+        _frontCacheByOID.put(positionId, versionCorrection, f);
         return (Position) f;
       } else {
+        _frontCacheByOID.putIfAbsent(positionId, versionCorrection, position);
         _positionCache.put(new Element(key, position));
         return position;
       }
