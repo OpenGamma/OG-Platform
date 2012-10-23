@@ -189,6 +189,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public V get(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
@@ -198,7 +199,8 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     }
     Element e = _uidCache.get(uid);
     if (e != null) {
-      s_logger.debug("retrieved security: {} from single-security-cache", result);
+      result = (V) e.getValue();
+      s_logger.debug("retrieved object: {} from uid-cache", result);
       final V existing = _frontCache.putIfAbsent(uid, result);
       if (existing != null) {
         return existing;
