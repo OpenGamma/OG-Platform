@@ -55,17 +55,17 @@ public class InterestRateCurveSensitivityTest {
   //TODO uncomment me
   //  @Test(expectedExceptions = IllegalArgumentException.class)
   //  public void testNullCurveName() {
-  //    InterestRateCurveSensitivity.from(null, SENSITIVITY_DATA_1);
+  //    InterestRateCurveSensitivity.of(null, SENSITIVITY_DATA_1);
   //  }
   //
   //  @Test(expectedExceptions = IllegalArgumentException.class)
   //  public void testNullSensitivities() {
-  //    InterestRateCurveSensitivity.from("Name", null);
+  //    InterestRateCurveSensitivity.of("Name", null);
   //  }
   //
   //  @Test(expectedExceptions = IllegalArgumentException.class)
   //  public void testNullData() {
-  //    InterestRateCurveSensitivity.from(null);
+  //    InterestRateCurveSensitivity.of(null);
   //  }
   //
   //  @Test(expectedExceptions = IllegalArgumentException.class)
@@ -103,11 +103,11 @@ public class InterestRateCurveSensitivityTest {
     assertTrue(other.getCurves().isEmpty());
     assertTrue(other.getSensitivities().isEmpty());
     //TODO uncomment me
-    //    other = InterestRateCurveSensitivity.from();
+    //    other = InterestRateCurveSensitivity.of();
     //    assertTrue(other.getCurves().isEmpty());
     //    assertTrue(other.getSensitivities().isEmpty());
-    //    other = InterestRateCurveSensitivity.from();
-    //    other = InterestRateCurveSensitivity.from(SENSITIVITY11);
+    //    other = InterestRateCurveSensitivity.of();
+    //    other = InterestRateCurveSensitivity.of(SENSITIVITY11);
     //    assertEquals(sensitivities, other);
   }
 
@@ -220,5 +220,19 @@ public class InterestRateCurveSensitivityTest {
 
   @Test
   public void testCleanSameCurvesWithTolerance() {
+    final double eps = 1e-3;
+    final double eps2 = 2e-3;
+    final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
+    //    final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
+    //    final List<DoublesPair> list = Arrays.asList(new DoublesPair[] {new DoublesPair(1 + relativeTolerance, 50), new DoublesPair(2, 50), new DoublesPair(3, 50),
+    //        new DoublesPair(4, 50)});
+    //    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    //    map.put(CURVE_NAME_1, list);
+    //    final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
+    //    final InterestRateCurveSensitivity actualUncleaned = sensitivity1.plus(sensitivity2);
+    //    final InterestRateCurveSensitivity actual = actualUncleaned.cleaned();
+    //    assertFalse(actualUncleaned == actual);
+    //    assertFalse(actualUncleaned.getSensitivities() == actual.getSensitivities());
+    //    assertEquals(expected, actual);
   }
 }
