@@ -30,6 +30,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Core-daniel" exported="" />
     <orderEntry type="module" module-name="OG-LiveData-daniel" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Core" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">
