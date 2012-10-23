@@ -5,9 +5,11 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioMapper;
@@ -58,6 +60,10 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   private static List<Row> rows(final CompiledViewDefinition viewDef) {
+    final Portfolio portfolio = viewDef.getPortfolio();
+    if (portfolio == null) {
+      return Collections.emptyList();
+    }
     PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
 
       @Override
@@ -68,7 +74,7 @@ public class PortfolioGridStructure extends MainGridStructure {
         // if the parent ID is null it's the root node
         if (node.getParentNodeId() == null) {
           // the root node is called "Root" which isn't any use for displaying in the UI, use the portfolio name instead
-          nodeName = viewDef.getPortfolio().getName();
+          nodeName = portfolio.getName();
         } else {
           nodeName = node.getName();
         }
@@ -82,6 +88,6 @@ public class PortfolioGridStructure extends MainGridStructure {
         return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
     };
-    return PortfolioMapper.map(viewDef.getPortfolio().getRootNode(), targetFn);
+    return PortfolioMapper.map(portfolio.getRootNode(), targetFn);
   }
 }
