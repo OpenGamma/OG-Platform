@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: ['og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer'],
     obj: function () {
-        var routes = og.common.routes, module = this, view, emitter = new EventEmitter(),
+        var routes = og.common.routes, module = this, view;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -26,7 +26,7 @@ $.register_module({
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 og.analytics.url.process(args, function () {
-                    emitter.emitEvent('og:view:analytics:loaditem', [og.analytics.url.last.main]);
+                    og.analytics.form('.OG-layout-analytics-masthead', og.analytics.url.last.main);
                 });                
                 og.analytics.resize();
             },

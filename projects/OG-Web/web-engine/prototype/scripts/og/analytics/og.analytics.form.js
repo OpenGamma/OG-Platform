@@ -11,7 +11,7 @@ $.register_module({
         'og.views.common.layout'
     ],
     obj: function () {
-        return function (selector) {
+        return function (selector, url_config) {
             var emitter = new EventEmitter(), ag_dropmenu = og.analytics.AggregatorsMenu,
                 ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, events = {
                     focus: 'dropmenu:focus',
@@ -22,8 +22,7 @@ $.register_module({
                     closed: 'dropmenu:closed',
                     closeall: 'dropmenu:closeall',
                     queryselected: 'dropmenu:queryselected',
-                    querycancelled: 'dropmenu:querycancelled',
-                    viewloaditem: 'og:view:analytics:loaditem'
+                    querycancelled: 'dropmenu:querycancelled'
                 };
             Status = function (selector) {
                 var status = this, interval, init = false;
@@ -125,9 +124,10 @@ $.register_module({
                         close_dropmenu(ag_menu);
                         close_dropmenu(ds_menu);
                     });
-                    emitter.addListener(events.viewloaditem, function(config) {
-                        console.log(config);
-                    });
+                    if (url_config) {
+                        console.log(url_config)
+                        // ag_menu.replay_query();
+                    }
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');
                 });
