@@ -91,7 +91,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       putValue(uniqueId.getObjectId(), doc, _configCache);
       return (R) putValue(uniqueId, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
-      return EHCacheUtils.putException(uniqueId, ex, _configCache);
+      return EHCacheUtils.<R>putException(uniqueId, ex, _configCache);
     }
   }
 
@@ -114,7 +114,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       putValue(item.getUniqueId(), doc, _configCache);
       return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
-      return EHCacheUtils.putException(searchKey, ex, _configCache);
+      return EHCacheUtils.<R>putException(searchKey, ex, _configCache);
     }
   }
 
@@ -142,7 +142,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
       return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
-      return putException(searchKey, ex, _configCache);
+      return (R) putException(searchKey, ex, _configCache);
     }
   }
 
@@ -170,7 +170,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       }
       return (ConfigItem<R>) putValue(searchKey, doc, _configCache).getConfig();
     } catch (RuntimeException ex) {
-      return EHCacheUtils.putException(searchKey, ex, _configCache);
+      return EHCacheUtils.<ConfigItem<R>>putException(searchKey, ex, _configCache);
     }
   }
 
