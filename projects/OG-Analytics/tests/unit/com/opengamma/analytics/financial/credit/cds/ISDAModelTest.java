@@ -31,10 +31,14 @@ public class ISDAModelTest {
 
   protected ISDACDSDefinition loadCDS_ISDAExampleCDSCalcualtor2() {
 
+    // Contract start date
     final ZonedDateTime startDate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+
+    // Contract maturity date
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
-    final int settlementDays = 3;
-    final double notional = 10000000, spread = 0.0 /* 100bp */, recoveryRate = 0.4;
+
+    final int settlementDays = 0;
+    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
@@ -64,7 +68,10 @@ public class ISDAModelTest {
 
     // -----------------------------------------------------------------------------------------------------------
 
+    // The valuation date (today)
     final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+
+    // Not sure about this
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
 
     // -----------------------------------------------------------------------------------------------------------
@@ -142,7 +149,6 @@ public class ISDAModelTest {
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
     };
 
-    /*
     double[] rates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
@@ -209,14 +215,17 @@ public class ISDAModelTest {
         (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
     };
-    */
 
+    /*
     double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0 };
+    */
 
-    ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, /*s_act365.getDayCountFraction(pricingDate, baseDate2)*/0.0);
+    //ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, /*s_act365.getDayCountFraction(pricingDate, baseDate2)*/0.0);
+
+    ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(pricingDate, baseDate2));
 
     // -----------------------------------------------------------------------------------------------------------
 
@@ -237,6 +246,14 @@ public class ISDAModelTest {
     ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timesHazRate, ratesHazRate, 0.0);
 
     // -----------------------------------------------------------------------------------------------------------
+
+    /*
+    for (double t = 0.0; t < 6.0; t += 1 / 365.0) {
+      double z = discountCurve.getDiscountFactor(t);
+
+      System.out.println(t + "\t" + z);
+    }
+    */
 
     final ZonedDateTime endDate = ZonedDateTime.of(2013, 3, 10, 0, 0, 0, 0, TimeZone.UTC);
 

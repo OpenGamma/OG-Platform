@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
@@ -44,16 +45,15 @@ public class PresentValueCreditDefaultSwap {
   // TODO : Lots of work to do in this file - Work In Progress
 
   // TODO : Add a method to calc both the legs in one method (useful for performance reasons e.g. not computing survival probabilities and discount factors twice)
-  // TODO : Check the calculation of the accrued premium carefully
+  // TODO : Put the accrued fee calculation back in
   // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
   // TODO : Fix the bug when val date is very close to mat date
-
-  // TODO : Remember to fix the presentValue calc
+  // TODO Need to add the code for when the settlement date > 0 business days
 
   // -------------------------------------------------------------------------------------------------
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
-  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve) {
+  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, ISDACurve/*YieldCurve*/yieldCurve, HazardRateCurve hazardRateCurve) {
 
     // -------------------------------------------------------------
 
@@ -72,12 +72,14 @@ public class PresentValueCreditDefaultSwap {
     // Calculate the value of the contingent leg
     double presentValueContingentLeg = calculateISDAContingentLeg(cds, yieldCurve, hazardRateCurve);
 
+    /*
     if (cds.getIncludeAccruedPremium()) {
       presentValueAccruedPremium = calculateAccruedPremium(cds, yieldCurve, hazardRateCurve);
     }
+    */
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = 0.0; //-(cds.getPremiumLegCoupon() / 10000.0) * (presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
+    double presentValue = -(cds.getPremiumLegCoupon() / 10000.0) * (presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -92,7 +94,7 @@ public class PresentValueCreditDefaultSwap {
   //-------------------------------------------------------------------------------------------------  
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
-  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve) {
+  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, /*YieldCurve*/ISDACurve yieldCurve, HazardRateCurve hazardRateCurve) {
 
     // -------------------------------------------------------------
 
@@ -119,7 +121,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValuePremiumLeg = calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
 
     // Calculate the value of the contingent leg
-    double presentValueContingentLeg = calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
+    double presentValueContingentLeg = calculateISDAContingentLeg(cds, yieldCurve, hazardRateCurve);
 
     // -------------------------------------------------------------
 
@@ -138,7 +140,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method to calculate the value of the premium leg of a CDS (with a hazard rate curve calibrated to market observed data)
-  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve) {
+  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ISDACurve/*YieldCurve*/yieldCurve, HazardRateCurve hazardRateCurve) {
 
     // -------------------------------------------------------------
 
@@ -148,12 +150,6 @@ public class PresentValueCreditDefaultSwap {
 
     double presentValuePremiumLeg = 0.0;
 
-    double offset = 0.0;
-
-    if (cds.getProtectionStart()) {
-      offset = cds.getProtectionOffset();
-    }
-
     // -------------------------------------------------------------
 
     // Construct a cashflow schedule object
@@ -162,17 +158,7 @@ public class PresentValueCreditDefaultSwap {
     // Build the premium leg cashflow schedule from the contract specification
     ZonedDateTime[] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
-    /*
-    double startTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getStartDate(), ACT_365);
-    double maturity = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getMaturityDate(), ACT_365);
-    double offsetMaturityTime = maturity + offset;
-    boolean includeSchedule = true;
-    double[] timeNodes = cashflowSchedule.constructISDACompliantCashflowSchedule(cds, yieldCurve, hazardRateCurve, startTime, offsetMaturityTime, includeSchedule);
-     */
-
     // -------------------------------------------------------------
-
-    // Get the relevant contract data needed to value the premium leg
 
     // Get the date on which we want to calculate the MtM
     ZonedDateTime valuationDate = cds.getValuationDate();
@@ -189,6 +175,7 @@ public class PresentValueCreditDefaultSwap {
     if (valuationDate.equals(adjustedMaturityDate)) {
       return 0.0;
     }
+
     // -------------------------------------------------------------
 
     // Determine where in the cashflow schedule the valuationDate is
@@ -207,6 +194,9 @@ public class PresentValueCreditDefaultSwap {
 
       // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
       double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
+
+      // Calculate the discount factor at time t
+      double discountFactor = yieldCurve.getDiscountFactor(t);
 
       // If protection starts at the beginning of the period ...
       if (cds.getProtectionStart()) {
@@ -230,10 +220,10 @@ public class PresentValueCreditDefaultSwap {
       // Compute the daycount fraction for the current accrual period
       double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
 
-      // Get the discount factor and survival probability at this time (need to fix the t in the disc factor)
-      double discountFactor = yieldCurve.getDiscountFactor(t);
+      // Calculate the survival probability at the modified time t
       double survivalProbability = hazardRateCurve.getSurvivalProbability(t);
 
+      // Add this discounted cashflow to the running total for the value of the premium leg
       presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
     }
 
@@ -246,6 +236,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
+  /*
   // Method to calculate the value of the accrued premium leg of a CDS (with a hazard rate curve calibrated to market observed data) - WIP
   private double calculateAccruedPremium(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve) {
 
@@ -358,11 +349,12 @@ public class PresentValueCreditDefaultSwap {
 
     return presentValueAccruedPremium;
   }
+  */
 
   // -------------------------------------------------------------------------------------------------
 
   // Method to calculate the contingent leg in the same way as the ISDA model
-  private double calculateISDAContingentLeg(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve) {
+  private double calculateISDAContingentLeg(CreditDefaultSwapDefinition cds, ISDACurve/*YieldCurve*/yieldCurve, HazardRateCurve hazardRateCurve) {
 
     double presentValueContingentLeg = 0.0;
 
@@ -375,24 +367,27 @@ public class PresentValueCreditDefaultSwap {
     // Effective date (assuming T + 1 effective date)
     double stepInTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getValuationDate().plusDays(1), ACT_365);
 
-    // Maturity of CDS
+    // Maturity of CDS wrt valuation date
     double maturity = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getMaturityDate(), ACT_365);
 
-    // Beginning of CDS contract wrt valuation date
+    // Beginning of CDS contract wrt valuation date (can be negative obviously)
     double startTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getStartDate(), ACT_365);
 
     final double offsetPricingTime = -offset;
     final double offsetStepinTime = stepInTime - offset;
     final double protectionStartTime = Math.max(Math.max(startTime, offsetStepinTime), offsetPricingTime);
 
+    // Construct a cashflow schedule object
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    // Calculate the time nodes in the range [protectionStartTime, maturity] on which to evaluate the contingent leg integral
+    // Calculate the time nodes in the range [protectionStartTime, maturity] on which to evaluate the contingent leg integral - follows the ISDA approach
     double[] timeNodes = cashflowSchedule.constructISDACompliantCashflowSchedule(cds, yieldCurve, hazardRateCurve, protectionStartTime, maturity, false);
 
+    // Get the initial survival probability and discount factor
     double survivalProbability = hazardRateCurve.getSurvivalProbability(timeNodes[0]);
     double discountFactor = yieldCurve.getDiscountFactor(timeNodes[0]); //timePoints[0] > PRICING_TIME ? discountFactors[0] : 1.0;
 
+    // Loop over each of the timenodes
     for (int i = 1; i < timeNodes.length; ++i) {
 
       double deltat = timeNodes[i] - timeNodes[i - 1];
@@ -401,7 +396,7 @@ public class PresentValueCreditDefaultSwap {
       double discountFactorPrevious = discountFactor;
 
       survivalProbability = hazardRateCurve.getSurvivalProbability(timeNodes[i]);
-      discountFactor = yieldCurve.getDiscountFactor(timeNodes[i]); //discountFactors[i];
+      discountFactor = yieldCurve.getDiscountFactor(timeNodes[i]);
 
       double lambda = Math.log(survivalProbabilityPrevious / survivalProbability) / deltat;
       double fwdRate = Math.log(discountFactorPrevious / discountFactor) / deltat;

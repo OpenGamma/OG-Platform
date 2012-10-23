@@ -23,8 +23,6 @@ public class HazardRateCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //private final String _name;
-
   private final double _offset;
 
   private final DoublesCurve _curve;

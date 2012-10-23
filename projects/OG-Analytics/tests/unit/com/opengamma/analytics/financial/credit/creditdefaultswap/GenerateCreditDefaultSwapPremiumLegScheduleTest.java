@@ -195,7 +195,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      /*premiumLegCoupon,*/
+      premiumLegCoupon,
       recoveryRate,
       includeAccruedPremium,
       protectionStart);
