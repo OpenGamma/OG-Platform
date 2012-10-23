@@ -24,7 +24,9 @@ $.register_module({
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
-                og.analytics.url.process(args);                
+                og.analytics.url.process(args, function () {
+                    // og.analytics.url.last.main
+                });                
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
