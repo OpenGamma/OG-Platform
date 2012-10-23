@@ -11,17 +11,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
-<<<<<<< HEAD
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockSecuritySource;
-=======
->>>>>>> 5c8cd6eeb727135f551a03b49dfae96007a359f9
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -30,18 +24,13 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-<<<<<<< HEAD
 import com.opengamma.financial.security.FinancialSecurityTypes;
-=======
->>>>>>> 5c8cd6eeb727135f551a03b49dfae96007a359f9
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
-  private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
   private static final CDSSecurity CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,

@@ -30,6 +30,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -38,7 +39,6 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -158,7 +158,7 @@ public class ComputationTargetResultsTest {
   }
 
   private ComputationTargetResults createComputationTargetResults(final FunctionRepository functionRepo) {
-    final MockSecuritySource securitySource = new MockSecuritySource();
+    final InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(SECURITY);
     final PositionSource positionSource = Mockito.mock(PositionSource.class);
     Mockito.when(positionSource.getPosition(POSITION.getUniqueId())).thenReturn(POSITION);
