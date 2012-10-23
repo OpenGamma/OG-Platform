@@ -36,6 +36,7 @@ $.register_module({
             SURFACE_DATA: function (value, standalone) {
                 if (!standalone) return '** SURFACE DATA **';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
+                value = value.v || value;
                 col_len = (cols = value.x_labels).length;
                 row_len = (rows = value.y_labels).length;
                 data = value.vol;
