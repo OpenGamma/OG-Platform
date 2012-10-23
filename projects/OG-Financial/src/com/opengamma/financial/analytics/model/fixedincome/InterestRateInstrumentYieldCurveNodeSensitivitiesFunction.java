@@ -170,11 +170,16 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, security.accept(getVisitor()), getConverter());
-    if (timeSeriesRequirements == null) {
+    try {
+      final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, security.accept(getVisitor()), getConverter());
+      if (timeSeriesRequirements == null) {
+        return null;
+      }
+      requirements.addAll(timeSeriesRequirements);
+    } catch (OpenGammaRuntimeException e) {
+      s_logger.error("Could not get time series requirements; error was {}", e.getMessage());
       return null;
     }
-    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 
