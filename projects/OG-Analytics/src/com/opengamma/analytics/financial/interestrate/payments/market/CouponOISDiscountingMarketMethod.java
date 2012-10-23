@@ -96,7 +96,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor()),
         forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.fromYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
     return result;
   }
 
@@ -128,7 +128,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor()),
         forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.fromForward(mapFwd));
+    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofForward(mapFwd));
     return result;
   }
 

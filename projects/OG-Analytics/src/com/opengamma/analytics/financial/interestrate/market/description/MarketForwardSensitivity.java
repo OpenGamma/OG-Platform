@@ -5,19 +5,24 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.description;
 
-import com.opengamma.util.tuple.ObjectsPair;
+import org.apache.commons.lang.ObjectUtils;
+
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * Object representing a one point sensitivity to a forward curve. The underlying is a Pair of a Triple and a Double. 
- * The Triple represents the reference point as the start time, end time and accrual factor; the Double is the value at that point.
+ * Object representing a one point sensitivity to a forward curve. It is stored as a Triple of Double and a double. 
+ * The Triple represents the reference point as the start time, end time and accrual factor; the double is the value at that point.
  */
 public class MarketForwardSensitivity {
-
   /**
-   * The point and value Pair.
+   * The point (start time, end time and accrual factor).
    */
-  private final ObjectsPair<Triple<Double, Double, Double>, Double> _underlying;
+  private final Triple<Double, Double, Double> _startEndFactor;
+  /**
+   * The value.
+   */
+  private final double _value;
 
   /**
    * Constructor
@@ -25,15 +30,49 @@ public class MarketForwardSensitivity {
    * @param value The sensitivity value.
    */
   public MarketForwardSensitivity(Triple<Double, Double, Double> point, Double value) {
-    _underlying = new ObjectsPair<Triple<Double, Double, Double>, Double>(point, value);
+    ArgumentChecker.notNull(point, "Point");
+    _startEndFactor = point;
+    _value = value;
   }
 
   public Triple<Double, Double, Double> getPoint() {
-    return _underlying.first;
+    return _startEndFactor;
   }
 
-  public Double getValue() {
-    return _underlying.second;
+  public double getValue() {
+    return _value;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _startEndFactor.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_value);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    MarketForwardSensitivity other = (MarketForwardSensitivity) obj;
+    if (!ObjectUtils.equals(_startEndFactor, other._startEndFactor)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_value) != Double.doubleToLongBits(other._value)) {
+      return false;
+    }
+    return true;
   }
 
 }

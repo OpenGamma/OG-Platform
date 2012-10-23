@@ -195,7 +195,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   public void presentValueCurveSensitivityRelative() {
     final InterestRateCurveSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
     final InterestRateCurveSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
-    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multiply(NOTIONAL);
+    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multipliedBy(NOTIONAL);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
   }
 

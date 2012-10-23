@@ -137,7 +137,7 @@ public class BondFutureSecurityDiscountingMethodTest {
       }
     }
     InterestRateCurveSensitivity sensiBond = METHOD_BOND.dirtyPriceCurveSensitivity(BASKET[minIndex], CURVES);
-    sensiBond = sensiBond.multiply(1.0 / CONVERSION_FACTOR[minIndex]);
+    sensiBond = sensiBond.multipliedBy(1.0 / CONVERSION_FACTOR[minIndex]);
     sensiFuture = sensiFuture.cleaned();
     sensiBond = sensiBond.cleaned();
     for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
@@ -298,7 +298,7 @@ public class BondFutureSecurityDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     InterestRateCurveSensitivity pvcsComputed = METHOD.presentValueCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
     InterestRateCurveSensitivity pcs = METHOD.priceCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
-    InterestRateCurveSensitivity pvcsExpected = pcs.multiply(NOTIONAL);
+    InterestRateCurveSensitivity pvcsExpected = pcs.multipliedBy(NOTIONAL);
     assertTrue("Bond future Discounting Method: pv curve snesitivity", pvcsComputed.equals(pvcsExpected));
   }
 

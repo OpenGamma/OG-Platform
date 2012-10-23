@@ -201,8 +201,8 @@ public final class BondSecurityDiscountingMethod {
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
-    result = result.multiply(pv / notional);
-    result = result.plus(sensiPv.multiply(1 / (df * notional)));
+    result = result.multipliedBy(pv / notional);
+    result = result.plus(sensiPv.multipliedBy(1 / (df * notional)));
     return result;
   }
 

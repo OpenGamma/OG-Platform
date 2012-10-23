@@ -396,11 +396,11 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     InterestRateCurveSensitivity pcsCallComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA).cleaned();
     InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA);
     InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
-    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multiply(-1.0)).cleaned();
+    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
     assertTrue("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity",
         InterestRateCurveSensitivity.compare(pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI));
     double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA);
-    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multiply(delta);
+    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
     assertTrue("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", InterestRateCurveSensitivity.compare(pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI));
   }
 
@@ -414,11 +414,11 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     assertFalse("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", InterestRateCurveSensitivity.compare(pcsCallComputed, pcsCallNoFut, TOLERANCE_PRICE_SENSI));
     InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE);
     InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
-    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multiply(-1.0)).cleaned();
+    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
     assertTrue("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity",
         InterestRateCurveSensitivity.compare(pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI));
     double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE);
-    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multiply(delta);
+    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
     assertTrue("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", InterestRateCurveSensitivity.compare(pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI));
   }
 

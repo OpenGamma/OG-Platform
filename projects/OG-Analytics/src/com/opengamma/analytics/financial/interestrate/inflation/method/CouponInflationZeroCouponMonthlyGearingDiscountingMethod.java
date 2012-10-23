@@ -70,7 +70,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexBar));
     resultMapPrice.put(market.getCurve(coupon.getPriceIndex()).getCurve().getName(), listPrice);
-    final CurveSensitivityMarket result = CurveSensitivityMarket.fromYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final CurveSensitivityMarket result = CurveSensitivityMarket.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
     return result;
   }
 

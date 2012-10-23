@@ -77,7 +77,7 @@ public abstract class FederalFundsFutureTransactionMethod implements PricingMeth
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final FederalFundsFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     InterestRateCurveSensitivity priceSensi = _methodSecurity.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
-    InterestRateCurveSensitivity result = priceSensi.multiply(future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity());
+    InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity());
     return result;
   }
 

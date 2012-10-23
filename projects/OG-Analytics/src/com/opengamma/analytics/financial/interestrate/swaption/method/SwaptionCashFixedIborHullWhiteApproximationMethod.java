@@ -422,7 +422,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
       InterestRateCurveSensitivity sensiCfe = cfeIborCurveSensi.get(cfeIbor.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-        sensitivity = sensitivity.plus(sensiCfe.multiply(cfeAmountIborBar[loopcf]));
+        sensitivity = sensitivity.plus(sensiCfe.multipliedBy(cfeAmountIborBar[loopcf]));
       }
     }
     return sensitivity;

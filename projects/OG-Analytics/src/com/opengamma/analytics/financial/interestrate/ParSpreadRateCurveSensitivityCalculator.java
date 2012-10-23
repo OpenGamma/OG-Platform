@@ -83,12 +83,12 @@ public final class ParSpreadRateCurveSensitivityCalculator extends AbstractInstr
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
     final MultipleCurrencyInterestRateCurveSensitivity pvcsmc = PVCSMCC.visit(swap, curves);
-    final InterestRateCurveSensitivity pvcs = pvcsmc.convert(ccy1, curves.getFxRates());
+    final InterestRateCurveSensitivity pvcs = pvcsmc.converted(ccy1, curves.getFxRates()).getSensitivity(ccy1);
     final InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
     final double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
     final double pv = curves.getFxRates().convert(PVMCC.visit(swap, curves), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
-    return pvcs.multiply(-1.0 / pvbp).plus(pvbpcs.multiply(pv / (pvbp * pvbp)));
+    return pvcs.multipliedBy(-1.0 / pvbp).plus(pvbpcs.multipliedBy(pv / (pvbp * pvbp)));
   }
 
   @Override
@@ -105,7 +105,7 @@ public final class ParSpreadRateCurveSensitivityCalculator extends AbstractInstr
 
   @Override
   public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves).multiply(-1.0);
+    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves).multipliedBy(-1.0);
   }
 
 }

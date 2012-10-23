@@ -26,12 +26,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterestRateCurveSensitivityTest {
 
-  private static final List<DoublesPair> SENSITIVITY_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30),
-      new DoublesPair(4, 40)});
-  private static final List<DoublesPair> SENSITIVITY_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20),
-      new DoublesPair(4, 10)});
-  private static final List<DoublesPair> SENSITIVITY_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20),
-      new DoublesPair(14, 10)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
   private static final String CURVE_NAME_1 = "A";
   private static final String CURVE_NAME_2 = "B";
   private static final String CURVE_NAME_3 = "C";
@@ -95,7 +92,7 @@ public class InterestRateCurveSensitivityTest {
     InterestRateCurveSensitivity other = new InterestRateCurveSensitivity(SENSITIVITY_11);
     assertEquals(sensitivities.hashCode(), other.hashCode());
     assertEquals(sensitivities, other);
-    other = InterestRateCurveSensitivity.from(CURVE_NAME_1, SENSITIVITY_DATA_1);
+    other = InterestRateCurveSensitivity.of(CURVE_NAME_1, SENSITIVITY_DATA_1);
     assertEquals(sensitivities, other);
     assertFalse(SENSITIVITY_11 == new InterestRateCurveSensitivity(SENSITIVITY_11).getSensitivities());
     assertFalse(sensitivities.equals(new InterestRateCurveSensitivity(SENSITIVITY_12)));
@@ -195,11 +192,11 @@ public class InterestRateCurveSensitivityTest {
     map.put(CURVE_NAME_3, list3);
     final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
     final InterestRateCurveSensitivity actualUnscaled = sensitivity1.plus(sensitivity2).plus(sensitivity3).plus(sensitivity4);
-    InterestRateCurveSensitivity actual = actualUnscaled.multiply(factor);
+    InterestRateCurveSensitivity actual = actualUnscaled.multipliedBy(factor);
     assertFalse(actualUnscaled == actual);
     assertFalse(actualUnscaled.getSensitivities() == actual.getSensitivities());
     assertEquals(expected, actual);
-    actual = sensitivity1.multiply(factor).plus(sensitivity2.multiply(factor)).plus(sensitivity3.multiply(factor)).plus(sensitivity4.multiply(factor));
+    actual = sensitivity1.multipliedBy(factor).plus(sensitivity2.multipliedBy(factor)).plus(sensitivity3.multipliedBy(factor)).plus(sensitivity4.multipliedBy(factor));
     assertEquals(expected, actual);
   }
 

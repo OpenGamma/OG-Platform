@@ -50,7 +50,7 @@ public class InterestRateCurveSensitivity {
    * @param sensitivityCurve The sensitivity as a list, not null
    * @return The interest rate curve sensitivity.
    */
-  public static InterestRateCurveSensitivity from(final String name, final List<DoublesPair> sensitivityCurve) {
+  public static InterestRateCurveSensitivity of(final String name, final List<DoublesPair> sensitivityCurve) {
     final HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
     ircs.put(name, sensitivityCurve);
     return new InterestRateCurveSensitivity(ircs);
@@ -96,7 +96,7 @@ public class InterestRateCurveSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public InterestRateCurveSensitivity multiply(final double factor) {
+  public InterestRateCurveSensitivity multipliedBy(final double factor) {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 

@@ -407,7 +407,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     final InterestRateCurveSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
-    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multipliedBy(future.getNotional());
     return transactionSensitivity;
   }
 

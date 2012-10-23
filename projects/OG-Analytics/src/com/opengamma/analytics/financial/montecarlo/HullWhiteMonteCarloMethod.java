@@ -308,7 +308,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
         InterestRateCurveSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
         if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-          result = result.plus(sensiCfe.multiply(impactAmountBar[loopjump][loopimp]));
+          result = result.plus(sensiCfe.multipliedBy(impactAmountBar[loopjump][loopimp]));
         }
       }
     }

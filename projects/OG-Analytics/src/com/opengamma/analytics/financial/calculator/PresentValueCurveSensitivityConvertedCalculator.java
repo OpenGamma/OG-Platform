@@ -42,7 +42,7 @@ public class PresentValueCurveSensitivityConvertedCalculator extends AbstractIns
   public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
-    return _pvcsCalculator.visit(derivative, curves).convert(_currency, curves.getFxRates());
+    return _pvcsCalculator.visit(derivative, curves).converted(_currency, curves.getFxRates()).getSensitivity(_currency);
   }
 
 }
