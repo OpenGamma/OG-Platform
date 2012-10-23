@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -49,6 +50,15 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public PortfolioSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the returned portfolios from within the documents.
@@ -59,7 +69,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
     List<ManageablePortfolio> result = new ArrayList<ManageablePortfolio>();
     if (getDocuments() != null) {
       for (PortfolioDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getPortfolio());
       }
     }
     return result;
@@ -71,7 +81,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
    * @return the first portfolio, null if none
    */
   public ManageablePortfolio getFirstPortfolio() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getPortfolio() : null;
   }
 
   /**
@@ -87,7 +97,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getPortfolio();
     }
   }
 

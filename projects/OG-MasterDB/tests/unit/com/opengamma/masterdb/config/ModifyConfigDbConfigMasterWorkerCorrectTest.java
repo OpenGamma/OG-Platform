@@ -78,7 +78,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals("NewName", corrected.getName());
-    assertEquals(ExternalId.of("A", "B"), corrected.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), corrected.getConfig().getValue());
     
     ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -86,7 +86,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getObject().getValue(), old.getObject().getValue());
+    assertEquals(base.getConfig().getValue(), old.getConfig().getValue());
     
     ConfigHistoryRequest<ExternalId> search = new ConfigHistoryRequest<ExternalId>(base.getUniqueId(), now, null);
     search.setType(ExternalId.class);
@@ -101,19 +101,19 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);
-    ConfigItem<ExternalId> input = (ConfigItem<ExternalId>) base.getObject();
+    ConfigItem<?> input = base.getConfig();
     input.setName("NewName"); // name change only
     
     ConfigDocument corrected = _cfgMaster.correct(new ConfigDocument(input));
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals("NewName", corrected.getName());  // name changed
-    assertEquals(base.getObject().getValue(), corrected.getObject().getValue());  // value unchanged
+    assertEquals(base.getConfig().getValue(), corrected.getConfig().getValue());  // value unchanged
     
     ConfigDocument old = _cfgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
-    assertEquals(base.getObject().getValue(), old.getObject().getValue());
+    assertEquals(base.getConfig().getValue(), old.getConfig().getValue());
   }
 
 }

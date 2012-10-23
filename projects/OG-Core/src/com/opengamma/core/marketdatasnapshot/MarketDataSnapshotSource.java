@@ -14,9 +14,13 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * This interface provides a simple view of snapshots as needed by the engine.
  * This may be backed by a full-featured snapshot master, or by a much simpler data structure.
+ * <p>
+ * This interface is read-only.
+ * Implementations must be thread-safe.
  */
 @PublicSPI
 public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSnapshot> {
+
   /**
    * Adds a listener to the source.
    * <p>
@@ -40,5 +44,5 @@ public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSna
    * @param uniqueId the identifier to unregister interest in
    * */
   void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener);
-}
 
+}

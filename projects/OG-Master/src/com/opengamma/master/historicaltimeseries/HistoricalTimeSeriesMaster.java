@@ -32,7 +32,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * @see com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesMasterUtils 
  */
 @PublicSPI
-public interface HistoricalTimeSeriesMaster extends AbstractChangeProvidingMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument>, ChangeProvider {
+public interface HistoricalTimeSeriesMaster extends AbstractChangeProvidingMaster<HistoricalTimeSeriesInfoDocument>, ChangeProvider {
 
   /**
    * Queries the meta-data about the master.
@@ -111,7 +111,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractChangeProvidingMaste
    * @param filter  the time-series subset filter, not null
    * @return the filtered subset of time-series data points, not null
    * @throws IllegalArgumentException if the request is invalid
-   */  
+   */
   ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter);
 
   //-------------------------------------------------------------------------

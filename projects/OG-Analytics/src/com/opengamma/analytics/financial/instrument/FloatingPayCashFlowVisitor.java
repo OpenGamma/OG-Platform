@@ -26,7 +26,7 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Returns all of the floating cash-flows of an instrument. The notionals returned are those that will be paid 
+ * Returns all of the floating cash-flows of an instrument. The notionals returned are adjusted for the year fraction
  * (i.e. a semi-annual swap with a notional of $1MM will return notionals of ~$0.5MM)
  */
 public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> {
@@ -37,7 +37,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
   }
 
   private FloatingPayCashFlowVisitor() {
-    super(Collections.<LocalDate, MultipleCurrencyAmount> emptyMap());
+    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
   }
 
   /**

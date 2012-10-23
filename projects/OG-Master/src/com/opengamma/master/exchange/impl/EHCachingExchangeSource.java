@@ -42,9 +42,13 @@ public class EHCachingExchangeSource implements ExchangeSource {
    * The result cache.
    */
   private final Cache _exchangeExternalIdCache;
-
+  /**
+   * The underlying source.
+   */
   private final ExchangeSource _underlying;
-
+  /**
+   * The time to live in seconds.
+   */
   private Integer _ttl;
 
   /**
@@ -61,14 +65,26 @@ public class EHCachingExchangeSource implements ExchangeSource {
     _exchangeExternalIdCache = EHCacheUtils.getCacheFromManager(cacheManager, EXCHANGE_EXTERNAL_ID_CACHE);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the time to live of the cache.
+   * 
+   * @param ttl  the time to live in seconds
+   */
   public void setTTL(final Integer ttl) {
     _ttl = ttl;
   }
 
+  /**
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
+   */
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Exchange get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
@@ -105,12 +121,6 @@ public class EHCachingExchangeSource implements ExchangeSource {
     return _underlying.getSingle(identifierBundle);
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[" + _underlying + "]";
-  }
-
   @Override
   public Map<UniqueId, Exchange> get(Collection<UniqueId> uniqueIds) {
     Map<UniqueId, Exchange> result = Maps.newHashMap();
@@ -124,4 +134,11 @@ public class EHCachingExchangeSource implements ExchangeSource {
     }
     return result;
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + _underlying + "]";
+  }
+
 }

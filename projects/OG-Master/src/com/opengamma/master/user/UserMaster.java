@@ -16,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface UserMaster extends AbstractChangeProvidingMaster<ManageableOGUser, UserDocument>, ChangeProvider {
+public interface UserMaster extends AbstractChangeProvidingMaster<UserDocument>, ChangeProvider {
 
   /**
    * Searches for users matching the specified search criteria.
@@ -27,4 +27,5 @@ public interface UserMaster extends AbstractChangeProvidingMaster<ManageableOGUs
    */
   UserSearchResult search(UserSearchRequest request);
   // TODO kirk 2012-08-20 -- History will be added when the basics work.
+
 }

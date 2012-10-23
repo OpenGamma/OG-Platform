@@ -19,5 +19,5 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface SecuritySource extends SourceWithExternalBundle<Security> {
-  
+
 }

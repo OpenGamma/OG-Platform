@@ -168,8 +168,6 @@ public class ModifyConfigDbConfigMasterWorkerReplaceAllVersionsTest extends Abst
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
-      Instant latestFrom = latestDoc.getVersionFromInstant();
-
 
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {

@@ -94,7 +94,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument test = _cfgMaster.get(uniqueId);
     assertNotNull(test);
-    if (test.getObject().getValue() instanceof ExternalId) {
+    if (test.getConfig().getValue() instanceof ExternalId) {
       assertEquals(test.getType(), ExternalId.class);
       assert101(test);
     } else {

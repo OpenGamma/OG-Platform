@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -48,6 +49,15 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public HistoricalTimeSeriesInfoSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the returned series information from within the documents.
@@ -58,7 +68,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
     List<ManageableHistoricalTimeSeriesInfo> result = new ArrayList<ManageableHistoricalTimeSeriesInfo>();
     if (getDocuments() != null) {
       for (HistoricalTimeSeriesInfoDocument doc : getDocuments()) {
-        result.add(doc.getObject());
+        result.add(doc.getInfo());
       }
     }
     return result;
@@ -70,7 +80,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
    * @return the first series information, null if none
    */
   public ManageableHistoricalTimeSeriesInfo getFirstInfo() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getInfo() : null;
   }
 
   /**
@@ -86,7 +96,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getObject();
+      return getDocuments().get(0).getInfo();
     }
   }
 

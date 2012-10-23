@@ -15,14 +15,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -33,7 +30,9 @@ import com.opengamma.util.money.Currency;
  * This class provides the source on top of a standard {@link HolidayMaster}.
  */
 @PublicSPI
-public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster> implements HolidaySource {
+public class MasterHolidaySource
+    extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster>
+    implements HolidaySource {
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -55,16 +54,6 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableHoliday get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
-  }
-
-  @Override
-  public ManageableHoliday get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(objectId, versionCorrection).getObject();
-  }
-
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     HolidaySearchRequest request = new HolidaySearchRequest(currency);
@@ -120,7 +109,7 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
     if (doc == null) {
       return false;
     }
-    return Collections.binarySearch(doc.getObject().getHolidayDates(), dateToCheck) >= 0;
+    return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
   }
 
   /**

@@ -28,7 +28,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,8 +37,11 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
+ *
+ * @param <D>  the type of the document
  */
-abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> implements AbstractMaster<T, D>, ChangeProvider {
+public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
+    implements AbstractMaster<D>, ChangeProvider {
 
   /**
    * A cache of documents by identifier.
@@ -56,6 +58,8 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
 
   /**
    * Creates an instance.
+   * 
+   * @param defaultOidScheme  the default object identifier scheme, not null
    */
   public SimpleAbstractInMemoryMaster(String defaultOidScheme) {
     this(new ObjectIdSupplier(defaultOidScheme));
@@ -64,6 +68,7 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
   /**
    * Creates an instance specifying the change manager.
    *
+   * @param defaultOidScheme  the default object identifier scheme, not null
    * @param changeManager  the change manager, not null
    */
   public SimpleAbstractInMemoryMaster(String defaultOidScheme, final ChangeManager changeManager) {
@@ -79,7 +84,6 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    *
@@ -93,26 +97,32 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
     _changeManager = changeManager;
   }
 
-  abstract protected void validateDocument(D document);
-
+  //-------------------------------------------------------------------------
+  /**
+   * Validates the specified document.
+   * 
+   * @param document  the document to validate, null to be validated
+   */
+  protected abstract void validateDocument(D document);
 
   @Override
-  final public ChangeManager changeManager() {
+  public final ChangeManager changeManager() {
     return _changeManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  final public List<UniqueId> replaceVersions(ObjectIdentifiable objectIdentifiable, List<D> replacementDocuments) {
+  public final List<UniqueId> replaceVersions(ObjectIdentifiable objectIdentifiable, List<D> replacementDocuments) {
     return replaceAllVersions(objectIdentifiable.getObjectId(), replacementDocuments);
   }
 
   @Override
-  final public List<UniqueId> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments) {
+  public final List<UniqueId> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments) {
     return replaceAllVersions(uniqueId.getObjectId(), replacementDocuments);
   }
 
   @Override
-  final public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments) {
+  public final List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments) {
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     ArgumentChecker.notNull(objectId, "objectId");
     for (D replacementDocument : replacementDocuments) {
@@ -130,27 +140,27 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
       _store.remove(objectId.getObjectId());
       _changeManager.entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);
       return Collections.emptyList();
+      
     } else {
       Instant storedVersionFrom = storedDocument.getVersionFromInstant();
       Instant storedVersionTo = storedDocument.getVersionToInstant();
-
+      
       List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
-
       D lastReplacementDocument = orderedReplacementDocuments.get(orderedReplacementDocuments.size() - 1);
-
       if (_store.replace(objectId.getObjectId(), storedDocument, lastReplacementDocument) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
-      changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
+      
+      Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
+      Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+      changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
       return ImmutableList.of(lastReplacementDocument.getUniqueId());
     }
   }
 
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  //-------------------------------------------------------------------------
   @Override
-  final public UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
+  public final UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
     List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
     if (result.isEmpty()) {
       return null;
@@ -159,14 +169,13 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
     }
   }
 
-
   @Override
-  final public void removeVersion(final UniqueId uniqueId) {
+  public final void removeVersion(final UniqueId uniqueId) {
     replaceVersion(uniqueId, Collections.<D>emptyList());
   }
 
   @Override
-  final public UniqueId replaceVersion(D replacementDocument) {
+  public final UniqueId replaceVersion(D replacementDocument) {
     List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
     if (result.isEmpty()) {
       return null;
@@ -175,6 +184,7 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
     Map<UniqueId, D> resultMap = newHashMap();
@@ -184,4 +194,5 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
     }
     return resultMap;
   }
+
 }

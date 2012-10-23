@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -26,7 +25,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link MarketDataSnapshotMaster}.
  */
-public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
+public class RemoteMarketDataSnapshotMaster
+    extends AbstractRemoteDocumentMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
 
   /**
    * Creates an instance.
@@ -82,7 +83,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
   @Override
   public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
     URI uri = DataMarketDataSnapshotMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
@@ -92,7 +93,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
   @Override
   public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataMarketDataSnapshotResource()).uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
@@ -122,7 +123,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
   @Override
   public MarketDataSnapshotDocument correct(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataMarketDataSnapshotResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -135,7 +136,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (MarketDataSnapshotDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "documentToAdd.snapshot");
+      ArgumentChecker.notNull(replacementDocument.getSnapshot(), "documentToAdd.snapshot");
     }
     URI uri = (new DataMarketDataSnapshotResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -148,7 +149,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (MarketDataSnapshotDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "documentToAdd.snapshot");
+      ArgumentChecker.notNull(replacementDocument.getSnapshot(), "documentToAdd.snapshot");
     }
     URI uri = (new DataMarketDataSnapshotResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -161,7 +162,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteDocumentMaster
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (MarketDataSnapshotDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "documentToAdd.snapshot");
+      ArgumentChecker.notNull(replacementDocument.getSnapshot(), "documentToAdd.snapshot");
     }
     URI uri = (new DataMarketDataSnapshotResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

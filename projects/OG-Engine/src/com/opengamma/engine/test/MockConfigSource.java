@@ -21,20 +21,27 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
+/**
+ * A mock config source for testing.
+ */
 public class MockConfigSource implements ConfigSource {
 
-  Map<ObjectId, ConfigItem<?>> _store = newHashMap();
-
-
-  ChangeManager _changeManager = new BasicChangeManager();
+  /**
+   * The map of data.
+   */
+  private final Map<ObjectId, ConfigItem<?>> _store = newHashMap();
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager = new BasicChangeManager();
   
   @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
-      if (clazz.isAssignableFrom(configItem.getType()) &&
-        configItem.getName().equals(configName))
+      if (clazz.isAssignableFrom(configItem.getType()) && configItem.getName().equals(configName)) {
         return (ConfigItem<T>) configItem;
+      }
     }
     return null;
   }
@@ -47,42 +54,44 @@ public class MockConfigSource implements ConfigSource {
   @Override
   public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
-      if (configItem.getObjectId().equals(objectId))        
+      if (configItem.getObjectId().equals(objectId)) {
         return configItem;
+      }
     }
     return null;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
-    List<ConfigItem<T>> list = newArrayList();
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {
+    List<ConfigItem<R>> list = newArrayList();
     for (ConfigItem<?> configItem : _store.values()) {
-      if (clazz.isAssignableFrom(configItem.getType()))
-        list.add((ConfigItem<T>) configItem);
+      if (clazz.isAssignableFrom(configItem.getType())) {
+        list.add((ConfigItem<R>) configItem);
+      }
     }
     return list;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    return (T) get(uniqueId).getValue();
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+    return (R) get(uniqueId).getValue();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    return (T) get(objectId, versionCorrection).getValue();
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    return (R) get(objectId, versionCorrection).getValue();
   }
 
   @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
     return get(clazz, configName, versionCorrection).getValue();
   }
 
   @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
+  public <R> R getLatestByName(Class<R> clazz, String name) {
     return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
@@ -103,10 +112,11 @@ public class MockConfigSource implements ConfigSource {
 
   public ConfigItem<ViewDefinition> put(ViewDefinition viewDefinition) {
     ConfigItem<ViewDefinition> item = ConfigItem.of(viewDefinition);
-    if(item.getValue().getUniqueId() == null){
+    if (item.getValue().getUniqueId() == null) {
       item.getValue().setUniqueId(UniqueId.of(ViewDefinition.class.getName(), item.getValue().getName()));
     }
     _store.put(viewDefinition.getUniqueId().getObjectId(), item);
     return item;
   }
+
 }

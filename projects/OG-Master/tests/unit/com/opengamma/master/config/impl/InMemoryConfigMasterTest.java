@@ -52,22 +52,23 @@ public class InMemoryConfigMasterTest {
   private ConfigItem<ExternalIdBundle> _item3;
   private ConfigItem<ExternalIdBundle> _item4;
 
+  @SuppressWarnings("unchecked")
   @BeforeMethod
   public void setUp() {
     _testEmpty = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
     _testPopulated = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
-    _item1 = new ConfigItem<ExternalId>(VAL1);
+    _item1 = ConfigItem.of(VAL1);
     _item1.setName("ONE");    
-    _item1 = (ConfigItem<ExternalId>) _testPopulated.add(new ConfigDocument(_item1)).getObject();
-    _item2 = new ConfigItem<ExternalId>(VAL2);
+    _item1 = (ConfigItem<ExternalId>) _testPopulated.add(new ConfigDocument(_item1)).getConfig();
+    _item2 = ConfigItem.of(VAL2);
     _item2.setName("TWO");
-    _item2 = (ConfigItem<ExternalId>) _testPopulated.add(new ConfigDocument(_item2)).getObject();
-    _item3 = new ConfigItem<ExternalIdBundle>(VAL3);
+    _item2 = (ConfigItem<ExternalId>) _testPopulated.add(new ConfigDocument(_item2)).getConfig();
+    _item3 = ConfigItem.of(VAL3);
     _item3.setName("THREE");
-    _item3 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item3)).getObject();
-    _item4 = new ConfigItem<ExternalIdBundle>(VAL4);
+    _item3 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item3)).getConfig();
+    _item4 = ConfigItem.of(VAL4);
     _item4.setName("FOUR");   
-    _item4 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item4)).getObject();
+    _item4 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item4)).getConfig();
   }
 
   //-------------------------------------------------------------------------
@@ -76,19 +77,21 @@ public class InMemoryConfigMasterTest {
     new InMemoryConfigMaster((Supplier<ObjectId>) null);
   }
 
+  @SuppressWarnings("unchecked")
   public void test_defaultSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster();
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
+    ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setName("ONE");
-    ConfigItem<ExternalId> added = (ConfigItem<ExternalId>) master.add(new ConfigDocument(item)).getObject();
+    ConfigItem<ExternalId> added = (ConfigItem<ExternalId>) master.add(new ConfigDocument(item)).getConfig();
     assertEquals("MemCfg", added.getUniqueId().getScheme());
   }
 
+  @SuppressWarnings("unchecked")
   public void test_alternateSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdSupplier("Hello"));
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
+    ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setName("ONE");
-    ConfigItem<ExternalId> added = (ConfigItem<ExternalId>) master.add(new ConfigDocument(item)).getObject();
+    ConfigItem<ExternalId> added = (ConfigItem<ExternalId>) master.add(new ConfigDocument(item)).getConfig();
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
 
@@ -105,7 +108,7 @@ public class InMemoryConfigMasterTest {
     request.addConfigId(_item2.getObjectId());
     ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(1, result.getDocuments().size());
-    assertEquals(_item2, result.getFirstDocument().getObject());
+    assertEquals(_item2, result.getFirstDocument().getConfig());
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +143,7 @@ public class InMemoryConfigMasterTest {
     List<ConfigDocument> docs = result.getDocuments();
     Set<ConfigItem<?>> items = new HashSet<ConfigItem<?>>();
     for (ConfigDocument doc : docs) {
-      items.add(doc.getObject());
+      items.add(doc.getConfig());
     }
     assertEquals(4, items.size());
     assertEquals(true, items.contains(_item1));
@@ -175,49 +178,49 @@ public class InMemoryConfigMasterTest {
   }
 
   public void test_get_populatedMaster() {
-    assertSame(_item1, _testPopulated.get(_item1.getUniqueId()).getObject());
-    assertSame(_item2, _testPopulated.get(_item2.getUniqueId()).getObject());
-    assertSame(_item3, _testPopulated.get(_item3.getUniqueId()).getObject());
-    assertSame(_item4, _testPopulated.get(_item4.getUniqueId()).getObject());
+    assertSame(_item1, _testPopulated.get(_item1.getUniqueId()).getConfig());
+    assertSame(_item2, _testPopulated.get(_item2.getUniqueId()).getConfig());
+    assertSame(_item3, _testPopulated.get(_item3.getUniqueId()).getConfig());
+    assertSame(_item4, _testPopulated.get(_item4.getUniqueId()).getConfig());
   }
 
   public void test_get_typed_populatedMaster() {
-    ConfigItem<?> storedDoc1 = _testPopulated.get(_item1.getUniqueId()).getObject();
+    ConfigItem<?> storedDoc1 = _testPopulated.get(_item1.getUniqueId()).getConfig();
     assertSame(_item1, storedDoc1);
-    ConfigItem<?> storedDoc2 = _testPopulated.get(_item2.getUniqueId()).getObject();
+    ConfigItem<?> storedDoc2 = _testPopulated.get(_item2.getUniqueId()).getConfig();
     assertSame(_item2, storedDoc2);
 
-    ConfigItem<?> storedDoc3 = _testPopulated.get(_item3.getUniqueId()).getObject();
+    ConfigItem<?> storedDoc3 = _testPopulated.get(_item3.getUniqueId()).getConfig();
     assertSame(_item3, storedDoc3);
-    ConfigItem<?> storedDoc4 = _testPopulated.get(_item4.getUniqueId()).getObject();
+    ConfigItem<?> storedDoc4 = _testPopulated.get(_item4.getUniqueId()).getConfig();
     assertSame(_item4, storedDoc4);
   }
 
   public void test_get_invalid_typed_populatedMaster() {
-    ConfigItem<?> storedDoc1 = _testPopulated.get(_item1.getUniqueId()).getObject();
+    ConfigItem<?> storedDoc1 = _testPopulated.get(_item1.getUniqueId()).getConfig();
     assertSame(_item1, storedDoc1);
   }
 
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
+    ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setName("Test");
     ConfigDocument doc = _testEmpty.add(new ConfigDocument(item));
     assertNotNull(doc.getVersionFromInstant());
     assertEquals("Test", doc.getUniqueId().getScheme());
-    assertSame(VAL1, doc.getObject().getValue());
+    assertSame(VAL1, doc.getConfig().getValue());
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
+    ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setUniqueId(OTHER_UID);
     _testEmpty.update(new ConfigDocument(item));
   }
 
   public void test_update_populatedMaster() {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
+    ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setUniqueId(_item1.getUniqueId());
     ConfigDocument updated = _testPopulated.update(new ConfigDocument(item));
     assertEquals(_item1.getUniqueId(), updated.getUniqueId());
@@ -239,7 +242,7 @@ public class InMemoryConfigMasterTest {
     List<ConfigDocument> docs = result.getDocuments();
     Set<ConfigItem<?>> items = new HashSet<ConfigItem<?>>();
     for (ConfigDocument doc : docs) {
-      items.add(doc.getObject());
+      items.add(doc.getConfig());
     }
     assertEquals(3, items.size());
     assertEquals(true, items.contains(_item2));

@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -28,7 +27,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link ConfigMaster}.
  */
-public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<?>, ConfigDocument> implements ConfigMaster {
+public class RemoteConfigMaster
+    extends AbstractRemoteDocumentMaster<ConfigDocument>
+    implements ConfigMaster {
 
   /**
    * Creates an instance.
@@ -59,8 +60,9 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public ConfigSearchResult search(final ConfigSearchRequest request) {
+  public <R> ConfigSearchResult<R> search(final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
 
     URI uri = DataConfigMasterResource.uriSearch(getBaseUri());
@@ -85,7 +87,7 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   public ConfigDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
 
-    URI uri = (new DataConfigResource()).uri(getBaseUri(), objectId, versionCorrection);
+    URI uri = DataConfigResource.uri(getBaseUri(), objectId, versionCorrection);
     return accessRemote(uri).get(ConfigDocument.class);
   }
 
@@ -93,7 +95,7 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   @Override
   public ConfigDocument add(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
 
     URI uri = DataConfigMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(ConfigDocument.class, document);
@@ -103,10 +105,10 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   @Override
   public ConfigDocument update(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
-    URI uri = (new DataConfigResource()).uri(getBaseUri(), document.getUniqueId(), null);
+    URI uri = DataConfigResource.uri(getBaseUri(), document.getUniqueId(), null);
     return accessRemote(uri).post(ConfigDocument.class, document);
   }
 
@@ -115,17 +117,18 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   public void remove(final ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
 
-    URI uri = (new DataConfigResource()).uri(getBaseUri(), objectIdentifiable, null);
+    URI uri = DataConfigResource.uri(getBaseUri(), objectIdentifiable, null);
     accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public ConfigHistoryResult history(final ConfigHistoryRequest request) {
+  public <R> ConfigHistoryResult<R> history(final ConfigHistoryRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
 
-    URI uri = (new DataConfigResource()).uriVersions(getBaseUri(), request.getObjectId(), request);
+    URI uri = DataConfigResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(ConfigHistoryResult.class);
   }
 
@@ -133,10 +136,10 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
   @Override
   public ConfigDocument correct(final ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.config");
+    ArgumentChecker.notNull(document.getConfig(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
-    URI uri = (new DataConfigResource()).uriVersion(getBaseUri(), document.getUniqueId());
+    URI uri = DataConfigResource.uriVersion(getBaseUri(), document.getUniqueId());
     return accessRemote(uri).post(ConfigDocument.class, document);
   }
 
@@ -146,10 +149,10 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
 
-    URI uri = (new DataConfigResource()).uriVersion(getBaseUri(), uniqueId);
+    URI uri = DataConfigResource.uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);
   }
@@ -160,9 +163,9 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
-    URI uri = (new DataConfigResource()).uriAll(getBaseUri(), objectId, null, null);
+    URI uri = DataConfigResource.uriAll(getBaseUri(), objectId, null, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);
   }
@@ -173,9 +176,9 @@ public class RemoteConfigMaster extends AbstractRemoteDocumentMaster<ConfigItem<
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ConfigDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.config");
+      ArgumentChecker.notNull(replacementDocument.getConfig(), "replacementDocument.config");
     }
-    URI uri = (new DataConfigResource()).uri(getBaseUri(), objectId, null);
+    URI uri = DataConfigResource.uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);
   }

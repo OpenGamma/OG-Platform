@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.position.Position;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
@@ -42,7 +41,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class PositionSearchRequest extends AbstractSearchRequest<Position> {
+public class PositionSearchRequest extends AbstractSearchRequest {
 
   /**
    * The set of position object identifiers, null to not limit by position object identifiers.
@@ -215,7 +214,7 @@ public class PositionSearchRequest extends AbstractSearchRequest<Position> {
       return false;
     }
     final PositionDocument document = (PositionDocument) obj;
-    final ManageablePosition position = document.getObject();
+    final ManageablePosition position = document.getPosition();
     if (getPositionObjectIds() != null && getPositionObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
@@ -246,7 +245,6 @@ public class PositionSearchRequest extends AbstractSearchRequest<Position> {
    * The meta-bean for {@code PositionSearchRequest}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionSearchRequest.Meta meta() {
     return PositionSearchRequest.Meta.INSTANCE;
   }
@@ -563,7 +561,7 @@ public class PositionSearchRequest extends AbstractSearchRequest<Position> {
   /**
    * The meta-bean for {@code PositionSearchRequest}.
    */
-  public static class Meta extends AbstractSearchRequest.Meta<Position> {
+  public static class Meta extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

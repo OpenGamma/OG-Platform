@@ -77,7 +77,7 @@ public class PerformanceTest extends DbTest {
       doc = _htsMaster.add(doc);
       
       LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
-      _htsMaster.updateTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), randomPoints);
+      _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), randomPoints);
       randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
@@ -85,7 +85,7 @@ public class PerformanceTest extends DbTest {
             Lists.newArrayList(randomPoints.getTimeAt(j)),
             Lists.newArrayList(randomPoints.getValueAt(j)));
         s_logger.debug("adding data points {}", points);
-        _htsMaster.updateTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), points);
+        _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), points);
       }
     }
     

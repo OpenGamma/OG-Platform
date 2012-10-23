@@ -41,7 +41,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<ManageableRegion, RegionDocument> implements RegionMaster {
+public class InMemoryRegionMaster
+    extends SimpleAbstractInMemoryMaster<RegionDocument>
+    implements RegionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -122,11 +124,11 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<Manageabl
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableRegion region = document.getObject();
+    final ManageableRegion region = document.getRegion();
     region.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -144,7 +146,7 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<Manageabl
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -197,6 +199,6 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<Manageabl
   @Override
   protected void validateDocument(RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.region");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
   }
 }

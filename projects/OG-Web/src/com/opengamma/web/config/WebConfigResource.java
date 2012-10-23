@@ -68,7 +68,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     FlexiBean out = createRootData();
     ConfigDocument doc = data().getConfig();
-    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getObject().getValue(), doc.getType()));
+    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getConfig().getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -148,10 +148,9 @@ public class WebConfigResource extends AbstractWebConfigResource {
     return Response.ok().build();
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   private URI updateConfig(String name, Object newConfigValue) {
     ConfigDocument oldDoc = data().getConfig();
-    ConfigItem newItem = ConfigItem.of(newConfigValue);    
+    ConfigItem<?> newItem = ConfigItem.of(newConfigValue);    
     newItem.setName(name);
     ConfigDocument doc = new ConfigDocument(newItem);
     doc.setUniqueId(oldDoc.getUniqueId());
@@ -193,7 +192,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     FlexiBean out = super.createRootData();
     ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
-    out.put("config", doc.getObject().getValue());
+    out.put("config", doc.getConfig().getValue());
     out.put("deleted", !doc.isLatest());
     return out;
   }

@@ -52,7 +52,9 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 /**
  * An in-memory implementation of a historical time-series master.
  */
-public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class InMemoryHistoricalTimeSeriesMaster
+    extends SimpleAbstractInMemoryMaster<HistoricalTimeSeriesInfoDocument>
+    implements HistoricalTimeSeriesMaster {
 
   /**
    * The default scheme used for each {@link UniqueId}.
@@ -101,34 +103,50 @@ public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMa
 
   //-------------------------------------------------------------------------
   @Override
+  protected void validateDocument(HistoricalTimeSeriesInfoDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    if (document.getUniqueId() != null) {
+      validateId(document.getUniqueId());
+    }
+    ArgumentChecker.notNull(document.getInfo(), "document.series");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.series.identifiers");
+    ArgumentChecker.isTrue(document.getInfo().getExternalIdBundle().toBundle().getExternalIds().size() > 0, "document.series.identifiers must not be empty");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataSource()), "document.series.dataSource must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataProvider()), "document.series.dataProvider must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataField()), "document.series.dataField must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getObservationTime()), "document.series.observationTime must not be blank");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public HistoricalTimeSeriesInfoMetaDataResult metaData(HistoricalTimeSeriesInfoMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     HistoricalTimeSeriesInfoMetaDataResult result = new HistoricalTimeSeriesInfoMetaDataResult();
     if (request.isDataFields()) {
       Set<String> types = new HashSet<String>();
       for (HistoricalTimeSeriesInfoDocument doc : _store.values()) {
-        types.add(doc.getObject().getDataField());
+        types.add(doc.getInfo().getDataField());
       }
       result.getDataFields().addAll(types);
     }
     if (request.isDataSources()) {
       Set<String> types = new HashSet<String>();
       for (HistoricalTimeSeriesInfoDocument doc : _store.values()) {
-        types.add(doc.getObject().getDataSource());
+        types.add(doc.getInfo().getDataSource());
       }
       result.getDataSources().addAll(types);
     }
     if (request.isDataProviders()) {
       Set<String> types = new HashSet<String>();
       for (HistoricalTimeSeriesInfoDocument doc : _store.values()) {
-        types.add(doc.getObject().getDataProvider());
+        types.add(doc.getInfo().getDataProvider());
       }
       result.getDataProviders().addAll(types);
     }
     if (request.isObservationTimes()) {
       Set<String> types = new HashSet<String>();
       for (HistoricalTimeSeriesInfoDocument doc : _store.values()) {
-        types.add(doc.getObject().getObservationTime());
+        types.add(doc.getInfo().getObservationTime());
       }
       result.getObservationTimes().addAll(types);
     }
@@ -178,12 +196,12 @@ public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMa
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final HistoricalTimeSeriesInfoDocument cloned = JodaBeanUtils.clone(document);
-    final ManageableHistoricalTimeSeriesInfo info = cloned.getObject();
+    final ManageableHistoricalTimeSeriesInfo info = cloned.getInfo();
     info.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     cloned.setVersionFromInstant(now);
     cloned.setCorrectionFromInstant(now);
-    cloned.getObject().setTimeSeriesObjectId(objectId);
+    cloned.getInfo().setTimeSeriesObjectId(objectId);
     _store.put(objectId, cloned);
     _changeManager.entityChanged(ChangeType.ADDED, objectId, cloned.getVersionFromInstant(), cloned.getVersionToInstant(), now);
     return cloned;
@@ -375,20 +393,6 @@ public class InMemoryHistoricalTimeSeriesMaster extends SimpleAbstractInMemoryMa
     } catch (NumberFormatException ex) {
       throw new IllegalArgumentException("Invalid objectId " + objectId);
     }
-  }
-
-  protected void validateDocument(HistoricalTimeSeriesInfoDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    if (document.getUniqueId() != null) {
-      validateId(document.getUniqueId());
-    }
-    ArgumentChecker.notNull(document.getObject(), "document.series");
-    ArgumentChecker.notNull(document.getObject().getExternalIdBundle(), "document.series.identifiers");
-    ArgumentChecker.isTrue(document.getObject().getExternalIdBundle().toBundle().getExternalIds().size() > 0, "document.series.identifiers must not be empty");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataSource()), "document.series.dataSource must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataProvider()), "document.series.dataProvider must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getDataField()), "document.series.dataField must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObject().getObservationTime()), "document.series.observationTime must not be blank");
   }
 
 }

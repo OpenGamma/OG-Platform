@@ -200,7 +200,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig101", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getConfig().getValue());
   }
 
   protected void assert102(final ConfigDocument test) {
@@ -212,7 +212,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1bInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig102", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getConfig().getValue());
   }
 
   protected void assert201(final ConfigDocument test) {
@@ -224,7 +224,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1cInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig201", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getConfig().getValue());
   }
 
   protected void assert202(final ConfigDocument test) {
@@ -235,7 +235,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getConfig().getValue());
   }
 
 }

@@ -139,16 +139,16 @@ public class InMemoryUserMaster implements UserMaster {
   @Override
   public UserDocument add(final UserDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.user");
+    ArgumentChecker.notNull(document.getUser(), "document.user");
     
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableOGUser user = document.getObject().clone();
+    final ManageableOGUser user = document.getUser().clone();
     user.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final UserDocument doc = new UserDocument();
-    doc.setObject(user);
+    doc.setUser(user);
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
@@ -162,7 +162,7 @@ public class InMemoryUserMaster implements UserMaster {
   public UserDocument update(final UserDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.user");
+    ArgumentChecker.notNull(document.getUser(), "document.user");
     
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -225,7 +225,7 @@ public class InMemoryUserMaster implements UserMaster {
       UserDocument document = replacementDocuments.get(replacementDocuments.size() - 1);
       ArgumentChecker.notNull(document, "document");
       ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-      ArgumentChecker.notNull(document.getObject(), "document.user");
+      ArgumentChecker.notNull(document.getUser(), "document.user");
 
       final Instant now = Instant.now();
       final UserDocument storedDocument = _store.get(uniqueId.getObjectId());

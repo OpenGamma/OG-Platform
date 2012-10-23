@@ -55,7 +55,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     exchange.setUniqueId(uniqueId);
     ExchangeDocument doc = new ExchangeDocument();
-    doc.setObject(exchange);
+    doc.setExchange(exchange);
     _exgMaster.update(doc);
   }
 
@@ -100,7 +100,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getExchange(), updated.getExchange());
     
     ExchangeDocument old = _exgMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -108,7 +108,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getObject(), old.getObject());
+    assertEquals(base.getExchange(), old.getExchange());
     
     ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), null, now);
     ExchangeHistoryResult searchResult = _exgMaster.history(search);

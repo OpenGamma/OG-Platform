@@ -60,7 +60,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   private FlexiBean createPortfolioData() {
     PortfolioDocument doc = data().getPortfolio();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
-    positionSearch.setPositionObjectIds(doc.getObject().getRootNode().getPositionIds());
+    positionSearch.setPositionObjectIds(doc.getPortfolio().getRootNode().getPositionIds());
     PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
     resolveSecurities(positionsResult.getPositions());
         
@@ -107,7 +107,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   }
 
   private URI updatePortfolio(String name, DocumentVisibility visibility, PortfolioDocument doc) {
-    doc.getObject().setName(name);
+    doc.getPortfolio().setName(name);
     doc.setVisibility(visibility);
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
@@ -147,10 +147,10 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     FlexiBean out = super.createRootData();
     PortfolioDocument doc = data().getPortfolio();
     out.put("portfolioDoc", doc);
-    out.put("portfolio", doc.getObject());
-    out.put("childNodes", doc.getObject().getRootNode().getChildNodes());
+    out.put("portfolio", doc.getPortfolio());
+    out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
     out.put("deleted", !doc.isLatest());
-    out.put("rootNode", doc.getObject().getRootNode());
+    out.put("rootNode", doc.getPortfolio().getRootNode());
     return out;
   }
 

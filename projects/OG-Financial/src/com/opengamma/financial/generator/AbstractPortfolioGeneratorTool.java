@@ -261,7 +261,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       PortfolioDocument document = result.getFirstDocument();
       if (document != null) {
         s_logger.info("Overwriting portfolio {}", document.getUniqueId());
-        document.setObject(newPortfolio);
+        document.setPortfolio(newPortfolio);
         context.getPortfolioMaster().update(document);
       } else {
         document = new PortfolioDocument(newPortfolio);

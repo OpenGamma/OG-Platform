@@ -55,18 +55,18 @@ public class InMemoryPositionMasterTest {
     _emptyMaster = new InMemoryPositionMaster();
     _populatedMaster = new InMemoryPositionMaster();
     _pos1 = new PositionDocument(new ManageablePosition(BigDecimal.ONE, SEC1));
-    _pos1.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos1.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
     _pos1 = _populatedMaster.add(_pos1);
     
     _pos2 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(2), SEC2));
-    _pos2.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
-    _pos2.getObject().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
     _pos2 = _populatedMaster.add(_pos2);
     
     _pos3 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(3), SEC3));
-    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE1));
-    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE2));
-    _pos3.getObject().addTrade(JodaBeanUtils.clone(TRADE3));
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE3));
     _pos3 = _populatedMaster.add(_pos3);
   }
   
@@ -78,20 +78,20 @@ public class InMemoryPositionMasterTest {
 
   public void test_defaultSupplier() {
     InMemoryPositionMaster master = new InMemoryPositionMaster();
-    PositionDocument added = master.add(new PositionDocument(_pos1.getObject()));
+    PositionDocument added = master.add(new PositionDocument(_pos1.getPosition()));
     assertEquals("MemPos", added.getUniqueId().getScheme());
   }
   
   //-------------------------------------------------------------------------
   public void test_alternateSupplier() {
     InMemoryPositionMaster master = new InMemoryPositionMaster(new ObjectIdSupplier("Hello"));
-    PositionDocument added = master.add(new PositionDocument(_pos1.getObject()));
+    PositionDocument added = master.add(new PositionDocument(_pos1.getPosition()));
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
   
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
-    ManageablePosition pos = new ManageablePosition(_pos1.getObject());
+    ManageablePosition pos = new ManageablePosition(_pos1.getPosition());
     pos.setUniqueId(null);
     pos.getTrades().clear();
     pos.addTrade(JodaBeanUtils.clone(TRADE1));
@@ -100,7 +100,7 @@ public class InMemoryPositionMasterTest {
     assertNotNull(addedDoc.getVersionFromInstant());
     assertEquals("MemPos", addedDoc.getUniqueId().getScheme());
     assertEquals("1", addedDoc.getUniqueId().getValue());
-    ManageablePosition addedPosition = addedDoc.getObject();
+    ManageablePosition addedPosition = addedDoc.getPosition();
     assertNotNull(addedPosition);
     assertEquals(addedDoc.getUniqueId(), addedPosition.getUniqueId());
     List<ManageableTrade> addedTrades = addedPosition.getTrades();
@@ -142,14 +142,14 @@ public class InMemoryPositionMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
-    PositionDocument doc = new PositionDocument(_pos1.getObject());
+    PositionDocument doc = new PositionDocument(_pos1.getPosition());
     doc.setUniqueId(UniqueId.of("MemPos", "A"));
     _emptyMaster.update(doc);
   }
   
   public void test_update_populatedMaster() {
     PositionDocument doc = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(100), SEC3));
-    doc.getObject().addTrade(new ManageableTrade(BigDecimal.ONE, SEC3, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY));
+    doc.getPosition().addTrade(new ManageableTrade(BigDecimal.ONE, SEC3, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY));
     doc.setUniqueId(_pos1.getUniqueId());
     PositionDocument updated = _populatedMaster.update(doc);
     assertEquals(_pos1.getUniqueId(), updated.getUniqueId());

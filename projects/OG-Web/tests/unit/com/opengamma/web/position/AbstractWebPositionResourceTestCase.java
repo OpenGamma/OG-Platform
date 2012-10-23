@@ -143,7 +143,7 @@ public abstract class AbstractWebPositionResourceTestCase {
 
   protected void populateSecMaster() {
     SecurityDocument added = _secMaster.add(new SecurityDocument(EQUITY_SECURITY));
-    _securitySource.addSecurity(added.getObject());
+    _securitySource.addSecurity(added.getSecurity());
   }
   
   protected void populatePositionMaster() {
@@ -166,7 +166,7 @@ public abstract class AbstractWebPositionResourceTestCase {
     List<PositionDocument> docs = searchResult.getDocuments();
     assertNotNull(docs);
     assertEquals(1, docs.size());
-    ManageablePosition position = docs.get(0).getObject();
+    ManageablePosition position = docs.get(0).getPosition();
     assertEquals(BigDecimal.TEN, position.getQuantity());
     assertEquals(SECURITY_LINK, position.getSecurityLink());
     assertTrue(position.getTrades().isEmpty());
@@ -179,7 +179,7 @@ public abstract class AbstractWebPositionResourceTestCase {
     List<PositionDocument> docs = searchResult.getDocuments();
     assertNotNull(docs);
     assertEquals(1, docs.size());
-    ManageablePosition position = docs.get(0).getObject();
+    ManageablePosition position = docs.get(0).getPosition();
     assertEquals(BigDecimal.TEN, position.getQuantity());
     assertEquals(SECURITY_LINK, position.getSecurityLink());
     

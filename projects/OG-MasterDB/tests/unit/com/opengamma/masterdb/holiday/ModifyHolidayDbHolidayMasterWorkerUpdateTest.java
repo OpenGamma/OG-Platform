@@ -56,7 +56,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uniqueId);
     HolidayDocument doc = new HolidayDocument();
-    doc.setObject(holiday);
+    doc.setHoliday(holiday);
     _holMaster.update(doc);
   }
 
@@ -101,7 +101,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getObject(), updated.getObject());
+    assertEquals(input.getHoliday(), updated.getHoliday());
     
     HolidayDocument old = _holMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -109,7 +109,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getObject(), old.getObject());
+    assertEquals(base.getHoliday(), old.getHoliday());
     
     HolidayHistoryRequest search = new HolidayHistoryRequest(base.getUniqueId(), null, now);
     HolidayHistoryResult searchResult = _holMaster.history(search);

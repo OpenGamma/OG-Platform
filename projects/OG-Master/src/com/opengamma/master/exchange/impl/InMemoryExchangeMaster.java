@@ -40,7 +40,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
+public class InMemoryExchangeMaster
+    extends SimpleAbstractInMemoryMaster<ExchangeDocument>
+    implements ExchangeMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -84,6 +86,13 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
+  protected void validateDocument(ExchangeDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final List<ExchangeDocument> list = new ArrayList<ExchangeDocument>();
@@ -122,11 +131,11 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableExchange exchange = document.getObject().clone();
+    final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -143,7 +152,7 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -192,12 +201,6 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
     }
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  protected void validateDocument(ExchangeDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.exchange");
   }
 
 }

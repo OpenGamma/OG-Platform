@@ -33,16 +33,18 @@ import com.opengamma.util.tuple.Triple;
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
+ * 
+ * @param <V> the type returned by the source
+ * @param <S> the source
  */
-public abstract class AbstractEHCachingSourceWithExternalBundle<S extends SourceWithExternalBundle<T>, T extends UniqueIdentifiable & ExternalBundleIdentifiable>
-  extends AbstractEHCachingSource<S, T>
-  implements SourceWithExternalBundle<T> {
-
+public abstract class AbstractEHCachingSourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable, S extends SourceWithExternalBundle<V>>
+    extends AbstractEHCachingSource<V, S>
+    implements SourceWithExternalBundle<V> {
 
   /** The bundle cache key. */
-  static final String BUNDLE_CACHE = "-bundle-cache";
+  private static final String BUNDLE_CACHE = "-bundle-cache";
   /** The Bundle hint cache key. */
-  static final String BUNDLE_HINT_CACHE = "-bundle-hint-cache";
+  private static final String BUNDLE_HINT_CACHE = "-bundle-hint-cache";
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractEHCachingSourceWithExternalBundle.class);
@@ -50,12 +52,12 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
   /**
    * The bundle cache.
    */
-  protected final Cache _bundleCache;
+  private final Cache _bundleCache;
 
   /**
    * The bundle hint cache.
    */
-  protected final Cache _bundleHintCache;
+  private final Cache _bundleHintCache;
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
@@ -67,19 +69,20 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
     super(underlying, cacheManager);
     EHCacheUtils.addCache(cacheManager, this.getClass().getName() + BUNDLE_CACHE);
     EHCacheUtils.addCache(cacheManager, this.getClass().getName() + BUNDLE_HINT_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_CACHE);
-    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_HINT_CACHE);
+    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, this.getClass().getName() + BUNDLE_CACHE);
+    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, this.getClass().getName() + BUNDLE_HINT_CACHE);
   }
 
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<T> get(ExternalIdBundle bundle) {
+  public Collection<V> get(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Element e = _bundleCache.get(bundle);
-    Collection<T> result = new HashSet<T>();
+    Collection<V> result = new HashSet<V>();
     if (e != null) {
       if (e.getObjectValue() instanceof Collection<?>) {
-        result.addAll((Collection<T>) e.getObjectValue());
+        result.addAll((Collection<V>) e.getObjectValue());
       } else {
         s_logger.warn("returned object {} from cache is not a Collection<T>", e.getObjectValue());
       }
@@ -94,10 +97,10 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
   }
 
   @Override
-  public Collection<T> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<V> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Collection<T> result = getUnderlying().get(bundle, versionCorrection);
+    Collection<V> result = getUnderlying().get(bundle, versionCorrection);
     if (result == null) {
       return Collections.emptySet();
     }
@@ -106,9 +109,9 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
   }
 
   @Override
-  public T getSingle(ExternalIdBundle bundle) {
+  public V getSingle(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    Collection<T> matched = get(bundle);
+    Collection<V> matched = get(bundle);
     if (matched.isEmpty()) {
       return null;
     }
@@ -116,10 +119,10 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
   }
 
   @Override
-  public T getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public V getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    T result = _frontCache2.get(bundle, versionCorrection);
+    V result = getFrontCache2().get(bundle, versionCorrection);
     if (result != null) {
       return result;
     }
@@ -138,7 +141,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
           if (result.getExternalIdBundle().containsAny(bundle)) {
             //This is a good enough result with the current resolution logic,
             // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
-            final T existing = _frontCache2.putIfAbsent(bundle, versionCorrection, result);
+            final V existing = getFrontCache2().putIfAbsent(bundle, versionCorrection, result);
             if (existing != null) {
               return existing;
             } else {
@@ -150,12 +153,12 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
         s_logger.debug("Hinted security {} has dissapeared", hint);
       }
     }
-    final Collection<T> matched = get(bundle, versionCorrection);
+    final Collection<V> matched = get(bundle, versionCorrection);
     if (matched.isEmpty()) {
       return null;
     }
     result = matched.iterator().next();
-    final T existing = _frontCache2.putIfAbsent(bundle, versionCorrection, result);
+    final V existing = getFrontCache2().putIfAbsent(bundle, versionCorrection, result);
     if (existing != null) {
       return existing;
     }
@@ -169,7 +172,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<S extends Source
   @Override
   public void shutdown() {
     super.shutdown();
-    _manager.removeCache(BUNDLE_CACHE);
-    _manager.removeCache(BUNDLE_HINT_CACHE);
+    getCacheManager().removeCache(BUNDLE_CACHE);
+    getCacheManager().removeCache(BUNDLE_HINT_CACHE);
   }
 }

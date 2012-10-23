@@ -6,11 +6,12 @@
 package com.opengamma.master;
 
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.id.UniqueIdentifiable;
 
+/**
+ * A master that supports change events.
+ * 
+ * @param <D>  the document type managed by the master
+ */
+public interface AbstractChangeProvidingMaster<D extends AbstractDocument> extends AbstractMaster<D>, ChangeProvider {
 
-public interface AbstractChangeProvidingMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractMaster<T, D>, ChangeProvider {
 }
-
-  
-

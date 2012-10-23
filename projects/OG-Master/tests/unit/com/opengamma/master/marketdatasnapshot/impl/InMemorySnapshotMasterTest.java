@@ -55,10 +55,10 @@ public class InMemorySnapshotMasterTest {
     _testEmpty = new InMemorySnapshotMaster(new ObjectIdSupplier("Test"));
     _testPopulated = new InMemorySnapshotMaster(new ObjectIdSupplier("Test"));
     _doc1 = new MarketDataSnapshotDocument();
-    _doc1.setObject(SNAP1);
+    _doc1.setSnapshot(SNAP1);
     _doc1 = _testPopulated.add(_doc1);
     _doc2 = new MarketDataSnapshotDocument();
-    _doc2.setObject(SNAP2);
+    _doc2.setSnapshot(SNAP2);
     _doc2 = _testPopulated.add(_doc2);
   }
 
@@ -71,7 +71,7 @@ public class InMemorySnapshotMasterTest {
   public void test_defaultSupplier() {
     InMemorySnapshotMaster master = new InMemorySnapshotMaster();
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-    doc.setObject(SNAP1);
+    doc.setSnapshot(SNAP1);
     MarketDataSnapshotDocument added = master.add(doc);
     assertEquals("MemSnap", added.getUniqueId().getScheme());
   }
@@ -79,7 +79,7 @@ public class InMemorySnapshotMasterTest {
   public void test_alternateSupplier() {
     InMemorySnapshotMaster master = new InMemorySnapshotMaster(new ObjectIdSupplier("Hello"));
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-    doc.setObject(SNAP1);
+    doc.setSnapshot(SNAP1);
     MarketDataSnapshotDocument added = master.add(doc);
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
@@ -151,27 +151,27 @@ public class InMemorySnapshotMasterTest {
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-    doc.setObject(SNAP1);
+    doc.setSnapshot(SNAP1);
     MarketDataSnapshotDocument added = _testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
     assertNotNull(added.getCorrectionFromInstant());
     assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
     assertEquals("Test", added.getUniqueId().getScheme());
-    assertSame(SNAP1, added.getObject());
+    assertSame(SNAP1, added.getSnapshot());
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-    doc.setObject(SNAP1);
+    doc.setSnapshot(SNAP1);
     doc.setUniqueId(OTHER_UID);
     _testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-    doc.setObject(SNAP1);
+    doc.setSnapshot(SNAP1);
     doc.setUniqueId(_doc1.getUniqueId());
     MarketDataSnapshotDocument updated = _testPopulated.update(doc);
     assertEquals(_doc1.getUniqueId(), updated.getUniqueId());

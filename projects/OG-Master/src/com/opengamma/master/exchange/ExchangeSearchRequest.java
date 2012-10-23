@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.exchange.Exchange;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -43,7 +42,7 @@ import com.opengamma.util.RegexUtils;
  */
 @PublicSPI
 @BeanDefinition
-public class ExchangeSearchRequest extends AbstractSearchRequest<Exchange> {
+public class ExchangeSearchRequest extends AbstractSearchRequest {
 
   /**
    * The set of exchange object identifiers, null to not limit by exchange object identifiers.
@@ -174,7 +173,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest<Exchange> {
       return false;
     }
     final ExchangeDocument document = (ExchangeDocument) obj;
-    final ManageableExchange exchange = document.getObject();
+    final ManageableExchange exchange = document.getExchange();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
@@ -193,7 +192,6 @@ public class ExchangeSearchRequest extends AbstractSearchRequest<Exchange> {
    * The meta-bean for {@code ExchangeSearchRequest}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeSearchRequest.Meta meta() {
     return ExchangeSearchRequest.Meta.INSTANCE;
   }
@@ -372,7 +370,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest<Exchange> {
   /**
    * The meta-bean for {@code ExchangeSearchRequest}.
    */
-  public static class Meta extends AbstractSearchRequest.Meta<Exchange> {
+  public static class Meta extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

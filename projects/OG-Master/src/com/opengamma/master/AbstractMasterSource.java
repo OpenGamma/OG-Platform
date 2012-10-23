@@ -27,11 +27,13 @@ import com.opengamma.util.tuple.Pair;
 /**
  * An abstract source built on top of an underlying master.
  *
+ * @param <V>  the type of the stored value
  * @param <D>  the type of the document
  * @param <M>  the type of the master
  */
 @PublicSPI
-public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>, M extends AbstractChangeProvidingMaster<? extends T, ? extends D>> implements Source<T>, VersionedSource, ObjectChangeListenerManager {
+public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument, M extends AbstractChangeProvidingMaster<? extends D>>
+  implements Source<V>, VersionedSource, ObjectChangeListenerManager {
 
   /**
    * The master.
@@ -41,6 +43,10 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
    * The version-correction locator to search at, null to not override versions.
    */
   private volatile VersionCorrection _versionCorrection;
+  /**
+   * The listeners.
+   */
+  private final ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener> _registeredListeners = new ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener>();
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -64,7 +70,6 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the underlying master.
    *
@@ -94,7 +99,6 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets a document from the master by unique identifier.
    * <p>
@@ -104,7 +108,6 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
    * @return the document, not null
    * @throws DataNotFoundException if the document could not be found
    */
-  @SuppressWarnings({"unchecked"})
   public D getDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection(); // lock against change
@@ -125,7 +128,6 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
    * @return the document, not null
    * @throws DataNotFoundException if the document could not be found
    */
-  @SuppressWarnings({"unchecked"})
   public D getDocument(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
@@ -134,20 +136,37 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public String toString() {
-    String str = getClass().getSimpleName() + "[" + getMaster();
-    if (getVersionCorrection() != null) {
-      str += ",versionCorrection=" + getVersionCorrection();
-    }
-    return str + "]";
+  public V get(UniqueId uniqueId) {
+    return (V) getDocument(uniqueId).getValue();
   }
 
-  /**
-   * The listeners.
-   */
-  private final ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener> _registeredListeners = new ConcurrentHashMap<Pair<ObjectId, ObjectChangeListener>, ChangeListener>();
+  @SuppressWarnings("unchecked")
+  @Override
+  public V get(ObjectId objectId, VersionCorrection versionCorrection) {
+    return (V) getMaster().get(objectId, versionCorrection).getValue();
+  }
 
+  @Override
+  public Map<UniqueId, V> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, V> result = Maps.newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      try {
+        V object = get(uniqueId);
+        result.put(uniqueId, object);
+      } catch (DataNotFoundException ex) {
+        // do nothing
+      }
+    }
+    return result;
+  }
+
+  public V getFirstObject(Collection<? extends V> objects) {
+    return objects.isEmpty() ? null : objects.iterator().next();
+  }
+
+  //-------------------------------------------------------------------------
   public void addChangeListener(final ObjectId oid, final ObjectChangeListener listener) {
     ChangeListener changeListener = new ChangeListener() {
       @Override
@@ -167,32 +186,14 @@ public abstract class AbstractMasterSource<T extends UniqueIdentifiable, D exten
     getMaster().changeManager().removeChangeListener(changeListener);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Map<UniqueId, T> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, T> result = Maps.newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        T security = get(uniqueId);
-        result.put(uniqueId, security);
-      } catch (DataNotFoundException ex) {
-        // do nothing
-      }
+  public String toString() {
+    String str = getClass().getSimpleName() + "[" + getMaster();
+    if (getVersionCorrection() != null) {
+      str += ",versionCorrection=" + getVersionCorrection();
     }
-    return result;
+    return str + "]";
   }
 
-  public T getFirstObject(Collection<? extends T> objects) {
-    return objects.isEmpty() ? null : objects.iterator().next();
-  }
-
-  @Override
-  public T get(UniqueId uniqueId) {
-    return getDocument(uniqueId).getObject();
-  }
-  
-  @SuppressWarnings({"unchecked"})
-  public T get(ObjectId objectId, VersionCorrection versionCorrection){
-    D document = (D) getMaster().get(objectId, versionCorrection);
-    return document.getObject();
-  }
 }

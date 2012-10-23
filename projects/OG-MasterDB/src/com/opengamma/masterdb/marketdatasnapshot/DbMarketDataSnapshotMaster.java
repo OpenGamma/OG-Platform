@@ -62,7 +62,7 @@ import com.opengamma.util.paging.Paging;
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbMarketDataSnapshotMaster
-    extends AbstractDocumentDbMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument>
+    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
   static {
@@ -104,14 +104,15 @@ public class DbMarketDataSnapshotMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult(vc);
+    
     final List<ObjectId> snapshotIds = request.getSnapshotIds();
     if (snapshotIds != null && snapshotIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
@@ -167,10 +168,10 @@ public class DbMarketDataSnapshotMaster
    */
   @Override
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getObject();
+    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -245,7 +246,7 @@ public class DbMarketDataSnapshotMaster
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setObject(marketDataSnapshot);
+      doc.setSnapshot(marketDataSnapshot);
       _documents.add(doc);
     }
   }

@@ -27,7 +27,6 @@ import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
@@ -40,9 +39,10 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigMasterIterator;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
@@ -171,8 +171,8 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
     ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
-    for (ConfigItem<YieldCurveDefinition> item : ConfigMasterIterator.iterable(configMaster, request)) {
-      results.add(item.getValue());
+    for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
+      results.add((YieldCurveDefinition) doc.getConfig().getValue());
     }
     return results;
   }

@@ -44,7 +44,9 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
+public class InMemoryHolidayMaster
+    extends SimpleAbstractInMemoryMaster<HolidayDocument>
+    implements HolidayMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -86,11 +88,12 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     super(objectIdSupplier, changeManager);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void validateDocument(HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
   }
 
   //-------------------------------------------------------------------------
@@ -145,11 +148,11 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableHoliday holiday = document.getObject();
+    final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -168,7 +171,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getObject(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -217,4 +220,5 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
+
 }

@@ -13,7 +13,10 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.impl.ConfigItem;
@@ -24,43 +27,74 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the config master.
- *
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
+public class ConfigDocument extends AbstractDocument {
+
+  /**
+   * The config object held by the document.
+   */
+  @PropertyDefinition(set = "manual")
+  private ConfigItem<?> _config;
+  /**
+   * The config unique identifier.
+   * This field is managed by the master but must be set for updates.
+   */
+  @PropertyDefinition(get = "manual", set = "manual")
+  private UniqueId _uniqueId;
+  /**
+   * The document name.
+   */
+  private String _name;
+
+  /**
+   * Creates an empty document.
+   * This constructor is here for automated bean construction.
+   * This document is invalid until the document class gets set.
+   */
+  private ConfigDocument() {
+  }
 
   /**
    * Creates an empty document.
    *
+   * @param configItem  the config item
    */
-  @SuppressWarnings("unchecked")
   public ConfigDocument(ConfigItem<?> configItem) {
     // this method accepts a ? rather than a ConfigItem<?> for caller flexibility
-    setObject(configItem);
+    setConfig(configItem);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param <T> the type
+   * @param value  the value
+   * @param type  the type of the value
+   * @param name  the name
+   * @param uid  the unique identifier
+   * @param versionFrom  the version from
+   * @param versionTo  the version to
+   * @param correctionFrom  the correction from
+   * @param correctionTo  the correction to
+   */
   public <T> ConfigDocument(T value, Class<T> type, String name, UniqueId uid, Instant versionFrom, Instant versionTo, Instant correctionFrom, Instant correctionTo) {
-    ConfigItem<T> item = new ConfigItem<T>(value);
+    ConfigItem<T> item = ConfigItem.of(value);
     item.setName(name);
     setVersionFromInstant(versionFrom);
     setVersionToInstant(versionTo);
     setCorrectionFromInstant(correctionFrom);
     setCorrectionToInstant(correctionTo);
     item.setType(type);
-    setObject(item);
+    setConfig(item);
   }
 
-  /**
-   * The config unique identifier.
-   * This field is managed by the master but must be set for updates.
-   */
-  private UniqueId _uniqueId;
-
+  //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
-    if (_uniqueId == null && getObject() != null && getObject().getUniqueId() != null) {
-      _uniqueId = getObject().getUniqueId();
+    if (_uniqueId == null && getConfig() != null && getConfig().getUniqueId() != null) {
+      _uniqueId = getConfig().getUniqueId();
     }
     return _uniqueId;
   }
@@ -68,44 +102,52 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   @Override
   public void setUniqueId(UniqueId uniqueId) {
     _uniqueId = uniqueId;
-    if (getObject() != null) {
-      getObject().setUniqueId(uniqueId);
+    if (getConfig() != null) {
+      getConfig().setUniqueId(uniqueId);
     }
-  }
-
-  /**
-   * Creates an empty document.
-   * This constructor is here for automated bean construction.
-   * This document is invalid until the document class gets set 
-   */
-  private ConfigDocument() {
   }
 
   @Override
   public ObjectId getObjectId() {
-    return getObject().getObjectId();
+    return getConfig().getObjectId();
   }
  
-  private String _name;
-
-  public void setName(String name) {
-    _name = name;
-    if (getObject() != null) {
-      getObject().setName(_name);
-    }
-  }
-
-
+  /**
+   * Gets the name of the config item.
+   * 
+   * @return the name
+   */
   public String getName() {
-    if (_name == null && getObject() != null && getObject().getName() != null) {
-      _name = getObject().getName();
+    if (_name == null && getConfig() != null && getConfig().getName() != null) {
+      _name = getConfig().getName();
     }
     return _name;
   }
 
+  /**
+   * Sets the name of the config item.
+   * 
+   * @param name  the name
+   */
+  public void setName(String name) {
+    _name = name;
+    if (getConfig() != null) {
+      getConfig().setName(_name);
+    }
+  }
+
   @Override
-  public void setObject(ConfigItem<?> object) {
-    super.setObject(object);
+  public ConfigItem<?> getValue() {
+    return getConfig();
+  }
+
+  /**
+   * Sets the config item.
+   * 
+   * @param object  the config item
+   */
+  public void setConfig(ConfigItem<?> object) {
+    _config = object;
     if (object != null) {
       if (_name == null && object.getName() != null) {
         _name = object.getName();
@@ -120,9 +162,14 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
   }
 
-  public Class getType() {
-    if (getObject() != null) {
-      return getObject().getType();
+  /**
+   * Gets the object type.
+   * 
+   * @return the type, may be null
+   */
+  public Class<?> getType() {
+    if (getConfig() != null) {
+      return getConfig().getType();
     } else {
       return null;
     }
@@ -148,11 +195,25 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1354792126:  // config
+        return getConfig();
+      case -294460212:  // uniqueId
+        return getUniqueId();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1354792126:  // config
+        setConfig((ConfigItem<?>) newValue);
+        return;
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
   }
 
@@ -162,7 +223,10 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      ConfigDocument other = (ConfigDocument) obj;
+      return JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -170,7 +234,36 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfig());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the config object held by the document.
+   * @return the value of the property
+   */
+  public ConfigItem<?> getConfig() {
+    return _config;
+  }
+
+  /**
+   * Gets the the {@code config} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigItem<?>> config() {
+    return metaBean().config().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
+   * @return the property, not null
+   */
+  public final Property<UniqueId> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -184,15 +277,39 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code config} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ConfigItem<?>> _config = DirectMetaProperty.ofReadWrite(
+        this, "config", ConfigDocument.class, (Class) ConfigItem.class);
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ConfigDocument.class, UniqueId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "config",
+        "uniqueId");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1354792126:  // config
+          return _config;
+        case -294460212:  // uniqueId
+          return _uniqueId;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -211,6 +328,22 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code config} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigItem<?>> config() {
+      return _config;
+    }
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
+    }
+
   }
 
   ///CLOVER:ON

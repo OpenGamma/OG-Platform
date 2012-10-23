@@ -14,7 +14,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -28,7 +27,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link PortfolioMaster}.
  */
-public class RemotePositionMaster extends AbstractRemoteDocumentMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class RemotePositionMaster
+    extends AbstractRemoteDocumentMaster<PositionDocument>
+    implements PositionMaster {
 
   /**
    * Creates an instance.
@@ -84,7 +85,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
 
     URI uri = DataPositionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(PositionDocument.class, document);
@@ -94,7 +95,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPositionResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -124,7 +125,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public PositionDocument correct(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPositionResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -148,7 +149,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -161,7 +162,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -174,7 +175,7 @@ public class RemotePositionMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PositionDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.position");
+      ArgumentChecker.notNull(replacementDocument.getPosition(), "document.position");
     }
     URI uri = (new DataPositionResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

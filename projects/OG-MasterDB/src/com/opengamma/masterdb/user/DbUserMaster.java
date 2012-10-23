@@ -45,7 +45,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * 
  */
-public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, UserDocument> implements UserMaster {
+public class DbUserMaster
+    extends AbstractDocumentDbMaster<UserDocument>
+    implements UserMaster {
+
   /** Logger. */
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMaster.class);
@@ -80,9 +83,9 @@ public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, Use
 
   @Override
   protected UserDocument insert(UserDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.user");
+    ArgumentChecker.notNull(document.getUser(), "document.user");
     
-    final ManageableOGUser user = document.getObject();
+    final ManageableOGUser user = document.getUser();
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -217,7 +220,7 @@ public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, Use
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setObject(user);
+      doc.setUser(user);
       _documents.add(doc);
     }
   }
@@ -238,7 +241,10 @@ public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, Use
       }
     }
     
-    return new UserSearchResult(docs);
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    UserSearchResult result = new UserSearchResult(vc);
+    result.getDocuments().addAll(docs);
+    return result;
   }
 
   @Override

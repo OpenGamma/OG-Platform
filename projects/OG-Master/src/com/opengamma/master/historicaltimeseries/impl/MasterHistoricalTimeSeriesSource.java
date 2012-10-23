@@ -49,10 +49,15 @@ import com.opengamma.util.tuple.Pair;
  */
 @PublicSPI
 public class MasterHistoricalTimeSeriesSource
-    extends AbstractMasterSource<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesSource {
-  
-  private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
+    extends AbstractMasterSource<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster>
+    implements HistoricalTimeSeriesSource {
+
+  /** Loggr. */
   private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalTimeSeriesSource.class);
+  /**
+   * An empty time-series.
+   */
+  private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
 
   /**
    * The resolver.
@@ -62,7 +67,6 @@ public class MasterHistoricalTimeSeriesSource
    * The clock.
    */
   private final Clock _clock = OpenGammaClock.getInstance();
-
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -477,8 +481,8 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
     HistoricalTimeSeriesInfoDocument historicalTimeSeriesInfoDocument = getMaster().get(uniqueId);
-    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getObject() != null && historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle() != null) {
-      return historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle().toBundle();  
+    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getInfo() != null && historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle() != null) {
+      return historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle().toBundle();  
     } else {
       s_logger.warn("Cannot find time series info document, or info field is null, or id bundle is null, returning null");
       return null;

@@ -8,22 +8,24 @@ package com.opengamma.language.client;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.marketdatasnapshot.*;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
 /**
  * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedMarketDataSnapshotMaster extends CombinedMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
+public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
 
-  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
+  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
       final MarketDataSnapshotMaster sessionMaster, final MarketDataSnapshotMaster userMaster, final MarketDataSnapshotMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
@@ -38,13 +40,19 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<ManageableM
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      MarketDataSnapshotSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }

@@ -29,6 +29,7 @@ import com.opengamma.util.PublicSPI;
  * The returned documents will match the search criteria.
  * See {@link ConfigSearchRequest} for more details.
  * 
+ * @param <T>  the type of the underlying config
  */
 @PublicSPI
 @BeanDefinition
@@ -69,7 +70,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
     List<ConfigItem<T>> result = new ArrayList<ConfigItem<T>>();
     if (getDocuments() != null) {
       for (ConfigDocument doc : getDocuments()) {
-        result.add((ConfigItem<T>) doc.getObject());
+        result.add((ConfigItem<T>) doc.getConfig());
       }
     }
     return result;

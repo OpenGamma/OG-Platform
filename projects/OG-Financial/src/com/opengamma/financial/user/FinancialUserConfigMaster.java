@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -29,14 +28,14 @@ import com.opengamma.master.config.ConfigSearchResult;
  * Wraps a view definition repository to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class FinancialUserConfigMaster extends AbstractFinancialUserMaster<ConfigItem<?>, ConfigDocument> implements ConfigMaster {
+public class FinancialUserConfigMaster extends AbstractFinancialUserMaster<ConfigDocument> implements ConfigMaster {
 
   /**
    * The underlying master.
    */
   private final ConfigMaster _underlyingConfigMaster;
 
-  private final AbstractChangeProvidingMaster<ConfigItem<?>, ConfigDocument> _changeProvidingMaster;
+  private final AbstractChangeProvidingMaster<ConfigDocument> _changeProvidingMaster;
 
   /**
    * Creates an instance.
@@ -121,7 +120,7 @@ public class FinancialUserConfigMaster extends AbstractFinancialUserMaster<Confi
   }
 
   @Override
-  public ConfigHistoryResult history(ConfigHistoryRequest request) {
+  public <R> ConfigHistoryResult<R> history(ConfigHistoryRequest<R> request) {
     return _underlyingConfigMaster.history(request);
   }
 
@@ -131,7 +130,7 @@ public class FinancialUserConfigMaster extends AbstractFinancialUserMaster<Confi
   }
 
   @Override
-  public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
+  public <R> ConfigSearchResult<R> search(ConfigSearchRequest<R> request) {
     return _underlyingConfigMaster.search(request);
   }
 }

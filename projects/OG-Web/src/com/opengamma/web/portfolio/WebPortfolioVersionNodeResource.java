@@ -80,7 +80,7 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
     PortfolioDocument doc = data().getVersioned();
     ManageablePortfolioNode node = data().getNode();
     out.put("portfolioDoc", doc);
-    out.put("portfolio", doc.getObject());
+    out.put("portfolio", doc.getPortfolio());
     out.put("parentNode", data().getParentNode());
     out.put("node", node);
     out.put("childNodes", node.getChildNodes());

@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -16,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface MarketDataSnapshotMaster extends AbstractChangeProvidingMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> {
+public interface MarketDataSnapshotMaster extends AbstractChangeProvidingMaster<MarketDataSnapshotDocument> {
 
   /**
    * Searches for snasphots matching the specified search criteria.

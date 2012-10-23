@@ -37,7 +37,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This snapshot master does not support versioning of snapshots.
  */
-public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
+public class InMemorySnapshotMaster
+    extends SimpleAbstractInMemoryMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
   //TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -45,7 +47,6 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSnap";
-
 
   /**
    * Creates an instance.
@@ -138,11 +139,11 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableMarketDataSnapshot snapshot = document.getObject();
+    final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
     snapshot.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
@@ -158,7 +159,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
   public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     final UniqueId uniqueId = document.getUniqueId();
     validateUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -211,6 +212,6 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   protected void validateDocument(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
   }
 }

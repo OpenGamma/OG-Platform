@@ -232,7 +232,7 @@ public final class ValuePropertyNames {
   public static final String VALUE_AGGREGATION = "ValueAggregation";
 
 
-  /*
+  /**
    * The underlying ticker is used in Equity Options to tie results to the vol surface used,
    * such that each column may represent, for example, the vega of all positions sensitive to changes in that specific surface
    */

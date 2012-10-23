@@ -6,7 +6,6 @@
 package com.opengamma.transport.amqp;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +26,6 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.context.Lifecycle;
 
 import com.google.common.base.Charsets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
@@ -183,13 +181,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
       return;
     }
     
-    String correlationId;
-    try {
-      correlationId = new String(correlationIdBytes, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new OpenGammaRuntimeException("This should never happen - UTF-8 should be supported", e);
-    }
-    
+    String correlationId = new String(correlationIdBytes, Charsets.UTF_8);
     ByteArrayMessageReceiver receiver = _correlationId2MessageReceiver.remove(correlationId);
     if (receiver != null) {
       receiver.messageReceived(message.getBody());      

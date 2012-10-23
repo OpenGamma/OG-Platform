@@ -39,7 +39,9 @@ import com.opengamma.util.paging.Paging;
 /**
  * An in-memory implementation of a position master.
  */
-public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class InMemoryPositionMaster
+    extends SimpleAbstractInMemoryMaster<PositionDocument>
+    implements PositionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -50,7 +52,6 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
    * A cache of trades by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageableTrade> _storeTrades = new ConcurrentHashMap<ObjectId, ManageableTrade>();
-
 
   /**
    * Creates an instance.
@@ -91,7 +92,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   protected void validateDocument(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
   }
 
   @Override
@@ -113,7 +114,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
 
   private PositionDocument clonePositionDocument(PositionDocument document) {
     PositionDocument clone = JodaBeanUtils.clone(document);
-    clone.setObject(new ManageablePosition(document.getObject()));
+    clone.setPosition(new ManageablePosition(document.getPosition()));
     return clone;
   }
 
@@ -121,7 +122,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
@@ -131,14 +132,14 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     setDocumentID(document, clonedDoc, uniqueId);
     setVersionTimes(document, clonedDoc, now, null, now, null);
     _store.put(objectId, clonedDoc);
-    storeTrades(clonedDoc.getObject().getTrades(), document.getObject().getTrades(), uniqueId);
+    storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
     _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   private void setDocumentID(final PositionDocument document, final PositionDocument clonedDoc, final UniqueId uniqueId) {
-    document.getObject().setUniqueId(uniqueId);
-    clonedDoc.getObject().setUniqueId(uniqueId);
+    document.getPosition().setUniqueId(uniqueId);
+    clonedDoc.getPosition().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     clonedDoc.setUniqueId(uniqueId);
   }
@@ -162,7 +163,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
   public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -172,14 +173,14 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     }
 
     final PositionDocument clonedDoc = clonePositionDocument(document);
-    removeTrades(storedDocument.getObject().getTrades());
+    removeTrades(storedDocument.getPosition().getTrades());
 
     setVersionTimes(document, clonedDoc, now, null, now, null);
 
     if (_store.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    storeTrades(clonedDoc.getObject().getTrades(), document.getObject().getTrades(), uniqueId);
+    storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
     _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
@@ -216,7 +217,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + objectIdentifiable);
     }
-    removeTrades(storedDocument.getObject().getTrades());
+    removeTrades(storedDocument.getPosition().getTrades());
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 

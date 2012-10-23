@@ -100,7 +100,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldA
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
@@ -561,10 +561,9 @@ public final class BloombergDataUtils {
   public static Set<ExternalIdBundle> getCurrentIdentifiers(PositionMaster positionMaster) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     PositionSearchRequest searchRequest = new PositionSearchRequest();
-    PositionSearchResult searchResult = positionMaster.search(searchRequest);
     Set<ExternalIdBundle> securities = new HashSet<ExternalIdBundle>();
-    for (PositionDocument doc : searchResult.getDocuments()) {
-      securities.add(doc.getObject().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
+    for (PositionDocument doc : PositionSearchIterator.iterable(positionMaster, searchRequest)) {
+      securities.add(doc.getPosition().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
     }
     return securities;
   }

@@ -153,7 +153,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       HistoricalTimeSeries latestHTS = _master.getTimeSeries(original.getSecond().getUniqueId(), VersionCorrection.LATEST);
       assertNotNull(latestHTS);
       //will update only for Bloomberg dataSource
-      if (original.getFirst().getObject().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
+      if (original.getFirst().getInfo().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
         assertEquals(previousWeekDay, latestHTS.getTimeSeries().getLatestTime());
         LocalDateDoubleTimeSeries originalTS = original.getSecond().getTimeSeries();
         LocalDate earliest = originalTS.getEarliestTime();
@@ -178,7 +178,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       HistoricalTimeSeries latestHTS = _master.getTimeSeries(original.getSecond().getUniqueId(), VersionCorrection.LATEST);
       assertNotNull(latestHTS);
       //will update only for Bloomberg dataSource
-      if (original.getFirst().getObject().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
+      if (original.getFirst().getInfo().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
         assertEquals(endDate, latestHTS.getTimeSeries().getLatestTime());
       } else {
         assertEquals(original.getSecond().getTimeSeries().getLatestTime(), latestHTS.getTimeSeries().getLatestTime());
@@ -204,7 +204,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       // time-series with previous start date, but this may be different in production
       assertEquals(original.getSecond().getTimeSeries().getEarliestTime(), latestHTS.getTimeSeries().getEarliestTime());
       // will reload only for Bloomberg dataSource
-      if (original.getFirst().getObject().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
+      if (original.getFirst().getInfo().getDataSource().equals(BLOOMBERG_DATA_SOURCE_NAME)) {
         assertTrue(!original.getSecond().getTimeSeries().equals(latestHTS.getTimeSeries()));
       } else {
         assertEquals(original.getSecond().getTimeSeries(), latestHTS.getTimeSeries());
@@ -248,7 +248,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
           List<HistoricalTimeSeriesInfoDocument> documents = searchResult.getDocuments();
           assertNotNull(documents);
           assertTrue(documents.size() == 1);
-          HistoricalTimeSeries hts = _master.getTimeSeries(documents.get(0).getObject().getTimeSeriesObjectId(), VersionCorrection.LATEST, 
+          HistoricalTimeSeries hts = _master.getTimeSeries(documents.get(0).getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, 
               HistoricalTimeSeriesGetFilter.ofRange(start, end));
           assertNotNull(hts);
           assertNotNull(hts.getTimeSeries());
@@ -319,7 +319,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
             LocalDateDoubleTimeSeries timeSeries = resultMap.get(identifiers);
             //            assertEquals(start, timeSeries.getEarliestTime());
             //            assertEquals(end, timeSeries.getLatestTime());
-            UniqueId tsUid = _master.updateTimeSeriesDataPoints(added.getObject().getTimeSeriesObjectId(), timeSeries);
+            UniqueId tsUid = _master.updateTimeSeriesDataPoints(added.getInfo().getTimeSeriesObjectId(), timeSeries);
             
             HistoricalTimeSeries hts = _master.getTimeSeries(tsUid);
             assertNotNull(hts);

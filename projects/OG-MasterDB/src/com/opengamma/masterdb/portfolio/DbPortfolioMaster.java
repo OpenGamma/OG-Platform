@@ -67,7 +67,9 @@ import com.opengamma.util.tuple.LongObjectPair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
+public class DbPortfolioMaster
+    extends AbstractDocumentDbMaster<PortfolioDocument>
+    implements PortfolioMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMaster.class);
@@ -108,7 +110,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final PortfolioSearchResult result = new PortfolioSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final PortfolioSearchResult result = new PortfolioSearchResult(vc);
+    
     final List<ObjectId> portfolioObjectIds = request.getPortfolioObjectIds();
     final List<ObjectId> nodeObjectIds = request.getNodeObjectIds();
     if ((portfolioObjectIds != null && portfolioObjectIds.size() == 0) ||
@@ -116,7 +120,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -194,8 +198,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
    */
   @Override
   protected PortfolioDocument insert(final PortfolioDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
-    ArgumentChecker.notNull(document.getObject().getRootNode(), "document.portfolio.rootNode");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
     final Long portfolioId = nextId("prt_master_seq");
     final Long portfolioOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : portfolioId);
@@ -209,19 +213,19 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", StringUtils.defaultString(document.getObject().getName()))
+      .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()))
       .addValue("visibility", document.getVisibility().getVisibilityLevel());
     
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>(256);
     final List<DbMapSqlParameterSource> posList = new ArrayList<DbMapSqlParameterSource>(256);
-    insertBuildArgs(portfolioUid, null, document.getObject().getRootNode(), document.getUniqueId() != null,
+    insertBuildArgs(portfolioUid, null, document.getPortfolio().getRootNode(), document.getUniqueId() != null,
         portfolioId, portfolioOid, null, null,
         new AtomicInteger(1), 0, nodeList, posList);
     
     // the arguments for inserting into the portifolio_attribute table
     final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
-    for (Entry<String, String> entry : document.getObject().getAttributes().entrySet()) {
+    for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
       final long prtAttrId = nextId("prt_portfolio_attr_seq");
       final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
           .addValue("attr_id", prtAttrId)
@@ -243,7 +247,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
     getJdbcTemplate().batchUpdate(sqlAttributes, prtAttrList.toArray(new DbMapSqlParameterSource[prtAttrList.size()]));
     
     // set the uniqueId
-    document.getObject().setUniqueId(portfolioUid);
+    document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
     return document;
   }
@@ -342,7 +346,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
   }
 
   /**
@@ -362,7 +366,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<ManageablePortfo
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
   }
 
   //-------------------------------------------------------------------------

@@ -52,7 +52,7 @@ public class HistoricalTimeSeriesMasterPopulator {
             LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, 7);
             assertTrue(timeSeries.size() == 7);
             assertEquals(start, timeSeries.getEarliestTime());
-            htsMaster.updateTimeSeriesDataPoints(doc.getObject().getTimeSeriesObjectId(), timeSeries);
+            htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
           }
         }
       }

@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractComponentTool;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
@@ -53,9 +52,10 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigMasterIterator;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -140,8 +140,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     for (ConfigMaster configMaster : configMasters) {
       ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
       request.setName(viewDefinitionName);
-      for (ConfigItem<ViewDefinition> item : ConfigMasterIterator.iterable(configMaster, request)) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, item.getValue(), viewExecutionOptions, task));
+      for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
+        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, (ViewDefinition) doc.getConfig().getValue(), viewExecutionOptions, task));
         executor.execute(task);
       }
     }

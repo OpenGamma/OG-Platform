@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -47,6 +48,8 @@ public class PresentValueCreditDefaultSwap {
   // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
   // TODO : Fix the bug when val date is very close to mat date
 
+  // TODO : Remember to fix the presentValue calc
+
   // -------------------------------------------------------------------------------------------------
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
@@ -74,7 +77,7 @@ public class PresentValueCreditDefaultSwap {
     }
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -(cds.getPremiumLegCoupon() / 10000.0) * (presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
+    double presentValue = 0.0; //-(cds.getPremiumLegCoupon() / 10000.0) * (presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {

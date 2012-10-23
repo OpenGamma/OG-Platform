@@ -24,7 +24,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -33,7 +32,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link HistoricalTimeSeriesMaster}.
  */
-public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class RemoteHistoricalTimeSeriesMaster
+    extends AbstractRemoteDocumentMaster<HistoricalTimeSeriesInfoDocument>
+    implements HistoricalTimeSeriesMaster {
 
   /**
    * Creates an instance.
@@ -98,7 +99,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
   @Override
   public HistoricalTimeSeriesInfoDocument add(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
 
     URI uri = DataHistoricalTimeSeriesMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
@@ -108,7 +109,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
   @Override
   public HistoricalTimeSeriesInfoDocument update(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHistoricalTimeSeriesResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -138,7 +139,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
   @Override
   public HistoricalTimeSeriesInfoDocument correct(final HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataHistoricalTimeSeriesResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -218,7 +219,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -231,7 +232,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -244,7 +245,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteDocumentMast
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (HistoricalTimeSeriesInfoDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.info");
+      ArgumentChecker.notNull(replacementDocument.getInfo(), "document.info");
     }
     URI uri = (new DataHistoricalTimeSeriesResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

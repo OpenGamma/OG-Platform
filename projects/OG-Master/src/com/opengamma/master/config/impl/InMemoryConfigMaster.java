@@ -147,17 +147,17 @@ public class InMemoryConfigMaster implements ConfigMaster {
   @Override
   public ConfigDocument add(ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.object");
-    ArgumentChecker.notNull(document.getObject().getName(), "document.object.name");
-    ArgumentChecker.notNull(document.getObject().getValue(), "document.object.value");
+    ArgumentChecker.notNull(document.getConfig(), "document.object");
+    ArgumentChecker.notNull(document.getConfig().getName(), "document.object.name");
+    ArgumentChecker.notNull(document.getConfig().getValue(), "document.object.value");
 
-    final ConfigItem<?> item = document.getObject();
+    final ConfigItem<?> item = document.getConfig();
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
     item.setUniqueId(uniqueId);
     final ConfigDocument doc = new ConfigDocument(item);
-    doc.setObject(document.getObject());
+    doc.setConfig(document.getConfig());
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     _store.put(objectId, doc);
@@ -170,8 +170,8 @@ public class InMemoryConfigMaster implements ConfigMaster {
   public ConfigDocument update(ConfigDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.object");
-    ArgumentChecker.notNull(document.getObject().getValue(), "document.object.value");
+    ArgumentChecker.notNull(document.getConfig(), "document.object");
+    ArgumentChecker.notNull(document.getConfig().getValue(), "document.object.value");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -231,7 +231,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     if (request.isConfigTypes()) {
       Set<Class<?>> types = Sets.newHashSet();
       for (ConfigDocument doc : _store.values()) {
-        types.add(doc.getObject().getType());
+        types.add(doc.getConfig().getType());
       }
       result.getConfigTypes().addAll(types);
     }
@@ -308,19 +308,19 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   private <T> void validateDocument(ConfigDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.object");
-    ArgumentChecker.notNull(document.getObject().getValue(), "document.object.value");
+    ArgumentChecker.notNull(document.getConfig(), "document.object");
+    ArgumentChecker.notNull(document.getConfig().getValue(), "document.object.value");
     ArgumentChecker.notNull(document.getName(), "document.name");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigHistoryResult history(ConfigHistoryRequest request) {
+  public <R> ConfigHistoryResult<R> history(ConfigHistoryRequest<R> request) {
     final Class<?> type = request.getType();
     final ObjectId oid = request.getObjectId();
     PagingRequest pagingRequest = request.getPagingRequest();
-
-    return new ConfigHistoryResult(
+    
+    return new ConfigHistoryResult<R>(
       pagingRequest.select(
         functional(_store.keySet())
           .map(new Function1<ObjectId, ConfigDocument>() {

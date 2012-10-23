@@ -8,21 +8,25 @@ package com.opengamma.language.client;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.portfolio.*;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioHistoryRequest;
+import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.PortfolioSearchRequest;
+import com.opengamma.master.portfolio.PortfolioSearchResult;
 
 /**
  * A {@link PortfolioMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedPortfolioMaster extends CombinedMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
+public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
 
-  /* package */CombinedPortfolioMaster(final CombiningMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster, ?> combining, final PortfolioMaster sessionMaster, final PortfolioMaster userMaster,
+  /* package */CombinedPortfolioMaster(final CombiningMaster<PortfolioDocument, PortfolioMaster, ?> combining, final PortfolioMaster sessionMaster, final PortfolioMaster userMaster,
       final PortfolioMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
@@ -36,13 +40,19 @@ public class CombinedPortfolioMaster extends CombinedMaster<ManageablePortfolio,
   public PortfolioSearchResult search(final PortfolioSearchRequest request) {
     final PortfolioSearchResult result = new PortfolioSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      PortfolioSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }

@@ -74,7 +74,9 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePosition, PositionDocument> implements PositionMaster {
+public class DbPositionMaster
+    extends AbstractDocumentDbMaster<PositionDocument>
+    implements PositionMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);
@@ -102,7 +104,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePositio
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final PositionSearchResult result = new PositionSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final PositionSearchResult result = new PositionSearchResult(vc);
+    
     final ExternalIdSearch securityIdSearch = request.getSecurityIdSearch();
     final List<ObjectId> positionObjectIds = request.getPositionObjectIds();
     final List<ObjectId> tradeObjectIds = request.getTradeObjectIds();
@@ -112,7 +116,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePositio
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -207,12 +211,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePositio
    */
   @Override
   protected PositionDocument insert(final PositionDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.position");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
 
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
     final UniqueId positionUid = createUniqueId(positionOid, positionId);
-    final ManageablePosition position = document.getObject();
+    final ManageablePosition position = document.getPosition();
 
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
@@ -377,7 +381,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePositio
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getTrades().get(0); // SQL loads desired trade as only trade
+    return docs.get(0).getPosition().getTrades().get(0); // SQL loads desired trade as only trade
   }
 
   /**
@@ -397,7 +401,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<ManageablePositio
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);
     }
-    return docs.get(0).getObject().getTrades().get(0); // SQL loads desired trade as only trade
+    return docs.get(0).getPosition().getTrades().get(0); // SQL loads desired trade as only trade
   }
 
   //-------------------------------------------------------------------------

@@ -41,7 +41,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
+public class InMemorySecurityMaster
+    extends SimpleAbstractInMemoryMaster<SecurityDocument>
+    implements SecurityMaster {
   // TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -93,7 +95,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
     if (request.isSecurityTypes()) {
       Set<String> types = new HashSet<String>();
       for (SecurityDocument doc : _store.values()) {
-        types.add(doc.getObject().getSecurityType());
+        types.add(doc.getSecurity().getSecurityType());
       }
       result.getSecurityTypes().addAll(types);
     }
@@ -140,11 +142,11 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableSecurity security = document.getObject();
+    final ManageableSecurity security = document.getSecurity();
     security.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final SecurityDocument doc = new SecurityDocument(security);
@@ -160,7 +162,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -213,6 +215,6 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
   @Override
   protected void validateDocument(SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
   }
 }

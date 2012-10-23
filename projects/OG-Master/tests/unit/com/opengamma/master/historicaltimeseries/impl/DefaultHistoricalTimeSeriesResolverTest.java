@@ -54,7 +54,7 @@ public class DefaultHistoricalTimeSeriesResolverTest {
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigItem<HistoricalTimeSeriesRating> testDoc = new ConfigItem<HistoricalTimeSeriesRating>(createRules());
+    ConfigItem<HistoricalTimeSeriesRating> testDoc = ConfigItem.of(createRules());
     testDoc.setName(CONFIG_DOC_NAME);
     ConfigMasterUtils.storeByName(configMaster, testDoc);
   }
@@ -90,9 +90,9 @@ public class DefaultHistoricalTimeSeriesResolverTest {
       HistoricalTimeSeriesResolutionResult resolutionResult = _infoResolver.resolve(identifierBundleWithDates.toBundle(), null, null, null, "PX_LAST", CONFIG_DOC_NAME);
       assertNotNull(resolutionResult);
       HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId());
-      assertEquals(DEFAULT_DATA_SOURCE, doc.getObject().getDataSource());
-      assertEquals(DEFAULT_DATA_PROVIDER, doc.getObject().getDataProvider());
-      assertEquals("PX_LAST", doc.getObject().getDataField());
+      assertEquals(DEFAULT_DATA_SOURCE, doc.getInfo().getDataSource());
+      assertEquals(DEFAULT_DATA_PROVIDER, doc.getInfo().getDataProvider());
+      assertEquals("PX_LAST", doc.getInfo().getDataField());
     }
   }
 

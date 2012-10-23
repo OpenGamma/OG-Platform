@@ -45,7 +45,7 @@ public class EHCachingMasterConfigSourceTest {
   
   private static final ConfigItem<ExternalId> ITEM;
   static {
-    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(CONFIG);
+    ConfigItem<ExternalId> item = ConfigItem.of(CONFIG);
     item.setName(CONFIG_NAME);
     item.setType(ExternalId.class);
     ITEM = item;
@@ -105,7 +105,7 @@ public class EHCachingMasterConfigSourceTest {
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
     
     final ExternalId lastestConfig = ExternalId.of ("Test", "sec1");
-    addedDoc.setObject(ConfigItem.of(lastestConfig));
+    addedDoc.setConfig(ConfigItem.of(lastestConfig));
     _underlyingConfigMaster.update(addedDoc);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);

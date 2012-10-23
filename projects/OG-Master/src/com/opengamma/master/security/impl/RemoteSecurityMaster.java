@@ -13,7 +13,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -28,7 +27,9 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link SecurityMaster}.
  */
-public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
+public class RemoteSecurityMaster
+    extends AbstractRemoteDocumentMaster<SecurityDocument>
+    implements SecurityMaster {
 
   /**
    * Creates an instance.
@@ -93,7 +94,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
 
     URI uri = DataSecurityMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(SecurityDocument.class, document);
@@ -103,7 +104,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataSecurityResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -133,7 +134,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
   @Override
   public SecurityDocument correct(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataSecurityResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -148,7 +149,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (SecurityDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.security");
+      ArgumentChecker.notNull(replacementDocument.getSecurity(), "document.security");
     }
     URI uri = (new DataSecurityResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -161,7 +162,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (SecurityDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.security");
+      ArgumentChecker.notNull(replacementDocument.getSecurity(), "document.security");
     }
     URI uri = (new DataSecurityResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -174,7 +175,7 @@ public class RemoteSecurityMaster extends AbstractRemoteDocumentMaster<Manageabl
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (SecurityDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getObject(), "document.security");
+      ArgumentChecker.notNull(replacementDocument.getSecurity(), "document.security");
     }
     URI uri = (new DataSecurityResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

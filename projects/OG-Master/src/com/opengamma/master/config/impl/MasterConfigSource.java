@@ -76,7 +76,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the underlying config master.
    *
@@ -94,7 +93,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
-
 
   /**
    * Gets the change manager.
@@ -127,20 +125,92 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Search for configuration elements using a request object.
    *
-   * @param <T>  the type of configuration element
+   * @param <R>  the type of configuration element
    * @param request  the request object with value for search fields, not null
    * @return all configuration elements matching the request, not null
    */
-  public <T> List<ConfigItem<T>> search(final ConfigSearchRequest<T> request) {
+  public <R> List<ConfigItem<R>> search(final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
     request.setVersionCorrection(getVersionCorrection());
-    ConfigSearchResult<T> searchResult = getMaster().search(request);
+    ConfigSearchResult<R> searchResult = getMaster().search(request);
     return searchResult.getValues();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+    ConfigItem<?> item = getMaster().get(uniqueId).getConfig();
+    if (clazz.isAssignableFrom(item.getType())) {
+      return (R) item.getValue();
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getMaster().get(objectId, versionCorrection).getConfig();
+  }
+
+  @Override
+  public ConfigItem<?> get(UniqueId uniqueId) {
+    return getMaster().get(uniqueId).getConfig();
+  }
+
+  @Override
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigItem<R> result = get(clazz, configName, versionCorrection);
+    if (result != null) {
+      return result.getValue();
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getConfig();
+    if (clazz.isAssignableFrom(item.getType())) {
+      return (R) item.getValue();
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
+    searchRequest.setName(configName);
+    searchRequest.setVersionCorrection(versionCorrection);
+    return functional(getMaster().search(searchRequest).getValues()).first();
+  }
+
+  @Override
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {    
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
+    searchRequest.setType(clazz);
+    searchRequest.setVersionCorrection(versionCorrection);
+    return getMaster().search(searchRequest).getValues();
+  }
+
+  @Override
+  public <R> R getLatestByName(Class<R> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
+  }
+
+  @Override
+  public Map<UniqueId, ConfigItem<?>> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, ConfigDocument> result = getMaster().get(uniqueIds);
+    Map<UniqueId, ConfigItem<?>> map = newHashMap();
+    for (UniqueId uid : result.keySet()) {
+      map.put(uid, result.get(uid).getConfig());
+    }
+    return map;
   }
 
   //-------------------------------------------------------------------------
@@ -152,81 +222,5 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     }
     return str + "]";
   }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  @Override
-  @SuppressWarnings({"unchecked"})
-  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    ConfigItem<?> item = getMaster().get(uniqueId).getObject();
-    if (clazz.isAssignableFrom(item.getType())) {
-      return (T) item.getValue();
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
-    return getMaster().get(objectId, versionCorrection).getObject();
-  }
-
-  @Override
-  public ConfigItem<?> get(UniqueId uniqueId) {
-    return getMaster().get(uniqueId).getObject();
-  }
-
-  @Override
-  public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigItem<T> result = get(clazz, configName, versionCorrection);
-    if(result != null){
-      return result.getValue();
-    }
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getObject();
-    if (clazz.isAssignableFrom(item.getType())) {
-      return (T) item.getValue();
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
-    searchRequest.setName(configName);
-    searchRequest.setVersionCorrection(versionCorrection);
-    return functional(getMaster().search(searchRequest).getValues()).first();
-  }
-
-  @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {    
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
-    searchRequest.setType(clazz);
-    searchRequest.setVersionCorrection(versionCorrection);
-    return getMaster().search(searchRequest).getValues();
-  }
-
-  @Override
-  public <T> T getLatestByName(Class<T> clazz, String name) {
-    return getConfig(clazz, name, VersionCorrection.LATEST);
-  }
-
-  @Override
-  public Map<UniqueId, ConfigItem<?>> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, ConfigDocument> result = getMaster().get(uniqueIds);
-    Map<UniqueId, ConfigItem<?>> map = newHashMap();
-    for (UniqueId uid : result.keySet()) {
-      map.put(uid, result.get(uid).getObject());
-    }
-    return map;
-  }
-
 
 }

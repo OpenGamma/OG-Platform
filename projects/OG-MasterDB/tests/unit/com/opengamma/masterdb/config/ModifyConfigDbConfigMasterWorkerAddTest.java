@@ -66,7 +66,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getConfig().getValue());
     assertEquals("TestConfig", test.getName());
   }
   

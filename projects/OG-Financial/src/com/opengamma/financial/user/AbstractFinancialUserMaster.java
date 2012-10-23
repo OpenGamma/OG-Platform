@@ -9,15 +9,16 @@ import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 
 /**
  * Base class for wrapping masters to trap calls to record user based information,
  * allowing clean up and hooks for access control logics if needed.
+ * 
+ * @param <D>  the type of the document
  */
-public abstract class AbstractFinancialUserMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> implements AbstractChangeProvidingMaster<T, D> {
+public abstract class AbstractFinancialUserMaster<D extends AbstractDocument> implements AbstractChangeProvidingMaster<D> {
 
   /**
    * The user name.

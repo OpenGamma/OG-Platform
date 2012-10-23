@@ -70,7 +70,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMaster.class);
@@ -208,8 +208,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-
-    final HistoricalTimeSeriesInfoSearchResult result = new HistoricalTimeSeriesInfoSearchResult();
+    
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final HistoricalTimeSeriesInfoSearchResult result = new HistoricalTimeSeriesInfoSearchResult(vc);
+    
     final List<ObjectId> objectIds = request.getObjectIds();
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -217,7 +219,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
@@ -306,19 +308,19 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
   @Override
   public HistoricalTimeSeriesInfoDocument add(HistoricalTimeSeriesInfoDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getObject(), "document.info");
-    ArgumentChecker.notNull(document.getObject().getName(), "document.info.name");
-    ArgumentChecker.notNull(document.getObject().getDataField(), "document.info.dataField");
-    ArgumentChecker.notNull(document.getObject().getDataSource(), "document.info.dataSource");
-    ArgumentChecker.notNull(document.getObject().getDataProvider(), "document.info.dataProvider");
-    ArgumentChecker.notNull(document.getObject().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
+    ArgumentChecker.notNull(document.getInfo().getName(), "document.info.name");
+    ArgumentChecker.notNull(document.getInfo().getDataField(), "document.info.dataField");
+    ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
+    ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
+    ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
 
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setDataField(document.getObject().getDataField());
-    request.setDataSource(document.getObject().getDataSource());
-    request.setDataProvider(document.getObject().getDataProvider());
-    request.setObservationTime(document.getObject().getObservationTime());
-    request.setExternalIdSearch(new ExternalIdSearch(document.getObject().getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
+    request.setDataField(document.getInfo().getDataField());
+    request.setDataSource(document.getInfo().getDataSource());
+    request.setDataProvider(document.getInfo().getDataProvider());
+    request.setObservationTime(document.getInfo().getObservationTime());
+    request.setExternalIdSearch(new ExternalIdSearch(document.getInfo().getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
     HistoricalTimeSeriesInfoSearchResult result = search(request);
     if (result.getDocuments().size() > 0) {
       throw new DataDuplicationException("Unable to add as similar row exists already: " + result.getDocuments().get(0).getObjectId() + " matched " + request);
@@ -334,17 +336,17 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
    */
   @Override
   protected HistoricalTimeSeriesInfoDocument insert(final HistoricalTimeSeriesInfoDocument document) {
-    ArgumentChecker.notNull(document.getObject(), "document.info");
-    ArgumentChecker.notNull(document.getObject().getName(), "document.info.name");
-    ArgumentChecker.notNull(document.getObject().getDataField(), "document.info.dataField");
-    ArgumentChecker.notNull(document.getObject().getDataSource(), "document.info.dataSource");
-    ArgumentChecker.notNull(document.getObject().getDataProvider(), "document.info.dataProvider");
-    ArgumentChecker.notNull(document.getObject().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
+    ArgumentChecker.notNull(document.getInfo().getName(), "document.info.name");
+    ArgumentChecker.notNull(document.getInfo().getDataField(), "document.info.dataField");
+    ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
+    ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
+    ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
 
     final long docId = nextId("hts_master_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the table
-    final ManageableHistoricalTimeSeriesInfo info = document.getObject();
+    final ManageableHistoricalTimeSeriesInfo info = document.getInfo();
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
@@ -392,7 +394,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
     final UniqueId uniqueId = createUniqueId(docOid, docId);
     info.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
-    document.getObject().setTimeSeriesObjectId(uniqueId.getObjectId().withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
+    document.getInfo().setTimeSeriesObjectId(uniqueId.getObjectId().withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
     return document;
   }
 
