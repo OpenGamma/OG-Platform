@@ -125,8 +125,7 @@ $.register_module({
                         close_dropmenu(ds_menu);
                     });
                     if (url_config) {
-                        console.log(url_config)
-                        // ag_menu.replay_query();
+                        // console.log(url_config), ag_menu.replay_query();
                     }
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');
