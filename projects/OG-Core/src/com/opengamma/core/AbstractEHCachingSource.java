@@ -199,12 +199,13 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     }
     Element e = _uidCache.get(uid);
     if (e != null) {
-      s_logger.debug("retrieved security: {} from single-security-cache", e.getValue());
-      final V existing = _frontCache.putIfAbsent(uid, (V) e.getValue());
+      result = (V) e.getValue();
+      s_logger.debug("retrieved object: {} from uid-cache", result);
+      final V existing = _frontCache.putIfAbsent(uid, result);
       if (existing != null) {
         return existing;
       } else {
-        return (V) e.getValue();
+        return result;
       }
     } else {
       result = getUnderlying().get(uid);
