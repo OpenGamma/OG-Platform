@@ -192,6 +192,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
     }
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_opt() {
     _cacheManager.clearAll();
     testResolve_dates(true, null, null, null, true, 0x3C21D);
@@ -223,6 +224,7 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
     testResolve_dates(true, _source2, _provider2, _key2, false, 0x3C01D);
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_pess() {
     _cacheManager.clearAll();
     testResolve_dates(false, null, null, null, true, 0x1420E);
