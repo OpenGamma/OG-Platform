@@ -14,41 +14,61 @@ $.register_module({
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
         return function (selector, placeholder, data) {
-            var $wrapper, $input, $button, autocomplete_obj,
-                open = function () {$input.autocomplete('search', '').select();};
-            placeholder = placeholder || '';
-            autocomplete_obj = {
+            var combo = this;
+            combo.state = 'blurred';
+            combo.open = function () {
+                combo.$input.autocomplete('search', '').select();
+            };
+            combo.placeholder = placeholder || '';
+            combo.autocomplete_obj = {
                 minLength: 0, delay: 0,
-                open: function() {$(this).autocomplete('widget').blurkill(function () {$input.autocomplete('close')});},
+                open: function() {
+                    $(this).autocomplete('widget').blurkill(function () {
+                        combo.$input.autocomplete('close');
+                    });
+                },
                 source: function (req, res) {
                     var escaped = $.ui.autocomplete.escapeRegex(req.term),
                         matcher = new RegExp(escaped, 'i'),
                         htmlize = function (str) {
-                            return !req.term ? str : str.replace(
-                                new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'),
-                                '<strong>$1</strong>'
+                        return !req.term ? str : str.replace(
+                                new RegExp(
+                                    '(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'
+                                ), '<strong>$1</strong>'
                             );
                         };
                     res(data.reduce(function (acc, val) {
-                        if (!req.term || matcher.test(val.name)) acc.push({label: htmlize(val.name), value: val.id});
+                        if (!req.term || matcher.test(val.name))
+                            acc.push({label: htmlize(val.name), value: val.id});
                         return acc;
                     }, []));
                 }
             };
-            $wrapper = $('<div />'); // wrap input in div to enable input width at 100% of parent, FF, IE
-            $input = $wrapper.html('<input type="text" />').find('input')
-                .autocomplete(autocomplete_obj).attr('placeholder', placeholder).on('mouseup', open)
-                .on('blur', function () {if ($input.val() === placeholder) $input.val('');})
-                .on('focus', function () {$input.trigger('open', $input)});
-            // Enable html list items
-            $input.data('autocomplete')._renderItem = function(ul, item) {
-                return $('<li></li>').data('item.autocomplete', item).append('<a>' + item.label + '</a>').appendTo(ul);
+            // wrap input in div, enable input width 100% of parent, FF, IE
+            combo.$wrapper = $('<div>').html('<input type="text">');
+            combo.$input = combo.$wrapper.find('input');
+            combo.$input
+                .autocomplete(combo.autocomplete_obj)
+                .attr('placeholder', placeholder)
+                .on('mouseup', combo.open)
+                .on('blur', function () {
+                    combo.state = 'blurred';
+                    if (combo.$input.val() === placeholder) combo.$input.val('');
+                })
+                .on('focus', function () {
+                    combo.state = 'focused';
+                    combo.$input.trigger('open', combo.$input);
+                });
+            combo.$input.data('autocomplete')._renderItem = function(ul, item) { // Enable html list items
+                return $('<li></li>').data('item.autocomplete', item).append('<a>' + item.label + '</a>')
+                    .appendTo(ul);
             };
-            $button = $('<div class="OG-icon og-icon-down"></div>').on('click', function () {
-                return $input.autocomplete('widget').is(':visible') ? $input.autocomplete('close').select() : open();
+            combo.$button = $('<div class="OG-icon og-icon-down"></div>').on('click', function () {
+                return combo.$input.autocomplete('widget').is(':visible') ? 
+                    combo.$input.autocomplete('close').select() : combo.open();
             });
-            $([$wrapper, $button]).prependTo(selector);
-            return $input;
-        }
+            $([combo.$wrapper, combo.$button]).prependTo(selector);
+            return combo;
+        };
     }
 });

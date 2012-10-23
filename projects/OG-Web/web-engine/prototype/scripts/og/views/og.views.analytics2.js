@@ -15,6 +15,7 @@ $.register_module({
                 og.api.text({module: 'og.analytics.grid.configure_tash'}).pipe(function (markup) {
                     var template = Handlebars.compile(markup);
                     $('.OG-layout-analytics-center').html(template({}));
+                    og.analytics.form('.OG-layout-analytics-masthead');
                 });
             },
             load: function (args) {

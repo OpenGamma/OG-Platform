@@ -181,6 +181,7 @@
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
+    <fragment>/scripts/lib/js.ext.function.prototype.bind.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
@@ -241,6 +242,7 @@
     <fragment>/scripts/lib/JSurface3D.Axis.js</fragment>
     <fragment>/scripts/lib/JSurface3D.SurfacePlane.js</fragment>
     <fragment>/scripts/lib/stats.js</fragment>
+    <fragment>/scripts/lib/event.emitter.js</fragment>
   </bundle>
   <bundle id="core.js">
       <fragment>/scripts/og/common/og.common.core.js</fragment>
@@ -267,6 +269,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.dropmenu.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.AutoCombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
@@ -308,6 +311,9 @@
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.dropmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.aggregators_menu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.datasources_menu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
