@@ -90,7 +90,7 @@ $.register_module({
         var fire = og.common.events.fire;
         var init_data = function () {
             var grid = this, config = grid.config;
-            grid.elements.parent.html('initializing data connection...');
+            grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);})
                 .on('types', function (types) {

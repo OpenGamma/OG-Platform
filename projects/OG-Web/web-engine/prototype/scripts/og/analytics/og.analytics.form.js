@@ -22,7 +22,8 @@ $.register_module({
                     closed: 'dropmenu:closed',
                     closeall: 'dropmenu:closeall',
                     queryselected: 'dropmenu:queryselected',
-                    querycancelled: 'dropmenu:querycancelled'
+                    querycancelled: 'dropmenu:querycancelled',
+                    viewloaditem: 'og:view:analytics:loaditem'
                 };
             Status = function (selector) {
                 var status = this, interval, init = false;
@@ -123,6 +124,9 @@ $.register_module({
                     emitter.addListener(events.closeall, function () {
                         close_dropmenu(ag_menu);
                         close_dropmenu(ds_menu);
+                    });
+                    emitter.addListener(events.viewloaditem, function(config) {
+                        console.log(config);
                     });
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');

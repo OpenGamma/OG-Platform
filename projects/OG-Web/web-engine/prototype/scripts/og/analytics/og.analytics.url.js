@@ -29,7 +29,7 @@ $.register_module({
                 $(main_selector).html('requesting...');
                 return (last_object.main = params), go(), url;
             },
-            process: function (args) {
+            process: function (args, handler) {
                 og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
                     var config = result.data.data, current_main, panel, cellmenu;
                     panels.forEach(function (panel) {delete last_object[panel];});
@@ -57,6 +57,7 @@ $.register_module({
                         });
                     });
                     panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
+                    if (handler) handler();
                 });
                 return url;
             },
