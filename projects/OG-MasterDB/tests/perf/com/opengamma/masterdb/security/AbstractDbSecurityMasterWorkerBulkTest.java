@@ -29,6 +29,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -158,7 +159,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableSecurity security = test.getObject();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
@@ -174,7 +175,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableSecurity security = test.getObject();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
@@ -190,7 +191,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableSecurity security = test.getObject();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity201", security.getName());
@@ -206,7 +207,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableSecurity security = test.getObject();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity202", security.getName());
