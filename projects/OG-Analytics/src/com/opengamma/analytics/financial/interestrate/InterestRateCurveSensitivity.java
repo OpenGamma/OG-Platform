@@ -100,6 +100,9 @@ public class InterestRateCurveSensitivity {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 
+  //REVIEW emcleod 23/10/2012 These next two methods look like an argument for splitting this class into two, with
+  // the first acting more like a list (i.e. not allowing duplicate times) and the type that has been cleaned looking
+  // more like a set. Probably worth splitting the two.
   /**
    * Return a new sensitivity cleaned by sorting the times and adding the values at the duplicate times.
    * @return The cleaned sensitivity.
@@ -177,10 +180,7 @@ public class InterestRateCurveSensitivity {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof InterestRateCurveSensitivity)) {
       return false;
     }
     final InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;
