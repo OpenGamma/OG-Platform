@@ -35,21 +35,21 @@ $.register_module({
             },
             SURFACE_DATA: function (value, standalone) {
                 if (!standalone) return '** SURFACE DATA **';
-                var x, xs, y, ys, z, zs, x_len, y_len, z_len, index = 0, result = [];
-                value = value.v || value;
-                for (x = 0, x_len = (xs = value.x_labels).length; x < x_len; x += 1)
-                    for (y = 0, y_len = (ys = value.y_labels).length; y < y_len; y += 1)
-                        if (value.z_labels && (zs = value.z_labels).length)
-                            for (z = 0, z_len = value.z_labels.length; z < z_len; z += 1)
-                                result.push([xs[x], ys[y], zs[z], vol[index++]].join('\t'));
-                        else result.push([xs[x], ys[y], value.vol[index++]].join('\t'));
-                return [z_len ? ['X', 'Y', 'Z', 'VOL'].join('\t') : ['X', 'Y', 'VOL'].join('\t')]
-                    .concat(result).join('\n');
+                var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
+                col_len = (cols = value.x_labels).length;
+                row_len = (rows = value.y_labels).length;
+                data = value.vol;
+                result = ['\t' + cols.join('\t')];
+                for (i = 0; i < row_len; i += 1) {
+                    for (j = 0, row = [rows[i]]; j < col_len; j += 1) row.push(data[index++]);
+                    result.push(row.join('\t'));
+                }
+                return result.join('\n');
             },
             TIME_SERIES: function (value, standalone) {
                 if (!standalone) return '**TIME SERIES**';
                 var rows, cols;
-                var pad = function (minute) {return minute < 10 ? '0' + minute : minute;};
+                var pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];
