@@ -35,12 +35,12 @@ public final class PrimitiveComputationTargetType<T extends UniqueIdentifiable> 
   }
 
   public T resolve(final UniqueId identifier) {
-    return _resolver.resolve(identifier, VersionCorrection.LATEST);
+    return _resolver.resolveObject(identifier, VersionCorrection.LATEST);
   }
 
   @Override
-  public T resolve(final UniqueId identifier, final VersionCorrection versionCorrection) {
-    return _resolver.resolve(identifier, versionCorrection);
+  public T resolveObject(final UniqueId identifier, final VersionCorrection versionCorrection) {
+    return _resolver.resolveObject(identifier, versionCorrection);
   }
 
 }

@@ -23,6 +23,6 @@ public interface ObjectResolver<T extends UniqueIdentifiable> {
    * @param versionCorrection the version/correction timestamp for any deep resolution of the object, not null
    * @return the resolved object, or null if the identifier could not be resolved
    */
-  T resolve(UniqueId uniqueId, VersionCorrection versionCorrection);
+  T resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection);
 
 }

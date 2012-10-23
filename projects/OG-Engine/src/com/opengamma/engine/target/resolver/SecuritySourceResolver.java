@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -33,7 +37,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
   // ObjectResolver
 
   @Override
-  public Security resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+  public Security resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     try {
       return getUnderlying().getSecurity(uniqueId);
     } catch (DataNotFoundException e) {
@@ -44,7 +48,7 @@ public class SecuritySourceResolver implements Resolver<Security> {
   // IdentifierResolver
 
   @Override
-  public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+  public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
     final Security security = getUnderlying().getSecurity(identifiers, versionCorrection);
     if (security == null) {
       return null;
@@ -54,12 +58,36 @@ public class SecuritySourceResolver implements Resolver<Security> {
   }
 
   @Override
-  public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+  public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+    final Map<ExternalIdBundle, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
+    for (ExternalIdBundle identifier : identifiers) {
+      final UniqueId uid = resolveExternalId(identifier, versionCorrection);
+      if (uid != null) {
+        result.put(identifier, uid);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     try {
       return getUnderlying().getSecurity(identifier, versionCorrection).getUniqueId();
     } catch (DataNotFoundException e) {
       return null;
     }
+  }
+
+  @Override
+  public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+    final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
+    for (ObjectId identifier : identifiers) {
+      final UniqueId uid = resolveObjectId(identifier, versionCorrection);
+      if (uid != null) {
+        result.put(identifier, uid);
+      }
+    }
+    return result;
   }
 
 }

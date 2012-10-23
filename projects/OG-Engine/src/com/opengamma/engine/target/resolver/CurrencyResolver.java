@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 public class CurrencyResolver implements ObjectResolver<Currency> {
 
   @Override
-  public Currency resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+  public Currency resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     if (Currency.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
       return Currency.of(uniqueId.getValue());
     } else {

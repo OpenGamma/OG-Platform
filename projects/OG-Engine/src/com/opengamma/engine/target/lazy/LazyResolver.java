@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.target.lazy;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -46,8 +49,8 @@ public interface LazyResolver {
     protected abstract T lazy(T object, LazyResolveContext.AtVersionCorrection context);
 
     @Override
-    public T resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-      final T underlying = _underlying.resolve(uniqueId, versionCorrection);
+    public T resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+      final T underlying = _underlying.resolveObject(uniqueId, versionCorrection);
       if (underlying == null) {
         return null;
       }
@@ -70,13 +73,23 @@ public interface LazyResolver {
     }
 
     @Override
-    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
-      return getUnderlying().resolve(identifiers, versionCorrection);
+    public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolveExternalId(identifiers, versionCorrection);
     }
 
     @Override
-    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
-      return getUnderlying().resolve(identifier, versionCorrection);
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolveExternalIds(identifiers, versionCorrection);
+    }
+
+    @Override
+    public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolveObjectId(identifier, versionCorrection);
+    }
+
+    @Override
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+      return getUnderlying().resolveObjectIds(identifiers, versionCorrection);
     }
 
   }

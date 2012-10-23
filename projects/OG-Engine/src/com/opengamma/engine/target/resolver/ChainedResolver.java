@@ -35,10 +35,10 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
   }
 
   @Override
-  public T resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    T value = getFirst().resolve(uniqueId, versionCorrection);
+  public T resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    T value = getFirst().resolveObject(uniqueId, versionCorrection);
     if (value == null) {
-      value = getSecond().resolve(uniqueId, versionCorrection);
+      value = getSecond().resolveObject(uniqueId, versionCorrection);
     }
     return value;
   }

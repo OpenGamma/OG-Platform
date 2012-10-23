@@ -25,9 +25,9 @@ public class ChainedResolverTest {
     final ObjectResolver first = Mockito.mock(ObjectResolver.class);
     final ObjectResolver second = Mockito.mock(ObjectResolver.class);
     final ObjectResolver chained = ChainedResolver.CREATE.execute(second, first);
-    Mockito.when(first.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.USD);
-    Mockito.when(second.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
-    assertEquals(chained.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.USD);
+    Mockito.when(first.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.USD);
+    Mockito.when(second.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
+    assertEquals(chained.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.USD);
     Mockito.verifyZeroInteractions(second);
   }
 
@@ -36,9 +36,9 @@ public class ChainedResolverTest {
     final ObjectResolver first = Mockito.mock(ObjectResolver.class);
     final ObjectResolver second = Mockito.mock(ObjectResolver.class);
     final ObjectResolver chained = ChainedResolver.CREATE.execute(second, first);
-    Mockito.when(first.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(null);
-    Mockito.when(second.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
-    assertEquals(chained.resolve(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.GBP);
+    Mockito.when(first.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(null);
+    Mockito.when(second.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST)).thenReturn(Currency.GBP);
+    assertEquals(chained.resolveObject(UniqueId.of("Foo", "1"), VersionCorrection.LATEST), Currency.GBP);
   }
   
 }

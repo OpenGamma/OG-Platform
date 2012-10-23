@@ -16,7 +16,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class UnorderedCurrencyPairResolver implements ObjectResolver<UnorderedCurrencyPair> {
 
   @Override
-  public UnorderedCurrencyPair resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+  public UnorderedCurrencyPair resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
       return UnorderedCurrencyPair.of(uniqueId);
     } else {

@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -22,7 +25,17 @@ public interface IdentifierResolver {
    * @param versionCorrection the version/correction time to perform the resolution at, not null
    * @return the resolved object identifier or null if the object was not found
    */
-  UniqueId resolve(ExternalIdBundle identifiers, VersionCorrection versionCorrection);
+  UniqueId resolveExternalId(ExternalIdBundle identifiers, VersionCorrection versionCorrection);
+
+  /**
+   * Resolves the objects loosely specified by identifier bundles to exact unique identifiers. This is a bulk version of {@link #resolveExternalId} that should be more efficient than calling it
+   * repeatedly.
+   * 
+   * @param identifiers the identifiers to resolve, not null and not containing nulls
+   * @param versionCorrection the version/correction time to perform the resolution at, not null
+   * @return the map of identifier bundles to resolved object identifiers, not null
+   */
+  Map<ExternalIdBundle, UniqueId> resolveExternalIds(Set<ExternalIdBundle> identifiers, VersionCorrection versionCorrection);
 
   /**
    * Resolves the object loosely specified by an object identifier to an exact unique identifier.
@@ -31,6 +44,16 @@ public interface IdentifierResolver {
    * @param versionCorrection the version/correction time to perform the resolution at, not null
    * @return the resolved object identifier or null if the object was not found
    */
-  UniqueId resolve(ObjectId identifier, VersionCorrection versionCorrection);
+  UniqueId resolveObjectId(ObjectId identifier, VersionCorrection versionCorrection);
+
+  /**
+   * Resolves the objects loosely specified by object identifiers to exact unique identifiers. This is a bulk version of {@link #resolveObjectId} that should be more efficient than calling it
+   * repeatedly.
+   * 
+   * @param identifiers the identifiers to resolve, not null and not containing nulls
+   * @param versionCorrection the version/correction time to perform the resolution at, not null
+   * @return the map of object identifiers to unique identifiers, not null
+   */
+  Map<ObjectId, UniqueId> resolveObjectIds(Set<ObjectId> identifiers, VersionCorrection versionCorrection);
 
 }

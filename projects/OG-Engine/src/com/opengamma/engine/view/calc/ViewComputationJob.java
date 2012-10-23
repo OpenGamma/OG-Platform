@@ -37,7 +37,6 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -609,17 +608,16 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     if (compiledViewDefinition != null) {
       do {
-        // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure?
         // Check that any resolved targets still resolve to the same value
-        final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
-            .getRawComputationTargetResolver().getSpecificationResolver().atVersionCorrection(versionCorrection);
+        long t = -System.nanoTime();
+        // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
+        final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+            .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(compiledViewDefinition.getResolvedIdentifiers().keySet(), versionCorrection);
+        t += System.nanoTime();
         Set<UniqueId> invalidIdentifiers = null;
-        long t = 0;
         for (Map.Entry<ComputationTargetReference, UniqueId> target : compiledViewDefinition.getResolvedIdentifiers().entrySet()) {
-          t -= System.nanoTime();
-          final ComputationTargetSpecification resolved = resolver.getTargetSpecification(target.getKey());
-          t += System.nanoTime();
-          if (target.getValue().equals(resolved.getUniqueId())) {
+          final ComputationTargetSpecification resolved = specifications.get(target.getKey());
+          if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
             // No change
             s_logger.debug("No change resolving {}", target);
           } else {
@@ -631,7 +629,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
             invalidIdentifiers.add(target.getValue());
           }
         }
-        System.err.println(compiledViewDefinition.getResolvedIdentifiers().size() + " resolutions checked in " + ((double) t / 1e6) + "ms");
+        s_logger.debug("{} resolutions checked in {}ms", compiledViewDefinition.getResolvedIdentifiers().size(), (double) t / 1e6);
         if (invalidIdentifiers != null) {
           // Part of the dependency graph is now invalid
           System.err.println("Invalidating dependency graph because of changes on " + invalidIdentifiers);

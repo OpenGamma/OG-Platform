@@ -5,6 +5,11 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -31,7 +36,7 @@ public class PositionSourceResolver {
     }
 
     @Override
-    public Trade resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    public Trade resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getTrade(uniqueId);
       } catch (DataNotFoundException e) {
@@ -50,7 +55,7 @@ public class PositionSourceResolver {
     // ObjectResolver
 
     @Override
-    public Position resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    public Position resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPosition(uniqueId);
       } catch (DataNotFoundException e) {
@@ -61,17 +66,34 @@ public class PositionSourceResolver {
     // IdentifierResolver
 
     @Override
-    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+    public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
       return null;
     }
 
     @Override
-    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+      return Collections.emptyMap();
+    }
+
+    @Override
+    public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPosition(identifier, versionCorrection).getUniqueId();
       } catch (DataNotFoundException e) {
         return null;
       }
+    }
+
+    @Override
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+      final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
+      for (ObjectId identifier : identifiers) {
+        UniqueId uid = resolveObjectId(identifier, versionCorrection);
+        if (uid != null) {
+          result.put(identifier, uid);
+        }
+      }
+      return result;
     }
 
   }
@@ -85,7 +107,7 @@ public class PositionSourceResolver {
     // ObjectResolver
 
     @Override
-    public Portfolio resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    public Portfolio resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPortfolio(uniqueId, versionCorrection);
       } catch (DataNotFoundException e) {
@@ -96,17 +118,34 @@ public class PositionSourceResolver {
     // IdentifierResolver
 
     @Override
-    public UniqueId resolve(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+    public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
       return null;
     }
 
     @Override
-    public UniqueId resolve(final ObjectId identifier, final VersionCorrection versionCorrection) {
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Set<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+      return Collections.emptyMap();
+    }
+
+    @Override
+    public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPortfolio(identifier, versionCorrection).getUniqueId();
       } catch (DataNotFoundException e) {
         return null;
       }
+    }
+
+    @Override
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Set<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+      final Map<ObjectId, UniqueId> result = Maps.newHashMapWithExpectedSize(identifiers.size());
+      for (ObjectId identifier : identifiers) {
+        UniqueId uid = resolveObjectId(identifier, versionCorrection);
+        if (uid != null) {
+          result.put(identifier, uid);
+        }
+      }
+      return result;
     }
 
   }
@@ -120,7 +159,7 @@ public class PositionSourceResolver {
     // ObjectResolver
 
     @Override
-    public PortfolioNode resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+    public PortfolioNode resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
       try {
         return getUnderlying().getPortfolioNode(uniqueId, versionCorrection);
       } catch (DataNotFoundException e) {

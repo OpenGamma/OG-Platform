@@ -22,14 +22,14 @@ public class PrimitiveResolverTest {
 
   public void testCurrencyResolver() {
     final ObjectResolver<Currency> resolver = new CurrencyResolver();
-    assertEquals(resolver.resolve(Currency.GBP.getUniqueId(), VersionCorrection.LATEST), Currency.GBP);
-    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
+    assertEquals(resolver.resolveObject(Currency.GBP.getUniqueId(), VersionCorrection.LATEST), Currency.GBP);
+    assertEquals(resolver.resolveObject(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
   }
 
   public void testUnorderedCurrencyPairResolver() {
     final ObjectResolver<UnorderedCurrencyPair> resolver = new UnorderedCurrencyPairResolver();
-    assertEquals(resolver.resolve(UnorderedCurrencyPair.of(Currency.GBP, Currency.USD).getUniqueId(), VersionCorrection.LATEST), UnorderedCurrencyPair.of(Currency.GBP, Currency.USD));
-    assertEquals(resolver.resolve(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
+    assertEquals(resolver.resolveObject(UnorderedCurrencyPair.of(Currency.GBP, Currency.USD).getUniqueId(), VersionCorrection.LATEST), UnorderedCurrencyPair.of(Currency.GBP, Currency.USD));
+    assertEquals(resolver.resolveObject(UniqueId.of("Foo", "Bar"), VersionCorrection.LATEST), null);
   }
 
 }

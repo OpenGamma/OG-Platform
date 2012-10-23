@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.target;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -28,9 +31,18 @@ public interface ComputationTargetSpecificationResolver {
      * object and a specification constructed from the unique identifier of the returned object, if any.
      * 
      * @param reference the reference to resolve, not null
-     * @return the resolved target specification, not null
+     * @return the resolved target specification, or null if the reference could not be resolved
      */
     ComputationTargetSpecification getTargetSpecification(ComputationTargetReference reference);
+
+    /**
+     * Resolves the given target references to strict target specifications. This is a bulk version of {@link #getTargetSpecification} which should be more efficient than calling it repeatedly as it
+     * may be able to batch up calls to the underlying components which may have more efficient bulk operations.
+     * 
+     * @param references the references to resolve, not null and not containing nulls
+     * @return the resolved target references, containing an entry for each of the resolved references, not null
+     */
+    Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(Set<ComputationTargetReference> references);
 
   }
 
@@ -43,9 +55,19 @@ public interface ComputationTargetSpecificationResolver {
    * 
    * @param reference the reference to resolve, not null
    * @param versionCorrection the version correction to use when looking up information in external sources to perform the resolution, not null
-   * @return the resolved target specification, not null
+   * @return the resolved target specification, or null if the reference could not be resolved
    */
   ComputationTargetSpecification getTargetSpecification(ComputationTargetReference reference, VersionCorrection versionCorrection);
+
+  /**
+   * Resolves the given target references to strict target specifications. This is a bulk version of {@link #getTargetSpecification} which should be more efficient than calling it repeatedly as it may
+   * be able to batch up calls to any underlying components which may have more efficient bulk operations.
+   * 
+   * @param references the references to resolve, not null and not containing nulls
+   * @param versionCorrection the version/correction to use when looking up information in external sources to perform the resolution, not null
+   * @return the resolved target references, containing an entry for each of the resolved references, not null
+   */
+  Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(Set<ComputationTargetReference> references, VersionCorrection versionCorrection);
 
   /**
    * Partially applies the {@link #getTargetSpecification} operation for the given version/correction. Any calls made on the returned instance are equivalent to calling methods on this with the

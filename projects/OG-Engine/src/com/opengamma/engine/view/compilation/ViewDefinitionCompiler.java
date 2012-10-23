@@ -296,20 +296,33 @@ public final class ViewDefinitionCompiler {
       return type.accept(s_getLeafType, null);
     }
 
+    private void storeResolution(final ComputationTargetReference reference, final ComputationTargetSpecification resolved) {
+      final ComputationTargetReference key = reference.accept(this);
+      if (key != null) {
+        final UniqueId resolvedId = resolved.getUniqueId();
+        final UniqueId previousId = _resolutions.putIfAbsent(key, resolvedId);
+        assert (previousId == null) || previousId.equals(resolvedId);
+      }
+    }
+
     // ComputationTargetSpecificationResolver.AtVersionCorrection
 
     @Override
     public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
       final ComputationTargetSpecification resolved = _underlying.getTargetSpecification(reference);
       if (resolved != null) {
-        final ComputationTargetReference key = reference.accept(this);
-        if (key != null) {
-          final UniqueId resolvedId = resolved.getUniqueId();
-          final UniqueId previousId = _resolutions.putIfAbsent(key, resolvedId);
-          assert (previousId == null) || previousId.equals(resolvedId);
-        }
+        storeResolution(reference, resolved);
       }
       return resolved;
+    }
+
+    @Override
+    public Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(final Set<ComputationTargetReference> references) {
+      final Map<ComputationTargetReference, ComputationTargetSpecification> resolveds = _underlying.getTargetSpecifications(references);
+      for (Map.Entry<ComputationTargetReference, ComputationTargetSpecification> resolved : resolveds.entrySet()) {
+        storeResolution(resolved.getKey(), resolved.getValue());
+      }
+      return resolveds;
     }
 
     // ComputationTargetReferenceVisitor

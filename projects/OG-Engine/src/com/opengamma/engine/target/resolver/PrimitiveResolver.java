@@ -15,7 +15,7 @@ import com.opengamma.id.VersionCorrection;
 public class PrimitiveResolver implements ObjectResolver<UniqueId> {
 
   @Override
-  public UniqueId resolve(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
+  public UniqueId resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     return uniqueId;
   }
 

@@ -186,7 +186,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       final ObjectResolver<?> resolver = _resolvers.get(type);
       if (resolver != null) {
-        final UniqueIdentifiable resolved = resolver.resolve(specification.getUniqueId(), versionCorrection);
+        final UniqueIdentifiable resolved = resolver.resolveObject(specification.getUniqueId(), versionCorrection);
         if (resolved != null) {
           return ComputationTargetResolverUtils.createResolvedTarget(specification, resolved);
         } else {
