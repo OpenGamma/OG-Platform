@@ -2,10 +2,13 @@
 foo~
 *.class
 *.log
-build/
-dist/
-ivy/
-lib/
+/bin/
+/build/
+/dist/
+/target/
+/lib/
+/ivy/
+/temp/
 tests/classes/
 tests/output/
 .settings/

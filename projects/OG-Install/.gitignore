@@ -1,6 +1,7 @@
+/bin/
 /build/
 /dist/
+/target/
 /lib/
-/bin/
 /MANIFEST.MF
 /tests/classes
