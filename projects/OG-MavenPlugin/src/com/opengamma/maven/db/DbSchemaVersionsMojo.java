@@ -13,19 +13,19 @@ import java.util.Map;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.BuildException;
 
 import com.opengamma.util.db.script.DbScriptDirectory;
 import com.opengamma.util.db.script.DbScriptReader;
 import com.opengamma.util.db.script.FileDbScriptDirectory;
+import com.opengamma.util.db.tool.DbSchemaVersionUtils;
 
 /**
- * Maven plugin to generate schema version metadata from a set of database installation scripts.
+ * Maven plugin to generate database schema version files from a set of database installation scripts.
  * 
- * @goal write-schema-versions
+ * @goal db-schema-versions
  */
-public class SchemaVersionMojo extends AbstractMojo {
-
+public class DbSchemaVersionsMojo extends AbstractMojo {
+  
   /**
    * @parameter alias="scriptsPath"
    * @required
@@ -51,11 +51,11 @@ public class SchemaVersionMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException, MojoFailureException {
     final File scriptsDir = new File(getScriptsPath());
     if (!scriptsDir.exists() || !scriptsDir.isDirectory()) {
-      throw new BuildException("scriptsPath must be an existing directory");
+      throw new MojoExecutionException("scriptsPath must be an existing directory");
     }
     final File outputDir = new File(getOutputPath());
     if (outputDir.isFile()) {
-      throw new BuildException("outputPath must be a directory");
+      throw new MojoExecutionException("outputPath must be a directory");
     }
     if (!outputDir.exists()) {
       outputDir.mkdirs();
@@ -64,10 +64,10 @@ public class SchemaVersionMojo extends AbstractMojo {
     DbScriptReader scriptReader = new DbScriptReader(baseDir);
     Map<String, Integer> latestVersions = scriptReader.getLatestVersions();
     for (Map.Entry<String, Integer> entry : latestVersions.entrySet()) {
-      String groupName = entry.getKey();
+      String schemaName = entry.getKey();
       int version = entry.getValue();
       try {
-        final File f = new File(outputDir, groupName);
+        final File f = new File(outputDir, DbSchemaVersionUtils.getSchemaVersionFileName(schemaName));
         if (f.exists()) {
           f.delete();
         }
@@ -79,9 +79,9 @@ public class SchemaVersionMojo extends AbstractMojo {
         } finally {
           out.close();
         }
-        getLog().info("Written version " + version + " to " + f.getAbsolutePath());
+        getLog().info("Database schema '" + schemaName + "' at version " + version);
       } catch (Exception e) {
-        throw new BuildException("Error writing file for group '" + groupName + "'", e);
+        throw new MojoExecutionException("Error writing file for schema '" + schemaName + "'", e);
       }
     }
   }
