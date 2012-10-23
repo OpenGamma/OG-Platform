@@ -6,6 +6,7 @@
 package com.opengamma.util.db.script;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides access to database scripts from a standard directory structure.
@@ -109,6 +111,21 @@ public class DbScriptReader {
    * @return the creation script, not null
    */
   public DbScript getCreationScript(String databaseName, String groupName) {
+    return getLatestCreationScript(databaseName, groupName).getFirst();
+  }
+  
+  /**
+   * Gets the version number of the latest creation script for a database vendor and group.
+   * 
+   * @param databaseName  the internal database vendor name, not null
+   * @param groupName  the group name of the database objects, not null
+   * @return the version number of the latest creation script
+   */
+  public int getLatestCreationScriptVersion(String databaseName, String groupName) {
+    return getLatestCreationScript(databaseName, groupName).getSecond();
+  }
+  
+  private Pair<DbScript, Integer> getLatestCreationScript(String databaseName, String groupName) {
     ArgumentChecker.notNull(databaseName, "databaseName");
     ArgumentChecker.notNull(groupName, "groupName");
     DbScriptDirectory groupCreateBaseDir = getScriptsDir(CREATE_PATH, databaseName, groupName);
@@ -127,11 +144,24 @@ public class DbScriptReader {
     if (latestCreateScript == null) {
       throw new OpenGammaRuntimeException("No create scripts found for group '" + groupName + "'");
     }
-    return latestCreateScript;
+    return Pair.of(latestCreateScript, latestVersion);    
   }
   
   /**
-   * Gets the group names.
+   * Gets all database vendor names.
+   * 
+   * @return a set of all database vendor names, not null
+   */
+  public Set<String> getDatabaseVendors() {
+    Set<String> databaseNames = new HashSet<String>();
+    for (DbScriptDirectory directory : getDatabaseVendorsDir(CREATE_PATH).getSubdirectories()) {
+      databaseNames.add(directory.getName());
+    }
+    return databaseNames;
+  }
+  
+  /**
+   * Gets the group names for a given database vendor.
    *
    * @param databaseName  the internal database vendor name, not null
    * @return the group names, not null
@@ -149,9 +179,33 @@ public class DbScriptReader {
     return groupNames;
   }
   
+  /**
+   * Gets a map from group name to the latest script version for all groups.
+   * 
+   * @return a map from group name to the latest script version, not null
+   */
+  public Map<String, Integer> getLatestVersions() {
+    Map<String, Integer> result = new HashMap<String, Integer>();
+    for (String databaseName : getDatabaseVendors()) {
+      for (String groupName : getAllGroupNames(databaseName)) {
+        int latestVersion = getLatestCreationScriptVersion(databaseName, groupName);
+        Integer existingLatest = result.get(groupName);
+        // Use the latest version across all database vendors - it's feasible that some schema upgrades are added first
+        if (existingLatest == null || existingLatest < latestVersion) {
+          result.put(groupName, latestVersion);
+        }
+      }
+    }
+    return result;
+  }
+  
   //-------------------------------------------------------------------------
+  private DbScriptDirectory getDatabaseVendorsDir(String scriptType) {
+    return getBaseDir().getSubdirectory(scriptType);
+  }
+  
   private DbScriptDirectory getSchemaGroupsDir(String scriptType, String databaseName) {
-    return getBaseDir().getSubdirectory(scriptType).getSubdirectory(databaseName);
+    return getDatabaseVendorsDir(scriptType).getSubdirectory(databaseName);
   }
   
   private DbScriptDirectory getScriptsDir(String scriptType, String databaseName, String schemaGroup) {
