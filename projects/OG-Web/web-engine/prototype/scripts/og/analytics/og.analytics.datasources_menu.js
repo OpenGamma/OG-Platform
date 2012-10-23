@@ -1,4 +1,7 @@
-
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
 $.register_module({
     name: 'og.analytics.DatasourcesMenu',
     dependencies: ['og.analytics.DropMenu'],
@@ -49,17 +52,12 @@ $.register_module({
                 display_query = function () {
                     if(query.length) {
                         var i = 0, arr = [];
-                        query.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
+                        query.sort(menu.sort_opts).forEach(function (entry) { // revisit the need for sorting this..
                             if (i > 0) arr[i++] = $dom.toggle_infix.html() + " ";
                             arr[i++] = entry;
                         });
                         $query.html(arr.reduce(function (a, v) { return a += v.type ? v.type + ":" + v.src : v; }, ''));
                     } else $query.text(default_sel_txt);
-                },
-                sort_opts = function (a, b) {
-                    if (a.pos < b.pos) return -1;
-                    if (a.pos > b.pos) return 1;
-                    return 0;
                 },
                 remove_entry = function (entry) {
                     if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; resetquery
@@ -106,7 +104,7 @@ $.register_module({
                 },
                 delete_handler = function (entry) {
                     if (menu.opts.length === 1) return remove_orphans(), reset_query();
-                    if ($type_select !== undefined) menu.del_handler($parent);
+                    if ($type_select !== undefined) menu.delete_handler($parent);
                     if (menu.opts.length) {
                         for (var i = ~entry ? entry : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
                         if (~entry) return remove_entry(entry), display_query(); // emitEvent; optsrepositioned
@@ -134,28 +132,28 @@ $.register_module({
                     if ($custom.parent().is(versions_s)) delete query[entry].version_date;
                     else if ($custom.parent().is(corrections_s)) delete query[entry].correction_date;
                     else delete query[entry].date;
-                },
-            menu.menu_handler = function (event) { // TODO AG: Refactor
-                var $elem = $(event.srcElement || event.target), entry;
-                $parent = $elem.parents(parent_s);
-                $type_select = $parent.find(type_s);
-                $source_select = $parent.find(source_s);
-                $extra_opts = $parent.find(extra_opts_s);
-                type_val = $type_select.val();
-                ds_val = $source_select.val();
-                sel_pos = $parent.data('pos');
-                entry = query.pluck('pos').indexOf(sel_pos);
-                if ($elem.is(menu.$dom.add)) return menu.stop(event), menu.add_handler();
-                if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
-                if ($elem.is($type_select)) return type_val = type_val.toLowerCase(), type_handler(entry);
-                if ($elem.is($source_select)) return source_handler(entry);
-                if ($elem.is(custom_s))
-                    return $custom = $elem, $latest = $elem.siblings().filter(latest_s),
-                        $custom.datepicker({onSelect: date_handler, dateFormat:'yy-mm-dd'}).datepicker('show');
-                if ($elem.is(latest_s))
-                    return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
-                if ($elem.is('button')) return button_handler($elem.text());
-            };
+                };
+                menu_handler = function (event) { // TODO AG: Refactor
+                    var $elem = $(event.srcElement || event.target), entry;
+                    $parent = $elem.parents(parent_s);
+                    $type_select = $parent.find(type_s);
+                    $source_select = $parent.find(source_s);
+                    $extra_opts = $parent.find(extra_opts_s);
+                    type_val = $type_select.val();
+                    ds_val = $source_select.val();
+                    sel_pos = $parent.data('pos');
+                    entry = query.pluck('pos').indexOf(sel_pos);
+                    if ($elem.is(menu.$dom.add)) return menu.stop(event), menu.add_handler();
+                    if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
+                    if ($elem.is($type_select)) return type_val = type_val.toLowerCase(), type_handler(entry);
+                    if ($elem.is($source_select)) return source_handler(entry);
+                    if ($elem.is(custom_s))
+                        return $custom = $elem, $latest = $elem.siblings().filter(latest_s),
+                            $custom.datepicker({onSelect: date_handler, dateFormat:'yy-mm-dd'}).datepicker('show');
+                    if ($elem.is(latest_s))
+                        return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
+                    if ($elem.is('button')) return menu.button_handler($elem.text());
+                };
             menu.get_query = function () {
                 if (!query.length) return;
                 var arr = [];
@@ -197,6 +195,10 @@ $.register_module({
                     res_keys.data.data.forEach(function (entry) {
                         resolver_keys.push(entry.split('|')[1]);
                     });
+                    if ($dom.menu) {
+                        $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                                 .on('change', 'select', menu_handler);
+                        }
                 });
             }
             return menu;

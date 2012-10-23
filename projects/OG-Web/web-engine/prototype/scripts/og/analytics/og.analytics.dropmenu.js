@@ -1,3 +1,7 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
 $.register_module({
     name: 'og.analytics.DropMenu',
     dependencies: ['og.common.util.ui.DropMenu'],
@@ -11,7 +15,7 @@ $.register_module({
                 * TODO AG: Must provide Getters/Setters for static instance properties as these should 
                 * really be private and not accessible directly via the instance.
                 */
-            var menu = new og.common.util.ui.DropMenu(config),
+                var menu = new og.common.util.ui.DropMenu(config), dummy_s = '<wrapper>';
                 menu.$dom.toggle_prefix = $(dummy_s);
                 menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
                 menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
@@ -19,11 +23,7 @@ $.register_module({
                 menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
                 menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                 menu.$dom.opt_cp = menu.$dom.opt.clone(true);
-                if ($dom.toggle) $dom.toggle.on('click', menu.toggle_handler);
-                if ($dom.menu) {
-                    $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu.menu_handler)
-                             .on('change', 'select', menu.menu_handler);
-                 }
+                if (menu.$dom.toggle) menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
                 return menu;
             };
         DropMenu.prototype.toggle_handler = function (event){
@@ -35,7 +35,7 @@ $.register_module({
                 this.opts.push(opt), this.$dom.add.focus(), this.opts[len].find('.number span').text(this.opts.length), 
                 this.$dom.menu_actions.before(this.opts[len]);
         };
-        DropMenu.prototype.del_handler = function (elem) {
+        DropMenu.prototype.delete_handler = function (elem) {
             var data = elem.data();
             if (this.opts.length === 1) return;
             this.opts.splice(data.pos, 1);
@@ -48,10 +48,15 @@ $.register_module({
             for (var i = pos || 0, len = this.opts.length; i < len;)
                 this.opts[i].data('pos', i).find('.number span').text(i+=1);
         };
+        DropMenu.prototype.sort_opts = function (a, b) {
+            if (a.pos < b.pos) return -1;
+            if (a.pos > b.pos) return 1;
+            return 0;
+        };
         DropMenu.prototype.button_handler = function (val) {
             if (val === 'OK') menu.emitEvent(menu.events.close).emitEvent(events.queryselected, [menu]);
             else if (val === 'Cancel') menu.emitEvent(menu.events.close).emitEvent(events.querycancelled, [menu]);
-        };
+        };        
         return DropMenu;
     }
 });

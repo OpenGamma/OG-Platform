@@ -1,3 +1,7 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
 $.register_module({
     name: 'og.common.util.ui.DropMenu',
     dependencies: [],
@@ -15,7 +19,7 @@ $.register_module({
              * and not accessible directly via the instance.
              */
             DropMenu = function (config) {
-                var menu = this, tmpl = config.tmpl, dummy_s = '<wrapper>', data = config.data || {};
+                var menu = this, tmpl = config.tmpl, data = config.data || {};
                 menu.state = 'closed';
                 menu.opened = false;
                 menu.data = data;
