@@ -23,10 +23,11 @@ $.register_module({
                 menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
                 menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                 menu.$dom.opt_cp = menu.$dom.opt.clone(true);
-                if (menu.$dom.toggle) menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
+                if (menu.$dom.toggle) menu.$dom.toggle.on('click', menu.toggle_menu.bind(menu));
                 return menu;
             };
-        DropMenu.prototype.toggle_handler = function (event){
+        DropMenu.prototype = og.common.util.ui.DropMenu.prototype;
+        DropMenu.prototype.toggle_menu = function (event){
             this.opts[this.opts.length-1].find('select').first().focus();
             this.toggle_handler();
         };
@@ -54,9 +55,9 @@ $.register_module({
             return 0;
         };
         DropMenu.prototype.button_handler = function (val) {
-            if (val === 'OK') menu.emitEvent(menu.events.close).emitEvent(events.queryselected, [menu]);
-            else if (val === 'Cancel') menu.emitEvent(menu.events.close).emitEvent(events.querycancelled, [menu]);
-        };        
+            if (val === 'OK') this.emitEvent(this.events.close).emitEvent(events.queryselected, [this]);
+            else if (val === 'Cancel') this.emitEvent(this.events.close).emitEvent(events.querycancelled, [this]);
+        };   
         return DropMenu;
     }
 });
