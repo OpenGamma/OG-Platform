@@ -64,10 +64,14 @@ public class SchemaVersionTask extends Task {
     System.out.println("Found latest versions: " + latestVersions);
     
     for (final Map.Entry<String, Integer> schemaVersion : latestVersions.entrySet()) {
-      final String schemaName = schemaVersion.getKey();
+      String schemaName = schemaVersion.getKey();
+      // DbTool returns the full directory name rather than the schema name
+      if (schemaName.endsWith("_db")) {
+        schemaName = schemaName.substring(0, schemaName.length() - 3);
+      }
       final int latestVersion = schemaVersion.getValue();
       try {
-        final File f = new File(outputDir, schemaName);
+        final File f = new File(outputDir, DbSchemaVersionUtils.getSchemaVersionFileName(schemaName));
         if (f.exists()) {
           f.delete();
         }

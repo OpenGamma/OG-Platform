@@ -47,10 +47,10 @@
         <pathelement path="${classes.dir}" />
       </classpath>
     </taskdef>
-    <schemaversiontool dbScriptDir="${basedir}" outputDir="${src.dir}/com/opengamma/masterdb/schema" />
+    <schemaversiontask dbScriptDir="${basedir}" outputDir="${src.dir}/com/opengamma/masterdb/schema" />
       <copy todir="${classes.dir}">
         <fileset dir="${src.dir}">
-          <include name="**/*_db" />
+          <include name="**/*.version" />
       </fileset>
     </copy>
   </target>
