@@ -15,15 +15,21 @@ import org.slf4j.LoggerFactory;
 /**
  * Utilities around master database schema versions.
  */
-public final class SchemaVersionUtils {
+public final class DbSchemaVersionUtils {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(SchemaVersionUtils.class);
+  private static final String FILE_SUFFIX = ".version";
   
-  private SchemaVersionUtils() {
+  private static final Logger s_logger = LoggerFactory.getLogger(DbSchemaVersionUtils.class);
+  
+  private DbSchemaVersionUtils() {
   }
   
-  public static Integer readSchemaVersion(String path, String schemaName) {
-    InputStream schemaVersionStream = ClassLoader.getSystemResourceAsStream(path + "/" + schemaName);
+  public static String getSchemaVersionFileName(String schemaName) {
+    return schemaName + FILE_SUFFIX;
+  }
+  
+  public static Integer readVersion(String path, String schemaName) {
+    InputStream schemaVersionStream = ClassLoader.getSystemResourceAsStream(path + "/" + getSchemaVersionFileName(schemaName));
     if (schemaVersionStream == null) {
       return null;
     }
@@ -32,7 +38,7 @@ public final class SchemaVersionUtils {
       String version = reader.readLine();
       return Integer.parseInt(version);
     } catch (Exception e) {
-      s_logger.warn("Error reading schema version '" + schemaName + "'", e);
+      s_logger.warn("Error reading version file for schema '" + schemaName + "'", e);
       return null;
     }
   }

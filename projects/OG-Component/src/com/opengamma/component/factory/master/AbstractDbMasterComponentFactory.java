@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.tool.SchemaVersionUtils;
+import com.opengamma.util.db.tool.DbSchemaVersionUtils;
 
 /**
  * Base component factory for all {@link AbstractDbMaster} implementations.
@@ -43,7 +43,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   //-------------------------------------------------------------------------
   protected void checkSchemaVersion(int actualSchemaVersion, String schemaName) {
     ArgumentChecker.notNull(schemaName, "schemaName");
-    Integer expectedSchemaVersion = SchemaVersionUtils.readSchemaVersion(SCHEMA_VERSION_PATH, schemaName);
+    Integer expectedSchemaVersion = DbSchemaVersionUtils.readVersion(SCHEMA_VERSION_PATH, schemaName);
     if (expectedSchemaVersion == null) {
       s_logger.warn("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
       return;
