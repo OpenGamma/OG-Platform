@@ -1,0 +1,10 @@
+<section>
+  <div class="OG-gadgets-type-dropdown">
+  		{{types = ['first', 'second', 'third']}}
+		{{if types[0]}}
+			{{each types}}
+				<input type="checkbox" value=""> ${$value}
+			{{/each}}
+		{{/if}}
+  </div>
+</section>
