@@ -72,7 +72,7 @@ $.register_module({
                 },
                 reset_source_select = function () {
                     // IE doesn't seem to update Select on the fly, so, take it out of DOM, update childNodes, append
-                    // it back to the parent  
+                    // it back to the parent
                     var sel_parent = $source_select.parent(), select = $source_select.remove();
                     select.empty().append($($option.html()).text(default_sel_txt));
                     sel_parent.append(select);
