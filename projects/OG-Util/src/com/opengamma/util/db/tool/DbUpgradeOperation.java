@@ -56,23 +56,23 @@ public class DbUpgradeOperation extends AbstractDbScriptOperation<DbToolContext>
     SqlScriptWriter writer = createSqlScriptWriter();
     boolean upgradeRequired = false;
     try {
-      Set<String> schemaGroups = getDbToolContext().getGroups() != null ? getDbToolContext().getGroups() : getAllGroupNames();
-      for (String schemaGroup : schemaGroups) {
-        List<DbScript> scripts = getMigrationScripts(schemaGroup);
+      Set<String> schemaNames = getDbToolContext().getSchemaNames() != null ? getDbToolContext().getSchemaNames() : getAllSchemaNames();
+      for (String schema : schemaNames) {
+        List<DbScript> scripts = getMigrationScripts(schema);
         if (scripts == null) {
-          s_logger.info(schemaGroup + " does not support migration");
+          s_logger.info(schema + " does not support migration");
           continue;
         }
         if (scripts.isEmpty()) {
-          s_logger.info(schemaGroup + " already at latest version");
+          s_logger.info(schema + " already at latest version");
           continue;
         }
         upgradeRequired = true;
-        s_logger.info(schemaGroup + " is behind by " + scripts.size() + " versions");
+        s_logger.info(schema + " is behind by " + scripts.size() + " versions");
         for (int i = 0; i < scripts.size(); i++) {
           DbScript script = scripts.get(i);
           s_logger.debug("Using schema migration file: " + script);
-          writer.write(schemaGroup + " - " + (i + 1) + " of " + scripts.size(), script);
+          writer.write(schema + " - " + (i + 1) + " of " + scripts.size(), script);
         }
       }
     } catch (IOException e) {

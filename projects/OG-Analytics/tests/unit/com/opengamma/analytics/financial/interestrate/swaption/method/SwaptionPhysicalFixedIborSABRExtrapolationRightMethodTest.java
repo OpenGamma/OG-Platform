@@ -200,7 +200,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     InterestRateCurveSensitivity pvsLongPayerExtra = METHOD_EXTRAPOLATION.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     final InterestRateCurveSensitivity pvsShortPayerExtra = METHOD_EXTRAPOLATION.presentValueSensitivity(swaptionShortPayerHighStrike, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayerExtra.multiply(-1);
+    final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayerExtra.multipliedBy(-1);
     assertEquals(pvsLongPayerExtra.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 5.0E+4;

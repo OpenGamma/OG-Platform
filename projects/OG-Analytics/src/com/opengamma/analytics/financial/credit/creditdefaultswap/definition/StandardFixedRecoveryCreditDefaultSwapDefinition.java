@@ -21,6 +21,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Definition of a Standard fixed recovery CDS i.e. with the features of CDS contracts post the Big Bang in 2009
  */
+/*
 public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
   //-----------------------------------------------------------------------------------------------
@@ -113,3 +114,4 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefa
 
   // -----------------------------------------------------------------------------------------------
 }
+*/

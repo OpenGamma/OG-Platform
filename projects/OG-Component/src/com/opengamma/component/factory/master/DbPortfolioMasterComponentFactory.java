@@ -93,7 +93,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractDbMasterComponent
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "prt_db");
+    checkSchemaVersion(master.getSchemaVersion(), "prt");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

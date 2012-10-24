@@ -87,7 +87,10 @@ public class InterestRateCurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> clean(final Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
     final Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
     for (final Map.Entry<String, List<DoublesPair>> entry : old.entrySet()) {
-      res.put(entry.getKey(), clean(entry.getValue(), relTol, absTol));
+      List<DoublesPair> cleanList = clean(entry.getValue(), relTol, absTol);
+      if (!cleanList.isEmpty()) {
+        res.put(entry.getKey(), cleanList);
+      }
     }
     return res;
   }
@@ -160,8 +163,7 @@ public class InterestRateCurveSensitivityUtils {
   }
 
   //TODO smarter way to do this?
-  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2,
-      final Map<String, List<DoublesPair>> sensi3) {
+  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final Map<String, List<DoublesPair>> sensi3) {
     return addSensitivity(addSensitivity(sensi1, sensi2), sensi3);
   }
 
@@ -199,8 +201,7 @@ public class InterestRateCurveSensitivityUtils {
    */
   public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, final double tolerance) {
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
-      if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance)
-          || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
+      if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
         return false;
       }
     }

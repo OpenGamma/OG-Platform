@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.market;
+package com.opengamma.analytics.financial.interestrate.market.description;
 
 import static org.testng.AssertJUnit.assertEquals;
 

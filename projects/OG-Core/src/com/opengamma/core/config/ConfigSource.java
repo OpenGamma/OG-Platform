@@ -134,7 +134,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @param clazz  the configuration element type, not null
    * @param configName  the configuration name, not null
    * @param versionCorrection  the version-correction, not null
-   * @return all configuration elements matching the name, empty if no matches, not null
+   * @return the configuration element matching the name, null if not found
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
    */  

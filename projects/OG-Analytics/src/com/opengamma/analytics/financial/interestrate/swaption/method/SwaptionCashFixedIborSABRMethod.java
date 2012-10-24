@@ -110,9 +110,9 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
-    result = result.plus(forwardDr.multiply(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]))));
+    result = result.plus(forwardDr.multipliedBy(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]))));
     if (!swaption.isLong()) {
-      result = result.multiply(-1);
+      result = result.multipliedBy(-1);
     }
     return result;
   }

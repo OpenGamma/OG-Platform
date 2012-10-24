@@ -13,9 +13,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -81,12 +81,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Public method to generate a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
-  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve,
+  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, ISDACurve/*YieldCurve*/yieldCurve, HazardRateCurve hazardRateCurve,
       double startTime, double endTime, boolean includeSchedule) {
 
     // ------------------------------------------------
 
     // Check input arguments are not null
+
     ArgumentChecker.notNull(cds, "CDS");
     ArgumentChecker.notNull(yieldCurve, "Yield curve");
     ArgumentChecker.notNull(hazardRateCurve, "Hazard rate curve");
@@ -104,13 +105,17 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     NavigableSet<Double> allTimePoints = new TreeSet<Double>();
 
-    Double[] x = yieldCurve.getCurve().getXData();
+    Set<Double> timePointsInRange;
+
+    double[] x = yieldCurve.getTimePoints();
+
+    // ------------------------------------------------
 
     for (int i = 0; i < x.length; i++) {
       allTimePoints.add(new Double(x[i]));
     }
 
-    x = hazardRateCurve.getCurve().getXData();
+    x = hazardRateCurve.getShiftedTimePoints();
 
     for (int i = 0; i < x.length; i++) {
       allTimePoints.add(new Double(x[i]));
@@ -119,7 +124,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     allTimePoints.add(new Double(startTime));
     allTimePoints.add(new Double(endTime));
 
-    Set<Double> timePointsInRange;
+    // ------------------------------------------------
 
     if (includeSchedule) {
 
@@ -148,6 +153,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
     }
 
+    // ------------------------------------------------
+
     Double[] boxed = new Double[timePointsInRange.size()];
     timePointsInRange.toArray(boxed);
 
@@ -156,6 +163,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 0; i < boxed.length; ++i) {
       timePoints[i] = boxed[i].doubleValue();
     }
+
+    // ------------------------------------------------
 
     return timePoints;
   }

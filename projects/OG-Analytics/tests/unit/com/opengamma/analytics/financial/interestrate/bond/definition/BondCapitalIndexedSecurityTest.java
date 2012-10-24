@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;

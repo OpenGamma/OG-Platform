@@ -41,8 +41,8 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
     return getDbToolContext().getScriptReader().getMigrationScripts(getDatabaseName(), groupName, currentGroupVersion);
   }
   
-  protected Set<String> getAllGroupNames() {
-    return getDbToolContext().getScriptReader().getAllGroupNames(getDatabaseName());
+  protected Set<String> getAllSchemaNames() {
+    return getDbToolContext().getScriptReader().getAllSchemaNames(getDatabaseName());
   }
   
   /**

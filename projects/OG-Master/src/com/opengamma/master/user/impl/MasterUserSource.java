@@ -49,7 +49,9 @@ public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument,
   //-------------------------------------------------------------------------
   @Override
   public Collection<? extends OGUser> getUsers(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    throw new UnsupportedOperationException();
+    UserSearchRequest searchRequest = new UserSearchRequest(bundle);
+    searchRequest.setVersionCorrection(getVersionCorrection());
+    return getMaster().search(searchRequest).getUsers();
   }
 
   @Override

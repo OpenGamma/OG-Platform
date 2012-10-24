@@ -123,9 +123,9 @@ public class PortfolioHedgingCalculatorTest {
     ParameterSensitivity psMin = new ParameterSensitivity();
     psMin = psMin.plus(ps);
     for (int loopref = 0; loopref < nbReference; loopref++) { // To created the hedge portfolio
-      psMin = psMin.plus(rs[loopref].multiplyBy(hedging[loopref]));
+      psMin = psMin.plus(rs[loopref].multipliedBy(hedging[loopref]));
     }
-    DoubleMatrix1D psMinMatrix = psMin.convert(FX_MATRIX, EUR).toMatrix();
+    DoubleMatrix1D psMinMatrix = psMin.converted(FX_MATRIX, EUR).toMatrix();
     DoubleMatrix2D psMinMatrixT = new DoubleMatrix2D(new double[][] {psMinMatrix.getData()});
     double penalty = ((DoubleMatrix2D) MATRIX.multiply(psMinMatrixT, MATRIX.multiply(wtW, psMinMatrix))).getEntry(0, 0);
 
@@ -135,16 +135,16 @@ public class PortfolioHedgingCalculatorTest {
     for (int loopref = 0; loopref < nbReference; loopref++) { // Shift on each quantity
       ParameterSensitivity psPertPlus = new ParameterSensitivity();
       psPertPlus = psPertPlus.plus(psMin);
-      psPertPlus = psPertPlus.plus(rs[loopref].multiplyBy(shift));
-      DoubleMatrix1D psPertPlusMat = psPertPlus.convert(FX_MATRIX, EUR).toMatrix();
+      psPertPlus = psPertPlus.plus(rs[loopref].multipliedBy(shift));
+      DoubleMatrix1D psPertPlusMat = psPertPlus.converted(FX_MATRIX, EUR).toMatrix();
       DoubleMatrix2D psPertPlusMatT = new DoubleMatrix2D(new double[][] {psPertPlusMat.getData()});
       penaltyPlus[loopref] = ((DoubleMatrix2D) MATRIX.multiply(psPertPlusMatT, MATRIX.multiply(wtW, psPertPlusMat))).getEntry(0, 0);
       assertTrue("PortfolioHedgingCalculator: minimum", penalty < penaltyPlus[loopref]);
 
       ParameterSensitivity psPertMinus = new ParameterSensitivity();
       psPertMinus = psPertMinus.plus(psMin);
-      psPertMinus = psPertMinus.plus(rs[loopref].multiplyBy(-shift));
-      DoubleMatrix1D psPertMinusMat = psPertMinus.convert(FX_MATRIX, EUR).toMatrix();
+      psPertMinus = psPertMinus.plus(rs[loopref].multipliedBy(-shift));
+      DoubleMatrix1D psPertMinusMat = psPertMinus.converted(FX_MATRIX, EUR).toMatrix();
       DoubleMatrix2D psPertMinusMatT = new DoubleMatrix2D(new double[][] {psPertMinusMat.getData()});
       penaltyMinus[loopref] = ((DoubleMatrix2D) MATRIX.multiply(psPertMinusMatT, MATRIX.multiply(wtW, psPertMinusMat))).getEntry(0, 0);
       assertTrue("PortfolioHedgingCalculator: minimum " + loopref, penalty < penaltyMinus[loopref]);

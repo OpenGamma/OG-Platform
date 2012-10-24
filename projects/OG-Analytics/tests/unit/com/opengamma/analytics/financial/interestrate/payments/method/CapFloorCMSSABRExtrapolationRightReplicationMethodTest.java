@@ -213,7 +213,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     InterestRateCurveSensitivity pvsCapLongStd = METHOD_STANDARD_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD_EXTRAPOLATION_CAP.presentValueCurveSensitivity(CMS_CAP_SHORT, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multipliedBy(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     pvsCapLong = pvsCapLong.cleaned();

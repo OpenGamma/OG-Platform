@@ -66,10 +66,10 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private DbManagement _dbManagement;
   /**
-   * A comma-separated list of database object groups on which to operate.
+   * A comma-separated list of database schema names on which to operate.
    */
   @PropertyDefinition
-  private String _groupsList;
+  private String _schemaNamesList;
   /**
    * A resource pointing to the root of the database installation scripts.
    */
@@ -125,12 +125,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       }
       dbToolContext.setScriptReader(new DbScriptReader(dbScriptDirectory));
     }
-    if (getGroupsList() != null) {
+    if (getSchemaNamesList() != null) {
       Set<String> schemaGroups = new HashSet<String>();
-      for (String schemaGroup : getGroupsList().split(",")) {
+      for (String schemaGroup : getSchemaNamesList().split(",")) {
         schemaGroups.add(schemaGroup.toLowerCase().trim());
       }
-      dbToolContext.setGroups(schemaGroups);
+      dbToolContext.setSchemaNames(schemaGroups);
     }
     repo.registerInfrastructure(DbToolContext.class, getClassifier(), dbToolContext);
   }
@@ -164,8 +164,8 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         return getJdbcUrl();
       case 209279841:  // dbManagement
         return getDbManagement();
-      case 1299772562:  // groupsList
-        return getGroupsList();
+      case 1541392229:  // schemaNamesList
+        return getSchemaNamesList();
       case 1948576054:  // scriptsResource
         return getScriptsResource();
     }
@@ -187,8 +187,8 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       case 209279841:  // dbManagement
         setDbManagement((DbManagement) newValue);
         return;
-      case 1299772562:  // groupsList
-        setGroupsList((String) newValue);
+      case 1541392229:  // schemaNamesList
+        setSchemaNamesList((String) newValue);
         return;
       case 1948576054:  // scriptsResource
         setScriptsResource((Resource) newValue);
@@ -214,7 +214,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
-          JodaBeanUtils.equal(getGroupsList(), other.getGroupsList()) &&
+          JodaBeanUtils.equal(getSchemaNamesList(), other.getSchemaNamesList()) &&
           JodaBeanUtils.equal(getScriptsResource(), other.getScriptsResource()) &&
           super.equals(obj);
     }
@@ -228,7 +228,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGroupsList());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNamesList());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptsResource());
     return hash ^ super.hashCode();
   }
@@ -336,27 +336,27 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets a comma-separated list of database object groups on which to operate.
+   * Gets a comma-separated list of database schema names on which to operate.
    * @return the value of the property
    */
-  public String getGroupsList() {
-    return _groupsList;
+  public String getSchemaNamesList() {
+    return _schemaNamesList;
   }
 
   /**
-   * Sets a comma-separated list of database object groups on which to operate.
-   * @param groupsList  the new value of the property
+   * Sets a comma-separated list of database schema names on which to operate.
+   * @param schemaNamesList  the new value of the property
    */
-  public void setGroupsList(String groupsList) {
-    this._groupsList = groupsList;
+  public void setSchemaNamesList(String schemaNamesList) {
+    this._schemaNamesList = schemaNamesList;
   }
 
   /**
-   * Gets the the {@code groupsList} property.
+   * Gets the the {@code schemaNamesList} property.
    * @return the property, not null
    */
-  public final Property<String> groupsList() {
-    return metaBean().groupsList().createProperty(this);
+  public final Property<String> schemaNamesList() {
+    return metaBean().schemaNamesList().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -415,10 +415,10 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<DbManagement> _dbManagement = DirectMetaProperty.ofReadWrite(
         this, "dbManagement", DbToolContextComponentFactory.class, DbManagement.class);
     /**
-     * The meta-property for the {@code groupsList} property.
+     * The meta-property for the {@code schemaNamesList} property.
      */
-    private final MetaProperty<String> _groupsList = DirectMetaProperty.ofReadWrite(
-        this, "groupsList", DbToolContextComponentFactory.class, String.class);
+    private final MetaProperty<String> _schemaNamesList = DirectMetaProperty.ofReadWrite(
+        this, "schemaNamesList", DbToolContextComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code scriptsResource} property.
      */
@@ -433,7 +433,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         "dbConnector",
         "jdbcUrl",
         "dbManagement",
-        "groupsList",
+        "schemaNamesList",
         "scriptsResource");
 
     /**
@@ -453,8 +453,8 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
           return _jdbcUrl;
         case 209279841:  // dbManagement
           return _dbManagement;
-        case 1299772562:  // groupsList
-          return _groupsList;
+        case 1541392229:  // schemaNamesList
+          return _schemaNamesList;
         case 1948576054:  // scriptsResource
           return _scriptsResource;
       }
@@ -510,11 +510,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code groupsList} property.
+     * The meta-property for the {@code schemaNamesList} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> groupsList() {
-      return _groupsList;
+    public final MetaProperty<String> schemaNamesList() {
+      return _schemaNamesList;
     }
 
     /**

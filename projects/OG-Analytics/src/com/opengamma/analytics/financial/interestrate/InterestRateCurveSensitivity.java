@@ -50,7 +50,9 @@ public class InterestRateCurveSensitivity {
    * @param sensitivityCurve The sensitivity as a list, not null
    * @return The interest rate curve sensitivity.
    */
-  public static InterestRateCurveSensitivity from(final String name, final List<DoublesPair> sensitivityCurve) {
+  public static InterestRateCurveSensitivity of(final String name, final List<DoublesPair> sensitivityCurve) {
+    ArgumentChecker.notNull(name, "Curve name");
+    ArgumentChecker.notNull(sensitivityCurve, "sensitivity");
     final HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
     ircs.put(name, sensitivityCurve);
     return new InterestRateCurveSensitivity(ircs);
@@ -78,6 +80,7 @@ public class InterestRateCurveSensitivity {
    * @return The total sensitivity.
    */
   public InterestRateCurveSensitivity plus(final InterestRateCurveSensitivity other) {
+    ArgumentChecker.notNull(other, "Curve sensitivity");
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
   }
 
@@ -88,6 +91,8 @@ public class InterestRateCurveSensitivity {
    * @return The total sensitivity.
    */
   public InterestRateCurveSensitivity plus(final String curveName, final List<DoublesPair> list) {
+    ArgumentChecker.notNull(curveName, "Curve name");
+    ArgumentChecker.notNull(list, "Sensitivity as list");
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, curveName, list));
   }
 
@@ -96,7 +101,7 @@ public class InterestRateCurveSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public InterestRateCurveSensitivity multiply(final double factor) {
+  public InterestRateCurveSensitivity multipliedBy(final double factor) {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 

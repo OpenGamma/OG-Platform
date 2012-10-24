@@ -79,7 +79,7 @@ public final class CouponFixedDiscountingMarketMethod implements PricingMarketMe
     list.add(s);
     mapDsc.put(market.getName(cpn.getCurrency()), list);
     MultipleCurrencyCurveSensitivityMarket result = new MultipleCurrencyCurveSensitivityMarket();
-    result = result.plus(cpn.getCurrency(), CurveSensitivityMarket.fromYieldDiscounting(mapDsc));
+    result = result.plus(cpn.getCurrency(), CurveSensitivityMarket.ofYieldDiscounting(mapDsc));
     return result;
   }
 

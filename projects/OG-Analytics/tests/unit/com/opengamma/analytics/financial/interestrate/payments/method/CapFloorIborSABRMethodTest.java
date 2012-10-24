@@ -158,7 +158,7 @@ public class CapFloorIborSABRMethodTest {
     InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multipliedBy(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1.0E+2;

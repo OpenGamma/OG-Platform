@@ -9,10 +9,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.calculator.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.analytics.financial.interestrate.market.calculator.PresentValueMarketCalculator;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.financial.convention.daycount.DayCount;

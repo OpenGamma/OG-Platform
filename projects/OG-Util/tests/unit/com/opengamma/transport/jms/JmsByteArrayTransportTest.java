@@ -28,11 +28,12 @@ import com.opengamma.util.test.Timeout;
  */
 @Test
 public class JmsByteArrayTransportTest {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
-  
+
   private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
-  
+
+  @Test(invocationCount = 5, successPercentage = 19)
   public void topicConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
@@ -81,7 +82,8 @@ public class JmsByteArrayTransportTest {
     container.stop();
     container.destroy();
   }
-  
+
+  @Test(invocationCount = 5, successPercentage = 19)
   public void requestConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-requestConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();

@@ -7,10 +7,10 @@ package com.opengamma.analytics.financial.credit.hazardratemodel;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -59,7 +59,7 @@ public class CalibrateHazardRate {
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
-  public double[] getCalibratedHazardRateTermStructure(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, YieldCurve yieldCurve) {
+  public double[] getCalibratedHazardRateTermStructure(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, /*YieldCurve*/ISDACurve yieldCurve) {
 
     // ----------------------------------------------------------------------------
 
@@ -96,13 +96,13 @@ public class CalibrateHazardRate {
 
     // ----------------------------------------------------------------------------
 
-    // Build a cashflow schedule object - need to do this just to convert tenors to doubles
+    // Build a cashflow schedule object - need to do this just to convert tenors to doubles (bit wasteful)
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // get the adjusted effective date
     ZonedDateTime adjustedEffectiveDate = cashflowSchedule.getAdjustedEffectiveDate(cds);
 
-    ArgumentChecker.isTrue(adjustedEffectiveDate.equals(cds.getValuationDate()), "Valuation date should equal the adjusted effective date for calibration");
+    //ArgumentChecker.isTrue(adjustedEffectiveDate.equals(cds.getValuationDate()), "Valuation date should equal the adjusted effective date for calibration");
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
     double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
@@ -150,7 +150,7 @@ public class CalibrateHazardRate {
   private double calibrateHazardRate(
       CreditDefaultSwapDefinition calibrationCDS,
       PresentValueCreditDefaultSwap presentValueCDS,
-      YieldCurve yieldCurve,
+      /*YieldCurve*/ISDACurve yieldCurve,
       double[] runningTenors,
       double[] hazardRates) {
 
@@ -162,7 +162,7 @@ public class CalibrateHazardRate {
     // ------------------------------------------------------------------------
 
     // Calculate the initial guess for the calibrated hazard rate for this tenor
-    double hazardRateGuess = 0.0; //(calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
+    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
 
     // Calculate the initial bounds for the hazard rate search
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;
@@ -242,7 +242,7 @@ public class CalibrateHazardRate {
       double[] tenors,
       double[] hazardRates,
       double hazardRateMidPoint,
-      YieldCurve yieldCurve,
+      /*YieldCurve*/ISDACurve yieldCurve,
       HazardRateCurve hazardRateCurve) {
 
     int numberOfTenors = tenors.length;

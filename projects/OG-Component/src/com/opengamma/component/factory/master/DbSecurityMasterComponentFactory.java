@@ -116,7 +116,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
         master.setDetailProvider(dp);
       }
     }
-    checkSchemaVersion(master.getSchemaVersion(), "sec_db");
+    checkSchemaVersion(master.getSchemaVersion(), "sec");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

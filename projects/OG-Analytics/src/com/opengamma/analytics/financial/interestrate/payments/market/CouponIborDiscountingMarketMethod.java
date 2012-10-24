@@ -96,7 +96,7 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
         .getFixingAccrualFactor()), forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(),
-        CurveSensitivityMarket.fromYieldDiscountingAndForward(mapDsc, mapFwd));
+        CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
     return result;
   }
 

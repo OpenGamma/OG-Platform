@@ -6,6 +6,7 @@
 package com.opengamma.util.db.script;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides access to database scripts from a standard directory structure.
@@ -38,9 +40,9 @@ public class DbScriptReader {
    */
   private static final String MIGRATE_PATH = "migrate";
   /**
-   * The group name directory suffix
+   * The schema name directory suffix
    */
-  private static final String GROUP_PATH_SUFFIX = "_db";
+  private static final String SCHEMA_PATH_SUFFIX = "_db";
   /**
    * The create script name pattern.
    */
@@ -50,9 +52,9 @@ public class DbScriptReader {
    */
   private static final Pattern MIGRATE_SCRIPT_PATTERN = Pattern.compile("^V_([0-9]+)__(.+?)\\.sql");
   /**
-   * The group directory name pattern.
+   * The schema directory name pattern.
    */
-  private static final Pattern GROUP_DIR_PATTERN = Pattern.compile("^(.+)" + GROUP_PATH_SUFFIX);
+  private static final Pattern SCHEMA_DIR_PATTERN = Pattern.compile("^(.+)" + SCHEMA_PATH_SUFFIX);
   
   /**
    * The base directory.
@@ -76,19 +78,19 @@ public class DbScriptReader {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets an ordered list of migration scripts to upgrade a schema group from the current to the latest version.
+   * Gets an ordered list of migration scripts required to upgrade a schema from the current to the latest version.
    * 
    * @param databaseName  the internal database vendor name, not null
-   * @param groupName  the group name of the database objects, not null
+   * @param schemaName  the schema name, not null
    * @param currentVersion  the current database version from which to migrate
    * @return an ordered list of migration scripts, empty if nothing to upgrade
    */
-  public List<DbScript> getMigrationScripts(String databaseName, String groupName, int currentVersion) {
+  public List<DbScript> getMigrationScripts(String databaseName, String schemaName, int currentVersion) {
     ArgumentChecker.notNull(databaseName, "databaseName");
-    ArgumentChecker.notNull(groupName, "groupName");
-    DbScriptDirectory groupMigrateBaseDir = getScriptsDir(MIGRATE_PATH, databaseName, groupName);
+    ArgumentChecker.notNull(schemaName, "schemaName");
+    DbScriptDirectory schemaMigrateBaseDir = getScriptsDir(MIGRATE_PATH, databaseName, schemaName);
     Map<Integer, DbScript> versionedScripts = new TreeMap<Integer, DbScript>();
-    for (DbScript script : groupMigrateBaseDir.getScripts()) {
+    for (DbScript script : schemaMigrateBaseDir.getScripts()) {
       Matcher m = MIGRATE_SCRIPT_PATTERN.matcher(script.getName());
       if (!m.matches()) {
         continue;
@@ -102,19 +104,34 @@ public class DbScriptReader {
   }
 
   /**
-   * Gets the creation script for the latest version of a given group.
+   * Gets the creation script for the latest version of a given schema.
    * 
    * @param databaseName  the internal database vendor name, not null
-   * @param groupName  the group name of the database objects, not null
+   * @param schemaName  the schema name, not null
    * @return the creation script, not null
    */
-  public DbScript getCreationScript(String databaseName, String groupName) {
+  public DbScript getCreationScript(String databaseName, String schemaName) {
+    return getLatestCreationScript(databaseName, schemaName).getFirst();
+  }
+  
+  /**
+   * Gets the version number of the latest creation script for a database vendor and schema.
+   * 
+   * @param databaseName  the internal database vendor name, not null
+   * @param schemaName  the schema name, not null
+   * @return the version number of the latest creation script
+   */
+  public int getLatestCreationScriptVersion(String databaseName, String schemaName) {
+    return getLatestCreationScript(databaseName, schemaName).getSecond();
+  }
+  
+  private Pair<DbScript, Integer> getLatestCreationScript(String databaseName, String schemaName) {
     ArgumentChecker.notNull(databaseName, "databaseName");
-    ArgumentChecker.notNull(groupName, "groupName");
-    DbScriptDirectory groupCreateBaseDir = getScriptsDir(CREATE_PATH, databaseName, groupName);
+    ArgumentChecker.notNull(schemaName, "schemaName");
+    DbScriptDirectory schemaCreateBaseDir = getScriptsDir(CREATE_PATH, databaseName, schemaName);
     int latestVersion = -1;
     DbScript latestCreateScript = null;
-    for (DbScript script : groupCreateBaseDir.getScripts()) {
+    for (DbScript script : schemaCreateBaseDir.getScripts()) {
       Matcher m = CREATE_SCRIPT_PATTERN.matcher(script.getName());
       if (!m.matches()) {
         continue;
@@ -122,40 +139,78 @@ public class DbScriptReader {
       int version = Integer.parseInt(m.group(1));
       if (version > latestVersion) {
         latestCreateScript = script;
+        latestVersion = version;
       }
     }
     if (latestCreateScript == null) {
-      throw new OpenGammaRuntimeException("No create scripts found for group '" + groupName + "'");
+      throw new OpenGammaRuntimeException("No create scripts found for schema '" + schemaName + "'");
     }
-    return latestCreateScript;
+    return Pair.of(latestCreateScript, latestVersion);    
   }
   
   /**
-   * Gets the group names.
+   * Gets all database vendor names.
+   * 
+   * @return a set of all database vendor names, not null
+   */
+  public Set<String> getDatabaseVendors() {
+    Set<String> databaseNames = new HashSet<String>();
+    for (DbScriptDirectory directory : getDatabaseVendorsDir(CREATE_PATH).getSubdirectories()) {
+      databaseNames.add(directory.getName());
+    }
+    return databaseNames;
+  }
+  
+  /**
+   * Gets the schema names for a given database vendor.
    *
    * @param databaseName  the internal database vendor name, not null
-   * @return the group names, not null
+   * @return the schema names, not null
    */
-  public Set<String> getAllGroupNames(String databaseName) {
-    Set<String> groupNames = new HashSet<String>();
-    DbScriptDirectory schemaGroupsDir = getSchemaGroupsDir(CREATE_PATH, databaseName);
-    for (DbScriptDirectory groupDir : schemaGroupsDir.getSubdirectories()) {
-      Matcher m = GROUP_DIR_PATTERN.matcher(groupDir.getName());
+  public Set<String> getAllSchemaNames(String databaseName) {
+    Set<String> schemaNames = new HashSet<String>();
+    DbScriptDirectory schemasDir = getSchemasDir(CREATE_PATH, databaseName);
+    for (DbScriptDirectory schemaDir : schemasDir.getSubdirectories()) {
+      Matcher m = SCHEMA_DIR_PATTERN.matcher(schemaDir.getName());
       if (!m.matches()) {
         continue;
       }
-      groupNames.add(m.group(1));
+      schemaNames.add(m.group(1));
     }
-    return groupNames;
+    return schemaNames;
+  }
+  
+  /**
+   * Gets a map of schema names to the latest schema version.
+   * 
+   * @return a map from schema name to the latest schema version, not null
+   */
+  public Map<String, Integer> getLatestVersions() {
+    Map<String, Integer> result = new HashMap<String, Integer>();
+    for (String databaseName : getDatabaseVendors()) {
+      for (String schemaName : getAllSchemaNames(databaseName)) {
+        int latestVersion = getLatestCreationScriptVersion(databaseName, schemaName);
+        Integer existingLatest = result.get(schemaName);
+        // Use the latest version across all database vendors - it's feasible that some schema upgrades are added first
+        if (existingLatest == null || existingLatest < latestVersion) {
+          result.put(schemaName, latestVersion);
+        }
+      }
+    }
+    return result;
   }
   
   //-------------------------------------------------------------------------
-  private DbScriptDirectory getSchemaGroupsDir(String scriptType, String databaseName) {
-    return getBaseDir().getSubdirectory(scriptType).getSubdirectory(databaseName);
+  private DbScriptDirectory getDatabaseVendorsDir(String scriptType) {
+    return getBaseDir().getSubdirectory(scriptType);
   }
   
-  private DbScriptDirectory getScriptsDir(String scriptType, String databaseName, String schemaGroup) {
-    return getSchemaGroupsDir(scriptType, databaseName).getSubdirectory(schemaGroup + GROUP_PATH_SUFFIX);
+  private DbScriptDirectory getSchemasDir(String scriptType, String databaseName) {
+    return getDatabaseVendorsDir(scriptType).getSubdirectory(databaseName);
+  }
+  
+  private DbScriptDirectory getScriptsDir(String scriptType, String databaseName, String schemaName) {
+    return getSchemasDir(scriptType, databaseName).getSubdirectory(schemaName + SCHEMA_PATH_SUFFIX);
   }
 
 }

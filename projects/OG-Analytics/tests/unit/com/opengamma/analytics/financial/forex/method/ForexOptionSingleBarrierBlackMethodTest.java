@@ -339,7 +339,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     assertEquals("Forex single barrier option: currency exposure long/short parity", ceLong.getAmount(CUR_1), -ceShort.getAmount(CUR_1), 1E-2);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsShort = METHOD_BARRIER.presentValueCurveSensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsLong = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multiply(-1.0));
+    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multipliedBy(-1.0));
     final PresentValueForexBlackVolatilitySensitivity pvvsShort = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilitySensitivity pvvsLong = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, pvvsShort.multipliedBy(-1.0));

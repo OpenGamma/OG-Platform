@@ -45,12 +45,12 @@ public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> 
     }
     SqlScriptWriter writer = createSqlScriptWriter();
     try {
-      Set<String> groups = getDbToolContext().getGroups() != null ? getDbToolContext().getGroups() : getAllGroupNames();
-      for (String group : groups) {
-        s_logger.info("Processing group " + group);
-        DbScript script = getCreationScript(group);
+      Set<String> schemaNames = getDbToolContext().getSchemaNames() != null ? getDbToolContext().getSchemaNames() : getAllSchemaNames();
+      for (String schema : schemaNames) {
+        s_logger.info("Processing schema " + schema);
+        DbScript script = getCreationScript(schema);
         s_logger.debug("Using script: " + script);
-        writer.write(group, script);
+        writer.write(schema, script);
       }
       s_logger.info("Scripts processed successfully");
     } catch (IOException e) {
