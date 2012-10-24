@@ -117,9 +117,11 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints().copy()
-        .withoutAny(ValuePropertyNames.CURRENCY).withAny(ValuePropertyNames.CURRENCY)
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .withAny(ValuePropertyNames.CURRENCY)
         .with(CONVERSION_CCY_PROPERTY, Iterables.getOnlyElement(desiredCurrencyValues))
-        .withOptional(CONVERSION_CCY_PROPERTY).get();
+        .withOptional(CONVERSION_CCY_PROPERTY)
+        .get();
     return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), constraints));
   }
 
@@ -138,8 +140,9 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
       final Currency originalCurrency = Currency.of(input.getProperty(ValuePropertyNames.CURRENCY));
       final ValueSpecification output = outputs.iterator().next(); // only one output, so must be the result P&L Series
       final Currency desiredCurrency = Currency.of(output.getProperty(ValuePropertyNames.CURRENCY));
-      return getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
-        new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
+      Set<ValueRequirement> addlReqSet = getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
+          new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
+      return addlReqSet;
     } catch (final Exception e) {
       return null;
     }
