@@ -312,9 +312,12 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       if (key.getFirst() instanceof ObjectId) {
         ObjectId objectId = (ObjectId) key.getFirst();
         VersionCorrection vc = key.getSecond();
-        if (objectId.equals(oid) && vc.getCorrectedTo() == null && !vc.getVersionAsOf().isBefore(versionFrom) && !vc.getVersionAsOf().isAfter(versionTo)) {
+        if (objectId.equals(oid) && vc.getCorrectedTo() == null &&
+            !vc.getVersionAsOf().isBefore(versionFrom) && !vc.getVersionAsOf().isAfter(versionTo)) {
           _frontCache2.remove(key);
         }
+      } else {
+        _frontCache2.remove(key);
       }
     }
     
