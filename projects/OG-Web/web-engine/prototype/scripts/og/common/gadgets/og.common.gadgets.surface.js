@@ -26,16 +26,16 @@ $.register_module({
                         zs_labels: data.y_labels,
                         zs_label: 'z test'
                     };
-                    if (!surface) {
-                        surface = new JSurface3D(surface_options);
-                        gadget.alive = function () {
-                            var live = !!$('.' + alive).length;
-                            if (!live) surface.die(), gadget.dataman.kill();
-                            return live;
-                        };
-                        gadget.resize = surface.resize;
-                        if (!config.child) og.common.gadgets.manager.register(gadget);
-                    } else surface.update_surface_plane(surface_options.data);
+//                    if (!surface) {
+//                        surface = new JSurface3D(surface_options);
+//                        gadget.alive = function () {
+//                            var live = !!$('.' + alive).length;
+//                            if (!live) surface.die(), gadget.dataman.kill();
+//                            return live;
+//                        };
+//                        gadget.resize = surface.resize;
+//                        if (!config.child) og.common.gadgets.manager.register(gadget);
+//                    } else surface.update_surface_plane(surface_options.data);
                 });
         }
     }
