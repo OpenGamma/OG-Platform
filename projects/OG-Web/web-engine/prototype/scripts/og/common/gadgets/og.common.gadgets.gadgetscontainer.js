@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
+        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, counter = 1,
             header = ' .ui-layout-header';
         var constructor = function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, highlight_timer,
@@ -135,6 +135,7 @@ $.register_module({
                 else {
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, i) {
+                        console.log(gadgets);
                         return acc.push({
                             'type': val.config.type, 'row_name': val.config.row_name, 'col_name': val.config.col_name,
                             'active': gadgets[i].active = id === val.id, 'delete': true, 'id': val.id
@@ -221,11 +222,13 @@ $.register_module({
                 $.when(
                     api.text({module: 'og.analytics.tabs_tash'}),
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
-                    api.text({module: 'og.analytics.dropbox_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl) {
+                    api.text({module: 'og.analytics.dropbox_tash'}),
+                    api.text({module: 'og.analytics.typemenu_tash'})
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl) {
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
+                    if (!typemenu_template) typemenu_template = Handlebars.compile(typemenu_tmpl);
                     if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
                     initialized = true;
                     loading = false;
@@ -238,6 +241,10 @@ $.register_module({
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
+                            }
+                            else if($(e.target).hasClass('OG-multiselect')){}
+                                $('body').append(typemenu_template({types:[{name: 'blah'}, {name: 'beep'}, {name: 'boop'}]}));
+                                console.log()
                             }
                         });
                     if (!data) update_tabs(null); else container.add(data);
