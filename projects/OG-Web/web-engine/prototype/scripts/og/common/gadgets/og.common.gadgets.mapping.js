@@ -28,7 +28,8 @@ $.register_module({
                     options: {source: source, child: true},
                     row_name: cell.row_name,
                     col_name: cell.col_name,
-                    type: gadget_names[type]
+                    type: gadget_names[type],
+                    data_type: cell.type
                 };
                 if (type === 'Data' || type === 'Curve' || type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
