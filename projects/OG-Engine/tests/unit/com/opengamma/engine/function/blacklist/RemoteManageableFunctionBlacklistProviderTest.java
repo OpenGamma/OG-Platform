@@ -96,6 +96,7 @@ public class RemoteManageableFunctionBlacklistProviderTest {
     return Response.ok().build();
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testGetBlacklist() {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
@@ -126,6 +127,7 @@ public class RemoteManageableFunctionBlacklistProviderTest {
     }
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testReceiveUpdates() throws InterruptedException {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
@@ -142,6 +144,7 @@ public class RemoteManageableFunctionBlacklistProviderTest {
     }
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testPostUpdates() throws InterruptedException {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
