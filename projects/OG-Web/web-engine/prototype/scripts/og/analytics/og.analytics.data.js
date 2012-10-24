@@ -55,7 +55,8 @@ $.register_module({
                 if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
-                api.put(put_options).pipe(view_handler);
+                try {api.put(put_options).pipe(view_handler);}
+                catch (error) {fire(data.events.fatal, error.message);}
             };
             var structure_handler = function (result) {
                 var message;
@@ -151,7 +152,7 @@ $.register_module({
                 return data;
             };
             connections[data.id] = data;
-            initialize();
+            setTimeout(initialize); // allow events to be attached
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;

@@ -71,9 +71,9 @@ $.register_module({
         var constructor = function (config) {
             var grid = this;
             grid.config = config || {};
-            grid.elements = {empty: true, parent: $(config.selector).html('instantiating grid...')};
+            grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.events = {
-                cellhoverin: [], cellhoverout: [], cellselect: [], mousedown: [],
+                cellhoverin: [], cellhoverout: [], cellselect: [], fatal: [], mousedown: [],
                 rangeselect: [], render: [], scroll: [], select: [], viewchange: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
@@ -92,7 +92,9 @@ $.register_module({
             var grid = this, config = grid.config;
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);})
+                .on('fatal', function (error) {
+                    fire(grid.events.fatal), grid.elements.parent.html('&nbsp;fatal error: ' + error);
+                })
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
                         return {

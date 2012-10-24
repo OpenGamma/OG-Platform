@@ -11,7 +11,10 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
-                routes.go(routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data}));
+                var current = og.common.routes.current().hash,
+                    hash = routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data});
+                if (current === hash) return window.location.reload();
+                routes.go(hash);
             });
         };
         return url = {
@@ -45,7 +48,7 @@ $.register_module({
                             source: $.extend({}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
-                        });
+                        }).on('fatal', url.clear_main);
                     }
                     panels.forEach(function (panel) {
                         var gadgets = config[panel];
