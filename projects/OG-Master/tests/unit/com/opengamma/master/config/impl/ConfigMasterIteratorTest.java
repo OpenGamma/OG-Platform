@@ -28,26 +28,25 @@ import com.opengamma.master.config.ConfigSearchSortOrder;
 @Test
 public class ConfigMasterIteratorTest {
 
-  private ConfigItem<ExternalId> _item1;
-  private ConfigItem<ExternalId> _item2;
-  private ConfigItem<ExternalId> _item3;
-  private ConfigItem<ExternalId> _item4;
+  private ConfigDocument _doc1;
+  private ConfigDocument _doc2;
+  private ConfigDocument _doc3;
+  private ConfigDocument _doc4;
 
   private ConfigMaster _configMaster;
 
-  @SuppressWarnings("unchecked")
   @BeforeMethod
   public void setUp() throws Exception {
-    _item1 = ConfigItem.of(ExternalId.of("A", "B"), "Test1");
-    _item2 = ConfigItem.of(ExternalId.of("C", "D"), "Test2");
-    _item3 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
-    _item4 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
+    ConfigItem<ExternalId> item1 = ConfigItem.of(ExternalId.of("A", "B"), "Test1");
+    ConfigItem<ExternalId> item2 = ConfigItem.of(ExternalId.of("C", "D"), "Test2");
+    ConfigItem<ExternalId> item3 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
+    ConfigItem<ExternalId> item4 = ConfigItem.of(ExternalId.of("E", "F"), "Test3");
     
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
-    _item1 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item1)).getConfig();
-    _item2 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item2)).getConfig();
-    _item3 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item3)).getConfig();
-    _item4 = (ConfigItem<ExternalId>) configMaster.add(new ConfigDocument(_item4)).getConfig();
+    _doc1 = configMaster.add(new ConfigDocument(item1));
+    _doc2 = configMaster.add(new ConfigDocument(item2));
+    _doc3 = configMaster.add(new ConfigDocument(item3));
+    _doc4 = configMaster.add(new ConfigDocument(item4));
     _configMaster = configMaster;
   }
 
@@ -75,22 +74,22 @@ public class ConfigMasterIteratorTest {
     ConfigSearchIterator<ExternalId> iterator = new ConfigSearchIterator<ExternalId>(_configMaster, request);
     assertEquals(true, iterator.hasNext());
     assertEquals(0, iterator.nextIndex());
-    assertEquals(_item1, iterator.next());
+    assertEquals(_doc1, iterator.next());
     assertEquals(1, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(1, iterator.nextIndex());
-    assertEquals(_item2, iterator.next());
+    assertEquals(_doc2, iterator.next());
     assertEquals(2, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(2, iterator.nextIndex());
-    assertEquals(_item3, iterator.next());
+    assertEquals(_doc3, iterator.next());
     assertEquals(3, iterator.nextIndex());
     
     assertEquals(true, iterator.hasNext());
     assertEquals(3, iterator.nextIndex());
-    assertEquals(_item4, iterator.next());
+    assertEquals(_doc4, iterator.next());
     assertEquals(4, iterator.nextIndex());
     
     assertEquals(false, iterator.hasNext());
