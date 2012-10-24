@@ -11,9 +11,9 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
-                var current = og.common.routes.current().hash,
+                var current = routes.current(),
                     hash = routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data});
-                if (current === hash) return window.location.reload();
+                if (current.hash === hash) return url.process(current.args);
                 routes.go(hash);
             });
         };

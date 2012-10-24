@@ -93,7 +93,9 @@ $.register_module({
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {
-                    fire(grid.events.fatal), grid.elements.parent.html('&nbsp;fatal error: ' + error);
+                    grid.elements.parent.html('&nbsp;fatal error: ' + error);
+                    grid.dataman.kill();
+                    fire(grid.events.fatal);
                 })
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
