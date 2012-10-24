@@ -143,19 +143,7 @@ public class DataConfigResource extends AbstractDataResource {
 
   @POST
   @Path("versions/{versionId}")
-  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument request) {
-    UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
-    if (!uniqueId.equals(request.getUniqueId())) {
-      throw new IllegalArgumentException("Document uniqueId does not match URI");
-    }
-    ConfigDocument result = getConfigMaster().correct(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
-  }
-
-  @POST
-  @Path("versions/{versionId}")
-  public Response addVersion(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument document) {
+  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument document) {
     UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
     if (!uniqueId.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Document uniqueId does not match URI");
