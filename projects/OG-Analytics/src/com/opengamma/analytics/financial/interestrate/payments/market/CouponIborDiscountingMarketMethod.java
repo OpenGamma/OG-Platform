@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
@@ -92,8 +91,7 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
     mapDsc.put(market.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<MarketForwardSensitivity>> mapFwd = new HashMap<String, List<MarketForwardSensitivity>>();
     final List<MarketForwardSensitivity> listForward = new ArrayList<MarketForwardSensitivity>();
-    listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon
-        .getFixingAccrualFactor()), forwardBar));
+    listForward.add(new MarketForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(),
         CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));

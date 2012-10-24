@@ -69,8 +69,8 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket of(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<MarketForwardSensitivity>> sensitivityForward,
-      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket of(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
+      final Map<String, List<MarketForwardSensitivity>> sensitivityForward, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityForward, "Sensitivity forward");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
@@ -116,7 +116,8 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket ofYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket ofYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, new HashMap<String, List<MarketForwardSensitivity>>(), sensitivityPriceCurve);
@@ -199,7 +200,8 @@ public class CurveSensitivityMarket {
    * @param map2 The second map.
    * @return The sum.
    */
-  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1, final Map<String, List<MarketForwardSensitivity>> map2) {
+  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1,
+      final Map<String, List<MarketForwardSensitivity>> map2) {
     final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
     for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map1.entrySet()) {
       final List<MarketForwardSensitivity> temp = new ArrayList<MarketForwardSensitivity>();
@@ -256,7 +258,7 @@ public class CurveSensitivityMarket {
     for (final String name : map.keySet()) {
       final List<MarketForwardSensitivity> curveSensi = new ArrayList<MarketForwardSensitivity>();
       for (final MarketForwardSensitivity pair : map.get(name)) {
-        curveSensi.add(new MarketForwardSensitivity(pair.getPoint(), pair.getValue() * factor));
+        curveSensi.add(new MarketForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
       }
       result.put(name, curveSensi);
     }
@@ -311,16 +313,19 @@ public class CurveSensitivityMarket {
       final List<MarketForwardSensitivity> listClean = new ArrayList<MarketForwardSensitivity>();
       final Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
       for (final MarketForwardSensitivity pair : list) {
-        set.add(pair.getPoint());
+        set.add(new Triple<Double, Double, Double>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
       }
       for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
-          if (list.get(looplist).getPoint().equals(time)) {
+          final MarketForwardSensitivity fwdSensitivity = list.get(looplist);
+          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(),
+              fwdSensitivity.getAccrualFactor());
+          if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
         }
-        listClean.add(new MarketForwardSensitivity(time, sensi));
+        listClean.add(new MarketForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
       }
       result.put(entry.getKey(), listClean);
     }
@@ -352,7 +357,8 @@ public class CurveSensitivityMarket {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2, final double tolerance) {
+  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2,
+      final double tolerance) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
     for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi1.entrySet()) {
@@ -382,8 +388,9 @@ public class CurveSensitivityMarket {
    */
   private static boolean compareFwd(final List<MarketForwardSensitivity> sensi1, final List<MarketForwardSensitivity> sensi2, final double tolerance) {
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
-      if ((Math.abs(sensi1.get(looptime).getPoint().getFirst() - sensi2.get(looptime).getPoint().getFirst()) > tolerance)
-          || (Math.abs(sensi1.get(looptime).getValue() - sensi2.get(looptime).getValue()) > tolerance)) {
+      final double startTime1 = sensi1.get(looptime).getStartTime();
+      final double startTime2 = sensi2.get(looptime).getStartTime();
+      if ((Math.abs(startTime1 - startTime2) > tolerance) || (Math.abs(sensi1.get(looptime).getValue() - sensi2.get(looptime).getValue()) > tolerance)) {
         return false;
       }
     }
@@ -405,10 +412,7 @@ public class CurveSensitivityMarket {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof CurveSensitivityMarket)) {
       return false;
     }
     final CurveSensitivityMarket other = (CurveSensitivityMarket) obj;
