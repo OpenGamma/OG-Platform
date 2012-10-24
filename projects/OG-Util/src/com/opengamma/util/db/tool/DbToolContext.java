@@ -47,10 +47,10 @@ public class DbToolContext extends DirectBean implements Closeable {
   @PropertyDefinition
   private String _catalog;
   /**
-   * The database object groups on which to operate.
+   * The database schema names on which to operate.
    */
   @PropertyDefinition
-  private Set<String> _groups;
+  private Set<String> _schemaNames;
   /**
    * The database script reader.
    */
@@ -92,8 +92,8 @@ public class DbToolContext extends DirectBean implements Closeable {
         return getDbManagement();
       case 555704345:  // catalog
         return getCatalog();
-      case -1237460524:  // groups
-        return getGroups();
+      case -1026748889:  // schemaNames
+        return getSchemaNames();
       case -1635446418:  // scriptReader
         return getScriptReader();
     }
@@ -113,8 +113,8 @@ public class DbToolContext extends DirectBean implements Closeable {
       case 555704345:  // catalog
         setCatalog((String) newValue);
         return;
-      case -1237460524:  // groups
-        setGroups((Set<String>) newValue);
+      case -1026748889:  // schemaNames
+        setSchemaNames((Set<String>) newValue);
         return;
       case -1635446418:  // scriptReader
         setScriptReader((DbScriptReader) newValue);
@@ -133,7 +133,7 @@ public class DbToolContext extends DirectBean implements Closeable {
       return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
           JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
-          JodaBeanUtils.equal(getGroups(), other.getGroups()) &&
+          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames()) &&
           JodaBeanUtils.equal(getScriptReader(), other.getScriptReader());
     }
     return false;
@@ -145,7 +145,7 @@ public class DbToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGroups());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptReader());
     return hash;
   }
@@ -227,27 +227,27 @@ public class DbToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database object groups on which to operate.
+   * Gets the database schema names on which to operate.
    * @return the value of the property
    */
-  public Set<String> getGroups() {
-    return _groups;
+  public Set<String> getSchemaNames() {
+    return _schemaNames;
   }
 
   /**
-   * Sets the database object groups on which to operate.
-   * @param groups  the new value of the property
+   * Sets the database schema names on which to operate.
+   * @param schemaNames  the new value of the property
    */
-  public void setGroups(Set<String> groups) {
-    this._groups = groups;
+  public void setSchemaNames(Set<String> schemaNames) {
+    this._schemaNames = schemaNames;
   }
 
   /**
-   * Gets the the {@code groups} property.
+   * Gets the the {@code schemaNames} property.
    * @return the property, not null
    */
-  public final Property<Set<String>> groups() {
-    return metaBean().groups().createProperty(this);
+  public final Property<Set<String>> schemaNames() {
+    return metaBean().schemaNames().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -301,11 +301,11 @@ public class DbToolContext extends DirectBean implements Closeable {
     private final MetaProperty<String> _catalog = DirectMetaProperty.ofReadWrite(
         this, "catalog", DbToolContext.class, String.class);
     /**
-     * The meta-property for the {@code groups} property.
+     * The meta-property for the {@code schemaNames} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<String>> _groups = DirectMetaProperty.ofReadWrite(
-        this, "groups", DbToolContext.class, (Class) Set.class);
+    private final MetaProperty<Set<String>> _schemaNames = DirectMetaProperty.ofReadWrite(
+        this, "schemaNames", DbToolContext.class, (Class) Set.class);
     /**
      * The meta-property for the {@code scriptReader} property.
      */
@@ -319,7 +319,7 @@ public class DbToolContext extends DirectBean implements Closeable {
         "dbConnector",
         "dbManagement",
         "catalog",
-        "groups",
+        "schemaNames",
         "scriptReader");
 
     /**
@@ -337,8 +337,8 @@ public class DbToolContext extends DirectBean implements Closeable {
           return _dbManagement;
         case 555704345:  // catalog
           return _catalog;
-        case -1237460524:  // groups
-          return _groups;
+        case -1026748889:  // schemaNames
+          return _schemaNames;
         case -1635446418:  // scriptReader
           return _scriptReader;
       }
@@ -386,11 +386,11 @@ public class DbToolContext extends DirectBean implements Closeable {
     }
 
     /**
-     * The meta-property for the {@code groups} property.
+     * The meta-property for the {@code schemaNames} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<String>> groups() {
-      return _groups;
+    public final MetaProperty<Set<String>> schemaNames() {
+      return _schemaNames;
     }
 
     /**

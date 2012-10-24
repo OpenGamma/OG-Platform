@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.schema;
+package com.opengamma.util.db.tool;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +18,7 @@ import com.opengamma.util.test.DbTool;
 /**
  * Ant task which outputs files containing schema version information.
  */
-public class SchemaVersionTool extends Task {
+public class SchemaVersionTask extends Task {
 
   private String _dbScriptDir;
   private String _outputDir;
@@ -49,7 +49,7 @@ public class SchemaVersionTool extends Task {
       throw new BuildException("outputDir must be specified");
     }
     System.out.println("outputDir: " + getOutputDir());
-    final File outputDir = SchemaVersionUtils.getSchemaVersionDir(getOutputDir());
+    final File outputDir = new File(getOutputDir());
     if (outputDir.isFile()) {
       throw new BuildException("outputDir must be a directory");
     }
@@ -64,10 +64,14 @@ public class SchemaVersionTool extends Task {
     System.out.println("Found latest versions: " + latestVersions);
     
     for (final Map.Entry<String, Integer> schemaVersion : latestVersions.entrySet()) {
-      final String schemaName = schemaVersion.getKey();
+      String schemaName = schemaVersion.getKey();
+      // DbTool returns the full directory name rather than the schema name
+      if (schemaName.endsWith("_db")) {
+        schemaName = schemaName.substring(0, schemaName.length() - 3);
+      }
       final int latestVersion = schemaVersion.getValue();
       try {
-        final File f = new File(outputDir, schemaName);
+        final File f = new File(outputDir, DbSchemaVersionUtils.getSchemaVersionFileName(schemaName));
         if (f.exists()) {
           f.delete();
         }

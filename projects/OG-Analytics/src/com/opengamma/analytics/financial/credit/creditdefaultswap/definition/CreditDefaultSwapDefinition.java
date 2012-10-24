@@ -40,7 +40,8 @@ public class CreditDefaultSwapDefinition {
 
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Check that buyer is not equal to the seller etc
-  // TODO : Add methods to calc e.g. maturity as a double
+  // TODO : Add methods to calc e.g. time to maturity as a double?
+  // TODO : Need to make this class abstract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +104,7 @@ public class CreditDefaultSwapDefinition {
   private final double _notional;
 
   // The coupon (in bps) to apply to the premium leg (for legacy CDS where there is no exchange of upfront this is the par spread)
-  //private final double _premiumLegCoupon;
+  private final double _premiumLegCoupon;
 
   // The recovery rate to be used in the calculation of the CDS MtM (the recovery used in pricing can be different to the rate used to calibrate the hazard rates)
   private final double _recoveryRate;
@@ -145,7 +146,7 @@ public class CreditDefaultSwapDefinition {
       boolean adjustEffectiveDate,
       boolean adjustMaturityDate,
       double notional,
-      // double premiumLegCoupon,
+      double premiumLegCoupon,
       double recoveryRate,
       boolean includeAccruedPremium,
       boolean protectionStart) {
@@ -184,7 +185,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
-    //ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
+    ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
 
     ArgumentChecker.notNegative(recoveryRate, "Recovery Rate");
     ArgumentChecker.isTrue(recoveryRate <= 1.0, "Recovery rate should be less than or equal to 100%");
@@ -220,7 +221,7 @@ public class CreditDefaultSwapDefinition {
     _adjustMaturityDate = adjustMaturityDate;
 
     _notional = notional;
-    //_premiumLegCoupon = premiumLegCoupon;
+    _premiumLegCoupon = premiumLegCoupon;
 
     _recoveryRate = recoveryRate;
 
@@ -326,11 +327,9 @@ public class CreditDefaultSwapDefinition {
     return _notional;
   }
 
-  /*
   public double getPremiumLegCoupon() {
     return _premiumLegCoupon;
   }
-  */
 
   public double getRecoveryRate() {
     return _recoveryRate;
@@ -362,7 +361,7 @@ public class CreditDefaultSwapDefinition {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, /*_premiumLegCoupon,*/
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
@@ -376,7 +375,7 @@ public class CreditDefaultSwapDefinition {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional,/* premiumLegCoupon,*/
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
@@ -390,7 +389,7 @@ public class CreditDefaultSwapDefinition {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, /*_premiumLegCoupon,*/
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
@@ -404,7 +403,7 @@ public class CreditDefaultSwapDefinition {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, /*_premiumLegCoupon,*/
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;

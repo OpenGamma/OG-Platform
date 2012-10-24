@@ -104,8 +104,10 @@ $.register_module({
                         types_emitted = true;
                         return fire(data.events.types, {portfolio: portfolio, primitives: primitives});
                     }
-                    if (portfolio) return (grid_type = config.type = 'portfolio'), initialize();
-                    if (primitives) return (grid_type = config.type = 'primitives'), initialize();
+                    grid_type = config.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    if (portfolio && primitives && !types_emitted) // if both come back immediately, fire types event
+                        (types_emitted = true), fire(data.events.types, {portfolio: portfolio, primitives: primitives});
+                    if (portfolio || primitives) initialize();
                 });
             };
             var view_handler = function (result) {
@@ -128,16 +130,16 @@ $.register_module({
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {
-                    data.busy(true);
-                    if (viewport_id) viewports.del({
+                    if (viewport_id && data.busy(true)) viewports.del({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id
                     }).pipe(function (result) {data.busy(false);});
                     viewport = null; viewport_id = null;
+                    if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
                     return data;
                 }
                 if (!new_viewport.rows.length || !new_viewport.cols.length)
                     return og.dev.warn(module.name + ': nonsensical viewport, ', new_viewport), data;
-                viewport = new_viewport;
+                data.meta.viewport = viewport = new_viewport;
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 data.busy(true);
                 viewports.put({

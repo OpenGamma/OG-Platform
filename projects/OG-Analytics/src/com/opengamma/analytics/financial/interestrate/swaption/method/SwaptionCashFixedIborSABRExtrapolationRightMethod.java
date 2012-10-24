@@ -128,10 +128,10 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
     final double price = sabrExtrapolation.price(swaption);
-    result = result.multiply(pvbp * price);
-    result = result.plus(forwardDr.multiply(discountFactorSettle * (pvbpDf * price + pvbp * sabrExtrapolation.priceDerivativeForward(swaption))));
+    result = result.multipliedBy(pvbp * price);
+    result = result.plus(forwardDr.multipliedBy(discountFactorSettle * (pvbpDf * price + pvbp * sabrExtrapolation.priceDerivativeForward(swaption))));
     if (!swaption.isLong()) {
-      result = result.multiply(-1);
+      result = result.multipliedBy(-1);
     }
     return result;
   }

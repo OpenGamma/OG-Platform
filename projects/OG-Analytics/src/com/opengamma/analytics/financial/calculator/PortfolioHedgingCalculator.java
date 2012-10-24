@@ -39,10 +39,10 @@ public class PortfolioHedgingCalculator {
     final Currency ccy = ps.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: currency used for the conversion in a common currency. Any currency is fine.
     final int nbReference = rs.length;
-    final ParameterSensitivity psConverted = ps.convert(fxMatrix, ccy);
+    final ParameterSensitivity psConverted = ps.converted(fxMatrix, ccy);
     final ParameterSensitivity[] rsConverted = new ParameterSensitivity[nbReference];
     for (int loopref = 0; loopref < nbReference; loopref++) {
-      rsConverted[loopref] = rs[loopref].convert(fxMatrix, ccy);
+      rsConverted[loopref] = rs[loopref].converted(fxMatrix, ccy);
     }
     // Implementation note: converting the ParameterSensitivity into a matrix.
     DoubleMatrix1D p = psConverted.toMatrix();

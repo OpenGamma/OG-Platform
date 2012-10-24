@@ -88,7 +88,7 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     ArgumentChecker.notNull(curves, "curves");
     final InterestRateCurveSensitivity premiumSensitivity = PVCSC.visit(transaction.getPremium(), curves);
     final InterestRateCurveSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
-    return premiumSensitivity.plus(securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()));
+    return premiumSensitivity.plus(securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()));
   }
 
   /**

@@ -119,7 +119,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     final double priceBar = 1.0;
     final double priceFutureBar = priceAdjoint[1] * priceBar;
     final InterestRateCurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), blackData);
-    return priceFutureDerivative.multiply(priceFutureBar);
+    return priceFutureDerivative.multipliedBy(priceFutureBar);
   }
 
   /**

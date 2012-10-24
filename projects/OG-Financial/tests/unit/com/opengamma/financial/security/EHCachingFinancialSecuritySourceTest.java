@@ -56,6 +56,7 @@ public class EHCachingFinancialSecuritySourceTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
+    _cacheManager.clearAll();
     _underlyingSecuritySource = null;
     if (_cachingSecuritySource != null) {
       _cachingSecuritySource.shutdown();

@@ -20,12 +20,14 @@ $.register_module({
                     clearTimeout(timer), cellmenu.menu.removeClass(expand_class), cellmenu.hide();
                 }).on('mouseenter', open_icon, function () {
                     timer = clearTimeout(timer), setTimeout(function () {cellmenu.menu.addClass(expand_class);}, 500);
-				}).on('mouseenter', function () {
+                }).on('mouseenter', function () {
                     $.data(cellmenu, 'hover', true);
                 }).on('click', open_icon, function () {
                     cellmenu.menu.addClass(expand_class);
-				}).on('click', open_inplace, function () {
-                    console.log('open dialog in place here');	
+                }).on('click', open_inplace, function () {
+                    var panel, options = mapping.options(cellmenu.current, grid, panel);
+                    og.analytics.url.launch(options);
+                    console.log('open dialog in place here');
                 }).on('mouseenter', icons, function () {
                     var panel = panels[$(this).text() - 1];
                     panels.forEach(function (val) {og.analytics.containers[val].highlight(true, val === panel);});
@@ -43,24 +45,22 @@ $.register_module({
                         || (depgraph && $.inArray(type, onlydepgraphs) > -1);
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 }).on('cellhoverout', function () {
-					setTimeout(function () {if(!$(cellmenu).data('hover')) cellmenu.hide();}, 100);			
-				});
-				
+                    setTimeout(function () {if(!$(cellmenu).data('hover')) cellmenu.hide();}, 100);
+                });
             });
         };
         constructor.prototype.hide = function () {
             var cellmenu = this;
             if (cellmenu.menu && cellmenu.menu.length) {
-				cellmenu.menu.hide();
-				$.data(cellmenu, 'hover', false);
-			}
+                cellmenu.menu.hide();
+                $.data(cellmenu, 'hover', false);
+            }
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
-			
             if (cellmenu.menu && cellmenu.menu.length){
-				(cellmenu.menu).appendTo($('body')).css({top: current.top, left: current.right - width}).show();
-			}
+                (cellmenu.menu).appendTo($('body')).css({top: current.top, left: current.right - width}).show();
+            }
         };
         return constructor;
     }

@@ -29,7 +29,7 @@ public class ParameterSensitivity {
   /**
    * The matrix algebra used for the sensitivities (mainly adding and multiplying by a scalar factor).
    */
-  private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra();
+  private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra(); // TODO: Change to factory.
 
   /**
    * The map containing the sensitivity. The map linked a pair curve (String)/currency to vector of sensitivities (sensitivities to parameters/inputs).
@@ -49,6 +49,7 @@ public class ParameterSensitivity {
    * @param sensitivity The map with the sensitivities. The map is used directly, not copied.
    */
   public ParameterSensitivity(LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity) {
+    ArgumentChecker.notNull(sensitivity, "sensitivity");
     _sensitivity = sensitivity;
   }
 
@@ -95,7 +96,7 @@ public class ParameterSensitivity {
    * @param factor The factor.
    * @return The multiplied sensitivity.
    */
-  public ParameterSensitivity multiplyBy(final double factor) {
+  public ParameterSensitivity multipliedBy(final double factor) {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     for (final Pair<String, Currency> nameCcy : _sensitivity.keySet()) {
       result.put(nameCcy, (DoubleMatrix1D) MATRIX.scale(_sensitivity.get(nameCcy), factor));
@@ -109,7 +110,7 @@ public class ParameterSensitivity {
    * @param ccy The currency in which the sensitivity is converted.
    * @return The converted sensitivity.
    */
-  public ParameterSensitivity convert(final FXMatrix fxMatrix, final Currency ccy) {
+  public ParameterSensitivity converted(final FXMatrix fxMatrix, final Currency ccy) {
     ArgumentChecker.notNull(ccy, "Currency");
     ArgumentChecker.notNull(fxMatrix, "FX Matrix");
     ParameterSensitivity result = new ParameterSensitivity();

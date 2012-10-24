@@ -230,7 +230,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final InterestRateCurveSensitivity pvsLongPayer = METHOD.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     final InterestRateCurveSensitivity pvsShortPayer = METHOD.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
+    final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayer.multipliedBy(-1);
     assertEquals(pvsLongPayer.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // PresentValueCalculator
     final Map<String, List<DoublesPair>> pvscLongPayer = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);

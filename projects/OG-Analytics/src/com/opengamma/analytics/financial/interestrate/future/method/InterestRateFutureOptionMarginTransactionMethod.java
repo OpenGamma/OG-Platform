@@ -81,7 +81,7 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
     InterestRateCurveSensitivity securitySensitivity = _securityMethod.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
-    return securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+    return securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
   }
 

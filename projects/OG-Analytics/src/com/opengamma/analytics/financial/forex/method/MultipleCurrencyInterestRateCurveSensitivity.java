@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,6 +27,13 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   private final TreeMap<Currency, InterestRateCurveSensitivity> _sensitivity;
 
   /**
+   * Constructor. A new map is created.
+   */
+  public MultipleCurrencyInterestRateCurveSensitivity() {
+    _sensitivity = new TreeMap<Currency, InterestRateCurveSensitivity>();
+  }
+
+  /**
    * Private constructor from an exiting map.
    * @param sensitivity The sensitivity map.
    */
@@ -35,21 +42,14 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   }
 
   /**
-   * Constructor. A new map is created.
-   */
-  public MultipleCurrencyInterestRateCurveSensitivity() {
-    _sensitivity = new TreeMap<Currency, InterestRateCurveSensitivity>();
-  }
-
-  /**
    * Create a new multiple currency sensitivity with one currency.
    * @param ccy The currency. Not null.
-   * @param sensitivity The sensitivity associated to the currency. Not null.
+   * @param sensitivity The sensitivity associated to the currency. The sensitivity is used directly (not copied). Not null.
    * @return The multiple currency sensitivity.
    */
   public static MultipleCurrencyInterestRateCurveSensitivity of(final Currency ccy, final InterestRateCurveSensitivity sensitivity) {
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(sensitivity, "Sensitivity");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(sensitivity, "Sensitivity");
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     map.put(ccy, sensitivity);
     return new MultipleCurrencyInterestRateCurveSensitivity(map);
@@ -62,7 +62,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @return The (single currency) interest rate sensitivity.
    */
   public InterestRateCurveSensitivity getSensitivity(final Currency ccy) {
-    Validate.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(ccy, "Currency");
     if (_sensitivity.containsKey(ccy)) {
       return _sensitivity.get(ccy);
     }
@@ -79,8 +79,8 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity plus(final Currency ccy, final InterestRateCurveSensitivity sensitivity) {
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(sensitivity, "Sensitivity");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(sensitivity, "Sensitivity");
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     if (_sensitivity.containsKey(ccy)) {
       map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
@@ -103,7 +103,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity plus(final MultipleCurrencyInterestRateCurveSensitivity other) {
-    Validate.notNull(other, "Sensitivity");
+    ArgumentChecker.notNull(other, "Sensitivity");
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     map.putAll(_sensitivity);
     MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
@@ -121,7 +121,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   public MultipleCurrencyInterestRateCurveSensitivity multipliedBy(final double factor) {
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     for (final Currency loopccy : _sensitivity.keySet()) {
-      map.put(loopccy, _sensitivity.get(loopccy).multiply(factor));
+      map.put(loopccy, _sensitivity.get(loopccy).multipliedBy(factor));
     }
     return new MultipleCurrencyInterestRateCurveSensitivity(map);
   }
@@ -130,7 +130,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * Returns a new multiple currency sensitivity by creating clean sensitivity for each currency (see {@link InterestRateCurveSensitivity} clean() method).
    * @return The cleaned sensitivity.
    */
-  public MultipleCurrencyInterestRateCurveSensitivity clean() {
+  public MultipleCurrencyInterestRateCurveSensitivity cleaned() {
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).cleaned());
@@ -138,6 +138,8 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     final MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
     return result;
   }
+
+  //TODO: do we need a cleaned() method with tolerance (like in InterestRateCurveSensitivity)?
 
   /**
    * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
@@ -169,18 +171,18 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   }
 
   /**
-   * Convert the multiple currency sensitivity to the sensitivity in a given currency.
+   * Create a new sensitivity which is the conversion of the multiple currency sensitivity to the sensitivity in a given currency.
    * @param ccy The currency in which the sensitivities should be converted.
    * @param fx The matrix with the exchange rates.
    * @return The one currency sensitivity.
    */
-  public InterestRateCurveSensitivity convert(final Currency ccy, final FXMatrix fx) {
+  public MultipleCurrencyInterestRateCurveSensitivity converted(final Currency ccy, final FXMatrix fx) {
     InterestRateCurveSensitivity sensi = new InterestRateCurveSensitivity();
     for (Currency c : _sensitivity.keySet()) {
       double rate = fx.getFxRate(c, ccy);
-      sensi = sensi.plus(_sensitivity.get(c).multiply(rate));
+      sensi = sensi.plus(_sensitivity.get(c).multipliedBy(rate));
     }
-    return sensi;
+    return of(ccy, sensi);
   }
 
   @Override

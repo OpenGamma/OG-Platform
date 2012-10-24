@@ -48,8 +48,9 @@ public class ReconnectManagerTest {
     assertEquals(1, server.getNumDisconnections());
     assertEquals(1, server.getNumConnections());
     
-    manager.start();
-    Thread.sleep(50); // should reconnect and reestablish subscriptions
+    Thread.sleep(1000);
+    manager.start(); // should reconnect and reestablish subscriptions
+    Thread.sleep(1000);
     
     assertEquals(1, server.getNumDisconnections());
     assertEquals(2, server.getNumConnections());

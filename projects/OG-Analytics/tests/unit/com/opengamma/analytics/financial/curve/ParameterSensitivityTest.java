@@ -67,12 +67,12 @@ public class ParameterSensitivityTest {
     double factor = 5.8;
     ParameterSensitivity sensi = new ParameterSensitivity();
     sensi = sensi.plus(NAME_1_USD, SENSI_1_1);
-    sensi = sensi.multiplyBy(factor);
+    sensi = sensi.multipliedBy(factor);
     assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_1_1, factor), sensi.getSensitivity(NAME_1_USD));
     ParameterSensitivity sensi2 = new ParameterSensitivity();
     sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
     sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    sensi2 = sensi2.multiplyBy(factor);
+    sensi2 = sensi2.multipliedBy(factor);
     assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_1_1, factor), sensi2.getSensitivity(NAME_1_USD));
     assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_2_1, factor), sensi2.getSensitivity(NAME_2_EUR));
   }
@@ -84,7 +84,7 @@ public class ParameterSensitivityTest {
     sensi = sensi.plus(NAME_1_USD, SENSI_1_1);
     sensi = sensi.plus(NAME_1_EUR, SENSI_1_2);
     sensi = sensi.plus(NAME_2_EUR, SENSI_2_1);
-    ParameterSensitivity sensiUSDConverted = sensi.convert(fxMatrix, USD);
+    ParameterSensitivity sensiUSDConverted = sensi.converted(fxMatrix, USD);
     ParameterSensitivity sensiUSDExpected = new ParameterSensitivity();
     sensiUSDExpected = sensiUSDExpected.plus(NAME_1_USD, SENSI_1_1);
     sensiUSDExpected = sensiUSDExpected.plus(NAME_1_USD, (DoubleMatrix1D) MATRIX.scale(SENSI_1_2, fxMatrix.getFxRate(EUR, USD)));
@@ -101,8 +101,8 @@ public class ParameterSensitivityTest {
     sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
     sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
     assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi2, TOLERANCE));
-    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(2.0), sensi2, TOLERANCE));
-    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(1.000001), sensi2, TOLERANCE));
+    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multipliedBy(2.0), sensi2, TOLERANCE));
+    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multipliedBy(1.000001), sensi2, TOLERANCE));
     ParameterSensitivity sensi3 = new ParameterSensitivity();
     sensi3 = sensi3.plus(NAME_1_USD, SENSI_1_1);
     assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi3, TOLERANCE));

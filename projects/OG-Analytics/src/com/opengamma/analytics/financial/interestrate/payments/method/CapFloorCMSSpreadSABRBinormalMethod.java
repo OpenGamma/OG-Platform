@@ -246,14 +246,14 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     resultMap.put(cmsSpread.getFundingCurveName(), list);
     InterestRateCurveSensitivity dfCurveSensitivity = new InterestRateCurveSensitivity(resultMap);
     InterestRateCurveSensitivity result;
-    result = dfCurveSensitivity.multiply(discountFactorPaymentBar);
-    result = result.plus(cmsCoupon1CurveSensitivity.multiply(cmsCoupon1PvBar));
-    result = result.plus(cmsCoupon2CurveSensitivity.multiply(cmsCoupon2PvBar));
-    result = result.plus(cmsCap1CurveSensitivity.multiply(cmsCap1PvBar));
-    result = result.plus(cmsCap2CurveSensitivity.multiply(cmsCap2PvBar));
+    result = dfCurveSensitivity.multipliedBy(discountFactorPaymentBar);
+    result = result.plus(cmsCoupon1CurveSensitivity.multipliedBy(cmsCoupon1PvBar));
+    result = result.plus(cmsCoupon2CurveSensitivity.multipliedBy(cmsCoupon2PvBar));
+    result = result.plus(cmsCap1CurveSensitivity.multipliedBy(cmsCap1PvBar));
+    result = result.plus(cmsCap2CurveSensitivity.multipliedBy(cmsCap2PvBar));
     //Calibration strike dependency -- START
-    result = result.plus(forward1CurveSensitivity.multiply(strike1Bar));
-    result = result.plus(forward2CurveSensitivity.multiply(strike2Bar));
+    result = result.plus(forward1CurveSensitivity.multipliedBy(strike1Bar));
+    result = result.plus(forward2CurveSensitivity.multipliedBy(strike2Bar));
     //Calibration strike dependency -- END
     return result;
   }

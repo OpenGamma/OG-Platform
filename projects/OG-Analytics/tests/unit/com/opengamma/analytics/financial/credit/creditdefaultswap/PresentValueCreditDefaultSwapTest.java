@@ -9,15 +9,15 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
-import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
+import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRate;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -26,12 +26,7 @@ import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandar
 import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -147,10 +142,9 @@ public class PresentValueCreditDefaultSwapTest {
 
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  private static final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+  final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
 
-  private static final double[] TIME = {
-      s_act365.getDayCountFraction(baseDate, baseDate),
+  double[] times = {
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),
@@ -215,41 +209,101 @@ public class PresentValueCreditDefaultSwapTest {
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2040, 9, 22, 0, 0, 0, 0, TimeZone.UTC))
+  };
+
+  double[] rates = {
+      (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01808999617970230000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01966710100627830000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02112741666666660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01809534760435110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01655763824251000000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.01880609764411780000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02033274208031280000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02201082479582110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02329627269146610000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02457991990962620000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02564349380607000000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02664198869678810000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02747534265210970000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02822421752113560000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02887011718207980000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.02947938315126190000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03001849170997110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03051723047721790000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03096814372457490000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03140378315953840000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03180665717369410000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03220470040815960000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03257895748982500000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03300576868204530000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03339934269742980000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03371439235915700000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03401013049588440000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03427957764613110000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03453400145380310000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03476707646146720000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03498827591548650000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03504602653686710000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03510104623115760000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03515188034751750000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03519973661653090000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03524486925430900000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03528773208373260000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03532784361012300000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03536647655059340000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03540272683370320000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03543754047166620000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03539936837313170000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03536201961264760000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03532774866571060000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03529393446018300000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03526215518920560000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03523175393297300000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03520264296319420000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03517444167763210000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03514783263597550000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03512186451200650000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03510945878934860000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03509733233582990000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03508585365890470000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03507449693456950000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03506379166273740000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03505346751846350000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03504350450444570000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03503383205190350000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
   };
 
   private static final double interestRate = 0.0;
 
-  //private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
-  //private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
+  /*
+  private static final double[] rates = new double[] {
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate };
+  */
 
-  private static final double[] RATES = new double[] {
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
-
-  //private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
-
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new CombinedInterpolatorExtrapolator(
-      new ISDAInterpolator1D(),    // ISDA style interpolation - from RiskCare
-      new FlatExtrapolator1D(),    // Flat rate extrapolated to the left
-      new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right  - from RiskCare;
-
-  private static final YieldCurve yieldCurve = YieldCurve.from(R);
+  // Use an ISDACurve object (from RiskCare implementation) for the yield curve
+  final double offset = 0.0; //s_act365.getDayCountFraction(valuationDate, baseDate);
+  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
 
   // ----------------------------------------------------------------------------------
 
-  // Hazard rate term structure
+  // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
       0.0,
@@ -265,9 +319,12 @@ public class PresentValueCreditDefaultSwapTest {
       (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
+  // No offset - survival probability = 1 on valuationDate
   private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
+
+  // Construct the obligors party to the contract
 
   private static final Obligor protectionBuyer = new Obligor(
       protectionBuyerTicker,
@@ -335,7 +392,7 @@ public class PresentValueCreditDefaultSwapTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      /*premiumLegCoupon,*/
+      premiumLegCoupon,
       recoveryRate,
       includeAccruedPremium,
       protectionStart);
@@ -344,7 +401,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  //@Test
+  @Test
   public void testPresentValueCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
@@ -371,6 +428,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
+  /*
   // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
 
   //@Test
@@ -467,6 +525,7 @@ public class PresentValueCreditDefaultSwapTest {
 
     // -------------------------------------------------------------------------------------
   }
+  */
 
   // -----------------------------------------------------------------------------------------------
 
@@ -477,7 +536,7 @@ public class PresentValueCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
 
-    final boolean outputResults = false;
+    final boolean outputResults = true;
 
     double premiumLegPresentValue = 0.0;
     double contingentLegPresentValue = 0.0;
@@ -486,6 +545,14 @@ public class PresentValueCreditDefaultSwapTest {
     if (outputResults) {
       System.out.println("Running CDS PV time decay test ...");
     }
+
+    /*
+    for (double t = 0.0; t < 6.0; t += 1 / 365.0) {
+      double z = yieldCurve.getDiscountFactor(t);
+
+      System.out.println(t + "\t" + z);
+    }
+    */
 
     // -----------------------------------------------------------------------------------------------
 

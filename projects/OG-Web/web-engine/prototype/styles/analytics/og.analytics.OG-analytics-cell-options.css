@@ -35,7 +35,6 @@
     height: 15px;
     width: 12px;
     background-color: #ccc;
-    margin-left: 1px;
 }
 
 .OG-cell-options.og-expanded .og-small {
@@ -54,7 +53,7 @@
 }
 .OG-cell-options .OG-icon.og-icon-ellipsis {
     background: transparent;
-	padding:1px;
+    padding:1px;
 }
 
 .OG-cell-options .OG-icon.og-icon-ellipsis::after {
@@ -65,14 +64,14 @@
 
 .OG-cell-options .OG-icon.og-icon-down-chevron {
     background: transparent;
-	border: 1px solid #dadcdd;
+    border: 1px solid #dadcdd;
     cursor: pointer;
     height: 11px;
-	left: -2px;
+    left: -2px;
 }
 
 .OG-cell-options .OG-icon.og-icon-down-chevron::after {
-	top: 4px;
+    top: 4px;
 }
 
 .OG-cell-options .og-big {

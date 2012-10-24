@@ -5,12 +5,14 @@
  */
 package com.opengamma.util.map;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.AbstractIterator;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -206,7 +208,27 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   @Override
   public Set<Pair<K1, K2>> keySet() {
-    throw new UnsupportedOperationException();
+    return new AbstractSet<Pair<K1, K2>>() {
+      private final Iterator<Key> _it = _data.keySet().iterator();
+      @Override
+      public Iterator<Pair<K1, K2>> iterator() {
+        return new AbstractIterator<Pair<K1, K2>>() {
+          @SuppressWarnings("unchecked")
+          @Override
+          protected Pair<K1, K2> computeNext() {
+            if (_it.hasNext()) {
+              Key key = _it.next();
+              return Pair.of((K1) key._key1, (K2) key._key2);
+            }
+            return endOfData();
+          }
+        };
+      }
+      @Override
+      public int size() {
+        return _data.size();
+      }
+    };
   }
 
   @Override

@@ -23,6 +23,24 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.opengamma</groupId>
+        <artifactId>og-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>db-schema-versions</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>db-schema-versions</goal>
+            </goals>
+                <configuration>
+                  <scriptsPath>${basedir}/install/db</scriptsPath>
+                  <outputPath>${project.build.sourceDirectory}/com/opengamma/masterdb/schema</outputPath>
+                </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>

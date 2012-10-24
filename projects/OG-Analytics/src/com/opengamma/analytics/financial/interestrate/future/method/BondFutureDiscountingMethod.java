@@ -123,7 +123,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
       }
     }
     InterestRateCurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
-    result = result.multiply(1.0 / future.getConversionFactor()[indexCTD]);
+    result = result.multipliedBy(1.0 / future.getConversionFactor()[indexCTD]);
     return result;
   }
 
@@ -136,7 +136,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(future, "Future");
     final InterestRateCurveSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
-    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multipliedBy(future.getNotional());
     return transactionSensitivity;
   }
 

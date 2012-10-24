@@ -29,37 +29,36 @@ $.register_module({
                 $(main_selector).html('requesting...');
                 return (last_object.main = params), go(), url;
             },
-            process: function (args) {
-                og.api.rest.compressor.get({content: args.data, dependencies: ['data']})
-                    .pipe(function (result) {
-                        var config = result.data.data, current_main, panel, cellmenu;
-                        panels.forEach(function (panel) {delete last_object[panel];});
-                        if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
-                            if (og.analytics.grid) og.analytics.grid.dataman.kill();
-                            og.analytics.grid = new og.analytics.Grid({
-                                selector: main_selector, cellmenu: true,
-                                source: last_object.main = JSON.parse(last_fingerprint.main = current_main)
-                            }).on('viewchange', function (view) {
-                                url.main($.extend({}, og.analytics.grid.source, {type: view}));
-                            });
-                        }
-                        panels.forEach(function (panel) {
-                            var gadgets = config[panel];
-                            if (!gadgets) return (last_fingerprint[panel] = []), (last_object[panel] = []);
-                            if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
-                            if (!last_object[panel]) last_object[panel] = [];
-                            last_fingerprint[panel] = gadgets.map(function (gadget, index) {
-                                var current_gadget = JSON.stringify(gadget);
-                                last_object[panel][index] = JSON.parse(current_gadget);
-                                if (last_fingerprint[panel][index] === current_gadget) return current_gadget;
-                                og.analytics.containers[panel].add([gadget], index, current_gadget);
-                                return current_gadget;
-                            });
+            process: function (args, handler) {
+                og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
+                    var config = result.data.data, current_main, panel, cellmenu;
+                    panels.forEach(function (panel) {delete last_object[panel];});
+                    if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
+                        if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                        last_object.main = JSON.parse(last_fingerprint.main = current_main);
+                        og.analytics.grid = new og.analytics.Grid({
+                            selector: main_selector, cellmenu: true,
+                            source: $.extend({}, last_object.main)
+                        }).on('viewchange', function (view) {
+                            url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         });
-                        panels.forEach(function (panel) {
-                            og.analytics.containers[panel].verify(last_fingerprint[panel]);
+                    }
+                    panels.forEach(function (panel) {
+                        var gadgets = config[panel];
+                        if (!gadgets) return (last_fingerprint[panel] = []), (last_object[panel] = []);
+                        if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
+                        if (!last_object[panel]) last_object[panel] = [];
+                        last_fingerprint[panel] = gadgets.map(function (gadget, index) {
+                            var current_gadget = JSON.stringify(gadget);
+                            last_object[panel][index] = JSON.parse(current_gadget);
+                            if (last_fingerprint[panel][index] === current_gadget) return current_gadget;
+                            og.analytics.containers[panel].add([gadget], index, current_gadget);
+                            return current_gadget;
                         });
                     });
+                    panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
+                    if (handler) handler();
+                });
                 return url;
             },
             remove: function (container, index, silent) {

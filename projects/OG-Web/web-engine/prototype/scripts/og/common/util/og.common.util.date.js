@@ -11,12 +11,12 @@ $.register_module({
             if (isNaN(new Date(timestamp).getDate())) return timestamp;
             var add_zero = function (n) {return n < 10 ? '0' + n : '' + n;},
                 obj = new Date(timestamp),
-                d = add_zero(obj.getDate()),
-                M = add_zero(obj.getMonth() + 1),
-                y = obj.getFullYear(),
-                h = add_zero(obj.getHours()),
-                m = add_zero(obj.getMinutes()),
-                s = add_zero(obj.getSeconds()),
+                d = add_zero(obj.getUTCDate()),
+                M = add_zero(obj.getUTCMonth() + 1),
+                y = obj.getUTCFullYear(),
+                h = add_zero(obj.getUTCHours()),
+                m = add_zero(obj.getUTCMinutes()),
+                s = add_zero(obj.getUTCSeconds()),
                 date = d + '<span> / </span>' + M + '<span> / </span>' + y,
                 time = (format === "dateonly") ? '' : '<span> @ </span><span>' + h + ':' + m + ':' + s + '</span>';
             return '<time title="day / month / year">' + date + time + '</time>';

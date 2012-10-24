@@ -144,12 +144,12 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       final MultipleCurrencyInterestRateCurveSensitivity pvcsCall = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(call[loopstrike], SMILE_BUNDLE);
       final MultipleCurrencyInterestRateCurveSensitivity pvcsPut = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(put[loopstrike], SMILE_BUNDLE);
       final MultipleCurrencyInterestRateCurveSensitivity pvcsForward = METHOD_DISC.presentValueCurveSensitivity(forexForward, SMILE_BUNDLE);
-      final MultipleCurrencyInterestRateCurveSensitivity pvcsOpt = pvcsCall.plus(pvcsPut).clean();
+      final MultipleCurrencyInterestRateCurveSensitivity pvcsOpt = pvcsCall.plus(pvcsPut).cleaned();
       assertTrue("Forex vanilla option: vanna-volga curve sensitivity put/call parity - strike " + loopstrike, InterestRateCurveSensitivityUtils.compare(pvcsForward.getSensitivity(USD)
           .getSensitivities().get(CURVES_NAME[1]), pvcsOpt.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]), TOLERANCE_PV));
       assertTrue(
           "Forex vanilla option: vanna-volga curve sensitivity put/call parity - strike " + loopstrike,
-          InterestRateCurveSensitivityUtils.compare(pvcsForward.getSensitivity(EUR).multiply(SPOT).getSensitivities().get(CURVES_NAME[0]),
+          InterestRateCurveSensitivityUtils.compare(pvcsForward.getSensitivity(EUR).multipliedBy(SPOT).getSensitivities().get(CURVES_NAME[0]),
               pvcsOpt.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]), TOLERANCE_PV));
       // Test note: the options sensitivities are in the pv currency (USD)
     }

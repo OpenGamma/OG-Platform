@@ -45,6 +45,9 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
     Portfolio portfolio = compiledViewDef.getPortfolio();
+    if (portfolio == null) {
+      return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
+    }
     PortfolioNode root = portfolio.getRootNode();
     return new PortfolioNodeBuilder(root).getRoot();
   }

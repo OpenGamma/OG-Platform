@@ -6,7 +6,6 @@
 package com.opengamma.master.config.impl;
 
 import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
-import static com.opengamma.util.functional.Functional.functional;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -134,8 +133,10 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
       searchRequest.setName(configName);
       searchRequest.setVersionCorrection(versionCorrection);
-      ConfigDocument doc = functional(getMaster().search(searchRequest).getDocuments()).first();
-      
+      ConfigDocument doc = getMaster().search(searchRequest).getFirstDocument();
+      if (doc == null) {
+        return null;
+      }
       putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
       putValue(doc.getUniqueId(), doc, _configCache);
 
@@ -161,13 +162,15 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
       searchRequest.setName(name);
       searchRequest.setVersionCorrection(versionCorrection);
-      ConfigDocument doc = functional(getMaster().search(searchRequest).getDocuments()).first();
+      ConfigDocument doc = getMaster().search(searchRequest).getFirstDocument();
 
       if (doc != null) {
         putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
         putValue(doc.getUniqueId(), doc, _configCache);
       }
-      return (ConfigItem<R>) putValue(searchKey, doc, _configCache).getConfig();
+      ConfigDocument stored = putValue(searchKey, doc, _configCache);
+      return (ConfigItem<R>) (stored != null ? stored.getConfig() : null);
+      
     } catch (RuntimeException ex) {
       return EHCacheUtils.<ConfigItem<R>>putException(searchKey, ex, _configCache);
     }

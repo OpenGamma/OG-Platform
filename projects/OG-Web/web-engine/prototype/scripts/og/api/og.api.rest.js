@@ -576,6 +576,7 @@ $.register_module({
                         if (is_object ? val = JSON.stringify(config[val]) : val = str(config[val])) // is truthy
                             data[api_fields[idx]] = val;
                     });
+                    data['aggregators'] = config.aggregators; // send traditional form array and not JSON
                     data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta}, promise);
                 },
