@@ -51,9 +51,15 @@ public class InterestRateCurveSensitivityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSensitivity() {
+  public void testNullSensitivity1() {
     new InterestRateCurveSensitivity(null);
   }
+
+  //FIXME
+  //  @Test(expectedExceptions = IllegalArgumentException.class)
+  //  public void testNullSensitivity2() {
+  //    InterestRateCurveSensitivity.of(null);
+  //  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
@@ -125,10 +131,6 @@ public class InterestRateCurveSensitivityTest {
     other = new InterestRateCurveSensitivity();
     assertTrue(other.getCurves().isEmpty());
     assertTrue(other.getSensitivities().isEmpty());
-    other = new InterestRateCurveSensitivity();
-    assertTrue(other.getCurves().isEmpty());
-    assertTrue(other.getSensitivities().isEmpty());
-    other = new InterestRateCurveSensitivity();
     other = new InterestRateCurveSensitivity(SENSITIVITY_11);
     assertEquals(sensitivities, other);
   }
