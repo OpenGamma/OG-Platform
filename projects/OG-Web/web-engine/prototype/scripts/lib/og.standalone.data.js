@@ -6,10 +6,6 @@
     $.fn.ogdata = function (input) {
         var $selector = $(this), grid_width = $selector.width(), util = {}, gadget = {}, grid, cols,
             data, json_strify = JSON.stringify, json_parse = JSON.parse;
-        /**
-         * @param d {Object} object with data & labels arrays
-         * @param num
-         */
         gadget.getCntr = function () {
             return $selector;
         };
@@ -70,7 +66,7 @@
             xlabels.forEach(function (val) {
                 cols.push({id: val, name: val, field: val, width: col_width});
             });
-            return { 
+            return {
                 data: (ismatrix ? object.data['matrix'] : object.data).reduce(function (acc, val, i) {
                     var obj = {};
                     if (ismatrix) obj.ylabelscol = ylabels[i];
