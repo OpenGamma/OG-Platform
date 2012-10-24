@@ -226,6 +226,11 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     if (samplingPeriods == null || samplingPeriods.size() != 1) {
       return null;
     }
+    final Set<String> scheduleCalculatorSet = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleCalculatorSet == null || scheduleCalculatorSet.size() != 1) {
+      return null;
+    }
+
     final String payCurveCalculationConfigName = Iterables.getOnlyElement(payCurveCalculationConfigNames);
     final String receiveCurveCalculationConfigName = Iterables.getOnlyElement(receiveCurveCalculationConfigNames);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
