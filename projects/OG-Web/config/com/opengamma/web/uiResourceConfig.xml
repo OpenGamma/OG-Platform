@@ -226,6 +226,22 @@
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
+    <fragment>/scripts/lib/four/four.buffer.js</fragment>
+    <fragment>/scripts/lib/four/four.buffercount.js</fragment>
+    <fragment>/scripts/lib/four/four.interactivemeshes.js</fragment>
+    <fragment>/scripts/lib/four/four.matlib.js</fragment>
+    <fragment>/scripts/lib/four/four.multimaterial_object.js</fragment>
+    <fragment>/scripts/lib/four/four.scale.js</fragment>
+    <fragment>/scripts/lib/four/four.text3d.js</fragment>
+    <fragment>/scripts/lib/four/four.tube.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceworld.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.axis.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.hud.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.plane.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.slice.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.smile.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceplane.js</fragment>
     <fragment>/scripts/lib/stats.js</fragment>
     <fragment>/scripts/lib/event.emitter.js</fragment>
   </bundle>
