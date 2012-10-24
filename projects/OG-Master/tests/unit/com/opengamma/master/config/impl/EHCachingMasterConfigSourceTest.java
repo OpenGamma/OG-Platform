@@ -74,8 +74,8 @@ public class EHCachingMasterConfigSourceTest {
   }
   
   public void getByName() {
-    final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now(), null);
     _underlyingConfigMaster.add(new ConfigDocument(ITEM));
+    final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now().plusSeconds(120), null);  // avoid race condition with insert
     assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection).getValue(), CONFIG);
     assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection).getValue(), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
@@ -111,7 +111,7 @@ public class EHCachingMasterConfigSourceTest {
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
     assertEquals(2, _underlyingConfigMaster.getCounter().get());
   }
-  
+
   private static class UnitTestConfigMaster extends InMemoryConfigMaster {
     
     private AtomicLong _counter = new AtomicLong(0);
@@ -133,10 +133,10 @@ public class EHCachingMasterConfigSourceTest {
     }
 
     @Override
-    public ConfigSearchResult search(ConfigSearchRequest request) {
+    public <R> ConfigSearchResult<R> search(ConfigSearchRequest<R> request) {
       _counter.getAndIncrement();
       return super.search(request);
     }       
   }
-  
+
 }

@@ -169,7 +169,9 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
         putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
         putValue(doc.getUniqueId(), doc, _configCache);
       }
-      return (ConfigItem<R>) putValue(searchKey, doc, _configCache).getConfig();
+      ConfigDocument stored = putValue(searchKey, doc, _configCache);
+      return (ConfigItem<R>) (stored != null ? stored.getConfig() : null);
+      
     } catch (RuntimeException ex) {
       return EHCacheUtils.<ConfigItem<R>>putException(searchKey, ex, _configCache);
     }
