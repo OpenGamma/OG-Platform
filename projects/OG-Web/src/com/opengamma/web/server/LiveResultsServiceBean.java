@@ -94,12 +94,12 @@ public class LiveResultsServiceBean {
     _userPositionMaster = userPositionMaster;
   }
 
-  public ConfigMaster getUserViewDefinitionRepository() {
+  public ConfigMaster getUserConfigMaster() {
     return _userConfigMaster;
   }
 
-  public void setUserViewDefinitionRepository(ConfigMaster userViewDefinitionRepository) {
-    _userConfigMaster = userViewDefinitionRepository;
+  public void setUserConfigMaster(ConfigMaster userConfigMaster) {
+    _userConfigMaster = userConfigMaster;
   }
 
   public PortfolioAggregationFunctions getPortfolioAggregators() {
@@ -194,7 +194,7 @@ public class LiveResultsServiceBean {
 
   protected LiveResultsService createLiveResultsService() {
     return new LiveResultsService(getBayeux(), getViewProcessor(), getPositionSource(), getSecuritySource(),
-        getUserPortfolioMaster(), getUserPositionMaster(), getUserViewDefinitionRepository(), getSnapshotMaster(),
+        getUserPortfolioMaster(), getUserPositionMaster(), getUserConfigMaster(), getSnapshotMaster(),
         getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getNamedMarketDataSpecificationRepository(),
         getPortfolioAggregators(), getComputationTargetResolver());
   }
