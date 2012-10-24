@@ -242,9 +242,9 @@ $.register_module({
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
-                            else if($(e.target).hasClass('OG-multiselect')){}
-                                $('body').append(typemenu_template({types:[{name: 'blah'}, {name: 'beep'}, {name: 'boop'}]}));
-                                console.log()
+                            else if($(e.target).hasClass('OG-multiselect')){
+                                //$('body').append(typemenu_template({types:[{name: 'blah'}, {name: 'beep'}, {name: 'boop'}]}));
+                                console.log(gadgets);
                             }
                         });
                     if (!data) update_tabs(null); else container.add(data);
