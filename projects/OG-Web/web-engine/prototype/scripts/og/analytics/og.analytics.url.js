@@ -18,6 +18,10 @@ $.register_module({
             add: function (container, params, silent) {
                 return (last_object[container] || (last_object[container] = [])).push(params), (!silent && go()), url;
             },
+            clear_main: function () {
+                if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                last_fingerprint.main = last_object.main = null;
+            },
             last: last_object,
             launch: function (params) {
                 var win = window.open(), url = './gadget.ftl' + routes.prefix() + '/gadgetscontainer/';

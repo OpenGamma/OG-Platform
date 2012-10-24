@@ -268,9 +268,8 @@ $.register_module({
                     if (meta_request) method.push('metaData');
                     if (!meta_request && !template && (field_search || version_search || id_search || !id))
                         data = paginate(config);
-                    if (field_search) fields.forEach(function (val, idx) {
-                        if (val = str(config[val])) data[fields[idx]] = val;
-                    });
+                    if (field_search) fields
+                        .forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
                     if (data.type === '*') delete data.type; // * is superfluous here
                     if (id_search) data.configId = ids;
                     if (template) method.push('templates', template);
