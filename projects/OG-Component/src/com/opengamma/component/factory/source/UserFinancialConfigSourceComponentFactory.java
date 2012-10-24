@@ -58,6 +58,11 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
   @PropertyDefinition
   private CacheManager _cacheManager;
   /**
+   * The classifier that the factory should publish under (underlying master).
+   */
+  @PropertyDefinition
+  private String _underlyingClassifier;
+  /**
    * The config master (underlying master).
    */
   @PropertyDefinition(validate = "notNull")
@@ -102,6 +107,15 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
     ConfigSource source = new MasterConfigSource(getUnderlyingConfigMaster());
     if (getCacheManager() != null) {
       source = new EHCachingMasterConfigSource(getUnderlyingConfigMaster(), getCacheManager());
+    }
+    if (getUnderlyingClassifier() != null) {
+      ComponentInfo info = new ComponentInfo(ConfigSource.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteConfigSource.class);
+      repo.registerComponent(info, source);
+      if (isPublishRest()) {
+        repo.getRestComponents().publish(info, new DataConfigSourceResource(source));
+      }
     }
     return source;
   }
@@ -150,6 +164,8 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
         return isPublishRest();
       case -1452875317:  // cacheManager
         return getCacheManager();
+      case 1705602398:  // underlyingClassifier
+        return getUnderlyingClassifier();
       case -1673062335:  // underlyingConfigMaster
         return getUnderlyingConfigMaster();
       case 473030732:  // userClassifier
@@ -171,6 +187,9 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
         return;
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
+        return;
+      case 1705602398:  // underlyingClassifier
+        setUnderlyingClassifier((String) newValue);
         return;
       case -1673062335:  // underlyingConfigMaster
         setUnderlyingConfigMaster((ConfigMaster) newValue);
@@ -202,6 +221,7 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
           JodaBeanUtils.equal(getUnderlyingConfigMaster(), other.getUnderlyingConfigMaster()) &&
           JodaBeanUtils.equal(getUserClassifier(), other.getUserClassifier()) &&
           JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
@@ -216,6 +236,7 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
@@ -296,6 +317,31 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
    */
   public final Property<CacheManager> cacheManager() {
     return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the classifier that the factory should publish under (underlying master).
+   * @return the value of the property
+   */
+  public String getUnderlyingClassifier() {
+    return _underlyingClassifier;
+  }
+
+  /**
+   * Sets the classifier that the factory should publish under (underlying master).
+   * @param underlyingClassifier  the new value of the property
+   */
+  public void setUnderlyingClassifier(String underlyingClassifier) {
+    this._underlyingClassifier = underlyingClassifier;
+  }
+
+  /**
+   * Gets the the {@code underlyingClassifier} property.
+   * @return the property, not null
+   */
+  public final Property<String> underlyingClassifier() {
+    return metaBean().underlyingClassifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -400,6 +446,11 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", UserFinancialConfigSourceComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code underlyingClassifier} property.
+     */
+    private final MetaProperty<String> _underlyingClassifier = DirectMetaProperty.ofReadWrite(
+        this, "underlyingClassifier", UserFinancialConfigSourceComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code underlyingConfigMaster} property.
      */
     private final MetaProperty<ConfigMaster> _underlyingConfigMaster = DirectMetaProperty.ofReadWrite(
@@ -422,6 +473,7 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
         "classifier",
         "publishRest",
         "cacheManager",
+        "underlyingClassifier",
         "underlyingConfigMaster",
         "userClassifier",
         "userConfigMaster");
@@ -441,6 +493,8 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
           return _publishRest;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case 1705602398:  // underlyingClassifier
+          return _underlyingClassifier;
         case -1673062335:  // underlyingConfigMaster
           return _underlyingConfigMaster;
         case 473030732:  // userClassifier
@@ -489,6 +543,14 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code underlyingClassifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> underlyingClassifier() {
+      return _underlyingClassifier;
     }
 
     /**
