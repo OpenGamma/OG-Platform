@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.config.impl;
 
-import static com.opengamma.util.ehcache.EHCacheUtils.putException;
 import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
 
 import java.util.Arrays;
@@ -143,7 +142,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
       return (R) putValue(searchKey, doc, _configCache).getConfig().getValue();
     } catch (RuntimeException ex) {
-      return (R) putException(searchKey, ex, _configCache);
+      return EHCacheUtils.<R>putException(searchKey, ex, _configCache);
     }
   }
 
