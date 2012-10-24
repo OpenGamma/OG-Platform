@@ -16,6 +16,7 @@ $.register_module({
                 $parent, $query, $option, $extra_opts, $snapshot_opts, $historical_opts, $latest, $custom, $datepicker, 
                 snapshots = {},
                 events = {
+                    sourcespopulated: 'dropmenu:ds:sourcespopulated',
                     typereset: 'dropmenu:ds:typereset',
                     typeselected:'dropmenu:ds:typesselected',
                     dataselected: 'dropmenu:ds:dataselected',
@@ -28,10 +29,11 @@ $.register_module({
                         $source_select.append($($option.html()).text(d.name || d));
                     });
                 },
-                populate_livedatasources = function () {
+                populate_livedatasources = function (callback) {
                     og.api.rest.livedatasources.get().pipe(function (resp) {
                         if (resp.error) return;
                         populate_src_options(resp.data);
+                        if(callback) callback();
                     });
                 },
                 populate_marketdatasnapshots = function () {
@@ -154,6 +156,39 @@ $.register_module({
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                     if ($elem.is('button')) return menu.button_handler($elem.text());
                 };
+            menu.replay_query = function (config) {
+                menu.opts.forEach(function (option, index) {
+                    option.remove();
+                });
+                menu.opts.length = 0;
+                config.datasources.forEach(function (entry, index) {
+                    var set_select_vals;
+                    menu.add_handler();
+                    $parent = menu.opts[index];
+                    $type_select = $parent.find(type_s);
+                    $source_select = $parent.find(source_s);
+                    $extra_opts = $parent.find(extra_opts_s);
+                    set_select_vals = (function (entry) {
+                        return function () {
+                            $type_select.val(entry.source);
+                            $source_select.val(entry.marketDataType);
+                            display_query();
+                        }
+                    })(entry);
+                    query[index] = {
+                        pos: index,
+                        src: entry.source,
+                        type: entry.marketDataType
+                    };
+                    type_val = entry.marketDataType;
+                    switch (type_val) {
+                        case 'live': populate_livedatasources(set_select_vals); break;
+                        case 'snapshot': populate_marketdatasnapshots(); break;
+                        case 'historical': populate_historical(); break;
+                        //no default
+                    };
+                });
+            };
             menu.get_query = function () {
                 if (!query.length) return;
                 var arr = [];

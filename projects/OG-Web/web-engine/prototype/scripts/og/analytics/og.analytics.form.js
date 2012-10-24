@@ -12,9 +12,13 @@ $.register_module({
     ],
     obj: function () {
         var initialized = false,
-            Form = function (selector, url_config) {
-                var emitter = new EventEmitter(), ag_dropmenu = og.analytics.AggregatorsMenu,
-                    ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, events = {
+            query,
+            FormInst = null,
+            Form = function (selector) {
+                var emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
+                    ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, 
+                    ag_menu = null, ds_menu = null, ac_menu = null,
+                    events = {
                         focus: 'dropmenu:focus',
                         focused:'dropmenu:focused',
                         open: 'dropmenu:open',
@@ -52,12 +56,12 @@ $.register_module({
                     status.status = null;
                     return status;
                 };
-                FormCombo = function (template, search, aggregators, datasource) {
-                    var FormCombo = this, ag_menu, ds_menu, vd_s = '.og-view',
-                        fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
-                        $form = $(selector).html(template), $ag = $('.og-aggregation', $form),
+                FormCombo = function (config) {
+                    var FormCombo = this, vd_s = '.og-view', fcntrls_s = 'input, select, button', 
+                        ac_s = 'input autocompletechange autocompleteselect', 
+                        $form = $(selector).html(config.template), $ag = $('.og-aggregation', $form),
                         $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
-                        status, ac_menu;
+                        status;
                         keydown_handler = function (event) {
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
@@ -96,60 +100,72 @@ $.register_module({
                         },
                         get_query = function () {
                             if (!~ac_menu.$input.val().indexOf('Db')) return;
-                            og.analytics.url.main({
+                            og.analytics.url.main(query = {
                                 viewdefinition: ac_menu.$input.val(),
                                 providers: ds_menu.get_query(),
                                 aggregators: ag_menu.get_query()
                             });
                         };
-                    search.data.sort((function(i){ // sort by name
+                    config.search.data.sort((function(i){ // sort by name
                         return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
                     })('name'));
                     $form.on('keydown', fcntrls_s, keydown_handler);
-                    ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data);
+                    ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', config.search.data);
                     ac_menu.$input.on(ac_s, auto_combo_handler).select();
-                    $.when(
-                        og.api.text({module: 'og.analytics.form_aggregation_tash'}),
-                        og.api.text({module: 'og.analytics.form_datasources_tash'})
-                    ).then(function (aggregation_markup, datasources_markup) {
-                        ag_menu = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data});
-                        ds_menu = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data});
-                        [ag_menu, ds_menu].forEach(function (menu) { 
-                            menu.addListener(events.opened, close_dropmenu)
-                                .addListener(events.queryselected, query_selected)
-                                .addListener(events.querycancelled, query_cancelled);
-                        });
-                        $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
-                        $load_btn.on('click', get_query);
-                        emitter.addListener(events.closeall, function () {
-                            close_dropmenu(ag_menu);
-                            close_dropmenu(ds_menu);
-                        });
-                        og.views.common.layout.main.allowOverflow('north');
-                        status = new Status(selector + ' .og-status');
+                    ag_menu = new ag_dropmenu({
+                        $cntr: $ag, tmpl: config.aggregation_markup, data: config.aggregators.data
                     });
-                    return FormCombo;
-                },
-                replay_query = function (url_config) {
-                    console.log(url_config);
+                    ds_menu = new ds_dropmenu({
+                        $cntr: $ds, tmpl: config.datasources_markup, data: config.datasource.data
+                    });
+                    [ag_menu, ds_menu].forEach(function (menu) { 
+                        menu.addListener(events.opened, close_dropmenu)
+                            .addListener(events.queryselected, query_selected)
+                            .addListener(events.querycancelled, query_cancelled);
+                    });
+                    $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
+                    $load_btn.on('click', get_query);
+                    emitter.addListener(events.closeall, function () {
+                        close_dropmenu(ag_menu);
+                        close_dropmenu(ds_menu);
+                    });
+                    og.views.common.layout.main.allowOverflow('north');
+                    status = new Status(selector + ' .og-status');
                 };
                 $.when(
                     og.api.text({module: 'og.analytics.form_tash'}),
                     og.api.rest.viewdefinitions.get(),
                     og.api.rest.aggregators.get(),
-                    {data: ['Live', 'Snapshot', 'Historical']}
-                ).then(FormCombo);
-
-
-                return {
-                    replay_query: replay_query
+                    {data: ['Live', 'Snapshot', 'Historical']},
+                    og.api.text({module: 'og.analytics.form_aggregation_tash'}),
+                    og.api.text({module: 'og.analytics.form_datasources_tash'})
+                ).pipe(function (template, search, aggregators, datasource, aggregation_markup, datasources_markup) {
+                    FormCombo({
+                        template: template, 
+                        search: search,
+                        aggregators: aggregators, 
+                        datasource: datasource, 
+                        aggregation_markup: aggregation_markup, 
+                        datasources_markup: datasources_markup
+                    });
+                    initialized = true;
+                });
+                this.replay_query = function (url_config) {
+                    // console.log(url_config);
+                    var ag = url_config.aggregators.map(function (entry){
+                            return {val:entry, required_field:false};
+                        }),
+                        ds = url_config.providers.map(function (entry) {
+                            return {source:entry.source, marketDataType:entry.marketDataType};
+                        });
+                    ag_menu.replay_query({aggregators:ag});
+                    ds_menu.replay_query({datasources:ds});
                 };
             };
         return function (selector, url_config) {
-            if (!initialized) return initialized = true, Form = new Form(selector, url_config);
-            else if (url_config) {
-                Form.replay_query(url_config);
-            }
+            if (!initialized) FormInst = new Form(selector);
+            else if (initialized && url_config) FormInst.replay_query(url_config);
+            else if (initialized && !url_config) FormInst = new Form(selector);
         }
     }
 });
