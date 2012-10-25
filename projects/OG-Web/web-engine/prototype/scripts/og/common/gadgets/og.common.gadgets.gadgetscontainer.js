@@ -147,7 +147,7 @@ $.register_module({
             };
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
-             * @param {Number} idx location to add new gadgets
+             * @param {Number} index location to add new gadgets
              *
              * The data Array is a list of objects that describe the gadgets to load
              *     obj.gadget   Function
