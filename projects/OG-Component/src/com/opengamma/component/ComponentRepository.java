@@ -21,6 +21,7 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
@@ -413,6 +414,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * as though using {@link #registerServletContextAware(ServletContextAware)}.
    * If it implements {@code InitializingBean}, then it will be initialized
    * as though using {@link #initialize(InitializingBean)}.
+   * <p>
+   * If the component implements {@code FactoryBean}, it will be checked for the
+   * automatically detected interfaces before the factory is evaluated.
+   * The evaluated factory will then be registered, and the resulting object
+   * will again be checked for automatically detected interfaces.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
@@ -425,9 +431,26 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     
     ComponentKey key = info.toComponentKey();
     try {
+      // initialize
       initialize0(instance);
-      registerInstance0(key, instance);
+      registerInstanceInterfaces0(instance);
       
+      // handle factories
+      if (instance instanceof FactoryBean<?>) {
+        try {
+          instance = ((FactoryBean<?>) instance).getObject();
+        } catch (Exception ex) {
+          throw new OpenGammaRuntimeException("FactoryBean threw exception", ex);
+        }
+        initialize0(instance);
+        registerInstanceInterfaces0(instance);
+      }
+      
+      // register into data structures
+      Object current = _instanceMap.putIfAbsent(key, instance);
+      if (current != null) {
+        throw new IllegalArgumentException("Component already registered for specified information: " + key);
+      }
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
       ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
@@ -465,19 +488,12 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Registers an instance.
-   * <p>
-   * If the instance implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
+   * Registers the {@code Lifecycle} and {@code ServletContextAware} aspects
+   * of the specified instance.
    * 
-   * @param key  the key to register under, not null
-   * @param instance  the component instance to register, not null
-   * @throws IllegalArgumentException if unable to register
+   * @param instance  the object to examine, not null
    */
-  private void registerInstance0(ComponentKey key, Object instance) {
-    Object current = _instanceMap.putIfAbsent(key, instance);
-    if (current != null) {
-      throw new IllegalArgumentException("Component already registered for specified information: " + key);
-    }
+  private void registerInstanceInterfaces0(Object instance) {
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
     } else {
@@ -488,12 +504,17 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
   }
 
-  private void findAndRegisterLifeCycle(final Object obj) {
-    if (ReflectionUtils.isCloseable(obj.getClass())) {
+  /**
+   * Examines an object and sets up a {@code Lifecycle} instance if it can be closed.
+   * 
+   * @param instance  the object to examine, not null
+   */
+  private void findAndRegisterLifeCycle(final Object instance) {
+    if (ReflectionUtils.isCloseable(instance.getClass())) {
       registerLifecycle0(new Lifecycle() {
         @Override
         public void stop() {
-          ReflectionUtils.close(obj);
+          ReflectionUtils.close(instance);
         }
         @Override
         public void start() {
@@ -504,7 +525,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
         }
         @Override
         public String toString() {
-          return obj.getClass().getSimpleName() + ":" + obj.toString();
+          return instance.getClass().getSimpleName() + ":" + instance.toString();
         }
       });
     }
