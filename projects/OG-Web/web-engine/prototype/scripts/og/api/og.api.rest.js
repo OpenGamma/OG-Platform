@@ -144,7 +144,8 @@ $.register_module({
                         // re-send requests that have timed out only if the are GETs
                         if (error === 'timeout' && is_get) return send();
                         var result = {
-                            error: xhr.status, data: null, meta: {content_length: xhr.responseText.length, url: url},
+                            error: xhr.status || true, data: null,
+                            meta: {content_length: xhr.responseText.length, url: url},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
