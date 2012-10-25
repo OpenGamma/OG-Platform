@@ -13,8 +13,7 @@ $.register_module({
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (surface) surface.die();
-                if (!live) gadget.dataman.kill();
+                if (!live && surface) surface.die(), gadget.dataman.kill();
                 return live;
             };
             gadget.resize = function () {try {surface.resize();} catch (error) {}};
