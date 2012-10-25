@@ -19,7 +19,8 @@ $.register_module({
             gadget.resize = function () {try {surface.resize();} catch (error) {}};
             gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
                 .on('data', function (data) {
-                    if (!data.x_values || !data.y_values) return !surface && $selector.html('bad data');
+                    if (!data.x_values || !data.y_values)
+                        return !surface && $selector.html('bad data: ' + JSON.stringify(data));
                     surface_options.data = {
                         vol: data.vol,
                         xs: data.x_values, xs_labels: data.x_labels, xs_label: data.x_title,
