@@ -27,7 +27,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
 /**
  *
  */
-/* package */ class BigDecimalFormatter implements Formatter<BigDecimal> {
+/* package */ class BigDecimalFormatter extends AbstractFormatter<BigDecimal> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BigDecimalFormatter.class);
   private static final Map<String, DoubleValueFormatter> s_formatters = Maps.newHashMap();
@@ -221,7 +221,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.DOUBLE;
   }
 }

@@ -46,7 +46,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.LABELLED_MATRIX_1D;
   }
 }

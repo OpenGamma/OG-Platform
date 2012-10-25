@@ -10,7 +10,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Formats null values for display in the client.
  */
-/* package */ class NullFormatter implements Formatter<Object> {
+/* package */ class NullFormatter extends AbstractFormatter<Object> {
 
   /**
    * @param nullValue Not used
@@ -43,7 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }

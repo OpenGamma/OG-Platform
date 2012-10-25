@@ -14,7 +14,7 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  *
  */
-/* package */ class CurrencyAmountFormatter implements Formatter<CurrencyAmount> {
+/* package */ class CurrencyAmountFormatter extends AbstractFormatter<CurrencyAmount> {
 
   private final BigDecimalFormatter _bigDecimalFormatter;
 
@@ -66,7 +66,7 @@ import com.opengamma.util.money.CurrencyAmount;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.DOUBLE;
   }
 

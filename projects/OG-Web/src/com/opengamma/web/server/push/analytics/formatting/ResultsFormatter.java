@@ -179,11 +179,22 @@ public class ResultsFormatter {
   }
 
   /**
-   * Returns the formatter type for a value type.
+   * Returns the format type for a value type.
    * @param type The value type
    * @return The formatter used for formatting the type
    */
-  public Formatter.FormatType getFormatType(Class<?> type) {
-    return getFormatterForType(type).getFormatType();
+  public Formatter.FormatType getColumnFormatType(Class<?> type) {
+    return getFormatterForType(type).getFormatForType();
+  }
+
+  /**
+   * Returns the format type for a value.
+   * @param value The value, possibly null
+   * @param valueSpec The value's specification, possibly null
+   * @return The format type for the value, not null
+   */
+  @SuppressWarnings("unchecked")
+  public Formatter.FormatType getCellFormatType(Object value, ValueSpecification valueSpec) {
+    return getFormatter(value, valueSpec).getFormatForValue(value);
   }
 }

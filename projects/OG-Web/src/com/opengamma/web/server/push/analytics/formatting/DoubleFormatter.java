@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class DoubleFormatter implements Formatter<Double> {
+/* package */ class DoubleFormatter extends AbstractFormatter<Double> {
 
   private final BigDecimalFormatter _bigDecimalFormatter;
 
@@ -59,7 +59,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.DOUBLE;
   }
 

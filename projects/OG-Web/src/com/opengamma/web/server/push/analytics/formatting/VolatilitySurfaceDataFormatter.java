@@ -115,8 +115,39 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     return null;
   }
 
+  /**
+   * Returns {@link FormatType#UNKNOWN UNKNOWN} because the format type can be differ for different instances of
+   * {@link VolatilitySurfaceData} depending on the axis types. The type for a given surface instance can
+   * be obtained from {@link #getFormatForValue}
+   * @return {@link FormatType#UNKNOWN}
+   */
   @Override
-  public FormatType getFormatType() {
-    return FormatType.SURFACE_DATA;
+  public FormatType getFormatForType() {
+    return FormatType.UNKNOWN;
+  }
+
+  /**
+   * If the axis values can be sensibly converted to numbers this returns {@link FormatType#SURFACE_DATA}, if not
+   * it returns {@link FormatType#UNPLOTTABLE_SURFACE_DATA}.
+   * @param surfaceData The surface data
+   * @return The format type for the surface data, {@link FormatType#SURFACE_DATA} or 
+   * {@link FormatType#UNPLOTTABLE_SURFACE_DATA} depending on the axis types of the data
+   */
+  @Override
+  public FormatType getFormatForValue(VolatilitySurfaceData surfaceData) {
+    Object[] xVals = surfaceData.getXs();
+    Object[] yVals = surfaceData.getYs();
+
+    if (xVals.length == 0) {
+      return FormatType.UNPLOTTABLE_SURFACE_DATA;
+    }
+    if (yVals.length == 0) {
+      return FormatType.UNPLOTTABLE_SURFACE_DATA;
+    }
+    if (getAxisValue(xVals[0]) == null || getAxisValue(yVals[0]) == null) {
+      return FormatType.UNPLOTTABLE_SURFACE_DATA;
+    } else {
+      return FormatType.SURFACE_DATA;
+    }
   }
 }
