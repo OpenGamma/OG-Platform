@@ -12,7 +12,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Formatter for columns whose type is unknown.
- * TODO should this be an inner class of ResultFormatter so it can use getFormatterForType?
  */
 /* package */ class UnknownTypeFormatter extends DefaultFormatter {
 
