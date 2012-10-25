@@ -37,10 +37,10 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  *
  */
-public class ForexLocalVolatilityForwardPDEPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _blackSmileInterpolatorName;
 
-  public ForexLocalVolatilityForwardPDEPresentValueFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEPresentValueFunction(final String blackSmileInterpolatorName) {
     ArgumentChecker.notNull(blackSmileInterpolatorName, "Black smile interpolator name");
     _blackSmileInterpolatorName = blackSmileInterpolatorName;
   }

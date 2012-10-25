@@ -31,12 +31,12 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapVegaFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
-    super(ValueRequirementNames.VEGA_QUOTE_MATRIX, curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
+  public EquityVarianceSwapVegaFunction() {
+    super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ValueSpecification resultSpec, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();
@@ -60,7 +60,7 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
       i++;
     }
     final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
-    return Collections.singleton(new ComputedValue(getValueSpecification(target), matrix));
+    return Collections.singleton(new ComputedValue(resultSpec, matrix));
   }
 
   @Override
@@ -68,12 +68,26 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
-        .with(ValuePropertyNames.CURVE, getCurveDefinitionName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
         .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
         .get();
     return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
   }
 
+  @Override
+  protected ValueSpecification getValueSpecification(final ComputationTarget target, final String curveName, final String curveCalculationConfig, final String surfaceName) {
+    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
+        .get();
+    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
+  }
 }

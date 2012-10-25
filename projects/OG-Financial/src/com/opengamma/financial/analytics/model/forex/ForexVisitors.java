@@ -50,6 +50,9 @@ public class ForexVisitors {
 
   private static class PayCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
+    public PayCurrencyVisitor() {
+    }
+
     @Override
     public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
       return security.getPayCurrency();
@@ -63,6 +66,9 @@ public class ForexVisitors {
 
   private static class ReceiveCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
+    public ReceiveCurrencyVisitor() {
+    }
+    
     @Override
     public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
       return security.getReceiveCurrency();
@@ -76,6 +82,9 @@ public class ForexVisitors {
 
   private static class CallCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
+    public CallCurrencyVisitor() {
+    }
+    
     @Override
     public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
       return security.getCallCurrency();
@@ -104,6 +113,9 @@ public class ForexVisitors {
 
   private static class PutCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
+    public PutCurrencyVisitor() {
+    }
+    
     @Override
     public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
       return security.getPutCurrency();
@@ -132,6 +144,9 @@ public class ForexVisitors {
 
   private static class ExpiryVisitor extends FinancialSecurityVisitorAdapter<ZonedDateTime> {
 
+    public ExpiryVisitor() {      
+    }
+    
     @Override
     public ZonedDateTime visitFXForwardSecurity(final FXForwardSecurity security) {
       return security.getForwardDate();

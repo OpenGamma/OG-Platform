@@ -20,9 +20,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityForwardPDEGridPipsPresentValueFunction extends ForexLocalVolatilityForwardPDEFunction {
+public class FXOptionLocalVolatilityForwardPDEGridPipsPresentValueFunction extends FXOptionLocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEGridPipsPresentValueFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEGridPipsPresentValueFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 

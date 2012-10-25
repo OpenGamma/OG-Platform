@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.forex.option.localvol;
 
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDECalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESingleResultCalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESpotGreeksGridCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEStrikeGreeksGridCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.PDELocalVolatilityCalculator;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -15,20 +15,19 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityForwardPDEForwardGammaFunction extends ForexLocalVolatilityForwardPDEFunction {
+public class FXOptionLocalVolatilityForwardPDEDualGammaFunction extends FXOptionLocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEForwardGammaFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEDualGammaFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 
   @Override
   protected String getRequirementName() {
-    return ValueRequirementNames.FORWARD_GAMMA;
+    return ValueRequirementNames.DUAL_GAMMA;
   }
 
   @Override
   protected PDELocalVolatilityCalculator<?> getPDECalculator(final LocalVolatilityForwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
-    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDESpotGreeksGridCalculator.GammaCalculator(pdeCalculator, interpolator), interpolator);
+    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEStrikeGreeksGridCalculator.DualGammaCalculator(pdeCalculator, interpolator), interpolator);
   }
-
 }

@@ -37,28 +37,32 @@ import com.opengamma.util.money.Currency;
 public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod) {
-    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
+  public EquityVarianceSwapYieldCurveNodeSensitivityFunction() {
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ValueSpecification resultSpec, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
     final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, market);
-    final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(derivative.getCurrency()));
+    final String curveName = resultSpec.getProperty(ValuePropertyNames.CURVE);
+    final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(derivative.getCurrency(), curveName));
     if (curveSpecObject == null) {
       throw new OpenGammaRuntimeException("Curve specification was null");
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    final ValueSpecification resultSpec = getValueSpecification(target);
-    YieldCurveBundle curveMap = new YieldCurveBundle();
-    curveMap.setCurve(getCurveDefinitionName(), market.getDiscountCurve());
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(getCurveDefinitionName(), curveMap, sensitivities, curveSpec, resultSpec);
+    final YieldCurveBundle curveMap = new YieldCurveBundle();
+    curveMap.setCurve(curveName, market.getDiscountCurve());
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, curveMap, sensitivities, curveSpec, resultSpec);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
-    result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity())));
+    if (result == null) {
+      return null;
+    }
+    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName));
     return result;
   }
 
@@ -66,7 +70,9 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, getCurveDefinitionName())
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURVE_CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
@@ -74,8 +80,9 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
 
-  private ValueRequirement getCurveSpecRequirement(final Currency currency) {
-    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, getCurveDefinitionName()).get();
+  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 

@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDECalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEVolatilityGreeksGridCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESpotGreeksGridCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.PDELocalVolatilityCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -20,26 +20,26 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityForwardPDEGridForwardVannaFunction extends ForexLocalVolatilityForwardPDEFunction {
+public class FXOptionLocalVolatilityForwardPDEGridForwardGammaFunction extends FXOptionLocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEGridForwardVannaFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEGridForwardGammaFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 
   @Override
   protected String getRequirementName() {
-    return ValueRequirementNames.GRID_FORWARD_VANNA;
+    return ValueRequirementNames.GRID_FORWARD_GAMMA;
   }
 
   @Override
   protected PDELocalVolatilityCalculator<?> getPDECalculator(final LocalVolatilityForwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
-    return new LocalVolatilityForwardPDEVolatilityGreeksGridCalculator.VannaCalculator(pdeCalculator, interpolator);
+    return new LocalVolatilityForwardPDESpotGreeksGridCalculator.GammaCalculator(pdeCalculator, interpolator);
   }
 
   @Override
   protected Object getResult(final PDELocalVolatilityCalculator<?> calculator, final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve,
       final EuropeanVanillaOption option, final YieldAndDiscountCurve discountingCurve) {
     final Interpolator1DDataBundle data = (Interpolator1DDataBundle) calculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
-    return InterpolatedDoublesCurve.from(data.getKeys(), data.getValues(), ((LocalVolatilityForwardPDEVolatilityGreeksGridCalculator) calculator).getInterpolator());
+    return InterpolatedDoublesCurve.from(data.getKeys(), data.getValues(), ((LocalVolatilityForwardPDESpotGreeksGridCalculator) calculator).getInterpolator());
   }
 }
