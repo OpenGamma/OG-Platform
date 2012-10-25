@@ -479,7 +479,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param instance  the component instance to register, not null
    * @throws IllegalArgumentException if unable to register
    */
-  public <T> void registerInfrastructure(Class<T> type, String classifier, T instance) {
+  public <T> void registerComponent(Class<T> type, String classifier, T instance) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(classifier, "classifier");
     ArgumentChecker.notNull(instance, "instance");
@@ -706,8 +706,6 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     // override to handle event
     if (registeredKey instanceof ComponentInfo) {
       s_logger.info(" Registered component: {}", registeredKey);
-    } else if (registeredKey instanceof ComponentKey) {
-      s_logger.info(" Registered infrastructure: {}", registeredKey);
     } else {
       s_logger.info(" Registered: {}", registeredObject);
     }
