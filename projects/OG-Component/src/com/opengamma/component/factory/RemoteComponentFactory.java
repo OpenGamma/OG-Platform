@@ -785,7 +785,6 @@ public class RemoteComponentFactory {
     factory.setName(getClass().getSimpleName());
     factory.setConnectionFactory(cf);
     factory.setClientBrokerUri(activeMQBrokerUri);
-    factory.setTopicName("remote");
     return factory.getObjectCreating();
   }
 
