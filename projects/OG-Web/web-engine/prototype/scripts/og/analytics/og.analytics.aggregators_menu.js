@@ -83,6 +83,7 @@ $.register_module({
                     option.remove();
                 });
                 menu.opts = [];
+                ag_opts = [];
                 config.aggregators.forEach(function (entry, index) {
                     add_handler();
                     $(select_s, menu.opts[index]).val(entry.val);
@@ -97,6 +98,9 @@ $.register_module({
             };
             menu.get_query = function () {
                 return ag_opts.pluck('val');
+            };
+            menu.destroy = function () {
+
             };
             $dom.toggle_prefix.append('<span>Aggregated by</span>');
             if ($dom.menu) {

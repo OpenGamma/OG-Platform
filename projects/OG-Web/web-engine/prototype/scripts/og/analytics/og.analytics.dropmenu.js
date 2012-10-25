@@ -57,7 +57,10 @@ $.register_module({
         DropMenu.prototype.button_handler = function (val) {
             if (val === 'OK') this.emitEvent(this.events.close).emitEvent(events.queryselected, [this]);
             else if (val === 'Cancel') this.emitEvent(this.events.close).emitEvent(events.querycancelled, [this]);
-        };   
+        };
+        DropMenu.prototype.capitalize = function (string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        };
         return DropMenu;
     }
 });

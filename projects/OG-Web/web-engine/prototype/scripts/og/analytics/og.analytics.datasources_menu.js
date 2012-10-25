@@ -33,7 +33,6 @@ $.register_module({
                     og.api.rest.livedatasources.get().pipe(function (resp) {
                         if (resp.error) return;
                         populate_src_options(resp.data);
-                        if(callback) callback();
                     });
                 },
                 populate_marketdatasnapshots = function () {
@@ -134,7 +133,12 @@ $.register_module({
                     if ($custom.parent().is(versions_s)) delete query[entry].version_date;
                     else if ($custom.parent().is(corrections_s)) delete query[entry].correction_date;
                     else delete query[entry].date;
-                };
+                },
+                get_snapshot = function (id) {
+                     return Object.keys(snapshots).filter(function(key) {
+                        return snapshots[key] === id;
+                     })[0];
+                }
                 menu_handler = function (event) { // TODO AG: Refactor
                     var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(parent_s);
@@ -156,34 +160,48 @@ $.register_module({
                         return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                     if ($elem.is('button')) return menu.button_handler($elem.text());
                 };
-            menu.replay_query = function (config) {
+            menu.replay_query = function (config) { // TODO AG: refactor initial replay implementation
                 menu.opts.forEach(function (option, index) {
                     option.remove();
                 });
                 menu.opts.length = 0;
-                config.datasources.forEach(function (entry, index) {
-                    var set_select_vals;
-                    menu.add_handler();
-                    $parent = menu.opts[index];
-                    $type_select = $parent.find(type_s);
-                    $source_select = $parent.find(source_s);
-                    $extra_opts = $parent.find(extra_opts_s);
-                    set_select_vals = (function (entry) {
-                        return function () {
-                            $type_select.val(entry.source);
-                            $source_select.val(entry.marketDataType);
-                            display_query();
-                        }
-                    })(entry);
-                    query[index] = {
-                        pos: index,
-                        src: entry.source,
-                        type: entry.marketDataType
+                query = [];
+                var reinit_menu_elems = function (index) {
+                        $parent = menu.opts[index];
+                        $type_select = $parent.find(type_s);
+                        $source_select = $parent.find(source_s);
+                        $extra_opts = $parent.find(extra_opts_s);
+                    },
+                    set_select_vals = function (src, index) {
+                        var source = src.snapshotId ? get_snapshot(src.snapshotId) : src.source,
+                            type = menu.capitalize(src.marketDataType);
+                        $type_select.val(type);
+                        $source_select.val(source);
+                        query.splice(index, 0, {pos: index, src: source, type: type});
+                        display_query();
                     };
-                    type_val = entry.marketDataType;
+                config.datasources.forEach(function (src, index) {
+                    menu.add_handler();
+                    type_val = src.marketDataType;
                     switch (type_val) {
-                        case 'live': populate_livedatasources(set_select_vals); break;
-                        case 'snapshot': populate_marketdatasnapshots(); break;
+                        case 'live': 
+                            og.api.rest.livedatasources.get().pipe(function (resp) {
+                                if (resp.error) return;
+                                reinit_menu_elems(index);
+                                populate_src_options(resp.data);
+                            }).pipe(function () {
+                                set_select_vals(src, index);
+                            });
+                            break;
+                        case 'snapshot': 
+                            og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
+                                if (resp.error) return;
+                                reinit_menu_elems(index);
+                                populate_src_options(resp.data[0].snapshots);
+                            }).pipe(function () {
+                                set_select_vals(src, index);
+                            });
+                            break;
                         case 'historical': populate_historical(); break;
                         //no default
                     };
@@ -216,6 +234,9 @@ $.register_module({
                     arr.push(obj);
                 });
                 return arr;
+            };
+            menu.destroy = function () {
+
             };
             if ($dom) {
                 $query = $('.datasources-query', $dom.toggle);

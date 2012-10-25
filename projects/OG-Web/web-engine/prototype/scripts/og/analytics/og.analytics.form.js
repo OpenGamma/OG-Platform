@@ -12,7 +12,7 @@ $.register_module({
     ],
     obj: function () {
         var initialized = false,
-            query,
+            query = null,
             FormInst = null,
             Form = function (selector) {
                 var emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
@@ -150,21 +150,47 @@ $.register_module({
                     });
                     initialized = true;
                 });
+                this.set_query = function (q) {
+                    query = q;
+                    return this;
+                };
                 this.replay_query = function (url_config) {
-                    if(JSON.stringify(url_config) === JSON.stringify(query)) return false;
-                    var ag = url_config.aggregators.map(function (entry){
-                            return {val:entry, required_field:false};
-                        }),
-                        ds = url_config.providers.map(function (entry) {
-                            return {source:entry.source, marketDataType:entry.marketDataType};
+                    if (JSON.stringify(url_config) === JSON.stringify(query)) return false;
+                    if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
+                        ag_menu.replay_query({
+                            aggregators: url_config.aggregators.map(function (entry) {
+                                return {val:entry, required_field:false};
+                            })
                         });
-                    ag_menu.replay_query({aggregators:ag});
-                    ds_menu.replay_query({datasources:ds});
+                    }
+                    if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
+                        ds_menu.replay_query({
+                            datasources: url_config.providers.map(function (entry) {
+                                var obj = {};
+                                obj.marketDataType = entry.marketDataType;
+                                if (entry.source) obj.source = entry.source;
+                                else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                                return obj;
+                            })
+                        });
+                    }
+                    if (!query || (url_config.viewdefinition !== query.viewdefinition)) 
+                        ac_menu.$input.val(url_config.viewdefinition);
+                    return query = url_config;
+                };
+                this.destroy = function () {
+
                 };
             };
         return function (selector, url_config) {
-            if (!initialized || (initialized && !url_config)) return FormInst = new Form(selector);
-            //else if (initialized && url_config) return FormInst.replay_query(url_config);
+            if (!initialized && url_config) { 
+                return (FormInst = new Form(selector)).set_query(url_config).replay_query(url_config);
+            } else if (initialized && url_config) {
+                return FormInst.replay_query(url_config);
+            } else if (!initialized || (initialized && !url_config)) {
+                if (query) query = null;
+                return FormInst = new Form(selector);
+            }
         }
     }
 });
