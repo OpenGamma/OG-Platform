@@ -13,7 +13,9 @@ $.register_module({
             gadget.alive = function () {return grid.alive();};
             gadget.load = function () {
                 $(config.selector).addClass(alive).css(css_position);
-                grid = new og.analytics.Grid({selector: config.selector, source: config.source, cellmenu: true});
+                grid = new og.analytics.Grid({
+                    selector: config.selector, source: config.source, cellmenu: true, child: config.child
+                });
             };
             gadget.load();
             gadget.resize = function () {

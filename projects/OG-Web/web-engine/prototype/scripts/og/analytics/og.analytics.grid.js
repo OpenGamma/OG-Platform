@@ -179,14 +179,15 @@ $.register_module({
             grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
                 var cell, meta = grid.meta, events;
                 if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
-                    fire(grid.events.cellselect, cell, selection);
+                    fire(grid.events.cellselect, cell);
                 else
                     fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
-            og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
+            if (!config.child) // if this is a child gadget, rely on its parent to register with manager
+                og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
         var init_grid = function (meta) {
@@ -272,24 +273,22 @@ $.register_module({
             };
         })();
         var set_css = function (id, sets, offset) {
-            var partial_width = 0,
+            var partial = 0,
                 columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return sets.map(function (set, idx) {
                 var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
                 css = {
-                    prefix: id, index: idx + (offset || 0),
-                    left: partial_width, right: total_width - partial_width - set_width
+                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - set_width
                 };
-                return (partial_width += set_width), css;
+                return (partial += set_width), css;
             });
         };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
             var all = function (total) {
-                cache[''] = 0;
                 for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push({prefix: 0});
-                return result;
+                return (cache[''] = 0), result;
             };
             var rep = function (times, lcv, result) {
                 if (times in rep_memo) return rep_memo[times];
@@ -346,8 +345,7 @@ $.register_module({
         };
         constructor.prototype.alive = function () {
             var grid = this, live = $(grid.id).length;
-            if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
-            return grid.kill(), false;
+            return grid.elements.empty || live || (grid.kill(), false); // if empty, grid is still loading
         };
         constructor.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
@@ -375,13 +373,12 @@ $.register_module({
         };
         constructor.prototype.kill = function () {
             var grid = this;
-            try {grid.dataman.kill();} catch (error) {og.dev.warn(module.name + ': dataman kill failed', error);}
-            try {grid.clipboard.dataman.kill();} catch (error) {
-                og.dev.warn(module.name + ': clipboard kill failed', error);
-            }
-            try {grid.elements.style.remove();} catch (error) {
-                og.dev.warn(module.name + ': style remove failed', error);
-            }
+            try {grid.dataman.kill();}
+                catch (error) {og.dev.warn(module.name + ': dataman kill failed', error);}
+            try {grid.clipboard.dataman.kill();}
+                catch (error) {og.dev.warn(module.name + ': clipboard kill failed', error);}
+            try {grid.elements.style.remove();}
+                catch (error) {og.dev.warn(module.name + ': style remove failed', error);}
         };
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
@@ -460,8 +457,8 @@ $.register_module({
             return viewport.call(grid, render_header);
         };
         constructor.prototype.toggle = function (bool) {
-            grid.dataman.busy(typeof bool !== 'undefined' ? !bool : !grid.dataman.busy());
-            grid.clipboard.dataman.busy(typeof bool !== 'undefined' ? !bool : !grid.clipboard.dataman.busy());
+            var state = typeof bool !== 'undefined' ? !bool : !grid.clipboard.dataman.busy();
+            grid.dataman.busy(grid.clipboard.dataman.busy(state));
         };
         return constructor;
     }
