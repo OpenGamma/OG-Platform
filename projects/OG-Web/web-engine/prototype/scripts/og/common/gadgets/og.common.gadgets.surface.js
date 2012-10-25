@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var prefix = 'og_surface_gadget_', counter = 1;
         return function (config) {
-            var gadget = this, surface, alive = prefix + counter++,
+            var gadget = this, surface, alive = prefix + counter++, $selector = $(config.selector),
                 surface_options = {selector: config.selector, options: {}};
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
@@ -20,7 +20,7 @@ $.register_module({
             gadget.resize = function () {try {surface.resize();} catch (error) {}};
             gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
                 .on('data', function (data) {
-                    if (!data.x_values || !data.y_values) return !surface && $(config.selector).html('bad data');
+                    if (!data.x_values || !data.y_values) return !surface && $selector.html('bad data');
                     surface_options.data = {
                         vol: data.vol,
                         xs: data.x_values, xs_labels: data.x_labels, xs_label: data.x_title,
@@ -28,7 +28,8 @@ $.register_module({
                     };
                     if (!surface) surface = new JSurface3D(surface_options);
                     else surface.update('surface', surface_options.data);
-                });
+                })
+                .on('fatal', function (message) {$selector.html(message)});
             if (!config.child) og.common.gadgets.manager.register(gadget);
         }
     }
