@@ -68,7 +68,6 @@ public class DepGraphTestHelper {
   private final InMemoryFunctionRepository _functionRepo;
   private final FixedMarketDataAvailabilityProvider _liveDataAvailabilityProvider;
 
-  private DependencyGraphBuilder _builder;
   private int _mockId;
 
   public DepGraphTestHelper() {
@@ -84,7 +83,7 @@ public class DepGraphTestHelper {
     _value1Foo = new ComputedValue(_spec1Foo, 14.3);
     _req1Bar = new ValueRequirement(REQUIREMENT_1, targetSpec, ValueProperties.with(TEST_PROPERTY, "Bar").get());
     _spec1Bar = new ValueSpecification(REQUIREMENT_1, targetSpec, _req1Bar.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
-    _value1Bar = new ComputedValue (_spec1Bar, 9.0);
+    _value1Bar = new ComputedValue(_spec1Bar, 9.0);
     _req1Any = new ValueRequirement(REQUIREMENT_1, targetSpec, ValueProperties.withAny(TEST_PROPERTY).get());
     _req2 = new ValueRequirement(REQUIREMENT_2, targetSpec);
     _spec2 = new ValueSpecification(REQUIREMENT_2, targetSpec, _req2.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
@@ -158,29 +157,27 @@ public class DepGraphTestHelper {
     _liveDataAvailabilityProvider.addMissingRequirement(_req2);
   }
 
-  public DependencyGraphBuilder getBuilder(final FunctionPriority prioritizer) {
-    if (_builder == null) {
-      final Instant now = Instant.now();
-      _builder = new DependencyGraphBuilder();
-      _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
-      final FunctionCompilationContext context = new FunctionCompilationContext();
-      final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-      context.setRawComputationTargetResolver(targetResolver);
-      context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
-      _builder.setCompilationContext(context);
-      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
-      compilationService.initialize();
-      final DefaultFunctionResolver resolver;
-      if (prioritizer != null) {
-        resolver = new DefaultFunctionResolver(compilationService, prioritizer);
-      } else {
-        resolver = new DefaultFunctionResolver(compilationService);
-      }
-      _builder.setFunctionResolver(resolver.compile(now));
-      targetResolver.addTarget(_target);
-      _builder.setCalculationConfigurationName("testCalcConf");
+  public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {
+    final Instant now = Instant.now();
+    final DependencyGraphBuilder builder = new DependencyGraphBuilder();
+    builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+    context.setRawComputationTargetResolver(targetResolver);
+    context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
+    builder.setCompilationContext(context);
+    final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
+    compilationService.initialize();
+    final DefaultFunctionResolver resolver;
+    if (prioritizer != null) {
+      resolver = new DefaultFunctionResolver(compilationService, prioritizer);
+    } else {
+      resolver = new DefaultFunctionResolver(compilationService);
     }
-    return _builder;
+    builder.setFunctionResolver(resolver.compile(now));
+    targetResolver.addTarget(_target);
+    builder.setCalculationConfigurationName("testCalcConf");
+    return builder;
   }
 
   public ComputationTarget getTarget() {
@@ -210,12 +207,12 @@ public class DepGraphTestHelper {
   public ValueRequirement getRequirement1Bar() {
     return _req1Bar;
   }
-  
-  public ValueSpecification getSpecification1Bar () {
+
+  public ValueSpecification getSpecification1Bar() {
     return _spec1Bar;
   }
-  
-  public ComputedValue getValue1Bar () {
+
+  public ComputedValue getValue1Bar() {
     return _value1Bar;
   }
 

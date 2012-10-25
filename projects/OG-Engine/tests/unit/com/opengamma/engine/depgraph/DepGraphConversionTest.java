@@ -60,7 +60,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     fnConv.addRequirement(helper.getRequirement2Foo());
     helper.getFunctionRepository().addFunction(fnConv);
     final MockFunction fn2 = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -96,7 +96,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv) {
@@ -157,7 +157,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv2.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv2);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv2) {
@@ -210,7 +210,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv.addRequirement(helper.getRequirement1Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement2Foo());
     builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
@@ -400,7 +400,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
       }
 
     });
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function instanceof TestFunction) {

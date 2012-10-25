@@ -159,6 +159,33 @@ import com.opengamma.util.tuple.Pair;
     return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
   }
 
+  public synchronized void populateState(final DependencyGraph graph) {
+    final Set<DependencyNode> remove = new HashSet<DependencyNode>();
+    for (DependencyNode node : graph.getDependencyNodes()) {
+      for (DependencyNode dependent : node.getDependentNodes()) {
+        if (!graph.containsNode(dependent)) {
+          // Need to remove "dependent" from the node. We can leave the output values there; they might be used, or will get discarded by discardUnusedOutputs afterwards
+          remove.add(dependent);
+        }
+      }
+      _graphNodes.add(node);
+      for (ValueSpecification output : node.getOutputValues()) {
+        _spec2Node.put(output, node);
+      }
+      getOrCreateNodes(node.getFunction(), node.getComputationTarget()).add(node);
+    }
+    for (DependencyNode node : remove) {
+      node.clearInputs();
+    }
+    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : graph.getTerminalOutputs().entrySet()) {
+      for (ValueRequirement requirement : terminal.getValue()) {
+        _resolvedValues.put(requirement, terminal.getKey());
+      }
+    }
+  }
+
+  // Caller must hold the object monitor
+
   private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode node,
       final boolean newNode) {
     Set<ValueSpecification> downstreamCopy = null;

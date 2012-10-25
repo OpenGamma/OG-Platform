@@ -17,6 +17,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -31,7 +32,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
   public void singleOutputSingleFunctionNode() {
     DepGraphTestHelper helper = helper();
     MockFunction function = helper.addFunctionProducing1and2();
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -65,7 +66,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
   public void multipleOutputsSingleFunctionNode() {
     DepGraphTestHelper helper = helper();
     MockFunction function = helper.addFunctionProducing1and2();
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
     builder.addTarget(Sets.newHashSet(helper.getRequirement2()));
     DependencyGraph graph = builder.getDependencyGraph();
@@ -85,7 +86,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     DepGraphTestHelper helper = helper();
     helper.addFunctionProducing1and2();
     ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget().toSpecification());
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement1(), null, null));
     expectFailure(builder, builder.getContext().resolveRequirement(anotherReq, null, null));
   }
@@ -94,7 +95,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     DepGraphTestHelper helper = helper();
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
     MockFunction fn2 = helper.addFunctionProducing2();
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement1());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -126,7 +127,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     DepGraphTestHelper helper = helper();
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
     helper.make2AvailableFromLiveData();
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement1());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -161,11 +162,55 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     final DepGraphTestHelper helper = helper();
     helper.addFunctionRequiring2Producing1();
     helper.make2MissingFromLiveData();
-    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    final DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement1());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     assertEquals(0, graph.getDependencyNodes().size());
+  }
+
+  public void incrementalBuild() {
+    final DepGraphTestHelper helper = helper();
+    helper.addFunctionRequiring2Producing1();
+    helper.addFunctionProducing2();
+    DependencyGraphBuilder builder = helper.createBuilder(null);
+    builder.setDependencyGraph(new DependencyGraph("DEFAULT"));
+    builder.addTarget(helper.getRequirement2());
+    final DependencyGraph graph1 = builder.getDependencyGraph();
+    assertNotNull(graph1);
+    assertEquals(1, graph1.getDependencyNodes().size());
+    builder = helper.createBuilder(null);
+    builder.setDependencyGraph(graph1);
+    builder.addTarget(helper.getRequirement1());
+    final DependencyGraph graph2 = builder.getDependencyGraph();
+    assertNotNull(graph2);
+    final Collection<DependencyNode> graph2Nodes = graph2.getDependencyNodes();
+    assertEquals(2, graph2Nodes.size());
+    assertTrue(graph2Nodes.containsAll(graph1.getDependencyNodes()));
+    builder = helper.createBuilder(null);
+    for (DependencyNode node : graph2Nodes) {
+      new DependencyNode(ComputationTarget.NULL).addInputNode(node);
+      if (node.getOutputValues().contains(helper.getSpec1())) {
+        assertEquals(1, node.getDependentNodes().size());
+      } else {
+        assertEquals(2, node.getDependentNodes().size());
+      }
+    }
+    // graph2 is now a subgraph of a larger graph containing two more nodes
+    builder.setDependencyGraph(graph2);
+    builder.addTarget(helper.getRequirement2Foo());
+    final DependencyGraph graph3 = builder.getDependencyGraph();
+    assertNotNull(graph3);
+    assertEquals(2, graph3.getDependencyNodes().size());
+    assertEquals(graph2.getDependencyNodes(), graph3.getDependencyNodes());
+    // the build should have modified the supplied nodes
+    for (DependencyNode node : graph2Nodes) {
+      if (node.getOutputValues().contains(helper.getSpec1())) {
+        assertEquals(0, node.getDependentNodes().size());
+      } else {
+        assertEquals(1, node.getDependentNodes().size());
+      }
+    }
   }
 
 }

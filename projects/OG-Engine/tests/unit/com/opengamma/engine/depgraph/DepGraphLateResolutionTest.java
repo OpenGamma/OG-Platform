@@ -60,7 +60,7 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv) {
@@ -104,7 +104,7 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -136,7 +136,7 @@ public class DepGraphLateResolutionTest extends AbstractDependencyGraphBuilderTe
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fn2Foo) {

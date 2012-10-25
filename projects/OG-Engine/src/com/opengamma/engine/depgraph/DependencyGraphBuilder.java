@@ -349,6 +349,16 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
+   * Passes a previously constructed dependency graph to the builder as part of an incremental build. The nodes from the graph will be adopted by the builder and may be returned in the graph that this
+   * eventually produces. This should be called before adding any targets to the build.
+   * 
+   * @param graph the result of a previous graph build
+   */
+  public void setDependencyGraph(final DependencyGraph graph) {
+    _getTerminalValuesCallback.populateState(graph);
+  }
+
+  /**
    * Adds a target requirement to the graph. The requirement is queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
    * the call to {@link #getDependencyGraph} is made. If it was not possible to satisfy the requirement that must be checked after graph construction is complete.
    * 

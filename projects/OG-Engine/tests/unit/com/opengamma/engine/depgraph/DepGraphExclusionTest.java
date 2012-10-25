@@ -46,7 +46,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
     priority.put(helper.addFunctionProducing(helper.getValue1Bar()), 1); // 4
     priority.put(helper.addFunctionProducing(helper.getValue2Bar()), 1); // 5
     priority.put(helper.addFunctionProducing(helper.getValue2Foo()), 1); // 6
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(final CompiledFunctionDefinition function) {
         return priority.get(function);
