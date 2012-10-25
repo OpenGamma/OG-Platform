@@ -12,7 +12,7 @@ $.register_module({
         });
         var constructor = function (config, bypass_types) {
             var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
-                fire = og.common.events.fire, viewport = null, view_id = config.view, graph_id, viewport_id,
+                viewport = null, view_id = config.view, graph_id, viewport_id,
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = null, depgraph = !!config.depgraph, types_emitted = false, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
@@ -52,6 +52,14 @@ $.register_module({
                     })
                 ).pipe(data_handler);
             };
+            var fire = (function () {
+                var fatal_fired = false;
+                return function () {
+                    var events = arguments[0], args = Array.prototype.slice.call(arguments);
+                    if (events !== data.events.fatal) return og.common.events.fire.apply(data, args);
+                    if (!fatal_fired) return (fatal_fired = true), og.common.events.fire.apply(data, args);
+                }
+            })();
             var initialize = function () {
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
@@ -64,8 +72,11 @@ $.register_module({
             var structure_handler = function (result) {
                 var message;
                 if (!grid_type || (depgraph && !graph_id)) return;
-                if (result.error && server_error(result)) return (view_id = graph_id = viewport_id = subscribed = null),
-                    og.dev.warn(message = module.name + ': ' + result.message), fire(data.events.fatal, message);
+                if (result.error && server_error(result)) {
+                    view_id = graph_id = viewport_id = subscribed = null;
+                    og.dev.warn(message = module.name + ': ' + result.message);
+                    return data.kill(), fire(data.events.fatal, message);
+                }
                 if (result.error) return (view_id = graph_id = viewport_id = subscribed = null),
                     og.dev.warn(message = module.name + ': ' + result.message), initialize();
                 if (!result.data[SETS].length) return;
