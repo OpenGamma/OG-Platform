@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.analytics.formatting;
 
 /**
- * Abstract {@link Formatter} that implements {@link #getFormatForValue} by delegating to {@link #getFormatForType()1}.
+ * Abstract {@link Formatter} that implements {@link #getFormatForValue} by delegating to {@link #getFormatForType()}.
  * @param <T> Type of object formatted by the formatter
  */
 public abstract class AbstractFormatter<T> implements Formatter<T> {
