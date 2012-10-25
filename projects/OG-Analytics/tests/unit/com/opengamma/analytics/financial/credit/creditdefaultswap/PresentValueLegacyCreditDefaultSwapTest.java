@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -27,9 +27,6 @@ import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
-import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
-import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -44,7 +41,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  *  Test of the implementation of the valuation model for a CDS 
  */
-public class PresentValueCreditDefaultSwapTest {
+public class PresentValueLegacyCreditDefaultSwapTest {
 
   // ----------------------------------------------------------------------------------
 
@@ -116,9 +113,9 @@ public class PresentValueCreditDefaultSwapTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 3, 20);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 3, 21);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 6, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final StubType stubType = StubType.FRONTSHORT;
@@ -131,7 +128,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double premiumLegCoupon = 100.0;
+  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
   private static final boolean protectionStart = true;
@@ -295,10 +292,11 @@ public class PresentValueCreditDefaultSwapTest {
       interestRate, interestRate, interestRate, interestRate, interestRate,
       interestRate, interestRate, interestRate, interestRate, interestRate,
       interestRate, interestRate, interestRate, interestRate };
-  */
+   */
 
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
   final double offset = 0.0; //s_act365.getDayCountFraction(valuationDate, baseDate);
+
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
 
   // ----------------------------------------------------------------------------------
@@ -371,7 +369,7 @@ public class PresentValueCreditDefaultSwapTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract 
-  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(
+  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -392,17 +390,17 @@ public class PresentValueCreditDefaultSwapTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      premiumLegCoupon,
       recoveryRate,
       includeAccruedPremium,
-      protectionStart);
+      protectionStart,
+      parSpread);
 
   // -----------------------------------------------------------------------------------------------
 
-  // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
+  // Simple test to compute the PV of a CDS assuming a calibrated term structure of hazard rates
 
   @Test
-  public void testPresentValueCreditDefaultSwap() {
+  public void testPresentValueLegacyCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -415,7 +413,7 @@ public class PresentValueCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the present value
     double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
@@ -428,139 +426,31 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  /*
-  // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
+  // -----------------------------------------------------------------------------------------------
 
-  //@Test
-  public void testPresentValueCreditSwapCalibrateSurvivalCurve() {
+  //Test to vary the valuationDate of a CDS from a start date to an end date and compute PV (test time decay and that coupons roll off on the correct days)
+
+  @Test
+  public void testPresentValueLegacyCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
 
     final boolean outputResults = false;
 
-    double presentValue = 0.0;
-
-    if (outputResults) {
-      System.out.println("Running CDS calibration test ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Define the market data to calibrate to
-
-    // The number of CDS instruments used to calibrate against
-    int numberOfCalibrationCDS = 10;
-
-    // The CDS tenors to calibrate to
-    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
-
-    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
-    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
-    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
-    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
-    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
-    tenors[5] = DateUtils.getUTCDate(2014, 6, 20);
-    tenors[6] = DateUtils.getUTCDate(2017, 6, 20);
-    tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
-    tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
-    tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
-
-    // The market observed par CDS spreads at these tenors
-    final double[] marketSpreads = new double[numberOfCalibrationCDS];
-
-    final double flatSpread = 100.0;
-
-    marketSpreads[0] = flatSpread;
-    marketSpreads[1] = flatSpread;
-    marketSpreads[2] = flatSpread;
-    marketSpreads[3] = flatSpread;
-    marketSpreads[4] = flatSpread;
-    marketSpreads[5] = flatSpread;
-    marketSpreads[6] = flatSpread;
-    marketSpreads[7] = flatSpread;
-    marketSpreads[8] = flatSpread;
-    marketSpreads[9] = flatSpread;
-
-    // The recovery rate assumption used in the PV calculations when calibrating
-    final double calibrationRecoveryRate = 0.40;
-
-    // -------------------------------------------------------------------------------------
-
-    // Calibrate the hazard rate term structure to the market observed par spreads
-
-    // Create a calibration CDS (will be a modified version of the baseline CDS)
-    CreditDefaultSwapDefinition calibrationCDS = cds;
-
-    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
-    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
-
-    // Create a calibrate survival curve object
-    final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();
-
-    // Calibrate the survival curve to the market observed par CDS spreads (returns hazard rate term structure as a vector of doubles)
-    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
-
-    // -------------------------------------------------------------------------------------
-
-    // Now want to create a new CDS and price it using the calibrated survival curve
-
-    // Create a cashflow schedule object (to facilitate the conversion of tenors into doubles)
-    GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
-
-    // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
-
-    // Build a survival curve using the input tenors (converted to doubles) and the previously calibrated hazard rates
-    final HazardRateCurve survivalCurve = new HazardRateCurve(tenorsAsDoubles, calibratedHazardRateTermStructure, 0.0);
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
-
-    // Call the CDS PV calculator to get the current PV (should be equal to zero)
-    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
-
-    if (outputResults) {
-      System.out.println("CDS PV = " + presentValue);
-    }
-
-    // -------------------------------------------------------------------------------------
-  }
-  */
-
-  // -----------------------------------------------------------------------------------------------
-
-  // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
-
-  //@Test
-  public void testPresentValueCreditDefaultSwapTimeDecay() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    final boolean outputResults = true;
-
     double premiumLegPresentValue = 0.0;
     double contingentLegPresentValue = 0.0;
-    double presentValue = 0.0;
 
     if (outputResults) {
       System.out.println("Running CDS PV time decay test ...");
     }
 
-    /*
-    for (double t = 0.0; t < 6.0; t += 1 / 365.0) {
-      double z = yieldCurve.getDiscountFactor(t);
-
-      System.out.println(t + "\t" + z);
-    }
-    */
-
     // -----------------------------------------------------------------------------------------------
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    CreditDefaultSwapDefinition valuationCDS = cds;
+    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
     // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // -----------------------------------------------------------------------------------------------
 
@@ -569,6 +459,10 @@ public class PresentValueCreditDefaultSwapTest {
 
     // Specify the end date
     ZonedDateTime endDate = ZonedDateTime.of(2013, 3, 10, 0, 0, 0, 0, TimeZone.UTC);
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Main loop of test
 
     while (rollingdate.isBefore(endDate)) {
 
@@ -579,288 +473,19 @@ public class PresentValueCreditDefaultSwapTest {
       valuationCDS = valuationCDS.withValuationDate(rollingdate);
 
       // Set the recovery rate to 100% (kill contingent leg) to get the premium leg value
-      valuationCDS = valuationCDS.withSpread(premiumLegCoupon);
+      valuationCDS = valuationCDS.withSpread(parSpread);
       valuationCDS = valuationCDS.withRecoveryRate(1.0);
       premiumLegPresentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
-      // Set the coupon to 0 (kill premium leg) and reset the recovery rate to get the contingent leg value
+      // Set the par spread to 0 (kill premium leg) and reset the recovery rate to get the contingent leg value
       valuationCDS = valuationCDS.withSpread(0.0);
       valuationCDS = valuationCDS.withRecoveryRate(recoveryRate);
       contingentLegPresentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
+      // Output results
       if (outputResults) {
         System.out.println(rollingdate + "\t" + premiumLegPresentValue + "\t" + contingentLegPresentValue);
       }
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  // Work-in-Progress
-
-  //@Test
-  public void testIRSPFECalc() {
-    System.out.println("Running simple IRS PFE calc...");
-
-    NormalRandomNumberGenerator normRand = new NormalRandomNumberGenerator(0.0, 1.0);
-
-    final int numberOfSims = 100000;
-
-    final double T = 10.0;
-    final double deltaT = 0.25;
-
-    final double r0 = 0.05;
-    final double a = 0.10;
-    final double b = 0.05;
-    final double sigma = 0.01;
-
-    final double swapRate = 0.0496;
-
-    int n = 50;
-
-    final double[] r = new double[n];
-
-    double Z = 0.0;
-
-    double[] epsilon = new double[n];
-
-    double[][] VFixed = new double[n][numberOfSims];
-    double[][] VFloat = new double[n][numberOfSims];
-    double[][] V = new double[n][numberOfSims];
-
-    double[][] EE = new double[41][numberOfSims];
-
-    r[0] = r0;
-
-    int counter = 1;
-
-    // ---------------------------------------------------------------
-
-    for (int alpha = 0; alpha < numberOfSims; alpha++) {
-
-      if (alpha % 100 == 0) {
-        System.out.println("Simulation = " + alpha);
-      }
-
-      // ---------------------------------------------------------------
-
-      epsilon = normRand.getVector(n);
-
-      // ---------------------------------------------------------------
-
-      // First generate the simulated rates at each timenode for this simulation
-
-      for (counter = 1; counter < 41; counter++) {
-        r[counter] = r[counter - 1] + a * (b - r[counter - 1]) * 0.25 + sigma * Math.sqrt(0.25) * epsilon[counter];
-      }
-
-      // ---------------------------------------------------------------
-
-      counter = 0;
-
-      int timeIndexCounter = 0;
-
-      // ---------------------------------------------------------------
-
-      // Now step through each of the simulation timenodes
-      for (double t = 0.0; t <= T; t += deltaT) {
-
-        // ---------------------------------------------------------------
-
-        // Loop through each of the remaining coupon dates
-        for (double tPrime = deltaT; tPrime <= (T - t); tPrime += deltaT) {
-
-          // ---------------------------------------------------------------
-
-          double B = (1 - Math.exp(-a * tPrime)) / a;
-          double A = Math.exp((b - sigma * sigma / (2 * a * a)) * (B - tPrime) + (-sigma * sigma * B * B / (4 * a)));
-
-          // Calculate the discount factor
-          Z = A * Math.exp(-B * r[counter]);
-
-          // ---------------------------------------------------------------
-
-          // Add this discount factor to the running total for the fixed leg
-          VFixed[timeIndexCounter][alpha] += Z;
-
-          // ---------------------------------------------------------------
-        }
-
-        VFloat[timeIndexCounter][alpha] = 1.0 - Z;
-
-        // ---------------------------------------------------------------
-
-        VFixed[timeIndexCounter][alpha] *= swapRate * 0.25;
-
-        V[timeIndexCounter][alpha] = VFixed[timeIndexCounter][alpha] - VFloat[timeIndexCounter][alpha];
-
-        EE[timeIndexCounter][alpha] = Math.max(V[timeIndexCounter][alpha], 0.0);
-
-        //System.out.println("alpha = " + alpha + ", t = " + t + "\t" + VFixed[timeIndexCounter][alpha] + "\t" + VFloat[timeIndexCounter][alpha] + "\t" + EE[timeIndexCounter]);
-
-        //System.out.println(timeIndexCounter);
-
-        //System.out.println(EE[timeIndexCounter][alpha]);
-
-        timeIndexCounter++;
-
-        counter++;
-      }
-
-      // ---------------------------------------------------------------
-
-      //EE[timeIndexCounter - 1] /= numberOfSims;
-
-      //System.out.println(EE[timeIndexCounter - 1]);
-    }
-
-    double[] EPE = new double[40];
-
-    for (int i = 0; i < 40; i++) {
-
-      for (int alpha = 0; alpha < numberOfSims; alpha++) {
-        EPE[i] += EE[i][alpha];
-      }
-      EPE[i] /= numberOfSims;
-
-      System.out.println(i + "\t" + EPE[i]);
-    }
-
-    // ---------------------------------------------------------------
-
-  }
-
-  //@Test
-  public void testPFECalculation() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    int counter = 0;
-    int numberOfSimulations = 1;
-
-    double[] presentValue = new double[1];
-
-    double mu = 0.90;
-    double sigma = 1.0;
-
-    double hazRate = 0.01;
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Create an N(0, 1) random number generator
-    NormalRandomNumberGenerator normRand = new NormalRandomNumberGenerator(0.0, 1.0);
-
-    PercentileCalculator quantile = new PercentileCalculator(0.5);
-
-    // -----------------------------------------------------------------------------------------------
-
-    // The simulation start date
-    ZonedDateTime simulationStartDate = DateUtils.getUTCDate(2007, 10, 23);
-
-    // The simulation end date
-    ZonedDateTime simulationEndDate = DateUtils.getUTCDate(2008, 10, 23);
-
-    // Initialise the current timenode to be the start of the simulation
-    ZonedDateTime currentTimenode = simulationStartDate;
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
-
-    // Create a CDS object whose valuation date we will vary
-    CreditDefaultSwapDefinition rollingCDS = cds;
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Determine how many timenodes there are
-    while (currentTimenode.isBefore(simulationEndDate.minusDays(5))) {
-      currentTimenode = currentTimenode.plusDays(1);
-      counter++;
-    }
-
-    int numberOfTimenodes = counter;
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Create an array to store the simulated PV's in
-    double[][] results = new double[numberOfTimenodes + 1][numberOfSimulations];
-
-    // Create a vector to hold the PFE
-    double[] potentialFutureExposure = new double[numberOfTimenodes + 1];
-
-    // Create a vector to hold the random numbers for each simulation
-    double[] epsilon = new double[numberOfTimenodes + 1];
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Main Monte Carlo loop
-    for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
-
-      if (alpha % 100 == 0) {
-        //System.out.println("Simulation = " + alpha);
-      }
-
-      // -----------------------------------------------------------------------------------------------
-
-      // Reset the current timenode to the start of the simulation
-      currentTimenode = simulationStartDate;
-
-      // -----------------------------------------------------------------------------------------------
-
-      // Call the CDS PV calculator (with a flat survival curve) to get the current PV at time zero
-      presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
-
-      // Get a vector of N(0, 1) normal random variables
-      epsilon = normRand.getVector(numberOfTimenodes + 1);
-
-      // Reset the counter
-      counter = 0;
-
-      // Loop over all the timenodes
-      while (currentTimenode.isBefore(simulationEndDate.minusDays(5))) {
-
-        // Store the simulated PV
-        results[counter][alpha] = presentValue[0];
-
-        // Roll the timenode to the next one
-        currentTimenode = currentTimenode.plusDays(1);
-
-        // Calculate the time from simulationStartDate to the current timenode
-        double t = TimeCalculator.getTimeBetween(simulationStartDate, currentTimenode);
-
-        // Calculate the simulated hazard rate (assume it is a simple GBM)
-        double h = hazRate * Math.exp((mu - 0.5 * sigma * sigma) * t + sigma * Math.sqrt(t) * epsilon[counter]);
-
-        //System.out.println(currentTimenode + "\t" + t + "\t" + h);
-
-        // Build a vector with this simulated value in
-        double[] simulatedHazardRates = new double[] {h };
-
-        // Construct a survival curve from this simulated rate
-        //HazardRateCurveTemp simulatedSurvivalCurve = new HazardRateCurveTemp(tenorsAsDoubles, simulatedHazardRates, 0.0);
-
-        // Roll the valuation date of the CDS to the current timenode
-        //rollingCDS = rollingCDS.withValuationDate(currentTimenode);
-
-        // Re-val the CDS given the simulated hazard rate at the new timenode
-        //presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingCDS, yieldCurve, simulatedSurvivalCurve);
-
-        counter++;
-      }
-    }
-
-    for (int i = 0; i < numberOfTimenodes; i++) {
-
-      double[] x = new double[numberOfTimenodes + 1];
-
-      for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
-        x[alpha] = results[i][alpha];
-      }
-
-      potentialFutureExposure[i] = quantile.evaluate(x);
     }
 
     // -----------------------------------------------------------------------------------------------
@@ -914,5 +539,3 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 }
-
-//-----------------------------------------------------------------------------------------------

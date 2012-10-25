@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition;
 
 /**
- * 
+ * Definition of a generic Single Name Credit Default Swap Option contract 
  */
 public class CreditDefaultSwapOptionDefinition {
 

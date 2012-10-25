@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.credit;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;

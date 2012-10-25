@@ -24,7 +24,7 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // TODO : Work In Progress
 
   // TODO : Replace _series, _version with enums
-  // TODO : Maybe replace the _underlyingPool obligor with a dedicated 'pool' class
+  // TODO : Replace the _underlyingPool obligor with a dedicated 'pool' class
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
