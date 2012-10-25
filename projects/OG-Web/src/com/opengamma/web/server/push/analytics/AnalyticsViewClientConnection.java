@@ -59,7 +59,6 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
                                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                                               MarketDataSnapshotMaster snapshotMaster) {
-    _marketDataSpecRepo = marketDataSpecRepo;
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
@@ -69,6 +68,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
+    _marketDataSpecRepo = marketDataSpecRepo;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
     ViewCycleExecutionOptions defaultOptions =

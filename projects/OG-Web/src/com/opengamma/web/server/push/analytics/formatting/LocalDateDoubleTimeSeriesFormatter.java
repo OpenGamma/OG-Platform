@@ -43,7 +43,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.TIME_SERIES;
   }
 }

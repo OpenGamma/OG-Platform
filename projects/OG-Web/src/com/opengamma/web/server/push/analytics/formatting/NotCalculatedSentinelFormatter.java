@@ -12,7 +12,7 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
  * Formats instances of {@link NotCalculatedSentinel} which are placeholders in the analytics results for values
  * that couldn't be calculated.
  */
-public class NotCalculatedSentinelFormatter implements Formatter<NotCalculatedSentinel> {
+public class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalculatedSentinel> {
 
   /**
    * @param value The value
@@ -45,7 +45,7 @@ public class NotCalculatedSentinelFormatter implements Formatter<NotCalculatedSe
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }

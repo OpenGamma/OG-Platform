@@ -22,7 +22,7 @@ public class VolatilitySurfaceSpecificationFormatter extends NoHistoryFormatter<
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }

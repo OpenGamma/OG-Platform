@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }

@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.LABELLED_MATRIX_3D;
   }
 }

@@ -10,7 +10,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Returns the same formatted value every time.
  */
-/* package */ class FixedValueFormatter implements Formatter<Object> {
+/* package */ class FixedValueFormatter extends AbstractFormatter<Object> {
 
   private final Object _displayValue;
   private final Object _extendedDisplayValue;
@@ -43,7 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }
