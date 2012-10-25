@@ -44,6 +44,12 @@ $.register_module({
                 for (i = 0; i < order.length; i++) for (k = 0; k < type_map.length; k++) if (order[i] === type_map[k])
                     return mapping.gadgets[order[i]];
             },
+            available_types : function (data_type){
+                var types_array = mapping.type_map[data_type], i,  types = {gadgets:[]};
+                for (i = 0; i < types_array.length; i++) 
+                    types.gadgets.push(mapping.gadgets[types_array[i]]);
+                return types;
+            },
             type_map: {
                 CURVE             : [1, 3],
                 DOUBLE            : [0],
@@ -56,6 +62,6 @@ $.register_module({
                 TIME_SERIES       : [4, 1],
                 UNKNOWN           : [0]
             }
-        }
+        };
     }
 });

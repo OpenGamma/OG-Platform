@@ -1,9 +1,14 @@
 <section>
+  <div class="og-menu-toggle">
+    toggle
+  </div>
   <div class="OG-gadgets-typemenu">
-	{{#if this.types.length}}
-		{{#each this.types}}
-			<input type="checkbox" value=""> {{name}}
-		{{/each}}
-	{{/if}}
+    <div class="og-menu">
+      {{#if gadgets.length}}
+        {{#each gadgets}}
+          <input type="checkbox" value="{{this}}">{{this}}
+        {{/each}}
+      {{/if}}
+   </div>
   </div>
 </section>

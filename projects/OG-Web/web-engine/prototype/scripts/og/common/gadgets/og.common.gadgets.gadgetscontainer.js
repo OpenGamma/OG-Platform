@@ -97,8 +97,7 @@ $.register_module({
                             // stage 3
                             if (num_tabs_to_hide >= num_tabs) $active_tab.width(
                                 active_tab_width
-                                + (space_needed + ((num_inactive_tabs * min_tab_width) - overflow_buffer))
-                                + 'px'
+                                + (space_needed + ((num_inactive_tabs * min_tab_width) - overflow_buffer)) + 'px'
                             );
                         } else {
                             $overflow_panel.hide();
@@ -135,13 +134,21 @@ $.register_module({
                 else {
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, i) {
-                        console.log(gadgets);
                         return acc.push({
                             'type': val.config.type, 'row_name': val.config.row_name, 'col_name': val.config.col_name,
-                            'active': gadgets[i].active = id === val.id, 'delete': true, 'id': val.id
+                            'active': gadgets[i].active = id === val.id, 'delete': true, 'id': val.id, 
+                            'data_type': val.config.data_type
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
+                    $.each(tabs, function (key,val) {
+                        console.log(val);
+                        var menu_config, menu_template,
+                        tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
+                        menu_template = typemenu_template(tmpl_data);
+                        menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
+                        menu = new og.common.util.ui.DropMenu(menu_config);
+                    });
                     reflow();
                     show_gadget(id);
                 }
@@ -236,15 +243,18 @@ $.register_module({
                     $(selector + header + ' , .og-js-overflow-' + pane)
                         // handler for tabs (including the ones in the overflow pane)
                         .on('click', 'li[class^=og-tab-]', function (e) {
-                            var id = extract_id($(this).attr('class')), index = extract_index(id);
+                            var id = extract_id($(this).attr('class')), menu, index = extract_index(id);
                             if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
                             else if($(e.target).hasClass('OG-multiselect')){
-                                //$('body').append(typemenu_template({types:[{name: 'blah'}, {name: 'beep'}, {name: 'boop'}]}));
-                                console.log(gadgets);
+                              /*  var menu_config, menu_template,
+                                tmpl_data = og.common.gadgets.mapping.available_types(gadgets[index].config.data_type);
+                                menu_template = typemenu_template(tmpl_data);
+                                menu_config = ({$cntr: $ag, tmpl: menu_template});
+                                menu = new og.common.util.ui.DropMenu(menu_config);*/
                             }
                         });
                     if (!data) update_tabs(null); else container.add(data);

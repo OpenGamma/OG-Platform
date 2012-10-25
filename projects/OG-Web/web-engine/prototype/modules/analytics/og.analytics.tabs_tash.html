@@ -1,7 +1,7 @@
 <div class="OG-gadget-tabs">
   <ul>
     {{#each tabs}}<li class="og-tab-{{this.id}}{{#if this.active}} og-active{{/if}}">
-        <div><div class="OG-multiselect">{{this.type}}</div>
+        <div><div class="OG-multiselect"></div>
           {{#if this.name}}{{this.name}}{{/if}}
           {{#if this.col_name}} {{this.col_name}} <span>on</span> {{this.row_name}}{{/if}}
         </div>
