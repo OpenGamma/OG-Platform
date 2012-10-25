@@ -43,6 +43,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -72,7 +74,9 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument> implements PositionMaster {
+public class DbPositionMaster
+    extends AbstractDocumentDbMaster<PositionDocument>
+    implements PositionMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);
@@ -100,7 +104,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final PositionSearchResult result = new PositionSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final PositionSearchResult result = new PositionSearchResult(vc);
+    
     final ExternalIdSearch securityIdSearch = request.getSecurityIdSearch();
     final List<ObjectId> positionObjectIds = request.getPositionObjectIds();
     final List<ObjectId> tradeObjectIds = request.getTradeObjectIds();
@@ -110,7 +116,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -534,4 +540,14 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     }
   }
 
+  @Override
+  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

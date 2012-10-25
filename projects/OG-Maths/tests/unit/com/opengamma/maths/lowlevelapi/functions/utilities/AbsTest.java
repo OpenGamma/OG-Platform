@@ -5,13 +5,11 @@
  */
 package com.opengamma.maths.lowlevelapi.functions.utilities;
 
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
-
-import com.opengamma.maths.lowlevelapi.functions.utilities.Abs;
-
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Tests the Abs function

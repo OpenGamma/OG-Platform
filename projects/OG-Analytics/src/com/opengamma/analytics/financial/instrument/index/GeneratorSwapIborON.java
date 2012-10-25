@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapIborONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Generator (or template) for OIS.
@@ -177,9 +178,23 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The effective date is spot+startTenor. The end of fixing period is effective date+tenor.
+   */
   public SwapIborONDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
     return SwapIborONDefinition.from(startDate, tenor, this, notional, spread, true);
+  }
+
+  @Override
+  /**
+   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
+   */
+  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _indexIbor);
+    return SwapIborONDefinition.from(startDate, endTenor, this, notional, spread, true);
   }
 
   @Override

@@ -15,8 +15,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.MultiquadraticRadialBasisFunction;
-import com.opengamma.analytics.math.interpolation.RadialBasisFunction;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.tuple.ObjectsPair;

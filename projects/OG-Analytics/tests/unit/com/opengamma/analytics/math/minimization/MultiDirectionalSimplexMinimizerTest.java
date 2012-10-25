@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.minimization.MultiDirectionalSimplexMinimizer;
-
 /**
  * 
  */

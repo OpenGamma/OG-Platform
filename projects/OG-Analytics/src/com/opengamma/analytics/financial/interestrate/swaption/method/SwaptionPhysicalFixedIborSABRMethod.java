@@ -111,10 +111,10 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatilityAdjoint[0]);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
-    InterestRateCurveSensitivity result = pvbpModifiedDr.multiply(bsAdjoint[0]);
-    result = result.plus(forwardModifiedDr.multiply(pvbpModified * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
+    InterestRateCurveSensitivity result = pvbpModifiedDr.multipliedBy(bsAdjoint[0]);
+    result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
     if (!swaption.isLong()) {
-      result = result.multiply(-1);
+      result = result.multipliedBy(-1);
     }
     return result;
   }

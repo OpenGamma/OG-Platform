@@ -7,9 +7,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.EuropeanPriceIntegrand;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.GaussianMartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 
 public class EuropeanPriceIntegrandTest {
   private static final MartingaleCharacteristicExponent GAUSSIAN = new GaussianMartingaleCharacteristicExponent(0.2);

@@ -33,10 +33,12 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 // TODO jonathan 2012-02-01 -- added this for immediate demo needs. Need to revisit and fully implement.
 
@@ -74,7 +76,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId());
+        context.getFunctionReinitializer().reinitializeFunction(this, Pair.of(matrix.getUniqueId().getObjectId(), VersionCorrection.LATEST));
       }
     }
   }
@@ -115,9 +117,11 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints().copy()
-        .withoutAny(ValuePropertyNames.CURRENCY).withAny(ValuePropertyNames.CURRENCY)
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .withAny(ValuePropertyNames.CURRENCY)
         .with(CONVERSION_CCY_PROPERTY, Iterables.getOnlyElement(desiredCurrencyValues))
-        .withOptional(CONVERSION_CCY_PROPERTY).get();
+        .withOptional(CONVERSION_CCY_PROPERTY)
+        .get();
     return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), constraints));
   }
 
@@ -136,8 +140,9 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
       final Currency originalCurrency = Currency.of(input.getProperty(ValuePropertyNames.CURRENCY));
       final ValueSpecification output = outputs.iterator().next(); // only one output, so must be the result P&L Series
       final Currency desiredCurrency = Currency.of(output.getProperty(ValuePropertyNames.CURRENCY));
-      return getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
-        new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
+      Set<ValueRequirement> addlReqSet = getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
+          new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
+      return addlReqSet;
     } catch (final Exception e) {
       return null;
     }

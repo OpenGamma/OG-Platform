@@ -12,7 +12,6 @@ import javax.time.calendar.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;

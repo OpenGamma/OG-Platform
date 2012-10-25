@@ -33,6 +33,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -63,7 +65,9 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument> implements SecurityMaster {
+public class DbSecurityMaster
+    extends AbstractDocumentDbMaster<SecurityDocument>
+    implements SecurityMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);
@@ -145,7 +149,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final SecuritySearchResult result = new SecuritySearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final SecuritySearchResult result = new SecuritySearchResult(vc);
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
@@ -153,7 +159,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -416,4 +422,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
   }
 
+  @Override
+  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

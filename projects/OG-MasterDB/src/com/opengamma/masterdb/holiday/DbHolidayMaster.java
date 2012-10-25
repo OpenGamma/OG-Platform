@@ -30,6 +30,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -112,7 +114,9 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final HolidaySearchResult result = new HolidaySearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final HolidaySearchResult result = new HolidaySearchResult(vc);
+    
     ExternalIdSearch regionSearch = request.getRegionExternalIdSearch();
     ExternalIdSearch exchangeSearch = request.getExchangeExternalIdSearch();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getCode() : null);
@@ -122,7 +126,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -327,4 +331,14 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
   }
 
+  @Override
+  public AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    HolidayHistoryRequest historyRequest = new HolidayHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

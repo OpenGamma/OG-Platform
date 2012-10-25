@@ -8,6 +8,8 @@ package com.opengamma.id;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.Instant;
+
 /**
  * Utility class for working with identifiers.
  * <p>
@@ -29,7 +31,7 @@ public final class IdUtils {
    * <p>
    * For example, code in the database layer will need to update the unique identifier
    * when the object is stored.
-   * 
+   *
    * @param object  the object to set into
    * @param uniqueId  the unique identifier to set, may be null
    */
@@ -40,9 +42,10 @@ public final class IdUtils {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Converts a list of {@code UniqueId} or {@code ObjectId} to a list of strings.
-   * 
+   *
    * @param ids  the ids to convert, null returns empty list
    * @return the string list, not null
    */
@@ -62,7 +65,7 @@ public final class IdUtils {
 
   /**
    * Converts a list of strings to a list of {@code UniqueId}.
-   * 
+   *
    * @param uniqueIdStrs  the identifiers to convert, null returns empty list
    * @return the list of unique identifiers, not null
    */
@@ -78,7 +81,7 @@ public final class IdUtils {
 
   /**
    * Converts a list of strings to a list of {@code ObjectId}.
-   * 
+   *
    * @param objectIdStrs  the identifiers to convert, null returns empty list
    * @return the list of unique identifiers, not null
    */
@@ -90,6 +93,33 @@ public final class IdUtils {
       }
     }
     return objectIds;
+  }
+
+  /**
+   * Returns true if asOf instant is between from and to instants
+   * @param asOf the asOf instant
+   * @param from the from instant
+   * @param to the from instant
+   * @return asOf instant is between from and to instants             
+   */
+  public static boolean isWithinTimeBounds(Instant asOf, Instant from, Instant to) {
+    return
+      (asOf == null && to == null)
+        ||
+        (to == null || to.isAfter(asOf)) && (from == null || !from.isAfter(asOf));
+  }
+
+  /**
+   * Retruns true if the version-corrections is bounded by given instants
+   * @param vc the version-correction
+   * @param versionFrom the version from instant
+   * @param versionTo the version to instant
+   * @param correctionFrom the correction from instant
+   * @param correctionTo the correction from instant
+   * @return the version-corrections is bounded by given instants
+   */
+  public static boolean isVersionCorrection(VersionCorrection vc, Instant versionFrom, Instant versionTo, Instant correctionFrom, Instant correctionTo) {
+    return isWithinTimeBounds(vc.getVersionAsOf(), versionFrom, versionTo) && isWithinTimeBounds(vc.getCorrectedTo(), correctionFrom, correctionTo);
   }
 
 }

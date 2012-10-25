@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.analytics.financial.model.option.pricing.montecarlo.MonteCarloOptionModel;
 import com.opengamma.analytics.financial.model.stochastic.BlackScholesArithmeticBrownianMotionProcess;
 import com.opengamma.analytics.financial.model.stochastic.StochasticProcess;
 import com.opengamma.analytics.math.function.Function1D;

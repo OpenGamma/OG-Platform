@@ -8,10 +8,11 @@ package com.opengamma.analytics.financial.interestrate.market.description;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,18 +28,18 @@ public class MultipleCurrencyCurveSensitivityMarket {
   private final TreeMap<Currency, CurveSensitivityMarket> _sensitivity;
 
   /**
+   * Constructor. A new map is created.
+   */
+  public MultipleCurrencyCurveSensitivityMarket() {
+    _sensitivity = new TreeMap<Currency, CurveSensitivityMarket>();
+  }
+
+  /**
    * Private constructor from an exiting map.
    * @param sensitivity The sensitivity map.
    */
   private MultipleCurrencyCurveSensitivityMarket(final TreeMap<Currency, CurveSensitivityMarket> sensitivity) {
     _sensitivity = sensitivity;
-  }
-
-  /**
-   * Constructor. A new map is created.
-   */
-  public MultipleCurrencyCurveSensitivityMarket() {
-    _sensitivity = new TreeMap<Currency, CurveSensitivityMarket>();
   }
 
   /**
@@ -48,8 +49,8 @@ public class MultipleCurrencyCurveSensitivityMarket {
    * @return The multiple currency sensitivity.
    */
   public static MultipleCurrencyCurveSensitivityMarket of(final Currency ccy, final CurveSensitivityMarket sensitivity) {
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(sensitivity, "Sensitivity");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(sensitivity, "Sensitivity");
     final TreeMap<Currency, CurveSensitivityMarket> map = new TreeMap<Currency, CurveSensitivityMarket>();
     map.put(ccy, sensitivity);
     return new MultipleCurrencyCurveSensitivityMarket(map);
@@ -62,7 +63,7 @@ public class MultipleCurrencyCurveSensitivityMarket {
    * @return The (single currency) interest rate sensitivity.
    */
   public CurveSensitivityMarket getSensitivity(final Currency ccy) {
-    Validate.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(ccy, "Currency");
     if (_sensitivity.containsKey(ccy)) {
       return _sensitivity.get(ccy);
     }
@@ -79,8 +80,8 @@ public class MultipleCurrencyCurveSensitivityMarket {
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyCurveSensitivityMarket plus(final Currency ccy, final CurveSensitivityMarket sensitivity) {
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(sensitivity, "Sensitivity");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(sensitivity, "Sensitivity");
     final TreeMap<Currency, CurveSensitivityMarket> map = new TreeMap<Currency, CurveSensitivityMarket>();
     if (_sensitivity.containsKey(ccy)) {
       map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
@@ -103,7 +104,7 @@ public class MultipleCurrencyCurveSensitivityMarket {
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyCurveSensitivityMarket plus(final MultipleCurrencyCurveSensitivityMarket other) {
-    Validate.notNull(other, "Sensitivity");
+    ArgumentChecker.notNull(other, "Sensitivity");
     final TreeMap<Currency, CurveSensitivityMarket> map = new TreeMap<Currency, CurveSensitivityMarket>();
     map.putAll(_sensitivity);
     MultipleCurrencyCurveSensitivityMarket result = new MultipleCurrencyCurveSensitivityMarket(map);
@@ -121,7 +122,7 @@ public class MultipleCurrencyCurveSensitivityMarket {
   public MultipleCurrencyCurveSensitivityMarket multipliedBy(final double factor) {
     final TreeMap<Currency, CurveSensitivityMarket> map = new TreeMap<Currency, CurveSensitivityMarket>();
     for (final Currency loopccy : _sensitivity.keySet()) {
-      map.put(loopccy, _sensitivity.get(loopccy).multiply(factor));
+      map.put(loopccy, _sensitivity.get(loopccy).multipliedBy(factor));
     }
     return new MultipleCurrencyCurveSensitivityMarket(map);
   }
@@ -169,23 +170,49 @@ public class MultipleCurrencyCurveSensitivityMarket {
   }
 
   /**
-   * Convert the multiple currency sensitivity to the sensitivity in a given currency.
+   * Create a new sensitivity which is the conversion of the multiple currency sensitivity to the sensitivity in a given currency.
    * @param ccy The currency in which the sensitivities should be converted.
    * @param fx The matrix with the exchange rates.
    * @return The one currency sensitivity.
    */
-  public CurveSensitivityMarket convert(final Currency ccy, final FXMatrix fx) {
+  public MultipleCurrencyCurveSensitivityMarket converted(final Currency ccy, final FXMatrix fx) {
     CurveSensitivityMarket sensi = new CurveSensitivityMarket();
     for (Currency c : _sensitivity.keySet()) {
       double rate = fx.getFxRate(c, ccy);
-      sensi = sensi.plus(_sensitivity.get(c).multiply(rate));
+      sensi = sensi.plus(_sensitivity.get(c).multipliedBy(rate));
     }
-    return sensi;
+    return of(ccy, sensi);
   }
 
   @Override
   public String toString() {
     return _sensitivity.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _sensitivity.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    MultipleCurrencyCurveSensitivityMarket other = (MultipleCurrencyCurveSensitivityMarket) obj;
+    if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -1,9 +1,15 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.web.server.push.rest;
 
 import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.BASIS_VIEW_NAME;
 import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.ID;
 import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.NAME;
 import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.SNAPSHOTS;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
@@ -40,11 +46,9 @@ public class MarketDataSnapshotListResourceTest {
 
   private static MarketDataSnapshotListResource createResource(MarketDataSnapshotDocument... docs) {
     MarketDataSnapshotMaster snapshotMaster = mock(MarketDataSnapshotMaster.class);
-    MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
-    snapshotSearchRequest.setIncludeData(false);
     List<MarketDataSnapshotDocument> documents = Arrays.asList(docs);
     MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult(documents);
-    when(snapshotMaster.search(snapshotSearchRequest)).thenReturn(result);
+    when(snapshotMaster.search(any(MarketDataSnapshotSearchRequest.class))).thenReturn(result);
     return new MarketDataSnapshotListResource(snapshotMaster);
   }
 

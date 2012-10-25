@@ -16,7 +16,7 @@ import com.opengamma.master.AbstractMaster;
  * when {@code ConfigMaster} interface is directly implemented
  */
 /*package*/ abstract class AbstractInMemoryMaster<D extends AbstractDocument> implements AbstractMaster<D> {
-  
+
   @Override
   public D get(UniqueId uniqueId) {
     throw new UnsupportedOperationException();

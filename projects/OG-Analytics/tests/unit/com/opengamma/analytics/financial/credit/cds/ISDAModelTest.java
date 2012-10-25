@@ -31,12 +31,18 @@ import com.opengamma.util.money.Currency;
  */
 public class ISDAModelTest {
 
+  // -----------------------------------------------------------------------------------------------------------
+
   protected ISDACDSDefinition loadCDS_ISDAExampleCDSCalcualtor2() {
 
+    // Contract start date
     final ZonedDateTime startDate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+
+    // Contract maturity date
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+
     final int settlementDays = 3;
-    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.40;
+    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
@@ -45,12 +51,21 @@ public class ISDAModelTest {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */true, notional, spread,
+    // Include the accrued coupon
+    final boolean accrualOnDefault = true;
+
+    // Pay contingent leg on default or at maturity?
+    final boolean payOnDefault = true;
+
+    final boolean protectStart = true;
+
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, protectStart, notional, spread,
         Currency.USD);
 
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */true, /* payOnDefault */true, /* protectStart */true,
-        couponFrequency, convention, stubType);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, accrualOnDefault, payOnDefault, protectStart, couponFrequency, convention, stubType);
   }
+
+  // -----------------------------------------------------------------------------------------------------------
 
   @Test
   public void testISDAModel() {
@@ -59,18 +74,21 @@ public class ISDAModelTest {
 
     // -----------------------------------------------------------------------------------------------------------
 
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    // The valuation date (today)
+    final ZonedDateTime valuationDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+
+    // The baseline date for calculating hazard rates 
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
 
-    // -----------------------------------------------------------------------------------------------------------
-
-    // Flat interest rate term structure
-
+    // Remember this ...
     final ZonedDateTime baseDate2 = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
 
     // -----------------------------------------------------------------------------------------------------------
 
-    double[] times = {
+    // Interest rate term structure
+
+    // The the time nodes ...
+    double[] timeNodesRates = {
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),
@@ -137,6 +155,7 @@ public class ISDAModelTest {
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
     };
 
+    // The rates at each timenode ...
     double[] rates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
@@ -204,56 +223,46 @@ public class ISDAModelTest {
         (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
     };
 
-    /*
-    double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0 };
-        */
-
-    ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(pricingDate, baseDate2));
-
     // -----------------------------------------------------------------------------------------------------------
 
-    double[] timesHazRate = {
+    // The hazard rate term structure (assumed to have been calibrated previously)
+
+    double[] timeNodesHazardRate = {
         0.0,
         s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
         s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
         s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
     };
 
-    double[] ratesHazRate = {
+    double[] hazardRates = {
         (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
     };
 
-    ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timesHazRate, ratesHazRate, 0.0);
+    // ----------------------------------------------------------------------------------------------------------
 
-    // -----------------------------------------------------------------------------------------------------------
+    // The shift to apply to the rates timenodes
+    final double offset = s_act365.getDayCountFraction(valuationDate, baseDate2);
 
-    final ZonedDateTime endDate = ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+    // Build the yield curve
+    ISDACurve discountCurve = new ISDACurve("IR_CURVE", timeNodesRates, rates, offset);
 
-    ZonedDateTime rollingdate = ZonedDateTime.of(2008, 3, 21, 0, 0, 0, 0, TimeZone.UTC);
+    // Build the hazard rate curve (note the zero offset)
+    ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timeNodesHazardRate, hazardRates, 0.0);
 
-    while (rollingdate.isBefore(endDate)) {
+    // Build the CDS and pricing objects
+    final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor2().toDerivative(valuationDate, "IR_CURVE", "HAZARD_RATE_CURVE");
+    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
-      final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor2().toDerivative(rollingdate, "IR_CURVE", "HAZARD_RATE_CURVE");
+    // Calculate the clean and dirty prices
+    final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
+    final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
 
-      final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
-
-      final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
-      //final double cleanPriceError = Math.abs((cleanPrice - 1605993.21801408) / cds.getNotional());
-
-      //System.out.println(rollingdate + "\t" + cleanPrice);
-
-      rollingdate = rollingdate.plusDays(1);
-
-    }
-
-    //Assert.assertTrue(cleanPriceError < 1E-15);
-
-    // -----------------------------------------------------------------------------------------------------------
+    System.out.println(valuationDate + "\t" + "Dirty Price = " + dirtyPrice);
+    System.out.println(valuationDate + "\t" + "clean Price = " + cleanPrice);
   }
+
+  // -----------------------------------------------------------------------------------------------------------
 }

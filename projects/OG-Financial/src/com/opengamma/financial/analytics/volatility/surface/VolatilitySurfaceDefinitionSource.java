@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.Instant;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A source of volatility surface definitions.
@@ -27,9 +27,9 @@ public interface VolatilitySurfaceDefinitionSource {
    * Gets a volatility surface definition for a currency, name and version.
    * @param name  the name, not null
    * @param instrumentType the name of the type of the instrument, not null
-   * @param version  the version instant, not null
+   * @param versionCorrection  the version correction, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceDefinition<?, ?> getDefinition(String name, String instrumentType, Instant version);
+  VolatilitySurfaceDefinition<?, ?> getDefinition(String name, String instrumentType, VersionCorrection versionCorrection);
 
 }

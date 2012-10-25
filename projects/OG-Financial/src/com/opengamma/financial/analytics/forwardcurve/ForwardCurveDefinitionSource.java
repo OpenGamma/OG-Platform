@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
-import javax.time.Instant;
+import com.opengamma.id.VersionCorrection;
+
 /**
  * 
  */
@@ -13,5 +14,5 @@ public interface ForwardCurveDefinitionSource {
 
   ForwardCurveDefinition getDefinition(final String name, final String uniqueIdName);
 
-  ForwardCurveDefinition getDefinition(final String name, final String uniqueIdName, final Instant version);
+  ForwardCurveDefinition getDefinition(final String name, final String uniqueIdName, final VersionCorrection versionCorrection);
 }

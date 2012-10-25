@@ -15,9 +15,6 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function2D;
-import com.opengamma.analytics.math.regression.LeastSquaresRegression;
-import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
 
 public class LeastSquaresRegressionResultTest {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();

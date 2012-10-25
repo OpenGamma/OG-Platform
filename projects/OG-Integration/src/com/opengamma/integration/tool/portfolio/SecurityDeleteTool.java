@@ -8,18 +8,18 @@ package com.opengamma.integration.tool.portfolio;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
@@ -81,12 +81,11 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
       securitySearchRequest.setExternalIdValue(
           getCommandLine().getOptionValue(EXTERNAL_ID_VALUES_OPT));
     }
-
-    SecuritySearchResult securitySearchResult = getToolContext().getSecurityMaster().search(securitySearchRequest);
-
-    for (SecurityDocument securityDocument : securitySearchResult.getDocuments()) {
+    
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    for (SecurityDocument securityDocument : SecuritySearchIterator.iterable(securityMaster, securitySearchRequest)) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
-        getToolContext().getSecurityMaster().remove(securityDocument.getUniqueId());
+        securityMaster.remove(securityDocument.getUniqueId());
         s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
             " (" + securityDocument.getSecurity().getName() + ")");
       } else {

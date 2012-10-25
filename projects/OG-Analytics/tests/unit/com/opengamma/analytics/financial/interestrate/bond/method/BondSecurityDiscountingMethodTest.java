@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPrice
 import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

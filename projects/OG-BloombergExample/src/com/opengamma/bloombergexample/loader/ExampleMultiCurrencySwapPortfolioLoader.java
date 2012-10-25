@@ -20,14 +20,13 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -44,6 +43,8 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -309,7 +310,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
   }
 
   private static ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
-    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, "DEFAULT_" + ccy.getCode(), null);
+    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.get(CurveSpecificationBuilderConfiguration.class, "DEFAULT_" + ccy.getCode(), VersionCorrection.LATEST).getValue();
     if (curveSpecConfig == null) {
       throw new OpenGammaRuntimeException("No curve spec builder configuration for DEFAULT_" + ccy.getCode());
     }

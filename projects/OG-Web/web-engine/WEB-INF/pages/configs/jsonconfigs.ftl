@@ -10,8 +10,8 @@
         "dataFields":["id","name"<#if type = ''>,"type"</#if>]
     },
     "data" : [<#if searchResult??>
-       <#list searchResult.documents as item>
-           "${item.uniqueId.objectId}|${item.name}<#if type = ''>|${item.value.class.simpleName}</#if>"<#if item_has_next>,</#if>
+       <#list searchResult.documents as doc>
+           "${doc.uniqueId.objectId}|${doc.config.name}<#if type = ''>|${doc.config.value.class.simpleName}</#if>"<#if doc_has_next>,</#if>
        </#list>
     </#if>]
 }

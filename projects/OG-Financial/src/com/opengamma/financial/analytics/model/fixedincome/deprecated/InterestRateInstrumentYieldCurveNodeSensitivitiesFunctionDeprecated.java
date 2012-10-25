@@ -217,8 +217,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor));
     if (timeSeriesRequirements == null) {
       return null;
     }

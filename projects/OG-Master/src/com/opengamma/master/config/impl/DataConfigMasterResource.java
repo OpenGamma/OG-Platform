@@ -82,7 +82,7 @@ public class DataConfigMasterResource extends AbstractDataResource {
     return responseOkFudge(result);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
+  @SuppressWarnings({"rawtypes", "unchecked" }) // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("configSearches")
   public Response search(ConfigSearchRequest request) {
@@ -90,12 +90,11 @@ public class DataConfigMasterResource extends AbstractDataResource {
     return responseOkFudge(result);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("configs")
   public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
-    ConfigDocument<?> result = getConfigMaster().add(request);
-    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
+    ConfigDocument result = getConfigMaster().add(request);
+    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 

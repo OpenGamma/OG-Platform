@@ -155,8 +155,7 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveSpecRequirement(target, curveName));
     final Trade trade = target.getTrade();
-    final Set<ValueRequirement> timeSeriesRequirement = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade),
-        new String[] {fundingCurveName, forwardCurveName });
+    final Set<ValueRequirement> timeSeriesRequirement = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
     if (timeSeriesRequirement == null) {
       return null;
     }

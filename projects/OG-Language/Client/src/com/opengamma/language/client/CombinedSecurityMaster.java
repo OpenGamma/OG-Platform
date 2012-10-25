@@ -5,7 +5,13 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
+
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -22,7 +28,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
 
   /* package */CombinedSecurityMaster(final CombiningMaster<SecurityDocument, SecurityMaster, ?> combining, final SecurityMaster sessionMaster, final SecurityMaster userMaster,
-      final SecurityMaster globalMaster) {
+                                      final SecurityMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
 
@@ -40,15 +46,30 @@ public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, Sec
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     final SecuritySearchResult result = new SecuritySearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      SecuritySearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      SecuritySearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      SecuritySearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
+  }
+
+  @Override
+  public Map<UniqueId, SecurityDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, SecurityDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
   }
 
   /**

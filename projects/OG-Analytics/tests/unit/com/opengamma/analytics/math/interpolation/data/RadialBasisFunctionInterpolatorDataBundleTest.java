@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.interpolation.data;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.InterpolatorNDTestCase;
-import com.opengamma.analytics.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 
 /**
  * 

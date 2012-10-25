@@ -176,7 +176,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -202,7 +202,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
@@ -259,12 +259,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final YieldCurveDefinition other = (YieldCurveDefinition) obj;
+      YieldCurveDefinition other = (YieldCurveDefinition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
@@ -298,7 +298,6 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Gets the unique identifier of the yield curve.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -307,8 +306,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Sets the unique identifier of the yield curve.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -452,7 +450,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Sets the underlying strips.
    * @param strips  the new value of the property
    */
-  public void setStrips(final SortedSet<FixedIncomeStrip> strips) {
+  public void setStrips(SortedSet<FixedIncomeStrip> strips) {
     this._strips.clear();
     this._strips.addAll(strips);
   }
@@ -543,7 +541,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;

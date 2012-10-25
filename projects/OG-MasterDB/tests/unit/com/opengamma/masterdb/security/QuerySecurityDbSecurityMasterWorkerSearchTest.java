@@ -85,7 +85,20 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(1, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
   }
-  
+
+  @Test
+  public void test_search_pageAtEnd() {
+    PagingRequest pr = PagingRequest.ofIndex(3, 2);
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setPagingRequest(pr);
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(pr, test.getPaging().getRequest());
+    assertEquals(_totalSecurities, test.getPaging().getTotalItems());
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
   @Test
   public void test_search_identifier() {
     SecuritySearchRequest request = new SecuritySearchRequest();

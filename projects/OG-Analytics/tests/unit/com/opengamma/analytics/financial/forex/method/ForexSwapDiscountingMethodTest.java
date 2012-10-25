@@ -113,11 +113,11 @@ public class ForexSwapDiscountingMethodTest {
    */
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyInterestRateCurveSensitivity pvs = METHOD_FX_SWAP.presentValueCurveSensitivity(FX_SWAP, CURVES);
-    pvs.clean();
+    pvs.cleaned();
     MultipleCurrencyInterestRateCurveSensitivity pvsNear = METHOD_FX.presentValueCurveSensitivity(((ForexSwap) FX_SWAP).getNearLeg(), CURVES);
     final MultipleCurrencyInterestRateCurveSensitivity pvsFar = METHOD_FX.presentValueCurveSensitivity(((ForexSwap) FX_SWAP).getFarLeg(), CURVES);
     pvsNear = pvsNear.plus(pvsFar);
-    pvsNear.clean();
+    pvsNear.cleaned();
     assertTrue("Forex swap present value curve sensitivity", pvs.equals(pvsNear));
   }
 

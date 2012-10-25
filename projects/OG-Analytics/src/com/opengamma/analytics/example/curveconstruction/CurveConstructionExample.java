@@ -1,23 +1,25 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "matrix-imports"
 
 /// @export "imports"
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -29,18 +31,6 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.money.Currency;
-import java.util.LinkedHashMap;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.File;
-import java.io.FileWriter;
-import org.json.simple.JSONObject;
-import java.util.Arrays;
-import java.lang.reflect.Method;
-import java.lang.Exception;
-import java.lang.Math;
 
 public class CurveConstructionExample {
 

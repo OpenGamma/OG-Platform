@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,8 +59,8 @@ public class GeneratorDeposit extends GeneratorInstrument {
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth Flag indicating if the end-of-month rule is used.
    */
-  public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth) {
+  public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
     Validate.notNull(currency, "Currency");
     Validate.notNull(calendar, "Calendar");
@@ -122,9 +123,27 @@ public class GeneratorDeposit extends GeneratorInstrument {
   }
 
   @Override
-  public CashDefinition generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
+  /**
+   * The deposit start at spot and end at spot+tenor.
+   */
+  public CashDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double rate, final double notional, final Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, this);
+    final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
+    return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
+  }
+
+  @Override
+  /**
+   * The deposit start at spot+startTenor and end at spot+endTenor.
+   */
+  public CashDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double rate, final double notional,
+      final Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, this);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spot, endTenor, this);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
     return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
   }
@@ -143,7 +162,7 @@ public class GeneratorDeposit extends GeneratorInstrument {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -153,7 +172,7 @@ public class GeneratorDeposit extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorDeposit other = (GeneratorDeposit) obj;
+    final GeneratorDeposit other = (GeneratorDeposit) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

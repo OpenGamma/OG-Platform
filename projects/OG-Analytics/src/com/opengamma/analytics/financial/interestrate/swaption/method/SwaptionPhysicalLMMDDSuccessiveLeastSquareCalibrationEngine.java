@@ -29,6 +29,10 @@ import com.opengamma.util.ArgumentChecker;
 public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends SuccessiveLeastSquareCalibrationEngine {
 
   /**
+   * The precision used in least-square search.
+   */
+  private static final double DEFAULT_PRECISION = 1.0E-15;
+  /**
    * The list of the last index in the Ibor date for each instrument.
    */
   private final List<Integer> _instrumentIndex = new ArrayList<Integer>();
@@ -85,7 +89,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
     computeCalibrationPrice(curves);
     getCalibrationObjective().setCurves(curves);
     SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = (SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective) getCalibrationObjective();
-    final NonLinearLeastSquare ls = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1.0E-10);
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, DEFAULT_PRECISION);
     //    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstrumentsBlock];

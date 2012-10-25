@@ -30,7 +30,7 @@ public final class ToolUtils {
   
   //-------------------------------------------------------------------------
   public static boolean initLogback(String logbackResource) {
-    s_logger.debug("Configuring logging from {}", logbackResource);
+    s_logger.trace("Configuring logging from {}", logbackResource);
     // Don't reconfigure if already configured from the default property or any existing loggers will break
     // and stop reporting anything.
     return logbackResource.equals(getSystemDefaultLogbackConfiguration()) ? true : LogUtils.configureLogger(logbackResource);

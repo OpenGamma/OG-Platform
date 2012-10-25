@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.web.server.push.rest;
 
 import java.util.ArrayList;
@@ -29,7 +34,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.marketdatasnapshot.impl.MarketDataSnapshotSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -64,11 +69,10 @@ public class MarketDataSnapshotListResource {
   public String getMarketDataSnapshotList() {
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setIncludeData(false);
-    MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
-    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getSnapshots();
+    
     Multimap<String, ManageableMarketDataSnapshot> snapshotsByBasisView = ArrayListMultimap.create();
-
-    for (ManageableMarketDataSnapshot snapshot : snapshots) {
+    for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(_snapshotMaster, snapshotSearchRequest)) {
+      ManageableMarketDataSnapshot snapshot = doc.getSnapshot();
       if (snapshot.getUniqueId() == null) {
         s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
         continue;

@@ -14,10 +14,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 

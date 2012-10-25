@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.Arrays;
 
@@ -20,8 +20,6 @@ import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.linear.SingularValueDecomposition;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommonsResult;
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 

@@ -5,14 +5,14 @@
  */
 package com.opengamma.examples.generator;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;

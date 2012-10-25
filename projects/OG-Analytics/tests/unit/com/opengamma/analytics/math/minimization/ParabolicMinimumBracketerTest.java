@@ -12,8 +12,6 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.minimization.MinimumBracketer;
-import com.opengamma.analytics.math.minimization.ParabolicMinimumBracketer;
 
 /**
  * 

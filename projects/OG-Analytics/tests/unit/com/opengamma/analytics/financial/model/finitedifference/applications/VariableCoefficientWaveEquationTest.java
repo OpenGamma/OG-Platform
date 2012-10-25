@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
@@ -17,7 +16,7 @@ import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;

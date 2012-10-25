@@ -174,8 +174,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getCubeRequirement(cubeName, currency, fittingMethod));
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Set<ValueRequirement> timeSeriesRequirements = getConverter()
-        .getConversionTimeSeriesRequirements(security, security.accept(getVisitor()), curveCalculationConfig.getYieldCurveNames()); //TODO
+    final Set<ValueRequirement> timeSeriesRequirements = getConverter().getConversionTimeSeriesRequirements(security, security.accept(getVisitor())); 
     if (timeSeriesRequirements == null) {
       return null;
     }
@@ -195,7 +194,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency, final String fittingMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()) // TODO replace when we get more data currency.getCode())
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);

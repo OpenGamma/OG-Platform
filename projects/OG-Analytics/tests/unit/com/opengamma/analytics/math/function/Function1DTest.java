@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.Function1D;
-
 public class Function1DTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 

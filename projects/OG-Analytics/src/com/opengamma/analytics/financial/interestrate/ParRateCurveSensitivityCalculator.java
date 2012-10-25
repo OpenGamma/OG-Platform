@@ -168,9 +168,9 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
     final double pvSecond = PV_CALCULATOR.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, curves);
     final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, dayCount, curves);
-    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(PV_SENSITIVITY_CALCULATOR.visit(swap.getSecondLeg(), curves)).multiply(Math
+    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(PV_SENSITIVITY_CALCULATOR.visit(swap.getSecondLeg(), curves)).multipliedBy(Math
         .signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
-    final InterestRateCurveSensitivity result = pvSecondDr.multiply(1.0 / pvbp).plus(pvbpDr.multiply(-pvSecond / (pvbp * pvbp)));
+    final InterestRateCurveSensitivity result = pvSecondDr.multipliedBy(1.0 / pvbp).plus(pvbpDr.multipliedBy(-pvSecond / (pvbp * pvbp)));
     return result.getSensitivities();
   }
 

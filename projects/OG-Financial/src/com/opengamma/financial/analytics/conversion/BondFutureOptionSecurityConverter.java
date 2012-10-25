@@ -41,7 +41,7 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
   public InstrumentDefinition<?> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
-    final BondFutureSecurity underlyingSecurity = ((BondFutureSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier)));
+    final BondFutureSecurity underlyingSecurity = ((BondFutureSecurity) _securitySource.get(ExternalIdBundle.of(underlyingIdentifier)));
     final BondFutureDefinition underlyingFuture = _underlyingConverter.visitBondFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();

@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Method to compute present value and its sensitivities for OIS coupons.
@@ -65,7 +64,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
     Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
     return presentValue((CouponOIS) instrument, market);
   }
@@ -80,7 +79,8 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(market, "Market");
     final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
+    final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(),
+        coupon.getFixingPeriodAccrualFactor());
     final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor() * forward;
     // Backward sweep
     final double pvBar = 1.0;
@@ -93,10 +93,10 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     mapDsc.put(market.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<MarketForwardSensitivity>> mapFwd = new HashMap<String, List<MarketForwardSensitivity>>();
     final List<MarketForwardSensitivity> listForward = new ArrayList<MarketForwardSensitivity>();
-    listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor()),
-        forwardBar));
+    listForward.add(new MarketForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.fromYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(),
+        CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
     return result;
   }
 
@@ -125,10 +125,9 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     final double forwardBar = 1.0;
     final Map<String, List<MarketForwardSensitivity>> mapFwd = new HashMap<String, List<MarketForwardSensitivity>>();
     final List<MarketForwardSensitivity> listForward = new ArrayList<MarketForwardSensitivity>();
-    listForward.add(new MarketForwardSensitivity(new Triple<Double, Double, Double>(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor()),
-        forwardBar));
+    listForward.add(new MarketForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(market.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.fromForward(mapFwd));
+    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofForward(mapFwd));
     return result;
   }
 

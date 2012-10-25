@@ -5,9 +5,6 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
-import com.opengamma.analytics.math.linearalgebra.Decomposition;
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionColt;
-import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 

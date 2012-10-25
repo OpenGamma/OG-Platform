@@ -1057,7 +1057,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-        sensitivity = sensitivity.plus(sensiCfe.multiply(-multFact * cfaInitBar[loopcf]));
+        sensitivity = sensitivity.plus(sensiCfe.multipliedBy(-multFact * cfaInitBar[loopcf]));
       }
     }
     return sensitivity;

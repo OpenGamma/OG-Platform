@@ -18,8 +18,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import com.sun.jersey.api.client.GenericType;
 
 /**
  * Result providing the history of a piece of configuration.
@@ -28,11 +30,16 @@ import com.opengamma.util.PublicSPI;
  * The document instant fields are used to identify which are which.
  * See {@link ConfigHistoryRequest} for more details.
  * 
- * @param <T>  the document type
+ * @param <T>  the type of the underlying config
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument<T>> {
+public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument> {
+
+  /**
+   * The generic type token.
+   */
+  private final GenericType<ConfigItem<T>> _gt = new GenericType<ConfigItem<T>>() { };
 
   /**
    * Creates an instance.
@@ -45,7 +52,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
    * 
    * @param coll  the collection of documents to add, not null
    */
-  public ConfigHistoryResult(Collection<ConfigDocument<T>> coll) {
+  public ConfigHistoryResult(Collection<ConfigDocument> coll) {
     super(coll);
   }
 
@@ -55,11 +62,14 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
    * 
    * @return the configuration values, not null
    */
-  public List<T> getValues() {
-    List<T> result = new ArrayList<T>();
+  @SuppressWarnings("unchecked")
+  public List<ConfigItem<T>> getValues() {
+    List<ConfigItem<T>> result = new ArrayList<ConfigItem<T>>();    
     if (getDocuments() != null) {
-      for (ConfigDocument<T> doc : getDocuments()) {
-        result.add(doc.getValue());
+      for (ConfigDocument doc : getDocuments()) {
+        if (_gt.getRawClass().isAssignableFrom(doc.getConfig().getType())) {
+          result.add((ConfigItem<T>) doc.getConfig());
+        }
       }
     }
     return result;
@@ -70,8 +80,15 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
    * 
    * @return the first configuration value, null if none
    */
-  public T getFirstValue() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getValue() : null;
+  @SuppressWarnings("unchecked")
+  public ConfigItem<T> getFirstValue() {     
+    if (getDocuments().size() > 0) {
+      ConfigItem<?> firstItem = getDocuments().get(0).getConfig();
+      if (_gt.getRawClass().isAssignableFrom(firstItem.getType())) {        
+        return (ConfigItem<T>) firstItem; 
+      }
+    }
+    return null;
   }
 
   /**
@@ -83,11 +100,11 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
    * @return the matching config, not null
    * @throws IllegalStateException if no config was found
    */
-  public T getSingleValue() {
+  public ConfigItem<T> getSingleValue() {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getValue();
+      return getFirstValue();
     }
   }
 
@@ -143,7 +160,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
   /**
    * The meta-bean for {@code ConfigHistoryResult}.
    */
-  public static class Meta<T> extends AbstractHistoryResult.Meta<ConfigDocument<T>> {
+  public static class Meta<T> extends AbstractHistoryResult.Meta<ConfigDocument> {
     /**
      * The singleton instance of the meta-bean.
      */

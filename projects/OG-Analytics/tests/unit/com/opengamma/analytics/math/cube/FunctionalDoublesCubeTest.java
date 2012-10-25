@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.cube.FunctionalDoublesCube;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.tuple.Triple;
 

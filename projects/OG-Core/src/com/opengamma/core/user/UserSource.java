@@ -8,9 +8,8 @@ package com.opengamma.core.user;
 import java.util.Collection;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.Source;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -24,35 +23,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface UserSource {
-
-  /**
-   * Gets a user by unique identifier.
-   * <p>
-   * A unique identifier exactly specifies a single user at a single version-correction.
-   * 
-   * @param uniqueId  the unique identifier to find, not null
-   * @return the matched user, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the user could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  OGUser getUser(UniqueId uniqueId);
-
-  /**
-   * Gets a user by object identifier and version-correction.
-   * <p>
-   * In combination, the object identifier and version-correction exactly specify
-   * a single user at a single version-correction.
-   * 
-   * @param objectId  the object identifier to find, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the matched user, not null
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
-   * @throws DataNotFoundException if the user could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  OGUser getUser(ObjectId objectId, VersionCorrection versionCorrection);
+public interface UserSource extends Source<OGUser> {
 
   /**
    * Gets all users at the given version-correction that match the specified

@@ -34,6 +34,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -103,14 +104,15 @@ public class DbMarketDataSnapshotMaster
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult(vc);
+    
     final List<ObjectId> snapshotIds = request.getSnapshotIds();
     if (snapshotIds != null && snapshotIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
@@ -249,4 +251,14 @@ public class DbMarketDataSnapshotMaster
     }
   }
 
+  @Override
+  public AbstractHistoryResult<MarketDataSnapshotDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    MarketDataSnapshotHistoryRequest historyRequest = new MarketDataSnapshotHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

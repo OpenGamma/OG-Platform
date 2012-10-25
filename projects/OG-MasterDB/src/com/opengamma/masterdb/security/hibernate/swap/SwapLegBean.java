@@ -15,7 +15,7 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 
 /**
- * A bean representation of a {@link SwapLeg}.
+ * A Hibernate bean representation of {@link SwapLeg}.
  */
 public class SwapLegBean {
 

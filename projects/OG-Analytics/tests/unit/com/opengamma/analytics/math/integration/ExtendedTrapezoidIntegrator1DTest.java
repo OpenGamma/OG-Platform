@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.integration;
 
-import com.opengamma.analytics.math.integration.ExtendedTrapezoidIntegrator1D;
-import com.opengamma.analytics.math.integration.Integrator1D;
 
 
 public class ExtendedTrapezoidIntegrator1DTest extends Integrator1DTestCase {

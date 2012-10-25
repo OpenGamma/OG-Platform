@@ -95,7 +95,7 @@ public final class BloombergConstants {
   public static final String FIELD_FUT_DLV_DT_LAST = "FUT_DLV_DT_LAST";
   public static final String FIELD_FUT_TRADING_UNITS = "FUT_TRADING_UNITS";
   /**
-   * A future contract changes by this amount for a single point move of the underlier 
+   * A future contract changes by this amount for a single point move of the underlier
    */
   public static final String FIELD_FUT_VAL_PT = "FUT_VAL_PT";
   public static final String FIELD_GICS_SUB_INDUSTRY = "GICS_SUB_INDUSTRY";
@@ -180,17 +180,17 @@ public final class BloombergConstants {
 
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
-  
+
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
   public static final String BLOOMBERG_INTEREST_RATE_TYPE = "Interest Rate";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE = "Financial commodity option.";
   public static final String BLOOMBERG_CURRENCY_TYPE = "Currency";
-  
+
   //Bloomberg equity dividend future type
   public static final String BBG_STOCK_FUTURE_TYPE = "STOCK FUTURE";
   public static final String BLOOMBERG_EQUITY_DIVIDEND_TYPE = "SINGLE STOCK DIVIDEND FUTURE";
-  
+
   /**
    * Bloomberg bond future security type description
    */
@@ -232,7 +232,8 @@ public final class BloombergConstants {
   public static final String BBG_FIELD_VOLATILITY_30D = "VOLATILITY_30D";
   public static final String BBG_FIELD_YIELD_TO_MATURITY_MID = "YLD_YTM_MID";
   public static final String BBG_FIELD_SETTLE_PRICE = "PX_SETTLE";
-  
+  public static final String BBG_FIELD_DIVIDEND_YIELD = "EQY_DVD_YLD_EST";
+
   //quote unit information
   public static final String BBG_FIELD_FWD_SCALE = "FWD_SCALE";
   // CSON
@@ -292,15 +293,15 @@ public final class BloombergConstants {
    * Valid market sector
    */
   public static final Set<String> MARKET_SECTORS = ImmutableSet.of(
-      MARKET_SECTOR_COMDTY, 
-      MARKET_SECTOR_CORP, 
-      MARKET_SECTOR_CURNCY, 
-      MARKET_SECTOR_EQUITY, 
-      MARKET_SECTOR_GOVT, 
-      MARKET_SECTOR_INDEX, 
+      MARKET_SECTOR_COMDTY,
+      MARKET_SECTOR_CORP,
+      MARKET_SECTOR_CURNCY,
+      MARKET_SECTOR_EQUITY,
+      MARKET_SECTOR_GOVT,
+      MARKET_SECTOR_INDEX,
       MARKET_SECTOR_MMKT,
       MARKET_SECTOR_MTGE,
-      MARKET_SECTOR_MUNI, 
+      MARKET_SECTOR_MUNI,
       MARKET_SECTOR_PREFERRED);
 
 }

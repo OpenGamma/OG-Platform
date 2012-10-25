@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="build/classes" path="src"/>
-	<classpathentry kind="src" output="tests/classes" path="tests/unit"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="tests/unit"/>
 	<classpathentry kind="lib" path="config"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Security"/>

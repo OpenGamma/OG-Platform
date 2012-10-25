@@ -5,12 +5,12 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**

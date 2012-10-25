@@ -10,11 +10,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.script.DbScript;
 
 /**
  * Writes SQL scripts directly to an output stream. The overall output is itself a valid SQL script.   
  */
-public class OutputStreamSqlScriptWriter extends AbstractSqlScriptWriter {
+public class OutputStreamSqlScriptWriter implements SqlScriptWriter {
 
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
   private static final String COMMENT_PREFIX = "--";
@@ -42,13 +43,13 @@ public class OutputStreamSqlScriptWriter extends AbstractSqlScriptWriter {
 
   //-------------------------------------------------------------------------
   @Override
-  public void write(String title, String sqlScript) {
+  public void write(String title, DbScript script) throws IOException {
     ArgumentChecker.notNull(title, "title");
-    ArgumentChecker.notNull(sqlScript, "sqlScript");
+    ArgumentChecker.notNull(script, "script");
     _printWriter.write(COMMENT_PREFIX + LINE_SEPARATOR);
     _printWriter.write(COMMENT_PREFIX + " " + title + LINE_SEPARATOR);
     _printWriter.write(COMMENT_PREFIX + LINE_SEPARATOR);
-    _printWriter.write(sqlScript);
+    _printWriter.write(script.getScript());
     _printWriter.write(LINE_SEPARATOR);
   }
   

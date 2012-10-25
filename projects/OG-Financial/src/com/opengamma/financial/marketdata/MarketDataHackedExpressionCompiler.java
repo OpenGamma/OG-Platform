@@ -52,7 +52,7 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
       }
       final Security security;
       try {
-        security = getSecuritySource().getSecurity(targetSpec.getUniqueId());
+        security = getSecuritySource().get(targetSpec.getUniqueId());
       } catch (DataNotFoundException ex) {
         return value;
       }

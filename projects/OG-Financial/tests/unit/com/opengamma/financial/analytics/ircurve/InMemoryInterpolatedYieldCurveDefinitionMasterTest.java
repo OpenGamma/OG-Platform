@@ -73,7 +73,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
 
   @Test
   public void testGetDefinition_instant () {
-    assertNotNull(_master.getDefinition(Currency.USD, "1", Instant.now()));
+    assertNotNull(_master.getDefinition(Currency.USD, "1", VersionCorrection.ofVersionAsOf(Instant.now())));
   }
 
   /**

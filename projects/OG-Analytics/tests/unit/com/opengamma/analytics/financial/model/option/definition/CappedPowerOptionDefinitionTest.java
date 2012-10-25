@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.definition.CappedPowerOptionDefinition;
-import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

@@ -64,7 +64,7 @@ public class FetchSecurityFunction extends AbstractFunctionInvoker implements Pu
         throw new InvokeInvalidArgumentException(UNIQUE_ID, "Unique identifier must be specified if identifier bundle is omitted");
       } else {
         try {
-          return sessionContext.getGlobalContext().getSecuritySource().getSecurity(uniqueId);
+          return sessionContext.getGlobalContext().getSecuritySource().get(uniqueId);
         } catch (DataNotFoundException e) {
           throw new InvokeInvalidArgumentException(UNIQUE_ID, "Unique identifier not found");
         }
@@ -72,7 +72,7 @@ public class FetchSecurityFunction extends AbstractFunctionInvoker implements Pu
     } else {
       if (uniqueId == null) {
         try {
-          final Collection<Security> securities = sessionContext.getGlobalContext().getSecuritySource().getSecurities(identifiers);
+          final Collection<Security> securities = sessionContext.getGlobalContext().getSecuritySource().get(identifiers);
           if (securities.size() == 1) {
             return securities.iterator().next();
           } else {

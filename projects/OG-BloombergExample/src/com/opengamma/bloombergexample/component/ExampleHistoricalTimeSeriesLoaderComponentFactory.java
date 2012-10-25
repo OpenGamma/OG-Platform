@@ -19,8 +19,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;

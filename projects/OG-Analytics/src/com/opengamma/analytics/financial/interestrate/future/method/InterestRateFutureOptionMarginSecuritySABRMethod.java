@@ -117,7 +117,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod extends Inte
     final double forwardBar = priceAdjoint[1] * priceBar + volatilityAdjoint[1] * volatilityBar;
     final double priceFutureBar = -forwardBar;
     final InterestRateCurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), sabrData);
-    return priceFutureDerivative.multiply(priceFutureBar);
+    return priceFutureDerivative.multipliedBy(priceFutureBar);
   }
 
   @Override

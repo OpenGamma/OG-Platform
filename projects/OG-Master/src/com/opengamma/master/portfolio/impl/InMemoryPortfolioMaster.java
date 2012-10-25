@@ -24,6 +24,7 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -38,28 +39,18 @@ import com.opengamma.util.paging.Paging;
 /**
  * An in-memory implementation of a portfolio master.
  */
-public class InMemoryPortfolioMaster implements PortfolioMaster {
+public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<PortfolioDocument> implements PortfolioMaster {
 
   /**
    * The default scheme used for each {@link UniqueId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemPrt";
-  /**
-   * A cache of portfolios by identifier.
-   */
-  private final ConcurrentMap<ObjectId, PortfolioDocument> _storePortfolios = new ConcurrentHashMap<ObjectId, PortfolioDocument>();
+
   /**
    * A cache of portfolio nodes by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageablePortfolioNode> _storeNodes = new ConcurrentHashMap<ObjectId, ManageablePortfolioNode>();
-  /**
-   * The supplier of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
+
   
   /**
    * Creates an instance.
@@ -93,12 +84,17 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
    * @param changeManager  the change manager, not null
    */
   public InMemoryPortfolioMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  protected void validateDocument(PortfolioDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
@@ -108,7 +104,7 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
   public PortfolioDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final PortfolioDocument document = _storePortfolios.get(objectId.getObjectId());
+    final PortfolioDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
       throw new DataNotFoundException("Portfolio not found: " + objectId);
     }
@@ -145,9 +141,9 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
     final PortfolioDocument clonedDoc = clonePortfolioDocument(document);
     setDocumentId(document, clonedDoc, uniqueId);
     setVersionTimes(document, clonedDoc, now, null, now, null);
-    _storePortfolios.put(objectId, clonedDoc);
+    _store.put(objectId, clonedDoc);
     storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
   
@@ -197,7 +193,7 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
     
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final PortfolioDocument storedDocument = _storePortfolios.get(uniqueId.getObjectId());
+    final PortfolioDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
       throw new DataNotFoundException("Portfolio not found: " + uniqueId);
     }
@@ -207,11 +203,11 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
     
     setVersionTimes(document, clonedDoc, now, null, now, null);
     
-    if (_storePortfolios.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     storeNodes(clonedDoc.getPortfolio().getRootNode(), document.getPortfolio().getRootNode(), uniqueId, null);
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -225,14 +221,14 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
   }
   
   @Override
-  public void remove(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    PortfolioDocument storedDocument = _storePortfolios.remove(uniqueId.getObjectId());
+  public void remove(ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    PortfolioDocument storedDocument = _store.remove(objectIdentifiable.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Portfolio not found " + uniqueId);
+      throw new DataNotFoundException("Portfolio not found " + objectIdentifiable);
     }
     removeNodes(storedDocument.getPortfolio().getRootNode());
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   @Override
@@ -241,15 +237,10 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
   }
 
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  @Override
   public PortfolioSearchResult search(PortfolioSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final List<PortfolioDocument> list = new ArrayList<PortfolioDocument>();
-    for (PortfolioDocument doc : _storePortfolios.values()) {
+    for (PortfolioDocument doc : _store.values()) {
       if (request.matches(doc)) {
         list.add(clonePortfolioDocument(doc));
       }
@@ -274,5 +265,4 @@ public class InMemoryPortfolioMaster implements PortfolioMaster {
     }
     return clonePortfolioNode(node);
   }
-  
 }

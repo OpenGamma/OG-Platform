@@ -23,10 +23,11 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link SwapSecurity}.
+ * A Hibernate bean representation of {@link SwapSecurity}.
  */
 @BeanDefinition
 public class SwapSecurityBean extends SecurityBean {
+
   @PropertyDefinition
   private SwapType _swapType;
   @PropertyDefinition

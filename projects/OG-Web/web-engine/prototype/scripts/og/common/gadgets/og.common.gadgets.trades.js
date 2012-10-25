@@ -106,7 +106,7 @@ $.register_module({
                 });
                 $add_trades.find('.og-inline-form').click(function (e) {
                     e.preventDefault();
-                    $(this).prev().find('input').datetimepicker('setDate', new Date());
+                    $(this).prev().find('input').datetimepicker('setDate', new Date);
                 });
             };
             activate_attributes_link = function () {

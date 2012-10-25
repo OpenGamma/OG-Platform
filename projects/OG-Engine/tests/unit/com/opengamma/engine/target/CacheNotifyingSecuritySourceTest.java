@@ -86,7 +86,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurity_byUniqueId() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Security security = ss.getSecurity(UniqueId.of("Security", "0"));
+    Security security = ss.get(UniqueId.of("Security", "0"));
     assertNotNull(security);
     assertEquals(resolver._passed.size(), 1);
     assertSame(security, resolver._passed.get(0));
@@ -95,10 +95,10 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurities_byUniqueId() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Map<UniqueId, Security> securities = ss.getSecurities(Arrays.asList(UniqueId.of("Invalid", "Identifier")));
+    Map<UniqueId, Security> securities = ss.get(Arrays.asList(UniqueId.of("Invalid", "Identifier")));
     assertNotNull(securities);
     assertTrue(resolver._passed.isEmpty());
-    securities = ss.getSecurities(Arrays.asList(UniqueId.of("Security", "0"), UniqueId.of("Security", "1")));
+    securities = ss.get(Arrays.asList(UniqueId.of("Security", "0"), UniqueId.of("Security", "1")));
     assertNotNull(securities);
     assertEquals(resolver._passed.size(), 2);
     assertTrue(securities.values().contains(resolver._passed.get(0)));
@@ -108,7 +108,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurity_byObjectId() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Security security = ss.getSecurity(ObjectId.of("Security", "0"), VersionCorrection.LATEST);
+    Security security = ss.get(ObjectId.of("Security", "0"), VersionCorrection.LATEST);
     assertNotNull(security);
     assertEquals(resolver._passed.size(), 1);
     assertSame(security, resolver._passed.get(0));
@@ -117,7 +117,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurity_byExternalIdBundle() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Security security = ss.getSecurity(ExternalIdBundle.of(ExternalId.of("Ticker", "0")));
+    Security security = ss.getSingle(ExternalIdBundle.of(ExternalId.of("Ticker", "0")));
     assertNotNull(security);
     assertEquals(resolver._passed.size(), 1);
     assertSame(security, resolver._passed.get(0));
@@ -126,7 +126,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurities_byExternalIdBundle() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Collection<Security> securities = ss.getSecurities(ExternalIdBundle.of(ExternalId.of("Ticker", "0"), ExternalId.of("Ticker", "1")));
+    Collection<Security> securities = ss.get(ExternalIdBundle.of(ExternalId.of("Ticker", "0"), ExternalId.of("Ticker", "1")));
     assertNotNull(securities);
     assertEquals(resolver._passed.size(), 2);
     assertTrue(securities.contains(resolver._passed.get(0)));
@@ -136,7 +136,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurity_byExternalIdBundleWithVC() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Security security = ss.getSecurity(ExternalIdBundle.of(ExternalId.of("Ticker", "0")), VersionCorrection.LATEST);
+    Security security = ss.getSingle(ExternalIdBundle.of(ExternalId.of("Ticker", "0")), VersionCorrection.LATEST) ;
     assertNotNull(security);
     assertEquals(resolver._passed.size(), 1);
     assertSame(security, resolver._passed.get(0));
@@ -145,7 +145,7 @@ public class CacheNotifyingSecuritySourceTest {
   public void testGetSecurities_byExternalIdBundleWithVC() {
     final TargetResolver resolver = new TargetResolver();
     final CacheNotifyingSecuritySource ss = new CacheNotifyingSecuritySource(MockComputationTargetResolver.resolved().getSecuritySource(), resolver);
-    Collection<Security> securities = ss.getSecurities(ExternalIdBundle.of(ExternalId.of("Ticker", "0"), ExternalId.of("Ticker", "1")), VersionCorrection.LATEST);
+    Collection<Security> securities = ss.get(ExternalIdBundle.of(ExternalId.of("Ticker", "0"), ExternalId.of("Ticker", "1")), VersionCorrection.LATEST);
     assertNotNull(securities);
     assertEquals(resolver._passed.size(), 2);
     assertTrue(securities.contains(resolver._passed.get(0)));

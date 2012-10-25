@@ -11,9 +11,14 @@ $.register_module({
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
-            })();
+            })(), do_not_expand = {DOUBLE: null, PRIMITIVE: null};
         var available = (function () {
-            var nodes, unravel = function (arr, result) {
+            var nodes;
+            var all = function (total) {
+                for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push(lcv);
+                return result;
+            };
+            var unravel = function (arr, result) {
                 var start = arr[0], end = arr[1], children = arr[2], last_end = null,
                     i, j, len = children.length, child, curr_start, curr_end;
                 result.push(start);
@@ -27,7 +32,10 @@ $.register_module({
                 while (++start <= end) result.push(start);
                 return result;
             };
-            return function (meta) {return (nodes = meta.nodes), unravel(meta.structure, []);};
+            return function (meta) {
+                nodes = meta.nodes
+                return meta.structure.length ? unravel(meta.structure, []) : all(meta.data_rows);
+            };
         })();
         var background = function (sets, width, bg_color) {
             var columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
@@ -65,8 +73,8 @@ $.register_module({
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('instantiating grid...')};
             grid.events = {
-                cellhoverin: [], cellhoverout: [], cellselect: [],
-                mousedown: [], rangeselect: [], render: [], scroll: [], select: []
+                cellhoverin: [], cellhoverout: [], cellselect: [], mousedown: [],
+                rangeselect: [], render: [], scroll: [], select: [], viewchange: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
@@ -82,27 +90,35 @@ $.register_module({
         var fire = og.common.events.fire;
         var init_data = function () {
             var grid = this, config = grid.config;
-            grid.elements.parent.html('initializing data connection...');
-            grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid);
-            grid.on('render', function () {
-                grid.elements.main.find('.node').each(function (idx, val) {
-                    var $node = $(this);
-                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
+            grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
+            grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);})
+                .on('types', function (types) {
+                    grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
+                        return {
+                            value: key.toUpperCase(),
+                            selected: config.source.type ? key === config.source.type : key === 'portfolio'
+                        };
+                    });
+                    if (grid.elements.empty) return; else render_header.call(grid);
                 });
-            }).on('mousedown', function (event) {
-                var $target = $(event.target), row;
-                if (!$target.is('.node')) return;
-                grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
-                grid.resize().selector.clear();
-                return false; // kill bubbling if it's a node
-            });
         };
         var init_elements = function () {
             var grid = this, config = grid.config, elements, cellmenu,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
-                .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
+                .on('click', '.OG-g-h-set-name a', function (event) {
+                    return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
+                })
+                .on('mousedown', function (event) {
+                    var $target = $(event.target), row;
+                    event.preventDefault();
+                    if (!$target.is('.node')) return fire(grid.events.mousedown, event), void 0;
+                    grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
+                    grid.resize().selector.clear();
+                    return false; // kill bubbling if it's a node
+                })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                     return function (event) {
@@ -119,16 +135,14 @@ $.register_module({
                             rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                             selection = grid.selector.selection(rectangle);
                         if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                        if (!(cell = grid.cell(transpose_selection.call(grid, selection)))) return;
-                        cell.top = corner.top - scroll_top + grid.meta.header_height;
+                        if (!(cell = grid.cell(selection))) return;
+                        cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
                         cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;
                         fire(grid.events.cellhoverin, cell);
                     };
                 })(last_x = null, last_y = null, page_x, page_y, last_corner))
-                .on('mouseleave', function (event) {
-                    if (last_corner) (last_corner = null), fire(grid.events.cellhoverout, cell);
-                });
+                .on('mouseleave', function (event) {(last_corner = null), fire(grid.events.cellhoverout, cell);});
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
             elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
@@ -160,11 +174,12 @@ $.register_module({
                     };
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
-                var cell, meta = grid.meta, selection = transpose_selection.call(grid, raw), events;
-                events = 1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)) ?
-                    grid.events.cellselect : grid.events.rangeselect;
-                fire(events, selection);
+            grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
+                var cell, meta = grid.meta, events;
+                if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
+                    fire(grid.events.cellselect, cell, selection);
+                else
+                    fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
@@ -177,6 +192,7 @@ $.register_module({
             grid.meta = meta;
             meta.row_height = row_height;
             meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
+            meta.scrollbar_size = scrollbar_size;
             grid.col_widths();
             columns.headers = [];
             columns.types = [];
@@ -186,12 +202,15 @@ $.register_module({
                 set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
             });
             unravel_structure.call(grid);
-            if (grid.elements.empty) init_elements.call(grid);
+            if (grid.elements.empty) {
+                grid.clipboard = new og.analytics.Clipboard(grid);
+                init_elements.call(grid);
+            }
             grid.resize();
         };
         var render_header = (function () {
-            var head_data = function (meta, sets, depgraph, col_offset, set_offset) {
-                var width = meta.columns.width, index = 0;
+            var head_data = function (grid, sets, col_offset, set_offset) {
+                var width = grid.meta.columns.width, index = 0, depgraph = grid.config.source.depgraph;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
@@ -199,6 +218,8 @@ $.register_module({
                             return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
                         });
                         return {
+                            // only send views in for fixed columns (and if there is a viewchange handler)
+                            views: !col_offset && grid.events.viewchange.length ? grid.views : null,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
@@ -206,11 +227,10 @@ $.register_module({
                 };
             };
             return function () {
-                var grid = this, meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length,
-                    depgraph = grid.config.source.depgraph;
-                grid.elements.fixed_head.html(templates.header(head_data(meta, columns.fixed, depgraph)));
+                var grid = this, meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length;
+                grid.elements.fixed_head.html(templates.header(head_data(grid, columns.fixed)));
                 grid.elements.scroll_head
-                    .html(templates.header(head_data(meta, columns.scroll, depgraph, meta.fixed_length, fixed_sets)));
+                    .html(templates.header(head_data(grid, columns.scroll, meta.fixed_length, fixed_sets)));
             };
         })();
         var render_rows = (function () {
@@ -242,6 +262,10 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 grid.updated(+new Date);
                 grid.dataman.busy(false);
+                grid.elements.main.find('.node').each(function (idx, val) {
+                    var $node = $(this);
+                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
+                });
                 fire(grid.events.render);
             };
         })();
@@ -258,15 +282,13 @@ $.register_module({
                 return (partial_width += set_width), css;
             });
         };
-        var transpose_selection = function (raw) {
-            var grid = this, meta = grid.meta;
-            return {
-                cols: raw.cols, rows: raw.rows.map(function (row) {return meta.available[row];}),
-                type: raw.cols.map(function (col) {return meta.columns.types[col];})
-            };
-        };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
+            var all = function (total) {
+                cache[''] = 0;
+                for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push({prefix: 0});
+                return result;
+            };
             var rep = function (times, lcv, result) {
                 if (times in rep_memo) return rep_memo[times];
                 if ((result = '') || (lcv = times)) while (lcv--) result += rep_str;
@@ -289,14 +311,15 @@ $.register_module({
                 return result;
             };
             return function () {
-                var grid = this, unraveled, prefix;
+                var grid = this, meta = grid.meta, unraveled, prefix;
                 cache = {}; counter = 0; grid.meta.unraveled_cache = [];
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, [], 0)).reduce(function (acc, val, idx) {
+                unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
+                meta.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});
-                for (prefix in cache) grid.meta.unraveled_cache[+cache[prefix]] = prefix;
-                grid.meta.unraveled = unraveled.pluck('prefix');
+                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = prefix;
+                meta.unraveled = unraveled.pluck('prefix');
             };
         })();
         var viewport = function (handler) {
@@ -323,6 +346,7 @@ $.register_module({
             var grid = this, live = $(grid.id).length;
             if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
             try {grid.dataman.kill();} catch (error) {return false;}
+            try {grid.clipboard.dataman.kill();} catch (error) {return false;}
             try {grid.elements.style.remove();} catch (error) {return false;}
         };
         constructor.prototype.cell = function (selection) {
@@ -350,14 +374,33 @@ $.register_module({
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         constructor.prototype.nearest_cell = function (x, y) {
-            var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+            var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
+                row_height = grid.meta.row_height, grid_height = grid.meta.viewport.height;
             for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-            bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
-            top = bottom - grid.meta.row_height;
+            bottom = (Math.floor(Math.max(0, Math.min(y, grid_height - row_height)) / row_height) + 1) * row_height;
+            top = bottom - row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
+        constructor.prototype.range = function (selection, expanded) {
+            var grid = this, viewport = grid.meta.viewport, row_indices,
+                col_indices, cols_len = viewport.cols.length, types = [], result = null,
+                available = !selection.rows.some(function (row) {return !~viewport.rows.indexOf(row);}) &&
+                    !selection.cols.some(function (col) {return !~viewport.cols.indexOf(col);});
+            if (!available) return null;
+            row_indices = selection.rows.map(function (row) {return viewport.rows.indexOf(row);});
+            col_indices = selection.cols.map(function (col) {return viewport.cols.indexOf(col);});
+            result = row_indices.map(function (row_idx) {
+                return col_indices.map(function (col_idx, idx) {
+                    var cell = grid.data[row_idx * cols_len + col_idx];
+                    return {value: cell, type: cell.t || selection.type[idx]};
+                });
+            });
+            return !expanded ? result : result.every(function (row) {
+                return row.pluck('type').every(function (type) {return type in do_not_expand;});
+            }) ? result : null;
+        };
         constructor.prototype.resize = function (handler) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
                 width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
@@ -385,15 +428,18 @@ $.register_module({
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar_size;
             meta.rows = (meta.available = available(grid.meta)).length;
-            meta.viewport = {height: meta.rows * row_height, width: Math.min(width, data_width) - columns.width.fixed};
-            meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
+            meta.viewport = {
+                scroll_height: height - header_height, height: meta.rows * row_height,
+                width: Math.min(width, data_width) - columns.width.fixed
+            };
+            meta.visible_rows = Math.min(Math.ceil(meta.viewport.scroll_height / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
                 scroll_left: columns.width.fixed,
-                height: height - header_height, header_height: header_height, row_height: row_height,
+                height: meta.viewport.scroll_height, header_height: header_height, row_height: row_height,
                 set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

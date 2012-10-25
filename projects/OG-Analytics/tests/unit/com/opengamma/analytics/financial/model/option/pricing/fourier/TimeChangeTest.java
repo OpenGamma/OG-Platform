@@ -10,14 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.fourier.CharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.FFTPricer;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.GaussianMartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.IntegratedCIRTimeChangeCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.StocasticClockCharcteristicExponent;
-import com.opengamma.analytics.financial.model.option.pricing.fourier.TimeChangedCharacteristicExponent;
 import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**

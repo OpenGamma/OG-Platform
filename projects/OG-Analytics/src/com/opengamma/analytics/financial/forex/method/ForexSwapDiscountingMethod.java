@@ -124,11 +124,11 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
     final double dfEndBar = pv2 / (notional1 * dfEnd * dfEnd) * spreadBar;
     final double pv2Bar = -spreadBar / (notional1 * dfEnd);
     final MultipleCurrencyInterestRateCurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, curves);
-    final InterestRateCurveSensitivity pv2Dr = pv2DrMC.convert(ccy2, curves.getFxRates());
+    final InterestRateCurveSensitivity pv2Dr = pv2DrMC.converted(ccy2, curves.getFxRates()).getSensitivity(ccy2);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(payTime, -payTime * dfEnd * dfEndBar));
-    final InterestRateCurveSensitivity dfEndDr = InterestRateCurveSensitivity.from(name2, list);
-    return pv2Dr.multiply(pv2Bar).plus(dfEndDr);
+    final InterestRateCurveSensitivity dfEndDr = InterestRateCurveSensitivity.of(name2, list);
+    return pv2Dr.multipliedBy(pv2Bar).plus(dfEndDr);
   }
 
 }

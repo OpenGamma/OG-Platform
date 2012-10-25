@@ -21,9 +21,9 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataTargetResolver;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -67,6 +67,10 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
     this(historicalTimeSeriesSource, securitySource, null);
+  }
+
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   //-------------------------------------------------------------------------
@@ -173,7 +177,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       case SECURITY:
         final Security security;
         try {
-          security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
+          security = this.getSecuritySource().get(requirement.getTargetSpecification().getUniqueId());
         } catch (DataNotFoundException ex) {
           return null;
         }

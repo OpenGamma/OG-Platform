@@ -13,8 +13,6 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.PearsonFirstSkewnessCoefficientCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PearsonSecondSkewnessCoefficientCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 

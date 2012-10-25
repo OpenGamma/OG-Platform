@@ -10,8 +10,8 @@
 	      "dataFields": ["id", "node", "name", "validFrom"]
     },
     "data": [<#if searchResult??>
-      <#list searchResult.documents as item>
-	       "${item.portfolio.uniqueId.objectId}|${item.portfolio.rootNode.uniqueId.objectId}|${item.portfolio.name}|${item.versionFromInstant}"<#if item_has_next>,</#if>
+      <#list searchResult.documents as doc>
+	       "${doc.portfolio.uniqueId.objectId}|${doc.portfolio.rootNode.uniqueId.objectId}|${doc.portfolio.name}|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
 	    </#list> </#if>]
 }
 </#escape>

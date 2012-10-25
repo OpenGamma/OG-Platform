@@ -32,7 +32,6 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 /**

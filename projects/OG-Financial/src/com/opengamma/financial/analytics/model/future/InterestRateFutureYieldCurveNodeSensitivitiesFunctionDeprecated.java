@@ -199,8 +199,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated ext
         requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
       }
     }
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()),
-        new String[] {fundingCurveName, forwardCurveName });
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
     if (timeSeriesRequirements == null) {
       return null;
     }

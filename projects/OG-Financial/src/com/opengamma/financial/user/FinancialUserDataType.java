@@ -31,7 +31,7 @@ public enum FinancialUserDataType {
   PORTFOLIO,
 
   /**
-   * Value from a ManageableViewDefinitionRepository.
+   * Value from a ConfigSource.
    */
   VIEW_DEFINITION,
   

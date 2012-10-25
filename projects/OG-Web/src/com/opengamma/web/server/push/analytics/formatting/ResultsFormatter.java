@@ -30,6 +30,9 @@ import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -85,6 +88,9 @@ public class ResultsFormatter {
     _formatters.put(List.class, new ListDoubleArrayFormatter());
     _formatters.put(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueForexBlackVolatilitySensitivityFormatter());
     _formatters.put(SnapshotDataBundle.class, new SnapshotDataBundleFormatter(doubleFormatter));
+    _formatters.put(InterpolatedYieldCurveSpecificationWithSecurities.class, new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter());
+    _formatters.put(HistoricalTimeSeriesBundle.class, new HistoricalTimeSeriesBundleFormatter());
+    _formatters.put(VolatilitySurfaceSpecification.class, new VolatilitySurfaceSpecificationFormatter());
   }
 
   private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
@@ -173,11 +179,22 @@ public class ResultsFormatter {
   }
 
   /**
-   * Returns the formatter type for a value type.
+   * Returns the format type for a value type.
    * @param type The value type
    * @return The formatter used for formatting the type
    */
-  public Formatter.FormatType getFormatType(Class<?> type) {
-    return getFormatterForType(type).getFormatType();
+  public Formatter.FormatType getFormatForType(Class<?> type) {
+    return getFormatterForType(type).getFormatForType();
+  }
+
+  /**
+   * Returns the format type for a value.
+   * @param value The value, possibly null
+   * @param valueSpec The value's specification, possibly null
+   * @return The format type for the value, not null
+   */
+  @SuppressWarnings("unchecked")
+  public Formatter.FormatType getFormatForValue(Object value, ValueSpecification valueSpec) {
+    return getFormatter(value, valueSpec).getFormatForValue(value);
   }
 }

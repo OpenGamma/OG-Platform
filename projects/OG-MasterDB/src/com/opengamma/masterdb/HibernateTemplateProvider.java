@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -21,9 +19,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class HibernateTemplateProvider {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(HibernateTemplateProvider.class);
-  
   /**
    * The Hibernate template.
    */

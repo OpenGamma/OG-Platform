@@ -12,10 +12,10 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * A class to facilitate importing portfolio data from comma-separated value files

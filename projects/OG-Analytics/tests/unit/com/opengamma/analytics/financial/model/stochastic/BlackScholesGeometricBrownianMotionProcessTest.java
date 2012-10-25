@@ -18,8 +18,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.analytics.financial.model.stochastic.BlackScholesGeometricBrownianMotionProcess;
-import com.opengamma.analytics.financial.model.stochastic.StochasticProcess;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;

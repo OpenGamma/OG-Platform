@@ -348,7 +348,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private FutureSecurity getFuture(final FixedIncomeStripWithIdentifier strip) {
-    return (FutureSecurity) _secSource.getSecurity(ExternalIdBundle.of(strip.getSecurity()));
+    return (FutureSecurity) _secSource.get(ExternalIdBundle.of(strip.getSecurity()));
   }
 
   private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, final Tenor resetTenor) {

@@ -59,7 +59,7 @@ public class DataRegionSourceResourceTest {
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");
     
-    when(_underlying.getRegion(eq(UID))).thenReturn(target);
+    when(_underlying.get(eq(UID))).thenReturn(target);
     
     Response test = _resource.get(OID.toString(), UID.getVersion(), "", "");
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -72,7 +72,7 @@ public class DataRegionSourceResourceTest {
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");
     
-    when(_underlying.getRegion(eq(OID), eq(VC))).thenReturn(target);
+    when(_underlying.get(eq(OID), eq(VC))).thenReturn(target);
     
     Response test = _resource.get(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -87,7 +87,7 @@ public class DataRegionSourceResourceTest {
     target.setName("Test");
     Collection targetColl = ImmutableList.<Region>of(target);
     
-    when(_underlying.getRegions(eq(BUNDLE), eq(VC))).thenReturn(targetColl);
+    when(_underlying.get(eq(BUNDLE), eq(VC))).thenReturn(targetColl);
     
     Response test = _resource.search(VC.getVersionAsOfString(), VC.getCorrectedToString(), BUNDLE.toStringList());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());

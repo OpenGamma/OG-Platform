@@ -44,6 +44,12 @@ public final class ComponentInfoAttributes {
    * The attribute name for the time-out where heartbeating is required.
    */
   public static final String TIMEOUT = "timeout";
+  /**
+   * The attribute name for the accepted types of a component.
+   * This attribute can be used for anything where the component only accepts a subset
+   * of all possible input. The types should be expressed as a comma separated string.
+   */
+  public static final String ACCEPTED_TYPES = "acceptedTypes";
 
   /**
    * Restricted constructor.

@@ -81,7 +81,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
       @QueryParam("id") List<String> externalIdStrs) {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
-    Collection<? extends Security> result = getSecuritySource().getSecurities(bundle, vc);
+    Collection<? extends Security> result = getSecuritySource().get(bundle, vc);
     return responseOkFudge(FudgeListWrapper.of(result));
   }
 
@@ -94,11 +94,11 @@ public class DataSecuritySourceResource extends AbstractDataResource {
       @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
-      final Security result = getSecuritySource().getSecurity(objectId.atVersion(version));
+      final Security result = getSecuritySource().get(objectId.atVersion(version));
       return responseOkFudge(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-      Security result = getSecuritySource().getSecurity(objectId, vc);
+      Security result = getSecuritySource().get(objectId, vc);
       return responseOkFudge(result);
     }
   }
@@ -108,7 +108,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   public Response getBulk(
       @QueryParam("id") List<String> uniqueIdStrs) {
     final List<UniqueId> uids = IdUtils.parseUniqueIds(uniqueIdStrs);
-    Map<UniqueId, Security> result = getSecuritySource().getSecurities(uids);
+    Map<UniqueId, Security> result = getSecuritySource().get(uids);
     return responseOkFudge(FudgeListWrapper.of(result.values()));
   }
 
@@ -182,7 +182,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   @Path("securitySearches/list")
   public Response searchList(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
-    Collection<? extends Security> result = getSecuritySource().getSecurities(bundle);
+    Collection<? extends Security> result = getSecuritySource().get(bundle);
     return responseOkFudge(FudgeListWrapper.of(result));
   }
 
@@ -196,10 +196,10 @@ public class DataSecuritySourceResource extends AbstractDataResource {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     if (versionAsOf != null || correctedTo != null) {
-      Security result = getSecuritySource().getSecurity(bundle, vc);
+      Security result = getSecuritySource().getSingle(bundle, vc);
       return responseOkFudge(result);
     } else {
-      Security result = getSecuritySource().getSecurity(bundle);
+      Security result = getSecuritySource().getSingle(bundle);
       return responseOkFudge(result);
     }
   }

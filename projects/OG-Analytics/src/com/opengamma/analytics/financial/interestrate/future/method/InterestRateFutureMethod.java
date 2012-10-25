@@ -37,7 +37,7 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     InterestRateCurveSensitivity priceSensi = priceCurveSensitivity(future, curves);
-    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
+    InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
     return result;
   }
 

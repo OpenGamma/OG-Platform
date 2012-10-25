@@ -15,8 +15,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -60,12 +60,12 @@ public class MarketDataELCompilerTest {
 
   @Test(expectedExceptions = {IllegalArgumentException.class })
   public void testInvalidExpression() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new MockSecuritySource());
+    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     compiler.compile("Not a valid expression");
   }
 
   public void testConstantMultiplier() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new MockSecuritySource());
+    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x * 0.9");
     assertNotNull(operation);
     final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
@@ -74,7 +74,7 @@ public class MarketDataELCompilerTest {
   }
 
   public void testConstantAddition() {
-    final MarketDataELCompiler compiler = new MarketDataELCompiler(new MockSecuritySource());
+    final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x + 0.42");
     assertNotNull(operation);
     final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
@@ -83,7 +83,7 @@ public class MarketDataELCompilerTest {
   }
 
   public void testConditionalExpression() {
-    final MockSecuritySource securities = new MockSecuritySource();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
     securities.addSecurity(_swap);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
@@ -96,7 +96,7 @@ public class MarketDataELCompilerTest {
   }
 
   public void testMultipleConditionalExpression() {
-    final MockSecuritySource securities = new MockSecuritySource();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
     securities.addSecurity(_barEquity);
     securities.addSecurity(_swap);
@@ -116,14 +116,14 @@ public class MarketDataELCompilerTest {
   }
 
   public void testValueExpression() {
-    final MockSecuritySource securities = new MockSecuritySource();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
     final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(Currency.USD)), null);
     assertEquals(result, "Foo");
   }
 
   public void testUnderlyingExpression () {
-    final MockSecuritySource securities = new MockSecuritySource ();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
     final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"), new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2020, 11, 25, 12, 0, 0, 0, TimeZone.UTC)), 42d, "EXCH");
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));

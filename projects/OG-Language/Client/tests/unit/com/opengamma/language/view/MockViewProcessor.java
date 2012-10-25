@@ -7,8 +7,8 @@ package com.opengamma.language.view;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.EngineResourceManager;
@@ -47,7 +47,7 @@ import com.opengamma.livedata.UserPrincipal;
   }
 
   @Override
-  public ViewDefinitionRepository getViewDefinitionRepository() {
+  public ConfigSource getConfigSource() {
     throw new UnsupportedOperationException();
   }
 

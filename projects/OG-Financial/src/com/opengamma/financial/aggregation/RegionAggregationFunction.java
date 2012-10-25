@@ -112,7 +112,7 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
           } else if (_exchangeSource != null) {
             ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
             if (exchangeId != null) {
-              Exchange exchange = _exchangeSource.getSingleExchange(exchangeId);
+              Exchange exchange = _exchangeSource.getSingle(exchangeId);
               if (exchange == null) {
                 s_logger.info("No exchange could be found with ID {}", exchangeId);
                 return NO_REGION;
@@ -151,9 +151,9 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
     for (Object parentRegion : parentRegions) {
       Region region;
       if (parentRegion instanceof String) {
-        region = _regionSource.getRegion(UniqueId.parse((String) parentRegion));
+        region = _regionSource.get(UniqueId.parse((String) parentRegion));
       } else {
-        region = _regionSource.getRegion((UniqueId) parentRegion);
+        region = _regionSource.get((UniqueId) parentRegion);
       }
       if (region != null) {
         if (s_topLevelRegions.contains(region.getName())) {

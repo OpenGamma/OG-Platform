@@ -143,6 +143,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-codec/jars/commons-codec-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.json/json/jars/org.json-1.0.0.v201011060100.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/jars/hsqldb-2.2.9.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/jars/elsql-0.7.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-beanutils/javadocs/commons-beanutils-javadoc-1.8.3.jar!/" />
@@ -178,6 +179,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mongodb/mongo-java-driver/javadocs/mongo-java-driver-javadoc-2.7.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.fudgemsg/fudge-java/javadocs/fudge-java-javadoc-0.3.9.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-codec/javadocs/commons-codec-javadoc-1.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/javadocs/elsql-javadoc-0.7.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-beanutils/sources/commons-beanutils-sources-1.8.3.jar!/" />
@@ -251,6 +253,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.fudgemsg/fudge-java/sources/fudge-java-sources-0.3.9.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-codec/sources/commons-codec-sources-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.9.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/elsql/sources/elsql-sources-0.7.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

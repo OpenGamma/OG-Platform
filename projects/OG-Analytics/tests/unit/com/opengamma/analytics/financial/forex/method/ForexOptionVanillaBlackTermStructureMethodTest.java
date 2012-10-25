@@ -159,9 +159,9 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
    */
   public void presentValueCurveSensitivity() {
     MultipleCurrencyInterestRateCurveSensitivity pvcsTS = METHOD_BLACK_TS.presentValueCurveSensitivity(CALL_LONG, BUNDLE_BLACK_TS);
-    pvcsTS = pvcsTS.clean();
+    pvcsTS = pvcsTS.cleaned();
     MultipleCurrencyInterestRateCurveSensitivity pvcsSmile = METHOD_SMILE.presentValueCurveSensitivity(CALL_LONG, BUNDLE_SMILE);
-    pvcsSmile = pvcsSmile.clean();
+    pvcsSmile = pvcsSmile.cleaned();
     assertTrue("Forex vanilla option: present value curve sensitivity vs flat smile", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsTS, pvcsSmile, TOLERANCE_PV));
   }
 

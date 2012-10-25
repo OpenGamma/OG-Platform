@@ -35,15 +35,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification.QuoteType;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
-import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -70,28 +67,33 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
+        @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURVE).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
         final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
         if (curveNames == null || curveNames.size() != 1) {
+          s_logger.error("Asked for FX forward curve market data, but did not supply a single FX forward curve name. The property Curve must be set.");
           return null;
         }
         final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(target.getUniqueId());
         final String curveName = curveNames.iterator().next();
         final FXForwardCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currencyPair.toString());
         if (definition == null) {
-          throw new OpenGammaRuntimeException("Couldn't find FX forward curve definition called " + curveName + " with target " + target);
+          s_logger.error("Couldn't find FX forward curve definition called " + curveName + " with target " + target);
+          return null;
         }
         final FXForwardCurveSpecification specification = curveSpecificationSource.getSpecification(curveName, currencyPair.toString());
         if (specification == null) {
-          throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + curveName + " with target " + target);
+          s_logger.error("Couldn't find FX forward curve specification called " + curveName + " with target " + target);
+          return null;
         }
         final QuoteType quoteType = specification.getQuoteType();
         if (quoteType != FXForwardCurveSpecification.QuoteType.Outright && quoteType != FXForwardCurveSpecification.QuoteType.Points) {
@@ -109,7 +111,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getUniqueId() == null) {
           return false;
         }
@@ -164,6 +166,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName) {
+        @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
       }

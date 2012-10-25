@@ -90,7 +90,7 @@ public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends Abstr
   private ValueRequirement getRequirement(ComputationTarget target) {
     final IRFutureOptionSecurity irfo = (IRFutureOptionSecurity) target.getPositionOrTrade().getSecurity();
     final ExternalId underlyingID = irfo.getUnderlyingId();
-    final Security underlyingSec = _securitySource.getSecurity(ExternalIdBundle.of(underlyingID));
+    final Security underlyingSec = _securitySource.getSingle(ExternalIdBundle.of(underlyingID));
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingSec);
   }
 

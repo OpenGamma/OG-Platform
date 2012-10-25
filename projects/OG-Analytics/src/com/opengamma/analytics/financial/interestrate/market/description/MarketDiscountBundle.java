@@ -22,7 +22,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -90,8 +89,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param fxMatrix The FXMatrix.
    */
   public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves,
-      final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves,
+      final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     _discountingCurves = discountingCurves;
     _forwardIborCurves = forwardIborCurves;
     _forwardONCurves = forwardONCurves;
@@ -109,7 +108,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param issuerCurves A map with issuer discounting curves.
    */
   public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves,
+      final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
     _discountingCurves = discountingCurves;
     _forwardIborCurves = forwardIborCurves;
     _forwardONCurves = forwardONCurves;
@@ -122,7 +122,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * Constructor from exiting maps. The given maps are used for the new market (the same maps are used, not copied).
    * @param market The existing market.
    */
-  public MarketDiscountBundle(MarketDiscountBundle market) {
+  public MarketDiscountBundle(final MarketDiscountBundle market) {
     _discountingCurves = market._discountingCurves;
     _forwardIborCurves = market._forwardIborCurves;
     _forwardONCurves = market._forwardONCurves;
@@ -143,7 +143,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getDiscountFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(final Currency ccy, final Double time) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy).getDiscountFactor(time);
     }
@@ -151,7 +151,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public String getName(Currency ccy) {
+  public String getName(final Currency ccy) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy).getName();
     }
@@ -164,13 +164,13 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity) {
+  public double[] parameterSensitivity(final Currency ccy, final List<DoublesPair> pointSensitivity) {
     final YieldAndDiscountCurve curve = _discountingCurves.get(ccy);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
       for (final DoublesPair timeAndS : pointSensitivity) {
-        double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
           result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
         }
@@ -180,12 +180,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public int getNumberOfParameters(Currency ccy) {
+  public int getNumberOfParameters(final Currency ccy) {
     return _discountingCurves.get(ccy).getNumberOfParameters();
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor) {
+  public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardIborCurves.containsKey(index)) {
       return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
     }
@@ -193,12 +193,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime) {
+  public double getForwardRate(final IborIndex index, final double startTime) {
     throw new UnsupportedOperationException("The Curve implementation of the Market bundle does not support the forward rate without end time and accrual factor.");
   }
 
   @Override
-  public String getName(IborIndex index) {
+  public String getName(final IborIndex index) {
     if (_forwardIborCurves.containsKey(index)) {
       return _forwardIborCurves.get(index).getName();
     }
@@ -211,21 +211,23 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double[] parameterSensitivity(IborIndex index, List<MarketForwardSensitivity> pointSensitivity) {
+  public double[] parameterSensitivity(final IborIndex index, final List<MarketForwardSensitivity> pointSensitivity) {
     final YieldAndDiscountCurve curve = _forwardIborCurves.get(index);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
       for (final MarketForwardSensitivity timeAndS : pointSensitivity) {
-        Triple<Double, Double, Double> point = timeAndS.getPoint();
-        double forwardBar = timeAndS.getValue();
+        final double startTime = timeAndS.getStartTime();
+        final double endTime = timeAndS.getEndTime();
+        final double accrualFactor = timeAndS.getAccrualFactor();
+        final double forwardBar = timeAndS.getValue();
         // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
-        double dfForwardStart = curve.getDiscountFactor(point.getFirst());
-        double dfForwardEnd = curve.getDiscountFactor(point.getSecond());
-        final double dFwddyStart = -point.getFirst() * dfForwardStart / (dfForwardEnd * point.getThird());
-        final double dFwddyEnd = point.getSecond() * dfForwardStart / (dfForwardEnd * point.getThird());
-        double[] sensiPtStart = curve.getInterestRateParameterSensitivity(point.getFirst());
-        double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(point.getSecond());
+        final double dfForwardStart = curve.getDiscountFactor(startTime);
+        final double dfForwardEnd = curve.getDiscountFactor(endTime);
+        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
+        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
           result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
           result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
@@ -236,12 +238,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public int getNumberOfParameters(IborIndex index) {
+  public int getNumberOfParameters(final IborIndex index) {
     return _forwardIborCurves.get(index).getNumberOfParameters();
   }
 
   @Override
-  public double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor) {
+  public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardONCurves.containsKey(index)) {
       return (_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
     }
@@ -249,12 +251,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getForwardRate(IndexON index, double startTime) {
+  public double getForwardRate(final IndexON index, final double startTime) {
     throw new UnsupportedOperationException("The Curve implementation of the Market bundle does not support the forward rate without end time and accrual factor.");
   }
 
   @Override
-  public String getName(IndexON index) {
+  public String getName(final IndexON index) {
     if (_forwardONCurves.containsKey(index)) {
       return _forwardONCurves.get(index).getName();
     }
@@ -267,21 +269,23 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double[] parameterSensitivity(IndexON index, List<MarketForwardSensitivity> pointSensitivity) {
+  public double[] parameterSensitivity(final IndexON index, final List<MarketForwardSensitivity> pointSensitivity) {
     final YieldAndDiscountCurve curve = _forwardONCurves.get(index);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
       for (final MarketForwardSensitivity timeAndS : pointSensitivity) {
-        Triple<Double, Double, Double> point = timeAndS.getPoint();
-        double forwardBar = timeAndS.getValue();
+        final double startTime = timeAndS.getStartTime();
+        final double endTime = timeAndS.getEndTime();
+        final double accrualFactor = timeAndS.getAccrualFactor();
+        final double forwardBar = timeAndS.getValue();
         // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
-        double dfForwardStart = curve.getDiscountFactor(point.getFirst());
-        double dfForwardEnd = curve.getDiscountFactor(point.getSecond());
-        final double dFwddyStart = -point.getFirst() * dfForwardStart / (dfForwardEnd * point.getThird());
-        final double dFwddyEnd = point.getSecond() * dfForwardStart / (dfForwardEnd * point.getThird());
-        double[] sensiPtStart = curve.getInterestRateParameterSensitivity(point.getFirst());
-        double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(point.getSecond());
+        final double dfForwardStart = curve.getDiscountFactor(startTime);
+        final double dfForwardEnd = curve.getDiscountFactor(endTime);
+        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
+        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
           result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
           result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
@@ -292,12 +296,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public int getNumberOfParameters(IndexON index) {
+  public int getNumberOfParameters(final IndexON index) {
     return _forwardONCurves.get(index).getNumberOfParameters();
   }
 
   @Override
-  public double getPriceIndex(IndexPrice index, Double time) {
+  public double getPriceIndex(final IndexPrice index, final Double time) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index).getPriceIndex(time);
     }
@@ -305,7 +309,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public String getName(IndexPrice index) {
+  public String getName(final IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index).getCurve().getName();
     }
@@ -313,7 +317,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, Double time) {
+  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, final Double time) {
     if (_issuerCurves.containsKey(issuerCcy)) {
       return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
     }
@@ -325,7 +329,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param ccy The currency.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(Currency ccy) {
+  public YieldAndDiscountCurve getCurve(final Currency ccy) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy);
     }
@@ -337,7 +341,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The Ibor index.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(IborIndex index) {
+  public YieldAndDiscountCurve getCurve(final IborIndex index) {
     if (_forwardIborCurves.containsKey(index)) {
       return _forwardIborCurves.get(index);
     }
@@ -349,7 +353,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The ON index.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(IndexON index) {
+  public YieldAndDiscountCurve getCurve(final IndexON index) {
     if (_forwardONCurves.containsKey(index)) {
       return _forwardONCurves.get(index);
     }
@@ -361,7 +365,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The Price index.
    * @return The curve.
    */
-  public PriceIndexCurve getCurve(IndexPrice index) {
+  public PriceIndexCurve getCurve(final IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index);
     }
@@ -391,26 +395,29 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
+  /**
+   * Returns all curves names. The order is the natural order of String.
+   */
   public Set<String> getAllNames() {
-    Set<String> names = new TreeSet<String>();
-    Set<Currency> ccySet = _discountingCurves.keySet();
-    for (Currency ccy : ccySet) {
+    final Set<String> names = new TreeSet<String>();
+    final Set<Currency> ccySet = _discountingCurves.keySet();
+    for (final Currency ccy : ccySet) {
       names.add(_discountingCurves.get(ccy).getName());
     }
-    Set<IborIndex> indexSet = _forwardIborCurves.keySet();
-    for (IborIndex index : indexSet) {
+    final Set<IborIndex> indexSet = _forwardIborCurves.keySet();
+    for (final IborIndex index : indexSet) {
       names.add(_forwardIborCurves.get(index).getName());
     }
-    Set<IndexON> indexONSet = _forwardONCurves.keySet();
-    for (IndexON index : indexONSet) {
+    final Set<IndexON> indexONSet = _forwardONCurves.keySet();
+    for (final IndexON index : indexONSet) {
       names.add(_forwardONCurves.get(index).getName());
     }
-    Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
-    for (IndexPrice price : priceSet) {
+    final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
+    for (final IndexPrice price : priceSet) {
       names.add(_priceIndexCurves.get(price).getName());
     }
-    Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
-    for (Pair<String, Currency> issuer : issuerSet) {
+    final Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
+    for (final Pair<String, Currency> issuer : issuerSet) {
       names.add(_issuerCurves.get(issuer).getName());
     }
     return names;
@@ -492,7 +499,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param other The other bundle.
    * TODO: REVIEW: Should we check that the curve are already present?
    */
-  public void setAll(MarketDiscountBundle other) {
+  public void setAll(final MarketDiscountBundle other) {
     ArgumentChecker.notNull(other, "Market bundle");
     _discountingCurves.putAll(other._discountingCurves);
     _forwardIborCurves.putAll(other._forwardIborCurves);
@@ -547,7 +554,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getFxRate(Currency ccy1, Currency ccy2) {
+  public double getFxRate(final Currency ccy1, final Currency ccy2) {
     return _fxMatrix.getFxRate(ccy1, ccy2);
   }
 

@@ -124,7 +124,7 @@ public class BondFutureOptionBlackYCNSFunction extends BondFutureOptionBlackCurv
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
     final Set<ValueRequirement> tsRequirements = getDataConverter().getConversionTimeSeriesRequirements(trade.getSecurity(),
-        getTradeConverter().convert(trade), yieldCurveNames);
+        getTradeConverter().convert(trade));
     if (tsRequirements == null) {
       return null;
     }

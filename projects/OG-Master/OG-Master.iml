@@ -16,9 +16,6 @@
         </propertiesSettings>
       </configuration>
     </facet>
-    <facet type="Clojure" name="Clojure">
-      <configuration />
-    </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes" />

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -64,7 +64,8 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
     if (conversions == null) {
       return null;
     } else {
-      return conversions.get(target);
+      CurrencyMatrixValue currMtxVal = conversions.get(target);
+      return currMtxVal;
     }
   }
 

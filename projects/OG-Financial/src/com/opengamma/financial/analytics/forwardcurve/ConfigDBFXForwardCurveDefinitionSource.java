@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
-import javax.time.Instant;
-
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,7 +26,7 @@ public class ConfigDBFXForwardCurveDefinitionSource implements ForwardCurveDefin
   }
 
   @Override
-  public ForwardCurveDefinition getDefinition(final String name, final String currencyPair, final Instant version) {
-    return _configSource.getByName(ForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD", version);
+  public ForwardCurveDefinition getDefinition(final String name, final String currencyPair, final VersionCorrection versionCorrection) {
+    return _configSource.getConfig(ForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD", versionCorrection);
   }
 }

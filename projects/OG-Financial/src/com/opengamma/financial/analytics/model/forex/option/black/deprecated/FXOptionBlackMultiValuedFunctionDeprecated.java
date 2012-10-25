@@ -9,6 +9,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackMultiValuedFunction;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves

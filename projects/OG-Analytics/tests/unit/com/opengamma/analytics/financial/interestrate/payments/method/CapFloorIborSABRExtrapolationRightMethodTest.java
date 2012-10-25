@@ -211,7 +211,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multipliedBy(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;
@@ -256,7 +256,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_HIGH_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_HIGH_SHORT, sabrBundle);
     // Long/short parity
-    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multipliedBy(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;

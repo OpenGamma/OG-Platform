@@ -8,6 +8,12 @@ package com.opengamma.analytics.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
+
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
@@ -41,12 +47,6 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
 
 /**
  * Tests related to the Black world pricing method for single barrier Forex option.
@@ -339,7 +339,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     assertEquals("Forex single barrier option: currency exposure long/short parity", ceLong.getAmount(CUR_1), -ceShort.getAmount(CUR_1), 1E-2);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsShort = METHOD_BARRIER.presentValueCurveSensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsLong = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multiply(-1.0));
+    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multipliedBy(-1.0));
     final PresentValueForexBlackVolatilitySensitivity pvvsShort = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilitySensitivity pvvsLong = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, pvvsShort.multipliedBy(-1.0));

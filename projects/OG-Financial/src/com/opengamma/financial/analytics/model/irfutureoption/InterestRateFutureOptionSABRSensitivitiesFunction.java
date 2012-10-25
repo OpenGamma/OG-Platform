@@ -30,8 +30,9 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * @deprecated Uses the old properties
  */
+@Deprecated
 public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestRateFutureOptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private final String _valueRequirementName;

@@ -34,6 +34,7 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.JdkUtils;
@@ -56,7 +57,7 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 @BeanDefinition
 public class ManageablePosition extends DirectBean
-    implements MutableUniqueIdentifiable, Serializable {
+    implements MutableUniqueIdentifiable, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

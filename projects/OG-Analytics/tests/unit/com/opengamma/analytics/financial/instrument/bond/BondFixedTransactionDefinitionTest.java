@@ -12,8 +12,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

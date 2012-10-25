@@ -5,89 +5,251 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import static com.opengamma.util.money.Currency.EUR;
+import static com.opengamma.util.money.Currency.USD;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to ParameterSensitivity manipulations.
  */
 public class ParameterSensitivityTest {
-
-  private static final OGMatrixAlgebra MATRIX = new OGMatrixAlgebra();
-
-  private static final DoubleMatrix1D SENSI_1_1 = new DoubleMatrix1D(4.0, 2.0, 5.0, 1.5);
-  private static final DoubleMatrix1D SENSI_1_2 = new DoubleMatrix1D(4.0, 3.0, 5.0, 2.5);
-  private static final DoubleMatrix1D SENSI_2_1 = new DoubleMatrix1D(5.0, 1.0, 2.0, 5.0, 1.5);
+  private static final OGMatrixAlgebra MATRIX = MatrixAlgebraFactory.OG_ALGEBRA;
+  private static final DoubleMatrix1D SENSITIVITY_1_1 = new DoubleMatrix1D(4.0, 2.0, 5.0, 1.5);
+  private static final DoubleMatrix1D SENSITIVITY_1_2 = new DoubleMatrix1D(4.0, 3.0, 5.0, 2.5);
+  private static final DoubleMatrix1D SENSITIVITY_2_1 = new DoubleMatrix1D(5.0, 1.0, 2.0, 5.0, 1.5);
   private static final String NAME_1 = "Name1";
   private static final String NAME_2 = "Name2";
-  private static final Currency USD = Currency.USD;
-  private static final Currency EUR = Currency.EUR;
-  private static final Pair<String, Currency> NAME_1_USD = new ObjectsPair<String, Currency>(NAME_1, USD);
-  private static final Pair<String, Currency> NAME_1_EUR = new ObjectsPair<String, Currency>(NAME_1, EUR);
-  private static final Pair<String, Currency> NAME_2_EUR = new ObjectsPair<String, Currency>(NAME_2, EUR);
+  private static final Pair<String, Currency> NAME_1_USD = Pair.of(NAME_1, USD);
+  private static final Pair<String, Currency> NAME_1_EUR = Pair.of(NAME_1, EUR);
+  private static final Pair<String, Currency> NAME_2_USD = Pair.of(NAME_2, USD);
+  private static final Pair<String, Currency> NAME_2_EUR = Pair.of(NAME_2, EUR);
+
+  private static final double TOLERANCE = 1.0E-5;
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullMap1() {
+    new ParameterSensitivity(null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullMap2() {
+    ParameterSensitivity.of(null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testPlusNullPair() {
+    new ParameterSensitivity().plus(null, SENSITIVITY_1_1);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testPlusNullMatrix() {
+    new ParameterSensitivity().plus(NAME_1_EUR, null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testPlusNullSensitivities() {
+    new ParameterSensitivity().plus(null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testGetSensitivityNullNameCurrencyPair() {
+    new ParameterSensitivity().getSensitivity(null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testGetSensitivityNullName() {
+    new ParameterSensitivity().getSensitivity(null, Currency.USD);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testGetSensitivityNullCurrency() {
+    new ParameterSensitivity().getSensitivity(NAME_1, null);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testAddToUnmodifiableMap() {
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    map.put(NAME_1_EUR, SENSITIVITY_1_1);
+    final ParameterSensitivity sensitivities = ParameterSensitivity.of(map);
+    final Map<Pair<String, Currency>, DoubleMatrix1D> unmodifiable = sensitivities.getSensitivities();
+    unmodifiable.put(NAME_1_USD, SENSITIVITY_1_2);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConvertNullFXMatrix() {
+    new ParameterSensitivity().converted(null, EUR);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConvertNullCurrency() {
+    new ParameterSensitivity().converted(new FXMatrix(), null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testCompareNull1() {
+    ParameterSensitivity.compare(null, new ParameterSensitivity(), TOLERANCE);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testCompareNull2() {
+    ParameterSensitivity.compare(new ParameterSensitivity(), null, TOLERANCE);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testCompareNegativeTolerance() {
+    ParameterSensitivity.compare(new ParameterSensitivity(), new ParameterSensitivity(), -TOLERANCE);
+  }
+
+  @Test
+  public void testObject() {
+    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    map.put(NAME_1_EUR, SENSITIVITY_1_1);
+    final ParameterSensitivity sensitivity = new ParameterSensitivity(map);
+    assertFalse(sensitivity.getSensitivities() == map);
+    assertEquals(map, sensitivity.getSensitivities());
+    assertEquals(map.keySet(), sensitivity.getAllNamesCurrency());
+    assertEquals(SENSITIVITY_1_1, sensitivity.getSensitivity(NAME_1_EUR));
+    assertEquals(SENSITIVITY_1_1, sensitivity.getSensitivity(NAME_1, EUR));
+    ParameterSensitivity other = new ParameterSensitivity(map);
+    assertEquals(sensitivity, other);
+    assertEquals(sensitivity.hashCode(), other.hashCode());
+    map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    assertFalse(sensitivity.getSensitivities().equals(map));
+    map.put(NAME_1_EUR, SENSITIVITY_1_1);
+    other = new ParameterSensitivity(map);
+    assertEquals(sensitivity, other);
+    map.put(NAME_1_USD, SENSITIVITY_1_2);
+    map.put(NAME_2_USD, SENSITIVITY_2_1);
+    other = ParameterSensitivity.of(map);
+    assertFalse(sensitivity.equals(other));
+    other = new ParameterSensitivity();
+    assertTrue(other.getSensitivities().isEmpty());
+  }
 
   @Test
   public void add() {
-    ParameterSensitivity sensi = new ParameterSensitivity();
-    sensi = sensi.plus(NAME_1_USD, SENSI_1_1);
-    sensi = sensi.plus(NAME_1_USD, SENSI_1_2);
-    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSI_1_1, SENSI_1_2), sensi.getSensitivity(NAME_1_USD));
-    ParameterSensitivity sensi2 = new ParameterSensitivity();
-    sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
-    sensi2 = sensi2.plus(sensi);
-    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSI_1_1, MATRIX.add(SENSI_1_1, SENSI_1_2)), sensi2.getSensitivity(NAME_1_USD));
-    sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    assertEquals("ParameterSensitivity: add", SENSI_2_1, sensi2.getSensitivity(NAME_2_EUR));
-    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSI_1_1, MATRIX.add(SENSI_1_1, SENSI_1_2)), sensi2.getSensitivity(NAME_1_USD));
-    sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    assertEquals("ParameterSensitivity: add", MATRIX.scale(SENSI_2_1, 2.0), sensi2.getSensitivity(NAME_2_EUR));
-    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSI_1_1, MATRIX.add(SENSI_1_1, SENSI_1_2)), sensi2.getSensitivity(NAME_1_USD));
-    sensi2 = sensi2.plus(NAME_1_EUR, SENSI_1_1);
-    assertEquals("ParameterSensitivity: add", MATRIX.scale(SENSI_2_1, 2.0), sensi2.getSensitivity(NAME_2_EUR));
-    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSI_1_1, MATRIX.add(SENSI_1_1, SENSI_1_2)), sensi2.getSensitivity(NAME_1_USD));
-    assertEquals("ParameterSensitivity: add", SENSI_1_1, sensi2.getSensitivity(NAME_1_EUR));
+    ParameterSensitivity sensitivity1 = new ParameterSensitivity();
+    sensitivity1 = sensitivity1.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity1 = sensitivity1.plus(NAME_1_USD, SENSITIVITY_1_2);
+    assertEquals("Add same currency, different sensitivities: ", MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2), sensitivity1.getSensitivity(NAME_1_USD));
+    ParameterSensitivity sensitivity2 = new ParameterSensitivity();
+    sensitivity2 = sensitivity2.plus(NAME_1_EUR, SENSITIVITY_1_1);
+    sensitivity2 = sensitivity2.plus(sensitivity1);
+    assertEquals("Add different currency, test size: ", 2, sensitivity2.getSensitivities().size());
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> expected = Maps.newLinkedHashMap();
+    expected.put(NAME_1_EUR, SENSITIVITY_1_1);
+    expected.put(NAME_1_USD, (DoubleMatrix1D) MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2));
+    assertEquals("Add different currency, test map: ", expected, sensitivity2.getSensitivities());
+    sensitivity2 = new ParameterSensitivity();
+    sensitivity2 = sensitivity2.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity2 = sensitivity2.plus(sensitivity1);
+    assertEquals("Add same currency, test sensitivities: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)),
+        sensitivity2.getSensitivity(NAME_1_USD));
+    sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    assertEquals("Add different currency, test sensitivities of first currency: ", SENSITIVITY_2_1, sensitivity2.getSensitivity(NAME_2_EUR));
+    assertEquals("Add different currency, test sensitivities of second currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)),
+        sensitivity2.getSensitivity(NAME_1_USD));
+    sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    assertEquals("Test add same sensitivities: ", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2_EUR));
+    assertEquals("Test other currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1_USD));
+    sensitivity2 = sensitivity2.plus(NAME_1_EUR, SENSITIVITY_1_1);
+    assertEquals("ParameterSensitivity: add", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2_EUR));
+    assertEquals("ParameterSensitivity: add", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1_USD));
+    assertEquals("ParameterSensitivity: add", SENSITIVITY_1_1, sensitivity2.getSensitivity(NAME_1_EUR));
   }
 
   @Test
   public void multiplyBy() {
-    double factor = 5.8;
-    ParameterSensitivity sensi = new ParameterSensitivity();
-    sensi = sensi.plus(NAME_1_USD, SENSI_1_1);
-    sensi = sensi.multiplyBy(factor);
-    assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_1_1, factor), sensi.getSensitivity(NAME_1_USD));
+    final double factor = 5.8;
+    ParameterSensitivity sensitivity = new ParameterSensitivity();
+    sensitivity = sensitivity.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity = sensitivity.multipliedBy(factor);
+    assertEquals("Test multiplyBy, single name / currency pair: ", MATRIX.scale(SENSITIVITY_1_1, factor), sensitivity.getSensitivity(NAME_1_USD));
     ParameterSensitivity sensi2 = new ParameterSensitivity();
-    sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
-    sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    sensi2 = sensi2.multiplyBy(factor);
-    assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_1_1, factor), sensi2.getSensitivity(NAME_1_USD));
-    assertEquals("ParameterSensitivity: multiplyBy", MATRIX.scale(SENSI_2_1, factor), sensi2.getSensitivity(NAME_2_EUR));
+    sensi2 = sensi2.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensi2 = sensi2.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    sensi2 = sensi2.multipliedBy(factor);
+    assertEquals("Test multiplyBy, first name / currency pair: ", MATRIX.scale(SENSITIVITY_1_1, factor), sensi2.getSensitivity(NAME_1_USD));
+    assertEquals("Test multiplyBy, second name / currency pair: ", MATRIX.scale(SENSITIVITY_2_1, factor), sensi2.getSensitivity(NAME_2_EUR));
+  }
+
+  @Test
+  public void convert() {
+    final FXMatrix fxMatrix = new FXMatrix(EUR, USD, 1.25);
+    ParameterSensitivity sensitivity = new ParameterSensitivity();
+    sensitivity = sensitivity.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity = sensitivity.plus(NAME_1_EUR, SENSITIVITY_1_2);
+    sensitivity = sensitivity.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    final ParameterSensitivity sensitivityUSDConverted = sensitivity.converted(fxMatrix, USD);
+    ParameterSensitivity sensitivityUSDExpected = new ParameterSensitivity();
+    sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_1_USD, (DoubleMatrix1D) MATRIX.scale(SENSITIVITY_1_2, fxMatrix.getFxRate(EUR, USD)));
+    sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_2_USD, (DoubleMatrix1D) MATRIX.scale(SENSITIVITY_2_1, fxMatrix.getFxRate(EUR, USD)));
+    assertTrue("Test convert: ", ParameterSensitivity.compare(sensitivityUSDExpected, sensitivityUSDConverted, TOLERANCE));
   }
 
   @Test
   public void compare() {
-    double tolerance = 1.0E-2;
-    ParameterSensitivity sensi1 = new ParameterSensitivity();
-    sensi1 = sensi1.plus(NAME_1_USD, SENSI_1_1);
-    sensi1 = sensi1.plus(NAME_2_EUR, SENSI_2_1);
-    ParameterSensitivity sensi2 = new ParameterSensitivity();
-    sensi2 = sensi2.plus(NAME_1_USD, SENSI_1_1);
-    sensi2 = sensi2.plus(NAME_2_EUR, SENSI_2_1);
-    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi2, tolerance));
-    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(2.0), sensi2, tolerance));
-    assertTrue("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1.multiplyBy(1.000001), sensi2, tolerance));
-    ParameterSensitivity sensi3 = new ParameterSensitivity();
-    sensi3 = sensi3.plus(NAME_1_USD, SENSI_1_1);
-    assertFalse("ParameterSensitivity: multiplyBy", ParameterSensitivity.compare(sensi1, sensi3, tolerance));
+    ParameterSensitivity sensitivity1 = new ParameterSensitivity();
+    sensitivity1 = sensitivity1.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity1 = sensitivity1.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    ParameterSensitivity sensitivity2 = new ParameterSensitivity();
+    sensitivity2 = sensitivity2.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    assertTrue("Compare same data: ", ParameterSensitivity.compare(sensitivity1, sensitivity2, TOLERANCE));
+    assertFalse("Compare different data outside tolerance: ", ParameterSensitivity.compare(sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE));
+    assertTrue("Compare different data inside tolerance ", ParameterSensitivity.compare(sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE));
+    ParameterSensitivity sensitivity3 = new ParameterSensitivity();
+    sensitivity3 = sensitivity3.plus(NAME_1_USD, SENSITIVITY_1_1);
+    assertFalse("Compare data with different name / currency pairs: ", ParameterSensitivity.compare(sensitivity1, sensitivity3, TOLERANCE));
   }
 
+  @Test
+  public void testToMatrix() {
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map1 = Maps.newLinkedHashMap();
+    map1.put(NAME_1_EUR, SENSITIVITY_1_1);
+    map1.put(NAME_2_EUR, SENSITIVITY_1_2);
+    map1.put(NAME_1_USD, SENSITIVITY_2_1);
+    final ParameterSensitivity sensitivity1 = ParameterSensitivity.of(map1);
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map2 = Maps.newLinkedHashMap();
+    map2.put(NAME_1_EUR, SENSITIVITY_1_1);
+    map2.put(NAME_2_EUR, SENSITIVITY_1_1);
+    map2.put(NAME_1_USD, SENSITIVITY_2_1);
+    final ParameterSensitivity sensitivity2 = ParameterSensitivity.of(map2);
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map3 = Maps.newLinkedHashMap();
+    map2.put(NAME_1_EUR, SENSITIVITY_1_1);
+    map2.put(NAME_2_EUR, SENSITIVITY_1_2);
+    final ParameterSensitivity sensitivity3 = ParameterSensitivity.of(map3);
+    final double[] total = new double[SENSITIVITY_1_1.getNumberOfElements() + SENSITIVITY_1_2.getNumberOfElements() + SENSITIVITY_2_1.getNumberOfElements()];
+    int j = 0;
+    for (int i = 0; i < SENSITIVITY_1_1.getNumberOfElements(); i++, j++) {
+      total[j] = SENSITIVITY_1_1.getEntry(i);
+    }
+    for (int i = 0; i < SENSITIVITY_2_1.getNumberOfElements(); i++, j++) {
+      total[j] = SENSITIVITY_2_1.getEntry(i);
+    }
+    for (int i = 0; i < SENSITIVITY_1_2.getNumberOfElements(); i++, j++) {
+      total[j] = SENSITIVITY_1_2.getEntry(i);
+    }
+    final DoubleMatrix1D expectedMatrix = new DoubleMatrix1D(total);
+    assertEquals("Test toMatrix: ", expectedMatrix, sensitivity1.toMatrix());
+    assertFalse("Test toMatrix, unequal sensitivities: ", expectedMatrix.equals(sensitivity2.toMatrix()));
+    assertFalse("Test toMatrix, unequal keys: ", expectedMatrix.equals(sensitivity3.toMatrix()));
+  }
 }

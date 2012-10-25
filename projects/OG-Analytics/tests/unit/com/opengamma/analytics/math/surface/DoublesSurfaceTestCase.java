@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.surface.DoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;

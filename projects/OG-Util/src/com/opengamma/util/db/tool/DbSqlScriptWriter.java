@@ -9,11 +9,12 @@ import java.io.IOException;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.management.DbManagement;
+import com.opengamma.util.db.script.DbScript;
 
 /**
  * Writes SQL scripts to a database.
  */
-public class DbSqlScriptWriter extends AbstractSqlScriptWriter {
+public class DbSqlScriptWriter implements SqlScriptWriter {
 
   private final DbManagement _dbManagement;
   private final String _catalog;
@@ -51,8 +52,8 @@ public class DbSqlScriptWriter extends AbstractSqlScriptWriter {
   
   //-------------------------------------------------------------------------
   @Override
-  public void write(String title, String sqlScript) {
-    getDbManagement().executeSql(getCatalog(), null, sqlScript);
+  public void write(String title, DbScript script) throws IOException {
+    getDbManagement().executeSql(getCatalog(), null, script.getScript());
   }
   
   @Override

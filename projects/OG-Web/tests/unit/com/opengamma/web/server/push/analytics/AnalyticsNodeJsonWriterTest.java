@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;

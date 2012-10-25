@@ -29,8 +29,6 @@ import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
 import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimizer;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.monitor.OperationTimer;
 
 public class NonLinearLeastSquareTest {

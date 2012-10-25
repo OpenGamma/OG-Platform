@@ -8,13 +8,12 @@ package com.opengamma.examples.volatility.cube;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -57,7 +56,7 @@ public class ExampleVolatilityCubeDefinitionSource implements VolatilityCubeDefi
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final InstantProvider version) {
+  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final VersionCorrection versionCorrection) {
     return getDefinition(currency, name);
   }
 

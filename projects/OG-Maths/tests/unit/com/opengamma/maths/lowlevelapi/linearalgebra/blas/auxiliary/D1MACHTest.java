@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.maths.lowlevelapi.linearalgebra.blas.auxiliary.D1MACH;
-
 /**
  * Tests double precision machine constants found in D1MACH
  */

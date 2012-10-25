@@ -7,7 +7,13 @@ package com.opengamma.analytics.financial.credit;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligormodel.Region;
+import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;

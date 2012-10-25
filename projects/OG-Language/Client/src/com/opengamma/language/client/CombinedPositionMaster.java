@@ -5,6 +5,11 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
+
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageableTrade;
@@ -35,13 +40,19 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
   public PositionSearchResult search(final PositionSearchRequest request) {
     final PositionSearchResult result = new PositionSearchResult();
     if (getSessionMaster() != null) {
-      result.getDocuments().addAll(getSessionMaster().search(request).getDocuments());
+      PositionSearchResult search = getSessionMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getUserMaster() != null) {
-      result.getDocuments().addAll(getUserMaster().search(request).getDocuments());
+      PositionSearchResult search = getUserMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     if (getGlobalMaster() != null) {
-      result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
+      PositionSearchResult search = getGlobalMaster().search(request);
+      result.getDocuments().addAll(search.getDocuments());
+      result.setVersionCorrection(search.getVersionCorrection());
     }
     return result;
   }
@@ -79,4 +90,12 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
     return null;
   }
 
+  @Override
+  public Map<UniqueId, PositionDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, PositionDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 }

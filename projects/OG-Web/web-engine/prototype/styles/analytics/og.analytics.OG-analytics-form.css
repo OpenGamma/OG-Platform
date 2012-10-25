@@ -117,6 +117,9 @@
     display: inline-block;
     font-family: 'Open Sans', arial, serif;
 }
+.OG-analytics-form .og-option-title li:first-letter {
+    text-transform: capitalize;
+}
 
 .OG-analytics-form .og-option-title span {
     color: #999;

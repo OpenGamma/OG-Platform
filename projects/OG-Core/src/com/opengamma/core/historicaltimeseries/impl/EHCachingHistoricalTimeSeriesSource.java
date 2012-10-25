@@ -29,6 +29,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
@@ -147,29 +148,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
       @Override
       public void entityChanged(ChangeEvent event) {
-        final UniqueId beforeId = event.getBeforeId();
-        if (beforeId != null) {
-          cleanCaches(beforeId);
-        }
-        final UniqueId afterId = event.getAfterId();
-        if (afterId != null) {
-          cleanCaches(afterId);
-        }
-        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(),
-            event.getVersionInstant());
+        cleanCaches(event.getObjectId());
+        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());        
       }
 
     };
   }
 
-  private void cleanCaches(UniqueId id) {
+  private void cleanCaches(ObjectId oid) {
     // Only care where the unversioned ID has been cached since it now represents something else
-    UniqueId latestId = id.toLatest();
-    _dataCache.remove(latestId);
-    _identifierBundleCache.remove(latestId);
+    _dataCache.remove(oid);
+    _identifierBundleCache.remove(oid);
     // Destroy all version/correction cached values for the object
-    _dataCache.remove(id.getObjectId());
-    _identifierBundleCache.remove(id.getObjectId());
+    _dataCache.remove(oid);
+    _identifierBundleCache.remove(oid);
   }
 
   //-------------------------------------------------------------------------

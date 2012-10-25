@@ -239,9 +239,9 @@ public abstract class AbstractPortfolioGeneratorTool {
       instance.setSecurityPersister(new MasterSecurityPersister(context.getSecurityMaster()));
     } else {
       s_logger.info("Using dummy security writer");
-      final MockSecurityPersister securityPersister = new MockSecurityPersister();
+      final InMemorySecurityPersister securityPersister = new InMemorySecurityPersister();
       instance.setSecurityPersister(securityPersister);
-      securitySource = securityPersister.getMockSecuritySource();
+      securitySource = securityPersister.getSecuritySource();
     }
     if (currencies != null && currencies.length > 0) {
       instance.setCurrencies(currencies);

@@ -13,12 +13,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.change.BasicChangeManager;
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;

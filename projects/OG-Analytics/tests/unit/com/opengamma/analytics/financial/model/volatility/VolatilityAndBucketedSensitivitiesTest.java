@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.volatility;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
 
 /**

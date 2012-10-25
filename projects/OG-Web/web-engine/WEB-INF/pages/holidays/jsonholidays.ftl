@@ -9,9 +9,8 @@
 	      </#if>
 	      "dataFields": ["id","name" <#if searchRequest.type = ''>, "type"</#if> ,"validFrom"]
     },
-    "data" : [<#if searchResult??>
-      <#list searchResult.documents as item>
-	       "${item.uniqueId.objectId}|${item.name}<#if searchRequest.type = ''>|${item.holiday.type}</#if>|${item.versionFromInstant}"<#if item_has_next>,</#if>
-	    </#list> </#if>]        
+    "data" : [<#if searchResult??><#list searchResult.documents as doc>
+	    "${doc.uniqueId.objectId}|${doc.name}<#if searchRequest.type = ''>|${doc.holiday.type}</#if>|${doc.versionFromInstant}"<#if doc_has_next>,</#if>
+	</#list> </#if>]        
 }
 </#escape>

@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.equity.future.derivative;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.money.Currency;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * 

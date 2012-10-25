@@ -65,7 +65,7 @@ public class DataPositionMasterResourceTest {
   public void testFindPosition() {
     DataPositionResource test = _resource.findPosition("Test~A");
     assertSame(_resource, test.getParentResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlPositionId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
   @Test

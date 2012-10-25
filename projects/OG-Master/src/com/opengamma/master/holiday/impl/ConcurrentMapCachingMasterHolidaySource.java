@@ -18,13 +18,13 @@ import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
- * PLAT-1015: A cache to optimize the results of {@code MasterHolidaySource}.
+ * A specialist cache to optimize the results of {@code MasterHolidaySource}.
+ * ,p>
+ * See PLAT-1015
  */
-
 public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource implements Lifecycle {
 
   private final Duration _timeout = Duration.ofStandardMinutes(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
-
   private final PreemptiveCache<HolidaySearchRequest, HolidayDocument> _requestCache;
   private final PreemptiveCache<ObjectsPair<HolidayType, ExternalIdBundle>, HolidayDocument> _typeBundleCache;
 

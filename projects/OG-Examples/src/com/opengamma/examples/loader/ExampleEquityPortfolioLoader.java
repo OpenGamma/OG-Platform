@@ -25,6 +25,8 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
@@ -43,8 +45,6 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Example code to load a very simple equity portfolio.

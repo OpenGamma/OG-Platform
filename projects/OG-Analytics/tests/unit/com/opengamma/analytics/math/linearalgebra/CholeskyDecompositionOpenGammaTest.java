@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
-import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;
-import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionOpenGamma;
-import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionResult;
-import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;

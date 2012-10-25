@@ -11,7 +11,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
-import com.opengamma.analytics.math.function.special.ChebyshevPolynomialOfFirstKindFunction;
 
 /**
  * 

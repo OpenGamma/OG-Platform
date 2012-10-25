@@ -7,9 +7,6 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
-import com.opengamma.analytics.math.minimization.ScalarMinimizer;
-
 /**
  * 
  */

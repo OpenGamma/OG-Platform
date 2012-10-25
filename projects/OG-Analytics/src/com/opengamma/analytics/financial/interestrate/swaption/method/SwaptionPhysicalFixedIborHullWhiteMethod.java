@@ -187,7 +187,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-        sensitivity = sensitivity.plus(sensiCfe.multiply(cfeAmountBar[loopcf]));
+        sensitivity = sensitivity.plus(sensiCfe.multipliedBy(cfeAmountBar[loopcf]));
       }
     }
     return sensitivity;

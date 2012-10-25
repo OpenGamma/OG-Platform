@@ -75,7 +75,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethod impl
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
     resultMapPrice.put(market.getCurve(coupon.getPriceIndex()).getCurve().getName(), listPrice);
-    final CurveSensitivityMarket result = CurveSensitivityMarket.fromYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final CurveSensitivityMarket result = CurveSensitivityMarket.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
     return result;
   }
 

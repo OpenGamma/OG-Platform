@@ -50,4 +50,18 @@ public interface EquityFuturesPricer {
    */
   double pv01(EquityFuture future, EquityFutureDataBundle dataBundle);
 
+  /**
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
+   * @return The spot price of the equity or index
+   */
+  double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle);
+
+  /**
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
+   * @return The forward price of the equity or index
+   */
+  double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle);
+
 }

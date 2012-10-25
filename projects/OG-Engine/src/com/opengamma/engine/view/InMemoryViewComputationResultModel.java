@@ -5,15 +5,15 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Simple implementation of {@link ViewComputationResultModel}.

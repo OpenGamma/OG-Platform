@@ -68,7 +68,7 @@ public final class SwaptionPhysicalFixedIborBasketMethod {
     int nbPeriods = legFixed.getNumberOfPayments();
     int nbStrikes = relativeMoneyness.length;
     SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbPeriods * nbStrikes];
-    double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
+    double notional = 1; // Math.abs(legFixed.getNthPayment(0).getNotional());
     for (int loopcal = 0; loopcal < nbPeriods; loopcal++) {
       double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
       SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);

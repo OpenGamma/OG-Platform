@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.LeastSquareSmileFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.SVINonLinearLeastSquareFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SVIFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;

@@ -116,6 +116,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
     double[] dPvdPhi = new double[2 * nbPeriods];
     // Implementation note: Derivative of the priced swaptions wrt the calibration parameters (multiplicative factor and additive term)
+    // Implementation note: Phi is a vector with the multiplicative factors on the volatility and then the additive terms on the displacements.
     double[][] dPvdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
     double[] dPvdDis = METHOD_SWAPTION_LMM.presentValueDDSensitivity(swaption, lmmBundle);
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
@@ -150,6 +151,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
 
     double[][] dPvCaldTheta = new double[nbCalibrations][3 * nbPeriods];
     // Implementation note: Derivative of the calibration swaptions wrt the SABR parameters as a unique array.
+    // Implementation note: Theta is vector with first the Alpha, the the Rho and finally the Nu.
     for (int loopperiod = 0; loopperiod < nbPeriods; loopperiod++) {
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
         PresentValueSABRSensitivityDataBundle dPvCaldSABR = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopperiod * nbStrikes + loopstrike], curves);
@@ -311,26 +313,26 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
       dPvCalBasedC[loopcal] = METHOD_SWAPTION_SABR.presentValueCurveSensitivity(swaptionCalibration[loopcal], curves);
       dPvCalLmmdC[loopcal] = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaptionCalibration[loopcal], lmmBundle);
-      dPvCalDiffdC[loopcal] = dPvCalBasedC[loopcal].plus(dPvCalLmmdC[loopcal].multiply(-1.0)).cleaned();
+      dPvCalDiffdC[loopcal] = dPvCalBasedC[loopcal].plus(dPvCalLmmdC[loopcal].multipliedBy(-1.0)).cleaned();
     }
     InterestRateCurveSensitivity[] dfdC = new InterestRateCurveSensitivity[2 * nbPeriods];
     // Implementation note: Derivative of f wrt the curves. This is an approximation: the second order derivative part are ignored.
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       dfdC[loopp] = new InterestRateCurveSensitivity();
       for (int loopcal = 0; loopcal < nbCalibrations; loopcal++) {
-        dfdC[loopp] = dfdC[loopp].plus(dPvCalDiffdC[loopcal].multiply(-2 * dPvCaldPhi[loopcal][loopp])).cleaned();
+        dfdC[loopp] = dfdC[loopp].plus(dPvCalDiffdC[loopcal].multipliedBy(-2 * dPvCaldPhi[loopcal][loopp])).cleaned();
       }
     }
     InterestRateCurveSensitivity[] dPhidC = new InterestRateCurveSensitivity[2 * nbPeriods];
     for (int loopp1 = 0; loopp1 < 2 * nbPeriods; loopp1++) {
       dPhidC[loopp1] = new InterestRateCurveSensitivity();
       for (int loopp2 = 0; loopp2 < 2 * nbPeriods; loopp2++) {
-        dPhidC[loopp1] = dPhidC[loopp1].plus(dfdC[loopp2].multiply(-dfdPhiInvMat.getEntry(loopp1, loopp2))).cleaned();
+        dPhidC[loopp1] = dPhidC[loopp1].plus(dfdC[loopp2].multipliedBy(-dfdPhiInvMat.getEntry(loopp1, loopp2))).cleaned();
       }
     }
     InterestRateCurveSensitivity dPvdC = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaption, lmmBundle);
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
-      dPvdC = dPvdC.plus(dPhidC[loopp].multiply(dPvdPhi[loopp])).cleaned();
+      dPvdC = dPvdC.plus(dPhidC[loopp].multipliedBy(dPvdPhi[loopp])).cleaned();
     }
     //    System.out.println(Runtime.getRuntime().totalMemory());
 

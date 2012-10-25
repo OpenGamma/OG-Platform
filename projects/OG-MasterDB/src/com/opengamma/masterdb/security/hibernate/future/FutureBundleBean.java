@@ -13,10 +13,10 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 
 /**
- * Hibernate bean for storage.
+ * A Hibernate bean for storage.
  */
 public class FutureBundleBean {
-  
+
   private Long _id;
   private FutureSecurityBean _future;
   private Date _startDate;

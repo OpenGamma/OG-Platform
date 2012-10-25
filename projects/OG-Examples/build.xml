@@ -61,7 +61,7 @@
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="same as 'jetty' but block waiting for output">
 		<java classpathref="jetty.run.path" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
-			<jvmarg value="-Dlogback.configurationFile=com/opengamma/util/test/warn-logback.xml" />
+			<jvmarg value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml" />
 			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
 			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
 			<jvmarg value="-Xms${jetty.initialheap}" />

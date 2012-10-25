@@ -20,16 +20,16 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExchangeBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
- * A concrete, JavaBean-based implementation of {@link Security}. 
+ * A Hibernate bean representation of {@link EquitySecurityBean}.
  */
 @BeanDefinition
 public class EquitySecurityBean extends SecurityBean {
+
   @PropertyDefinition
   private ExchangeBean _exchange;
   @PropertyDefinition
@@ -40,7 +40,7 @@ public class EquitySecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   @PropertyDefinition
   private GICSCodeBean _gicsCode;
-  
+
   public boolean equals(Object other) {
     if (!(other instanceof EquitySecurityBean)) {
       return false;

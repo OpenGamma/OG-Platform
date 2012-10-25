@@ -7,6 +7,7 @@ package com.opengamma.component;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class ComponentServer extends DirectBean {
   }
 
   /**
-   * Finds a component by type and classifier.
+   * Finds a component by type.
    * <p>
    * The returned information will contain the URI of the component for access.
    * 
@@ -91,6 +92,24 @@ public class ComponentServer extends DirectBean {
     for (ComponentInfo info : getComponentInfos()) {
       if (info.getType().equals(type)) {
         result.add(info);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Gets a map of component information for a given type, keyed by classifier.
+   * <p>
+   * The returned information will contain the URI of the component for access.
+   * 
+   * @param type  the type of the component, typically an interface
+   * @return all the matching components, keyed by classifier, not null
+   */
+  public Map<String, ComponentInfo> getComponentInfoMap(Class<?> type) {
+    Map<String, ComponentInfo> result = new LinkedHashMap<String, ComponentInfo>();
+    for (ComponentInfo info : getComponentInfos()) {
+      if (info.getType().equals(type)) {
+        result.put(info.getClassifier(), info);
       }
     }
     return result;

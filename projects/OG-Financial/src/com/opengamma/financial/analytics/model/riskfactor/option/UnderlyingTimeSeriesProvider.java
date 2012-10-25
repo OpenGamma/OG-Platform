@@ -93,12 +93,12 @@ public class UnderlyingTimeSeriesProvider {
 
     @Override
     public ExternalIdBundle visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-      return _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
+      return _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
     }
 
     @Override
     public ExternalIdBundle visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      return _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
+      return _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
     }
 
   }

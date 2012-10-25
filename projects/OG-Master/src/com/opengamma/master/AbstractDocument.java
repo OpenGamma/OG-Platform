@@ -73,10 +73,18 @@ public abstract class AbstractDocument extends DirectBean
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the principal value held in the document.
+   *
+   * @return the principal value of the document, may be null
+   */
+  public abstract UniqueIdentifiable getValue();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the unique identifier of the document.
    * <p>
    * This may be derived from an object held within the document.
-   * 
+   *
    * @return the unique identifier, may be null, not null when returned from a query
    */
   @Override
@@ -86,7 +94,7 @@ public abstract class AbstractDocument extends DirectBean
    * Sets the unique identifier of the document.
    * <p>
    * This may be stored in an object held within the document.
-   * 
+   *
    * @param uniqueId  the unique identifier, may be null
    */
   @Override
@@ -97,7 +105,7 @@ public abstract class AbstractDocument extends DirectBean
    * Gets the object identifier of the document.
    * <p>
    * This may be derived from an object held within the document.
-   * 
+   *
    * @return the object identifier, may be null, not null when returned from a query
    */
   @Override
@@ -110,7 +118,7 @@ public abstract class AbstractDocument extends DirectBean
    * Checks if this is the latest version and correction of the document.
    * <p>
    * An earlier version, or a deleted document, will return false.
-   * 
+   *
    * @return true if this is the latest document version/correction
    */
   public boolean isLatest() {

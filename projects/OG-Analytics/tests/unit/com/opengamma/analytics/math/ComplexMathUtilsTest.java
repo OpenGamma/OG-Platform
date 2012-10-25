@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.ComplexMathUtils;
 import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**

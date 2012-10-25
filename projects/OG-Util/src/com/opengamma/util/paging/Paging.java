@@ -66,7 +66,7 @@ public final class Paging {
     ArgumentChecker.notNull(pagingRequest, "pagingRequest");
     ArgumentChecker.notNull(coll, "coll");
     if (pagingRequest.getFirstItem() >= coll.size()) {
-      return new Paging(PagingRequest.ofIndex(0, pagingRequest.getPagingSize()), coll.size());
+      return new Paging(PagingRequest.ofIndex(coll.size(), pagingRequest.getPagingSize()), coll.size());
     }
     return new Paging(pagingRequest, coll.size());
   }

@@ -22,12 +22,13 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
@@ -36,7 +37,6 @@ import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
@@ -303,7 +303,7 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
+    env.getConfigSource().changeManager().entityChanged(ChangeType.CHANGED, viewDefinitionId.getObjectId(), null, null, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
@@ -433,7 +433,7 @@ public class ViewComputationJobTest {
 
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-      final SecuritySource dummySecuritySource = new MockSecuritySource();
+      final SecuritySource dummySecuritySource = new InMemorySecuritySource();
       return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
                                         new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(),
                                                                    dummySecuritySource, UserPrincipal.getTestUser()));

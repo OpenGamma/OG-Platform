@@ -93,7 +93,7 @@ public class DbExchangeMasterComponentFactory extends AbstractDbMasterComponentF
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "exg_db");
+    checkSchemaVersion(master.getSchemaVersion(), "exg");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

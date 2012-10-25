@@ -565,7 +565,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     pvcsLong = pvcsLong.cleaned();
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
-    pvcsShort = pvcsShort.multiply(-1);
+    pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
     assertTrue("CMS cap spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
   }
@@ -582,7 +582,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
     pvcsLong = pvcsLong.cleaned();
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
-    pvcsShort = pvcsShort.multiply(-1);
+    pvcsShort = pvcsShort.multipliedBy(-1);
     pvcsShort = pvcsShort.cleaned();
     assertTrue("CMS floor spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
   }
@@ -606,9 +606,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsCMS2 = METHOD_CMS_COUPON.presentValueCurveSensitivity(cms2, sabrBundleCor);
     pvcsCMS2 = pvcsCMS2.cleaned();
     InterestRateCurveSensitivity pvcsStrike = METHOD_CPN_FIXED.presentValueCurveSensitivity(cpnStrike, sabrBundleCor);
-    InterestRateCurveSensitivity pvcsParity1 = pvcsCMS1.plus(pvcsCMS2.plus(pvcsStrike).multiply(-1));
+    InterestRateCurveSensitivity pvcsParity1 = pvcsCMS1.plus(pvcsCMS2.plus(pvcsStrike).multipliedBy(-1));
     pvcsParity1 = pvcsParity1.cleaned();
-    InterestRateCurveSensitivity pvcsParity2 = pvcsCapLong.plus(pvcsFloorLong.multiply(-1));
+    InterestRateCurveSensitivity pvcsParity2 = pvcsCapLong.plus(pvcsFloorLong.multipliedBy(-1));
     pvcsParity2 = pvcsParity2.cleaned();
     assertTrue("CMS spread: curve sensitivity - Cap/Floor parity", InterestRateCurveSensitivity.compare(pvcsParity1, pvcsParity2, TOLERANCE_PRICE));
   }

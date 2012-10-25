@@ -6,6 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
+
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -14,7 +20,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.BondFutureHullWhiteMethod;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -30,13 +35,6 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-
-import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
@@ -197,7 +195,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   public void presentValueCurveSensitivityRelative() {
     final InterestRateCurveSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
     final InterestRateCurveSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
-    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multiply(NOTIONAL);
+    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multipliedBy(NOTIONAL);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
   }
 

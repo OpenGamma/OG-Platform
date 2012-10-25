@@ -93,7 +93,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "hts_db");
+    checkSchemaVersion(master.getSchemaVersion(), "hts");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

@@ -5,13 +5,13 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**

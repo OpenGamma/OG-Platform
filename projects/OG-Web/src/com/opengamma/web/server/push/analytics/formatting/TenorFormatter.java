@@ -26,7 +26,7 @@ import com.opengamma.util.time.Tenor;
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.TENOR;
   }
 }

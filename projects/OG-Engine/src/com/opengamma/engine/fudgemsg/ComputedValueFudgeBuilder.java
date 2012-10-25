@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.InvocationResult;
+import java.util.Set;
+
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -18,7 +16,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import java.util.Set;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**
  * Fudge message builder for {@code ComputedValue}.

@@ -38,7 +38,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
       throw new IllegalStateException("Expected 1 broker, but found " + beanNames.length);
     }
     BrokerService broker = appContext.getBean(beanNames[0], BrokerService.class);
-    repo.registerInfrastructure(BrokerService.class, "jetty", broker);
+    repo.registerComponent(BrokerService.class, "jetty", broker);
     repo.registerLifecycle(new ActiveMQLifecycle(broker));
   }
 

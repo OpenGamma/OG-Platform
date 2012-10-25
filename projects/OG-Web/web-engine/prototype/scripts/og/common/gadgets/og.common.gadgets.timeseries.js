@@ -193,15 +193,15 @@ $.register_module({
                     (function () { // set up presets
                         var new_max_date_obj, _1m, _3m, _6m, _1y, _2y, _3y, counter = 0, presets = {};
                         x_max = data[data.length-1][0];
-                        new_max_date_obj = function () {return new Date(x_max)};
+                        new_max_date_obj = function () {return new Date(x_max);};
                         presets._1d = x_max - 86400 * 1000; // in milliseconds
                         presets._1w = x_max - 7 * 86400 * 1000;
-                        _1m = new_max_date_obj(), _1m.setMonth(_1m.getMonth() - 1), presets._1m = +_1m;
-                        _3m = new_max_date_obj(), _3m.setMonth(_3m.getMonth() - 3), presets._3m = +_3m;
-                        _6m = new_max_date_obj(), _6m.setMonth(_6m.getMonth() - 6), presets._6m = +_6m;
-                        _1y = new_max_date_obj(), _1y.setYear(_1y.getFullYear() - 1), presets._1y = +_1y;
-                        _2y = new_max_date_obj(), _2y.setYear(_2y.getFullYear() - 2), presets._2y = +_2y;
-                        _3y = new_max_date_obj(), _3y.setYear(_3y.getFullYear() - 3), presets._3y = +_3y;
+                        _1m = new_max_date_obj(), _1m.setUTCMonth(_1m.getUTCMonth() - 1), presets._1m = +_1m;
+                        _3m = new_max_date_obj(), _3m.setUTCMonth(_3m.getUTCMonth() - 3), presets._3m = +_3m;
+                        _6m = new_max_date_obj(), _6m.setUTCMonth(_6m.getUTCMonth() - 6), presets._6m = +_6m;
+                        _1y = new_max_date_obj(), _1y.setUTCFullYear(_1y.getUTCFullYear() - 1), presets._1y = +_1y;
+                        _2y = new_max_date_obj(), _2y.setUTCFullYear(_2y.getUTCFullYear() - 2), presets._2y = +_2y;
+                        _3y = new_max_date_obj(), _3y.setUTCFullYear(_3y.getUTCFullYear() - 3), presets._3y = +_3y;
                         presets._all = data[0][0];
                         $(tenor).html(['all', '3y', '2y', '1y', '6m', '3m', '1m', '1w', '1d']
                             .reduce(function (pre, cur) {
@@ -335,7 +335,7 @@ $.register_module({
                         $date_elm = $legend.find('.og-date'), date, format_date, legend_height,
                         rel_cursor_pos = hover_pos.pageX - ($(selector).offset().left) + 5;
                     format_date = function (date) {
-                        return ('' + new Date(date)).replace(/(^.*:[0-9]{2}\s).*$/, '$1');
+                        return new Date(date).toUTCString().replace(/(^.*:[0-9]{2}\s).*$/, '$1');
                     };
                     $legend = get_legend();
                     if (hover_pos.x < axes.xaxis.min || hover_pos.x > axes.xaxis.max ||

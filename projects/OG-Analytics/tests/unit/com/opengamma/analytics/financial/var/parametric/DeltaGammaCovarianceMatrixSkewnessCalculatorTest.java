@@ -13,8 +13,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.var.parametric.DeltaGammaCovarianceMatrixSkewnessCalculator;
-import com.opengamma.analytics.financial.var.parametric.ParametricVaRDataBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;

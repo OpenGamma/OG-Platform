@@ -5,30 +5,31 @@
  */
 package com.opengamma.batch.rest;
 
-import com.opengamma.batch.domain.BatchError;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.paging.Paging;
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.*;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.batch.domain.BatchError;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.id.ObjectId;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A document used to pass into and out of the batch master.

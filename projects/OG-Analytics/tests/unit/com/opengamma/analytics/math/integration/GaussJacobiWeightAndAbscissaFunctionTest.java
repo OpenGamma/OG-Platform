@@ -11,10 +11,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.integration.GaussJacobiWeightAndAbscissaFunction;
-import com.opengamma.analytics.math.integration.GaussLegendreWeightAndAbscissaFunction;
-import com.opengamma.analytics.math.integration.GaussianQuadratureData;
-import com.opengamma.analytics.math.integration.QuadratureWeightAndAbscissaFunction;
 
 /**
  * 

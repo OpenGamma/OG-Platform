@@ -56,7 +56,7 @@ public class DataHolidaySourceResourceTest {
     target.setType(HolidayType.BANK);
     target.setRegionExternalId(EID);
     
-    when(_underlying.getHoliday(eq(UID))).thenReturn(target);
+    when(_underlying.get(eq(UID))).thenReturn(target);
     
     Response test = _resource.get(OID.toString(), UID.getVersion(), "", "");
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -69,7 +69,7 @@ public class DataHolidaySourceResourceTest {
     target.setType(HolidayType.BANK);
     target.setRegionExternalId(EID);
     
-    when(_underlying.getHoliday(eq(OID), eq(VC))).thenReturn(target);
+    when(_underlying.get(eq(OID), eq(VC))).thenReturn(target);
     
     Response test = _resource.get(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());

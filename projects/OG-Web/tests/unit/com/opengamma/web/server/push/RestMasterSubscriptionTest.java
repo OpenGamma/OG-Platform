@@ -47,7 +47,7 @@ public class RestMasterSubscriptionTest {
     _webPushTestUtils.readFromPath(restUrl, clientId);
     // send a change event
     UniqueId uid = UniqueId.of("Tst", "101");
-    _positionChangeManager.entityChanged(ChangeType.UPDATED, uid, uid, Instant.now());
+    _positionChangeManager.entityChanged(ChangeType.CHANGED, uid.getObjectId(), null, null, Instant.now());
     // connect to the long-polling URL to receive notification of the change
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
     WebPushTestUtils.checkJsonResults(json, restUrl);

@@ -17,8 +17,6 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 

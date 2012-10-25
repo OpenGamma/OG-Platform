@@ -5,35 +5,102 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.description;
 
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Triple;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Object representing a one point sensitivity to a forward curve. The underlying is a Pair of a Triple and a Double. 
- * The Triple represents the reference point as the start time, end time and accrual factor; the Double is the value at that point.
+ * Object representing the sensitivity to a forward curve at a reference point (start time, end time, accrual factor).
  */
 public class MarketForwardSensitivity {
-
-  /**
-   * The point and value Pair.
-   */
-  private final ObjectsPair<Triple<Double, Double, Double>, Double> _underlying;
+  private final double _startTime;
+  private final double _endTime;
+  private final double _accrualFactor;
+  private final double _value;
 
   /**
    * Constructor
-   * @param point The pair.
+   * @param startTime The start time
+   * @param endTime The end time, must be after the start time
+   * @param accrualFactor The accrual factor
    * @param value The sensitivity value.
    */
-  public MarketForwardSensitivity(Triple<Double, Double, Double> point, Double value) {
-    _underlying = new ObjectsPair<Triple<Double, Double, Double>, Double>(point, value);
+  public MarketForwardSensitivity(final double startTime, final double endTime, final double accrualFactor, final double value) {
+    ArgumentChecker.isTrue(startTime < endTime, "Start time {} must be before the end time {}", startTime, endTime);
+    _startTime = startTime;
+    _endTime = endTime;
+    _accrualFactor = accrualFactor;
+    _value = value;
   }
 
-  public Triple<Double, Double, Double> getPoint() {
-    return _underlying.first;
+  /**
+   * Gets the start time
+   * @return The start time
+   */
+  public double getStartTime() {
+    return _startTime;
   }
 
-  public Double getValue() {
-    return _underlying.second;
+  /**
+   * Gets the end time
+   * @return The end time
+   */
+  public double getEndTime() {
+    return _endTime;
+  }
+
+  /**
+   * Gets the accrual factor
+   * @return The accrual factor
+   */
+  public double getAccrualFactor() {
+    return _accrualFactor;
+  }
+
+  /**
+   * Gets the value
+   * @return The value
+   */
+  public double getValue() {
+    return _value;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_accrualFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_endTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_startTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_value);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof MarketForwardSensitivity)) {
+      return false;
+    }
+    final MarketForwardSensitivity other = (MarketForwardSensitivity) obj;
+    if (Double.compare(_startTime, other._startTime) != 0) {
+      return false;
+    }
+    if (Double.compare(_endTime, other._endTime) != 0) {
+      return false;
+    }
+    if (Double.compare(_accrualFactor, other._accrualFactor) != 0) {
+      return false;
+    }
+    if (Double.compare(_value, other._value) != 0) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -15,11 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergFXForwardScaleResolver;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -117,12 +117,16 @@ public class BloombergRateClassifier {
     switch(bbgFwdScale) {
       case 0:
         return 1;
+      case 1:
+        return 10;
       case 2: 
         return 100;
+      case 3: 
+        return 1000;
       case 4:
         return 10000;
       default:
-        s_logger.warn("Unable to handle forward scale {}; can only normalize 0, 2 and 4", bbgFwdScale);
+        s_logger.warn("Unable to handle forward scale {}", bbgFwdScale);
         return null;
     }
   }

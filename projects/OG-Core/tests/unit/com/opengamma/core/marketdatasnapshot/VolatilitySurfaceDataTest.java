@@ -5,17 +5,18 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -39,25 +40,36 @@ public class VolatilitySurfaceDataTest {
         vols[j][i] = k;
         xs[k] = xValues[i];
         ys[k] = yValues[j];
-        values.put(DoublesPair.of(xValues[i], yValues[j]), vols[j][i]);
+        values.put(Pair.of(xValues[i], yValues[j]), vols[j][i]);
       }
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
     final VolatilitySurfaceData<Double, Double> data = new VolatilitySurfaceData<Double, Double>(name, name, target, xs, ys, values);
-    AssertJUnit.assertArrayEquals(xs, data.getXs());
-    AssertJUnit.assertArrayEquals(ys, data.getYs());
-    AssertJUnit.assertArrayEquals(xValues, data.getUniqueXValues().toArray(new Double[xLength]));
+    final String xLabel = "time";
+    final String yLabel = "strike";
+    final VolatilitySurfaceData<Double, Double> dataWithLabels = new VolatilitySurfaceData<Double, Double>(name, name, target, xs, xLabel, ys, yLabel, values);
+    assertArrayEquals(xs, data.getXs());
+    assertArrayEquals(ys, data.getYs());
+    assertArrayEquals(xValues, data.getUniqueXValues().toArray(new Double[xLength]));
+    assertArrayEquals(xs, dataWithLabels.getXs());
+    assertArrayEquals(ys, dataWithLabels.getYs());
+    assertArrayEquals(xValues, dataWithLabels.getUniqueXValues().toArray(new Double[xLength]));
+    assertEquals("x", data.getXLabel());
+    assertEquals("y", data.getYLabel());
+    assertEquals(xLabel, dataWithLabels.getXLabel());
+    assertEquals(yLabel, dataWithLabels.getYLabel());
     int i = 0;
     for (Double x : data.getUniqueXValues()) {
       List<ObjectsPair<Double, Double>> strips = data.getYValuesForX(x);
-      strips.size();
+      List<ObjectsPair<Double, Double>> stripsWithLabels = dataWithLabels.getYValuesForX(x);
       int j = 0;
       for (ObjectsPair<Double, Double> strip : strips) {
-        AssertJUnit.assertEquals(yValues[j], strip.getFirst(), 0);
-        AssertJUnit.assertEquals(vols[j++][i], strip.getSecond(), 0);
+        assertEquals(yValues[j], strip.getFirst(), 0);
+        assertEquals(vols[j++][i], strip.getSecond(), 0);
       }
       i++;
+      assertEquals(strips, stripsWithLabels);
     }
   }
   
@@ -68,17 +80,17 @@ public class VolatilitySurfaceDataTest {
     final double[] vols = new double[] {10, 11, 12, 13, 14, 15, 16, 17, 18};    
     final Map<Pair<Double, Double>, Double> values = new HashMap<Pair<Double, Double>, Double>();
     for (int i = 0; i < xs.length; i++) {
-      values.put(DoublesPair.of(xs[i], ys[i]), vols[i]);
+      values.put(Pair.of(xs[i], ys[i]), vols[i]);
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
     final VolatilitySurfaceData<Double, Double> data = new VolatilitySurfaceData<Double, Double>(name, name, target, xs, ys, values);
-    AssertJUnit.assertArrayEquals(xs, data.getXs());
-    AssertJUnit.assertArrayEquals(ys, data.getYs());
-    AssertJUnit.assertArrayEquals(new Double[]{1., 2., 3., 4.}, data.getUniqueXValues().toArray(new Double[3]));
-    AssertJUnit.assertEquals(Arrays.asList(Pair.of(4., 10.), Pair.of(5., 11.), Pair.of(6., 12.)), data.getYValuesForX(1.));
-    AssertJUnit.assertEquals(Arrays.asList(Pair.of(4., 13.), Pair.of(5., 14.)), data.getYValuesForX(2.));
-    AssertJUnit.assertEquals(Arrays.asList(Pair.of(5., 15.), Pair.of(6., 16.), Pair.of(7., 17.)), data.getYValuesForX(3.));
-    AssertJUnit.assertEquals(Arrays.asList(Pair.of(8., 18.)), data.getYValuesForX(4.));
+    assertArrayEquals(xs, data.getXs());
+    assertArrayEquals(ys, data.getYs());
+    assertArrayEquals(new Double[]{1., 2., 3., 4.}, data.getUniqueXValues().toArray(new Double[3]));
+    assertEquals(Arrays.asList(Pair.of(4., 10.), Pair.of(5., 11.), Pair.of(6., 12.)), data.getYValuesForX(1.));
+    assertEquals(Arrays.asList(Pair.of(4., 13.), Pair.of(5., 14.)), data.getYValuesForX(2.));
+    assertEquals(Arrays.asList(Pair.of(5., 15.), Pair.of(6., 16.), Pair.of(7., 17.)), data.getYValuesForX(3.));
+    assertEquals(Arrays.asList(Pair.of(8., 18.)), data.getYValuesForX(4.));
   }
 }

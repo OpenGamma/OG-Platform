@@ -13,6 +13,8 @@ import java.util.Map;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
+import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
@@ -97,13 +99,13 @@ public class SumUtils {
       final DoubleLabelledMatrix3D previousMatrix = (DoubleLabelledMatrix3D) currentTotal;
       final DoubleLabelledMatrix3D currentMatrix = (DoubleLabelledMatrix3D) value;
       return previousMatrix.add(currentMatrix, 0.005, 0.005, 0.005);
-    } else if (value instanceof PaymentScheduleMatrix) {
-      final PaymentScheduleMatrix previousMatrix = (PaymentScheduleMatrix) currentTotal;
-      final PaymentScheduleMatrix currentMatrix = (PaymentScheduleMatrix) value;
+    } else if (value instanceof FixedPaymentMatrix) {
+      final FixedPaymentMatrix previousMatrix = (FixedPaymentMatrix) currentTotal;
+      final FixedPaymentMatrix currentMatrix = (FixedPaymentMatrix) value;
       return previousMatrix.add(currentMatrix);
-    } else if (value instanceof ResetScheduleMatrix) {
-      final ResetScheduleMatrix previousMatrix = (ResetScheduleMatrix) currentTotal;
-      final ResetScheduleMatrix currentMatrix = (ResetScheduleMatrix) value;
+    } else if (value instanceof FloatingPaymentMatrix) {
+      final FloatingPaymentMatrix previousMatrix = (FloatingPaymentMatrix) currentTotal;
+      final FloatingPaymentMatrix currentMatrix = (FloatingPaymentMatrix) value;
       return previousMatrix.add(currentMatrix);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());

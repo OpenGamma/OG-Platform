@@ -60,7 +60,7 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueId uniqueId) {
+  public Security get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     Security security = _securities.get(uniqueId.getObjectId());
     if (security == null) {
@@ -70,7 +70,7 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
   }
 
   @Override
-  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     Security security = _securities.get(objectId);
@@ -81,7 +81,7 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
+  public Collection<Security> get(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
@@ -93,13 +93,13 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     // Versioning not supported
-    return getSecurities(bundle);
+    return get(bundle);
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle bundle) {
+  public Security getSingle(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
@@ -112,9 +112,9 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
   }
   
   @Override
-  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     // Versioning not supported
-    return getSecurity(bundle);
+    return getSingle(bundle);
   }
 
   @Override
@@ -151,7 +151,7 @@ public class MockFinancialSecuritySource extends AbstractSecuritySource implemen
     if (prev != security) {
       throw new IllegalArgumentException("Security passed was not the one in this source");
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, security.getUniqueId(), null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, security.getUniqueId().getObjectId(), null, null, Instant.now());
   }
 
   

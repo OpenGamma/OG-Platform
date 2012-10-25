@@ -5,29 +5,32 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.masterdb.schema.SchemaVersionUtils;
 import com.opengamma.util.ArgumentChecker;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import com.opengamma.util.db.tool.DbSchemaVersionUtils;
 
 /**
  * Base component factory for all {@link AbstractDbMaster} implementations.
  */
 @BeanDefinition
 public abstract class AbstractDbMasterComponentFactory extends AbstractComponentFactory {
+  
+  private static final String SCHEMA_VERSION_PATH = "com/opengamma/masterdb/schema";
   
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterComponentFactory.class);
   
@@ -40,7 +43,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   //-------------------------------------------------------------------------
   protected void checkSchemaVersion(int actualSchemaVersion, String schemaName) {
     ArgumentChecker.notNull(schemaName, "schemaName");
-    Integer expectedSchemaVersion = SchemaVersionUtils.readSchemaVersion(schemaName);
+    Integer expectedSchemaVersion = DbSchemaVersionUtils.readVersion(SCHEMA_VERSION_PATH, schemaName);
     if (expectedSchemaVersion == null) {
       s_logger.warn("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
       return;

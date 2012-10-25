@@ -41,16 +41,16 @@
   <target name="compile-src" depends="common.compile-src,compile-schema-versions" description="compile all source code" />
   
   <target name="compile-schema-versions" description="compiles schema version metadata">
-    <taskdef name="schemaversiontool" classname="com.opengamma.masterdb.schema.SchemaVersionTool">
+    <taskdef name="schemaversiontask" classname="com.opengamma.util.db.tool.SchemaVersionTask">
       <classpath>
         <path refid="lib.path.id" />
         <pathelement path="${classes.dir}" />
       </classpath>
     </taskdef>
-    <schemaversiontool dbScriptDir="${basedir}" outputDir="${src.dir}" />
+    <schemaversiontask dbScriptDir="${basedir}" outputDir="${src.dir}/com/opengamma/masterdb/schema" />
       <copy todir="${classes.dir}">
         <fileset dir="${src.dir}">
-          <include name="**/*_db" />
+          <include name="**/*.version" />
       </fileset>
     </copy>
   </target>

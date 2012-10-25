@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 
@@ -39,17 +40,26 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
 
   /**
    * Creates an instance from a collection of documents.
-   * 
+   *
    * @param coll  the collection of documents to add, not null
    */
   public UserSearchResult(Collection<UserDocument> coll) {
     super(coll);
   }
 
+  /**
+   * Creates an instance specifying the version-correction searched for.
+   * 
+   * @param versionCorrection  the version-correction of the data, not null
+   */
+  public UserSearchResult(VersionCorrection versionCorrection) {
+    setVersionCorrection(versionCorrection);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the returned users from within the documents.
-   * 
+   *
    * @return the users, not null
    */
   public List<ManageableOGUser> getUsers() {
@@ -64,7 +74,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
 
   /**
    * Gets the first user, or null if no documents.
-   * 
+   *
    * @return the first user, null if none
    */
   public ManageableOGUser getFirstUser() {
@@ -76,7 +86,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
    * <p>
    * This throws an exception if more than 1 result is actually available.
    * Thus, this method implies an assumption about uniqueness of the queried user.
-   * 
+   *
    * @return the matching user, not null
    * @throws IllegalStateException if no user was found
    */

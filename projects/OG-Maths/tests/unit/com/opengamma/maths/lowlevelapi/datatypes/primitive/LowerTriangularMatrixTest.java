@@ -8,7 +8,6 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.maths.lowlevelapi.datatypes.primitive.LowerTriangularMatrix;
 
 /**
  * Tests the Upper Triangular matrix type

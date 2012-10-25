@@ -11,8 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.function.ParameterizedFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 

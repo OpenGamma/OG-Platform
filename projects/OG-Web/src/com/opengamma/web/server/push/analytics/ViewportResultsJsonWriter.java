@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.web.server.push.analytics.formatting.Formatter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
 /**
@@ -57,7 +56,7 @@ public class ViewportResultsJsonWriter {
         valueMap.put(VALUE, formattedValue);
         if (columnType == null) {
           // if the the column type isn't known then send the type with the value
-          valueMap.put(TYPE, getFormatType(cellValue).name());
+          valueMap.put(TYPE, _formatter.getFormatForValue(cellValue, cellValueSpec).name());
         }
         if (history != null) {
           valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
@@ -72,21 +71,6 @@ public class ViewportResultsJsonWriter {
     }
     ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(), DATA, results);
     return new JSONObject(resultsMap).toString();
-  }
-
-  /**
-   * Returns the {@link Formatter.FormatType format type} used for formatting a cell's value.
-   * @param cellValue The value, may be null
-   * @return The format type used for the value, non null
-   */
-  private Formatter.FormatType getFormatType(Object cellValue) {
-    Formatter.FormatType formatType;
-    if (cellValue == null) {
-      formatType = Formatter.FormatType.PRIMITIVE;
-    } else {
-      formatType = _formatter.getFormatType(cellValue.getClass());
-    }
-    return formatType;
   }
 
   /**

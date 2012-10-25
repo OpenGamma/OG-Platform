@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class describing a the sensitivity of a some value (present value, par rate, etc) to the family of yield curves.
+ * Class containing data describing the sensitivity of some analytic value (present value, par rate, etc.) to a family of yield curves.
  */
 public class InterestRateCurveSensitivity {
 
   /**
-   * The map containing the sensitivity. The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
+   * The map containing the sensitivity. The map links the curve name to a list of pairs of cash flow time and sensitivity value.
    */
   private final Map<String, List<DoublesPair>> _sensitivity;
 
@@ -36,8 +36,8 @@ public class InterestRateCurveSensitivity {
   }
 
   /**
-   * Constructor from a map of sensitivity.
-   * @param sensitivity The map.
+   * Constructor from a map of sensitivity. The map links the curve name to a list of pairs of cash flow time and sensitivity value.
+   * @param sensitivity The map, not null
    */
   public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
@@ -46,11 +46,13 @@ public class InterestRateCurveSensitivity {
 
   /**
    * Builder from a curve name and a list of sensitivities.
-   * @param name The name.
-   * @param sensitivityCurve The sensitivity as a list.
+   * @param name The name, not null
+   * @param sensitivityCurve The sensitivity as a list, not null
    * @return The interest rate curve sensitivity.
    */
-  public static InterestRateCurveSensitivity from(final String name, final List<DoublesPair> sensitivityCurve) {
+  public static InterestRateCurveSensitivity of(final String name, final List<DoublesPair> sensitivityCurve) {
+    ArgumentChecker.notNull(name, "Curve name");
+    ArgumentChecker.notNull(sensitivityCurve, "sensitivity");
     final HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
     ircs.put(name, sensitivityCurve);
     return new InterestRateCurveSensitivity(ircs);
@@ -78,6 +80,7 @@ public class InterestRateCurveSensitivity {
    * @return The total sensitivity.
    */
   public InterestRateCurveSensitivity plus(final InterestRateCurveSensitivity other) {
+    ArgumentChecker.notNull(other, "Curve sensitivity");
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
   }
 
@@ -88,6 +91,8 @@ public class InterestRateCurveSensitivity {
    * @return The total sensitivity.
    */
   public InterestRateCurveSensitivity plus(final String curveName, final List<DoublesPair> list) {
+    ArgumentChecker.notNull(curveName, "Curve name");
+    ArgumentChecker.notNull(list, "Sensitivity as list");
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, curveName, list));
   }
 
@@ -96,10 +101,13 @@ public class InterestRateCurveSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public InterestRateCurveSensitivity multiply(final double factor) {
+  public InterestRateCurveSensitivity multipliedBy(final double factor) {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 
+  //REVIEW emcleod 23/10/2012 These next two methods look like an argument for splitting this class into two, with
+  // the first acting more like a list (i.e. not allowing duplicate times) and the type that has been cleaned looking
+  // more like a set. Probably worth splitting the two.
   /**
    * Return a new sensitivity cleaned by sorting the times and adding the values at the duplicate times.
    * @return The cleaned sensitivity.
@@ -177,10 +185,7 @@ public class InterestRateCurveSensitivity {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof InterestRateCurveSensitivity)) {
       return false;
     }
     final InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;

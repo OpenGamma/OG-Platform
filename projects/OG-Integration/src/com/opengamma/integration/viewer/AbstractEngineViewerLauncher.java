@@ -15,9 +15,11 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.swingx.JXTreeTable;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -37,7 +39,7 @@ public abstract class AbstractEngineViewerLauncher extends SingleFrameApplicatio
     ViewClient viewClient = viewProcessor.createViewClient(user);
     PortfolioTreeTableModel treeTableModel = buildTreeTableModel();
     viewClient.setResultListener(treeTableModel);
-    viewClient.attachToViewProcess(viewProcessor.getViewDefinitionRepository().getDefinition("Equity Portfolio View").getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    viewClient.attachToViewProcess(viewProcessor.getConfigSource().getConfig(ViewDefinition.class, "Equity Portfolio View", VersionCorrection.LATEST).getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
 
     getMainFrame().setTitle("OpenGamma Viewer");
 

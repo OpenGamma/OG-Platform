@@ -15,9 +15,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.client.ViewResultMode;
-import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
-import com.opengamma.engine.view.listener.CycleStartedCall;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -26,6 +23,7 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
@@ -33,6 +31,8 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.util.test.Timeout;
 
 /**

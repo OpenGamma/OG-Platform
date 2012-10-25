@@ -5,7 +5,11 @@
  */
 package com.opengamma.masterdb.security.hibernate.forward;
 
-import static com.opengamma.masterdb.security.hibernate.Converters.*;
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
+import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import java.util.Date;
 

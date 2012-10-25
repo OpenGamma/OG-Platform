@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.equity.future.pricing;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given market price.
@@ -63,7 +63,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
   public double ratesDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
-    Validate.notNull(dataBundle.getMarketPrice());
+    Validate.notNull(dataBundle.getMarketPrice(), "_marketPrice must not be null");
     return future.getTimeToSettlement() * dataBundle.getMarketPrice() * future.getUnitAmount();
   }
 
@@ -75,5 +75,21 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
   @Override
   public double pv01(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     return ratesDelta(future, dataBundle) / 10000;
+  }
+
+  /**
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
+   * @return The spot price of the equity or index
+   */
+  @Override
+  public double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+    Validate.notNull(dataBundle.getSpotValue(), "Spot value has not been set in dataBundle of EquityFuture");
+    return dataBundle.getSpotValue();
+  }
+
+  @Override
+  public double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+    return dataBundle.getMarketPrice();
   }
 }

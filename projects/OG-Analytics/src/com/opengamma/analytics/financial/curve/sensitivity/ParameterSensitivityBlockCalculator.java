@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.curve.sensitivity;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
@@ -46,7 +46,7 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
     ArgumentChecker.notNull(bundle, "Curve bundle");
-    final HashMap<Pair<String, Currency>, DoubleMatrix1D> result = new HashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
     for (final Currency ccy : sensitivity.getCurrencies()) {
       for (final String curveName : sensitivity.getSensitivity(ccy).getSensitivities().keySet()) {
         if (!fixedCurves.contains(curveName)) {

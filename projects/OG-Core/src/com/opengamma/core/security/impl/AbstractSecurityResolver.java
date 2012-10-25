@@ -91,19 +91,19 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
   @Override
   public Security getSecurity(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return getSecuritySource().getSecurity(uniqueId);
+    return getSecuritySource().get(uniqueId);
   }
 
   @Override
   public Security getSecurity(ObjectId objectId) {
     ArgumentChecker.notNull(objectId, "objectId");
-    return getSecuritySource().getSecurity(objectId, getVersionCorrection());
+    return getSecuritySource().get(objectId, getVersionCorrection());
   }
 
   @Override
   public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    Collection<Security> securities = getSecuritySource().getSecurities(bundle, getVersionCorrection());
+    Collection<Security> securities = getSecuritySource().get(bundle, getVersionCorrection());
     if (securities.isEmpty()) {
       throw new DataNotFoundException("Security not found: " + bundle + " at " + getVersionCorrection());
     }

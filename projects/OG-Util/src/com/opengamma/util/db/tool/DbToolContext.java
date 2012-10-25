@@ -20,10 +20,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.core.io.Resource;
 
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
+import com.opengamma.util.db.script.DbScriptReader;
 
 /**
  * A standard context that is used to provide components to database tools.
@@ -47,15 +47,15 @@ public class DbToolContext extends DirectBean implements Closeable {
   @PropertyDefinition
   private String _catalog;
   /**
-   * The schema groups to be operated on.
+   * The database schema names on which to operate.
    */
   @PropertyDefinition
-  private Set<String> _schemaGroups;
+  private Set<String> _schemaNames;
   /**
-   * A resource pointing to the root of the database installation scripts.
+   * The database script reader.
    */
   @PropertyDefinition
-  private Resource _scriptsResource;
+  private DbScriptReader _scriptReader;
   
   @Override
   public void close() {
@@ -92,10 +92,10 @@ public class DbToolContext extends DirectBean implements Closeable {
         return getDbManagement();
       case 555704345:  // catalog
         return getCatalog();
-      case -1949073707:  // schemaGroups
-        return getSchemaGroups();
-      case 1948576054:  // scriptsResource
-        return getScriptsResource();
+      case -1026748889:  // schemaNames
+        return getSchemaNames();
+      case -1635446418:  // scriptReader
+        return getScriptReader();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -113,11 +113,11 @@ public class DbToolContext extends DirectBean implements Closeable {
       case 555704345:  // catalog
         setCatalog((String) newValue);
         return;
-      case -1949073707:  // schemaGroups
-        setSchemaGroups((Set<String>) newValue);
+      case -1026748889:  // schemaNames
+        setSchemaNames((Set<String>) newValue);
         return;
-      case 1948576054:  // scriptsResource
-        setScriptsResource((Resource) newValue);
+      case -1635446418:  // scriptReader
+        setScriptReader((DbScriptReader) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -133,8 +133,8 @@ public class DbToolContext extends DirectBean implements Closeable {
       return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
           JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
-          JodaBeanUtils.equal(getSchemaGroups(), other.getSchemaGroups()) &&
-          JodaBeanUtils.equal(getScriptsResource(), other.getScriptsResource());
+          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames()) &&
+          JodaBeanUtils.equal(getScriptReader(), other.getScriptReader());
     }
     return false;
   }
@@ -145,8 +145,8 @@ public class DbToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaGroups());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptsResource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptReader());
     return hash;
   }
 
@@ -227,52 +227,52 @@ public class DbToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the schema groups to be operated on.
+   * Gets the database schema names on which to operate.
    * @return the value of the property
    */
-  public Set<String> getSchemaGroups() {
-    return _schemaGroups;
+  public Set<String> getSchemaNames() {
+    return _schemaNames;
   }
 
   /**
-   * Sets the schema groups to be operated on.
-   * @param schemaGroups  the new value of the property
+   * Sets the database schema names on which to operate.
+   * @param schemaNames  the new value of the property
    */
-  public void setSchemaGroups(Set<String> schemaGroups) {
-    this._schemaGroups = schemaGroups;
+  public void setSchemaNames(Set<String> schemaNames) {
+    this._schemaNames = schemaNames;
   }
 
   /**
-   * Gets the the {@code schemaGroups} property.
+   * Gets the the {@code schemaNames} property.
    * @return the property, not null
    */
-  public final Property<Set<String>> schemaGroups() {
-    return metaBean().schemaGroups().createProperty(this);
+  public final Property<Set<String>> schemaNames() {
+    return metaBean().schemaNames().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets a resource pointing to the root of the database installation scripts.
+   * Gets the database script reader.
    * @return the value of the property
    */
-  public Resource getScriptsResource() {
-    return _scriptsResource;
+  public DbScriptReader getScriptReader() {
+    return _scriptReader;
   }
 
   /**
-   * Sets a resource pointing to the root of the database installation scripts.
-   * @param scriptsResource  the new value of the property
+   * Sets the database script reader.
+   * @param scriptReader  the new value of the property
    */
-  public void setScriptsResource(Resource scriptsResource) {
-    this._scriptsResource = scriptsResource;
+  public void setScriptReader(DbScriptReader scriptReader) {
+    this._scriptReader = scriptReader;
   }
 
   /**
-   * Gets the the {@code scriptsResource} property.
+   * Gets the the {@code scriptReader} property.
    * @return the property, not null
    */
-  public final Property<Resource> scriptsResource() {
-    return metaBean().scriptsResource().createProperty(this);
+  public final Property<DbScriptReader> scriptReader() {
+    return metaBean().scriptReader().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -301,16 +301,16 @@ public class DbToolContext extends DirectBean implements Closeable {
     private final MetaProperty<String> _catalog = DirectMetaProperty.ofReadWrite(
         this, "catalog", DbToolContext.class, String.class);
     /**
-     * The meta-property for the {@code schemaGroups} property.
+     * The meta-property for the {@code schemaNames} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<String>> _schemaGroups = DirectMetaProperty.ofReadWrite(
-        this, "schemaGroups", DbToolContext.class, (Class) Set.class);
+    private final MetaProperty<Set<String>> _schemaNames = DirectMetaProperty.ofReadWrite(
+        this, "schemaNames", DbToolContext.class, (Class) Set.class);
     /**
-     * The meta-property for the {@code scriptsResource} property.
+     * The meta-property for the {@code scriptReader} property.
      */
-    private final MetaProperty<Resource> _scriptsResource = DirectMetaProperty.ofReadWrite(
-        this, "scriptsResource", DbToolContext.class, Resource.class);
+    private final MetaProperty<DbScriptReader> _scriptReader = DirectMetaProperty.ofReadWrite(
+        this, "scriptReader", DbToolContext.class, DbScriptReader.class);
     /**
      * The meta-properties.
      */
@@ -319,8 +319,8 @@ public class DbToolContext extends DirectBean implements Closeable {
         "dbConnector",
         "dbManagement",
         "catalog",
-        "schemaGroups",
-        "scriptsResource");
+        "schemaNames",
+        "scriptReader");
 
     /**
      * Restricted constructor.
@@ -337,10 +337,10 @@ public class DbToolContext extends DirectBean implements Closeable {
           return _dbManagement;
         case 555704345:  // catalog
           return _catalog;
-        case -1949073707:  // schemaGroups
-          return _schemaGroups;
-        case 1948576054:  // scriptsResource
-          return _scriptsResource;
+        case -1026748889:  // schemaNames
+          return _schemaNames;
+        case -1635446418:  // scriptReader
+          return _scriptReader;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -386,19 +386,19 @@ public class DbToolContext extends DirectBean implements Closeable {
     }
 
     /**
-     * The meta-property for the {@code schemaGroups} property.
+     * The meta-property for the {@code schemaNames} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<String>> schemaGroups() {
-      return _schemaGroups;
+    public final MetaProperty<Set<String>> schemaNames() {
+      return _schemaNames;
     }
 
     /**
-     * The meta-property for the {@code scriptsResource} property.
+     * The meta-property for the {@code scriptReader} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Resource> scriptsResource() {
-      return _scriptsResource;
+    public final MetaProperty<DbScriptReader> scriptReader() {
+      return _scriptReader;
     }
 
   }

@@ -27,10 +27,11 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link FXForwardSecurity}.
+ * A Hibernate bean representation of {@link FXForwardSecurity}.
  */
 @BeanDefinition
 public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
+
   @PropertyDefinition
   private ZonedDateTimeBean _forwardDate;
   @PropertyDefinition
@@ -45,7 +46,7 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   private double _receiveAmount;
   @PropertyDefinition
   private boolean _deliverInReceiveCurrency;
-  
+
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof NonDeliverableFXForwardSecurityBean)) {
@@ -62,7 +63,7 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
       .append(getRegion(), fxForward.getRegion())
       .isEquals();
   }
-  
+
   @Override
   public int hashCode() {
     return new HashCodeBuilder()

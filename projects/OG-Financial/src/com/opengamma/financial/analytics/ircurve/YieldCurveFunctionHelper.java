@@ -35,7 +35,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -65,7 +67,8 @@ public class YieldCurveFunctionHelper {
       s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+        /* TODO Rather than VersionCorrection.LATEST it should take the actual VersionCorrection from the ViewComputationJob. Currenly Engine is not supprting that*/ 
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
       } else {
         s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
       }

@@ -15,6 +15,7 @@
     <dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0["/>
     <dependency org="org.joda" name="joda-beans" rev="0.6"/>
     <dependency org="org.joda" name="joda-convert" rev="1.2"/>
+    <dependency org="com.opengamma" name="elsql" rev="0.7"/>
     <dependency org="org.testng" name="testng" rev="6.3.1"/>
     <dependency org="org.slf4j" name="slf4j" rev="1.5.11" conf="*->core,jcl-migration,log4j-migration"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.17"/>

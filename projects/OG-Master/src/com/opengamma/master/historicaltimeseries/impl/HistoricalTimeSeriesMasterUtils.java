@@ -184,4 +184,5 @@ public class HistoricalTimeSeriesMasterUtils {
     LocalDateDoubleTimeSeries ts = new ListLocalDateDoubleTimeSeries(new LocalDate[] {date}, new double[] {value});
     return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, externalIdBundle, ts);
   }
+
 }

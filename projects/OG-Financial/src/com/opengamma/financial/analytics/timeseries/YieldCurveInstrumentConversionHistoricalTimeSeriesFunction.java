@@ -128,9 +128,8 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
         throw new OpenGammaRuntimeException("Could not get yield curve specification for curve named " + curveName + " with target " + target);
       }
       for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
-        final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(strip.getSecurity());
-        final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(strip.getSecurity(), definition, curveNamesForSecurity);
+        final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(strip.getSecurity(), definition);
         if (requirements == null) {
           throw new OpenGammaRuntimeException("Can't get time series requirements for " + strip + " on " + curveName);
         }

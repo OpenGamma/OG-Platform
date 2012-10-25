@@ -35,7 +35,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -45,9 +45,16 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleCurveFunctionConfiguration.class);
 
+  /**
+   * The config master.
+   */
   private ConfigMaster _configMaster;
+  /**
+   * The convention bundle source.
+   */
   @SuppressWarnings("unused")
   private ConventionBundleSource _conventionBundleSource; //TODO not sure if we'll need this in the future
 
@@ -67,9 +74,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
       // tightly coupled to the ConfigDbInterpolatedYieldCurveSource and MarketInstrumentImpliedYieldCurveFunction classes
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<YieldCurveDefinition>();
       searchRequest.setType(YieldCurveDefinition.class);
-
-      final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-      for (final ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(_configMaster, searchRequest)) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
         if (underscore <= 0) {

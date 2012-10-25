@@ -27,10 +27,11 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link FXForwardSecurity}.
+ * A Hibernate bean representation of {@link FXForwardSecurity}.
  */
 @BeanDefinition
 public class FXForwardSecurityBean extends SecurityBean {
+
   @PropertyDefinition
   private ZonedDateTimeBean _forwardDate;
   @PropertyDefinition
@@ -43,7 +44,7 @@ public class FXForwardSecurityBean extends SecurityBean {
   private CurrencyBean _receiveCurrency;
   @PropertyDefinition
   private double _receiveAmount;
-  
+
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof FXForwardSecurityBean)) {

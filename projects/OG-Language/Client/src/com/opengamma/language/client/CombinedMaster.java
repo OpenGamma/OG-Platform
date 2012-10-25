@@ -12,19 +12,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.master.AbstractDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.AbstractSearchResult;
 
 /**
  * A 'master' combined from the session, user and global masters.
- * 
+ *
  * @param <D> master document type
  * @param <M> master type
  */
@@ -186,18 +186,18 @@ import com.opengamma.master.AbstractSearchResult;
   }
 
   @Override
-  public void remove(final UniqueId uniqueId) {
-    final M master = getMasterByScheme(uniqueId.getScheme());
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    final M master = getMasterByScheme(objectIdentifiable.getObjectId().getScheme());
     if (master != null) {
-      master.remove(uniqueId);
+      master.remove(objectIdentifiable);
     }
     (new Try<Void>() {
       @Override
       public Void tryMaster(final M master) {
-        master.remove(uniqueId);
+        master.remove(objectIdentifiable);
         return null;
       }
-    }).each(uniqueId.getScheme());
+    }).each(objectIdentifiable.getObjectId().getScheme());
   }
 
   @Override
@@ -213,13 +213,13 @@ import com.opengamma.master.AbstractSearchResult;
       }
     }).each(document.getUniqueId().getScheme());
   }
-  
+
   public interface SearchCallback<D> extends Comparator<D> {
 
     /**
      * Returns true to include the document in the callback results, false
      * to suppress it.
-     * 
+     *
      * @param document document to consider, not null
      * @return whether to include the document
      */
@@ -228,7 +228,7 @@ import com.opengamma.master.AbstractSearchResult;
     /**
      * Passes a document to the callback. Only documents that were accepted by
      * {@link #include} should be passed.
-     * 
+     *
      * @param document document to consider, not null
      * @param master the master that sourced the document, not null
      * @param masterUnique true if this comparator did not make the document
@@ -237,9 +237,9 @@ import com.opengamma.master.AbstractSearchResult;
      *        equal to any other document from the masters on this client
      */
     void accept(D document, MasterID master, boolean masterUnique, boolean clientUnique);
-    
+
   }
-  
+
   private D next(final Iterator<D> itr, final SearchCallback<D> callback) {
     while (itr.hasNext()) {
       final D element = itr.next();
@@ -393,6 +393,76 @@ import com.opengamma.master.AbstractSearchResult;
         }
       }
     } while (true);
+  }
+
+  @Override
+  public final List<UniqueId> replaceVersion(final UniqueId uniqueId, final List<D> replacementDocuments) {
+    final String scheme = uniqueId.getScheme();
+    final M master = getMasterByScheme(scheme);
+    if (master != null) {
+      return master.replaceVersion(uniqueId, replacementDocuments);
+    }
+    return (new Try<List<UniqueId>>() {
+      @Override
+      public List<UniqueId> tryMaster(final M master) {
+        return master.replaceVersion(uniqueId, replacementDocuments);
+      }
+    }).each(scheme);
+  }
+
+  @Override
+  public final List<UniqueId> replaceAllVersions(final ObjectIdentifiable objectId, final List<D> replacementDocuments) {
+    final String scheme = objectId.getObjectId().getScheme();
+    final M master = getMasterByScheme(scheme);
+    if (master != null) {
+      return master.replaceAllVersions(objectId, replacementDocuments);
+    }
+    return (new Try<List<UniqueId>>() {
+      @Override
+      public List<UniqueId> tryMaster(final M master) {
+        return master.replaceAllVersions(objectId, replacementDocuments);
+      }
+    }).each(scheme);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(final ObjectIdentifiable objectId, final List<D> replacementDocuments) {
+    final String scheme = objectId.getObjectId().getScheme();
+    final M master = getMasterByScheme(scheme);
+    if (master != null) {
+      return master.replaceVersions(objectId, replacementDocuments);
+    }
+    return (new Try<List<UniqueId>>() {
+      @Override
+      public List<UniqueId> tryMaster(final M master) {
+        return master.replaceVersions(objectId, replacementDocuments);
+      }
+    }).each(scheme);
+  }
+
+  @Override
+  public final void removeVersion(final UniqueId uniqueId) {
+    replaceVersion(uniqueId, Collections.<D>emptyList());
+  }
+
+  @Override
+  public final UniqueId replaceVersion(D replacementDocument) {
+    List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+  @Override
+  public final UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
+    List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
   }
 
 }

@@ -8,7 +8,6 @@ package com.opengamma.bbg.loader;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -28,8 +27,8 @@ import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesInfoSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 
@@ -74,7 +73,7 @@ public class BloombergTimeSeriesIdentifiersUpdater {
    */
   public void run() {
     // fetch the documents to update
-    List<HistoricalTimeSeriesInfoDocument> documents = getCurrentTimeSeriesDocuments();
+    Iterable<HistoricalTimeSeriesInfoDocument> documents = getCurrentTimeSeriesDocuments();
     
     // find the BUIDs
     Map<ExternalId, HistoricalTimeSeriesInfoDocument> buidDocMap = extractBuids(documents);
@@ -96,11 +95,10 @@ public class BloombergTimeSeriesIdentifiersUpdater {
    * 
    * @return the current documents, not null
    */
-  private List<HistoricalTimeSeriesInfoDocument> getCurrentTimeSeriesDocuments() {
+  private Iterable<HistoricalTimeSeriesInfoDocument> getCurrentTimeSeriesDocuments() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
-    HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(request);
-    return searchResult.getDocuments();
+    return HistoricalTimeSeriesInfoSearchIterator.iterable(_htsMaster, request);
   }
 
   //-------------------------------------------------------------------------
@@ -110,7 +108,7 @@ public class BloombergTimeSeriesIdentifiersUpdater {
    * @param documents  the documents, not null
    * @return the map of BIUD to unique identifier, not null
    */
-  private Map<ExternalId, HistoricalTimeSeriesInfoDocument> extractBuids(List<HistoricalTimeSeriesInfoDocument> documents) {
+  private Map<ExternalId, HistoricalTimeSeriesInfoDocument> extractBuids(Iterable<HistoricalTimeSeriesInfoDocument> documents) {
     Map<ExternalId, HistoricalTimeSeriesInfoDocument> buids = Maps.newHashMap();
     for (HistoricalTimeSeriesInfoDocument doc : documents) {
       ExternalIdBundleWithDates identifierBundleWithDates = doc.getInfo().getExternalIdBundle();

@@ -5,13 +5,18 @@
  */
 package com.opengamma.util.beancompare;
 
-import com.google.common.collect.ImmutableList;
-import com.opengamma.util.ArgumentChecker;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Compares two Joda beans of the same class and returns details of any differences.
@@ -34,11 +39,13 @@ public class BeanCompare {
    * Creates a new instance which uses the {@link java.util.Comparator} instances in {@code propertyComparators}
    * and {@code typeComparators} when comparing bean property values.  If there is no comparator for the property or
    * type being compared the default comparison logic is used.
-   * @param propertyComparators Comparators used for comparing properties keyed by the property they apply to
-   * @param typeComparators Comparators used for comparing properties keyed by the type they apply to
+   * 
+   * @param propertyComparators  comparators used for comparing properties keyed by the property they apply to
+   * @param typeComparators  comparators used for comparing properties keyed by the type they apply to
    */
-  public BeanCompare(Map<MetaProperty<?>, Comparator<Object>> propertyComparators,
-                     Map<Class<?>, Comparator<Object>> typeComparators) {
+  public BeanCompare(
+      Map<MetaProperty<?>, Comparator<Object>> propertyComparators,
+      Map<Class<?>, Comparator<Object>> typeComparators) {
     ArgumentChecker.notNull(propertyComparators, "propertyComparators");
     ArgumentChecker.notNull(typeComparators, "typeComparators");
     _propertyComparators = propertyComparators;
@@ -46,12 +53,13 @@ public class BeanCompare {
   }
 
   /**
-   * Compares two beans of the same class and returns details of any differences.  If any of the bean properties
-   * are beans themselves they are compared recursively.
-   * @param bean1 A bean, not null
-   * @param bean2 Another bean of the same type, not null
-   * @return The differences between the beans or an empty list if they are identical
-   * @throws IllegalArgumentException If the beans' classes are different
+   * Compares two beans of the same class and returns details of any differences.
+   * If any of the bean properties* are beans themselves they are compared recursively.
+   * 
+   * @param bean1  the first bean, not null
+   * @param bean2  the second bbean of the same type, not null
+   * @return the differences between the beans or an empty list if they are identical
+   * @throws IllegalArgumentException if the beans' classes are different
    */
   public List<BeanDifference<?>> compare(Bean bean1, Bean bean2) {
     ArgumentChecker.notNull(bean1, "bean1");
@@ -63,10 +71,13 @@ public class BeanCompare {
     return compare(bean1, bean2, Collections.<MetaProperty<?>>emptyList());
   }
 
-    /**
-    * @param path Properties required to get from the root beans to the current beans, an empty list if the current
-    * beans are the root beans
-    */
+  
+  /**
+   * Compares two beans.
+   * 
+   * @param path  the properties required to get from the root beans to the current beans, an
+   *  empty list if the current beans are the root beans
+   */
   private List<BeanDifference<?>> compare(Bean bean1, Bean bean2, List<MetaProperty<?>> path) {
     Iterable<MetaProperty<?>> properties = bean1.metaBean().metaPropertyIterable();
     List<BeanDifference<?>> differences = new ArrayList<BeanDifference<?>>();
@@ -87,14 +98,15 @@ public class BeanCompare {
   }
 
   /**
-   * Returns {@code true} if the two values of a property are equal.  If there is a custom comparator for
-   * {@code property} it is used for the comparison, otherwise the default comparison logic is used to compare the
+   * Checks if two values of a property are equal. If there is a custom comparator for {@code property} it
+   * is used for the comparison, otherwise the default comparison logic is used to compare the
    * values ({@link org.joda.beans.JodaBeanUtils#equal(Object, Object)}.
-   * @param property The property whose values are being tested for equality
-   * @param value1 A property value
-   * @param value2 Another property value
-   * @return {@code true} if the values are equal according to the comparator for {@code property} or
-   * {@link org.joda.beans.JodaBeanUtils#equal(Object, Object)} if there is no comparator for the property
+   * 
+   * @param property  the property whose values are being tested for equality
+   * @param value1  the first property value
+   * @param value2  the second property value
+   * @return true if the values are equal according to the comparator for {@code property} or
+   *  {@link org.joda.beans.JodaBeanUtils#equal(Object, Object)} if there is no comparator for the property
    */
   private boolean equal(MetaProperty<?> property, Object value1, Object value2) {
     Comparator<Object> comparator = _propertyComparators.get(property);
@@ -111,4 +123,5 @@ public class BeanCompare {
   private static boolean sameClass(Object value1, Object value2) {
     return value1.getClass().equals(value2.getClass());
   }
+
 }

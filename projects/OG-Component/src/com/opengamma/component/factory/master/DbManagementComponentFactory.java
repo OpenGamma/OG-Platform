@@ -6,23 +6,24 @@
 package com.opengamma.component.factory.master;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Component factory for a {@link DbManagement} instance.
@@ -58,8 +59,15 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   }
   
   protected DbManagement initDbManagement(ComponentRepository repo) {
-    DbManagement dbManangement = DbManagementUtils.getDbManagement(getJdbcUrl());
-    dbManangement.initialise(getJdbcUrl(), getUsername(), getPassword());
+    // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
+    int lastSlashIdx = getJdbcUrl().lastIndexOf("/");
+    if (lastSlashIdx == -1) {
+      throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");
+    }
+    String dbHost = getJdbcUrl().substring(0, lastSlashIdx);
+    
+    DbManagement dbManangement = DbManagementUtils.getDbManagement(dbHost);
+    dbManangement.initialise(dbHost, getUsername(), getPassword());
     ComponentInfo info = new ComponentInfo(DbManagement.class, getClassifier());
     repo.registerComponent(info, dbManangement);
     return dbManangement;

@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.integration.Integrator1D;
-import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 
 public class RungeKuttaIntegrator1DTest {
 

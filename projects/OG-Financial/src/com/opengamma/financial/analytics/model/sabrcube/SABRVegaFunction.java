@@ -118,13 +118,10 @@ public abstract class SABRVegaFunction extends SABRFunction {
     final double nu = nuSensitivity.getValues()[0][0];
     final double rho = rhoSensitivity.getValues()[0][0];
     final InterpolatedDoublesSurface alphaSurface = data.getSABRParameter().getAlphaSurface();
-    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> alphaDataBundle = (Map<Double, Interpolator1DDataBundle>) alphaSurface.getInterpolatorData();
     final InterpolatedDoublesSurface nuSurface = data.getSABRParameter().getNuSurface();
-    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> nuDataBundle = (Map<Double, Interpolator1DDataBundle>) nuSurface.getInterpolatorData();
     final InterpolatedDoublesSurface rhoSurface = data.getSABRParameter().getRhoSurface();
-    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
     final String xInterpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);

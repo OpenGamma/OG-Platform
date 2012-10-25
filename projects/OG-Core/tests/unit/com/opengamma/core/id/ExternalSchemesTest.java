@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 
 /**

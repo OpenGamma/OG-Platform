@@ -77,7 +77,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.CURVE;
   }
 }

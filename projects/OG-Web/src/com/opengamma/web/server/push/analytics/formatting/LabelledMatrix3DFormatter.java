@@ -21,11 +21,11 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   @Override
   public Object formatForExpandedDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
     // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.LABELLED_MATRIX_3D;
   }
 }

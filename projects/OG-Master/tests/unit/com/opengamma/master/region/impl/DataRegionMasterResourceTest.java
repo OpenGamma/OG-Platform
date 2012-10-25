@@ -64,7 +64,7 @@ public class DataRegionMasterResourceTest {
   public void testFindRegion() {
     DataRegionResource test = _resource.findRegion("Test~A");
     assertSame(_resource, test.getRegionsResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlRegionId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }

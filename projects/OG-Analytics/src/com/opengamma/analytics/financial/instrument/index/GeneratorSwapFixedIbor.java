@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -90,7 +91,6 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
-    //    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
     _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
     _spotLag = spotLag;
@@ -161,9 +161,24 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
   }
 
   @Override
+  /**
+   * The effective date is date+_spotLag. The maturity date is effective date+tenor.
+   */
   public SwapFixedIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
     return SwapFixedIborDefinition.from(startDate, tenor, this, notional, fixedRate, true);
+  }
+
+  @Override
+  /**
+   * The effective date is spot+startTenor. The maturity date is effective date + endTenor
+   */
+  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double fixedRate, double notional, Object... objects) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex);
+    return SwapFixedIborDefinition.from(startDate, endTenor, this, notional, fixedRate, true);
   }
 
   @Override

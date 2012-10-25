@@ -10,11 +10,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.Matrix;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
-
 /**
  * 
  */

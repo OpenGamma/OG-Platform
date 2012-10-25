@@ -11,14 +11,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,17 +25,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
 
 public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
@@ -49,21 +42,19 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   private ISDAApproxCDSPriceFlatSpreadFunction testItem;
 
   @BeforeClass
-  public static void initBeforeClass()
-  {
+  public static void initBeforeClass() {
     securitySource = new MockSecuritySource();
     functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
     final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
     functionCompilationContext.setComputationTargetResolver(targetResolver);
-    
+
     CDS_SECURITY.setUniqueId(UniqueId.of("dummy_scheme", "dummy_value"));
   }
 
   @BeforeMethod
-  public void beforeEachMethod()
-  {
+  public void beforeEachMethod() {
     testItem = new ISDAApproxCDSPriceFlatSpreadFunction();
   }
 
@@ -92,22 +83,21 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   @Test
   public void getRequirements() {
-    
+
     ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, ComputationTargetType.SECURITY, CDS_SECURITY.getUniqueId(),
-        ValueProperties
-          .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
-          .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
-          .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-          .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
-          .get());
-    
+      ValueProperties
+        .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
+        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
+        .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
+        .get());
+
     Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), requirement);
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 2);
 
     TreeSet<String> r = new TreeSet<String>();
-    for (ValueRequirement valueRequirement : result)
-    {
+    for (ValueRequirement valueRequirement : result) {
       r.add(valueRequirement.toString());
     }
 

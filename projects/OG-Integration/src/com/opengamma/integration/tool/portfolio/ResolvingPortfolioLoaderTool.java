@@ -10,11 +10,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import com.opengamma.component.tool.AbstractTool;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;

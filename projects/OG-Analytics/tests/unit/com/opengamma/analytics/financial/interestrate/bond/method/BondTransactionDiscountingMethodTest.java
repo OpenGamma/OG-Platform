@@ -27,7 +27,6 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -171,7 +170,7 @@ public class BondTransactionDiscountingMethodTest {
     final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
     final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FIXED_3, CURVES));
-    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multiply(QUANTITY_FRN).plus(pvsSettlement).cleaned();
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("Fixed bond present value sensitivity", expectedPvs, pvs.cleaned());
   }
 
@@ -203,7 +202,7 @@ public class BondTransactionDiscountingMethodTest {
     final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
     final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FRN, CURVES));
-    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multiply(QUANTITY_FRN).plus(pvsSettlement).cleaned();
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("FRN present value sensitivity", expectedPvs, pvs.cleaned());
   }
 }

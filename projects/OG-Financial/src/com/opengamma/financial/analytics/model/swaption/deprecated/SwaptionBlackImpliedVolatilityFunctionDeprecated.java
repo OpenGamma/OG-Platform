@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackImpliedVolatilityFunction;
 
 /**
  * Function to compute the implied volatility for physical delivery swaptions in the Black model.

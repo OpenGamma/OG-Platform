@@ -1,17 +1,21 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.master.config.impl;
 
-import java.util.ArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.opengamma.util.functional.Functional.functional;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-import javax.time.Instant;
-
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -22,7 +26,6 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.paging.PagingRequest;
 
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.
@@ -47,8 +50,13 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   private volatile VersionCorrection _versionCorrection;
 
   /**
+   * The change manager.
+   */
+  private ChangeManager _changeManager = new BasicChangeManager();
+
+  /**
    * Creates an instance with an underlying config master which does not override versions.
-   * 
+   *
    * @param configMaster  the config master, not null
    */
   public MasterConfigSource(final ConfigMaster configMaster) {
@@ -57,7 +65,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Creates an instance with an underlying config master optionally overriding the requested version.
-   * 
+   *
    * @param configMaster  the config master, not null
    * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
@@ -70,7 +78,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying config master.
-   * 
+   *
    * @return the config master, not null
    */
   public ConfigMaster getMaster() {
@@ -79,7 +87,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * Gets the version-correction locator to search at.
-   * 
+   *
    * @return the version-correction locator to search at, null if not overriding versions
    */
   public VersionCorrection getVersionCorrection() {
@@ -87,8 +95,28 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   /**
+   * Gets the change manager.
+   *
+   * @return the change manager, not null
+   */
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+
+  /**
+   * Sets the change manager.
+   *
+   * @param changeManager  the change manager, not null
+   */
+  public void setChangeManager(final ChangeManager changeManager) {
+    ArgumentChecker.notNull(changeManager, "changeManager");
+    _changeManager = changeManager;
+  }
+
+  /**
    * Sets the version-correction locator to search at.
-   * 
+   *
    * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
   @Override
@@ -99,124 +127,90 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   //-------------------------------------------------------------------------
   /**
    * Search for configuration elements using a request object.
-   * 
-   * @param <T>  the type of configuration element
+   *
+   * @param <R>  the type of configuration element
    * @param request  the request object with value for search fields, not null
    * @return all configuration elements matching the request, not null
    */
-  public <T> List<T> search(final ConfigSearchRequest<T> request) {
+  public <R> List<ConfigItem<R>> search(final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
     request.setVersionCorrection(getVersionCorrection());
-    
-    ConfigSearchResult<T> searchResult = getMaster().search(request);
-    List<ConfigDocument<T>> documents = searchResult.getDocuments();
-    List<T> result = new ArrayList<T>();
-    for (ConfigDocument<T> configDocument : documents) {
-      result.add(configDocument.getValue());
-    }
-    return result;
-  }
-
-  @Override
-  public <T> T getConfig(final Class<T> clazz, final UniqueId uniqueId) {
-    return getDocument(clazz, uniqueId).getValue();
-  }
-
-  @Override
-  public <T> T getConfig(final Class<T> clazz, final ObjectId objectId, VersionCorrection versionCorrection) {
-    return getDocument(clazz, objectId, versionCorrection).getValue();
-  }
-
-  @Override
-  public <T> Collection<? extends T> getConfigs(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(configName, "configName");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    
-    ConfigSearchResult<T> searchResult = searchDocuments(clazz, configName, versionCorrection);
+    ConfigSearchResult<R> searchResult = getMaster().search(request);
     return searchResult.getValues();
   }
 
-  protected <T> ConfigSearchResult<T> searchDocuments(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigSearchRequest<T> request = new ConfigSearchRequest<T>();
-    request.setVersionCorrection(versionCorrection);
-    request.setName(configName);
-    request.setType(clazz);
-    return getMaster().search(request);
-  }
-
-  @Override
-  public <T> T getLatestByName(final Class<T> clazz, final String name) {
-    return getByName(clazz, name, null);
-  }
-
-  @Override
-  public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
-    ConfigDocument<T> doc = getDocumentByName(clazz, name, versionAsOf);
-    return doc == null ? null : doc.getValue();
-  }
-
   //-------------------------------------------------------------------------
-  /**
-   * Gets a configuration document by unique identifier.
-   * 
-   * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param uniqueId  the unique identifier, not null
-   * @return the configuration document, null if not found
-   */
-  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueId uniqueId) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    VersionCorrection vc = getVersionCorrection(); // lock against change
-    if (vc != null) {
-      return getMaster().get(uniqueId, vc, clazz);
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+    ConfigItem<?> item = getMaster().get(uniqueId).getConfig();
+    if (clazz.isAssignableFrom(item.getType())) {
+      return (R) item.getValue();
     } else {
-      return getMaster().get(uniqueId, clazz);
+      return null;
     }
   }
 
-  /**
-   * Gets a configuration document by object identifier and version-correction.
-   * 
-   * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param objectId  the object identifier, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the configuration document, null if not found
-   */
-  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final ObjectId objectId, final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return getMaster().get(objectId, versionCorrection, clazz);
+  @Override
+  public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getMaster().get(objectId, versionCorrection).getConfig();
   }
 
-  /**
-   * Searches for a configuration document matching the specified name.
-   * <p>
-   * This will always return the latest correction of the version requested, ignoring any other version constraints
-   * of the implementation.
-   * 
-   * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param name  the element name to search for, wildcards allowed, not null
-   * @param versionAsOf  the version to fetch, null means latest
-   * @return the versioned configuration document matching the request, null if not found
-   */
-  public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(name, "name");
-    
-    ConfigSearchRequest<T> request = new ConfigSearchRequest<T>();
-    request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(versionAsOf));
-    request.setName(name);
-    request.setType(clazz);
-    
-    ConfigSearchResult<T> searchResult = getMaster().search(request);
-    return searchResult.getFirstDocument();
+  @Override
+  public ConfigItem<?> get(UniqueId uniqueId) {
+    return getMaster().get(uniqueId).getConfig();
+  }
+
+  @Override
+  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigItem<R> result = get(clazz, configName, versionCorrection);
+    if (result != null) {
+      return result.getValue();
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    ConfigItem<?> item = getMaster().get(objectId, versionCorrection).getConfig();
+    if (clazz.isAssignableFrom(item.getType())) {
+      return (R) item.getValue();
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
+    searchRequest.setName(configName);
+    searchRequest.setVersionCorrection(versionCorrection);
+    return functional(getMaster().search(searchRequest).getValues()).first();
+  }
+
+  @Override
+  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {    
+    ConfigSearchRequest<R> searchRequest = new ConfigSearchRequest<R>(clazz);
+    searchRequest.setType(clazz);
+    searchRequest.setVersionCorrection(versionCorrection);
+    return getMaster().search(searchRequest).getValues();
+  }
+
+  @Override
+  public <R> R getLatestByName(Class<R> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
+  }
+
+  @Override
+  public Map<UniqueId, ConfigItem<?>> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, ConfigDocument> result = getMaster().get(uniqueIds);
+    Map<UniqueId, ConfigItem<?>> map = newHashMap();
+    for (UniqueId uid : result.keySet()) {
+      map.put(uid, result.get(uid).getConfig());
+    }
+    return map;
   }
 
   //-------------------------------------------------------------------------
