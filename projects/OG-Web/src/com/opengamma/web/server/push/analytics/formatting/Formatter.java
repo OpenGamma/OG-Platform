@@ -44,7 +44,8 @@ public interface Formatter<T> {
 
   /**
    * Returns the format type for a value. If all values of a type can be formatted using the same formatter this
-   * should always return the same type as {@link #getFormatForType()}.
+   * should always return the same type as {@link #getFormatForType()}. This method should never return
+   * {@link FormatType#UNKNOWN}
    * @param value The value
    * @return The format type for the value
    */
