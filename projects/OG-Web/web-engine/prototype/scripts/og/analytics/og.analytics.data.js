@@ -19,7 +19,10 @@ $.register_module({
             var data_handler = function (result) {
                 data.busy(false);
                 if (!result || result.error)
-                    return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
+                    og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
+                if (result && result.error && server_error(result))
+                    return data.kill(), fire(data.events.fatal, result.message);
+                if (!result || result.error) return;
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 if (viewport && viewport.empty !== true && result.data.version === viewport_version)
                     try {fire(data.events.data, result.data.data);}
@@ -115,7 +118,7 @@ $.register_module({
                 if (result.error) return og.dev.warn(module.name + ': ' + result.message), result;
                 return (view_id = result.meta.id), grid_type ? structure_setup() : type_setup();
             };
-            var server_error = function (result) {return !result.message || ~result.message.indexOf('Status: 5');};
+            var server_error = function (result) {return +result.error >= 400;};
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);

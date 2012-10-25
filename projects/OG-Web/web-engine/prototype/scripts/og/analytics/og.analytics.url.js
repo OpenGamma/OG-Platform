@@ -51,17 +51,19 @@ $.register_module({
                         }).on('fatal', url.clear_main);
                     }
                     panels.forEach(function (panel) {
-                        var gadgets = config[panel];
-                        if (!gadgets) return (last_fingerprint[panel] = []), (last_object[panel] = []);
+                        var gadgets = config[panel], new_gadgets = [];
+                        if (!gadgets || !gadgets.length)
+                            return (last_fingerprint[panel] = []), (last_object[panel] = []);
                         if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
                         if (!last_object[panel]) last_object[panel] = [];
                         last_fingerprint[panel] = gadgets.map(function (gadget, index) {
-                            var current_gadget = JSON.stringify(gadget);
-                            last_object[panel][index] = JSON.parse(current_gadget);
-                            if (last_fingerprint[panel][index] === current_gadget) return current_gadget;
-                            og.analytics.containers[panel].add([gadget], index, current_gadget);
-                            return current_gadget;
+                            var fingerprint = JSON.stringify(gadget);
+                            last_object[panel][index] = JSON.parse(fingerprint);
+                            if (last_fingerprint[panel][index] === fingerprint) return fingerprint;
+                            gadget.fingerprint = fingerprint;
+                            return new_gadgets.push(gadget), fingerprint;
                         });
+                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets);
                     });
                     panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
                     if (handler) handler();

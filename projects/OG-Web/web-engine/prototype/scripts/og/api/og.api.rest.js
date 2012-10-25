@@ -144,7 +144,7 @@ $.register_module({
                         // re-send requests that have timed out only if the are GETs
                         if (error === 'timeout' && is_get) return send();
                         var result = {
-                            error: true, data: null, meta: {},
+                            error: xhr.status, data: null, meta: {content_length: xhr.responseText.length, url: url},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
@@ -154,11 +154,10 @@ $.register_module({
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
-                        var meta = {content_length: xhr.responseText.length},
+                        var meta = {content_length: xhr.responseText.length, url: url},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
-                        if (config.meta.type in no_post_body) meta.url = url;
                         result = {error: false, message: status, data: post_process(data, url), meta: meta};
                         if (cache_for = config.meta.cache_for)
                             cache_set(url, result), setTimeout(function () {cache_del(url);}, cache_for);
