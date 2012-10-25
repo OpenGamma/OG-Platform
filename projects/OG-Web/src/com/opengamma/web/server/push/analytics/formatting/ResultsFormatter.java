@@ -183,7 +183,7 @@ public class ResultsFormatter {
    * @param type The value type
    * @return The formatter used for formatting the type
    */
-  public Formatter.FormatType getColumnFormatType(Class<?> type) {
+  public Formatter.FormatType getFormatForType(Class<?> type) {
     return getFormatterForType(type).getFormatForType();
   }
 
@@ -194,7 +194,7 @@ public class ResultsFormatter {
    * @return The format type for the value, not null
    */
   @SuppressWarnings("unchecked")
-  public Formatter.FormatType getCellFormatType(Object value, ValueSpecification valueSpec) {
+  public Formatter.FormatType getFormatForValue(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).getFormatForValue(value);
   }
 }

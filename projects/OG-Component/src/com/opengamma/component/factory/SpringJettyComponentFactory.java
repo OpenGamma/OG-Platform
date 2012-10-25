@@ -67,7 +67,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       throw new IllegalStateException("Expected 1 Jetty server, but found " + beanNames.length);
     }
     Server server = appContext.getBean(beanNames[0], Server.class);
-    repo.registerInfrastructure(Server.class, "jetty", server);
+    repo.registerComponent(Server.class, "jetty", server);
     repo.registerLifecycle(new ServerLifecycle(server));
     
     RestComponents restComponents = repo.getRestComponents();

@@ -56,7 +56,7 @@ public class ViewportResultsJsonWriter {
         valueMap.put(VALUE, formattedValue);
         if (columnType == null) {
           // if the the column type isn't known then send the type with the value
-          valueMap.put(TYPE, _formatter.getCellFormatType(cellValue, cellValueSpec).name());
+          valueMap.put(TYPE, _formatter.getFormatForValue(cellValue, cellValueSpec).name());
         }
         if (history != null) {
           valueMap.put(HISTORY, formatHistory(cellValueSpec, history));

@@ -180,7 +180,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       mp.set(context, property(mp.name()).get());
     }
     context.setContextManager(repo);
-    repo.registerInfrastructure(ToolContext.class, getClassifier(), context);
+    repo.registerComponent(ToolContext.class, getClassifier(), context);
   }
 
   /**

@@ -5,11 +5,22 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a Standard recovery lock CDS i.e. with the features of CDS contracts post the Big Bang in 2009
+ * Definition of a Standard recovery lock CDS i.e. with the features of CDS contracts post the Big Bang in 2009 - WIP
  */
-/*
 public class StandardRecoveryLockCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
   //-----------------------------------------------------------------------------------------------
@@ -102,4 +113,3 @@ public class StandardRecoveryLockCreditDefaultSwapDefinition extends CreditDefau
 
   // -----------------------------------------------------------------------------------------------
 }
-*/

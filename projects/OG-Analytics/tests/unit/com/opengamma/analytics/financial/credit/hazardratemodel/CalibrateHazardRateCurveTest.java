@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -38,7 +38,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Class to test the implementation of the calibration of the hazard rate term structure
  */
-public class CalibrateHazardRateTest {
+public class CalibrateHazardRateCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ public class CalibrateHazardRateTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double premiumLegCoupon = 100.0;
+  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
   private static final boolean protectionStart = true;
@@ -284,7 +284,7 @@ public class CalibrateHazardRateTest {
       interestRate, interestRate, interestRate, interestRate, interestRate,
       interestRate, interestRate, interestRate, interestRate };
 
-  */
+   */
 
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
@@ -307,7 +307,7 @@ public class CalibrateHazardRateTest {
       (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
+  //private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -358,7 +358,7 @@ public class CalibrateHazardRateTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract 
-  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(
+  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -379,17 +379,61 @@ public class CalibrateHazardRateTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      premiumLegCoupon,
       recoveryRate,
       includeAccruedPremium,
-      protectionStart);
+      protectionStart,
+      parSpread);
 
-  // ---------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Test to demonstrate calibration of a survival curve to market data
+  // Test to demonstrate calibration of a hazard rate curve to a single tenor
 
   @Test
-  public void testSurvivalCurveCalibrationCreditDefaultSwap() {
+  public void testCalibrateHazardRateCurveSingleTenor() {
+
+    // -----------------------------------------------------------------------------------------------
+
+    final boolean outputResults = false;
+
+    if (outputResults) {
+      System.out.println("Running CDS Calibration test  ...");
+    }
+
+    // -----------------------------------------------------------------------------------------------
+
+    int numberOfCalibrationCDS = 1;
+
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    final double flatSpread = 550.0;
+    final double calibrationRecoveryRate = 0.40;
+
+    tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
+    marketSpreads[0] = flatSpread;
+
+    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
+    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
+
+    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
+
+    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+
+    if (outputResults) {
+      for (int i = 0; i < numberOfCalibrationCDS; i++) {
+        System.out.println(calibratedHazardRateTermStructure[i]);
+      }
+    }
+
+    // -----------------------------------------------------------------------------------------------
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data
+
+  @Test
+  public void testCalibrateHazardRateCurveFlatTermStructure() {
 
     // -------------------------------------------------------------------------------------
 
@@ -398,7 +442,7 @@ public class CalibrateHazardRateTest {
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running Baseline Survival Curve Calibration test ...");
+      System.out.println("Running Hazard Rate Curve Calibration test ...");
     }
 
     // -------------------------------------------------------------------------------------
@@ -440,7 +484,7 @@ public class CalibrateHazardRateTest {
     // -------------------------------------------------------------------------------------
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
-    CreditDefaultSwapDefinition calibrationCDS = cds;
+    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
@@ -448,7 +492,7 @@ public class CalibrateHazardRateTest {
     // -------------------------------------------------------------------------------------
 
     // Create a calibrate survival curve object
-    final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();
+    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
 
     // Calibrate the survival curve to the market observed par CDS spreads (returns survival probabilities as a vector of doubles)
     double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
@@ -463,21 +507,31 @@ public class CalibrateHazardRateTest {
 
   }
 
-  // ---------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Don't remove this code yet
+  // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data and recompute calibration CDS PV's
 
-  //@Test
-  public void testCalibrateSurvivalCurve() {
+  @Test
+  public void testCalibrateHazardRateCurveAndRepriceCalibrationCDS() {
+
+    // -----------------------------------------------------------------------------------------------
 
     final boolean outputResults = false;
 
-    int numberOfTenors = 10;
+    if (outputResults) {
+      System.out.println("Running CDS calibration and re-pricing test ...");
+    }
 
-    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfTenors];
+    // -----------------------------------------------------------------------------------------------
+  }
 
-    double[] marketSpreads = new double[numberOfTenors];
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
+  // Don't remove this code yet
+
+  public void testCalibrateHazardRateCurveData() {
+
+    /*
     // Set the tenors at which we have market observed par CDS spread quotes
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
@@ -489,7 +543,9 @@ public class CalibrateHazardRateTest {
     tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
+     */
 
+    /*
     // Flat (tight)
 
     marketSpreads[0] = 100.0;
@@ -503,6 +559,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 100.0;
     marketSpreads[9] = 100.0;
     //curveRecoveryRate = 0.40;
+     */
 
     // Flat (distressed)
     /*
@@ -517,7 +574,7 @@ public class CalibrateHazardRateTest {
         marketSpreads[8] = 1000.0;
         marketSpreads[9] = 1000.0;
         curveRecoveryRate = 0.40;
-    */
+     */
     // Flat (blown)
     /*
         marketSpreads[0] = 100000.0;
@@ -531,7 +588,7 @@ public class CalibrateHazardRateTest {
         marketSpreads[8] = 100000.0;
         marketSpreads[9] = 100000.0;
         curveRecoveryRate = 0.40;
-    */
+     */
     // Zig-zag (Tight)
     /*
     marketSpreads[0] = 50.0;
@@ -545,7 +602,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 50.0;
     marketSpreads[9] = 60.0;
     curveRecoveryRate = 0.40;
-    */
+     */
 
     // Zig-zag (Distressed)
     /*
@@ -560,7 +617,7 @@ public class CalibrateHazardRateTest {
         marketSpreads[8] = 500.0;
         marketSpreads[9] = 600.0;
         curveRecoveryRate = 0.40;
-    */
+     */
     // Upward, gentle
     /*
         marketSpreads[0] = 100.0;
@@ -574,7 +631,7 @@ public class CalibrateHazardRateTest {
         marketSpreads[8] = 260.0;
         marketSpreads[9] = 280.0;
         curveRecoveryRate = 0.40;
-    */
+     */
     // Upward, steep
 
     /* marketSpreads[0] = 100.0;
@@ -603,7 +660,7 @@ public class CalibrateHazardRateTest {
         marketSpreads[8] = 580.0;
         marketSpreads[9] = 600.0;
         curveRecoveryRate = 0.40;
-    */
+     */
     // Upward, steep long end
 
     /*  marketSpreads[0] = 100.0;
@@ -617,7 +674,7 @@ public class CalibrateHazardRateTest {
       marketSpreads[8] = 580.0;
       marketSpreads[9] = 680.0;
       curveRecoveryRate = 0.40;
-    */
+     */
     // Downward, gentle
 
     /*
@@ -632,7 +689,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 120.0;
     marketSpreads[9] = 100.0;
     curveRecoveryRate = 0.40;
-    */
+     */
 
     // Downward, steep
     /*
@@ -647,7 +704,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 200.0;
     marketSpreads[9] = 100.0;
     curveRecoveryRate = 0.40;
-    */
+     */
 
     // Downward, steep short end
     /*
@@ -662,7 +719,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 120.0;
     marketSpreads[9] = 100.0;
     curveRecoveryRate = 0.40;
-    */
+     */
 
     // Downward, steep long end
     /*
@@ -677,7 +734,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 280.0;
     marketSpreads[9] = 180.0;
     curveRecoveryRate = 0.40;
-    */
+     */
 
     // Inverted Cavale
     /*
@@ -692,7 +749,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 3072.0;
     marketSpreads[9] = 3865.0;
     curveRecoveryRate = 0.20;
-    */
+     */
 
     // Cavale
     /*
@@ -707,7 +764,7 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 1805.0;
     marketSpreads[9] = 1774.0;
     curveRecoveryRate = 0.20;
-    */
+     */
     // BCPN
     /*
     marketSpreads[0] = 780.0;
@@ -721,26 +778,8 @@ public class CalibrateHazardRateTest {
     marketSpreads[8] = 800.0;
     marketSpreads[9] = 780.0;
     curveRecoveryRate = 0.40;
-    */
-
-    // Create a calibration CDS (will be a modified version of the baseline CDS)
-    //CreditDefaultSwapDefinition calibrationCDS = cds;
-
-    // Set the recovery rate of the calibration CDS used for the curve calibration
-    //calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
-
-    // Create a survival curve object
-    //final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
-
-    // Calibrate the survival curve to the market observed par CDS spreads
-    //double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
-
-    if (outputResults) {
-      for (int i = 0; i < numberOfTenors; i++) {
-        //  System.out.println(calibratedSurvivalCurve[i]);
-      }
-    }
+     */
   }
-  // ---------------------------------------------------------------------------------------
 
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 }

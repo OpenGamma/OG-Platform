@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap;
+package com.opengamma.analytics.financial.credit.schedulegeneration;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -13,8 +13,9 @@ import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -120,7 +121,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double premiumLegCoupon = 100.0;
+  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
   private static final boolean protectionStart = true;
@@ -174,7 +175,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract 
-  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(
+  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -195,10 +196,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       adjustEffectiveDate,
       adjustMaturityDate,
       notional,
-      premiumLegCoupon,
       recoveryRate,
       includeAccruedPremium,
-      protectionStart);
+      protectionStart,
+      parSpread);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

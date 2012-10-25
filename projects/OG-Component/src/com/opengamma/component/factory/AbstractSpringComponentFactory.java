@@ -93,11 +93,11 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     for (String beanName : beanNames) {
       T bean = appContext.getBean(beanName, type);
       String name = simplifyName(type, beanName);
-      repo.registerInfrastructure(type, name, bean);
+      repo.registerComponent(type, name, bean);
       String[] aliases = appContext.getAliases(beanName);
       for (String alias : aliases) {
         name = simplifyName(type, alias);
-        repo.registerInfrastructure(type, name, bean);
+        repo.registerComponent(type, name, bean);
       }
     }
   }

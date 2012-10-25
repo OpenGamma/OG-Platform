@@ -14,7 +14,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
@@ -69,8 +68,8 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket of(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
-      final Map<String, List<MarketForwardSensitivity>> sensitivityForward, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket of(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<MarketForwardSensitivity>> sensitivityForward,
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityForward, "Sensitivity forward");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
@@ -116,8 +115,7 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket ofYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
-      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket ofYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, new HashMap<String, List<MarketForwardSensitivity>>(), sensitivityPriceCurve);
@@ -200,8 +198,7 @@ public class CurveSensitivityMarket {
    * @param map2 The second map.
    * @return The sum.
    */
-  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1,
-      final Map<String, List<MarketForwardSensitivity>> map2) {
+  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1, final Map<String, List<MarketForwardSensitivity>> map2) {
     final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
     for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map1.entrySet()) {
       final List<MarketForwardSensitivity> temp = new ArrayList<MarketForwardSensitivity>();
@@ -319,8 +316,7 @@ public class CurveSensitivityMarket {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           final MarketForwardSensitivity fwdSensitivity = list.get(looplist);
-          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(),
-              fwdSensitivity.getAccrualFactor());
+          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
           if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
@@ -330,71 +326,6 @@ public class CurveSensitivityMarket {
       result.put(entry.getKey(), listClean);
     }
     return result;
-  }
-
-  /**
-   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
-   * The comparison is done on the discounting curve and forward curves sensitivities.
-   * @param sensi1 The first sensitivity.
-   * @param sensi2 The second sensitivity.
-   * @param tolerance The tolerance.
-   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
-   */
-  public static boolean compare(final CurveSensitivityMarket sensi1, final CurveSensitivityMarket sensi2, final double tolerance) {
-    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getYieldDiscountingSensitivities(), sensi2.getYieldDiscountingSensitivities(), tolerance)) {
-      return false;
-    }
-    if (!compareFwd(sensi1.getForwardSensitivities(), sensi2.getForwardSensitivities(), tolerance)) {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
-   * @param sensi1 The first sensitivity (as a map).
-   * @param sensi2 The second sensitivity (as a map).
-   * @param tolerance The tolerance.
-   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
-   */
-  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2,
-      final double tolerance) {
-    ArgumentChecker.notNull(sensi1, "sensitivity");
-    ArgumentChecker.notNull(sensi2, "sensitivity");
-    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi1.entrySet()) {
-      final String name = entry.getKey();
-      if (sensi2.containsKey(name)) {
-        if (!compareFwd(entry.getValue(), sensi2.get(name), tolerance)) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi2.entrySet()) {
-      if (!(sensi1.containsKey(entry.getKey()))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Compare two lists of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
-   * @param sensi1 The first sensitivity (as a list).
-   * @param sensi2 The second sensitivity (as a list).
-   * @param tolerance The tolerance.
-   * @return True if the difference is below the tolerance and False if not.
-   */
-  private static boolean compareFwd(final List<MarketForwardSensitivity> sensi1, final List<MarketForwardSensitivity> sensi2, final double tolerance) {
-    for (int looptime = 0; looptime < sensi1.size(); looptime++) {
-      final double startTime1 = sensi1.get(looptime).getStartTime();
-      final double startTime2 = sensi2.get(looptime).getStartTime();
-      if ((Math.abs(startTime1 - startTime2) > tolerance) || (Math.abs(sensi1.get(looptime).getValue() - sensi2.get(looptime).getValue()) > tolerance)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override

@@ -98,6 +98,8 @@ final class MathSurface {
       } else if (function instanceof LocalVolatilitySurfaceMoneyness) { //TODO this is wrong
         final LocalVolatilitySurfaceMoneyness moneyness = (LocalVolatilitySurfaceMoneyness) function;
         return (FunctionalDoublesSurface) moneyness.getSurface();
+      } else if (function instanceof FunctionalDoublesSurface) {
+        return (FunctionalDoublesSurface) function;
       }
       throw new OpenGammaRuntimeException("Expected serialized Function, got " + function);
     }

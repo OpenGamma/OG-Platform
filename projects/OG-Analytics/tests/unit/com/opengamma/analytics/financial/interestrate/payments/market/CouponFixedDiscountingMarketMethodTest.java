@@ -1,7 +1,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.market;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -15,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.market.description.MarketD
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
@@ -69,7 +69,7 @@ public class CouponFixedDiscountingMarketMethodTest {
   public void presentValueMarketSensitivityMethodVsCalculator() {
     MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_FIXED.presentValueMarketSensitivity(CPN_FIXED, MARKET);
     MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSC.visit(CPN_FIXED, MARKET);
-    assertTrue("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", MultipleCurrencyCurveSensitivityMarket.compare(pvcsMethod, pvcsCalculator, TOLERANCE_DELTA));
+    AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
 }

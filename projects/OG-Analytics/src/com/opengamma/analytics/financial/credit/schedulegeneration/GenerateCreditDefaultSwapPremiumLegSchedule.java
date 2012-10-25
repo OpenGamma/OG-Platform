@@ -226,6 +226,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     return tenorsAsDoubles;
   }
 
+  // -------------------------------------------------------------------------------------------
+
   // Public method to convert the input ZonedDateTime tenors into doubles relative to the specified date based on the daycount convention specified
   public double[] convertTenorsToDoubles(ZonedDateTime[] tenors, ZonedDateTime baselineDate, DayCount dayCountConvention) {
 
