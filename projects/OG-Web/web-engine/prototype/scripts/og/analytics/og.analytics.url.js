@@ -22,7 +22,7 @@ $.register_module({
                 return (last_object[container] || (last_object[container] = [])).push(params), (!silent && go()), url;
             },
             clear_main: function () {
-                if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                if (og.analytics.grid) og.analytics.grid.kill();
                 last_fingerprint.main = last_object.main = null;
             },
             last: last_object,
@@ -32,7 +32,7 @@ $.register_module({
                     .pipe(function (result) {win.location.href = url + result.data.data;});
             },
             main: function (params) {
-                if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                if (og.analytics.grid) og.analytics.grid.kill();
                 $(main_selector).html('requesting...');
                 return (last_object.main = params), go(), url;
             },
@@ -41,7 +41,7 @@ $.register_module({
                     var config = result.data.data, current_main, panel, cellmenu;
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
-                        if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                        if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
                             selector: main_selector, cellmenu: true,

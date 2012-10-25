@@ -93,9 +93,7 @@ $.register_module({
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {
-                    grid.elements.parent.html('&nbsp;fatal error: ' + error);
-                    grid.dataman.kill();
-                    fire(grid.events.fatal);
+                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), fire(grid.events.fatal);
                 })
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
@@ -349,9 +347,7 @@ $.register_module({
         constructor.prototype.alive = function () {
             var grid = this, live = $(grid.id).length;
             if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
-            try {grid.dataman.kill();} catch (error) {return false;}
-            try {grid.clipboard.dataman.kill();} catch (error) {return false;}
-            try {grid.elements.style.remove();} catch (error) {return false;}
+            return grid.kill(), false;
         };
         constructor.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
@@ -376,6 +372,16 @@ $.register_module({
                 set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
             });
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+        };
+        constructor.prototype.kill = function () {
+            var grid = this;
+            try {grid.dataman.kill();} catch (error) {og.dev.warn(module.name + ': dataman kill failed', error);}
+            try {grid.clipboard.dataman.kill();} catch (error) {
+                og.dev.warn(module.name + ': clipboard kill failed', error);
+            }
+            try {grid.elements.style.remove();} catch (error) {
+                og.dev.warn(module.name + ': style remove failed', error);
+            }
         };
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
@@ -452,6 +458,10 @@ $.register_module({
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
             return viewport.call(grid, render_header);
+        };
+        constructor.prototype.toggle = function (bool) {
+            grid.dataman.busy(typeof bool !== 'undefined' ? !bool : !grid.dataman.busy());
+            grid.clipboard.dataman.busy(typeof bool !== 'undefined' ? !bool : !grid.clipboard.dataman.busy());
         };
         return constructor;
     }
