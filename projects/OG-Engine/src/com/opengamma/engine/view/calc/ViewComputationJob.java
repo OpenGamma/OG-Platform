@@ -632,7 +632,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         s_logger.debug("{} resolutions checked in {}ms", compiledViewDefinition.getResolvedIdentifiers().size(), (double) t / 1e6);
         if (invalidIdentifiers != null) {
           // Part of the dependency graph is now invalid
-          System.err.println("Invalidating dependency graph because of changes on " + invalidIdentifiers);
+          System.err.println("TODO: Invalidate dependency graph because of changes on " + invalidIdentifiers);
           break;
         }
         if (functionInitId != compiledViewDefinition.getFunctionInitId()) {

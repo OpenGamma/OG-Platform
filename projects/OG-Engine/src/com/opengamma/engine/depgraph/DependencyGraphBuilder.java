@@ -89,7 +89,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
   private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(new OutputStreamWriter(
-      openDebugStream("resolutionFailure"))) : ResolutionFailureVisitor.DEFAULT_INSTANCE, _context);
+      openDebugStream("resolutionFailure"))) : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
 
   /**
@@ -110,8 +110,6 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
   private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
-
-  private final ConcurrentMap<ValueSpecification, ResolvedValue> _resolvedValues = new ConcurrentHashMap<ValueSpecification, ResolvedValue>();
 
   /**
    * Number of additional threads to launch while requirements are being added or the graph is being built. The total number of threads used for graph construction may be up to this value or may be
@@ -315,11 +313,11 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected ResolvedValue getResolvedValue(final ValueSpecification valueSpecification) {
-    return _resolvedValues.get(valueSpecification);
+    return _getTerminalValuesCallback.getProduction(valueSpecification);
   }
 
   protected void addResolvedValue(final ResolvedValue value) {
-    _resolvedValues.put(value.getValueSpecification(), value);
+    _getTerminalValuesCallback.declareProduction(value);
   }
 
   /**
@@ -842,6 +840,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected void reportStateSize() {
+    _getTerminalValuesCallback.reportStateSize();
     if (!s_logger.isInfoEnabled()) {
       return;
     }
@@ -859,7 +858,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       }
     }
     s_logger.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
-    s_logger.info("Production cache = {} resolved values, prending requirements = {}", _resolvedValues.size(), _pendingRequirements.getValueRequirements().size());
+    s_logger.info("Pending requirements = {}", _pendingRequirements.getValueRequirements().size());
     s_logger.info("Run queue length = {}, deferred queue length = {}", _runQueue.size(), _deferredQueue.size());
   }
 

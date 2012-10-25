@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,23 +38,71 @@ import com.opengamma.util.tuple.Pair;
 
   private static final Logger s_logger = LoggerFactory.getLogger(GetTerminalValuesCallback.class);
 
-  private final GraphBuildingContext _context;
-  private final Map<ValueSpecification, DependencyNode> _spec2Node = new HashMap<ValueSpecification, DependencyNode>();
+  /**
+   * Buffer of resolved value specifications. For any entries in here, all input values have been previously resolved and are in this buffer or the partially constructed graph. Information here gets
+   * used to construct dependency graph fragments whenever a terminal item can be resolved.
+   */
+  private final ConcurrentMap<ValueSpecification, ResolvedValue> _resolvedBuffer = new ConcurrentHashMap<ValueSpecification, ResolvedValue>();
+
+  /**
+   * Index into the dependency graph nodes, keyed by their output specifications.
+   */
+  private final Map<ValueSpecification, DependencyNode> _spec2Node = new ConcurrentHashMap<ValueSpecification, DependencyNode>();
+
+  /**
+   * Index into the dependency graph nodes, keyed by their targets and functions.
+   */
   private final Map<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>> _func2target2nodes =
       new HashMap<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>>();
+
+  /**
+   * All dependency graph nodes.
+   */
   private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
+
+  /**
+   * Terminal value resolutions, mapping the requested value requirement to the satisfying value specification.
+   */
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
-  private final BlockingQueue<Pair<ValueRequirement, ResolvedValue>> _resolved = new LinkedBlockingQueue<Pair<ValueRequirement, ResolvedValue>>();
+
+  /**
+   * Queue of completed resolutions that have not been processed into the partial graph. Graph construction is single threaded, with this queue holding work items if other thread produce results while
+   * one is busy building the graph.
+   */
+  private final BlockingQueue<Pair<ValueRequirement, ResolvedValue>> _resolvedQueue = new LinkedBlockingQueue<Pair<ValueRequirement, ResolvedValue>>();
+
+  /**
+   * Mutex for working on the resolved queue. Any thread can add to the queue, only the one that has claimed this mutex can process the elements from it and be sure of exclusive access to the other
+   * data structures.
+   */
   private final AtomicReference<Thread> _singleton = new AtomicReference<Thread>();
+
+  /**
+   * Optional visitor to process failures from the graph build. This can be specified to provide additional error reporting to the user.
+   */
   private ResolutionFailureVisitor<?> _failureVisitor;
 
-  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor, final GraphBuildingContext context) {
+  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
-    _context = context;
   }
 
   public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
+  }
+
+  public ResolvedValue getProduction(final ValueSpecification specification) {
+    ResolvedValue value = _resolvedBuffer.get(specification);
+    if (value == null) {
+      final DependencyNode node = _spec2Node.get(specification);
+      if (node != null) {
+        return new ResolvedValue(specification, node.getFunction(), node.getInputValues(), node.getOutputValues());
+      }
+    }
+    return value;
+  }
+
+  public void declareProduction(final ResolvedValue resolvedValue) {
+    _resolvedBuffer.put(resolvedValue.getValueSpecification(), resolvedValue);
   }
 
   @Override
@@ -121,7 +171,7 @@ import com.opengamma.util.tuple.Pair;
         node.addInputNode(inputNode);
       } else {
         s_logger.debug("Finding node production for {}", input);
-        final ResolvedValue inputValue = _context.getProduction(input);
+        final ResolvedValue inputValue = _resolvedBuffer.get(input);
         if (inputValue != null) {
           if (downstreamCopy == null) {
             downstreamCopy = new HashSet<ValueSpecification>(downstream);
@@ -155,6 +205,7 @@ import com.opengamma.util.tuple.Pair;
         }
       }
       _graphNodes.add(node);
+      _resolvedBuffer.remove(resolvedValue.getValueSpecification());
     }
     return node;
   }
@@ -293,9 +344,9 @@ import com.opengamma.util.tuple.Pair;
   }
 
   private void completeGraphBuild() {
-    while (!_resolved.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
+    while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
       synchronized (this) {
-        Pair<ValueRequirement, ResolvedValue> resolved = _resolved.poll();
+        Pair<ValueRequirement, ResolvedValue> resolved = _resolvedQueue.poll();
         while (resolved != null) {
           final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
           if (node != null) {
@@ -304,7 +355,7 @@ import com.opengamma.util.tuple.Pair;
           } else {
             s_logger.error("Resolved {} to {} but couldn't create one or more dependency node", resolved.getFirst(), resolved.getSecond().getValueSpecification());
           }
-          resolved = _resolved.poll();
+          resolved = _resolvedQueue.poll();
         }
       }
       _singleton.set(null);
@@ -322,7 +373,7 @@ import com.opengamma.util.tuple.Pair;
     if (pump != null) {
       context.close(pump);
     }
-    _resolved.add(Pair.of(valueRequirement, resolvedValue));
+    _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
     completeGraphBuild();
   }
 
@@ -352,11 +403,12 @@ import com.opengamma.util.tuple.Pair;
     return new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues);
   }
 
-  protected synchronized void discardIntermediateState() {
-    s_logger.debug("Discarding func2target2nodes state");
-    _func2target2nodes.clear();
-    s_logger.debug("Discarding spec2Node state");
-    _spec2Node.clear();
+  public void reportStateSize() {
+    if (!s_logger.isInfoEnabled()) {
+      return;
+    }
+    s_logger.info("Graph = {} nodes for {} terminal outputs", _graphNodes.size(), _resolvedValues.size());
+    s_logger.info("Resolved buffer = {}, resolved queue = {}", _resolvedBuffer.size(), _resolvedQueue.size());
   }
 
 }

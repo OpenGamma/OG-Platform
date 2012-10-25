@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -159,11 +160,13 @@ public class DepGraphTestHelper {
 
   public DependencyGraphBuilder getBuilder(final FunctionPriority prioritizer) {
     if (_builder == null) {
+      final Instant now = Instant.now();
       _builder = new DependencyGraphBuilder();
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
       final FunctionCompilationContext context = new FunctionCompilationContext();
       final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
       context.setRawComputationTargetResolver(targetResolver);
+      context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
       _builder.setCompilationContext(context);
       final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
       compilationService.initialize();
@@ -173,7 +176,7 @@ public class DepGraphTestHelper {
       } else {
         resolver = new DefaultFunctionResolver(compilationService);
       }
-      _builder.setFunctionResolver(resolver.compile(Instant.now()));
+      _builder.setFunctionResolver(resolver.compile(now));
       targetResolver.addTarget(_target);
       _builder.setCalculationConfigurationName("testCalcConf");
     }
