@@ -64,7 +64,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Financial" exported="" />
     <orderEntry type="module" module-name="OG-Engine" />
-    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="OG-Util" exported="" />
     <orderEntry type="module" module-name="OG-Analytics" />
     <orderEntry type="module" module-name="OG-Master" />
     <orderEntry type="module" module-name="OG-Core" />

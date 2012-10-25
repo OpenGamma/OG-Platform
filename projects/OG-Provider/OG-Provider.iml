@@ -28,8 +28,6 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="OG-Core-daniel" exported="" />
-    <orderEntry type="module" module-name="OG-LiveData-daniel" />
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Core" />
   </component>
