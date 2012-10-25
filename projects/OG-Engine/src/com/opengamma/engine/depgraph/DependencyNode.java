@@ -185,25 +185,25 @@ public class DependencyNode {
   }
 
   /**
-   * Replace an output value from this node with another.
+   * Replace an output value from this node with another. Returns the number of times the value is consumed by dependent nodes.
    * 
    * @param existingOutputValue the existing value
    * @param newOutputValue the value to replace it with
+   * @return the number of replacements made in dependenct nodes
    */
-  public void replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
+  public int replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
     if (!_outputValues.remove(existingOutputValue)) {
       throw new IllegalStateException("Existing output value " + existingOutputValue + " not in output set of " + this);
     }
     _outputValues.add(newOutputValue);
+    int count = 0;
     for (DependencyNode outputNode : _dependentNodes) {
       if (outputNode._inputValues.remove(existingOutputValue)) {
         outputNode._inputValues.add(newOutputValue);
+        count++;
       }
     }
-  }
-
-  /* package */void clearOutputValues() {
-    _outputValues.clear();
+    return count;
   }
 
   /* package */void clearInputs() {
@@ -217,6 +217,28 @@ public class DependencyNode {
   public void addInputValue(ValueSpecification inputValue) {
     ArgumentChecker.notNull(inputValue, "Input value");
     _inputValues.add(inputValue);
+  }
+
+  /**
+   * Replaces the dependency node that an input value is sourced from. If this was the only input value sourced from the previous input node then it is removed from the input node set.
+   * 
+   * @param inputValue the input value to replace, not null
+   * @param previousInputNode the node the data was being produced by, not null
+   * @param newInputNode the new input node, not null
+   */
+  public void replaceInput(final ValueSpecification inputValue, final DependencyNode previousInputNode, final DependencyNode newInputNode) {
+    addInputNode(newInputNode);
+    for (ValueSpecification input : _inputValues) {
+      if (!inputValue.equals(input)) {
+        if (previousInputNode._outputValues.contains(input)) {
+          // Previous input still produces other values we consume
+          return;
+        }
+      }
+    }
+    // Not consuming any other inputs from this node
+    previousInputNode._dependentNodes.remove(this);
+    _inputNodes.remove(previousInputNode);
   }
 
   /**

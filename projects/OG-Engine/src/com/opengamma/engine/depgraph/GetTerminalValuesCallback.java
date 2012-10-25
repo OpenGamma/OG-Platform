@@ -164,10 +164,14 @@ import com.opengamma.util.tuple.Pair;
     if (existingNode != null) {
       return getOrCreateNode(resolvedValue, downstream, existingNode, false);
     } else {
-      final DependencyNode newNode = new DependencyNode(resolvedValue.getValueSpecification().getTargetSpecification());
+      DependencyNode newNode = new DependencyNode(resolvedValue.getValueSpecification().getTargetSpecification());
       newNode.setFunction(resolvedValue.getFunction());
       newNode.addOutputValues(resolvedValue.getFunctionOutputs());
-      return getOrCreateNode(resolvedValue, downstream, newNode, true);
+      newNode = getOrCreateNode(resolvedValue, downstream, newNode, true);
+      if (newNode != null) {
+        nodes.add(newNode);
+      }
+      return newNode;
     }
   }
 
@@ -225,7 +229,46 @@ import com.opengamma.util.tuple.Pair;
           while (replacement.hasNext()) {
             final ValueSpecification oldValue = replacement.next();
             final ValueSpecification newValue = replacement.next();
-            node.replaceOutputValue(oldValue, newValue);
+            final int newConsumers = node.replaceOutputValue(oldValue, newValue);
+            DependencyNode n = _spec2Node.remove(oldValue);
+            assert n == node;
+            n = _spec2Node.get(newValue);
+            if (n != null) {
+              // Reducing the value has created a collision ...
+              if (newConsumers == 0) {
+                // Keep the existing one (it's being used, or just an arbitrary choice if neither are used)
+                node.removeOutputValue(newValue);
+              } else {
+                int existingConsumers = 0;
+                for (DependencyNode child : n.getDependentNodes()) {
+                  if (child.hasInputValue(newValue)) {
+                    existingConsumers++;
+                  }
+                }
+                if (existingConsumers == 0) {
+                  // Lose the existing (not being used), keep the new one
+                  n.removeOutputValue(newValue);
+                  _spec2Node.put(newValue, node);
+                } else {
+                  if (newConsumers <= existingConsumers) {
+                    // Adjust the consumers of the reduced value to use the existing one
+                    for (DependencyNode child : node.getDependentNodes()) {
+                      child.replaceInput(newValue, node, n);
+                    }
+                    node.removeOutputValue(newValue);
+                  } else {
+                    // Adjust the consumers of the existing value to use the new one
+                    for (DependencyNode child : n.getDependentNodes()) {
+                      child.replaceInput(newValue, n, node);
+                    }
+                    n.removeOutputValue(newValue);
+                    _spec2Node.put(newValue, node);
+                  }
+                }
+              }
+            } else {
+              _spec2Node.put(newValue, node);
+            }
           }
         }
         return node;
