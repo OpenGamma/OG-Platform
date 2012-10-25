@@ -131,7 +131,6 @@
             js3d.vertex_sphere.visible = false;
             js3d.renderer = renderer = js3d.webgl ?
                 new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
-            console.log(renderer);
             renderer.setSize(js3d.width, js3d.height);
             // buffers
             buffers.load = new Four.Buffer(renderer);
