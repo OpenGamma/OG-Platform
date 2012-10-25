@@ -98,7 +98,7 @@ $.register_module({
                             emitter.emitEvent(events.closeall);
                             ac_menu.$input.select();
                         },
-                        get_query = function () {
+                        load_query = function () {
                             if (!~ac_menu.$input.val().indexOf('Db')) return;
                             og.analytics.url.main(query = {
                                 viewdefinition: ac_menu.$input.val(),
@@ -124,7 +124,7 @@ $.register_module({
                             .addListener(events.querycancelled, query_cancelled);
                     });
                     $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
-                    $load_btn.on('click', get_query);
+                    $load_btn.on('click', load_query);
                     emitter.addListener(events.closeall, function () {
                         close_dropmenu(ag_menu);
                         close_dropmenu(ds_menu);
@@ -151,7 +151,7 @@ $.register_module({
                     initialized = true;
                 });
                 this.replay_query = function (url_config) {
-                    // console.log(url_config);
+                    if(JSON.stringify(url_config) === JSON.stringify(query)) return false;
                     var ag = url_config.aggregators.map(function (entry){
                             return {val:entry, required_field:false};
                         }),
@@ -163,9 +163,8 @@ $.register_module({
                 };
             };
         return function (selector, url_config) {
-            if (!initialized) FormInst = new Form(selector);
-            else if (initialized && url_config) FormInst.replay_query(url_config);
-            else if (initialized && !url_config) FormInst = new Form(selector);
+            if (!initialized || (initialized && !url_config)) return FormInst = new Form(selector);
+            //else if (initialized && url_config) return FormInst.replay_query(url_config);
         }
     }
 });
