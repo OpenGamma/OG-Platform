@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Instant;
+
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -42,6 +44,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -58,6 +61,7 @@ public class DefaultCompiledFunctionResolverTest {
   private FunctionCompilationContext createFunctionCompilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.of(Instant.now(), Instant.now())));
     return context;
   }
 

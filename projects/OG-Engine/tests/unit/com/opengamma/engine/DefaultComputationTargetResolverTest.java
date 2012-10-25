@@ -180,7 +180,7 @@ public class DefaultComputationTargetResolverTest {
     InMemorySecuritySource secSource = new InMemorySecuritySource();
     final MockPositionSource posSource = new MockPositionSource();
     final DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
-    assertEquals(test.getSimpleTypes().size(), 7);
+    assertEquals(test.getSimpleTypes().size(), 8);
   }
 
   public void test_typeProvider_getAdditional() {

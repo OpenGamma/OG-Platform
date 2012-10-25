@@ -45,6 +45,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Tests the {@link ComputationTargetResults} class.
@@ -162,8 +163,10 @@ public class ComputationTargetResultsTest {
     securitySource.addSecurity(SECURITY);
     final PositionSource positionSource = Mockito.mock(PositionSource.class);
     Mockito.when(positionSource.getPosition(POSITION.getUniqueId())).thenReturn(POSITION);
+    Mockito.when(positionSource.getPosition(Mockito.eq(POSITION.getUniqueId().getObjectId()), Mockito.any(VersionCorrection.class))).thenReturn(POSITION);
     final FunctionCompilationContext context = new FunctionCompilationContext();
     context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.of(Instant.now(), Instant.now())));
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), context);
     cfs.initialize();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(cfs);

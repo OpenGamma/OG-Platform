@@ -84,7 +84,7 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
             @Override
             public ComputationTargetSpecification visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
               final UniqueId uid = specification.getUniqueId();
-              if (uid.isLatest()) {
+              if ((uid != null) && uid.isLatest()) {
                 final IdentifierResolver resolver = _resolve.get(specification.getType());
                 if (resolver != null) {
                   final UniqueId newUID = resolver.resolveObjectId(uid.getObjectId(), versionCorrection);

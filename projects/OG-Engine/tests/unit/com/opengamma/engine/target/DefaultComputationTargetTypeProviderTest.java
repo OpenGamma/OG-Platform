@@ -23,8 +23,8 @@ public class DefaultComputationTargetTypeProviderTest {
   public void testGetSimpleTypes() {
     final DefaultComputationTargetTypeProvider provider = new DefaultComputationTargetTypeProvider();
     final Set<ComputationTargetType> types = new HashSet<ComputationTargetType>(provider.getSimpleTypes());
-    assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE, ComputationTargetType.SECURITY,
-        ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR));
+    assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO, ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE,
+        ComputationTargetType.SECURITY, ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR));
   }
 
   public void testGetAdditionalTypes() {
@@ -36,8 +36,8 @@ public class DefaultComputationTargetTypeProviderTest {
   public void testGetAllTypes() {
     final DefaultComputationTargetTypeProvider provider = new DefaultComputationTargetTypeProvider();
     final Set<ComputationTargetType> types = new HashSet<ComputationTargetType>(provider.getAllTypes());
-    assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE, ComputationTargetType.SECURITY,
-        ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR, ComputationTargetType.POSITION_OR_TRADE));
+    assertEquals(types, ImmutableSet.<ComputationTargetType>of(ComputationTargetType.PORTFOLIO, ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.TRADE,
+        ComputationTargetType.SECURITY, ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR, ComputationTargetType.POSITION_OR_TRADE));
   }
 
 }

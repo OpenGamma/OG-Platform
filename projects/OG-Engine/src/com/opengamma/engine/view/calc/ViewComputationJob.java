@@ -581,9 +581,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       if (vc != null) {
         break;
       }
-      vc = getExecutionOptions().getDefaultExecutionOptions().getResolverVersionCorrection();
-      if (vc != null) {
-        break;
+      final ViewCycleExecutionOptions options = getExecutionOptions().getDefaultExecutionOptions();
+      if (options != null) {
+        vc = options.getResolverVersionCorrection();
+        if (vc != null) {
+          break;
+        }
       }
       vc = VersionCorrection.LATEST;
     } while (false);
