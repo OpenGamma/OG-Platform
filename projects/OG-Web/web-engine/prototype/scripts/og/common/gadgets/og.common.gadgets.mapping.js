@@ -43,7 +43,7 @@ $.register_module({
                     $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
                 return gadget_options;
             },
-            type : function (cell, panel) {
+            type: function (cell, panel) {
                 var order = mapping.panel_preference[panel || 'new-window'],
                     type_map = mapping.data_type_map[cell.type], i, k; 
                 for (i = 0; i < order.length; i++)
