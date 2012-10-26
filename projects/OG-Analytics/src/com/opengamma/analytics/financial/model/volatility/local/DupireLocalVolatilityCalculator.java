@@ -6,7 +6,6 @@
 
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +17,11 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
-import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -63,7 +62,8 @@ public class DupireLocalVolatilityCalculator {
         final double divK2 = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
         final double var = 2. * (divT + q * price + (r - q) * k * divK) / (k * k * divK2);
         if (var < 0) {
-          throw new MathException("Negative variance in getLocalVolatility");
+          s_logger.info("Negative variance; returning 0");
+          return 0.;
         }
         return Math.sqrt(var);
       }
@@ -108,7 +108,8 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * h1 * s * divK + s * s * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
-            throw new MathException("negative variance");
+            s_logger.info("negative variance; returning 0");
+            return 0.;
           }
         }
         return s * Math.sqrt(var);
@@ -206,7 +207,7 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + k * drift * divK)) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
-            s_logger.error("Negative variance; returning 0");
+            s_logger.info("Negative variance; returning 0");
             var = 0.0;
           }
         }
@@ -254,8 +255,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
@@ -294,8 +295,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
@@ -326,8 +327,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
@@ -355,8 +356,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = surf.getZValue(t, m);
 
@@ -371,7 +372,7 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * m * divM + m * m * (h1 * h2 * divM * divM + t * vol * divM2));
           if (var < 0.0) {
-            s_logger.error("Negative variance; returning 0");
+            s_logger.info("Negative variance; returning 0");
             var = 0.0;
           }
         }
