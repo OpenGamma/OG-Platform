@@ -945,12 +945,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityForwardCalculationDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "Discounting", "DefaultTwoCurveUSDConfig"));
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig"));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG"));
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "BBG"));
     functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
