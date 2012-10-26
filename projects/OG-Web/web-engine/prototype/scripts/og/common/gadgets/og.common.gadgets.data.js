@@ -20,7 +20,7 @@ $.register_module({
                                 $data_grid = (instantiated = true) && $(config.selector).ogdata({data: data});
                             else gadget.update({data: data});
                         } else {
-                            $(config.selector).html('loading...');
+                            if (!instantiated) $(config.selector).html('loading...');
                             og.dev.warn(module.name + ': bad data, ', data);
                         }
                     });
