@@ -10,21 +10,53 @@ package com.opengamma.analytics.financial.credit;
  */
 public enum CDSIndex {
   /**
-   * CDX index
+   * CDX.NA.IG North American Investment Grade index
    */
-  CDX,
+  CDXNAIG,
   /**
-   * CDX High Yield index
+   * CDX.NA.HY North American High Yield index
    */
-  CDX_HY,
+  CDXNAHY,
+  /**
+   * CDX.NA.XO North American Crossover Credits index
+   */
+  CDXNAXO,
+  /**
+   * CDX Emerging Market Sovereign Credits index
+   */
+  CDXEM,
+  /**
+   * CDX Emerging Market Sovereign and Corporate Credits index
+   */
+  CDXEMDIVERS,
   /**
    * CDX High Vol index
    */
-  CDX_HiVol,
+  CDXHiVol,
   /**
-   * iTraxx index
+   * iTraxx Europe Investment Grade index
    */
-  iTraxx;
+  iTraxx,
+  /**
+   * iTraxx Europe High Vol index
+   */
+  iTraxxHiVol,
+  /**
+   * iTraxx Europe Crossover Credits index
+   */
+  iTraxxXO,
+  /**
+   * iTraxx Japanese Investment Grade index
+   */
+  iTraxxJapan,
+  /**
+   * iTraxx Asian non-Japan Investment Grade index
+   */
+  iTraxxAsiaExJapan,
+  /**
+   * iTraxx Australian Investment Grade index
+   */
+  iTraxxAustralia;
 
   // TODO : Add the rest of the index names (need to work out how to include NA, IG etc)
 }
