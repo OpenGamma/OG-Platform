@@ -78,7 +78,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
 
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = snapshotClock.zonedDateTime().minusYears(2); //TODO remove me - just for testing
 
     final VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapTrade(security);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
