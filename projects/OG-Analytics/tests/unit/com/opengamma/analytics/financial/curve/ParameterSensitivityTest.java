@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -29,6 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * Tests related to ParameterSensitivity manipulations.
  */
 public class ParameterSensitivityTest {
+
   private static final OGMatrixAlgebra MATRIX = MatrixAlgebraFactory.OG_ALGEBRA;
   private static final DoubleMatrix1D SENSITIVITY_1_1 = new DoubleMatrix1D(4.0, 2.0, 5.0, 1.5);
   private static final DoubleMatrix1D SENSITIVITY_1_2 = new DoubleMatrix1D(4.0, 3.0, 5.0, 2.5);
@@ -101,21 +103,6 @@ public class ParameterSensitivityTest {
     new ParameterSensitivity().converted(new FXMatrix(), null);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testCompareNull1() {
-    ParameterSensitivity.compare(null, new ParameterSensitivity(), TOLERANCE);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testCompareNull2() {
-    ParameterSensitivity.compare(new ParameterSensitivity(), null, TOLERANCE);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testCompareNegativeTolerance() {
-    ParameterSensitivity.compare(new ParameterSensitivity(), new ParameterSensitivity(), -TOLERANCE);
-  }
-
   @Test
   public void testObject() {
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
@@ -159,12 +146,10 @@ public class ParameterSensitivityTest {
     sensitivity2 = new ParameterSensitivity();
     sensitivity2 = sensitivity2.plus(NAME_1_USD, SENSITIVITY_1_1);
     sensitivity2 = sensitivity2.plus(sensitivity1);
-    assertEquals("Add same currency, test sensitivities: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)),
-        sensitivity2.getSensitivity(NAME_1_USD));
+    assertEquals("Add same currency, test sensitivities: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1_USD));
     sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
     assertEquals("Add different currency, test sensitivities of first currency: ", SENSITIVITY_2_1, sensitivity2.getSensitivity(NAME_2_EUR));
-    assertEquals("Add different currency, test sensitivities of second currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)),
-        sensitivity2.getSensitivity(NAME_1_USD));
+    assertEquals("Add different currency, test sensitivities of second currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1_USD));
     sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
     assertEquals("Test add same sensitivities: ", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2_EUR));
     assertEquals("Test other currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1_USD));
@@ -190,7 +175,7 @@ public class ParameterSensitivityTest {
   }
 
   @Test
-  public void convert() {
+  public void converted() {
     final FXMatrix fxMatrix = new FXMatrix(EUR, USD, 1.25);
     ParameterSensitivity sensitivity = new ParameterSensitivity();
     sensitivity = sensitivity.plus(NAME_1_USD, SENSITIVITY_1_1);
@@ -201,7 +186,7 @@ public class ParameterSensitivityTest {
     sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_1_USD, SENSITIVITY_1_1);
     sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_1_USD, (DoubleMatrix1D) MATRIX.scale(SENSITIVITY_1_2, fxMatrix.getFxRate(EUR, USD)));
     sensitivityUSDExpected = sensitivityUSDExpected.plus(NAME_2_USD, (DoubleMatrix1D) MATRIX.scale(SENSITIVITY_2_1, fxMatrix.getFxRate(EUR, USD)));
-    assertTrue("Test convert: ", ParameterSensitivity.compare(sensitivityUSDExpected, sensitivityUSDConverted, TOLERANCE));
+    assertTrue("Test convert: ", AssertSensivityObjects.assertEquals("ParameterSensitivity: convert", sensitivityUSDExpected, sensitivityUSDConverted, TOLERANCE));
   }
 
   @Test
@@ -212,12 +197,12 @@ public class ParameterSensitivityTest {
     ParameterSensitivity sensitivity2 = new ParameterSensitivity();
     sensitivity2 = sensitivity2.plus(NAME_1_USD, SENSITIVITY_1_1);
     sensitivity2 = sensitivity2.plus(NAME_2_EUR, SENSITIVITY_2_1);
-    assertTrue("Compare same data: ", ParameterSensitivity.compare(sensitivity1, sensitivity2, TOLERANCE));
-    assertFalse("Compare different data outside tolerance: ", ParameterSensitivity.compare(sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE));
-    assertTrue("Compare different data inside tolerance ", ParameterSensitivity.compare(sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE));
+    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare same data", sensitivity1, sensitivity2, TOLERANCE);
+    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare different data outside tolerance", sensitivity1.multipliedBy(2.0), sensitivity2, TOLERANCE);
+    AssertSensivityObjects.assertEquals("ParameterSensitivity: compare different data inside tolerance", sensitivity1.multipliedBy(1 + TOLERANCE / 10), sensitivity2, TOLERANCE);
     ParameterSensitivity sensitivity3 = new ParameterSensitivity();
     sensitivity3 = sensitivity3.plus(NAME_1_USD, SENSITIVITY_1_1);
-    assertFalse("Compare data with different name / currency pairs: ", ParameterSensitivity.compare(sensitivity1, sensitivity3, TOLERANCE));
+    AssertSensivityObjects.assertDoesNotEqual("ParameterSensitivity: compare data with different name / currency pairs", sensitivity1, sensitivity3, TOLERANCE);
   }
 
   @Test
@@ -252,4 +237,5 @@ public class ParameterSensitivityTest {
     assertFalse("Test toMatrix, unequal sensitivities: ", expectedMatrix.equals(sensitivity2.toMatrix()));
     assertFalse("Test toMatrix, unequal keys: ", expectedMatrix.equals(sensitivity3.toMatrix()));
   }
+
 }

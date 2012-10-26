@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.OffsetTime;
@@ -39,9 +40,8 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatterBuilder;
 import javax.time.calendar.format.DateTimeFormatters;
-
-import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
@@ -104,6 +104,8 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -837,6 +839,18 @@ public final class BloombergDataUtils {
     }
     String observationTime = OBSERVATION_TIME_MAP.get(dataProvider);
     return (observationTime == null ? UNKNOWN_OBSERVATION_TIME : observationTime);
+  }
+
+  private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
+    .parseCaseInsensitive()
+    .appendValue(ISOChronology.yearRule(), 4)
+    .appendValue(ISOChronology.monthOfYearRule(), 2)
+    .appendValue(ISOChronology.dayOfMonthRule(), 2)
+    .toFormatter();
+
+  public static String toBloombergDate(LocalDate localDate) {
+    localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
+    return localDate.toString(BLOOMBERG_DATE_FORMATTER);
   }
 
 }

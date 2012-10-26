@@ -96,4 +96,8 @@ public class SABRFittedSurfaces {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "SABR Fitted Surfaces";
+  }
 }

@@ -10,15 +10,20 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketForwardSensitivity;
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Class used in test to assert that two sensitivity objects are the same or different.
  */
 public class AssertSensivityObjects {
 
@@ -114,6 +119,66 @@ public class AssertSensivityObjects {
     }
     assertTrue(msg, cmp);
     return cmp;
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance.
+   * @param msg The message.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @param opposite The flag indicating if the opposite result should be used.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  private static boolean compare(final String msg, final ParameterSensitivity sensitivity1, final ParameterSensitivity sensitivity2, final double tolerance, final boolean opposite) {
+    ArgumentChecker.notNull(sensitivity1, "sensitivity1");
+    ArgumentChecker.notNull(sensitivity2, "sensitivity2");
+    ArgumentChecker.isTrue(tolerance > 0, "tolerance must be greater than 0; have {}", tolerance);
+    boolean cmp = true;
+    final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
+    final Map<Pair<String, Currency>, DoubleMatrix1D> map1 = sensitivity1.getSensitivities();
+    final Map<Pair<String, Currency>, DoubleMatrix1D> map2 = sensitivity2.getSensitivities();
+    for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : map1.entrySet()) {
+      final Pair<String, Currency> nameCcy = entry.getKey();
+      if (map2.get(nameCcy) == null) {
+        if (algebra.getNormInfinity(entry.getValue()) > tolerance) {
+          cmp = false;
+        }
+      } else {
+        if (algebra.getNormInfinity(algebra.add(entry.getValue(), algebra.scale(map2.get(nameCcy), -1.0))) > tolerance) {
+          cmp = false;
+        }
+      }
+    }
+    if (opposite) {
+      cmp = !cmp;
+    }
+    assertTrue(msg, cmp);
+    return cmp;
+  }
+
+  /**
+   * Assert that two sensitivities are equal within a given tolerance. The tolerance is applied for each value (not to the total).
+   * @param msg The message.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  public static boolean assertEquals(final String msg, final ParameterSensitivity sensitivity1, final ParameterSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, false);
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance.
+   * @param msg The message.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is above the tolerance and False if not.
+   */
+  public static boolean assertDoesNotEqual(final String msg, final ParameterSensitivity sensitivity1, final ParameterSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, true);
   }
 
 }

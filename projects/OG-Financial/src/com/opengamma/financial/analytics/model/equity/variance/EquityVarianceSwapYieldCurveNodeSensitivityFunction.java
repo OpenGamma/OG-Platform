@@ -7,6 +7,10 @@ package com.opengamma.financial.analytics.model.equity.variance;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
@@ -35,6 +39,7 @@ import com.opengamma.util.money.Currency;
  * i.e. We are using the rates to infer the forward: spot / Z(t,T).
 */
 public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class);
   private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
 
   public EquityVarianceSwapYieldCurveNodeSensitivityFunction() {
@@ -61,7 +66,12 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     if (result == null) {
       return null;
     }
-    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    if (curves == null || curves.size() != 1) {
+      s_logger.error("Must specify a curve name");
+      return null;
+    }
+    final String curveName = Iterables.getOnlyElement(curves);
     result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName));
     return result;
   }
@@ -73,6 +83,20 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURVE_CURRENCY, security.getCurrency().getCode())
+        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
+        .get();
+    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+  }
+
+  @Override
+  protected ValueSpecification getValueSpecification(final ComputationTarget target, final String curveName, final String curveCalculationConfig, final String surfaceName) {
+    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURVE_CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)

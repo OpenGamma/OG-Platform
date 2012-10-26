@@ -15,15 +15,13 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to calibrate a single-name CDS hazard rate term structure to market observed term structure of par CDS spreads
+ * Class to calibrate a single-name CDS hazard rate term structure to the market observed term structure of par CDS spreads
  * The input is a vector of tenors and market observed par CDS spread quotes for those tenors
- * The output is a vector of calibrated term structure of hazard rates for those tenors
+ * The output is a vector of calibrated hazard rates for those tenors
  */
 public class CalibrateHazardRateCurve {
 
   // ------------------------------------------------------------------------
-
-  //private static DayCount s_act365 = new ActualThreeSixtyFive();
 
   // Set the maximum number of iterations, tolerance and range of the hazard rate bounds for the root finder
 
@@ -52,9 +50,9 @@ public class CalibrateHazardRateCurve {
 
   // ------------------------------------------------------------------------
 
-  // TODO : Lots of work to do in here still - Work In Progress
+  // TODO : Lots of ongoing work to do in this class - Work In Progress
 
-  // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists)
+  // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists - speed is not a concern at the moment)
   // TODO : Add a method to convert the hazard rates to survival probabilities
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
 
@@ -107,6 +105,8 @@ public class CalibrateHazardRateCurve {
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
     double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(tenors, cds.getValuationDate(), DayCountFactory.INSTANCE.getDayCount("ACT/365"));
 
+    // ----------------------------------------------------------------------------
+
     // Create an object for getting the PV of a CDS
     final PresentValueLegacyCreditDefaultSwap presentValueCDS = new PresentValueLegacyCreditDefaultSwap();
 
@@ -147,6 +147,7 @@ public class CalibrateHazardRateCurve {
   // ------------------------------------------------------------------------
 
   // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
+
   private double calibrateHazardRate(
       LegacyCreditDefaultSwapDefinition calibrationCDS,
       PresentValueLegacyCreditDefaultSwap presentValueCDS,
@@ -237,6 +238,7 @@ public class CalibrateHazardRateCurve {
   // ------------------------------------------------------------------------
 
   // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
+
   private double calculateCDSPV(LegacyCreditDefaultSwapDefinition calibrationCDS,
       PresentValueLegacyCreditDefaultSwap presentValueCDS,
       double[] tenors,

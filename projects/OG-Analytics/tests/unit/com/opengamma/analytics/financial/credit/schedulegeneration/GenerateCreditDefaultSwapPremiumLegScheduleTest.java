@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandar
 import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -106,25 +105,27 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
-  private static final ZonedDateTime effectiveDate = startDate.plusDays(1); //DateUtils.getUTCDate(2008, 12, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2010, 2, 4);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = false;
+  private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = false;
+  private static final boolean includeAccruedPremium = true;
+  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
+
+  private static final double parSpread = 100.0;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -198,6 +199,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
+      priceType,
       protectionStart,
       parSpread);
 

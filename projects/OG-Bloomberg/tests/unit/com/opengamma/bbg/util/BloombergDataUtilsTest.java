@@ -11,6 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -172,6 +173,12 @@ public class BloombergDataUtilsTest {
     assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
     assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));
     assertEquals("TOKYO_CLOSE", BloombergDataUtils.resolveObservationTime("CMPT"));
+  }
+
+  @Test
+  public void testBloombergDateTime() {
+    LocalDate localDate = LocalDate.of(99999999, 12, 13);
+    assertEquals(toBloombergDate(localDate), "99991213");
   }
 
 }

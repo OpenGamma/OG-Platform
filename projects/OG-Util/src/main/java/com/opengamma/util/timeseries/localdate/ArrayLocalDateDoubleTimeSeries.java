@@ -25,6 +25,8 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.Integer {
+  /** Empty instance */
+  public static final ArrayLocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
 
   public ArrayLocalDateDoubleTimeSeries() {

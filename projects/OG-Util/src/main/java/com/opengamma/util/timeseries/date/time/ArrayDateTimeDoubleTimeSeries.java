@@ -22,7 +22,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 public class ArrayDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSeries.Long {
   private static final FastListLongDoubleTimeSeries DEFAULT_SERIES_TEMPLATE = new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   @SuppressWarnings("unused")
-  private static final ArrayDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayDateTimeDoubleTimeSeries();
+  public static final ArrayDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayDateTimeDoubleTimeSeries();
   private static final DateEpochMillisConverter s_converter = new DateEpochMillisConverter();
 
   public ArrayDateTimeDoubleTimeSeries() { 

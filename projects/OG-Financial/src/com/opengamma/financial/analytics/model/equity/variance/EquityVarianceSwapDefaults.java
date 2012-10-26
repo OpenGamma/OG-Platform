@@ -100,7 +100,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
     }
     final Pair<String, String> pair = _curvesPerEquity.get(underlyingEquity);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(pair.getSecond());
+      return Collections.singleton(pair.getFirst());
     }
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(pair.getSecond());

@@ -8,14 +8,14 @@ package com.opengamma.analytics.financial.equity.variance.definition;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * A Variance Swap is a forward contract on the realized variance of an underlying security. 
@@ -53,21 +53,21 @@ public class VarianceSwapDefinition {
    * @param volStrike Fair value of Volatility, the square root of Variance, struck at trade date
    * @param volNotional Trade pays the difference between realized and strike variance multiplied by 0.5 * volNotional / volStrike
    */
-  public VarianceSwapDefinition(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, Currency currency, Calendar calendar,
-      double annualizationFactor, double volStrike, double volNotional) {
+  public VarianceSwapDefinition(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate, final PeriodFrequency obsFreq,
+      final Currency currency, final Calendar calendar, final double annualizationFactor, final double volStrike, final double volNotional) {
 
-    Validate.notNull(obsStartDate, "obsStartDate");
-    Validate.notNull(obsEndDate, "obsEndDate");
-    Validate.notNull(settlementDate, "settlementDate");
-    Validate.notNull(obsFreq, "obsFreq");
-    Validate.notNull(currency, "currency");
-    Validate.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(obsStartDate, "obsStartDate");
+    ArgumentChecker.notNull(obsEndDate, "obsEndDate");
+    ArgumentChecker.notNull(settlementDate, "settlementDate");
+    ArgumentChecker.notNull(obsFreq, "obsFreq");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(calendar, "calendar");
 
     _obsStartDate = obsStartDate;
     _obsEndDate = obsEndDate;
     _settlementDate = settlementDate;
     _obsFreq = obsFreq;
-    Validate.isTrue(obsFreq == PeriodFrequency.DAILY, "Only DAILY observation frequencies are currently supported. obsFreq = " + obsFreq.toString()
+    ArgumentChecker.isTrue(obsFreq == PeriodFrequency.DAILY, "Only DAILY observation frequencies are currently supported. obsFreq = " + obsFreq.toString()
         + ". Please contact quant to extend.");
     // TODO CASE Extend to periods longer than daily. Consider working this into ScheduleCalculator
 
@@ -91,7 +91,7 @@ public class VarianceSwapDefinition {
    * @param upToAndIncludingThisDate up to and including upToThisDate
    * @return number of business days between _obsStartDate and upToThisDate inclusive, spaced at _obsFreq 
    */
-  private int countGoodDays(LocalDate upToAndIncludingThisDate) {
+  private int countGoodDays(final LocalDate upToAndIncludingThisDate) {
     int nGood = 0;
     LocalDate date = _obsStartDate.toLocalDate();
     while (!date.isAfter(upToAndIncludingThisDate)) {
@@ -103,16 +103,16 @@ public class VarianceSwapDefinition {
     return nGood;
   }
 
-  public static VarianceSwapDefinition fromVegaParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, Currency currency,
-      Calendar calendar, double annualizationFactor, double volStrike, double volNotional) {
+  public static VarianceSwapDefinition fromVegaParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate,
+      final PeriodFrequency obsFreq, final Currency currency, final Calendar calendar, final double annualizationFactor, final double volStrike, final double volNotional) {
     return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
   }
 
-  public static VarianceSwapDefinition fromVarianceParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq,
-      Currency currency, Calendar calendar, double annualizationFactor, double varStrike, double varNotional) {
+  public static VarianceSwapDefinition fromVarianceParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate,
+      final PeriodFrequency obsFreq, final Currency currency, final Calendar calendar, final double annualizationFactor, final double varStrike, final double varNotional) {
 
-    double volStrike = Math.sqrt(varStrike);
-    double volNotional = 2 * varNotional * volStrike;
+    final double volStrike = Math.sqrt(varStrike);
+    final double volNotional = 2 * varNotional * volStrike;
 
     return fromVegaParams(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
 
@@ -128,21 +128,24 @@ public class VarianceSwapDefinition {
    * @return VarianceSwap derivative as of date
    */
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
-    Validate.notNull(valueDate, "date");
-    double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
-    double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
-    double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
-
-    Validate.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    DoubleTimeSeries<LocalDate> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
-    double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
-    double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nObsDisrupted = countGoodDays(valueDate.toLocalDate()) - observations.length;
-    Validate.isTrue(nObsDisrupted >= 0, "Somehow we have more observations than we have good business days", nObsDisrupted);
-
-    return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement,
-                                              _varStrike, _varNotional, _currency, _annualizationFactor,
-                                              _nObsExpected, nObsDisrupted, observations, observationWeights);
+    ArgumentChecker.notNull(valueDate, "date");
+    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
+    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
+    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
+    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
+    DoubleTimeSeries<LocalDate> realizedTS;
+    if (timeToObsStart > 0) {
+      realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    } else {
+      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
+    }
+    final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
+    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
+    final int nGoodBusinessDays = countGoodDays(valueDate.toLocalDate());
+    final int nObsDisrupted = nGoodBusinessDays - observations.length;
+    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
+    return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,
+        observations, observationWeights);
   }
 
   /**
@@ -223,7 +226,7 @@ public class VarianceSwapDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -233,7 +236,7 @@ public class VarianceSwapDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    VarianceSwapDefinition other = (VarianceSwapDefinition) obj;
+    final VarianceSwapDefinition other = (VarianceSwapDefinition) obj;
     if (_currency == null) {
       if (other._currency != null) {
         return false;

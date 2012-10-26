@@ -5,7 +5,9 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
 
@@ -50,12 +52,12 @@ public class ModifySecurityDbSecurityMasterWorkerBulkAddTest extends AbstractDbS
   @Test
   public void test_add_add() {
     Instant now = Instant.now(_secMaster.getTimeSource());
-    
+
     ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument test = _secMaster.add(doc);
-    
+
     UniqueId uniqueId = test.getUniqueId();
     assertNotNull(uniqueId);
     assertEquals("DbSec", uniqueId.getScheme());
@@ -83,7 +85,7 @@ public class ModifySecurityDbSecurityMasterWorkerBulkAddTest extends AbstractDbS
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument added = _secMaster.add(doc);
-    
+
     SecurityDocument test = _secMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }

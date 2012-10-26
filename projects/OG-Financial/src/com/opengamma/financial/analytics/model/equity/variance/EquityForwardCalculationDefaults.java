@@ -88,7 +88,7 @@ public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
     }
     final Pair<String, String> pair = _equityCurveConfigAndDiscountingCurveNames.get(underlyingEquity);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(pair.getSecond());
+      return Collections.singleton(pair.getFirst());
     }
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(pair.getSecond());

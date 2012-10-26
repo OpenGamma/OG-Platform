@@ -1,9 +1,9 @@
 import java.io.File;
 import java.io.FileWriter;
+
 import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.*;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 class ParseExamples {
     public static void main(String[] args) throws java.lang.Exception {

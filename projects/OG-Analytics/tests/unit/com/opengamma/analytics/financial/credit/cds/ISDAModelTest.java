@@ -41,7 +41,7 @@ public class ISDAModelTest {
     // Contract maturity date
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
 
-    final int settlementDays = 3;
+    final int settlementDays = 0;
     final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
@@ -51,8 +51,8 @@ public class ISDAModelTest {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    // Include the accrued coupon
-    final boolean accrualOnDefault = true;
+    // Include the accrued coupon (for a default that occurs between coupon dates)
+    final boolean accrualOnDefault = false;
 
     // Pay contingent leg on default or at maturity?
     final boolean payOnDefault = true;
@@ -243,7 +243,7 @@ public class ISDAModelTest {
 
     // ----------------------------------------------------------------------------------------------------------
 
-    // The shift to apply to the rates timenodes
+    // The shift to apply to the rates timenodes (if sopt days is non-zero)
     final double offset = s_act365.getDayCountFraction(valuationDate, baseDate2);
 
     // Build the yield curve
