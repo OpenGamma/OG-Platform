@@ -60,16 +60,17 @@ $.register_module({
                 return types;
             },
             data_type_map: {
-                CURVE             : [1, 3],
-                DOUBLE            : [0],
-                LABELLED_MATRIX_1D: [0, 1],
-                LABELLED_MATRIX_2D: [0, 1],
-                LABELLED_MATRIX_3D: [0, 1],
-                PRIMITIVE         : [0],
-                SURFACE_DATA      : [2, 1],
-                TENOR             : [0],
-                TIME_SERIES       : [4, 1],
-                UNKNOWN           : [0]
+                CURVE                   : [1, 3],
+                DOUBLE                  : [0],
+                LABELLED_MATRIX_1D      : [0, 1],
+                LABELLED_MATRIX_2D      : [0, 1],
+                LABELLED_MATRIX_3D      : [0, 1],
+                PRIMITIVE               : [0],
+                SURFACE_DATA            : [2, 1],
+                UNPLOTTABLE_SURFACE_DATA: [1],
+                TENOR                   : [0],
+                TIME_SERIES             : [4, 1],
+                UNKNOWN                 : [0]
             }
         };
     }
