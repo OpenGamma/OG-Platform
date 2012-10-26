@@ -5,43 +5,23 @@
  */
 package com.opengamma.bbg.util;
 
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
-import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
+import static com.opengamma.bbg.BloombergConstants.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.Period;
+import javax.time.calendar.*;
 import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatterBuilder;
 import javax.time.calendar.format.DateTimeFormatters;
-
-import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
@@ -54,23 +34,13 @@ import org.slf4j.LoggerFactory;
 import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Schema.Datatype;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
-import com.opengamma.bbg.referencedata.ReferenceData;
-import com.opengamma.bbg.referencedata.ReferenceDataError;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
-import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
-import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.bbg.referencedata.*;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -79,22 +49,8 @@ import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailability
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.financial.analytics.ircurve.NextMonthlyExpiryAdjuster;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.id.ExternalIdWithDates;
-import com.opengamma.id.ExternalScheme;
-import com.opengamma.livedata.normalization.FieldFilter;
-import com.opengamma.livedata.normalization.FieldHistoryUpdater;
-import com.opengamma.livedata.normalization.FieldNameChange;
-import com.opengamma.livedata.normalization.ImpliedVolatilityCalculator;
-import com.opengamma.livedata.normalization.MarketValueCalculator;
-import com.opengamma.livedata.normalization.NormalizationRule;
-import com.opengamma.livedata.normalization.NormalizationRuleSet;
-import com.opengamma.livedata.normalization.RequiredFieldFilter;
-import com.opengamma.livedata.normalization.SecurityRuleApplier;
-import com.opengamma.livedata.normalization.SecurityRuleProvider;
-import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.id.*;
+import com.opengamma.livedata.normalization.*;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.master.position.PositionDocument;
@@ -104,6 +60,8 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -837,6 +795,18 @@ public final class BloombergDataUtils {
     }
     String observationTime = OBSERVATION_TIME_MAP.get(dataProvider);
     return (observationTime == null ? UNKNOWN_OBSERVATION_TIME : observationTime);
+  }
+
+  private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
+    .parseCaseInsensitive()
+    .appendValue(ISOChronology.yearRule(), 4)
+    .appendValue(ISOChronology.monthOfYearRule(), 2)
+    .appendValue(ISOChronology.dayOfMonthRule(), 2)
+    .toFormatter();
+
+  public static String toBloombergDate(LocalDate localDate) {
+    localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
+    return localDate.toString(BLOOMBERG_DATE_FORMATTER);
   }
 
 }

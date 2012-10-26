@@ -5,26 +5,15 @@
  */
 package com.opengamma.bbg.util;
 
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_FIRST_TRADE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
-import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
+import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
+import static org.testng.AssertJUnit.*;
 
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.*;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
@@ -172,6 +161,12 @@ public class BloombergDataUtilsTest {
     assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
     assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));
     assertEquals("TOKYO_CLOSE", BloombergDataUtils.resolveObservationTime("CMPT"));
+  }
+
+  @Test
+  public void testBloombergDateTime() {
+    LocalDate localDate = LocalDate.of(99999999, 12, 13);
+    assertEquals(toBloombergDate(localDate), "99991213");
   }
 
 }

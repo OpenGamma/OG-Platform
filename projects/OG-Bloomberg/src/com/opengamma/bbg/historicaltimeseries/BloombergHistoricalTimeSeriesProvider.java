@@ -16,6 +16,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID;
 import static com.opengamma.bbg.BloombergConstants.RESPONSE_ERROR;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
+import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,8 +217,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       // general settings
       request.set("periodicityAdjustment", "ACTUAL");
       request.set("periodicitySelection", "DAILY");
-      request.set("startDate", dateRange.getStartDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
-      request.set("endDate", dateRange.getEndDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
+      request.set("startDate", toBloombergDate(dateRange.getStartDateInclusive()));
+      request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
       request.set("adjustmentSplit", true);
       if (maxPoints != null && maxPoints <= 0) {
         request.set("maxDataPoints", -maxPoints);
