@@ -33,6 +33,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String SWAPTION_BLACK_DEFAULTS = "SWAPTION_BLACK_DEFAULTS";
   public static final String INTEREST_RATE_FUTURE = "INTEREST_RATE_FUTURE";
   public static final String FUTURE_OPTION_BLACK = "FUTURE_OPTION_BLACK";
+  public static final String EQUITY_VARIANCE_SWAP_DEFAULTS = "EQUITY_VARIANCE_SWAP_DEFAULTS";
   //CSON
 
 }

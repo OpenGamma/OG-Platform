@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.forex.option.localvol;
 
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDECalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESingleResultCalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESpotGreeksGridCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEVolatilityGreeksGridCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.PDELocalVolatilityCalculator;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -15,20 +15,21 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityForwardPDEForwardDeltaFunction extends ForexLocalVolatilityForwardPDEFunction {
+public class FXOptionLocalVolatilityForwardPDEForwardVegaFunction extends FXOptionLocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEForwardDeltaFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEForwardVegaFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 
   @Override
   protected String getRequirementName() {
-    return ValueRequirementNames.FORWARD_DELTA;
+    return ValueRequirementNames.FORWARD_VEGA;
   }
 
   @Override
   protected PDELocalVolatilityCalculator<?> getPDECalculator(final LocalVolatilityForwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
-    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDESpotGreeksGridCalculator.DeltaCalculator(pdeCalculator, interpolator), interpolator);
+    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEVolatilityGreeksGridCalculator.VegaCalculator(pdeCalculator, interpolator), interpolator);
   }
+
 
 }

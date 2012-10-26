@@ -6,8 +6,8 @@
 package com.opengamma.financial.analytics.model.forex.option.localvol;
 
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDECalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEImpliedVolatilityGridCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDESingleResultCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEStrikeGreeksGridCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.PDELocalVolatilityCalculator;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -15,19 +15,20 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityForwardPDEImpliedVolatilityFunction extends ForexLocalVolatilityForwardPDEFunction {
+public class FXOptionLocalVolatilityForwardPDEDualDeltaFunction extends FXOptionLocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEImpliedVolatilityFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEDualDeltaFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 
   @Override
   protected String getRequirementName() {
-    return ValueRequirementNames.IMPLIED_VOLATILITY;
+    return ValueRequirementNames.DUAL_DELTA;
   }
 
   @Override
   protected PDELocalVolatilityCalculator<?> getPDECalculator(final LocalVolatilityForwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
-    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEImpliedVolatilityGridCalculator(pdeCalculator, interpolator), interpolator);
+    return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEStrikeGreeksGridCalculator.DualDeltaCalculator(pdeCalculator, interpolator), interpolator);
   }
+
 }

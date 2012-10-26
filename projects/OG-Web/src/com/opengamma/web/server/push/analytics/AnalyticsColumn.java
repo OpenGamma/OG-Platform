@@ -118,6 +118,10 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 
   @Override
   public String toString() {
-    return "AnalyticsColumn [_header='" + _header + '\'' + ", _description='" + _description + '\'' + "]";
+    return "AnalyticsColumn [" +
+        "_header='" + _header + '\'' +
+        ", _description='" + _description + '\'' +
+        ", _type=" + _type +
+        "]";
   }
 }

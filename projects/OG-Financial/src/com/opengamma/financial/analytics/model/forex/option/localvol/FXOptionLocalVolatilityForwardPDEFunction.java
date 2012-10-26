@@ -24,9 +24,9 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  * 
  */
-public abstract class ForexLocalVolatilityForwardPDEFunction extends LocalVolatilityForwardPDEFunction {
+public abstract class FXOptionLocalVolatilityForwardPDEFunction extends LocalVolatilityForwardPDEFunction {
 
-  public ForexLocalVolatilityForwardPDEFunction(final String blackSmileInterpolatorName) {
+  public FXOptionLocalVolatilityForwardPDEFunction(final String blackSmileInterpolatorName) {
     super(blackSmileInterpolatorName);
   }
 

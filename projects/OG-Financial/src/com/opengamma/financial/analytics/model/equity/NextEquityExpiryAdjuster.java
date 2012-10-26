@@ -36,9 +36,8 @@ public class NextEquityExpiryAdjuster implements DateAdjuster {
     if (_immFutureQuarters.contains(date.getMonthOfYear()) &&
         date.with(s_dayOfMonth).isAfter(date)) { // in a quarter
       return date.with(s_dayOfMonth);
-    } else {
-      return date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);
-    }
+    } 
+    return date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);    
   }
 
 }
