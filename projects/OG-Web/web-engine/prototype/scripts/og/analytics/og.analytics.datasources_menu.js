@@ -29,7 +29,7 @@ $.register_module({
                         $source_select.append($($option.html()).text(d.name || d));
                     });
                 },
-                populate_livedatasources = function (callback) {
+                populate_livedatasources = function () {
                     og.api.rest.livedatasources.get().pipe(function (resp) {
                         if (resp.error) return;
                         populate_src_options(resp.data);
@@ -138,7 +138,7 @@ $.register_module({
                      return Object.keys(snapshots).filter(function(key) {
                         return snapshots[key] === id;
                      })[0];
-                }
+                },
                 menu_handler = function (event) { // TODO AG: Refactor
                     var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(parent_s);
@@ -204,7 +204,7 @@ $.register_module({
                             break;
                         case 'historical': populate_historical(); break;
                         //no default
-                    };
+                    }
                 });
             };
             menu.get_query = function () {
