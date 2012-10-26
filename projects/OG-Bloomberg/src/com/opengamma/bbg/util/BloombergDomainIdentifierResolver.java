@@ -32,10 +32,10 @@ public final class BloombergDomainIdentifierResolver {
   private static final Map<ExternalScheme, String> DOMAIN_PREFERENCES = new LinkedHashMap<ExternalScheme, String>();
   
   static {
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER, null);
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER, null);
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TCM, null);
     DOMAIN_PREFERENCES.put(ExternalSchemes.ISIN, "/isin/");
     DOMAIN_PREFERENCES.put(ExternalSchemes.CUSIP, "/cusip/");
@@ -59,11 +59,11 @@ public final class BloombergDomainIdentifierResolver {
   }
   
   public static String toBloombergKeyWithDataProvider(ExternalId identifier, String dataProvider) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    
     if (dataProvider == null || dataProvider.contains(DATA_PROVIDER_UNKNOWN)) {
       return toBloombergKey(identifier);
     }
-    
-    ArgumentChecker.notNull(identifier, "DomainSpecificIdentifier");
     
     ExternalScheme domain = identifier.getScheme();
     String result = null;
@@ -76,14 +76,18 @@ public final class BloombergDomainIdentifierResolver {
       }
       if (domain.equals(ExternalSchemes.BLOOMBERG_TICKER)) {
         String id  = identifier.getValue().toUpperCase();
-        String[] splits = id.split(" ");
-        if (id.endsWith("CURNCY")) {
-          buf.append(splits[0]).append(" ").append(dataProvider).append(" ");
+        if (id.endsWith("EQUITY")) {
+          buf.append(id);
         } else {
-          buf.append(splits[0]).append("@").append(dataProvider).append(" ");
-        }
-        for (int i = 1; i < splits.length; i++) {
-          buf.append(splits[i]).append(" ");
+          String[] splits = id.split(" ");
+          if (id.endsWith("CURNCY")) {
+            buf.append(splits[0]).append(" ").append(dataProvider);
+          } else {
+            buf.append(splits[0]).append("@").append(dataProvider);
+          }
+          for (int i = 1; i < splits.length; i++) {
+            buf.append(" ").append(splits[i]);
+          }
         }
         result =  buf.toString();
       } else {

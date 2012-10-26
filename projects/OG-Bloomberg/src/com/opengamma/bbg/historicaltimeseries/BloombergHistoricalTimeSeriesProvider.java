@@ -43,8 +43,10 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
@@ -203,7 +205,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
-        ExternalId preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        ExternalId preferredId = identifiers.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+        if (preferredId == null) {
+          preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        }
         s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);
