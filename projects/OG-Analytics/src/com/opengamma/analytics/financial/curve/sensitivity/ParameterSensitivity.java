@@ -204,20 +204,24 @@ public class ParameterSensitivity {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
+  // TODO: transfer to a test util.
   public static boolean compare(final ParameterSensitivity sensitivity1, final ParameterSensitivity sensitivity2, final double tolerance) {
     ArgumentChecker.notNull(sensitivity1, "sensitivity1");
     ArgumentChecker.notNull(sensitivity2, "sensitivity2");
     ArgumentChecker.isTrue(tolerance > 0, "tolerance must be greater than 0; have {}", tolerance);
     final MatrixAlgebra algebra = MatrixAlgebraFactory.COMMONS_ALGEBRA;
-    if (!sensitivity1.getSensitivities().keySet().equals(sensitivity2.getSensitivities().keySet())) {
-      return false;
-    }
     final Map<Pair<String, Currency>, DoubleMatrix1D> map1 = sensitivity1.getSensitivities();
     final Map<Pair<String, Currency>, DoubleMatrix1D> map2 = sensitivity2.getSensitivities();
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : map1.entrySet()) {
       final Pair<String, Currency> nameCcy = entry.getKey();
-      if (algebra.getNormInfinity(algebra.add(entry.getValue(), algebra.scale(map2.get(nameCcy), -1.0))) > tolerance) {
-        return false;
+      if (map2.get(nameCcy) == null) {
+        if (algebra.getNormInfinity(entry.getValue()) > tolerance) {
+          return false;
+        }
+      } else {
+        if (algebra.getNormInfinity(algebra.add(entry.getValue(), algebra.scale(map2.get(nameCcy), -1.0))) > tolerance) {
+          return false;
+        }
       }
     }
     return true;

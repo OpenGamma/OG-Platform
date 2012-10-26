@@ -42,7 +42,7 @@ public class ViewportResults {
                                 long version) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
-    ArgumentChecker.notNull(viewportDefinition, "viewportSpec");
+    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
@@ -112,6 +112,40 @@ public class ViewportResults {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ViewportResults that = (ViewportResults) o;
+
+    if (_version != that._version) {
+      return false;
+    }
+    if (!_columns.equals(that._columns)) {
+      return false;
+    }
+    if (!_viewportDefinition.equals(that._viewportDefinition)) {
+      return false;
+    }
+    if (!_allResults.equals(that._allResults)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = _allResults.hashCode();
+    result = 31 * result + _columns.hashCode();
+    result = 31 * result + _viewportDefinition.hashCode();
+    result = 31 * result + (int) (_version ^ (_version >>> 32));
+    return result;
+  }
+
+  @Override
   public String toString() {
     return "ViewportResults [" +
         "_allResults=" + _allResults +
@@ -168,6 +202,58 @@ public class ViewportResults {
 
     public int getColumn() {
       return _column;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Cell cell = (Cell) o;
+
+      if (_column != cell._column) {
+        return false;
+      }
+      if (_history != null) {
+        if (!_history.equals(cell._history)) {
+          return false;
+        }
+      } else {
+        if (cell._history != null) {
+          return false;
+        }
+      }
+      if (_value != null) {
+        if (!_value.equals(cell._value)) {
+          return false;
+        }
+      } else {
+        if (cell._value != null) {
+          return false;
+        }
+      }
+      if (_valueSpecification != null) {
+        if (!_valueSpecification.equals(cell._valueSpecification)) {
+          return false;
+        }
+      } else {
+        if (cell._valueSpecification != null) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = _value != null ? _value.hashCode() : 0;
+      result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
+      result = 31 * result + (_history != null ? _history.hashCode() : 0);
+      result = 31 * result + _column;
+      return result;
     }
   }
 }

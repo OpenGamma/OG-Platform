@@ -14,8 +14,9 @@ $.register_module({
                     var cell_data = data[0];
                     if (cell_data.t === 'PRIMITIVE') return; // we never subscribe to primitives
                     events.fire(cell.events.data, cell_data.v || cell_data);
-                });
-            cell.events = {data: []};
+                })
+                .on('fatal', function (message) {events.fire(cell.events.fatal, message);});
+            cell.events = {data: [], fatal: []};
         };
         constructor.prototype.kill = function () {this.dataman.kill();};
         constructor.prototype.on = events.on;

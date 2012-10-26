@@ -12,18 +12,20 @@ $.register_module({
         });
         var constructor = function (config, bypass_types) {
             var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
-                fire = og.common.events.fire, viewport = null, view_id = config.view, graph_id, viewport_id,
+                viewport = null, view_id = config.view, graph_id, viewport_id,
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = null, depgraph = !!config.depgraph, types_emitted = false, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 data.busy(false);
+                if (result && result.error && server_error(result))
+                    return data.kill(result.message), fire(data.events.fatal, result.message);
                 if (!result || result.error)
                     return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 if (viewport && viewport.empty !== true && result.data.version === viewport_version)
                     try {fire(data.events.data, result.data.data);}
-                    catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
+                    catch (error) {return data.kill(module.name + ': killed connection due to ', error);}
             };
             var data_setup = function () {
                 if (!view_id || !viewport) return;
@@ -49,19 +51,30 @@ $.register_module({
                     })
                 ).pipe(data_handler);
             };
+            var fire = (function () {
+                var fatal_fired = false;
+                return function () {
+                    var events = arguments[0], args = Array.prototype.slice.call(arguments);
+                    if (events !== data.events.fatal) return og.common.events.fire.apply(data, args);
+                    if (!fatal_fired) return (fatal_fired = true), og.common.events.fire.apply(data, args);
+                }
+            })();
             var initialize = function () {
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
                 if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
-                api.put(put_options).pipe(view_handler);
+                try {api.put(put_options).pipe(view_handler);}
+                catch (error) {fire(data.events.fatal, error.message);}
             };
             var structure_handler = function (result) {
                 var message;
                 if (!grid_type || (depgraph && !graph_id)) return;
-                if (result.error && server_error(result)) return (view_id = graph_id = viewport_id = subscribed = null),
-                    og.dev.warn(message = module.name + ': ' + result.message), fire(data.events.fatal, message);
+                if (result.error && server_error(result)) {
+                    view_id = graph_id = viewport_id = subscribed = null;
+                    return data.kill(message = module.name + ': ' + result.message), fire(data.events.fatal, message);
+                }
                 if (result.error) return (view_id = graph_id = viewport_id = subscribed = null),
                     og.dev.warn(message = module.name + ': ' + result.message), initialize();
                 if (!result.data[SETS].length) return;
@@ -70,7 +83,7 @@ $.register_module({
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
                 try {fire(data.events.meta, meta);}
-                catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
+                catch (error) {return data.kill(module.name + ': killed connection due to ', error);}
                 if (!subscribed) return data_setup();
             };
             var structure_setup = function () {
@@ -82,6 +95,7 @@ $.register_module({
                         return api.grid.depgraphs.put({
                             view_id: view_id, grid_type: grid_type, row: config.row, col: config.col
                         }).pipe(function (result) {
+                            if (result.error) return data.kill(result.message), fire(data.events.fatal, result.message);
                             return api.grid.depgraphs.structure.get({
                                 view_id: view_id, grid_type: grid_type,
                                 graph_id: (graph_id = result.meta.id), update: initialize
@@ -96,8 +110,10 @@ $.register_module({
                 port_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'portfolio'});
                 prim_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
-                    var portfolio = !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
-                        primitives = !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
+                    var portfolio = port_struct.data &&
+                            !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
+                        primitives = prim_struct.data &&
+                            !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
                     if (grid_type) {
                         if (initial_load) initialize();
                         if (types_emitted || !(portfolio || primitives)) return;
@@ -114,13 +130,14 @@ $.register_module({
                 if (result.error) return og.dev.warn(module.name + ': ' + result.message), result;
                 return (view_id = result.meta.id), grid_type ? structure_setup() : type_setup();
             };
-            var server_error = function (result) {return !result.message || ~result.message.indexOf('Status: 5');};
+            var server_error = function (result) {return +result.error >= 500;};
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             data.events = {meta: [], data: [], fatal: [], types: []};
             data.id = id;
             data.kill = function () {
+                if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
                 if (view_id) api.del({view_id: view_id}).pipe(function (result) {
                     view_id = null;
                     delete connections[data.id];
@@ -151,7 +168,7 @@ $.register_module({
                 return data;
             };
             connections[data.id] = data;
-            initialize();
+            setTimeout(initialize); // allow events to be attached
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;

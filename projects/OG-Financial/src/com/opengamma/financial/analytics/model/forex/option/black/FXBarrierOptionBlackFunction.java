@@ -22,7 +22,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  *
  */
-public class FXBarrierOptionBlackFunction extends AbstractFunction. NonCompiledInvoker {
+public class FXBarrierOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {

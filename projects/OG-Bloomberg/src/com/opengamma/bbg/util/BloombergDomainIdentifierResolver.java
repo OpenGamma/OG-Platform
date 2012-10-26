@@ -32,10 +32,10 @@ public final class BloombergDomainIdentifierResolver {
   private static final Map<ExternalScheme, String> DOMAIN_PREFERENCES = new LinkedHashMap<ExternalScheme, String>();
   
   static {
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER, null);
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
     DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TCM, null);
     DOMAIN_PREFERENCES.put(ExternalSchemes.ISIN, "/isin/");
     DOMAIN_PREFERENCES.put(ExternalSchemes.CUSIP, "/cusip/");

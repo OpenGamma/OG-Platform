@@ -147,7 +147,7 @@ $.register_module({
             };
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
-             * @param {Number} idx location to add new gadgets
+             * @param {Number} index location to add new gadgets
              *
              * The data Array is a list of objects that describe the gadgets to load
              *     obj.gadget   Function
@@ -155,11 +155,11 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index, fingerprint) {
+            container.add = function (data, index) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data, index, fingerprint), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data, index, fingerprint), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data, index), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
@@ -174,7 +174,7 @@ $.register_module({
                         });
                     gadgets.splice(index || gadgets.length, 0,
                         gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
-                    if (fingerprint) gadget.fingerprint = fingerprint;
+                    if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);

@@ -11,12 +11,19 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
-                routes.go(routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data}));
+                var current = routes.current(),
+                    hash = routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data});
+                if (current.hash === hash) return url.process(current.args);
+                routes.go(hash);
             });
         };
         return url = {
             add: function (container, params, silent) {
                 return (last_object[container] || (last_object[container] = [])).push(params), (!silent && go()), url;
+            },
+            clear_main: function () {
+                if (og.analytics.grid) og.analytics.grid.kill();
+                last_fingerprint.main = last_object.main = null;
             },
             last: last_object,
             launch: function (params) {
@@ -25,36 +32,38 @@ $.register_module({
                     .pipe(function (result) {win.location.href = url + result.data.data;});
             },
             main: function (params) {
-                if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                if (og.analytics.grid) og.analytics.grid.kill();
                 $(main_selector).html('requesting...');
                 return (last_object.main = params), go(), url;
             },
             process: function (args, handler) {
                 og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
-                    var config = result.data.data, current_main, panel, cellmenu;
+                    var config = result.data.data, current_main;
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
-                        if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                        if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
                             selector: main_selector, cellmenu: true,
                             source: $.extend({}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
-                        });
+                        }).on('fatal', url.clear_main);
                     }
                     panels.forEach(function (panel) {
-                        var gadgets = config[panel];
-                        if (!gadgets) return (last_fingerprint[panel] = []), (last_object[panel] = []);
+                        var gadgets = config[panel], new_gadgets = [];
+                        if (!gadgets || !gadgets.length)
+                            return (last_fingerprint[panel] = []), (last_object[panel] = []);
                         if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
                         if (!last_object[panel]) last_object[panel] = [];
                         last_fingerprint[panel] = gadgets.map(function (gadget, index) {
-                            var current_gadget = JSON.stringify(gadget);
-                            last_object[panel][index] = JSON.parse(current_gadget);
-                            if (last_fingerprint[panel][index] === current_gadget) return current_gadget;
-                            og.analytics.containers[panel].add([gadget], index, current_gadget);
-                            return current_gadget;
+                            var fingerprint = JSON.stringify(gadget);
+                            last_object[panel][index] = JSON.parse(fingerprint);
+                            if (last_fingerprint[panel][index] === fingerprint) return fingerprint;
+                            gadget.fingerprint = fingerprint;
+                            return new_gadgets.push(gadget), fingerprint;
                         });
+                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets);
                     });
                     panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
                     if (handler) handler();

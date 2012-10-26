@@ -26,8 +26,6 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
   private final ForwardCurve _forwardCurve;
   private final int _nExpiries;
 
-  // private final boolean _isCallData;
-
   public StandardSmileSurfaceDataBundle(final double spot, final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols,
       final Interpolator1D forwardCurveInterpolator) {
     ArgumentChecker.notNull(forwards, "forwards");
@@ -40,19 +38,18 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     ArgumentChecker.isTrue(_nExpiries == strikes.length, "strikes wrong length; have {}, need {}", strikes.length, _nExpiries);
     ArgumentChecker.isTrue(_nExpiries == impliedVols.length, "implied volatilities wrong length; have {}, need {}", impliedVols.length, _nExpiries);
     for (int i = 0; i < strikes.length; i++) {
-      ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length,
-          "implied volatilities for expiry {} not the same length as strikes; have {}, need {}", strikes[i].length, impliedVols[i].length);
+      ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length, "implied volatilities for expiry {} not the same length as strikes; have {}, need {}",
+          strikes[i].length, impliedVols[i].length);
     }
     // checkVolatilities(expiries, strikes, impliedVols); // Put this check in place, if desired, after construction.
     _expiries = expiries;
     _forwards = forwards;
 
-    double[] t = ArrayUtils.add(expiries, 0, 0.0);
-    double[] f = ArrayUtils.add(forwards, 0, spot);
+    final double[] t = ArrayUtils.add(expiries, 0, 0.0);
+    final double[] f = ArrayUtils.add(forwards, 0, spot);
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(t, f, forwardCurveInterpolator));
     _strikes = strikes;
     _impliedVols = impliedVols;
-    //   _isCallData = isCallData;
   }
 
   public StandardSmileSurfaceDataBundle(final ForwardCurve forwardCurve, final double[] expiries, final double[][] strikes, final double[][] impliedVols) {
@@ -65,8 +62,8 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     ArgumentChecker.isTrue(_nExpiries == impliedVols.length, "implied volatilities wrong length; have {}, need {}", _nExpiries, impliedVols.length);
     _forwards = new double[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
-      ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length,
-          "implied volatilities for expiry {} not the same length as strikes; have {}, need {}", strikes[i].length, impliedVols[i].length);
+      ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length, "implied volatilities for expiry {} not the same length as strikes; have {}, need {}",
+          strikes[i].length, impliedVols[i].length);
       _forwards[i] = forwardCurve.getForward(expiries[i]);
     }
     // checkVolatilities(expiries, strikes, impliedVols); // Put this check in place, if desired, after construction.
@@ -74,7 +71,6 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     _strikes = strikes;
     _impliedVols = impliedVols;
     _forwardCurve = forwardCurve;
-    //  _isCallData = isCallData;
   }
 
   @Override
@@ -114,7 +110,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, strikes[expiryIndex].length, strikeIndex), "Invalid index for strike; {}", strikeIndex);
     final double[][] vols = new double[_nExpiries][];
     for (int i = 0; i < _nExpiries; i++) {
-      int nStrikes = strikes[i].length;
+      final int nStrikes = strikes[i].length;
       vols[i] = new double[nStrikes];
       System.arraycopy(_impliedVols[i], 0, vols[i], 0, nStrikes);
     }
