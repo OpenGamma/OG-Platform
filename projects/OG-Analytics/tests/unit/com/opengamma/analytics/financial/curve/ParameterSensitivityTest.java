@@ -238,4 +238,16 @@ public class ParameterSensitivityTest {
     assertFalse("Test toMatrix, unequal keys: ", expectedMatrix.equals(sensitivity3.toMatrix()));
   }
 
+  @Test
+  public void getAllNamesCurrency() {
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map1 = Maps.newLinkedHashMap();
+    map1.put(NAME_1_EUR, SENSITIVITY_1_1);
+    map1.put(NAME_2_EUR, SENSITIVITY_1_2);
+    map1.put(NAME_1_USD, SENSITIVITY_2_1);
+    final ParameterSensitivity sensitivity1 = ParameterSensitivity.of(map1);
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getAllNamesCurrency(), sensitivity1.getSensitivities().keySet());
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getSensitivity(NAME_1, EUR), sensitivity1.getSensitivity(NAME_1_EUR));
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getSensitivity(NAME_2, EUR), sensitivity1.getSensitivity(NAME_2_EUR));
+  }
+
 }
