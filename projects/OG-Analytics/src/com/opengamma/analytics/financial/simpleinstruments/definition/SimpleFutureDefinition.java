@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.simpleinstruments.definition;
 
+import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.money.Currency;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
-import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class SimpleFutureDefinition implements SimpleInstrumentDefinition<Simple
   private final double _referencePrice;
   private final Currency _currency;
   private final double _unitAmount;
-  
+
   public SimpleFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double referencePrice, final Currency currency, final double unitAmount) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(settlementDate, "settlement date");
@@ -34,27 +34,27 @@ public class SimpleFutureDefinition implements SimpleInstrumentDefinition<Simple
     _currency = currency;
     _unitAmount = unitAmount;
   }
-  
+
   public ZonedDateTime getExpiry() {
     return _expiryDate;
   }
-  
+
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  
+
   public double getReferencePrice() {
     return _referencePrice;
   }
-  
+
   public Currency getCurrency() {
     return _currency;
   }
-  
+
   public double getUnitAmount() {
     return _unitAmount;
   }
-  
+
   @Override
   public SimpleFuture toDerivative(final ZonedDateTime date) {
     Validate.notNull(date, "date");
@@ -63,7 +63,15 @@ public class SimpleFutureDefinition implements SimpleInstrumentDefinition<Simple
     double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
     return new SimpleFuture(timeToFixing, timeToDelivery, _referencePrice, _unitAmount, _currency);
   }
-  
+
+  public SimpleFuture toDerivative(final ZonedDateTime date, final double referencePrice) {
+    Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(_expiryDate));
+    double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
+    double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
+    return new SimpleFuture(timeToFixing, timeToDelivery, referencePrice, _unitAmount, _currency);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -102,7 +110,7 @@ public class SimpleFutureDefinition implements SimpleInstrumentDefinition<Simple
     }
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
-    }   
+    }
     if (Double.doubleToLongBits(_unitAmount) != Double.doubleToLongBits(other._unitAmount)) {
       return false;
     }
