@@ -151,30 +151,33 @@ $.register_module({
                     console.log('reset_query');
                 },
                 this.replay_query = function (url_config) {
-                    console.log('replay_query');
                     if (!url_config || JSON.stringify(url_config) === JSON.stringify(query)) return false;
 
                     if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
-                        ag_menu.replay_query({
-                            aggregators: url_config.aggregators.map(function (entry) {
-                                return {val:entry, required_field:false};
-                            })
-                        });
+                        if (ag_menu) {
+                            ag_menu.replay_query({
+                                aggregators: url_config.aggregators.map(function (entry) {
+                                    return {val:entry, required_field:false};
+                                })
+                            });
+                        }
                     }
                     
                     if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
-                        ds_menu.replay_query({
-                            datasources: url_config.providers.map(function (entry) {
-                                var obj = {};
-                                obj.marketDataType = entry.marketDataType;
-                                if (entry.source) obj.source = entry.source;
-                                else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
-                                return obj;
-                            })
-                        });
+                        if (ds_menu) {
+                            ds_menu.replay_query({
+                                datasources: url_config.providers.map(function (entry) {
+                                    var obj = {};
+                                    obj.marketDataType = entry.marketDataType;
+                                    if (entry.source) obj.source = entry.source;
+                                    else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                                    return obj;
+                                })
+                            });
+                        }
                     }
                     if (!query || (url_config.viewdefinition !== query.viewdefinition)) 
-                        ac_menu.$input.val(url_config.viewdefinition);
+                        if (ac_menu) ac_menu.$input.val(url_config.viewdefinition);
                     return query = url_config;
                 };
                 this.destroy = function () {
