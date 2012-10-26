@@ -30,6 +30,10 @@ $.register_module({
                 return cols.join('\t') + '\n' + matrix
                     .map(function (row, idx) {return rows[idx] + '\t' + row.join('\t');}).join('\n');
             },
+            LABELLED_MATRIX_3D: function (value, standalone) {
+                if (!standalone) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+                return '**3D MATRIX**';
+            },
             PRIMITIVE: function (value) {
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
             },
@@ -65,6 +69,9 @@ $.register_module({
             UNKNOWN: function (value, standalone) {
                 var type = value.t;
                 return value && formatters[type] ? formatters[type](value, standalone) : value && value.v || '';
+            },
+            UNPLOTTABLE_SURFACE_DATA: function (value, standalone) {
+                return formatters.LABELLED_MATRIX_2D(value, standalone);
             }
         };
         var constructor = function (grid) {
