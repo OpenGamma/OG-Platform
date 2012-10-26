@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
@@ -119,10 +120,12 @@ public class CalibrateHazardRateCurveTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = false;
+  private static final boolean includeAccruedPremium = true;
+  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
+
+  private static final double parSpread = 100.0;
 
   // ----------------------------------------------------------------------------------
 
@@ -266,48 +269,8 @@ public class CalibrateHazardRateCurveTest {
       (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
   };
 
-  private static final double interestRate = 0.0;
-
-  /*
-  private static final double[] rates = new double[] {
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate };
-
-   */
-
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
-
-  // ----------------------------------------------------------------------------------
-
-  // Hazard rate term structure (assume this has been calibrated previously)
-
-  static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
-  };
-
-  static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
-  };
-
-  //private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -381,6 +344,7 @@ public class CalibrateHazardRateCurveTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
+      priceType,
       protectionStart,
       parSpread);
 
@@ -432,7 +396,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data
 
-  @Test
+  //@Test
   public void testCalibrateHazardRateCurveFlatTermStructure() {
 
     // -------------------------------------------------------------------------------------

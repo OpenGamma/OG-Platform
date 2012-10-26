@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -22,6 +23,10 @@ import com.opengamma.util.money.Currency;
  * Definition of a Legacy fixed recovery CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
  */
 public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+
+  // -----------------------------------------------------------------------------------------------
+
+  // TODO : Add hashCode and equals methods
 
   // -----------------------------------------------------------------------------------------------
 
@@ -57,6 +62,7 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaul
       double notional,
       double recoveryRate,
       boolean includeAccruedPremium,
+      PriceType priceType,
       boolean protectionStart,
       double parSpread) {
 
@@ -86,6 +92,7 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaul
         notional,
         recoveryRate,
         includeAccruedPremium,
+        priceType,
         protectionStart);
 
     // -----------------------------------------------------------------------------------------------

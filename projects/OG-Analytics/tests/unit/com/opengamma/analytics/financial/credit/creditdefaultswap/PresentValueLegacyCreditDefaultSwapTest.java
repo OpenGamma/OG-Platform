@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
@@ -113,10 +114,10 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 3, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 3, 21);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 6, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -128,10 +129,12 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
+
+  private static final double parSpread = 100.0;
 
   // ----------------------------------------------------------------------------------
 
@@ -275,27 +278,8 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
   };
 
-  private static final double interestRate = 0.0;
-
-  /*
-  private static final double[] rates = new double[] {
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate, interestRate,
-      interestRate, interestRate, interestRate, interestRate };
-   */
-
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
-  final double offset = 0.0; //s_act365.getDayCountFraction(valuationDate, baseDate);
+  final double offset = s_act365.getDayCountFraction(valuationDate, baseDate);
 
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
 
@@ -392,6 +376,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
+      priceType,
       protectionStart,
       parSpread);
 
@@ -426,11 +411,9 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  // -----------------------------------------------------------------------------------------------
-
   //Test to vary the valuationDate of a CDS from a start date to an end date and compute PV (test time decay and that coupons roll off on the correct days)
 
-  @Test
+  //@Test
   public void testPresentValueLegacyCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------

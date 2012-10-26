@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -24,6 +25,10 @@ import com.opengamma.util.money.Currency;
  */
 
 public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+
+  // -----------------------------------------------------------------------------------------------
+
+  // TODO : Add hashCode and equals methods
 
   // -----------------------------------------------------------------------------------------------
 
@@ -59,6 +64,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
       double notional,
       double recoveryRate,
       boolean includeAccruedPremium,
+      PriceType priceType,
       boolean protectionStart,
       double parSpread) {
 
@@ -88,6 +94,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
         notional,
         recoveryRate,
         includeAccruedPremium,
+        priceType,
         protectionStart);
 
     // -----------------------------------------------------------------------------------------------
@@ -117,7 +124,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(),
         getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getValuationDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
+        getRecoveryRate(), getIncludeAccruedPremium(), getPriceType(), getProtectionStart(), _parSpread);
 
     return modifiedCDS;
   }
@@ -131,7 +138,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(),
         getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getValuationDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), parSpread);
+        getRecoveryRate(), getIncludeAccruedPremium(), getPriceType(), getProtectionStart(), parSpread);
 
     return modifiedCDS;
   }
@@ -145,7 +152,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(),
         getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getValuationDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
+        recoveryRate, getIncludeAccruedPremium(), getPriceType(), getProtectionStart(), _parSpread);
 
     return modifiedCDS;
   }
@@ -159,7 +166,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(),
         getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), valuationDate, getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
+        getRecoveryRate(), getIncludeAccruedPremium(), getPriceType(), getProtectionStart(), _parSpread);
 
     return modifiedCDS;
   }
