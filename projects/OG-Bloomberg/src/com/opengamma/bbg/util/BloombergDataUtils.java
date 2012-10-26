@@ -43,6 +43,8 @@ import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 import javax.time.calendar.format.DateTimeFormatters;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -104,8 +106,6 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
