@@ -9,9 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -135,23 +133,6 @@ public class ParameterSensitivity {
       result = result.plus(nameCcyNew, sensitivityNew);
     }
     return result;
-  }
-
-  /**
-   * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). 
-   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. 
-   * The matrix order is the natural one for the <String, Currency> key (as implemented in TreeSet). 
-   * @return The sensitivity matrix.
-   */
-  //TODO: REVIEW if this is the correct order. Do we need externally provided list of name/currency in case some are not present in the sensitivity?
-  //REVIEW: emcleod 24-10-2012 why should the order be the natural ordering?
-  public DoubleMatrix1D toMatrix() {
-    double[] psArray = new double[0];
-    final TreeMap<Pair<String, Currency>, DoubleMatrix1D> sorted = new TreeMap<Pair<String, Currency>, DoubleMatrix1D>(_sensitivity);
-    for (final DoubleMatrix1D vector : sorted.values()) {
-      psArray = ArrayUtils.addAll(psArray, vector.getData());
-    }
-    return new DoubleMatrix1D(psArray);
   }
 
   /**
