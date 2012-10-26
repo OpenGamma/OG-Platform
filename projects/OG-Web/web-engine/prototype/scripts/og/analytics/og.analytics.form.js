@@ -11,11 +11,9 @@ $.register_module({
         'og.views.common.layout'
     ],
     obj: function () {
-        var initialized = false,
-            query = null,
-            FormInst = null,
-            Form = function (selector) {
-                var emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
+        var query = null,
+            Form = function (selector, url_config) {
+                var Form = this, emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
                     ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, 
                     ag_menu = null, ds_menu = null, ac_menu = null,
                     events = {
@@ -61,7 +59,7 @@ $.register_module({
                         ac_s = 'input autocompletechange autocompleteselect', 
                         $form = $(selector).html(config.template), $ag = $('.og-aggregation', $form),
                         $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
-                        status;
+                        status,
                         keydown_handler = function (event) {
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
@@ -148,14 +146,14 @@ $.register_module({
                         aggregation_markup: aggregation_markup, 
                         datasources_markup: datasources_markup
                     });
-                    initialized = true;
                 });
-                this.set_query = function (q) {
-                    query = q;
-                    return this;
-                };
+                this.reset_query = function () {
+                    console.log('reset_query');
+                },
                 this.replay_query = function (url_config) {
-                    if (JSON.stringify(url_config) === JSON.stringify(query)) return false;
+                    console.log('replay_query');
+                    if (!url_config || JSON.stringify(url_config) === JSON.stringify(query)) return false;
+
                     if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
                         ag_menu.replay_query({
                             aggregators: url_config.aggregators.map(function (entry) {
@@ -163,6 +161,7 @@ $.register_module({
                             })
                         });
                     }
+                    
                     if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
                         ds_menu.replay_query({
                             datasources: url_config.providers.map(function (entry) {
@@ -182,15 +181,8 @@ $.register_module({
 
                 };
             };
-        return function (selector, url_config) {
-            if (!initialized && url_config) { 
-                return (FormInst = new Form(selector)).set_query(url_config).replay_query(url_config);
-            } else if (initialized && url_config) {
-                return FormInst.replay_query(url_config);
-            } else if (!initialized || (initialized && !url_config)) {
-                if (query) query = null;
-                return FormInst = new Form(selector);
-            }
+        return function(selector) {
+            return new Form(selector);
         }
     }
 });
