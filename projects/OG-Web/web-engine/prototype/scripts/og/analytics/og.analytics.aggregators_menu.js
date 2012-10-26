@@ -82,7 +82,7 @@ $.register_module({
                 menu.opts.forEach(function (option, index) {
                     option.remove();
                 });
-                menu.opts = [];
+                menu.opts.length = 0;
                 ag_opts = [];
                 config.aggregators.forEach(function (entry, index) {
                     add_handler();
