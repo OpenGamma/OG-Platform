@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.description;
 
+import static com.opengamma.util.money.Currency.EUR;
+import static com.opengamma.util.money.Currency.USD;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -15,9 +17,15 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Tests the MultipleCurrencyCurveSensitivityMarket class.
+ */
 public class MultipleCurrencyCurveSensitivityMarketTest {
 
   private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
@@ -46,7 +54,7 @@ public class MultipleCurrencyCurveSensitivityMarketTest {
     SENSI_FWD_11.put(CURVE_NAME_2, SENSI_FWD_1);
   }
 
-  // private static final double TOLERANCE = 1.0E-10;
+  private static final double TOLERANCE = 1.0E-10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCcy() {
@@ -64,12 +72,49 @@ public class MultipleCurrencyCurveSensitivityMarketTest {
     Currency ccy1 = Currency.AUD;
     MultipleCurrencyCurveSensitivityMarket mcs = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy1));
-    Currency ccy2 = Currency.CAD;
-    mcs = mcs.plus(ccy2, cs);
-    assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy1));
-    assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy2));
   }
 
-  // TODO: tests on plus, multipliedBy and cleaned.
+  @Test
+  public void plusMultipliedBy() {
+    Currency ccy1 = Currency.AUD;
+    Currency ccy2 = Currency.CAD;
+    CurveSensitivityMarket cs = CurveSensitivityMarket.of(SENSI_11, SENSI_FWD_11, SENSI_33);
+    MultipleCurrencyCurveSensitivityMarket mcs = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
+    CurveSensitivityMarket cs2 = CurveSensitivityMarket.ofYieldDiscounting(SENSI_22);
+    MultipleCurrencyCurveSensitivityMarket mcs2 = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs2);
+    MultipleCurrencyCurveSensitivityMarket mcs3 = mcs.plus(mcs2);
+    Map<String, List<DoublesPair>> sum = InterestRateCurveSensitivityUtils.addSensitivity(SENSI_11, SENSI_22);
+    MultipleCurrencyCurveSensitivityMarket mcs3Expected = MultipleCurrencyCurveSensitivityMarket.of(ccy1, CurveSensitivityMarket.of(sum, SENSI_FWD_11, SENSI_33));
+    AssertSensivityObjects.assertEquals("", mcs3Expected.cleaned(), mcs3.cleaned(), TOLERANCE);
+    mcs = mcs.plus(ccy2, cs);
+    assertEquals("MultipleCurrencyCurveSensitivityMarket: plusMultipliedBy", cs, mcs.getSensitivity(ccy1));
+    assertEquals("MultipleCurrencyCurveSensitivityMarket: plusMultipliedBy", cs, mcs.getSensitivity(ccy2));
+    AssertSensivityObjects.assertEquals("", mcs.plus(mcs).cleaned(), mcs.multipliedBy(2.0).cleaned(), TOLERANCE);
+  }
+
+  @Test
+  public void cleaned() {
+    Currency ccy1 = Currency.AUD;
+    Currency ccy2 = Currency.CAD;
+    CurveSensitivityMarket cs1 = CurveSensitivityMarket.of(SENSI_11, SENSI_FWD_11, SENSI_33);
+    CurveSensitivityMarket cs2 = CurveSensitivityMarket.of(SENSI_22, SENSI_FWD_11, SENSI_33);
+    MultipleCurrencyCurveSensitivityMarket mcs1 = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs1);
+    mcs1 = mcs1.plus(ccy2, cs2);
+    MultipleCurrencyCurveSensitivityMarket mcs2 = MultipleCurrencyCurveSensitivityMarket.of(ccy2, cs2);
+    mcs2 = mcs2.plus(ccy1, cs1);
+    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: cleaned", mcs1.cleaned(), mcs2.cleaned(), TOLERANCE);
+  }
+
+  @Test
+  public void converted() {
+    final FXMatrix fxMatrix = new FXMatrix(EUR, USD, 1.25);
+    Currency ccy1 = Currency.EUR;
+    Currency ccy2 = Currency.USD;
+    CurveSensitivityMarket cs = CurveSensitivityMarket.of(SENSI_11, SENSI_FWD_11, SENSI_33);
+    MultipleCurrencyCurveSensitivityMarket mcs = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
+    MultipleCurrencyCurveSensitivityMarket mcsConverted = mcs.converted(ccy2, fxMatrix);
+    MultipleCurrencyCurveSensitivityMarket mcsExpected = MultipleCurrencyCurveSensitivityMarket.of(ccy2, cs.multipliedBy(fxMatrix.getFxRate(ccy1, ccy2)));
+    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: converted", mcsExpected.cleaned(), mcsConverted.cleaned(), TOLERANCE);
+  }
 
 }
