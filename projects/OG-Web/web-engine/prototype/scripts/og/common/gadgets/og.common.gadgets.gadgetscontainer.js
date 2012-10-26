@@ -134,10 +134,10 @@ $.register_module({
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
                     if (id === void 0) id = live_id;
-                    tabs = gadgets.reduce(function (acc, val) {
+                    tabs = gadgets.reduce(function (acc, val, i) {
                         return acc.push({
                             'type': val.config.type, 'row_name': val.config.row_name, 'col_name': val.config.col_name,
-                            'active': (id === val.id), 'delete': true, 'id': val.id
+                            'active': gadgets[i].active = id === val.id, 'delete': true, 'id': val.id
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
@@ -272,13 +272,13 @@ $.register_module({
             };
             container.resize = function () {
                 gadgets.forEach(function (obj) {
-                    if (obj.gadget.alive()) {
+                    if (obj.gadget.alive() && obj.active) {
                         $(selector + ' .ui-layout-content').show();
                         update_tabs();
                         obj.gadget.resize();
                     }
                 });
-            }
+            };
             container.verify = function (fingerprints) {
                 if (!initialized) return setTimeout(container.verify.partial(fingerprints), 10), container;
                 var gadget_prints = gadgets.pluck('fingerprint'), keep;
