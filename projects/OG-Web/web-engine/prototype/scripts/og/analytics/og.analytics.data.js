@@ -27,8 +27,9 @@ $.register_module({
                     try {fire(data.events.data, result.data.data);}
                     catch (error) {return data.kill(module.name + ': killed connection due to ', error);}
             };
-            var data_setup = function () {
+            var data_setup = function (update) {
                 if (!view_id || !viewport) return;
+                if (update && update.reset) return; // reset connections are not handled here
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
                 data.busy(true);
@@ -59,7 +60,9 @@ $.register_module({
                     if (!fatal_fired) return (fatal_fired = true), og.common.events.fire.apply(data, args);
                 }
             })();
-            var initialize = function () {
+            var initialize = function (update) {
+                if (update && update.reset) // if connection has been reset
+                    data.kill(module.name + ': reset'), (view_id = graph_id = viewport_id = subscribed = null);
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
                 if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
@@ -90,22 +93,28 @@ $.register_module({
                 return !view_id ? null : depgraph ? api.grid.structure
                     .get({view_id: view_id, grid_type: grid_type, update: initialize}).pipe(function (result) {
                         if (result.error || !result.data[SETS].length) return result; // goes to structure_handler
-                        if (graph_id) return api.grid.depgraphs.structure
-                            .get({view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: initialize});
+                        if (graph_id) return api.grid.depgraphs.structure.get({
+                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: function (update) {
+                                if (!update.reset) initialize(update);
+                            }
+                        });
                         return api.grid.depgraphs.put({
                             view_id: view_id, grid_type: grid_type, row: config.row, col: config.col
                         }).pipe(function (result) {
                             if (result.error) return data.kill(result.message), fire(data.events.fatal, result.message);
                             return api.grid.depgraphs.structure.get({
                                 view_id: view_id, grid_type: grid_type,
-                                graph_id: (graph_id = result.meta.id), update: initialize
+                                graph_id: (graph_id = result.meta.id), update: function (update) {
+                                    if (!update.reset) initialize(update);
+                                }
                             });
                         })
                     })
                     : api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: initialize});
             };
-            var type_setup = function (view_result) {
+            var type_setup = function (update) {
                 var port_request, prim_request, initial_load = !!config.type && (grid_type === null);
+                if (update && update.reset) return; // reset connections are not handled here
                 if (!grid_type) grid_type = config.type;
                 port_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'portfolio'});
                 prim_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'primitives'});

@@ -116,7 +116,9 @@ $.register_module({
                     });
         };
         var request = function (method, config, promise) {
-            var no_post_body = {GET: 0, DELETE: 0}, is_get = config.meta.type === 'GET', current = routes.current(),
+            var no_post_body = {GET: 0, DELETE: 0}, current = routes.current(),
+                is_get = config.meta.type === 'GET',
+                is_delete = config.meta.type === 'DELETE',
                 // build GET/DELETE URLs instead of letting $.ajax do it
                 url = config.url || (config.meta.type in no_post_body ?
                     [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
@@ -190,6 +192,8 @@ $.register_module({
                 if (config.meta.cache_for) cache_set(url, true);
             }
             outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+            if (is_delete) registrations = registrations
+                .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
             return send(), promise;
         };
         var request_expired = function (request, current) {
