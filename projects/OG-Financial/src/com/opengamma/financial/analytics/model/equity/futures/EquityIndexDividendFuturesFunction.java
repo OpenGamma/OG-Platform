@@ -16,13 +16,13 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -115,16 +115,16 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 
     // Build the DataBundle it requires
-    final EquityFutureDataBundle dataBundle;
+    final SimpleFutureDataBundle dataBundle;
     switch (_pricingMethod) {
       case MARK_TO_MARKET:
         Double marketPrice = getMarketPrice(security, inputs);
-        dataBundle = new EquityFutureDataBundle(null, marketPrice, null, null, null);
+        dataBundle = new SimpleFutureDataBundle(null, marketPrice, null, null, null);
         break;
       case COST_OF_CARRY:
         Double costOfCarry = getCostOfCarry(security, inputs);
         Double spotUnderlyer = getSpot(security, inputs);
-        dataBundle = new EquityFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
+        dataBundle = new SimpleFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
@@ -132,7 +132,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
         Double dividendYield = hts.getTimeSeries().getLatestValue();
         dividendYield /= 100.0;
         YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
-        dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
+        dataBundle = new SimpleFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
         break;
       default:
         throw new OpenGammaRuntimeException("Unhandled pricingMethod");
@@ -147,7 +147,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
    * 
    * @return Call to the Analytics to get the value required
    */
-  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, EquityIndexDividendFutureSecurity security) {
+  private Set<ComputedValue> getComputedValue(EquityFuture derivative, SimpleFutureDataBundle bundle, EquityIndexDividendFutureSecurity security) {
 
     final double nContracts = 1;
     final double valueItself;

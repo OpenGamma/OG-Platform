@@ -7,24 +7,20 @@ package com.opengamma.financial.analytics.model.simpleinstrument;
 
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
-import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFuturePresentValueCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * Simple Function computes PV as the difference between Live and last day's closing prices
+ * A Future's sensitivity to moves in its own underlying price, plainly the unit amount.
  */
-public class SimpleFuturePresentValueFunction extends SimpleFutureFunction {
+public class SimpleFuturePriceDeltaFunction extends SimpleFutureFunction {
 
-  public SimpleFuturePresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  public SimpleFuturePriceDeltaFunction() {
+    super(ValueRequirementNames.VALUE_DELTA);
   }
-
-  private static final SimpleFuturePresentValueCalculator CALCULATOR = new SimpleFuturePresentValueCalculator();
 
   @Override
   protected Double computeValues(SimpleFuture derivative, SimpleFutureDataBundle market) {
-    final Double pv = derivative.accept(CALCULATOR, market);
-    return pv;
+    return derivative.getUnitAmount();
   }
 
 }

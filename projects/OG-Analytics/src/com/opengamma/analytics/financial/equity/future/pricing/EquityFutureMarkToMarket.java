@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.future.pricing;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given market price.
- * FIXME !!! This probably needs to be discounted by daysToSpot...(depends on margining behaviour) curve.getDiscountFactor(future.getDaysToSpot())
+ * TODO Review margining behaviour and impact
  */
 public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
 
@@ -34,7 +34,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
    * @return Present value of the derivative
    */
   @Override
-  public double presentValue(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double presentValue(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getMarketPrice());
@@ -48,19 +48,20 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
    * @return The change in the present value given a unit value change in the underlying's spot value
    */
   @Override
-  public double spotDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double spotDelta(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     return future.getUnitAmount();
   }
 
   /**
-   * Computes the ValueRequirement, ValueRho
+   * Computes the ValueRequirement, ValueRho. <p>
+   * In this, we model the futuresPrice ~ exp(r*T-costOfCarry)*S => dV/dr = T * futuresPrice
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The change in the present value given a unit value change in the discount rate
    */
   @Override
-  public double ratesDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double ratesDelta(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getMarketPrice(), "_marketPrice must not be null");
@@ -73,7 +74,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
    * @return The change in the present value given a basis point change in the discount rate
    */
   @Override
-  public double pv01(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double pv01(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     return ratesDelta(future, dataBundle) / 10000;
   }
 
@@ -83,13 +84,13 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
    * @return The spot price of the equity or index
    */
   @Override
-  public double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+  public double spotPrice(EquityFuture future, SimpleFutureDataBundle dataBundle) {
     Validate.notNull(dataBundle.getSpotValue(), "Spot value has not been set in dataBundle of EquityFuture");
     return dataBundle.getSpotValue();
   }
 
   @Override
-  public double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+  public double forwardPrice(EquityFuture future, SimpleFutureDataBundle dataBundle) {
     return dataBundle.getMarketPrice();
   }
 }

@@ -18,8 +18,6 @@ $.register_module({
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 data.busy(false);
-                if (result && result.error && server_error(result))
-                    return data.kill(result.message), fire(data.events.fatal, result.message);
                 if (!result || result.error)
                     return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.

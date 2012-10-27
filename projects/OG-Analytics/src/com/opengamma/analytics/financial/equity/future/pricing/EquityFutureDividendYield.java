@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.equity.future.pricing;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 
 /**
  * Method to compute a future's present value given the current value of its underlying,
@@ -34,7 +34,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @return The spot price of the equity or index
    */
   @Override
-  public double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+  public double spotPrice(EquityFuture future, SimpleFutureDataBundle dataBundle) {
     Validate.notNull(dataBundle.getSpotValue(), "Spot value has not been set in dataBundle of EquityFuture");
     return dataBundle.getSpotValue();
   }
@@ -44,7 +44,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The forward price of the equity or index
    */
-  public double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle) {
+  public double forwardPrice(EquityFuture future, SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getFundingCurve());
@@ -64,7 +64,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @return Present value of the derivative
    */
   @Override
-  public double presentValue(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double presentValue(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     final double fwdPrice = forwardPrice(future, dataBundle);
     return (fwdPrice - future.getStrike()) * future.getUnitAmount();
   }
@@ -75,7 +75,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @return The change in the present value given a unit value change in the underlying's spot value
    */
   @Override
-  public double spotDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double spotDelta(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getFundingCurve());
@@ -93,7 +93,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @return The change in the present value given a unit value change in the discount rate
    */
   @Override
-  public double ratesDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double ratesDelta(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getFundingCurve());
@@ -113,7 +113,7 @@ public final class EquityFutureDividendYield implements EquityFuturesPricer {
    * @return The change in the present value given a basis point change in the discount rate
    */
   @Override
-  public double pv01(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double pv01(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     return ratesDelta(future, dataBundle) / 10000;
   }
 }
