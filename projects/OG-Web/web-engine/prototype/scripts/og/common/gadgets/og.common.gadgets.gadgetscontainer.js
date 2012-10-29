@@ -116,7 +116,7 @@ $.register_module({
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
                         $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
-                            if (!!$this.attr('style')) $this.attr('title', $this.text().trim());
+                            if (!!$this.attr('style')) $this.attr('title', $this.text().replace(/\s+/g , ' ').trim());
                         });
                     }
                     // implement drag
@@ -153,13 +153,9 @@ $.register_module({
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
                                 gadget: "og.common.gadgets." + $(this).attr('value'),
-                                options: val.gadget.config.options,
-                                fingerprint: "",
-                                gadget_name: $(this).attr('title'),
-                                gadget_type: $(this).attr('value'),
-                                col_name: val.gadget.config.col_name,
-                                data_type: val.gadget.config.data_type,
-                                row_name: val.gadget.config.row_name
+                                options: val.gadget.config.options, fingerprint: "", gadget_name: $(this).attr('title'),
+                                gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
+                                data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
                             };
                             container.add([swap_config], val.gadget_index);
                             menu.close();
