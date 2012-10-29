@@ -17,72 +17,36 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.server.LastKnownValueStoreProvider;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesMasterUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.redis.RedisConnector;
 
 /**
- * 
+ * Job that snapshot lastest market values in RedisServer and updates the timeseries master 
  */
-public class RedisHTSSnapshotJob implements Runnable {
+public class RedisHtsSnapshotJob implements Runnable {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(RedisHTSSnapshotJob.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(RedisHtsSnapshotJob.class);
   
-  private final HistoricalTimeSeriesMaster _htsMaster;
-  private final String _dataSource;
-  private final List<String> _blackListDataFields = Lists.newArrayList();
-  private final List<String> _blackListSchemes = Lists.newArrayList();
-  private final String _observationTime;
-  private final String _normalizationRuleSetId;
+  private HistoricalTimeSeriesMaster _htsMaster;
+  private String _dataSource;
+  private DataFieldBlackList _dataFieldBlackList;
+  private SchemeBlackList _schemeBlackList;
+  private String _observationTime;
+  private String _normalizationRuleSetId;
   
-  private String _redisServer;
-  private int _port = 6379;
   private String _globalPrefix = "";
-  private volatile boolean _isInitialized;
-  private JedisPool _jedisPool;
+  private RedisConnector _redisConnector;
   
-  public RedisHTSSnapshotJob(final LastKnownValueStoreProvider lkvStoreProvider, final HistoricalTimeSeriesMaster htsMaster, 
-      final String dataSource, final String observationTime, final String normalizationRuleSetId) {
-    ArgumentChecker.notNull(lkvStoreProvider, "LKV store provider");
-    ArgumentChecker.notNull(normalizationRuleSetId, "normalization rule set Id");
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(observationTime, "observation time");
-    ArgumentChecker.notNull(htsMaster, "historical timeseries master");
-    
-    _normalizationRuleSetId = normalizationRuleSetId;
-    _dataSource = dataSource;
-    _observationTime = observationTime;
-    _htsMaster = htsMaster;
-    
-  }
-  
-  /**
-   * Gets the port.
-   * @return the port
-   */
-  public int getPort() {
-    return _port;
-  }
-
-  /**
-   * Sets the port.
-   * @param port  the port
-   */
-  public void setPort(int port) {
-    _port = port;
-  }
-
   /**
    * Gets the globalPrefix.
    * @return the globalPrefix
@@ -98,23 +62,6 @@ public class RedisHTSSnapshotJob implements Runnable {
   public void setGlobalPrefix(String globalPrefix) {
     _globalPrefix = globalPrefix;
   }
-
-  /**
-   * Gets the redisServer.
-   * @return the redisServer
-   */
-  public String getRedisServer() {
-    return _redisServer;
-  }
-
-  /**
-   * Sets the redisServer.
-   * @param redisServer  the redisServer
-   */
-  public void setRedisServer(String redisServer) {
-    _redisServer = redisServer;
-  }
-
 
   /**
    * Gets the htsMaster.
@@ -133,39 +80,75 @@ public class RedisHTSSnapshotJob implements Runnable {
   }
 
   /**
-   * Gets the blackListDataFields.
-   * @return the blackListDataFields
+   * Gets the dataFieldBlackList.
+   * @return the dataFieldBlackList
    */
-  public List<String> getBlackListDataFields() {
-    return ImmutableList.copyOf(_blackListDataFields);
+  public DataFieldBlackList getDataFieldBlackList() {
+    return _dataFieldBlackList;
   }
 
   /**
-   * Sets the blackListDataFields.
-   * @param blackListDataFields  the blackListDataFields
+   * Sets the dataFieldBlackList.
+   * @param dataFieldBlackList  the dataFieldBlackList
    */
-  public void setBlackListDataFields(List<String> blackListDataFields) {
-    for (String dataField : blackListDataFields) {
-      _blackListDataFields.add(dataField.toUpperCase());
-    }
-  }
-  
-  /**
-   * Gets the blackListSchemes.
-   * @return the blackListSchemes
-   */
-  public List<String> getBlackListSchemes() {
-    return ImmutableList.copyOf(_blackListSchemes);
+  public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
+    _dataFieldBlackList = dataFieldBlackList;
   }
 
   /**
-   * Sets the blackListSchemes.
-   * @param blackListSchemes  the blackListSchemes
+   * Gets the schemeBlackList.
+   * @return the schemeBlackList
    */
-  public void setBlackListSchemes(List<String> blackListSchemes) {
-    for (String scheme : blackListSchemes) {
-      _blackListDataFields.add(scheme.toUpperCase());
-    }
+  public SchemeBlackList getSchemeBlackList() {
+    return _schemeBlackList;
+  }
+
+  /**
+   * Sets the schemeBlackList.
+   * @param schemeBlackList  the schemeBlackList
+   */
+  public void setSchemeBlackList(SchemeBlackList schemeBlackList) {
+    _schemeBlackList = schemeBlackList;
+  }
+
+  /**
+   * Gets the redisConnector.
+   * @return the redisConnector
+   */
+  public RedisConnector getRedisConnector() {
+    return _redisConnector;
+  }
+
+  /**
+   * Sets the redisConnector.
+   * @param redisConnector  the redisConnector
+   */
+  public void setRedisConnector(RedisConnector redisConnector) {
+    _redisConnector = redisConnector;
+  }
+
+  /**
+   * Sets the dataSource.
+   * @param dataSource  the dataSource
+   */
+  public void setDataSource(String dataSource) {
+    _dataSource = dataSource;
+  }
+
+  /**
+   * Sets the observationTime.
+   * @param observationTime  the observationTime
+   */
+  public void setObservationTime(String observationTime) {
+    _observationTime = observationTime;
+  }
+
+  /**
+   * Sets the normalizationRuleSetId.
+   * @param normalizationRuleSetId  the normalizationRuleSetId
+   */
+  public void setNormalizationRuleSetId(String normalizationRuleSetId) {
+    _normalizationRuleSetId = normalizationRuleSetId;
   }
 
   /**
@@ -183,26 +166,10 @@ public class RedisHTSSnapshotJob implements Runnable {
   public String getNormalizationRuleSetId() {
     return _normalizationRuleSetId;
   }
-  
-  protected void initIfNecessary() {
-    if (_isInitialized) {
-      return;
-    }
-    synchronized (this) {
-      assert _jedisPool == null;
-      s_logger.info("Connecting to {}:{}.", new Object[] {getRedisServer(), getPort()});
-      JedisPoolConfig poolConfig = new JedisPoolConfig();
-      //poolConfig.set...
-      JedisPool pool = new JedisPool(poolConfig, getRedisServer(), getPort());
-      _jedisPool = pool;
-      
-      _isInitialized = true;
-    }
-  }
-  
+    
   @Override
   public void run() {
-    initIfNecessary();
+    validateState();
     Map<ExternalId, Map<String, String>> redisLKV = loadLastKnownValues();
     for (Entry<ExternalId, Map<String, String>> lkvEntry : redisLKV.entrySet()) {
       ExternalId externalId = lkvEntry.getKey();
@@ -212,13 +179,22 @@ public class RedisHTSSnapshotJob implements Runnable {
     s_logger.debug("Total loaded lkv: {}", redisLKV.size());
   }
 
+  private void validateState() {
+    ArgumentChecker.notNull(getNormalizationRuleSetId(), "normalization rule set Id");
+    ArgumentChecker.notNull(getDataSource(), "dataSource");
+    ArgumentChecker.notNull(getObservationTime(), "observation time");
+    ArgumentChecker.notNull(getHtsMaster(), "historical timeseries master");
+    ArgumentChecker.notNull(getRedisConnector(), "redis connector");
+  }
+
   private void updateTimeSeries(ExternalId externalId, Map<String, String> lkv) {
     HistoricalTimeSeriesMasterUtils htsMaster = new HistoricalTimeSeriesMasterUtils(getHtsMaster());
     LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     for (Entry<String, String> lkvEntry : lkv.entrySet()) {
       String fieldName = lkvEntry.getKey();
       Double value = Double.parseDouble(lkvEntry.getValue());
-      if (_blackListDataFields.contains(fieldName.toUpperCase())) {
+      
+      if (haveDataFieldBlackList() && _dataFieldBlackList.getDataFieldBlackList().contains(fieldName.toUpperCase())) {
         continue;
       }
       if (value != null) {
@@ -235,12 +211,16 @@ public class RedisHTSSnapshotJob implements Runnable {
     }
   }
 
+  private boolean haveDataFieldBlackList() {
+    return _dataFieldBlackList != null && _dataFieldBlackList.getDataFieldBlackList() != null;
+  }
+
   private Map<ExternalId, Map<String, String>> loadLastKnownValues() {
     Map<ExternalId, Map<String, String>> result = Maps.newHashMap();
     
     Set<String> allSchemes = getAllSchemes();
     for (String scheme : allSchemes) {
-      if (_blackListSchemes.contains(scheme.toUpperCase())) {
+      if (haveSchemeBlackList() && _schemeBlackList.getSchemeBlackList().contains(scheme.toUpperCase())) {
         continue;
       }
      
@@ -252,22 +232,16 @@ public class RedisHTSSnapshotJob implements Runnable {
     }
     return result;
   }
-  
-  public void destroy() {
-    synchronized (this) {
-      if (_jedisPool != null) {
-        _jedisPool.destroy();
-        _isInitialized = false;
-        _jedisPool = null;
-      }
-    }
+
+  private boolean haveSchemeBlackList() {
+    return _schemeBlackList != null && _schemeBlackList.getSchemeBlackList() != null;
   }
-  
+    
   @SuppressWarnings("unchecked")
   private Map<ExternalId, Map<String, String>> loadSubListLKValues(final List<String> subList, final String scheme) {
     Map<ExternalId, Map<String, String>> result = Maps.newHashMap();
-    
-    Jedis jedis = _jedisPool.getResource();
+    JedisPool jedisPool = _redisConnector.getJedisPool();
+    Jedis jedis = jedisPool.getResource();
     Pipeline pipeline = jedis.pipelined();
     for (String identifier : subList) {
       String redisKey = generateRedisKey(scheme, identifier, getNormalizationRuleSetId());
@@ -280,7 +254,7 @@ public class RedisHTSSnapshotJob implements Runnable {
       String identifier = subList.get(count++);
       result.put(ExternalId.of(scheme, identifier), (Map<String, String>) lkvObj);
     }    
-    _jedisPool.returnResource(jedis);
+    jedisPool.returnResource(jedis);
     return result;
   }
 
@@ -299,9 +273,10 @@ public class RedisHTSSnapshotJob implements Runnable {
   }
 
   private Set<String> getAllSchemes() {
-    Jedis jedis = _jedisPool.getResource();
+    JedisPool jedisPool = _redisConnector.getJedisPool();
+    Jedis jedis = jedisPool.getResource();
     Set<String> allMembers = jedis.smembers(generateAllSchemesKey());
-    _jedisPool.returnResource(jedis);
+    jedisPool.returnResource(jedis);
     s_logger.info("Loaded {} schemes from Jedis (full contents in Debug level log)", allMembers.size());
     if (s_logger.isDebugEnabled()) {
       s_logger.debug("Loaded schemes from Jedis: {}", allMembers);
@@ -338,10 +313,10 @@ public class RedisHTSSnapshotJob implements Runnable {
   }
   
   private Set<String> getAllIdentifiers(String identifierScheme) {
-    initIfNecessary();
-    Jedis jedis = _jedisPool.getResource();
+    JedisPool jedisPool = _redisConnector.getJedisPool();
+    Jedis jedis = jedisPool.getResource();
     Set<String> allMembers = jedis.smembers(generatePerSchemeKey(identifierScheme));
-    _jedisPool.returnResource(jedis);
+    jedisPool.returnResource(jedis);
     s_logger.info("Loaded {} identifiers from Jedis (full contents in Debug level log)", allMembers.size());
     if (s_logger.isDebugEnabled()) {
       s_logger.debug("Loaded identifiers from Jedis: {}", allMembers);
@@ -349,4 +324,7 @@ public class RedisHTSSnapshotJob implements Runnable {
     return allMembers;
   }
 
+  public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster htsMaster) {
+    _htsMaster = htsMaster;
+  }
 }
