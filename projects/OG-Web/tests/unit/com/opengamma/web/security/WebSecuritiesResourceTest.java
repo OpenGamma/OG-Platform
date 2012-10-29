@@ -22,14 +22,14 @@ import org.testng.annotations.Test;
  */
 @Test
 public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCase {
-  
+
   public void testGetMetaDataJSON() throws Exception {
     String metaDataJSON = _webSecuritiesResource.getMetaDataJSON();
     assertNotNull(metaDataJSON);
     JSONObject actualJson = new JSONObject(metaDataJSON); 
     assertJSONObjectEquals(loadJson("com/opengamma/web/security/securitiesMetaDataJson.txt"), actualJson);
   }
-  
+
   public void testGetAllSecurities() throws Exception {
     MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
     queryParameters.putSingle("name", StringUtils.EMPTY);
@@ -42,7 +42,6 @@ public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCa
         queryParameters.getFirst("type"), queryParameters.get("securityId"), _uriInfo);
     assertNotNull(resultJson);
     assertJSONObjectEquals(loadJson("com/opengamma/web/security/allSecuritiesJson.txt"), new JSONObject(resultJson));
-    
   }
-  
+
 }
