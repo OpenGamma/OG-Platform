@@ -13,6 +13,10 @@
     height: 23px;
 }
 
+.OG-gadget-tabs-label {
+    display: inline;
+}
+
 .OG-gadget-tabs ul:before {
     content: '';
     background: #fff;

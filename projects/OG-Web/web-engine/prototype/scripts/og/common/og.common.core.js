@@ -22,7 +22,7 @@
         warn = typeof console !== 'undefined' && console.warn ? function () {
             var args = Array.prototype.slice.call(arguments);
             console.$ = args;
-            console.warn.apply(console, args);
+          //  console.warn.apply(console, args);
         } : log.partial('[warning]'),
         top_level = window, default_module = {
             live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',

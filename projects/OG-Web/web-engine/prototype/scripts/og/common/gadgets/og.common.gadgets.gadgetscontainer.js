@@ -132,22 +132,45 @@ $.register_module({
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
-                    if (id === void 0) id = live_id;
+                    if (id === void 0) id = live_id;                  
                     tabs = gadgets.reduce(function (acc, val, i) {
                         return acc.push({
-                            'type': val.config.type, 'row_name': val.config.row_name, 'col_name': val.config.col_name,
-                            'active': gadgets[i].active = id === val.id, 'delete': true, 'id': val.id, 
-                            'data_type': val.config.data_type
+                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 
+                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id, 'delete': true, 
+                            'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
+                            'gadget': val
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key,val) {
-                        console.log(val);
-                        var menu_config, menu_template,
-                        tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
+                        var menu_config, menu_template, radios, menu,
+                            tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
+                        menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
+                        radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
+                            menu.$dom.toggle.html($(this).attr('title'));
+                            //console.log(val.gadget);
+                            //create new gadget and swap with the old one. Then tell the url silently
+                            console.log(new constructor(val.gadget.config.options));
+                            swap_gadget = {
+                                id: val.gadget.id, 
+                                config: val.gadget.config, 
+                                type: $(this).attr('value'), 
+                                gadget: new constructor(val.gadget.config.options)
+                            };
+                            console.log(swap_gadget);
+                        });
+
+                        for(var i = 0; i < radios.length; i++) {
+                            radios[i].checked = false;
+                            if(radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
+                                radios[i].checked = true;
+                                menu.$dom.toggle.html(val.gadget_name);
+                            }
+                        }
+
                     });
                     reflow();
                     show_gadget(id);
@@ -164,6 +187,7 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index) {
+                console.log(data);
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
@@ -182,6 +206,7 @@ $.register_module({
                         });
                     gadgets.splice(index || gadgets.length, 0,
                         gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
+                    console.log(new constructor(options));
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
@@ -249,13 +274,6 @@ $.register_module({
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
-                            else if($(e.target).hasClass('OG-multiselect')){
-                              /*  var menu_config, menu_template,
-                                tmpl_data = og.common.gadgets.mapping.available_types(gadgets[index].config.data_type);
-                                menu_template = typemenu_template(tmpl_data);
-                                menu_config = ({$cntr: $ag, tmpl: menu_template});
-                                menu = new og.common.util.ui.DropMenu(menu_config);*/
-                            }
                         });
                     if (!data) update_tabs(null); else container.add(data);
                     // implement drop
@@ -279,6 +297,7 @@ $.register_module({
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
                                 if (false !== og.common.events.fire(container.events.drop, data.gadget.config))
                                     container.add([data.gadget.config]);
+                                console.log('data.gadget.config', [data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
