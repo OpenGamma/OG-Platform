@@ -355,8 +355,8 @@ $.register_module({
             return (handler && handler.call(grid)), grid;
         };
         constructor.prototype.alive = function () {
-            var grid = this, live = $(grid.id).length;
-            return grid.elements.empty || live || (grid.kill(), false); // if empty, grid is still loading
+            var grid = this;
+            return grid.elements.empty || $(grid.id).length || (grid.kill(), false); // if empty, grid is still loading
         };
         constructor.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
