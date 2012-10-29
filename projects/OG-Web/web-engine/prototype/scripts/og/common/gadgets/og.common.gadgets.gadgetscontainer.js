@@ -138,29 +138,33 @@ $.register_module({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 
                             'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id, 'delete': true, 
                             'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
-                            'gadget': val
+                            'gadget': val, 'gadget_index': i
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key,val) {
-                        var menu_config, menu_template, radios, menu,
+                        var menu_config, menu_template, radios, menu, swap_config
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
+                        console.log(val);
                         radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
                             menu.$dom.toggle.html($(this).attr('title'));
-                            //console.log(val.gadget);
-                            //create new gadget and swap with the old one. Then tell the url silently
-                            console.log(new constructor(val.gadget.config.options));
-                            swap_gadget = {
-                                id: val.gadget.id, 
-                                config: val.gadget.config, 
-                                type: $(this).attr('value'), 
-                                gadget: new constructor(val.gadget.config.options)
+                            swap_config = {
+                                gadget: "og.common.gadgets." + $(this).attr('value'),
+                                options: val.gadget.config.options,
+                                fingerprint: "",
+                                gadget_name: $(this).attr('title'),
+                                gadget_type: $(this).attr('value'),
+                                col_name: val.gadget.config.col_name,
+                                data_type: val.gadget.config.data_type,
+                                row_name: val.gadget.config.row_name
                             };
-                            console.log(swap_gadget);
+                            console.log(val.gadget_index);
+                            container.add([swap_config], val.gadget_index);
+                            menu.close();
                         });
 
                         for(var i = 0; i < radios.length; i++) {
@@ -170,7 +174,7 @@ $.register_module({
                                 menu.$dom.toggle.html(val.gadget_name);
                             }
                         }
-
+                        if(radios.length === 1) radios[0].disabled=true;
                     });
                     reflow();
                     show_gadget(id);
@@ -187,15 +191,15 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index) {
-                console.log(data);
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets;
+               // console.log(data, index);
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
-                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
+                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, 
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
@@ -204,13 +208,14 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    gadgets.splice(index || gadgets.length, 0,
-                        gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
-                    console.log(new constructor(options));
+                    gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
+                    gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
+
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                
+                if(!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {

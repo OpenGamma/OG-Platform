@@ -11,5 +11,8 @@
 	padding: 2px 5px 2px 1px;
 	position: fixed;
 	z-index: 2;
+}
 
+.OG-analytics-typemenu input {
+	margin-bottom: 3px;
 }
