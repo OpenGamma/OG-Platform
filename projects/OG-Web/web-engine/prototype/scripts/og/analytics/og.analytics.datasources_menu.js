@@ -20,7 +20,8 @@ $.register_module({
                     typereset: 'dropmenu:ds:typereset',
                     typeselected:'dropmenu:ds:typesselected',
                     dataselected: 'dropmenu:ds:dataselected',
-                    optsrepositioned: 'dropmenu:ds:optsrespositioned'
+                    optsrepositioned: 'dropmenu:ds:optsrespositioned',
+                    resetquery:'dropmenu:ds:resetquery'
                 },
                 populate_src_options = function (data) {
                     $parent.data('type', type_val).addClass(type_val);
@@ -235,6 +236,11 @@ $.register_module({
                 });
                 return arr;
             };
+            menu.reset_query = function () {
+                return menu.opts.forEach(function (option, index) {
+                    option.remove();
+                }), menu.opts.length = 0, query = [], reset_query();
+            };
             menu.destroy = function () {
 
             };
@@ -257,7 +263,7 @@ $.register_module({
                         }
                 });
             }
-            return menu;
+            return menu.addListener(events.resetquery, menu.reset_query.bind(menu)), menu;
         };
     }
 });

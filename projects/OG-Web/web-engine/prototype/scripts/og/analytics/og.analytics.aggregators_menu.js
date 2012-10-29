@@ -11,6 +11,9 @@ $.register_module({
                 ag_opts = [], $query = $('.aggregation-selection', $dom.toggle), sel_val, sel_pos, $parent,
                 $select, $checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
+                events = {
+                    resetquery:'dropmenu:ag:resetquery'
+                },
                 process_ag_opts = function () {
                     if(ag_opts.length) {
                         var i = 0, arr = [], query;
@@ -99,6 +102,11 @@ $.register_module({
             menu.get_query = function () {
                 return ag_opts.pluck('val');
             };
+            menu.reset_query = function () {
+                return menu.opts.forEach(function (option, index) {
+                    option.remove();
+                }), menu.opts.length = 0, query = [], reset_query();
+            };
             menu.destroy = function () {
 
             };
@@ -107,7 +115,7 @@ $.register_module({
                 $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                          .on('change', 'select', menu_handler);
              }
-            return menu;
+            return menu.addListener(events.resetquery, menu.reset_query.bind(menu)), menu;
         };
     }
 });
