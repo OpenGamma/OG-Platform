@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.market.description;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,6 +100,11 @@ public class CurveSensitivityMarketTest {
     CurveSensitivityMarket ofDscIn = CurveSensitivityMarket.ofYieldDiscountingAndPrice(mapDsc, mapIn);
     assertEquals("CurveSensitivityMarket: of", mapFwd, ofFwd.getForwardSensitivities());
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", CurveSensitivityMarket.of(mapDsc, new HashMap<String, List<MarketForwardSensitivity>>(), mapIn), ofDscIn, TOLERANCE);
+
+    CurveSensitivityMarket constructor = new CurveSensitivityMarket();
+    constructor = constructor.plus(ofDscIn);
+    constructor = constructor.plus(ofFwd);
+    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", constructor, of, TOLERANCE);
   }
 
   @Test
@@ -168,6 +174,11 @@ public class CurveSensitivityMarketTest {
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy",
         CurveSensitivityMarket.ofYieldDiscountingAndForward(InterestRateCurveSensitivityUtils.addSensitivity(sensi11, sensi32), sensiFwd23).cleaned(), pvSensiDscFwd.plus(pvSensiDscFwd2).cleaned(),
         TOLERANCE);
+
+    final Map<String, List<MarketForwardSensitivity>> sensiFwd32 = new HashMap<String, List<MarketForwardSensitivity>>();
+    sensiFwd22.put(CURVE_NAME_3, sensiFwd2);
+    CurveSensitivityMarket pvSensiDscFwd3 = CurveSensitivityMarket.ofYieldDiscountingAndForward(sensi32, sensiFwd32);
+    AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd3.plus(pvSensiDscFwd2).cleaned(), pvSensiDscFwd2.plus(pvSensiDscFwd3).cleaned(), TOLERANCE);
   }
 
   @Test
@@ -192,6 +203,29 @@ public class CurveSensitivityMarketTest {
     Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<String, List<DoublesPair>>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
     assertEquals(CurveSensitivityMarket.ofYieldDiscounting(expectedSensiClean12).getYieldDiscountingSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned().getYieldDiscountingSensitivities());
+  }
+
+  @Test
+  public void equalHash() {
+    Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
+    mapDsc.put(CURVE_NAME_1, SENSI_DATA_1);
+    Map<String, List<MarketForwardSensitivity>> mapFwd = new HashMap<String, List<MarketForwardSensitivity>>();
+    mapFwd.put(CURVE_NAME_2, SENSI_FWD_1);
+    Map<String, List<DoublesPair>> mapIn = new HashMap<String, List<DoublesPair>>();
+    mapIn.put(CURVE_NAME_3, SENSI_DATA_3);
+    CurveSensitivityMarket cs = CurveSensitivityMarket.of(mapDsc, mapFwd, mapIn);
+    assertEquals("ParameterSensitivity: equalHash", cs, cs);
+    assertEquals("ParameterSensitivity: equalHash", cs.hashCode(), cs.hashCode());
+    assertFalse("ParameterSensitivity: equalHash", cs.equals(mapDsc));
+    CurveSensitivityMarket modified;
+    modified = CurveSensitivityMarket.of(mapDsc, mapFwd, mapDsc);
+    assertFalse("ParameterSensitivity: equalHash", cs.equals(modified));
+    modified = CurveSensitivityMarket.of(mapIn, mapFwd, mapIn);
+    assertFalse("ParameterSensitivity: equalHash", cs.equals(modified));
+    Map<String, List<MarketForwardSensitivity>> mapFwd2 = new HashMap<String, List<MarketForwardSensitivity>>();
+    mapFwd2.put(CURVE_NAME_3, SENSI_FWD_1);
+    modified = CurveSensitivityMarket.of(mapDsc, mapFwd2, mapIn);
+    assertFalse("ParameterSensitivity: equalHash", cs.equals(modified));
   }
 
 }
