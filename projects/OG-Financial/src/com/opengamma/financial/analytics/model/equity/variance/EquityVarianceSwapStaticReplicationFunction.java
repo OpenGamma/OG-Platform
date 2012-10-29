@@ -54,7 +54,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Base class for Functions for EquityVarianceSwapSecurity. These functions price using Static Replication
  */
-public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class EquityVarianceSwapStaticReplicationFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirementName;
   private EquityVarianceSwapConverter _converter; // set in init()
 
@@ -63,7 +63,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   /** Method may be Strike or Moneyness TODO Confirm */
   public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
 
-  public EquityVarianceSwapFunction(final String valueRequirementName) {
+  public EquityVarianceSwapStaticReplicationFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

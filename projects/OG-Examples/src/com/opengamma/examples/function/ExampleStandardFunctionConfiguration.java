@@ -112,9 +112,9 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRat
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityForwardFromSpotAndYieldCurveFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapPresentValueFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapVegaFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapYieldCurveNodeSensitivityFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationVegaFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationYCNSFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
@@ -720,9 +720,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(EquityFuturesYieldCurveNodeSensitivityFunction.class, EquityFuturePricerFactory.MARK_TO_MARKET));
     functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class));    
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));    
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {

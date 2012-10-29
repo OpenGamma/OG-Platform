@@ -19,10 +19,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFunction {
+public class EquityVarianceSwapStaticReplicationPresentValueFunction extends EquityVarianceSwapStaticReplicationFunction {
   private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication();
 
-  public EquityVarianceSwapPresentValueFunction() {
+  public EquityVarianceSwapStaticReplicationPresentValueFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
 
