@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, textarea, node, formatters = {
             CURVE: function (value, standalone) {
-                if (!standalone) return '**CURVE**';
+                if (!standalone || !value) return '**CURVE**';
                 return ($.isArray(value) ? value : value.v || [])
                     .map(function (row) {return row.join('\t');}).join('\n');
             },
@@ -16,12 +16,14 @@ $.register_module({
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
             },
             LABELLED_MATRIX_1D: function (value, standalone) {
-                if (!standalone) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+                if (!standalone || !value)
+                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
                 return ($.isArray(value) ? value : value.v || [])
                     .map(function (row) {return row.join('\t');}).join('\n');
             },
             LABELLED_MATRIX_2D: function (value, standalone) {
-                if (!standalone) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+                if (!standalone || !value)
+                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
                 var rows, cols, matrix;
                 value = value.v || value;
                 cols = [''].concat(value['xLabels']);
@@ -38,7 +40,7 @@ $.register_module({
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
             },
             SURFACE_DATA: function (value, standalone) {
-                if (!standalone) return '** SURFACE DATA **';
+                if (!standalone || !value) return '** SURFACE DATA **';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
                 value = value.v || value;
                 col_len = (cols = value.x_labels).length;
@@ -52,7 +54,7 @@ $.register_module({
                 return result.join('\n');
             },
             TIME_SERIES: function (value, standalone) {
-                if (!standalone) return '**TIME SERIES**';
+                if (!standalone || !value) return '**TIME SERIES**';
                 var rows, cols;
                 var pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
                 value = value.v || value;
