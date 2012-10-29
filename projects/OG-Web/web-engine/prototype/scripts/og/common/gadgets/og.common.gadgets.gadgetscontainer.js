@@ -17,7 +17,7 @@ $.register_module({
                 $overflow_panel; // panel that houses non visible tabs
             var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
             var extract_index = function (id) {
-                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0)
+                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0);
             };
             /**
              * @param {Number|Null} id
@@ -143,13 +143,12 @@ $.register_module({
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key,val) {
-                        var menu_config, menu_template, radios, menu, swap_config
+                        var menu_config, menu_template, radios, menu, swap_config,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
-                        console.log(val);
                         radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
@@ -162,7 +161,6 @@ $.register_module({
                                 data_type: val.gadget.config.data_type,
                                 row_name: val.gadget.config.row_name
                             };
-                            console.log(val.gadget_index);
                             container.add([swap_config], val.gadget_index);
                             menu.close();
                         });
@@ -191,7 +189,6 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index) {
-               // console.log(data, index);
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
@@ -247,7 +244,7 @@ $.register_module({
                         : $('<div />').text(number).addClass('og-highlight').appendTo($selector);
                 clearTimeout(highlight_timer);
                 if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
-                else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide()}, 250);
+                else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide();}, 250);
             };
             container.init = function (data) {
                 var toggle_dropbox = function () {
@@ -284,12 +281,12 @@ $.register_module({
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',
-                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
+                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]');}, // is it a tab...
                         tolerance: 'pointer',
-                        over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
-                        out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
+                        over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
+                        out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
-                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length},
+                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
                                 data = ui.draggable.data(),
@@ -302,7 +299,6 @@ $.register_module({
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
                                 if (false !== og.common.events.fire(container.events.drop, data.gadget.config))
                                     container.add([data.gadget.config]);
-                                console.log('data.gadget.config', [data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
