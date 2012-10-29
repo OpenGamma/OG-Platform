@@ -11,6 +11,7 @@ $.register_module({
             var gadget = this, $curve, alive = prefix + counter++;
             gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
                 .on('data', function (data) {
+                    data = data.v || data; 
                     if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);
                     gadget.data = [{curve: data}];
                     $curve.update ? $curve.update(gadget.data) : gadget.resize();
