@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Surface',
-    dependencies: ['og.common.gadgets.manager', 'og.api.text'],
+    dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         var prefix = 'og_surface_gadget_', counter = 1;
         return function (config) {
