@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.time.Instant;
 
@@ -26,10 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -37,21 +31,12 @@ import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.depgraph.Housekeeper;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
-import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver.AtVersionCorrection;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -126,95 +111,159 @@ public final class ViewDefinitionCompiler {
 
   }
 
-  //-------------------------------------------------------------------------
-  public static Future<CompiledViewDefinitionWithGraphsImpl> compileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
-      final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(viewDefinition, "viewDefinition");
-    ArgumentChecker.notNull(compilationServices, "compilationServices");
-    s_logger.debug("Compiling {} for use with {}", viewDefinition.getName(), valuationTime);
-    final OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
-    final ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection);
-    if (s_logger.isDebugEnabled()) {
-      new CompilationCompletionEstimate(viewCompilationContext);
+  // TODO: return something that provides the caller with access to a completion metric to feedback to any interactive user 
+  private abstract static class CompilationTask implements Future<CompiledViewDefinitionWithGraphsImpl> {
+
+    private final ViewCompilationContext _viewCompilationContext;
+    private volatile CompiledViewDefinitionWithGraphsImpl _result;
+    private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
+
+    protected CompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+        final VersionCorrection versionCorrection, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      s_logger.info("Compiling {} for use at {}", viewDefinition.getName(), valuationTime);
+      _viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection);
+      _resolutions = resolutions;
+      if (s_logger.isDebugEnabled()) {
+        new CompilationCompletionEstimate(_viewCompilationContext);
+      }
     }
-    // TODO: return a Future that provides access to a completion metric to feedback to any interactive user
-    return new Future<CompiledViewDefinitionWithGraphsImpl>() {
 
-      private volatile CompiledViewDefinitionWithGraphsImpl _result;
+    protected ViewCompilationContext getContext() {
+      return _viewCompilationContext;
+    }
 
-      /**
-       * Cancels any active builders.
-       */
-      @Override
-      public boolean cancel(final boolean mayInterruptIfRunning) {
-        boolean result = true;
-        for (DependencyGraphBuilder builder : viewCompilationContext.getBuilders()) {
-          result &= builder.cancel(mayInterruptIfRunning);
-        }
-        return result;
+    protected ConcurrentMap<ComputationTargetReference, UniqueId> getResolutions() {
+      return _resolutions;
+    }
+
+    protected abstract Portfolio compile();
+
+    /**
+     * Cancels any active builders.
+     */
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+      boolean result = true;
+      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+        result &= builder.cancel(mayInterruptIfRunning);
       }
+      return result;
+    }
 
-      /**
-       * Tests if any of the builders have been canceled.
-       */
-      @Override
-      public boolean isCancelled() {
-        boolean result = false;
-        for (DependencyGraphBuilder builder : viewCompilationContext.getBuilders()) {
-          result |= builder.isCancelled();
-        }
-        return result;
+    /**
+     * Tests if any of the builders have been canceled.
+     */
+    @Override
+    public boolean isCancelled() {
+      boolean result = false;
+      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+        result |= builder.isCancelled();
       }
+      return result;
+    }
 
-      /**
-       * Tests if all of the builders have completed.
-       */
-      @Override
-      public boolean isDone() {
-        return _result != null;
+    /**
+     * Tests if all of the builders have completed.
+     */
+    @Override
+    public boolean isDone() {
+      return _result != null;
+    }
+
+    @Override
+    public CompiledViewDefinitionWithGraphsImpl get() {
+      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+        final FunctionCompilationContext functionContext = builder.getCompilationContext();
+        final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
+        functionContext.setComputationTargetResolver(TargetResolutionLogger.of(resolver, getResolutions()));
       }
-
-      @Override
-      public CompiledViewDefinitionWithGraphsImpl get() throws InterruptedException, ExecutionException {
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>();
-        addLoggingTargetSpecificationResolvers(viewCompilationContext, resolutions);
-        long t = -System.nanoTime();
-        SpecificRequirementsCompiler.execute(viewCompilationContext);
-        t += System.nanoTime();
-        s_logger.info("Added specific requirements after {}ms", (double) t / 1e6);
-        t -= System.nanoTime();
-        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, resolutions);
-        t += System.nanoTime();
-        s_logger.info("Added portfolio requirements after {}ms", (double) t / 1e6);
-        t -= System.nanoTime();
-        Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
-        t += System.nanoTime();
-        s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
-        timer.finished();
-        _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, resolutions, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
-        if (OUTPUT_DEPENDENCY_GRAPHS) {
-          outputDependencyGraphs(graphsByConfiguration);
-        }
-        if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-          outputLiveDataRequirements(graphsByConfiguration);
-        }
-        if (OUTPUT_FAILURE_REPORTS) {
-          outputFailureReports(viewCompilationContext.getBuilders());
-        }
-        return _result;
+      long t = -System.nanoTime();
+      final Portfolio portfolio = compile();
+      Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(getContext());
+      t += System.nanoTime();
+      s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
+      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphsByConfiguration, getResolutions(), portfolio, getContext().getServices()
+          .getFunctionCompilationContext()
+          .getFunctionInitId());
+      if (OUTPUT_DEPENDENCY_GRAPHS) {
+        outputDependencyGraphs(graphsByConfiguration);
       }
-
-      @Override
-      public CompiledViewDefinitionWithGraphsImpl get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        throw new UnsupportedOperationException();
+      if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
+        outputLiveDataRequirements(graphsByConfiguration);
       }
+      if (OUTPUT_FAILURE_REPORTS) {
+        outputFailureReports(_viewCompilationContext.getBuilders());
+      }
+      return _result;
+    }
 
-    };
+    @Override
+    public CompiledViewDefinitionWithGraphsImpl get(long timeout, TimeUnit unit) {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
+  private static class FullCompilationTask extends CompilationTask {
+
+    protected FullCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+        final VersionCorrection versionCorrection) {
+      super(viewDefinition, compilationServices, valuationTime, versionCorrection, new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
+    }
+
+    @Override
+    protected Portfolio compile() {
+      s_logger.info("Performing full compilation");
+      SpecificRequirementsCompiler.execute(getContext());
+      return PortfolioCompiler.executeFull(getContext(), getResolutions());
+    }
+
+  }
+
+  private static class IncrementalCompilationTask extends CompilationTask {
+
+    private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
+
+    protected IncrementalCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+        final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+      super(viewDefinition, compilationServices, valuationTime, versionCorrection, resolutions);
+      _previousGraphs = previousGraphs;
+    }
+
+    @Override
+    public Portfolio compile() {
+      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+        final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.get(builder.getCalculationConfigurationName());
+        if (graph != null) {
+          builder.setDependencyGraph(graph.getFirst());
+          if (graph.getSecond().isEmpty()) {
+            s_logger.debug("No incremental work for {}", graph.getFirst());
+          } else {
+            s_logger.info("{} incremental resolutions required for {}", graph.getSecond().size(), graph.getFirst());
+            builder.addTarget(graph.getSecond());
+          }
+        }
+      }
+      return PortfolioCompiler.executeIncremental(getContext(), getResolutions());
+    }
+
+  }
+
+  public static Future<CompiledViewDefinitionWithGraphsImpl> fullCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+      final VersionCorrection versionCorrection) {
+    return new FullCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection);
+  }
+
+  public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
+      final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    return new IncrementalCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
   }
 
   public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
     try {
-      return compileTask(viewDefinition, compilationServices, valuationTime, versionCorrection).get();
+      return fullCompileTask(viewDefinition, compilationServices, valuationTime, versionCorrection).get();
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     } catch (ExecutionException e) {
@@ -228,164 +277,11 @@ public final class ViewDefinitionCompiler {
       final DependencyGraph graph = builder.getDependencyGraph();
       graph.removeUnnecessaryValues();
       result.put(builder.getCalculationConfigurationName(), graph);
-      // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data?
+      // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data? I don't like it being in the graph
+      // as it's more specific to how the graph is used. Having it in the graph with the terminal outputs data is convenient for taking
+      // sub-graphs to initialise an incremental graph builder with though.
     }
     return result;
-  }
-
-  /**
-   * Wraps an existing specification resolver to log all of the resolutions calls. This allows any values that were considered during the compilation to be recorded and returned as part of the
-   * compiled context. If the resolution of any of these would be different for a different version/correction then this compilation is no longer valid.
-   */
-  private static class LoggingSpecificationResolver implements ComputationTargetSpecificationResolver.AtVersionCorrection, ComputationTargetReferenceVisitor<ComputationTargetReference> {
-
-    private final ComputationTargetSpecificationResolver.AtVersionCorrection _underlying;
-    private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
-
-    public LoggingSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-      _underlying = underlying;
-      _resolutions = resolutions;
-    }
-
-    private static final ComputationTargetTypeVisitor<Void, ComputationTargetType> s_getLeafType = new ComputationTargetTypeVisitor<Void, ComputationTargetType>() {
-
-      @Override
-      public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
-        final List<ComputationTargetType> result = new ArrayList<ComputationTargetType>(types.size());
-        boolean different = false;
-        for (ComputationTargetType type : types) {
-          final ComputationTargetType leafType = type.accept(s_getLeafType, null);
-          if (leafType != null) {
-            result.add(leafType);
-            different = true;
-          } else {
-            result.add(type);
-          }
-        }
-        if (different) {
-          ComputationTargetType type = result.get(0);
-          for (int i = 1; i < result.size(); i++) {
-            type = type.or(result.get(i));
-          }
-          return type;
-        } else {
-          return null;
-        }
-      }
-
-      @Override
-      public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final Void data) {
-        return types.get(types.size() - 1).accept(this, null);
-      }
-
-      @Override
-      public ComputationTargetType visitNullComputationTargetType(final Void data) {
-        return null;
-      }
-
-      @Override
-      public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
-        return null;
-      }
-
-    };
-
-    private ComputationTargetType getLeafType(final ComputationTargetType type) {
-      // TODO: Ought to reduce the type to its simplest form. This hasn't been a problem with the views & function repository I've been testing
-      // with but might be necessary in the general case as there will be duplicate values in the resolver cache.
-      return type.accept(s_getLeafType, null);
-    }
-
-    private void storeResolution(final ComputationTargetReference reference, final ComputationTargetSpecification resolved) {
-      final ComputationTargetReference key = reference.accept(this);
-      if (key != null) {
-        final UniqueId resolvedId = resolved.getUniqueId();
-        final UniqueId previousId = _resolutions.putIfAbsent(key, resolvedId);
-        assert (previousId == null) || previousId.equals(resolvedId);
-      }
-    }
-
-    // ComputationTargetSpecificationResolver.AtVersionCorrection
-
-    @Override
-    public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
-      final ComputationTargetSpecification resolved = _underlying.getTargetSpecification(reference);
-      if (resolved != null) {
-        storeResolution(reference, resolved);
-      }
-      return resolved;
-    }
-
-    @Override
-    public Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(final Set<ComputationTargetReference> references) {
-      final Map<ComputationTargetReference, ComputationTargetSpecification> resolveds = _underlying.getTargetSpecifications(references);
-      for (Map.Entry<ComputationTargetReference, ComputationTargetSpecification> resolved : resolveds.entrySet()) {
-        storeResolution(resolved.getKey(), resolved.getValue());
-      }
-      return resolveds;
-    }
-
-    // ComputationTargetReferenceVisitor
-
-    @Override
-    public ComputationTargetReference visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
-      final ComputationTargetType leafType = getLeafType(requirement.getType());
-      if (leafType != null) {
-        return MemoryUtils.instance(new ComputationTargetRequirement(leafType, requirement.getIdentifiers()));
-      } else {
-        return requirement;
-      }
-    }
-
-    @Override
-    public ComputationTargetReference visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
-      if ((specification.getUniqueId() != null) && specification.getUniqueId().isLatest()) {
-        final ComputationTargetType leafType = getLeafType(specification.getType());
-        if (leafType != null) {
-          return MemoryUtils.instance(new ComputationTargetSpecification(leafType, specification.getUniqueId()));
-        } else {
-          return specification;
-        }
-      } else {
-        return null;
-      }
-    }
-
-  }
-  
-  private static class ComputationTargetResolverStub implements ComputationTargetResolver.AtVersionCorrection {
-    
-    private final ComputationTargetResolver.AtVersionCorrection _underlying;
-    private final ComputationTargetSpecificationResolver.AtVersionCorrection _specificationResolver;
-    
-    public ComputationTargetResolverStub(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver) {
-      _underlying = underlying;
-      _specificationResolver = specificationResolver;
-    }
-
-    @Override
-    public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-      return _underlying.resolve(specification);
-    }
-
-    @Override
-    public AtVersionCorrection getSpecificationResolver() {
-      return _specificationResolver;
-    }
-
-    @Override
-    public ComputationTargetType simplifyType(final ComputationTargetType type) {
-      return _underlying.simplifyType(type);
-    }
-    
-  }
-
-  private static void addLoggingTargetSpecificationResolvers(final ViewCompilationContext context, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    for (DependencyGraphBuilder builder : context.getBuilders()) {
-      final FunctionCompilationContext functionContext = builder.getCompilationContext();
-      final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
-      functionContext.setComputationTargetResolver(new ComputationTargetResolverStub(resolver, new LoggingSpecificationResolver(resolver.getSpecificationResolver(), resolutions)));
-    }
   }
 
   private static void outputDependencyGraphs(Map<String, DependencyGraph> graphsByConfiguration) {

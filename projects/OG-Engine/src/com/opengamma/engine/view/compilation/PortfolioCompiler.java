@@ -38,13 +38,13 @@ public final class PortfolioCompiler {
 
   // --------------------------------------------------------------------------
   /**
-   * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
+   * Adds portfolio targets to the dependency graphs as required by a full compilation, and fully resolves the portfolio structure.
    * 
    * @param compilationContext the context of the view definition compilation
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio execute(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+  protected static Portfolio executeFull(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -88,6 +88,23 @@ public final class PortfolioCompiler {
   }
 
   /**
+   * Adds portfolio targets to dependency graphs as required by an incremental compilation (nothing), and fully resolved the portfolio structure.
+   * 
+   * @param compilationContext the context of the view definition compiler
+   * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
+   * @return the fully-resolved portfolio structure if any portfolio targets are required, null otherwise
+   */
+  protected static Portfolio executeIncremental(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    if (isPortfolioOutputEnabled(compilationContext.getViewDefinition())) {
+      Portfolio portfolio = getPortfolio(compilationContext);
+      resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, compilationContext.getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
+      return portfolio;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Tests whether the view has portfolio outputs enabled.
    * 
    * @param viewDefinition  the view definition
@@ -99,11 +116,11 @@ public final class PortfolioCompiler {
   }
 
   /**
-   * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved
-   * {@link Security} objects for each {@link Position} within the portfolio. Note however that
-   * any underlying or related data referenced by a security will not be resolved at this stage. 
+   * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved {@link Security} objects for each {@link Position} within the portfolio. Note however that any
+   * underlying or related data referenced by a security will not be resolved at this stage.
    * 
-   * @param compilationContext  the compilation context containing the view being compiled, not null
+   * @param compilationContext the compilation context containing the view being compiled, not null
+   * @return the resolved portfolio, not null
    */
   private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
     UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();

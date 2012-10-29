@@ -400,11 +400,9 @@ public class DependencyGraph {
   public List<DependencyNode> getExecutionOrder() {
     ArrayList<DependencyNode> executionOrder = new ArrayList<DependencyNode>();
     HashSet<DependencyNode> alreadyEvaluated = new HashSet<DependencyNode>();
-
     for (DependencyNode root : getRootNodes()) {
       getExecutionOrder(root, executionOrder, alreadyEvaluated);
     }
-
     return executionOrder;
   }
 
@@ -412,18 +410,14 @@ public class DependencyGraph {
     if (!containsNode(currentNode)) { // this check is necessary because of sub-graphing
       return;
     }
-
     for (DependencyNode child : currentNode.getInputNodes()) {
       getExecutionOrder(child, executionOrder, alreadyEvaluated);
     }
-
     if (!alreadyEvaluated.contains(currentNode)) {
       executionOrder.add(currentNode);
       alreadyEvaluated.add(currentNode);
     }
   }
-
-
 
   /**
    * Applies a filter to the graph to create a sub-graph.

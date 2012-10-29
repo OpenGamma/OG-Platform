@@ -91,7 +91,6 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
-    _resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
     final Security security = position.getSecurity();
     if (security == null) {
       return;
@@ -111,7 +110,7 @@ import com.opengamma.util.tuple.Pair;
         }
         if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
           // TODO: [PLAT-2286] Don't need to create the parent node specification each time
-          final ComputationTargetSpecification positionSpec = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId());
+          final ComputationTargetSpecification positionSpec = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
           for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
             addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), positionSpec, requiredOutput.getSecond()));
           }

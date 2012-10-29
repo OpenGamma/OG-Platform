@@ -280,7 +280,8 @@ public class ViewDefinitionCompilerTest {
         EHCacheUtils.createCacheManager());
     compilationContext.setRawComputationTargetResolver(computationTargetResolver);
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.compileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext,
+    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.fullCompileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver,
+        compilationContext,
         executorService, new DependencyGraphBuilderFactory()), Instant.now(), VersionCorrection.LATEST);
     assertFalse(future.isDone());
     assertFalse(future.isCancelled());

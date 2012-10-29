@@ -55,6 +55,8 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     ArgumentChecker.notNull(resolutions, "resolutions");
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
+    // TODO: [PLAT-349] Filter the resolutions; only need the ones that correspond to targets in the graph. The others are important but we won't know
+    // which bit(s) of graph to invalidate so don't bother.
     _resolutions = Collections.unmodifiableMap(resolutions);
   }
   
