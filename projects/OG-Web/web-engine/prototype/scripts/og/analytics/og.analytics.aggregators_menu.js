@@ -11,9 +11,6 @@ $.register_module({
                 ag_opts = [], $query = $('.aggregation-selection', $dom.toggle), sel_val, sel_pos, $parent,
                 $select, $checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
-                events = {
-                    resetquery:'dropmenu:ag:resetquery'
-                },
                 process_ag_opts = function () {
                     if(ag_opts.length) {
                         var i = 0, arr = [], query;
@@ -30,7 +27,7 @@ $.register_module({
                     ag_opts.splice(entry, 1);
                 },
                 reset_query = function () {
-                    return $query.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), remove_entry();
+                    return $query.text(default_sel_txt), $select.val(default_sel_txt).focus(), remove_entry();
                 },
                 delete_handler = function (entry) {
                     if (menu.opts.length === 1) {
@@ -67,6 +64,11 @@ $.register_module({
                     else if (!$checkbox[0].checked && ~entry) ag_opts[entry].required_field = false;
                     $checkbox.focus();
                 },
+                init_menu_elems = function (index) {
+                    $parent = menu.opts[index];
+                    $select = $parent.find(select_s);
+                    $checkbox = $parent.find(checkbox_s);
+                }
                 menu_handler = function (event) {
                     var $elem = $(event.srcElement || event.target), entry;
                         $parent = $elem.parents(options_s);
@@ -89,8 +91,9 @@ $.register_module({
                 ag_opts = [];
                 config.aggregators.forEach(function (entry, index) {
                     add_handler();
-                    $(select_s, menu.opts[index]).val(entry.val);
-                    $(checkbox_s, menu.opts[index])[0].disabled = false;
+                    $parent = menu.opts[index];
+                    $select = $(select_s, menu.opts[index]).val(entry.val);
+                    $checkbox = $(checkbox_s, menu.opts[index])[0].disabled = false;
                     ag_opts[index] = {
                         pos: index,
                         val: entry.val,
@@ -103,9 +106,9 @@ $.register_module({
                 return ag_opts.pluck('val');
             };
             menu.reset_query = function () {
-                return menu.opts.forEach(function (option, index) {
-                    option.remove();
-                }), menu.opts.length = 0, query = [], reset_query();
+                return menu.opts.forEach(function (option) {
+                    if (menu.opts.length > 1) option.remove();
+                }), query = [], init_menu_elems(0), reset_query();
             };
             menu.destroy = function () {
 
@@ -115,7 +118,7 @@ $.register_module({
                 $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                          .on('change', 'select', menu_handler);
              }
-            return menu.addListener(events.resetquery, menu.reset_query.bind(menu)), menu;
+            return menu;
         };
     }
 });

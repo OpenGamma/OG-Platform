@@ -20,8 +20,7 @@ $.register_module({
                     typereset: 'dropmenu:ds:typereset',
                     typeselected:'dropmenu:ds:typesselected',
                     dataselected: 'dropmenu:ds:dataselected',
-                    optsrepositioned: 'dropmenu:ds:optsrespositioned',
-                    resetquery:'dropmenu:ds:resetquery'
+                    optsrepositioned: 'dropmenu:ds:optsrespositioned'
                 },
                 populate_src_options = function (data) {
                     $parent.data('type', type_val).addClass(type_val);
@@ -140,6 +139,12 @@ $.register_module({
                         return snapshots[key] === id;
                      })[0];
                 },
+                init_menu_elems = function (index) {
+                    $parent = menu.opts[index];
+                    $type_select = $parent.find(type_s);
+                    $source_select = $parent.find(source_s);
+                    $extra_opts = $parent.find(extra_opts_s);
+                },
                 menu_handler = function (event) { // TODO AG: Refactor
                     var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(parent_s);
@@ -162,18 +167,12 @@ $.register_module({
                     if ($elem.is('button')) return menu.button_handler($elem.text());
                 };
             menu.replay_query = function (config) { // TODO AG: refactor initial replay implementation
-                menu.opts.forEach(function (option, index) {
+                menu.opts.forEach(function (option) {
                     option.remove();
                 });
                 menu.opts.length = 0;
                 query = [];
-                var reinit_menu_elems = function (index) {
-                        $parent = menu.opts[index];
-                        $type_select = $parent.find(type_s);
-                        $source_select = $parent.find(source_s);
-                        $extra_opts = $parent.find(extra_opts_s);
-                    },
-                    set_select_vals = function (src, index) {
+                var set_select_vals = function (src, index) {
                         var source = src.snapshotId ? get_snapshot(src.snapshotId) : src.source,
                             type = menu.capitalize(src.marketDataType);
                         $type_select.val(type);
@@ -188,7 +187,7 @@ $.register_module({
                         case 'live': 
                             og.api.rest.livedatasources.get().pipe(function (resp) {
                                 if (resp.error) return;
-                                reinit_menu_elems(index);
+                                init_menu_elems(index);
                                 populate_src_options(resp.data);
                             }).pipe(function () {
                                 set_select_vals(src, index);
@@ -197,7 +196,7 @@ $.register_module({
                         case 'snapshot': 
                             og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                                 if (resp.error) return;
-                                reinit_menu_elems(index);
+                                init_menu_elems(index);
                                 populate_src_options(resp.data[0].snapshots);
                             }).pipe(function () {
                                 set_select_vals(src, index);
@@ -237,9 +236,9 @@ $.register_module({
                 return arr;
             };
             menu.reset_query = function () {
-                return menu.opts.forEach(function (option, index) {
-                    option.remove();
-                }), menu.opts.length = 0, query = [], reset_query();
+                return menu.opts.forEach(function (option) {
+                    if (menu.opts.length > 1) option.remove();
+                }), query = [], init_menu_elems(0), remove_orphans(), reset_query();
             };
             menu.destroy = function () {
 

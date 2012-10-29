@@ -12,7 +12,9 @@ $.register_module({
     ],
     obj: function () {
         var query = null,
-            Form = function (selector, url_config) {
+            form_inst = null,
+            initialized = false,
+            Form = function (selector, config) {
                 var Form = this, emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
                     ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, replaying = false;
                     ag_menu = null, ds_menu = null, ac_menu = null,
@@ -26,8 +28,7 @@ $.register_module({
                         closeall: 'dropmenu:closeall',
                         queryselected: 'dropmenu:queryselected',
                         querycancelled: 'dropmenu:querycancelled',
-                        resetagquery:'dropmenu:ag:resetquery',
-                        resetdsquery:'dropmenu:ds:resetquery'
+                        resetdsquery:'dropmenu:resetquery'
                     };
                 Status = function (selector) {
                     var status = this, interval, init = false;
@@ -56,7 +57,7 @@ $.register_module({
                     status.status = null;
                     return status;
                 };
-                FormCombo = function (config) {
+                FormCombo = (function (config) {
                     var FormCombo = this, vd_s = '.og-view', fcntrls_s = 'input, select, button', 
                         ac_s = 'input autocompletechange autocompleteselect', 
                         $form = $(selector).html(config.template), $ag = $('.og-aggregation', $form),
@@ -121,7 +122,8 @@ $.register_module({
                     [ag_menu, ds_menu].forEach(function (menu) { 
                         menu.addListener(events.opened, close_dropmenu)
                             .addListener(events.queryselected, query_selected)
-                            .addListener(events.querycancelled, query_cancelled);
+                            .addListener(events.querycancelled, query_cancelled)
+                            .addListener(events.resetquery, menu.reset_query.bind(menu));
                     });
                     $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                     $load_btn.on('click', load_query);
@@ -131,7 +133,7 @@ $.register_module({
                     });
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');
-                },
+                })(config),
                 replay_aggregators = function (url_config) {
                    ag_menu.replay_query({
                         aggregators: url_config.aggregators.map(function (entry) {
@@ -150,69 +152,50 @@ $.register_module({
                         })
                     });
                 };
-                $.when(
-                    og.api.text({module: 'og.analytics.form_tash'}),
-                    og.api.rest.viewdefinitions.get(),
-                    og.api.rest.aggregators.get(),
-                    {data: ['Live', 'Snapshot', 'Historical']},
-                    og.api.text({module: 'og.analytics.form_aggregation_tash'}),
-                    og.api.text({module: 'og.analytics.form_datasources_tash'})
-                ).pipe(function (template, search, aggregators, datasource, aggregation_markup, datasources_markup) {
-                    FormCombo({
-                        template: template, 
-                        search: search,
-                        aggregators: aggregators, 
-                        datasource: datasource, 
-                        aggregation_markup: aggregation_markup, 
-                        datasources_markup: datasources_markup
-                    });
-                }).pipe(function () {
-                    emitter.emitEvent('form:initialized');
-                });
                 this.reset_query = function () {
-                    emitter.addListener('form:initialized', function () {
-                        ag_menu.emitEvent(events.resetagquery [ag_menu]);
-                        ds_menu.emitEvent(events.resetdsquery [ag_menu]);
-                    });
+                    if (query) query = null;
+                    [ag_menu, ds_menu].forEach(function (menu) { menu.emitEvent(events.resetquery); });
+                    ac_menu.$input.val('search...');
                 };
                 this.replay_query = function (url_config) {
                     if (!url_config) return;
                     
                     if (JSON.stringify(url_config) === JSON.stringify(query)) return;
 
-                    var ag_intv = null, ds_intv = null, ac_intv = null;
                     if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators)))
-                        ag_intv = setInterval(function () {
-                            if (ag_menu) {
-                                clearInterval(ag_intv);
-                                replay_aggregators(url_config);
-                            }
-                        });
+                        replay_aggregators(url_config);
                     
                     if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers)))
-                        ds_intv = setInterval(function () {
-                            if (ds_menu) {
-                                clearInterval(ds_intv);
-                                replay_datasource(url_config);
-                            }
-                        });
+                        replay_datasource(url_config);
                     
                     if (!query || (url_config.viewdefinition !== query.viewdefinition))
-                        ac_intv = setInterval(function () {
-                            if (ac_menu) {
-                                clearInterval(ac_intv);
-                                ac_menu.$input.val(url_config.viewdefinition);
-                            }
-                        });
+                        ac_menu.$input.val(url_config.viewdefinition);
 
                     query = url_config;
                 };
                 this.destroy = function () {
 
                 };
-            }
-        return function(selector) {
-            return new Form(selector);
-        }
+                this.initialized = function () {
+                    return initialized;
+                };
+            };
+        return function (selector, args) {
+            if (initialized && !form_inst) {
+                var obj = {}, ar = [
+                        'template', 'search', 'aggregators', 'datasource', 'aggregation_markup', 'datasources_markup'
+                    ].map(function (entry, i) { return obj[entry] = args[i]; });
+                return form_inst = new Form(selector, obj), form_inst;
+            } else if (initialized && form_inst) return form_inst;
+            initialized = true;
+            return $.when(
+                og.api.text({module: 'og.analytics.form_tash'}),
+                og.api.rest.viewdefinitions.get(),
+                og.api.rest.aggregators.get(),
+                {data: ['Live', 'Snapshot', 'Historical']},
+                og.api.text({module: 'og.analytics.form_aggregation_tash'}),
+                og.api.text({module: 'og.analytics.form_datasources_tash'})
+            ).then(function (template, search, aggregators, datasource, aggregation_markup, datasources_markup) {});
+        };
     }
 });
