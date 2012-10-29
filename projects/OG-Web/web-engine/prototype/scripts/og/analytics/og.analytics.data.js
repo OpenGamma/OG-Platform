@@ -59,27 +59,22 @@ $.register_module({
                 }
             })();
             var initialize = function () {
-                var put_options = ['viewdefinition', 'aggregators', 'providers']
+                var message, put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
                 if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);}
                 catch (error) {
-                    data.kill(error.message);
-                    fire(data.events.fatal, error.message);
+                    data.kill(message = module.name + ': ' + error.message), fire(data.events.fatal, message);
                 }
             };
             var reconnect_handler = function () {initialize();};
             var structure_handler = function (result) {
                 var message;
                 if (!grid_type || (depgraph && !graph_id)) return;
-                if (result.error && server_error(result)) {
-                    data.kill(message = module.name + ': ' + result.message);
-                    return fire(data.events.fatal, message);
-                }
-                if (result.error) return (view_id = graph_id = viewport_id = subscribed = null),
-                    og.dev.warn(message = module.name + ': ' + result.message), initialize();
+                if (result.error)
+                    return data.kill(message = module.name + ': ' + result.message), fire(data.events.fatal, message);
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
@@ -98,8 +93,9 @@ $.register_module({
                         return api.grid.depgraphs.put({
                             view_id: view_id, grid_type: grid_type, row: config.row, col: config.col
                         }).pipe(function (result) {
-                            if (result.error)
-                                return data.kill(result.message), fire(data.events.fatal, result.message);
+                            var message;
+                            if (result.error) return data.kill(message = module.name + ': ' + result.message),
+                                fire(data.events.fatal, message);
                             return api.grid.depgraphs.structure.get({
                                 view_id: view_id, grid_type: grid_type,
                                 graph_id: (graph_id = result.meta.id), update: initialize
@@ -131,10 +127,11 @@ $.register_module({
                 });
             };
             var view_handler = function (result) {
-                if (result.error) return og.dev.warn(module.name + ': ' + result.message), result;
+                var message;
+                if (result.error)
+                    return data.kill(message = module.name + ': ' + result.message), fire(data.events.fatal, message);
                 return (view_id = result.meta.id), grid_type ? structure_setup() : type_setup();
             };
-            var server_error = function (result) {return +result.error >= 500;};
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);

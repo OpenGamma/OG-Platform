@@ -198,11 +198,19 @@ $.register_module({
             meta.scrollbar_size = scrollbar_size;
             grid.col_widths();
             columns.headers = [];
+            columns.descriptions = [];
             columns.types = [];
-            columns.fixed[0].columns
-                .forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+            columns.fixed[0].columns.forEach(function (col) {
+                columns.headers.push(col.header);
+                columns.types.push(col.type);
+                columns.descriptions.push(col.description);
+            });
             columns.scroll.forEach(function (set) {
-                set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+                set.columns.forEach(function (col) {
+                    columns.headers.push(col.header);
+                    columns.types.push(col.type);
+                    columns.descriptions.push(col.description);
+                });
             });
             unravel_structure.call(grid);
             if (grid.elements.empty) {
@@ -218,7 +226,10 @@ $.register_module({
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
                         var columns = set.columns.map(function (col) {
-                            return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
+                            return {
+                                index: (col_offset || 0) + index++,
+                                name: col.header, description: col.description, width: col.width
+                            };
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
