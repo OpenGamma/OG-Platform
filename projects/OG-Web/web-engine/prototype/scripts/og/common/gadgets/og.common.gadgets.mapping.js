@@ -25,7 +25,7 @@ $.register_module({
             },
             options: function (cell, grid, panel, override) {
                 var gadget_type, source = $.extend({}, grid.source), gadget_options, 
-                    override_gadget = override || "";
+                    override_gadget = override || '';
                 gadget_type = override_gadget.length ? override_gadget : mapping.type(cell, panel);
                 gadget_options = {
                     gadget: 'og.common.gadgets.' + gadget_type,
@@ -41,18 +41,14 @@ $.register_module({
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
                 if (gadget_type === 'Timeseries')
                     $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
-
                 return gadget_options;
             },
             type : function (cell, panel) {
                 var order = mapping.panel_preference[panel || 'new-window'],
                     type_map = mapping.data_type_map[cell.type], i, k; 
-                for (i = 0; i < order.length; i++) {
-                    for (k = 0; k < type_map.length; k++){
-                        if (order[i] === type_map[k])
-                         return mapping.gadgets[order[i]];   
-                    }
-                }
+                for (i = 0; i < order.length; i++)
+                    for (k = 0; k < type_map.length; k++)
+                        if (order[i] === type_map[k]) return mapping.gadgets[order[i]];   
             },
             available_types : function (data_type){
                 var types_array = mapping.data_type_map[data_type], i,  types = {gadgets:[]};
