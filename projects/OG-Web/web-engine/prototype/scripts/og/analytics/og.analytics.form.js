@@ -14,7 +14,7 @@ $.register_module({
         var query = null,
             Form = function (selector, url_config) {
                 var Form = this, emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
-                    ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, 
+                    ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, replaying = false;
                     ag_menu = null, ds_menu = null, ac_menu = null,
                     events = {
                         focus: 'dropmenu:focus',
@@ -25,7 +25,9 @@ $.register_module({
                         closed: 'dropmenu:closed',
                         closeall: 'dropmenu:closeall',
                         queryselected: 'dropmenu:queryselected',
-                        querycancelled: 'dropmenu:querycancelled'
+                        querycancelled: 'dropmenu:querycancelled',
+                        resetagquery:'dropmenu:ag:resetquery',
+                        resetdsquery:'dropmenu:ds:resetquery'
                     };
                 Status = function (selector) {
                     var status = this, interval, init = false;
@@ -129,6 +131,24 @@ $.register_module({
                     });
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');
+                },
+                replay_aggregators = function (url_config) {
+                   ag_menu.replay_query({
+                        aggregators: url_config.aggregators.map(function (entry) {
+                            return {val:entry, required_field:false};
+                        })
+                    });
+                },
+                replay_datasource = function (url_config) {
+                    ds_menu.replay_query({
+                        datasources: url_config.providers.map(function (entry) {
+                            var obj = {};
+                            obj.marketDataType = entry.marketDataType;
+                            if (entry.source) obj.source = entry.source;
+                            else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                            return obj;
+                        })
+                    });
                 };
                 $.when(
                     og.api.text({module: 'og.analytics.form_tash'}),
@@ -146,44 +166,51 @@ $.register_module({
                         aggregation_markup: aggregation_markup, 
                         datasources_markup: datasources_markup
                     });
+                }).pipe(function () {
+                    emitter.emitEvent('form:initialized');
                 });
                 this.reset_query = function () {
-                    console.log('reset_query');
-                },
+                    emitter.addListener('form:initialized', function () {
+                        ag_menu.emitEvent(events.resetagquery [ag_menu]);
+                        ds_menu.emitEvent(events.resetdsquery [ag_menu]);
+                    });
+                };
                 this.replay_query = function (url_config) {
-                    if (!url_config || JSON.stringify(url_config) === JSON.stringify(query)) return false;
-
-                    if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
-                        if (ag_menu) {
-                            ag_menu.replay_query({
-                                aggregators: url_config.aggregators.map(function (entry) {
-                                    return {val:entry, required_field:false};
-                                })
-                            });
-                        }
-                    }
+                    if (!url_config) return;
                     
-                    if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
-                        if (ds_menu) {
-                            ds_menu.replay_query({
-                                datasources: url_config.providers.map(function (entry) {
-                                    var obj = {};
-                                    obj.marketDataType = entry.marketDataType;
-                                    if (entry.source) obj.source = entry.source;
-                                    else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
-                                    return obj;
-                                })
-                            });
-                        }
-                    }
-                    if (!query || (url_config.viewdefinition !== query.viewdefinition)) 
-                        if (ac_menu) ac_menu.$input.val(url_config.viewdefinition);
-                    return query = url_config;
+                    if (JSON.stringify(url_config) === JSON.stringify(query)) return;
+
+                    var ag_intv = null, ds_intv = null, ac_intv = null;
+                    if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators)))
+                        ag_intv = setInterval(function () {
+                            if (ag_menu) {
+                                clearInterval(ag_intv);
+                                replay_aggregators(url_config);
+                            }
+                        });
+                    
+                    if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers)))
+                        ds_intv = setInterval(function () {
+                            if (ds_menu) {
+                                clearInterval(ds_intv);
+                                replay_datasource(url_config);
+                            }
+                        });
+                    
+                    if (!query || (url_config.viewdefinition !== query.viewdefinition))
+                        ac_intv = setInterval(function () {
+                            if (ac_menu) {
+                                clearInterval(ac_intv);
+                                ac_menu.$input.val(url_config.viewdefinition);
+                            }
+                        });
+
+                    query = url_config;
                 };
                 this.destroy = function () {
 
                 };
-            };
+            }
         return function(selector) {
             return new Form(selector);
         }
