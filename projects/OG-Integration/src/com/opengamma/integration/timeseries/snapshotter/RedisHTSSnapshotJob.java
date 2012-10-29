@@ -35,9 +35,9 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * 
  */
-public class RedisLastKnownValueTSUpdater implements Runnable {
+public class RedisHTSSnapshotJob implements Runnable {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(RedisLastKnownValueTSUpdater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(RedisHTSSnapshotJob.class);
   
   private final HistoricalTimeSeriesMaster _htsMaster;
   private final String _dataSource;
@@ -52,7 +52,7 @@ public class RedisLastKnownValueTSUpdater implements Runnable {
   private volatile boolean _isInitialized;
   private JedisPool _jedisPool;
   
-  public RedisLastKnownValueTSUpdater(final LastKnownValueStoreProvider lkvStoreProvider, final HistoricalTimeSeriesMaster htsMaster, 
+  public RedisHTSSnapshotJob(final LastKnownValueStoreProvider lkvStoreProvider, final HistoricalTimeSeriesMaster htsMaster, 
       final String dataSource, final String observationTime, final String normalizationRuleSetId) {
     ArgumentChecker.notNull(lkvStoreProvider, "LKV store provider");
     ArgumentChecker.notNull(normalizationRuleSetId, "normalization rule set Id");
