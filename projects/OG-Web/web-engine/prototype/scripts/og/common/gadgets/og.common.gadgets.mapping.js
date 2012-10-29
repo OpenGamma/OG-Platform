@@ -36,15 +36,12 @@ $.register_module({
                     gadget_type: gadget_type,
                     data_type: cell.type
                 };
-                
-
                 if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
                 if (gadget_type === 'Timeseries')
                     $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
 
-                console.log(gadget_options);
                 return gadget_options;
             },
             type : function (cell, panel) {
