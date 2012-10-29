@@ -23,7 +23,7 @@ public class BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction extends Bl
 
   @Override
   protected Set<ValueRequirement> getSpecificRequirements(final ValueProperties constraints) {
-    return BlackVolatilitySurfaceUtils.ensureMixedLogNormalVolatilityInterpolatorProperties(constraints);
+    return BlackVolatilitySurfacePropertyUtils.ensureMixedLogNormalVolatilityInterpolatorProperties(constraints);
   }
 
   @Override
@@ -35,11 +35,11 @@ public class BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction extends Bl
 
   @Override
   protected ValueProperties getResultProperties() {
-    return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(createValueProperties().get()).get();
+    return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(createValueProperties().get()).get();
   }
 
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-    return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue).get();
+    return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue).get();
   }
 }

@@ -28,12 +28,12 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
 
   @Override
   protected Set<ValueRequirement> getSpecificRequirements(final ValueProperties constraints) {
-    return BlackVolatilitySurfaceUtils.ensureSplineVolatilityInterpolatorProperties(constraints);
+    return BlackVolatilitySurfacePropertyUtils.ensureSplineVolatilityInterpolatorProperties(constraints);
   }
 
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-    ValueProperties.Builder properties = BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue);
+    ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue);
     return properties.get();
   }
   protected Interpolator1D getInterpolator1D(final ValueRequirement desiredValue) {
@@ -59,7 +59,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
     }
     @Override
     protected ValueProperties getResultProperties() {
-      ValueProperties.Builder properties = BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get());
+      ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get());
       properties = properties.withoutAny(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE) // Remove property set to 'any'
         .with(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE, QUIET_SPLINE_EXTRAPOLATOR_FAILURE); // Fix property to Quiet
       return properties.get();
@@ -78,7 +78,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
     }
     @Override
     protected ValueProperties getResultProperties() {
-      ValueProperties.Builder properties = BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get());
+      ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get());
       properties = properties.withoutAny(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE) // Remove property set to 'any'
         .with(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE, EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE); // Fix property to Exception
       return properties.get();

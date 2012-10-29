@@ -29,7 +29,7 @@ public class BlackVolatilitySurfaceSABRInterpolatorFunction extends BlackVolatil
 
   @Override
   protected Set<ValueRequirement> getSpecificRequirements(final ValueProperties constraints) {
-    return BlackVolatilitySurfaceUtils.ensureSABRVolatilityInterpolatorProperties(constraints);
+    return BlackVolatilitySurfacePropertyUtils.ensureSABRVolatilityInterpolatorProperties(constraints);
   }
 
   @Override
@@ -48,11 +48,11 @@ public class BlackVolatilitySurfaceSABRInterpolatorFunction extends BlackVolatil
 
   @Override
   protected ValueProperties getResultProperties() {
-    return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(createValueProperties().get()).get();
+    return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(createValueProperties().get()).get();
   }
 
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-    return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue).get();
+    return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue).get();
   }
 }

@@ -47,7 +47,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 /**
  *
  */
-public class BlackVolatilitySurfaceUtils {
+public class BlackVolatilitySurfacePropertyUtils {
 
   static boolean useLogTime(final String property) {
     if (property.equals(LOG_TIME)) {
@@ -251,26 +251,26 @@ public class BlackVolatilitySurfaceUtils {
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
     final String smileInterpolator = desiredValue.getConstraint(PROPERTY_SMILE_INTERPOLATOR);
     if (smileInterpolator.equals(SPLINE)) {
-      return BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue);
+      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue);
     }
     if (smileInterpolator.equals(SABR)) {
-      return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue);
+      return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue);
     }
     if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
-      return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue);
+      return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue);
     }
     throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
   }
 
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final String smileInterpolator) {
     if (smileInterpolator.equals(SPLINE)) {
-      return BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(properties);
+      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties);
     }
     if (smileInterpolator.equals(SABR)) {
-      return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(properties);
+      return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties);
     }
     if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
-      return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties);
+      return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties);
     }
     throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
   }

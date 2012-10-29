@@ -1,11 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.util.time.Tenor;
@@ -26,10 +30,60 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
-public class ForexSurfaceUtils {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexSurfaceUtils.class);
+public class BlackVolatilitySurfaceUtils {
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceUtils.class);
+
+  public static double[] getUniqueExpiries(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    final double[] expiries = getArrayOfDoubles(volatilitySurface.getXs());
+    final DoubleLinkedOpenHashSet expirySet = new DoubleLinkedOpenHashSet(expiries);
+    final double[] uniqueExpiries = expirySet.toDoubleArray();
+    Arrays.sort(uniqueExpiries);
+    return uniqueExpiries;
+  }
+
+  public static double[] getUniqueStrikes(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    // Get Unique Strikes
+    final double[] strikes = getArrayOfDoubles(volatilitySurface.getYs());
+    final DoubleLinkedOpenHashSet strikeSet = new DoubleLinkedOpenHashSet(strikes);
+    final double[] uniqueStrikes = strikeSet.toDoubleArray();
+    Arrays.sort(uniqueStrikes);
+    return uniqueStrikes;
+  }
+
+  public static Pair<double[][], double[][]> getStrikesAndValues(final double[] expiries, final double[] strikes, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    final int nExpiries = expiries.length;
+    final int nStrikes = strikes.length;
+    final double[][] fullStrikes = new double[nExpiries][];
+    final double[][] fullValues = new double[nExpiries][];
+    for (int i = 0; i < nExpiries; i++) {
+      final DoubleList availableStrikes = new DoubleArrayList();
+      final DoubleList availableVols = new DoubleArrayList();
+      for (int j = 0; j < nStrikes; j++) {
+        final Double vol = volatilitySurface.getVolatility(expiries[i], strikes[j]);
+        if (vol != null) {
+          availableStrikes.add(strikes[j]);
+          availableVols.add(vol);
+        }
+      }
+      if (availableVols.size() == 0) {
+        throw new OpenGammaRuntimeException("Unexpected error. No Vols found for an expiry."); // Use ArrayLists for fullStrikes (and Vols). But first, check input surface data
+      }
+      fullStrikes[i] = availableStrikes.toDoubleArray();
+      fullValues[i] = availableVols.toDoubleArray();
+    }
+    return Pair.of(fullStrikes, fullValues);
+  }
+
+  public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    final double[] uniqueExpiries = getUniqueExpiries(volatilitySurface);
+    final double[] uniqueStrikes = getUniqueStrikes(volatilitySurface);
+    final Pair<double[][], double[][]> strikesAndValues = getStrikesAndValues(uniqueExpiries, uniqueStrikes, volatilitySurface);
+    // Convert vols and strikes to double[][],
+    // noting that different expiries may have different populated strikes
+    return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, strikesAndValues.getFirst(), strikesAndValues.getSecond());
+  }
 
   public static ForexSmileDeltaSurfaceDataBundle getDataFromStrangleRiskReversalQuote(final ForwardCurve forwardCurve,
       final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface) {
@@ -98,5 +152,18 @@ public class ForexSurfaceUtils {
       values.add(pair.getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
+  }
+
+
+  private static double[] getArrayOfDoubles(final Object[] arrayOfObject) {
+    final double[] expiries;
+    //TODO there is sometimes a problem with Fudge, where a Double[] is transported as Object[]. Needs to be fixed
+    final Object[] xData = arrayOfObject;
+    final int n = xData.length;
+    expiries = new double[n];
+    for (int i = 0; i < n; i++) {
+      expiries[i] = (Double) xData[i];
+    }
+    return expiries;
   }
 }
