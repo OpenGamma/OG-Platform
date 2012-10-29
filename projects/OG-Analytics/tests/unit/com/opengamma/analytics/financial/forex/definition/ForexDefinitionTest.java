@@ -53,6 +53,16 @@ public class ForexDefinitionTest {
     new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, -FX_RATE);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongSign() {
+    new ForexDefinition(PAY_1, new PaymentFixedDefinition(CUR_2, PAYMENT_DATE, NOMINAL_1 * FX_RATE));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongSign2() {
+    ForexDefinition.fromAmounts(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, NOMINAL_1);
+  }
+
   @Test
   /**
    * Tests the class getters.
