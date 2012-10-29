@@ -206,36 +206,15 @@ public class ParameterSensitivityTest {
   }
 
   @Test
-  public void testToMatrix() {
+  public void getAllNamesCurrency() {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map1 = Maps.newLinkedHashMap();
     map1.put(NAME_1_EUR, SENSITIVITY_1_1);
     map1.put(NAME_2_EUR, SENSITIVITY_1_2);
     map1.put(NAME_1_USD, SENSITIVITY_2_1);
     final ParameterSensitivity sensitivity1 = ParameterSensitivity.of(map1);
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map2 = Maps.newLinkedHashMap();
-    map2.put(NAME_1_EUR, SENSITIVITY_1_1);
-    map2.put(NAME_2_EUR, SENSITIVITY_1_1);
-    map2.put(NAME_1_USD, SENSITIVITY_2_1);
-    final ParameterSensitivity sensitivity2 = ParameterSensitivity.of(map2);
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map3 = Maps.newLinkedHashMap();
-    map2.put(NAME_1_EUR, SENSITIVITY_1_1);
-    map2.put(NAME_2_EUR, SENSITIVITY_1_2);
-    final ParameterSensitivity sensitivity3 = ParameterSensitivity.of(map3);
-    final double[] total = new double[SENSITIVITY_1_1.getNumberOfElements() + SENSITIVITY_1_2.getNumberOfElements() + SENSITIVITY_2_1.getNumberOfElements()];
-    int j = 0;
-    for (int i = 0; i < SENSITIVITY_1_1.getNumberOfElements(); i++, j++) {
-      total[j] = SENSITIVITY_1_1.getEntry(i);
-    }
-    for (int i = 0; i < SENSITIVITY_2_1.getNumberOfElements(); i++, j++) {
-      total[j] = SENSITIVITY_2_1.getEntry(i);
-    }
-    for (int i = 0; i < SENSITIVITY_1_2.getNumberOfElements(); i++, j++) {
-      total[j] = SENSITIVITY_1_2.getEntry(i);
-    }
-    final DoubleMatrix1D expectedMatrix = new DoubleMatrix1D(total);
-    assertEquals("Test toMatrix: ", expectedMatrix, sensitivity1.toMatrix());
-    assertFalse("Test toMatrix, unequal sensitivities: ", expectedMatrix.equals(sensitivity2.toMatrix()));
-    assertFalse("Test toMatrix, unequal keys: ", expectedMatrix.equals(sensitivity3.toMatrix()));
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getAllNamesCurrency(), sensitivity1.getSensitivities().keySet());
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getSensitivity(NAME_1, EUR), sensitivity1.getSensitivity(NAME_1_EUR));
+    assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getSensitivity(NAME_2, EUR), sensitivity1.getSensitivity(NAME_2_EUR));
   }
 
 }

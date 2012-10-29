@@ -329,6 +329,11 @@ public class CurveSensitivityMarket {
   }
 
   @Override
+  public String toString() {
+    return _sensitivityYieldDiscounting.toString() + "\n" + _sensitivityForward.toString() + "\n" + _sensitivityPriceCurve.toString();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

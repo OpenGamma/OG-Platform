@@ -13,7 +13,6 @@ public enum StandardCDSCoupon {
    * 25bps contract
    */
   _25bps,
-
   /**
    * 100bps contract
    */
@@ -26,7 +25,4 @@ public enum StandardCDSCoupon {
    * 1000bps contract
    */
   _1000bps;
-
-  // TODO : How can we get rid of the leading underspace in the variable name?
-
 }

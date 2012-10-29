@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
@@ -30,12 +34,13 @@ public class PortfolioHedgingCalculator {
    * Computes the quantity of each reference instrument that optimally hedge a given sensitivity.
    * @param ps The parameter sensitivity of the portfolio to hedge.
    * @param rs The parameter sensitivities of the reference instruments.
-   * @param w The related parameters weight matrix. // TODO: order of curves in w? Should we use the yieldCurveBundle to have the order (and all curves).
+   * @param w The related parameters weight matrix. The order of the curve should be their "natural" order.
+   * @param order The ordered set of name.
    * @param fxMatrix The matrix with exchange rates.
    * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
    * Note that the output is the optimal hedge quantity and not the portoflio equivalent. The hedge has the opposite sign of wrt the equivalent.
    */
-  public static double[] hedgeQuantity(final ParameterSensitivity ps, final ParameterSensitivity[] rs, final DoubleMatrix2D w, final FXMatrix fxMatrix) {
+  public static double[] hedgeQuantity(final ParameterSensitivity ps, final ParameterSensitivity[] rs, final DoubleMatrix2D w, final Set<String> order, final FXMatrix fxMatrix) {
     final Currency ccy = ps.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: currency used for the conversion in a common currency. Any currency is fine.
     final int nbReference = rs.length;
@@ -45,10 +50,10 @@ public class PortfolioHedgingCalculator {
       rsConverted[loopref] = rs[loopref].converted(fxMatrix, ccy);
     }
     // Implementation note: converting the ParameterSensitivity into a matrix.
-    DoubleMatrix1D p = psConverted.toMatrix();
+    DoubleMatrix1D p = toMatrix(psConverted, order);
     final double[][] rsArray = new double[nbReference][];
     for (int loopref = 0; loopref < nbReference; loopref++) {
-      rsArray[loopref] = rsConverted[loopref].toMatrix().getData();
+      rsArray[loopref] = toMatrix(rsConverted[loopref], order).getData();
     }
     DoubleMatrix2D r = new DoubleMatrix2D(rsArray);
     DoubleMatrix2D wtW = (DoubleMatrix2D) MATRIX.multiply(MATRIX.getTranspose(w), w);
@@ -60,17 +65,24 @@ public class PortfolioHedgingCalculator {
     return q.getData();
   }
 
-  // TODO: do we need the second version?
-  //  /**
-  //   * Computes the quantity of each reference instrument that optimally hedge a given sensitivity.
-  //   * @param ps The parameter sensitivity of the portfolio to hedge.
-  //   * @param ins The reference instruments.
-  //   * @param psc The parameter sensitivity calculator.
-  //   * @param w The related parameters weight matrix.
-  //   * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
-  //   */
-  //  public static double[] hedgeQuantity(final ParameterSensitivity ps, final InstrumentDerivative[] ins, final AbstractParameterSensitivityBlockCalculator psc, final DoubleMatrix2D w) {
-  //    return null;
-  //  }
+  /**
+   * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). All the sensitivities should be in the same currency.
+   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. 
+   * The matrix order is the one of the set. 
+   * @param sensi The sensitivity.
+   * @param order The ordered set of name.
+   * @return The sensitivity matrix.
+   */
+  public static DoubleMatrix1D toMatrix(final ParameterSensitivity sensi, final Set<String> order) {
+    double[] psArray = new double[0];
+    Currency ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
+    // Implementation note: all the currencies are supposed to be the same, we choose any of them.
+    // TODO: what if the sensi is empty.
+    for (final String name : order) {
+      psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(name, ccy).getData());
+      // TODO: add a some implementation for when a curve is missing in the sensi; it should be 0, but the size is unknown.
+    }
+    return new DoubleMatrix1D(psArray);
+  }
 
 }

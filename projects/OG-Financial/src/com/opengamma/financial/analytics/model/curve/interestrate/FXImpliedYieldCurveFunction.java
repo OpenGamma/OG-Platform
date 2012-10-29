@@ -128,7 +128,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
     final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(OpenGammaExecutionContext.getConfigSource(executionContext));
     final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    Currency baseCurrency = currencyPairs.getCurrencyPair(domesticCurrency, foreignCurrency).getBase();
+    final Currency baseCurrency = currencyPairs.getCurrencyPair(domesticCurrency, foreignCurrency).getBase();
     boolean invertFXQuotes;
     if (baseCurrency.equals(foreignCurrency)) {
       invertFXQuotes = false;
@@ -310,7 +310,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final Map.Entry<String, String[]> entry = exogenousConfigs.entrySet().iterator().next();
     final MultiCurveCalculationConfig foreignConfig = curveCalculationConfigSource.getConfig(entry.getKey());
     if (foreignConfig == null) {
-      s_logger.error("Foreign config was null");
+      s_logger.error("Foreign config was null; tried {}", entry.getKey());
       return null;
     }
     final UniqueIdentifiable foreignId = foreignConfig.getUniqueId();
