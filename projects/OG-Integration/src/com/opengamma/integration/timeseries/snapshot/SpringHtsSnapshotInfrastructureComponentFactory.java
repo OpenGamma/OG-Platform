@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.timeseries.snapshotter;
+package com.opengamma.integration.timeseries.snapshot;
 
 import java.util.Map;
 
