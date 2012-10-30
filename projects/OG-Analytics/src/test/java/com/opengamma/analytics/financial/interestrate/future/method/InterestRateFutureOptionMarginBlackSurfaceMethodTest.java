@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -48,8 +49,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureDefinition ERU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M_INDEX, NOTIONAL, FUTURE_FACTOR,
-      1, NAME);
+  private static final InterestRateFutureDefinition ERU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M_INDEX, NOTIONAL, FUTURE_FACTOR, 1, NAME);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String[] CURVE_NAMES = TestsDataSetsBlack.curvesEURNames();
   private static final InterestRateFuture ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVE_NAMES);
@@ -146,7 +146,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], TOLERANCE_DELTA);
     }
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_BLACK.visit(TRANSACTION_1, BLACK_BUNDLE));
-    assertTrue("Future option with Black volatilities: option transaction curve sensi", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_DELTA));
+    AssertSensivityObjects.assertEquals("Future option with Black volatilities: option transaction curve sensi", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
   @Test

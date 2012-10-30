@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketForwardSensitivity;
@@ -179,6 +181,57 @@ public class AssertSensivityObjects {
    */
   public static boolean assertDoesNotEqual(final String msg, final ParameterSensitivity sensitivity1, final ParameterSensitivity sensitivity2, final double tolerance) {
     return compare(msg, sensitivity1, sensitivity2, tolerance, true);
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * @param msg The message.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @param opposite The flag indicating if the opposite result should be used.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  public static boolean compare(final String msg, final InterestRateCurveSensitivity sensitivity1, final InterestRateCurveSensitivity sensitivity2, final double tolerance, final boolean opposite) {
+    boolean cmp = true;
+    cmp = InterestRateCurveSensitivityUtils.compare(sensitivity1.getSensitivities(), sensitivity2.getSensitivities(), tolerance);
+    if (opposite) {
+      cmp = !cmp;
+    }
+    assertTrue(msg, cmp);
+    return cmp;
+  }
+
+  public static boolean assertEquals(final String msg, final InterestRateCurveSensitivity sensitivity1, final InterestRateCurveSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, false);
+  }
+
+  public static boolean assertDoesNotEqual(final String msg, final InterestRateCurveSensitivity sensitivity1, final InterestRateCurveSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, true);
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
+   * @param msg The message.
+   * For each currency, the two sensitivities are suppose to be in the same time order.
+   * @param sensi1 The first sensitivity.
+   * @param sensi2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the currencies or the curves are not the same it returns False.
+   */
+  public static boolean assertEquals(final String msg, final MultipleCurrencyInterestRateCurveSensitivity sensi1, final MultipleCurrencyInterestRateCurveSensitivity sensi2, final double tolerance) {
+    boolean cmp = true;
+    final boolean keycmp = sensi1.getCurrencies().equals(sensi2.getCurrencies());
+    if (!keycmp) {
+      cmp = false;
+    }
+    for (final Currency loopccy : sensi1.getCurrencies()) {
+      if (!assertEquals(msg, sensi1.getSensitivity(loopccy), sensi2.getSensitivity(loopccy), tolerance)) {
+        cmp = false;
+      }
+    }
+    assertTrue(msg, cmp);
+    return cmp;
   }
 
 }

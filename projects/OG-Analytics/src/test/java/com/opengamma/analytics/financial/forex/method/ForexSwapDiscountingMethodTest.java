@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
@@ -150,10 +151,10 @@ public class ForexSwapDiscountingMethodTest {
   public void forexTodayPaymentOnNearDate() {
     final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(NEAR_DATE, CURVES_NAME);
     final MultipleCurrencyAmount cash = TPC.visit(fx);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency1().getReferenceAmount(),
-        cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency2().getReferenceAmount(),
-        cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()),
+        TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()),
+        TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 
@@ -176,10 +177,10 @@ public class ForexSwapDiscountingMethodTest {
   public void forexTodayPaymentOnFarDate() {
     final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(FAR_DATE, CURVES_NAME);
     final MultipleCurrencyAmount cash = TPC.visit(fx);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency1().getReferenceAmount(),
-        cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency2().getReferenceAmount(),
-        cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()),
+        TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()),
+        TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 
@@ -259,7 +260,7 @@ public class ForexSwapDiscountingMethodTest {
     CURVES_FX.replaceCurve(CURVES_NAME[1], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(fxSwap, CURVES_FX);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    assertTrue("Forex swap: par rate curve sensitivity", InterestRateCurveSensitivity.compare(pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA));
+    AssertSensivityObjects.assertEquals("Forex swap: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }

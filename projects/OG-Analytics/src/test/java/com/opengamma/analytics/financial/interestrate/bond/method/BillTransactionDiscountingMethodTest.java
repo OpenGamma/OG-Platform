@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -138,7 +139,7 @@ public class BillTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     InterestRateCurveSensitivity pvcsMethod = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(BILL_TRA, CURVE_BUNDLE));
-    assertTrue("Bill Security: discounting method - curve sensitivity", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_PV));
+    AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test
@@ -195,7 +196,7 @@ public class BillTransactionDiscountingMethodTest {
   public void parSpreadCurveSensitivityMethodVsCalculator() {
     InterestRateCurveSensitivity pscsMethod = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     InterestRateCurveSensitivity pscsCalculator = PSMQCSC.visit(BILL_TRA, CURVE_BUNDLE);
-    assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivity.compare(pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA));
+    AssertSensivityObjects.assertEquals("parSpread: curve sensitivity - fwd", pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }

@@ -67,7 +67,11 @@ public class MainGridViewport extends AnalyticsViewport {
         }
       }
     }
-    _latestResults = new ViewportResults(results, _viewportDefinition, _gridStructure.getColumnStructure(), _version);
+    _latestResults = new ViewportResults(results,
+                                         _viewportDefinition,
+                                         _gridStructure.getColumnStructure(),
+                                         _version,
+                                         cache.getLastCalculationDuration());
     if (updated) {
       return _callbackId;
     } else {

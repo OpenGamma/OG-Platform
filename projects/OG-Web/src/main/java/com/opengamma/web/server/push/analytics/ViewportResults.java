@@ -8,6 +8,8 @@ package com.opengamma.web.server.push.analytics;
 import java.util.Collection;
 import java.util.List;
 
+import javax.time.Duration;
+
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
@@ -28,6 +30,8 @@ public class ViewportResults {
   private final ViewportDefinition _viewportDefinition;
   /** Version of the viewport used when building these results. */
   private final long _version;
+  /** Duration of the last calculation cycle. */
+  private final Duration _calculationDuration;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
@@ -39,14 +43,17 @@ public class ViewportResults {
   /* package */ ViewportResults(List<Cell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
-                                long version) {
+                                long version,
+                                Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
+    ArgumentChecker.notNull(calculationDuration, "calculationDuration");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
     _version = version;
+    _calculationDuration = calculationDuration;
   }
 
   /**
@@ -80,6 +87,13 @@ public class ViewportResults {
    */
   /* package */ Class<?> getColumnType(int colIndex) {
     return _columns.getColumn(colIndex).getType();
+  }
+
+  /**
+   * @return The duration of the last calculation cycle.
+   */
+  public Duration getCalculationDuration() {
+    return _calculationDuration;
   }
 
   /**

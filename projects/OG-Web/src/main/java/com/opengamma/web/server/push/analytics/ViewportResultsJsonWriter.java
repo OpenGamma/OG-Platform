@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.analytics;
 
 import static com.opengamma.web.server.push.analytics.formatting.Formatter.FormatType.UNKNOWN;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormatter;
 import com.opengamma.web.server.push.analytics.formatting.Formatter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
@@ -32,8 +34,10 @@ public class ViewportResultsJsonWriter {
   private static final String TYPE = "t";
   private static final String DATA = "data";
   private static final String ERROR = "error";
+  private static final String CALCULATION_DURATION = "calculationDuration";
 
   private final ResultsFormatter _formatter;
+  private final DoubleValueOptionalDecimalPlaceFormatter _durationFormatter = new DoubleValueOptionalDecimalPlaceFormatter();
 
   public ViewportResultsJsonWriter(ResultsFormatter formatter) {
     _formatter = formatter;
@@ -73,7 +77,10 @@ public class ViewportResultsJsonWriter {
         results.add(formattedValue);
       }
     }
-    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(), DATA, results);
+    String duration = _durationFormatter.format(new BigDecimal(viewportResults.getCalculationDuration().toMillisLong()));
+    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(),
+                                                              CALCULATION_DURATION, duration,
+                                                              DATA, results);
     return new JSONObject(resultsMap).toString();
   }
 

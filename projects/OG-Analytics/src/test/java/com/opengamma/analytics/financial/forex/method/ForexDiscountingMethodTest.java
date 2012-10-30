@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -55,10 +56,8 @@ public class ForexDiscountingMethodTest {
   private static final PaymentFixed PAY_2 = PAY_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_NAME[1]);
 
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
-  private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator
-      .getInstance();
-  private static final com.opengamma.analytics.financial.calculator.PresentValueMCACalculator PVC_FX = com.opengamma.analytics.financial.calculator.PresentValueMCACalculator
-      .getInstance();
+  private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator.getInstance();
+  private static final com.opengamma.analytics.financial.calculator.PresentValueMCACalculator PVC_FX = com.opengamma.analytics.financial.calculator.PresentValueMCACalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
@@ -110,6 +109,9 @@ public class ForexDiscountingMethodTest {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
+    InstrumentDerivative instrument = FX;
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod2 = METHOD.presentValueCurveSensitivity(instrument, CURVES);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsMethod2);
   }
 
   @Test

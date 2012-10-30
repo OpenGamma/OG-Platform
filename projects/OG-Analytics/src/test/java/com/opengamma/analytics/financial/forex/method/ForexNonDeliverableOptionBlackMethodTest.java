@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -22,11 +21,11 @@ import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOpt
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -146,7 +145,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
     final double tolerance = 1.0E-2;
     final MultipleCurrencyInterestRateCurveSensitivity pvcsNDO = METHOD_NDO.presentValueCurveSensitivity(NDO, SMILE_BUNDLE);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsFXO = METHOD_FXO.presentValueCurveSensitivity(FOREX_OPT, SMILE_BUNDLE);
-    assertTrue("Forex non-deliverable option: present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsFXO.getSensitivity(USD), pvcsNDO.getSensitivity(USD), tolerance));
+    AssertSensivityObjects.assertEquals("Forex non-deliverable option: present value curve sensitivity", pvcsFXO.getSensitivity(USD), pvcsNDO.getSensitivity(USD), tolerance);
   }
 
   @Test
