@@ -9,10 +9,9 @@ $.register_module({
         var module = this, icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', 
             open_inplace = '.og-icon-down-chevron', expand_class = 'og-expanded', 
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
-            mapping = og.common.gadgets.mapping, typemap = mapping.type_map,
-            onlydepgraphs = []; // a list of datatypes that only support depgraph gadgets
-        for (var i in typemap) if (typemap.hasOwnProperty(i))
-            if (typemap[i].length === 1 && typemap[i][0] === 0) onlydepgraphs.push(i);
+            mapping = og.common.gadgets.mapping, type_map = mapping.data_type_map,
+            onlydepgraphs = Object.keys(type_map) // a list of datatypes that only support depgraph gadgets
+                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0});
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent;
             if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
