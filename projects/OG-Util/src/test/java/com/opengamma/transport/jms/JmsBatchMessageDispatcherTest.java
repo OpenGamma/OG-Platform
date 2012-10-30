@@ -27,6 +27,7 @@ import com.opengamma.util.test.ActiveMQTestUtils;
 @Test
 public class JmsBatchMessageDispatcherTest {
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void queueOperation() throws InterruptedException {
     String queueName = "JmsBatchMessageDispatcherTest-queueOperation-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtils.createTestConnectionFactory());
