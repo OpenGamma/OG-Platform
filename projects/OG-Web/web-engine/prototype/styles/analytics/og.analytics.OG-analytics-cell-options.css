@@ -62,6 +62,14 @@
     margin-left: 1px;
 }
 
+.OG-cell-options .OG-icon.og-icon-down-chevron {
+    background: transparent;
+    border: 1px solid #dadcdd;
+    cursor: pointer;
+    height: 11px;
+    left: -2px;
+}
+
 .OG-cell-options .OG-icon.og-icon-down-chevron::after {
     top: 4px;
 }
@@ -74,6 +82,16 @@
     padding-left: 4px;
     position: relative;
     top: 3px;
+}
+
+.OG-cell-options .og-menu {
+    background-color: #C9CACB;
+    display: none;
+    height: 300px;
+    margin-left: 3px;
+    margin-top: 20px;
+    width: 400px;
+    position: absolute;
 }
 
 .OG-cell-options .og-icon-new-window-2 {
