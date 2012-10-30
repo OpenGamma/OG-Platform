@@ -133,7 +133,7 @@ public class ViewProcessTest {
 
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
@@ -149,12 +149,12 @@ public class ViewProcessTest {
     computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
@@ -201,7 +201,7 @@ public class ViewProcessTest {
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
 
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
@@ -220,7 +220,7 @@ public class ViewProcessTest {
     computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
@@ -228,7 +228,7 @@ public class ViewProcessTest {
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
-    computationJob.marketDataChanged();
+    computationJob.requestCycle();
     CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);

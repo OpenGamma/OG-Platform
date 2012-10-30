@@ -175,7 +175,7 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 4);
     
-    env.getCurrentComputationJob(viewProcess).marketDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).requestCycle();
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -236,7 +236,7 @@ public class ViewClientTest {
     
     assertEquals(0, resultListener.getQueueSize());
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    env.getCurrentComputationJob(viewProcess).marketDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).requestCycle();
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -298,7 +298,7 @@ public class ViewClientTest {
     
     // Now client 1 is paused, so any changes should be batched.
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    env.getCurrentComputationJob(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -306,7 +306,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
     
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 2);
-    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    env.getCurrentComputationJob(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -326,7 +326,7 @@ public class ViewClientTest {
     
     // Changes should now propagate straight away to both listeners
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
-    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    env.getCurrentComputationJob(viewProcess1).requestCycle();
     client1ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
@@ -345,7 +345,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 1);
-    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    env.getCurrentComputationJob(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -353,7 +353,7 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
-    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    env.getCurrentComputationJob(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
@@ -438,7 +438,7 @@ public class ViewClientTest {
     
     // Push through a second result
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 3);
-    recalcJob.marketDataChanged();
+    recalcJob.requestCycle();
     resultListener1.assertCycleStarted(TIMEOUT);
     resultListener1.assertCycleFragmentCompleted(TIMEOUT);
     resultListener1.assertCycleCompleted(TIMEOUT);
@@ -449,7 +449,7 @@ public class ViewClientTest {
     client.setResultListener(resultListener2);
 
     // Push through a result which should arrive at the new listeners
-    recalcJob.marketDataChanged();
+    recalcJob.requestCycle();
     resultListener2.assertCycleStarted(TIMEOUT);
     resultListener2.assertCycleFragmentCompleted(TIMEOUT);
     resultListener2.assertCycleCompleted(TIMEOUT);

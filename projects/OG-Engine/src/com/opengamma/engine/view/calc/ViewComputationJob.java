@@ -103,8 +103,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private ConcurrentMap<ObjectId, Boolean> _changedTargets;
   private ChangeListener _targetResolverChangeListener;
 
-  private volatile boolean _wakeOnMarketDataChanged;
-  private volatile boolean _marketDataChanged = true;
+  private volatile boolean _wakeOnCycleRequest;
+  private volatile boolean _cycleRequested;
   private volatile boolean _forceTriggerCycle;
   private volatile boolean _viewDefinitionDirty = true;
   private volatile boolean _compilationDirty;
@@ -129,7 +129,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-    _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+    _cycleRequested = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
@@ -413,8 +413,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         cycleEligibility = ViewCycleEligibility.FORCE;
         _forceTriggerCycle = false;
       }
-      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _marketDataChanged) {
-        _marketDataChanged = false;
+      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _cycleRequested) {
+        _cycleRequested = false;
         ViewCycleType cycleType = triggerResult.getCycleType();
         if (_previousCycleReference == null) {
           // Cannot do a delta if we have no previous cycle
@@ -431,13 +431,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
       // Going to sleep
       long wakeUpTime = triggerResult.getNextStateChangeNanos();
-      if (_marketDataChanged) {
+      if (_cycleRequested) {
         s_logger.debug("Sleeping until eligible to perform the next computation cycle");
         // No amount of market data can make us eligible for a computation cycle any sooner.
-        _wakeOnMarketDataChanged = false;
+        _wakeOnCycleRequest = false;
       } else {
         s_logger.debug("Sleeping until forced to perform the next computation cycle");
-        _wakeOnMarketDataChanged = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
+        _wakeOnCycleRequest = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
       }
 
       long sleepTime = wakeUpTime - currentTimeNanos;
@@ -543,27 +543,31 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _compilationDirty = true;
   }
 
+  /**
+   * Forces a cycle to run, regardless of how long has elapsed since the previous cycle.
+   */
   public synchronized void triggerCycle() {
     s_logger.debug("Cycle triggered manually");
     _forceTriggerCycle = true;
     notifyAll();
   }
 
-  public synchronized void marketDataChanged() {
+  /**
+   * Requests a cycle to run, honouring minimum times between cycles.
+   */
+  public synchronized void requestCycle() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
     // heuristic (e.g. only wake up due to market data if max - min < e, for some e) which tries to see whether it's
     // worth doing all this.
 
-    s_logger.debug("Market Data changed");
-    _marketDataChanged = true;
-    if (!_wakeOnMarketDataChanged) {
+    _cycleRequested = true;
+    if (!_wakeOnCycleRequest) {
       return;
     }
     notifyAll();
   }
 
-  //-------------------------------------------------------------------------
   private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions,
       CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, VersionCorrection versionCorrection) {
     // View definition was compiled based on compilation options, which might have only included an indicative
@@ -595,6 +599,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           final ObjectId oid = event.getObjectId();
           if (changed.replace(oid, Boolean.FALSE, Boolean.TRUE)) {
             s_logger.info("Received change notification for {}", event.getObjectId());
+            requestCycle();
           }
         }
       };
@@ -1073,7 +1078,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     //Since this happens for every tick, for every job, we need to use the quick call here 
     if (compiledView.hasAnyMarketDataRequirements(values)) {
-      marketDataChanged();
+      requestCycle();
     }
   }
 
