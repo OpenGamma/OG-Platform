@@ -61,6 +61,7 @@ import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
@@ -110,6 +111,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private Random _random = new Random();
   private ConventionBundleSource _conventionSource;
   private ConfigSource _configSource;
+  private ConfigMaster _configMaster;
   private HolidaySource _holidaySource;
   private HistoricalTimeSeriesSource _historicalSource;
   private HistoricalTimeSeriesMaster _htsMaster;
@@ -170,6 +172,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
+  }
+  
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+  
+  public void setConfigMaster(final ConfigMaster configMaster) {
+    _configMaster = configMaster;
   }
 
   public HolidaySource getHolidaySource() {
