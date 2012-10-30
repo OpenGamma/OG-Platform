@@ -39,8 +39,8 @@ $.register_module({
                 if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
-                if (gadget_type === 'Timeseries')
-                    $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
+                if (gadget_type === 'Timeseries') $.extend(gadget_options.options, 
+					{menu: false, datapoints_link: false, col: cell.col, row: cell.row});
                 return gadget_options;
             },
             type: function (cell, panel) {
