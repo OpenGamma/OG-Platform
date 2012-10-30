@@ -9,7 +9,7 @@ $.register_module({
         var routes = og.common.routes, module = this, view, default_template, default_object,
             main_selector = '.OG-layout-analytics-center', form_promise = null, form,
             init_form = function () {
-                form = og.analytics.form('.OG-layout-analytics-masthead', args = [].splice.call(arguments, 0));
+                form = og.analytics.form('.OG-layout-analytics-masthead', arguments[0]);
             };
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {

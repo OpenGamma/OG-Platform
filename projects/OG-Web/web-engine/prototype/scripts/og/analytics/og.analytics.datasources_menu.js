@@ -6,8 +6,15 @@ $.register_module({
     name: 'og.analytics.DatasourcesMenu',
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
-        return function (config) {
-            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, query = [], ds_val,
+        return function (cntr) {
+            if (!cntr) return;
+            var tmpl = og.api.text({module: 'og.analytics.form_datasources_tash'})
+                menu = new og.analytics.DropMenu({
+                    $cntr: cntr,
+                    data: ['Live', 'Snapshot', 'Historical'],
+                    tmpl: tmpl
+                }),
+                opts = menu.opts, data = menu.data, query = [], ds_val,
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type',
                 source_s = '.source',  extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom',

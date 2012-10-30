@@ -14,7 +14,7 @@ $.register_module({
         var query = null,
             form_inst = null,
             initialized = false,
-            Form = function (selector, config) {
+            Form = function (selector, tmpl) {
                 var Form = this, emitter = new EventEmitter(), api = {}, ag_dropmenu = og.analytics.AggregatorsMenu,
                     ds_dropmenu = og.analytics.DatasourcesMenu, Status, FormCombo, replaying = false;
                     ag_menu = null, ds_menu = null, ac_menu = null,
@@ -57,30 +57,24 @@ $.register_module({
                     status.status = null;
                     return status;
                 };
-                FormCombo = (function (config) {
+                FormCombo = (function (tmpl) {
+                    if (!tmpl) return;
                     var FormCombo = this, vd_s = '.og-view', fcntrls_s = 'input, select, button', 
                         ac_s = 'input autocompletechange autocompleteselect', 
-                        $form = $(selector).html(config.template), $ag = $('.og-aggregation', $form),
+                        $form = $(selector).html(tmpl), $ag = $('.og-aggregation', $form),  status,
                         $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
-                        status,
                         keydown_handler = function (event) {
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
                                 active_pos = function (elms, pos) {
                                     return $elem.is(elms[pos]());
                                 };
-                            if (!shift_key && ac_menu.state === 'focused')
-                                ag_menu.emitEvent(events.open);
-                            if (!shift_key && active_pos($ag_fcntrls,'last'))
-                                ds_menu.emitEvent(events.open);
-                            if (!shift_key && active_pos($ds_fcntrls, 'last'))
-                                ds_menu.emitEvent(events.close);
-                            if (shift_key && $elem.is($load_btn)) 
-                                ds_menu.emitEvent(events.open);
-                            if (shift_key && active_pos($ds_fcntrls, 'first')) 
-                                ag_menu.emitEvent(events.open);
-                            if (shift_key && active_pos($ag_fcntrls, 'first'))
-                                ag_menu.emitEvent(events.close);
+                            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
+                            if (!shift_key && active_pos($ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
+                            if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
+                            if (shift_key && $elem.is($load_btn)) ds_menu.emitEvent(events.open);
+                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
+                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
                         },
                         close_dropmenu = function (menu) {
                             if (menu === ds_menu) ag_menu.emitEvent(events.close);
@@ -107,18 +101,11 @@ $.register_module({
                                 aggregators: ag_menu.get_query()
                             });
                         };
-                    config.search.data.sort((function(i){ // sort by name
-                        return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
-                    })('name'));
                     $form.on('keydown', fcntrls_s, keydown_handler);
-                    ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', config.search.data);
+                    ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...');
                     ac_menu.$input.on(ac_s, auto_combo_handler).select();
-                    ag_menu = new ag_dropmenu({
-                        $cntr: $ag, tmpl: config.aggregation_markup, data: config.aggregators.data
-                    });
-                    ds_menu = new ds_dropmenu({
-                        $cntr: $ds, tmpl: config.datasources_markup, data: config.datasource.data
-                    });
+                    ag_menu = new ag_dropmenu($ag);
+                    ds_menu = new ds_dropmenu($ds);
                     [ag_menu, ds_menu].forEach(function (menu) { 
                         menu.addListener(events.opened, close_dropmenu)
                             .addListener(events.queryselected, query_selected)
@@ -133,7 +120,7 @@ $.register_module({
                     });
                     og.views.common.layout.main.allowOverflow('north');
                     status = new Status(selector + ' .og-status');
-                })(config),
+                })(tmpl),
                 replay_aggregators = function (url_config) {
                    ag_menu.replay_query({
                         aggregators: url_config.aggregators.map(function (entry) {
@@ -180,22 +167,12 @@ $.register_module({
                     return initialized;
                 };
             };
-        return function (selector, args) {
+        return function (selector, tmpl) {
             if (initialized && !form_inst) {
-                var obj = {}, ar = [
-                        'template', 'search', 'aggregators', 'datasource', 'aggregation_markup', 'datasources_markup'
-                    ].map(function (entry, i) { return obj[entry] = args[i]; });
-                return form_inst = new Form(selector, obj), form_inst;
+                return form_inst = new Form(selector, tmpl), form_inst;
             } else if (initialized && form_inst) return form_inst;
             initialized = true;
-            return $.when(
-                og.api.text({module: 'og.analytics.form_tash'}),
-                og.api.rest.viewdefinitions.get(),
-                og.api.rest.aggregators.get(),
-                {data: ['Live', 'Snapshot', 'Historical']},
-                og.api.text({module: 'og.analytics.form_aggregation_tash'}),
-                og.api.text({module: 'og.analytics.form_datasources_tash'})
-            ).then(function (template, search, aggregators, datasource, aggregation_markup, datasources_markup) {});
+            return $.when(og.api.text({module: 'og.analytics.form_tash'}));
         };
     }
 });

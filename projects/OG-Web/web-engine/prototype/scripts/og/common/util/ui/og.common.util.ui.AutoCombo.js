@@ -13,8 +13,12 @@ $.register_module({
          * @param {Object} obj configuration object,
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
-        return function (selector, placeholder, data) {
-            var combo = this;
+        return function (selector, placeholder) {
+            var combo = this, data = og.api.rest.viewdefinitions.get().pipe(function (resp) {
+                resp.sort((function(i){ // sort by name
+                    return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
+                })('name'));
+            });
             combo.state = 'blurred';
             combo.open = function () {
                 combo.$input.autocomplete('search', '').select();

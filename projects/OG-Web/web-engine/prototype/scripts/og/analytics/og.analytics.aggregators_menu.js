@@ -6,8 +6,15 @@ $.register_module({
     name: 'og.analytics.AggregatorsMenu',
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
-        return function (config) {
-            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data,
+        return function (cntr) {
+            if (!cntr) return
+            var tmpl = og.api.text({module: 'og.analytics.form_aggregation_tash'});
+                menu = new og.analytics.DropMenu({
+                    $cntr: cntr, 
+                    data: og.api.rest.aggregators.get(), 
+                    tmpl: tmpl
+                }), 
+                $dom = menu.$dom, opts = menu.opts, data = menu.data,
                 ag_opts = [], $query = $('.aggregation-selection', $dom.toggle), sel_val, sel_pos, $parent,
                 $select, $checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
