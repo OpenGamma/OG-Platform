@@ -12,7 +12,6 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -46,10 +45,10 @@ public class PortfolioHedgingCalculatorTest {
   private static final double[] SENSI_2 = {0.5, 1.0, 0.5, 1.0, 0.5};
   private static final int NB_SENSI_2 = SENSI_2.length;
 
-  private static final Set<String> ORDER = new LinkedHashSet<String>();
+  private static final LinkedHashSet<Pair<String, Integer>> ORDER = new LinkedHashSet<Pair<String, Integer>>();
   static {
-    ORDER.add(NAME_1);
-    ORDER.add(NAME_2);
+    ORDER.add(new ObjectsPair<String, Integer>(NAME_1, NB_SENSI_1));
+    ORDER.add(new ObjectsPair<String, Integer>(NAME_2, NB_SENSI_2));
   }
 
   private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra();
@@ -61,8 +60,8 @@ public class PortfolioHedgingCalculatorTest {
    * Test the hedging portfolio with reference instruments equal to the curve construction instruments. 
    */
   public void exactSolution() {
-    Set<String> order = new LinkedHashSet<String>();
-    order.add(NAME_1);
+    LinkedHashSet<Pair<String, Integer>> order = new LinkedHashSet<Pair<String, Integer>>();
+    order.add(new ObjectsPair<String, Integer>(NAME_1, NB_SENSI_1));
     double[] sensiOpposite = new double[NB_SENSI_1];
     for (int loopnode = 0; loopnode < NB_SENSI_1; loopnode++) {
       sensiOpposite[loopnode] = -SENSI_1[loopnode];

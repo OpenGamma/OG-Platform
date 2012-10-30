@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.market.description;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.USD;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +73,10 @@ public class MultipleCurrencyCurveSensitivityMarketTest {
     Currency ccy1 = Currency.AUD;
     MultipleCurrencyCurveSensitivityMarket mcs = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy1));
+    MultipleCurrencyCurveSensitivityMarket constructor = new MultipleCurrencyCurveSensitivityMarket();
+    constructor = constructor.plus(ccy1, cs);
+    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: of", mcs.cleaned(), constructor.cleaned(), TOLERANCE);
+    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: getSensitivity", new CurveSensitivityMarket(), mcs.getSensitivity(Currency.CAD), TOLERANCE);
   }
 
   @Test
@@ -115,6 +120,23 @@ public class MultipleCurrencyCurveSensitivityMarketTest {
     MultipleCurrencyCurveSensitivityMarket mcsConverted = mcs.converted(ccy2, fxMatrix);
     MultipleCurrencyCurveSensitivityMarket mcsExpected = MultipleCurrencyCurveSensitivityMarket.of(ccy2, cs.multipliedBy(fxMatrix.getFxRate(ccy1, ccy2)));
     AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: converted", mcsExpected.cleaned(), mcsConverted.cleaned(), TOLERANCE);
+  }
+
+  @Test
+  public void equalHash() {
+    Currency ccy1 = Currency.EUR;
+    Currency ccy2 = Currency.USD;
+    CurveSensitivityMarket cs = CurveSensitivityMarket.of(SENSI_11, SENSI_FWD_11, SENSI_33);
+    MultipleCurrencyCurveSensitivityMarket mcs = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
+    assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs, mcs);
+    assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.hashCode(), mcs.hashCode());
+    assertFalse("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.equals(null));
+    assertFalse("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.equals(SENSI_11));
+    MultipleCurrencyCurveSensitivityMarket other = MultipleCurrencyCurveSensitivityMarket.of(ccy1, cs);
+    assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs, other);
+    MultipleCurrencyCurveSensitivityMarket modified;
+    modified = MultipleCurrencyCurveSensitivityMarket.of(ccy2, cs);
+    assertFalse("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.equals(modified));
   }
 
 }

@@ -204,6 +204,9 @@
 
 	<target name="tests" depends="test-batch-clean,test-batch,junit-report" description="run unit tests and generate report"/>
 
+  <!-- convenience redeclaration for typos and maven users -->
+  <target name="test" depends="tests" />
+
 	<target name="test-batch" depends="junit-batch,testng-batch"/>
 
 	<target name="test-batch-clean">
@@ -579,7 +582,11 @@
 
 	<!-- clean the project libraries directory (dependencies) -->
 	<target name="clean-lib" unless="disable.clean-lib">
-		<delete includeemptydirs="true" dir="${lib.dir}" />
+    <!-- failonerror to avoid locked files in Eclipse -->
+    <mkdir dir="${lib.dir}" />
+    <delete includeemptydirs="true" failonerror="false">
+      <fileset dir="${lib.dir}" includes="**/*" defaultexcludes="no"/>
+    </delete>
 	</target>
 
 	<!-- clean the project build files -->
@@ -593,9 +600,12 @@
 	</target>
 
 	<!-- clean the project distribution files -->
-	<target name="clean-dist">
-		<delete includeemptydirs="true" dir="${dist.dir}" />
-	</target>
+  <target name="clean-dist">
+    <mkdir dir="${dist.dir}" />
+    <delete includeemptydirs="true">
+      <fileset dir="${dist.dir}" includes="**/*" defaultexcludes="no" />
+    </delete>   
+  </target>
 
 	<!-- clean all test generated files -->
 	<target name="clean-tests">

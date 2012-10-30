@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * We construct a model independent method to price variance as a static replication
  * of an (in)finite sum of call and put option prices on the underlying.
- * We assume the existence of a smooth function of these option prices / Implied volatilities.
+ * We assume the existence of a smooth function of these option prices / implied volatilities.
  * The portfolio weighting is 1/k^2. As such, this method is especially sensitive to strike near zero.
  * <p>
  * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.<p>
@@ -133,7 +133,7 @@ public class VarianceSwapStaticReplication {
     final double fwd = market.getForwardCurve().getForward(expiry);
     final BlackVolatilitySurface<?> volSurf = market.getVolatilitySurface();
 
-    VarianceCalculator varCal = new VarianceCalculator(fwd, expiry);
+    final VarianceCalculator varCal = new VarianceCalculator(fwd, expiry);
     return varCal.getVariance(volSurf);
   }
 
@@ -181,7 +181,7 @@ public class VarianceSwapStaticReplication {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double visitStrike(final BlackVolatilitySurfaceStrike surface) {
-      return _cal.getAnnualisedVariance(_f, _t, surface);
+      return _cal.getAnnualizedVariance(_f, _t, surface);
     }
 
     //********************************************
@@ -197,7 +197,7 @@ public class VarianceSwapStaticReplication {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double visitDelta(final BlackVolatilitySurfaceDelta surface) {
-      return _cal.getAnnualisedVariance(_f, _t, surface);
+      return _cal.getAnnualizedVariance(_f, _t, surface);
     }
 
     //********************************************
@@ -209,9 +209,10 @@ public class VarianceSwapStaticReplication {
       throw new NotImplementedException();
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitMoneyness(final BlackVolatilitySurfaceMoneyness surface) {
-      return _cal.getAnnualisedVariance(_t, surface);
+      return _cal.getAnnualizedVariance(_t, surface);
     }
 
     //********************************************
@@ -235,7 +236,7 @@ public class VarianceSwapStaticReplication {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface) {
-      return _cal.getAnnualisedVariance(_t, surface);
+      return _cal.getAnnualizedVariance(_t, surface);
     }
 
   }

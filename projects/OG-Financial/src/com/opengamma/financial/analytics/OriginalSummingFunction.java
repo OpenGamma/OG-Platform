@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.util.ArgumentChecker;
 
@@ -77,7 +77,7 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.SMILE_FITTING_METHOD,
         ValuePropertyNames.SURFACE,
         InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE,
-        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD,
+        EquityVarianceSwapStaticReplicationFunction.STRIKE_PARAMETERIZATION_METHOD,
         ValuePropertyNames.SAMPLING_PERIOD,
         ValuePropertyNames.RETURN_CALCULATOR,
         ValuePropertyNames.SCHEDULE_CALCULATOR,

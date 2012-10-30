@@ -217,4 +217,18 @@ public class ParameterSensitivityTest {
     assertEquals("ParameterSensitivity: getAllNamesCurrency", sensitivity1.getSensitivity(NAME_2, EUR), sensitivity1.getSensitivity(NAME_2_EUR));
   }
 
+  @Test
+  public void equalHash() {
+    ParameterSensitivity sensitivity = new ParameterSensitivity();
+    sensitivity = sensitivity.plus(NAME_1_USD, SENSITIVITY_1_1);
+    sensitivity = sensitivity.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    ParameterSensitivity modified = new ParameterSensitivity();
+    modified = modified.plus(NAME_2_USD, SENSITIVITY_2_1);
+    modified = modified.plus(NAME_2_EUR, SENSITIVITY_2_1);
+    assertEquals("ParameterSensitivity: equalHash", sensitivity, sensitivity);
+    assertEquals("ParameterSensitivity: equalHash", sensitivity.hashCode(), sensitivity.hashCode());
+    assertFalse("ParameterSensitivity: equalHash", sensitivity.equals(SENSITIVITY_1_1));
+    assertFalse("ParameterSensitivity: equalHash", sensitivity.equals(modified));
+  }
+
 }

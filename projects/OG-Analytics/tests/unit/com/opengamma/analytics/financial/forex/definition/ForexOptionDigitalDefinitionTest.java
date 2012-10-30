@@ -49,9 +49,15 @@ public class ForexOptionDigitalDefinitionTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullWrongDate() {
+  public void wrongDate() {
     final ZonedDateTime expirationDateWrong = DateUtils.getUTCDate(2012, 6, 13);
     new ForexOptionDigitalDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL, IS_LONG);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongDate2() {
+    final ZonedDateTime expirationDateWrong = DateUtils.getUTCDate(2012, 6, 13);
+    new ForexOptionDigitalDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL, IS_LONG, PAY_DOM);
   }
 
   @Test
@@ -73,25 +79,30 @@ public class ForexOptionDigitalDefinitionTest {
    * Tests the equal and hashCode methods.
    */
   public void equalHash() {
-    assertTrue(FX_OPTION_DEFINITION.equals(FX_OPTION_DEFINITION));
+    assertTrue("ForexOptionDigitalDefinition: equal/hash code", FX_OPTION_DEFINITION.equals(FX_OPTION_DEFINITION));
     ForexOptionDigitalDefinition otherOption = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
-    assertTrue(otherOption.equals(FX_OPTION_DEFINITION));
-    assertEquals(FX_OPTION_DEFINITION.hashCode(), otherOption.hashCode());
+    assertTrue("ForexOptionDigitalDefinition: equal/hash code", otherOption.equals(FX_OPTION_DEFINITION));
+    assertEquals("ForexOptionDigitalDefinition: equal/hash code", FX_OPTION_DEFINITION.hashCode(), otherOption.hashCode());
     ForexOptionDigitalDefinition put1 = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG);
     ForexOptionDigitalDefinition put2 = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG);
-    assertEquals(put1.hashCode(), put2.hashCode());
+    assertEquals("ForexOptionDigitalDefinition: equal/hash code", put1.hashCode(), put2.hashCode());
+    ForexOptionDigitalDefinition put3 = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG, !PAY_DOM);
+    ForexOptionDigitalDefinition put4 = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG, !PAY_DOM);
+    assertEquals("ForexOptionDigitalDefinition: equal/hash code", put3.hashCode(), put4.hashCode());
     ForexOptionDigitalDefinition modifiedOption;
     modifiedOption = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", modifiedOption.equals(FX_OPTION_DEFINITION));
     modifiedOption = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, !IS_LONG);
-    assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", modifiedOption.equals(FX_OPTION_DEFINITION));
     modifiedOption = new ForexOptionDigitalDefinition(FX_DEFINITION, PAYMENT_DATE, IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", modifiedOption.equals(FX_OPTION_DEFINITION));
+    modifiedOption = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG, !PAY_DOM);
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", modifiedOption.equals(FX_OPTION_DEFINITION));
     ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
     modifiedOption = new ForexOptionDigitalDefinition(modifiedFxDefinition, EXPIRATION_DATE, IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
-    assertFalse(FX_OPTION_DEFINITION.equals(CUR_1));
-    assertFalse(FX_OPTION_DEFINITION.equals(null));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", modifiedOption.equals(FX_OPTION_DEFINITION));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", FX_OPTION_DEFINITION.equals(CUR_1));
+    assertFalse("ForexOptionDigitalDefinition: equal/hash code", FX_OPTION_DEFINITION.equals(null));
   }
 
   @Test
