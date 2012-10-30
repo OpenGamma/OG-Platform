@@ -27,9 +27,9 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   
   private RedisConnector _redisConnector;
   
-  private SchemeBlackList _schemeBlackList;
+  private BlackList _schemeBlackList;
   
-  private DataFieldBlackList _dataFieldBlackList;
+  private BlackList _dataFieldBlackList;
   
   private String _globalPrefix;
     
@@ -117,7 +117,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Gets the schemeBlackList.
    * @return the schemeBlackList
    */
-  public SchemeBlackList getSchemeBlackList() {
+  public BlackList getSchemeBlackList() {
     return _schemeBlackList;
   }
 
@@ -125,7 +125,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Sets the schemeBlackList.
    * @param schemeBlackList  the schemeBlackList
    */
-  public void setSchemeBlackList(SchemeBlackList schemeBlackList) {
+  public void setSchemeBlackList(BlackList schemeBlackList) {
     _schemeBlackList = schemeBlackList;
   }
 
@@ -133,7 +133,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Gets the dataFieldBlackList.
    * @return the dataFieldBlackList
    */
-  public DataFieldBlackList getDataFieldBlackList() {
+  public BlackList getDataFieldBlackList() {
     return _dataFieldBlackList;
   }
 
@@ -141,7 +141,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Sets the dataFieldBlackList.
    * @param dataFieldBlackList  the dataFieldBlackList
    */
-  public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
+  public void setDataFieldBlackList(BlackList dataFieldBlackList) {
     _dataFieldBlackList = dataFieldBlackList;
   }
   
@@ -168,6 +168,8 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
     if (getGlobalPrefix() != null) {
       job.setGlobalPrefix(getGlobalPrefix());
     }
+    job.setDataFieldBlackList(getDataFieldBlackList());
+    job.setSchemeBlackList(getSchemeBlackList());
     job.setDataSource(getDataSource());
     job.setNormalizationRuleSetId(getNormalizationRuleSetId());
     job.setObservationTime(getObservationTime());
