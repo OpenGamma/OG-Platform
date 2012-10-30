@@ -56,7 +56,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
     // TODO: [PLAT-349] Filter the resolutions; only need the ones that correspond to targets in the graph. The others are important but we won't know
-    // which bit(s) of graph to invalidate so don't bother.
+    // which bit(s) of graph to invalidate so don't bother. Remember to keep the portfolio object id -> portfolio uid reference.
     _resolutions = Collections.unmodifiableMap(resolutions);
   }
   

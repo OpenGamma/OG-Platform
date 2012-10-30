@@ -503,6 +503,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       _previousCycleReference.release();
     }
     unsubscribeFromViewDefinition();
+    unsubscribeFromTargetResolverChanges();
     removeMarketDataProvider();
     invalidateCachedCompiledViewDefinition();
   }
@@ -607,7 +608,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void unsubscribeToTargetResolverChanges() {
+  private void unsubscribeFromTargetResolverChanges() {
     if (_changedTargets != null) {
       assert _targetResolverChangeListener != null;
       getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChangeListener);
@@ -643,7 +644,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } else if (vc.getVersionAsOf() == null) {
       vc = vc.withLatestFixed(Instant.now());
     }
-    unsubscribeToTargetResolverChanges();
+    unsubscribeFromTargetResolverChanges();
     return vc;
   }
 
@@ -824,6 +825,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           // TODO: [PLAT-2237, PLAT-1623, PLAT-2240] Get rid of this
           break;
         }
+        // TODO: [PLAT-349] Check that the portfolio resolution has not changed. This is quick and will invalidate all PORTFOLIO_NODE entries in the graph.
         // Check that any resolved targets still resolve to the same value
         final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
         final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);

@@ -114,7 +114,6 @@ import com.opengamma.id.UniqueIdentifiable;
           //   2) Abort this build, invalidate more of the graph and retry
           //   3) Ignore it
           s_logger.error("Unexpected resolution of {} to {} instead of {}", new Object[] {key, resolvedId, previousId });
-          // ERROR: Resolving 2299 to 158838 despite new version in the _resolutions cache. Caching?
         }
       }
     }
