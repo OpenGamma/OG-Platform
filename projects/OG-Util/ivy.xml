@@ -45,6 +45,8 @@
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.7.3"/>
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2"/>
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
+    <dependency org="redis" name="jedis" rev="2.1.0"/>
+    <dependency org="com.opensymphony" name="quartz" rev="1.8.1"/>
     <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>

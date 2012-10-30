@@ -28,10 +28,10 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 /**
  *
  */
-public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
+public class EquityVarianceSwapStaticReplicationVegaFunction extends EquityVarianceSwapStaticReplicationFunction {
   private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapVegaFunction() {
+  public EquityVarianceSwapStaticReplicationVegaFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
