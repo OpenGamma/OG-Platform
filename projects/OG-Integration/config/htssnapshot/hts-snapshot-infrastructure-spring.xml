@@ -43,7 +43,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="port" value="${redis.port}"/>
   </bean>
      
-  <bean id="htsSchemeBlackList" class="com.opengamma.integration.timeseries.snapshotter.SchemeBlackListFactoryBean">
+  <bean id="htsSchemeBlackList" class="com.opengamma.integration.timeseries.snapshot.SchemeBlackListFactoryBean">
     <property name="name" value="HtsSchemeBlackList"/>
     <property name="schemeBlackList">
       <list >
@@ -52,7 +52,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </property>
   </bean>
   
-  <bean id="htsDataFieldBlackList" class="com.opengamma.integration.timeseries.snapshotter.DataFieldBlackListFactoryBean">
+  <bean id="htsDataFieldBlackList" class="com.opengamma.integration.timeseries.snapshot.DataFieldBlackListFactoryBean">
     <property name="name" value="HtsDataFieldBlackList"/>
     <property name="dataFieldBlackList">
       <list >
