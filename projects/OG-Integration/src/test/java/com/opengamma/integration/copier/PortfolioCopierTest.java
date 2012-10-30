@@ -48,7 +48,7 @@ public class PortfolioCopierTest {
 // SimplePortfolioCopier, ResolvingPortfolioCopier
   
   private static final String PORTFOLIO_NAME = "test";
-  private static final String PORTFOLIO_FILE = "tests/unit/com/opengamma/integration/copier/TestPortfolio.csv";
+  private static final String PORTFOLIO_FILE = "src/test/java/com/opengamma/integration/copier/TestPortfolio.csv";
   private static final String SECURITY_TYPE = "Equity";
   
   @Test
