@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -48,11 +47,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * The version-correction locator to search at, null to not override versions.
    */
   private volatile VersionCorrection _versionCorrection;
-
-  /**
-   * The change manager.
-   */
-  private ChangeManager _changeManager = new BasicChangeManager();
 
   /**
    * Creates an instance with an underlying config master which does not override versions.
@@ -101,17 +95,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    */
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  /**
-   * Sets the change manager.
-   *
-   * @param changeManager  the change manager, not null
-   */
-  public void setChangeManager(final ChangeManager changeManager) {
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _changeManager = changeManager;
+    return getMaster().changeManager();
   }
 
   /**
