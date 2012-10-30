@@ -15,7 +15,7 @@ $.register_module({
         var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false, 
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
             fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
-            ds_template = null, ag_template = null, aggregators = null;
+            ds_template = null, ag_template = null, viewdefs = null, aggregators = null;
             events = {
                 focus: 'dropmenu:focus',
                 focused:'dropmenu:focused',
@@ -71,9 +71,11 @@ $.register_module({
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                 og.api.text({module: 'og.analytics.form_datasources_tash'}),
+                og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get()
-            ).pipe(function (tmpl, ag_tmpl, ds_tmpl, ag_data) {
-                template = tmpl; ag_template = ag_tmpl; ds_template = ds_tmpl; aggregators = ag_data.data;
+            ).pipe(function (tmpl, ag_tmpl, ds_tmpl, vds, ag_data) {
+                template = tmpl; ag_template = ag_tmpl; ds_template = ds_tmpl;
+                viewdefs = vds.data; aggregators = ag_data.data;
                 callback();
             });
         };
@@ -83,7 +85,7 @@ $.register_module({
             $dom.ds = $('.og-datasources', $dom.form);
             $dom.load_btn = $('.og-load', $dom.form);
             $dom.form.on('keydown', fcntrls_s, keydown_handler);
-            ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...');
+            ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', viewdefs);
             ac_menu.$input.on(ac_s, auto_combo_handler).select();
             ag_menu = new og.analytics.AggregatorsMenu({cntr:$dom.ag, tmpl:ag_template, data: aggregators});
             ds_menu = new og.analytics.DatasourcesMenu({cntr:$dom.ds, tmpl:ds_template});

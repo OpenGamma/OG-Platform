@@ -32,7 +32,7 @@ $.register_module({
                     .pipe(function (result) {win.location.href = url + result.data.data;});
             },
             main: function (params) {
-                if (og.analytics.grid) og.analytics.grid.kill();
+                url.clear_main();
                 $(main_selector).html('requesting...');
                 return (last_object.main = params), go(), url;
             },
