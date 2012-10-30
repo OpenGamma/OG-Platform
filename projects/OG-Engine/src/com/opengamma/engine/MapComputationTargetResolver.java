@@ -8,6 +8,8 @@ package com.opengamma.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -84,6 +86,11 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
         return MapComputationTargetResolver.this.simplifyType(type);
       }
     };
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   /**

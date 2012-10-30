@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
@@ -72,6 +74,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private final DefaultComputationTargetSpecificationResolver _specificationResolver = new DefaultComputationTargetSpecificationResolver();
 
   private LazyResolveContext _lazyResolveContext;
+
+  private volatile ChangeManager _changeManager;
 
   /**
    * Creates a resolver without access to a security source or a position source. This will only be able to resolve PRIMITIVE computation target types.
@@ -302,6 +306,22 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
 
     };
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    if (_changeManager == null) {
+      synchronized (this) {
+        if (_changeManager == null) {
+          final AggregatingChangeManager agg = new AggregatingChangeManager();
+          for (ObjectResolver<?> resolver : _resolvers.values()) {
+            agg.addChangeManager(resolver.changeManager());
+          }
+          _changeManager = agg;
+        }
+      }
+    }
+    return _changeManager;
   }
 
   /**

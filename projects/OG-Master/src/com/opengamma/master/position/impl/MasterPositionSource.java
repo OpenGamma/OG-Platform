@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.position.impl;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -37,10 +40,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A {@code PositionSource} implemented using an underlying {@code PositionMaster}.
+ * A {@code PositionSource} implemented using an underlying {@code PositionMaster} and {@code PortfolioMaster}.
  * <p>
- * The {@link PositionSource} interface provides securities to the engine via a narrow API.
- * This class provides the source on top of a standard {@link PortfolioMaster}.
+ * The {@link PositionSource} interface provides portfolio and position to the engine via a narrow API. This class provides the source on top of a standard {@link PortfolioMaster} and
+ * {@link PositionMaster}.
  */
 @PublicSPI
 public class MasterPositionSource implements PositionSource {
@@ -56,6 +59,10 @@ public class MasterPositionSource implements PositionSource {
    * The position master.
    */
   private final PositionMaster _positionMaster;
+  /**
+   * The change manager (aggregate from both underlying masters).
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance with underlying masters which does not override versions.
@@ -68,6 +75,7 @@ public class MasterPositionSource implements PositionSource {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
+    _changeManager = new AggregatingChangeManager(Arrays.<ChangeProvider>asList(portfolioMaster, positionMaster));
   }
 
   /**
@@ -230,9 +238,7 @@ public class MasterPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    // NOTE jonathan 2011-08-03 -- PortfolioMaster does not currently implement ChangeProvider so currently return the
-    // PositionMaster's ChangeManager.
-    return getPositionMaster().changeManager();
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

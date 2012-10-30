@@ -14,6 +14,8 @@ import org.apache.commons.collections.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -316,6 +318,11 @@ import com.opengamma.util.tuple.Pair;
     @Override
     public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
     }
 
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -16,7 +17,7 @@ import com.opengamma.id.VersionCorrection;
  * <p>
  * Within the engine targets are often referred to by the specification for performance reasons. The resolver converts the specifications, identified by a unique identifier, back to a real target.
  */
-public interface ComputationTargetResolver {
+public interface ComputationTargetResolver extends ChangeProvider {
 
   // TODO: move to com.opengamma.engine.target.resolver
 

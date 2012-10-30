@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -66,6 +67,11 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   @Override
   public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
     return getUnderlying().atVersionCorrection(versionCorrection);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return getUnderlying().changeManager();
   }
 
 }

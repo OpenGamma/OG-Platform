@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -14,7 +15,7 @@ import com.opengamma.id.VersionCorrection;
  * 
  * @param <T> the common type of the item produced by the resolution
  */
-public interface ObjectResolver<T extends UniqueIdentifiable> {
+public interface ObjectResolver<T extends UniqueIdentifiable> extends ChangeProvider {
 
   /**
    * Resolves the unique identifier into the origin object.

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -192,6 +193,10 @@ public class PositionSourceResolver {
 
   public Resolver<Portfolio> portfolio() {
     return new PortfolioResolver(getUnderlying());
+  }
+
+  public ChangeManager changeManager() {
+    return getUnderlying().changeManager();
   }
 
 }

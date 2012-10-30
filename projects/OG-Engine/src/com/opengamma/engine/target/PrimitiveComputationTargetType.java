@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
@@ -41,6 +42,11 @@ public final class PrimitiveComputationTargetType<T extends UniqueIdentifiable> 
   @Override
   public T resolveObject(final UniqueId identifier, final VersionCorrection versionCorrection) {
     return _resolver.resolveObject(identifier, versionCorrection);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _resolver.changeManager();
   }
 
 }

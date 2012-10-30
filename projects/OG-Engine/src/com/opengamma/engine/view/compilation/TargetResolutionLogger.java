@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -30,6 +33,8 @@ import com.opengamma.id.UniqueIdentifiable;
  * context. If the resolution of any of these would be different for a different version/correction then this compilation is no longer valid.
  */
 /* package */final class TargetResolutionLogger implements ComputationTargetResolver.AtVersionCorrection {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(TargetResolutionLogger.class);
 
   private static final class LoggingSpecificationResolver implements ComputationTargetSpecificationResolver.AtVersionCorrection, ComputationTargetReferenceVisitor<ComputationTargetReference> {
 
@@ -100,8 +105,17 @@ import com.opengamma.id.UniqueIdentifiable;
       final ComputationTargetReference key = reference.accept(this);
       if (key != null) {
         final UniqueId resolvedId = resolved.getUniqueId();
-        final UniqueId previousId = _resolutions.putIfAbsent(key, resolvedId);
-        assert (previousId == null) || previousId.equals(resolvedId);
+        final UniqueId previousId = _resolutions.put(key, resolvedId);
+        if ((previousId != null) && !resolvedId.equals(previousId)) {
+          // Note than when following LATEST/LATEST, there may be new resolutions at the v/c we're using but we haven't received
+          // the change manager notifications yet so aren't expecting them. The resulting graph will be inconsistent at this point.
+          // Options are:
+          //   1) Abort this build, invalidate the whole graph and retry
+          //   2) Abort this build, invalidate more of the graph and retry
+          //   3) Ignore it
+          s_logger.error("Unexpected resolution of {} to {} instead of {}", new Object[] {key, resolvedId, previousId });
+          // ERROR: Resolving 2299 to 158838 despite new version in the _resolutions cache. Caching?
+        }
       }
     }
 

@@ -32,6 +32,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -64,6 +65,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationResultListener;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -98,6 +100,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private CountDownLatch _pendingSubscriptionLatch;
 
   private ChangeListener _viewDefinitionChangeListener;
+  private ConcurrentMap<ObjectId, Boolean> _changedTargets;
+  private ChangeListener _targetResolverChangeListener;
 
   private volatile boolean _wakeOnMarketDataChanged;
   private volatile boolean _marketDataChanged = true;
@@ -580,6 +584,33 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return getCycleManager().manage(cycle);
   }
 
+  private void subscribeToTargetResolverChanges() {
+    if (_changedTargets == null) {
+      assert _targetResolverChangeListener == null;
+      final ConcurrentMap<ObjectId, Boolean> changed = new ConcurrentHashMap<ObjectId, Boolean>();
+      _changedTargets = changed;
+      _targetResolverChangeListener = new ChangeListener() {
+        @Override
+        public void entityChanged(final ChangeEvent event) {
+          final ObjectId oid = event.getObjectId();
+          if (changed.replace(oid, Boolean.FALSE, Boolean.TRUE)) {
+            s_logger.info("Received change notification for {}", event.getObjectId());
+          }
+        }
+      };
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChangeListener);
+    }
+  }
+
+  private void unsubscribeToTargetResolverChanges() {
+    if (_changedTargets != null) {
+      assert _targetResolverChangeListener != null;
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChangeListener);
+      _targetResolverChangeListener = null;
+      _changedTargets = null;
+    }
+  }
+
   private VersionCorrection getResolverVersionCorrection(final ViewCycleExecutionOptions viewCycleOptions) {
     VersionCorrection vc = null;
     do {
@@ -597,11 +628,79 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       vc = VersionCorrection.LATEST;
     } while (false);
     // Note: NOW means NOW as the caller has requested LATEST. We should not be using the valuation time.
-    if (vc.containsLatest()) {
-      return vc.withLatestFixed(Instant.now());
-    } else {
-      return vc;
+    if (vc.getCorrectedTo() == null) {
+      if (vc.getVersionAsOf() == null) {
+        subscribeToTargetResolverChanges();
+        return vc.withLatestFixed(Instant.now());
+      } else {
+        vc = vc.withLatestFixed(Instant.now());
+      }
+    } else if (vc.getVersionAsOf() == null) {
+      vc = vc.withLatestFixed(Instant.now());
     }
+    unsubscribeToTargetResolverChanges();
+    return vc;
+  }
+
+  /**
+   * Returns the set of unique identifiers that were previously used as targets in the dependency graph for object identifiers (or external identifiers) that now resolve differently.
+   * 
+   * @param previousResolutions the previous cycle's resolution of identifiers, not null
+   * @param versionCorrection the resolver version correction for this cycle, not null
+   * @return the invalid identifier set, or null if none are invalid
+   */
+  private Set<UniqueId> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
+    long t = -System.nanoTime();
+    // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
+    final Set<ComputationTargetReference> toCheck;
+    if (_changedTargets == null) {
+      // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
+      toCheck = previousResolutions.keySet();
+    } else {
+      // Subscribed to LATEST/LATEST so change manager notifications can filter the set to be checked
+      toCheck = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+      final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+      for (Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
+        final ObjectId oid = previousResolution.getValue().getObjectId();
+        if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
+          // A change was seen on this target
+          s_logger.debug("Change observed on {}", oid);
+          toCheck.add(previousResolution.getKey());
+        } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
+          // We've not been monitoring this target for changes - better start doing so
+          s_logger.debug("Added {} to change observation set", oid);
+          toCheck.add(previousResolution.getKey());
+        }
+        allObjectIds.add(oid);
+      }
+      _changedTargets.keySet().retainAll(allObjectIds);
+      if (toCheck.isEmpty()) {
+        s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
+        return null;
+      } else {
+        s_logger.debug("Checking {} of {} resolutions for changed objects", toCheck.size(), previousResolutions.size());
+      }
+    }
+    final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+        .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
+    t += System.nanoTime();
+    Set<UniqueId> invalidIdentifiers = null;
+    for (Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
+      final ComputationTargetSpecification resolved = specifications.get(target.getKey());
+      if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
+        // No change
+        s_logger.debug("No change resolving {}", target);
+      } else if (toCheck.contains(target.getKey())) {
+        // Identifier no longer resolved, or resolved differently
+        s_logger.info("New resolution of {} to {}", target, resolved);
+        if (invalidIdentifiers == null) {
+          invalidIdentifiers = new HashSet<UniqueId>();
+        }
+        invalidIdentifiers.add(target.getValue());
+      }
+    }
+    s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), (double) t / 1e6);
+    return invalidIdentifiers;
   }
 
   /**
@@ -721,28 +820,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           break;
         }
         // Check that any resolved targets still resolve to the same value
-        long t = -System.nanoTime();
-        // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
         final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
-        final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
-            .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(resolvedIdentifiers.keySet(), versionCorrection);
-        t += System.nanoTime();
-        Set<UniqueId> invalidIdentifiers = null;
-        for (Map.Entry<ComputationTargetReference, UniqueId> target : resolvedIdentifiers.entrySet()) {
-          final ComputationTargetSpecification resolved = specifications.get(target.getKey());
-          if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
-            // No change
-            s_logger.debug("No change resolving {}", target);
-          } else {
-            // Identifier no longer resolved, or resolved differently
-            s_logger.info("New resolution of {} to {}", target, resolved);
-            if (invalidIdentifiers == null) {
-              invalidIdentifiers = new HashSet<UniqueId>();
-            }
-            invalidIdentifiers.add(target.getValue());
-          }
-        }
-        s_logger.info /* should be DEBUG */("{} resolutions checked in {}ms", compiledViewDefinition.getResolvedIdentifiers().size(), (double) t / 1e6);
+        final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
         if (invalidIdentifiers != null) {
           // Invalidate any dependency graph nodes on the invalid targets
           previousGraphs = filterPreviousGraphs(previousGraphs, compiledViewDefinition, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
@@ -879,10 +958,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _viewDefinitionChangeListener = null;
   }
 
-  // TODO: [PLAT-349] Want something similar to view definition subscription so that we can trigger a cycle if any of the resolved object identifiers used in our graph change. We
-  // won't get a cycle triggered if something is renamed and will now resolve against us but that is a hard problem to solve. This is only relevant if the v/c time is LATEST
-
-  //-------------------------------------------------------------------------
   private void replaceMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
     removeMarketDataProvider();
     // A different market data provider may change the availability of market data, altering the dependency graph

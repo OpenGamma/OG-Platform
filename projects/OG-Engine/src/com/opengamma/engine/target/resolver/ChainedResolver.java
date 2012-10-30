@@ -5,7 +5,13 @@
  */
 package com.opengamma.engine.target.resolver;
 
+import javax.time.Instant;
+
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -41,6 +47,30 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
       value = getSecond().resolveObject(uniqueId, versionCorrection);
     }
     return value;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return new ChangeManager() {
+
+      @Override
+      public void addChangeListener(final ChangeListener listener) {
+        getFirst().changeManager().addChangeListener(listener);
+        getSecond().changeManager().addChangeListener(listener);
+      }
+
+      @Override
+      public void removeChangeListener(final ChangeListener listener) {
+        getFirst().changeManager().removeChangeListener(listener);
+        getSecond().changeManager().removeChangeListener(listener);
+      }
+
+      @Override
+      public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
+        throw new UnsupportedOperationException();
+      }
+
+    };
   }
 
   /**

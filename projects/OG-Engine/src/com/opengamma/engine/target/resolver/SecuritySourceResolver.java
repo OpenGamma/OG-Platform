@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -43,6 +44,11 @@ public class SecuritySourceResolver implements Resolver<Security> {
     } catch (DataNotFoundException e) {
       return null;
     }
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return getUnderlying().changeManager();
   }
 
   // IdentifierResolver

@@ -8,6 +8,7 @@ package com.opengamma.engine.target.lazy;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -55,6 +56,11 @@ public interface LazyResolver {
         return null;
       }
       return lazy(underlying, _parent.getLazyResolveContext().atVersionCorrection(versionCorrection));
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return getUnderlying().changeManager();
     }
 
   }
