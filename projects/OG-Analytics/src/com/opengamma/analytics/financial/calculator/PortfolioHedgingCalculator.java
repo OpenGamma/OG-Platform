@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -17,6 +17,8 @@ import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Computes the optimal hedging portfolio made of reference instruments to hedge a given sensitivity.
@@ -40,7 +42,8 @@ public class PortfolioHedgingCalculator {
    * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
    * Note that the output is the optimal hedge quantity and not the portoflio equivalent. The hedge has the opposite sign of wrt the equivalent.
    */
-  public static double[] hedgeQuantity(final ParameterSensitivity ps, final ParameterSensitivity[] rs, final DoubleMatrix2D w, final Set<String> order, final FXMatrix fxMatrix) {
+  public static double[] hedgeQuantity(final ParameterSensitivity ps, final ParameterSensitivity[] rs, final DoubleMatrix2D w, final LinkedHashSet<Pair<String, Integer>> order, 
+      final FXMatrix fxMatrix) {
     final Currency ccy = ps.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: currency used for the conversion in a common currency. Any currency is fine.
     final int nbReference = rs.length;
@@ -73,14 +76,19 @@ public class PortfolioHedgingCalculator {
    * @param order The ordered set of name.
    * @return The sensitivity matrix.
    */
-  public static DoubleMatrix1D toMatrix(final ParameterSensitivity sensi, final Set<String> order) {
+  public static DoubleMatrix1D toMatrix(final ParameterSensitivity sensi, final LinkedHashSet<Pair<String, Integer>> order) {
     double[] psArray = new double[0];
-    Currency ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
+    Currency ccy = Currency.AUD;
+    if (sensi.getSensitivities() != null) {
+      ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
+    }
     // Implementation note: all the currencies are supposed to be the same, we choose any of them.
-    // TODO: what if the sensi is empty.
-    for (final String name : order) {
-      psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(name, ccy).getData());
-      // TODO: add a some implementation for when a curve is missing in the sensi; it should be 0, but the size is unknown.
+    for (final Pair<String, Integer> nameSize : order) {
+      if (sensi.getSensitivities().containsKey(new ObjectsPair<String, Currency>(nameSize.getFirst(), ccy))) {
+        psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(nameSize.getFirst(), ccy).getData());
+      } else { // When curve is not in the sensitivity, add zeros.
+        psArray = ArrayUtils.addAll(psArray, new double[nameSize.getSecond()]);
+      }
     }
     return new DoubleMatrix1D(psArray);
   }

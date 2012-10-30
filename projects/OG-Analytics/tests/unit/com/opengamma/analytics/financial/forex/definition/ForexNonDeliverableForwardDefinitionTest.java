@@ -61,6 +61,16 @@ public class ForexNonDeliverableForwardDefinitionTest {
     new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, FX_RATE, PAYMENT_DATE, FIXING_DATE);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivative1Curve() {
+    NDF_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES[0]);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeDateAfter() {
+    NDF_DEFINITION.toDerivative(PAYMENT_DATE.plusDays(1), CURVE_NAMES);
+  }
+
   @Test
   /**
    * Tests the class getters.

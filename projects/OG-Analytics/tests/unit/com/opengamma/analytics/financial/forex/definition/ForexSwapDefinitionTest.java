@@ -71,6 +71,11 @@ public class ForexSwapDefinitionTest {
     new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, null, NOMINAL_1, FX_RATE, FORWARD_POINTS);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeWrongDate() {
+    FX_SWAP_DEFINITION_FIN.toDerivative(FAR_DATE.plusDays(1), CURVES_NAME);
+  }
+
   @Test
   /**
    * Tests the class getters.
