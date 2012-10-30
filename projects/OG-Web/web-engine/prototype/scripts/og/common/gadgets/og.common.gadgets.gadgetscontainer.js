@@ -160,7 +160,6 @@ $.register_module({
                             container.add([swap_config], val.gadget_index);
                             menu.close();
                         });
-
                         for(var i = 0; i < radios.length; i++) {
                             radios[i].checked = false;
                             if(radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {

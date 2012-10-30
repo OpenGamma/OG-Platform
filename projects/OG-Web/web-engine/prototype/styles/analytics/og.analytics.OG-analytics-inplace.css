@@ -1,0 +1,21 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-analytics-inplace .og-menu {
+    background-color: #C9CACB;
+    display: none;
+    height: 300px;
+    margin-left: 3px;
+    margin-top: 20px;
+    width: 400px;
+    position: absolute;
+}
+
+.OG-analytics-inplace.OG-icon.og-icon-down-chevron {
+    background: transparent;
+    border: 1px solid #dadcdd;
+    cursor: pointer;
+    height: 11px;
+    left: -2px;
+}
