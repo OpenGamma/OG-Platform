@@ -74,9 +74,13 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     query.setCalculationConfigurationName(_calcConfigName);
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
-    cache.put(_calcConfigName, cacheResponse.getResults());
+    cache.put(_calcConfigName, cacheResponse.getResults(), cycle.getDuration());
     List<ViewportResults.Cell> gridResults = _gridStructure.createResultsForViewport(_viewportDefinition, cache, _calcConfigName);
-    ViewportResults newResults = new ViewportResults(gridResults, _viewportDefinition, _gridStructure.getColumnStructure(), _version);
+    ViewportResults newResults = new ViewportResults(gridResults,
+                                                     _viewportDefinition,
+                                                     _gridStructure.getColumnStructure(),
+                                                     _version,
+                                                     cache.getLastCalculationDuration());
     String callbackId;
     if (newResults.equals(_latestResults)) {
       // return null to signal the results haven't changed

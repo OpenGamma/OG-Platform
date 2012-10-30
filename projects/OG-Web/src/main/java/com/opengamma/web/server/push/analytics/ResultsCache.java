@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Duration;
+
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 import com.google.common.collect.ImmutableSet;
@@ -51,6 +53,9 @@ import com.opengamma.util.tuple.Pair;
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
   private long _lastUpdateId = 0;
 
+  /** Duration of the last calculation cycle. */
+  private Duration _lastCalculationDuration = Duration.ZERO;
+
   /**
    * Puts a set of results into the cache.
    * @param results The results, not null
@@ -58,6 +63,7 @@ import com.opengamma.util.tuple.Pair;
   /* package */ void put(ViewResultModel results) {
     ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
+    _lastCalculationDuration = results.getCalculationDuration();
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
       ComputedValue computedValue = result.getComputedValue();
@@ -69,9 +75,11 @@ import com.opengamma.util.tuple.Pair;
    * Puts a set of results into the cache.
    * @param calcConfigName The name of the calculation configuration used to calculate the results
    * @param results The results
+   * @param duration Duration of the calculation cycle that produced the results
    */
-  /* package */ void put(String calcConfigName, List<Pair<ValueSpecification, Object>> results) {
+  /* package */ void put(String calcConfigName, List<Pair<ValueSpecification, Object>> results, Duration duration) {
     _lastUpdateId++;
+    _lastCalculationDuration = duration;
     for (Pair<ValueSpecification, Object> result : results) {
       ValueSpecification spec = result.getFirst();
       Object value = result.getSecond();
@@ -129,6 +137,13 @@ import com.opengamma.util.tuple.Pair;
         return s_emptyResult;
       }
     }
+  }
+
+  /**
+   * @return Duration of the last calculation cycle
+   */
+  public Duration getLastCalculationDuration() {
+    return _lastCalculationDuration;
   }
 
   /**
