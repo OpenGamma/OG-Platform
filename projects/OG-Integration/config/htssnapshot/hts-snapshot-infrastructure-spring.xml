@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
   <!-- ================================================================== -->
   <bean id="standardFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
@@ -41,6 +41,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <property name="config" ref="jedisConfig"/>
     <property name="host" value="${redis.host}"/>
     <property name="port" value="${redis.port}"/>
+  </bean>
+  
+  <!-- ================================================================== -->
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
   </bean>
  
 </beans>
