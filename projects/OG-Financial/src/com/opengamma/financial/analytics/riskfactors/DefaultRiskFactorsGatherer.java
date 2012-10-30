@@ -93,7 +93,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     _securities = securities;
     _configProvider = configProvider;
   }
-  
+
   @Override
   public Set<ValueRequirement> getPositionRiskFactors(final Position position) {
     ArgumentChecker.notNull(position, "position");
@@ -177,7 +177,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   // Securities
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitCorporateBondSecurity(CorporateBondSecurity security) {
+  public Set<Pair<String, ValueProperties>> visitCorporateBondSecurity(final CorporateBondSecurity security) {
     return ImmutableSet.of(
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
       getPresentValue(ValueProperties.builder()),
@@ -185,7 +185,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+  public Set<Pair<String, ValueProperties>> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     return ImmutableSet.of(
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
       getPresentValue(ValueProperties.builder()),
@@ -193,7 +193,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+  public Set<Pair<String, ValueProperties>> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return ImmutableSet.of(
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
       getPresentValue(ValueProperties.builder()),
@@ -223,7 +223,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       getPresentValue(ValueProperties.builder()),
       getPV01(getFundingCurve()),
       getPV01(getForwardCurve(security.getCurrency())));
-  }  
+  }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitSwapSecurity(final SwapSecurity security) {
@@ -255,7 +255,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-    ExternalId underlyingId = security.getUnderlyingId();
+    final ExternalId underlyingId = security.getUnderlyingId();
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getEquityValue(ValueRequirementNames.PRESENT_VALUE, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VEGA_QUOTE_MATRIX, underlyingId))
@@ -272,7 +272,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityOptionSecurity(final EquityOptionSecurity security) {
-    ExternalId underlyingId = security.getUnderlyingId();
+    final ExternalId underlyingId = security.getUnderlyingId();
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getEquityValue(ValueRequirementNames.PRESENT_VALUE, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VEGA_QUOTE_MATRIX, underlyingId))
@@ -289,7 +289,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    ExternalId underlyingId = security.getUnderlyingId();
+    final ExternalId underlyingId = security.getUnderlyingId();
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getEquityValue(ValueRequirementNames.PRESENT_VALUE, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VEGA_QUOTE_MATRIX, underlyingId))
@@ -305,62 +305,62 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(final FXOptionSecurity security) {
-    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
+    final ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValueWithCalculationMethod())
         .add(getFXCurrencyExposureWithCalculationMethod())
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getCallCurrency()), security.getCallCurrency()))
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
-      String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
-      if (surfaceName != null) {
-        builder.add(getFXVegaQuoteMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
-        builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName)));
-      } else {
-        s_logger.warn("Could not build surface name for {}", security);
-      }
-      return builder.build();
+    final String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getFXVegaQuoteMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+      builder.add(getFXVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
+    final ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValueWithCalculationMethod())
         .add(getFXCurrencyExposureWithCalculationMethod())
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getCallCurrency()), security.getCallCurrency()))
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
-      String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
-      if (surfaceName != null) {
-        builder.add(getFXVegaQuoteMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
-        builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName)));
-      } else {
-        s_logger.warn("Could not build surface name for {}", security);
-      }
-      return builder.build();
+    final String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getFXVegaQuoteMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+      builder.add(getFXVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
+    final ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValueWithCalculationMethod())
         .add(getFXCurrencyExposureWithCalculationMethod())
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getCallCurrency()), security.getCallCurrency()))
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
-      String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
-      if (surfaceName != null) {
-        builder.add(getFXVegaQuoteMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
-        builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) ));
-      } else {
-        s_logger.warn("Could not build surface name for {}", security);
-      }
-      return builder.build();
+    final String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getFXVegaQuoteMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+      builder.add(getFXVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   @Override
@@ -387,11 +387,11 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
                                           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)))
       .add(getVegaQuoteMatrix(ValueProperties
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
   }
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+  public Set<Pair<String, ValueProperties>> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
     s_logger.warn("Commodity Future Option risk factors not implemented");
     return Collections.emptySet();
   }
@@ -404,42 +404,42 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
+    final ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValueWithCalculationMethod())
         .add(getFXCurrencyExposureWithCalculationMethod())
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getCallCurrency()), security.getCallCurrency()))
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
-      String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
-      if (surfaceName != null) {
-        builder.add(getFXVegaQuoteMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
-        builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName)));
-      } else {
-        s_logger.warn("Could not build surface name for {}", security);
-      }
-      return builder.build();
+    final String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getFXVegaQuoteMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+      builder.add(getFXVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
+    final ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValueWithCalculationMethod())
         .add(getFXCurrencyExposureWithCalculationMethod())
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getCallCurrency()), security.getCallCurrency()))
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
-      String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
-      if (surfaceName != null) {
-        builder.add(getFXVegaQuoteMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
-        builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName)));
-      } else {
-        s_logger.warn("Could not build surface name for {}", security);
-      }
-      return builder.build();
+    final String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getFXVegaQuoteMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+      builder.add(getFXVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   @SuppressWarnings("unchecked")
@@ -488,7 +488,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    String ticker = security.getSpotUnderlyingId().getValue();
+    final String ticker = security.getSpotUnderlyingId().getValue();
     if (ticker != null) {
       final String surfaceName = _configProvider.getEquityIndexOptionVolatilitySurfaceName(ticker);
       return ImmutableSet.<Pair<String, ValueProperties>>builder()
@@ -496,13 +496,13 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getVegaQuoteMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT")
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
     } else {
       s_logger.warn("Could not get underlying ticker for equity variance swap security, so excluding surface");
       return ImmutableSet.<Pair<String, ValueProperties>>builder()
           .add(getPresentValue(ValueProperties.builder()))
           .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency())).build();
-      
+
     }
   }
 
@@ -593,7 +593,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .with(ValuePropertyNames.CURVE, curve);
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
-  
+
   private Pair<String, ValueProperties> getFXYieldCurveNodeSensitivities(final String curve, final Currency currency) {
     final ValueProperties.Builder constraints = ValueProperties
       .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
@@ -601,9 +601,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod());
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
-  
-  private Pair<String, ValueProperties> getEquityValue(String requirementName, ExternalId underlying) {
-    com.opengamma.engine.value.ValueProperties.Builder builder = ValueProperties.builder().with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _configProvider.getEquityFundingCurve())
+
+  private Pair<String, ValueProperties> getEquityValue(final String requirementName, final ExternalId underlying) {
+    final com.opengamma.engine.value.ValueProperties.Builder builder = ValueProperties.builder().with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _configProvider.getEquityFundingCurve())
                              .with(ValuePropertyNames.SURFACE, _configProvider.getEquityIndexOptionVolatilitySurfaceName(underlying.getValue()))
                              .with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getEquityCalculationMethod())
                              .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, _configProvider.getEquitySmileInterpolator());
@@ -618,7 +618,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getFXPresentValue() {
     return getFXPresentValue(ValueProperties.builder());
   }
-  
+
   private Pair<String, ValueProperties> getFXPresentValueWithCalculationMethod() {
     return getFXPresentValue(ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()));
   }
@@ -630,7 +630,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getFXCurrencyExposure() {
     return getFXCurrencyExposure(ValueProperties.builder());
   }
-  
+
   private Pair<String, ValueProperties> getFXCurrencyExposureWithCalculationMethod() {
     return getFXCurrencyExposure(ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()));
   }
@@ -638,19 +638,19 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getFXCurrencyExposure(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, constraints, false);
   }
-  
+
   private Pair<String, ValueProperties> getVegaMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
   }
-  
+
   private Pair<String, ValueProperties> getFXVegaMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()), false);
   }
-  
+
   private Pair<String, ValueProperties> getVegaQuoteMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
   }
-  
+
   private Pair<String, ValueProperties> getFXVegaQuoteMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()), false);
   }
@@ -658,17 +658,17 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getVegaQuoteCubeMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_CUBE, constraints, false);
   }
-  
+
   private Pair<String, ValueProperties> getValueDelta() {
     return getRiskFactor(ValueRequirementNames.VALUE_DELTA, ValueProperties.builder());
-  } 
+  }
 
   private Pair<String, ValueProperties> getPV01(final String curveName) {
     final ValueProperties.Builder constraints = ValueProperties
       .with(ValuePropertyNames.CURVE, curveName);
     return getRiskFactor(ValueRequirementNames.PV01, constraints, true);
   }
-  
+
   private Pair<String, ValueProperties> getFXPV01(final String curveName) {
     final ValueProperties.Builder constraints = ValueProperties
       .with(ValuePropertyNames.CURVE, curveName);

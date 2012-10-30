@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityS
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
+import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.surface.Surface;
@@ -45,7 +46,6 @@ import com.opengamma.analytics.math.surface.Surface;
       serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public VolatilitySurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Surface<Double, Double, Double> surface = deserializer.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
@@ -111,7 +111,6 @@ import com.opengamma.analytics.math.surface.Surface;
 
   }
 
-
   @FudgeBuilderFor(LocalVolatilitySurfaceMoneyness.class)
   public static final class LocalVolatilitySurfaceMoneynessBuilder extends AbstractFudgeBuilder<LocalVolatilitySurfaceMoneyness> {
     private static final String SURFACE_FIELD_NAME = "volatility";
@@ -136,5 +135,24 @@ import com.opengamma.analytics.math.surface.Surface;
       throw new OpenGammaRuntimeException("Could not deserialize object " + object);
     }
 
+  }
+
+  /**
+   * Fudge builder for {@code PureImpliedVolatilitySurface}
+   */
+  @FudgeBuilderFor(PureImpliedVolatilitySurface.class)
+  public static final class PureImpliedVolatilitySurfaceBuilder extends AbstractFudgeBuilder<PureImpliedVolatilitySurface> {
+    private static final String SURFACE_FIELD_NAME = "surface";
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PureImpliedVolatilitySurface object) {
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
+    }
+
+    @Override
+    public PureImpliedVolatilitySurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Surface<Double, Double, Double> surface = deserializer.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
+      return new PureImpliedVolatilitySurface(surface);
+    }
   }
 }

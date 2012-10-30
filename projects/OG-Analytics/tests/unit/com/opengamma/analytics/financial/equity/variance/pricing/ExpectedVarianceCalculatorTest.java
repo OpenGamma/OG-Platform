@@ -65,10 +65,10 @@ public class ExpectedVarianceCalculatorTest {
     final BlackVolatilitySurfaceDelta surfaceDelta = BlackVolatilitySurfaceConverter.toDeltaSurface(surfaceStrike, FORWARD_CURVE);
 
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
-    final double strikeVal = CALCULATOR.getAnnualisedVariance(fwd, expiry, surfaceStrike);
-    final double moneynessVal = CALCULATOR.getAnnualisedVariance(expiry, surfaceMoneyness);
-    final double logMoneynessVal = CALCULATOR.getAnnualisedVariance(expiry, surfaceLogMoneyness);
-    final double deltaVal = CALCULATOR.getAnnualisedVariance(fwd, expiry, surfaceDelta);
+    final double strikeVal = CALCULATOR.getAnnualizedVariance(fwd, expiry, surfaceStrike);
+    final double moneynessVal = CALCULATOR.getAnnualizedVariance(expiry, surfaceMoneyness);
+    final double logMoneynessVal = CALCULATOR.getAnnualizedVariance(expiry, surfaceLogMoneyness);
+    final double deltaVal = CALCULATOR.getAnnualizedVariance(fwd, expiry, surfaceDelta);
 
     //    System.out.println(Math.abs((expected - strikeVal)) + "\t" + Math.abs((expected - moneynessVal)) + "\t" + Math.abs((expected - logMoneynessVal)) + "\t" +
     //        Math.abs((expected - deltaVal)));

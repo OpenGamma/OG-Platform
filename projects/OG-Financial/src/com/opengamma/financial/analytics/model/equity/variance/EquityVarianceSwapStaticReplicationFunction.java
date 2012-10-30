@@ -1,10 +1,11 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity.variance;
 
+import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -27,12 +28,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -44,17 +44,17 @@ import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Base class for Functions for EquityVarianceSwapSecurity. These functions price using Static Replication
  */
-public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class EquityVarianceSwapStaticReplicationFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirementName;
   private EquityVarianceSwapConverter _converter; // set in init()
 
@@ -63,7 +63,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   /** Method may be Strike or Moneyness TODO Confirm */
   public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
 
-  public EquityVarianceSwapFunction(final String valueRequirementName) {
+  public EquityVarianceSwapStaticReplicationFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
@@ -153,7 +153,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   private ValueRequirement getSpotRequirement(final EquityVarianceSwapSecurity security) {
     final ExternalId id = security.getSpotUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
@@ -161,18 +161,17 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final EquityVarianceSwapSecurity security, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
         .get();
-    ExternalId id = security.getSpotUnderlyingId();
-    if (ExternalSchemes.BLOOMBERG_TICKER.equals(id.getScheme())) {
-      id = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, id.getValue());
-    }
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, id, properties);
+    final ExternalId id = security.getSpotUnderlyingId();
+    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
+        UniqueId.of(id.getScheme().getName(), id.getValue());
+    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
   private ValueRequirement getTimeSeriesRequirement(final FunctionCompilationContext context, final EquityVarianceSwapSecurity security) {
@@ -193,7 +192,12 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY;
+    return ComputationTargetType.SECURITY;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return target.getSecurity() instanceof EquityVarianceSwapSecurity;
   }
 
   @Override
@@ -227,4 +231,8 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     return requirements;
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(getValueSpecification(target));
+  }
 }

@@ -38,11 +38,11 @@ import com.opengamma.util.money.Currency;
  * In this formulation, Rates enter the pricing of a VarianceSwap in two places: in the discounting and forward projection.<p>
  * i.e. We are using the rates to infer the forward: spot / Z(t,T).
 */
-public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class);
+public class EquityVarianceSwapStaticReplicationYCNSFunction extends EquityVarianceSwapStaticReplicationFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityVarianceSwapStaticReplicationYCNSFunction.class);
   private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapYieldCurveNodeSensitivityFunction() {
+  public EquityVarianceSwapStaticReplicationYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 

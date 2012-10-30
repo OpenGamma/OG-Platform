@@ -219,6 +219,10 @@ public final class ValueRequirementNames {
    */
   public static final String BLACK_VOLATILITY_SURFACE = "BlackVolatilitySurface";
   /**
+   * Surface containing (x, y, Black volatility) triples, where the prices used to calculate the Black volatility surface have been corrected for dividends
+   */
+  public static final String PURE_VOLATILITY_SURFACE = "PureVolatilitySurface";
+  /**
    * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those used in the SABR model.
    */
   public static final String SABR_SURFACES = "SABR Surfaces";

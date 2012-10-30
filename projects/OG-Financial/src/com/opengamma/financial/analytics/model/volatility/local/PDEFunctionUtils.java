@@ -22,7 +22,7 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 
 /**
  * 
@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 public class PDEFunctionUtils {
 
   public static Set<ValueRequirement> ensureForwardPDEFunctionProperties(final ValueProperties constraints) {
-    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfaceUtils.ensureAllBlackSurfaceProperties(constraints);
+    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfacePropertyUtils.ensureAllBlackSurfaceProperties(constraints);
     if (blackSurfaceRequirements == null) {
       return null;
     }
@@ -110,7 +110,7 @@ public class PDEFunctionUtils {
   }
 
   public static Set<ValueRequirement> ensureBackwardPDEFunctionProperties(final ValueProperties constraints) {
-    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfaceUtils.ensureAllBlackSurfaceProperties(constraints);
+    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfacePropertyUtils.ensureAllBlackSurfaceProperties(constraints);
     if (blackSurfaceRequirements == null) {
       return null;
     }

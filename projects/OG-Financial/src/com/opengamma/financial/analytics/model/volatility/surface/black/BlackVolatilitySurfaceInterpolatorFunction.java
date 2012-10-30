@@ -40,11 +40,11 @@ public abstract class BlackVolatilitySurfaceInterpolatorFunction extends Abstrac
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String timeAxis = desiredValue.getConstraint(PROPERTY_TIME_AXIS);
-    final boolean useLogTime = BlackVolatilitySurfaceUtils.useLogTime(timeAxis);
+    final boolean useLogTime = BlackVolatilitySurfacePropertyUtils.useLogTime(timeAxis);
     final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
-    final boolean useLogValue = BlackVolatilitySurfaceUtils.useLogYAxis(yAxis);
+    final boolean useLogValue = BlackVolatilitySurfacePropertyUtils.useLogYAxis(yAxis);
     final String volatilityTransform = desiredValue.getConstraint(PROPERTY_VOLATILITY_TRANSFORM);
-    final boolean useIntegratedVariance = BlackVolatilitySurfaceUtils.useIntegratedVariance(volatilityTransform);
+    final boolean useIntegratedVariance = BlackVolatilitySurfacePropertyUtils.useIntegratedVariance(volatilityTransform);
     final GeneralSmileInterpolator smileInterpolator = getSmileInterpolator(desiredValue);
     final String interpolator = desiredValue.getConstraint(PROPERTY_TIME_INTERPOLATOR);
     final String leftExtrapolator = desiredValue.getConstraint(PROPERTY_TIME_LEFT_EXTRAPOLATOR);
@@ -70,7 +70,7 @@ public abstract class BlackVolatilitySurfaceInterpolatorFunction extends Abstrac
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<ValueRequirement> requirements = BlackVolatilitySurfaceUtils.ensureCommonVolatilityInterpolatorProperties(constraints);
+    final Set<ValueRequirement> requirements = BlackVolatilitySurfacePropertyUtils.ensureCommonVolatilityInterpolatorProperties(constraints);
     if (requirements == null) {
       return null;
     }
