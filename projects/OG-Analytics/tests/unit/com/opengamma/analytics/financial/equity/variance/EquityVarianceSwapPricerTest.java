@@ -36,16 +36,10 @@ public class EquityVarianceSwapPricerTest {
   private static final boolean PRINT = false;
 
   private static final double SPOT = 65.4;
-  private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y" };
-  private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0 };
-  private static final double[][] STRIKES = new double[][] {
-      {50, 55, 60, 65, 70, 75, 80 },
-      {50, 55, 60, 65, 70, 75, 80 },
-      {50, 55, 60, 65, 70, 75, 80 },
-      {40, 50, 60, 70, 80, 90 },
-      {40, 50, 60, 70, 80, 90, 100 },
-      {30, 50, 60, 70, 80, 90, 100 },
-      {20, 40, 55, 65, 75, 90, 105, 125 } };
+  private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y"};
+  private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0};
+  private static final double[][] STRIKES = new double[][] { {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80},
+      {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
   //  private static final double[][] OTM_PRICES_FLAT;
   //  private static final double[][] OTM_PRICES;
   //  private static final SmileSurfaceDataBundle MARKET_VOLS_FLAT_NODIVS;
@@ -53,9 +47,9 @@ public class EquityVarianceSwapPricerTest {
   //  private static final SmileSurfaceDataBundle MARKET_VOLS;
   private static final double PURE_VOL = 0.45;
   private static final PureImpliedVolatilitySurface PURE_VOL_SURFACE;
-  private static final double[] TAU = new double[] {5. / 12, 11. / 12, 17. / 12, 23. / 12, 29. / 12 };
-  private static final double[] ALPHA = new double[] {3.0, 2.0, 1.0, 0.0, 0.0 };
-  private static final double[] BETA = new double[] {0.0, 0.02, 0.03, 0.04, 0.05 };
+  private static final double[] TAU = new double[] {5. / 12, 11. / 12, 17. / 12, 23. / 12, 29. / 12};
+  private static final double[] ALPHA = new double[] {3.0, 2.0, 1.0, 0.0, 0.0};
+  private static final double[] BETA = new double[] {0.0, 0.02, 0.03, 0.04, 0.05};
   private static final AffineDividends NULL_DIVIDENDS = AffineDividends.noDividends();
   private static final AffineDividends ZERO_DIVIDENDS = new AffineDividends(TAU, new double[5], new double[5]);
   private static final AffineDividends DIVIDENDS = new AffineDividends(TAU, ALPHA, BETA);
@@ -65,18 +59,19 @@ public class EquityVarianceSwapPricerTest {
   private static final VarianceSwap VS = new VarianceSwap(0, 0.75, 0.75, 0.0, 1.0, Currency.USD, 252, 252, 0, new double[0], new double[0]);
   private static final EquityVarianceSwap EVS_COR_FRO_DIVS = new EquityVarianceSwap(VS, true);
   private static final EquityVarianceSwap EVS = new EquityVarianceSwap(VS, false);
+  private static final EquityVarianceSwapPricer PRICER = EquityVarianceSwapPricer.builder().create();
 
   static {
     //    PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
     //find "market" prices if the pure implied volatility surface was flat
     //   OTM_PRICES_FLAT = getOptionPrices(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
 
-    final double[] weights = new double[] {0.15, 0.8, 0.05 };
-    final double[] sigma = new double[] {0.15, 0.3, 0.8 };
-    final double[] mu = new double[] {0.04, 0.02, -0.2 };
+    final double[] weights = new double[] {0.15, 0.8, 0.05};
+    final double[] sigma = new double[] {0.15, 0.3, 0.8};
+    final double[] mu = new double[] {0.04, 0.02, -0.2};
 
     final MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(weights, sigma, mu);
-    BlackVolatilitySurfaceStrike temp = MixedLogNormalVolatilitySurface.getImpliedVolatilitySurface(new ForwardCurve(1.0), data);
+    final BlackVolatilitySurfaceStrike temp = MixedLogNormalVolatilitySurface.getImpliedVolatilitySurface(new ForwardCurve(1.0), data);
     PURE_VOL_SURFACE = new PureImpliedVolatilitySurface(temp.getSurface());
 
     //get the 'market' prices for the hypothetical pure implied volatility surface 
@@ -103,8 +98,8 @@ public class EquityVarianceSwapPricerTest {
     }
   }
 
-  private void printPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
-      final PureImpliedVolatilitySurface surf) {
+  private void printPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
+      final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {
 
     final SmileSurfaceDataBundle v1 = getMarketVols(spot, expiries, strikes, discountCurve, dividends, surf);
 
@@ -132,7 +127,7 @@ public class EquityVarianceSwapPricerTest {
       System.out.print(EXPIRY_LABELS[i] + "&");
       final int m = strikes[i].length;
       for (int j = 0; j < m; j++) {
-        double vol = v1.getVolatilities()[i][j];
+        final double vol = v1.getVolatilities()[i][j];
         if (j < mMax - 1) {
           System.out.printf("%1.3f & ", vol);
         } else {
@@ -230,13 +225,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
       final SmileSurfaceDataBundle v6 = v5;
 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double[][] res1 = pricer.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v1);
-      double[][] res2 = pricer.buckedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double[][] res3 = pricer.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double[][] res4 = pricer.buckedVega(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double[][] res5 = pricer.buckedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double[][] res6 = pricer.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double[][] res1 = PRICER.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v1);
+      final double[][] res2 = PRICER.buckedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double[][] res3 = PRICER.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double[][] res4 = PRICER.buckedVega(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double[][] res5 = PRICER.buckedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double[][] res6 = PRICER.buckedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       printBuckedVega("Flat surface - no dividends", res1);
       printBuckedVega("Flat surface - dividends corrected", res2);
@@ -275,14 +269,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-
       //    double[][] d1 = pricer.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v1);
-      double[][] d2 = pricer.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double[][] d3 = pricer.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double[][] d2 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double[][] d3 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
       //    double[][] d4 = pricer.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v4);
-      double[][] d5 = pricer.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double[][] d6 = pricer.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double[][] d5 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double[][] d6 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       //printDividendSense("Flat surface - no dividends:", d1);
       printDividendSense("Flat, divs corr:", d2);
@@ -307,14 +299,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-
       //    double[][] d1 = pricer.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v1);
-      double[][] d2 = pricer.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double[][] d3 = pricer.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double[][] d2 = PRICER.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double[][] d3 = PRICER.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
       //      double[][] d4 = pricer.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v4);
-      double[][] d5 = pricer.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double[][] d6 = pricer.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double[][] d5 = PRICER.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double[][] d6 = PRICER.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       //     printDividendSense("Flat surface - no dividends:", d1);
       printDividendSense("Flat, divs corr:", d2);
@@ -351,13 +341,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -381,13 +370,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -411,13 +399,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.deltaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.deltaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.deltaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.deltaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.deltaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -441,13 +428,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs:\t" + d1);
       System.out.println("Flat, divs corr:\t" + d2);
@@ -471,13 +457,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs:\t" + d1);
       System.out.println("Flat, divs corr:\t" + d2);
@@ -501,13 +486,13 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.gammaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.gammaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final EquityVarianceSwapPricer pricer = EquityVarianceSwapPricer.builder().create();
+      final double d1 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = pricer.gammaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = pricer.gammaWithStickyLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = pricer.gammaWithStickyLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs:\t" + d1);
       System.out.println("Flat, divs corr:\t" + d2);
@@ -531,13 +516,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -561,13 +545,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.vegaLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.vegaLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.vegaLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.vegaLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -591,13 +574,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -621,13 +603,12 @@ public class EquityVarianceSwapPricerTest {
       final SmileSurfaceDataBundle v6 = v5;
 
       //now assume that the implied volatilities remain fixed as the spot moves 
-      EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-      double d1 = pricer.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      double d2 = pricer.vegaPureLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      double d3 = pricer.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      double d4 = pricer.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      double d5 = pricer.vegaPureLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      double d6 = pricer.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
+      final double d1 = PRICER.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
+      final double d2 = PRICER.vegaPureLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
+      final double d3 = PRICER.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
+      final double d4 = PRICER.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
+      final double d5 = PRICER.vegaPureLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
+      final double d6 = PRICER.vegaPureLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);
@@ -648,45 +629,45 @@ public class EquityVarianceSwapPricerTest {
    * @param surf hypothetical <b>pure</b> implied volatility surface
    * @return Market observed option prices 
    */
-  private static double[][] getOptionPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
-      final PureImpliedVolatilitySurface surf) {
-    int nExp = expiries.length;
-    double[][] prices = new double[nExp][];
-    EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
+  private static double[][] getOptionPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
+      final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {
+    final int nExp = expiries.length;
+    final double[][] prices = new double[nExp][];
+    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
     for (int i = 0; i < nExp; i++) {
       final int n = strikes[i].length;
       prices[i] = new double[n];
-      double t = expiries[i];
-      double f = divCurves.getF(t);
-      double d = divCurves.getD(t);
-      double p = discountCurve.getDiscountFactor(t);
+      final double t = expiries[i];
+      final double f = divCurves.getF(t);
+      final double d = divCurves.getD(t);
+      final double p = discountCurve.getDiscountFactor(t);
       for (int j = 0; j < n; j++) {
-        double x = (strikes[i][j] - d) / (f - d);
-        boolean isCall = x >= 1.0;
-        double vol = surf.getVolatility(t, x);
+        final double x = (strikes[i][j] - d) / (f - d);
+        final boolean isCall = x >= 1.0;
+        final double vol = surf.getVolatility(t, x);
         prices[i][j] = p * (f - d) * BlackFormulaRepository.price(1.0, x, t, vol, isCall);
       }
     }
     return prices;
   }
 
-  private static SmileSurfaceDataBundle getMarketVols(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
-      final PureImpliedVolatilitySurface surf) {
-    int nExp = expiries.length;
-    double[] f = new double[nExp];
-    double[][] vols = new double[nExp][];
-    EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
+  private static SmileSurfaceDataBundle getMarketVols(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve,
+      final AffineDividends dividends, final PureImpliedVolatilitySurface surf) {
+    final int nExp = expiries.length;
+    final double[] f = new double[nExp];
+    final double[][] vols = new double[nExp][];
+    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
     for (int i = 0; i < nExp; i++) {
       final int n = strikes[i].length;
       vols[i] = new double[n];
-      double t = expiries[i];
+      final double t = expiries[i];
       f[i] = divCurves.getF(t);
-      double d = divCurves.getD(t);
+      final double d = divCurves.getD(t);
       for (int j = 0; j < n; j++) {
-        double x = (strikes[i][j] - d) / (f[i] - d);
-        boolean isCall = x >= 1.0;
-        double pVol = surf.getVolatility(t, x);
-        double p = (f[i] - d) * BlackFormulaRepository.price(1.0, x, t, pVol, isCall);
+        final double x = (strikes[i][j] - d) / (f[i] - d);
+        final boolean isCall = x >= 1.0;
+        final double pVol = surf.getVolatility(t, x);
+        final double p = (f[i] - d) * BlackFormulaRepository.price(1.0, x, t, pVol, isCall);
         vols[i][j] = BlackFormulaRepository.impliedVolatility(p, f[i], strikes[i][j], t, pVol);
       }
     }

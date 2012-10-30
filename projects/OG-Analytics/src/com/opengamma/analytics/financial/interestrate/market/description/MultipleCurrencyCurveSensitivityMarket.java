@@ -27,7 +27,7 @@ public class MultipleCurrencyCurveSensitivityMarket {
    */
   private final TreeMap<Currency, CurveSensitivityMarket> _sensitivity;
 
-  /**
+  /** 
    * Constructor. A new map is created.
    */
   public MultipleCurrencyCurveSensitivityMarket() {

@@ -7,16 +7,10 @@
 	</configSuffixes>
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
-		<config>src/com/opengamma/bbg/loader/bloomberg-security-loader-context.xml</config>
-		<config>src/com/opengamma/bbg/loader/bloomberg-timeseries-identifier-context.xml</config>
-		<config>tests/unit/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml</config>
-		<config>src/com/opengamma/bbg/replay/bloomberg-ticks-collector-context.xml</config>
-		<config>src/com/opengamma/bbg/livedata/bbg-livedata-context.xml</config>
-		<config>src/com/opengamma/bbg/bbg-historical-data-context.xml</config>
-		<config>src/com/opengamma/bbg/bbg-context-common.xml</config>
-		<config>tests/unit/com/opengamma/bbg/loader/refDataProvider-context.xml</config>
-		<config>src/com/opengamma/bbg/livedata/bbg-private-livedata-context.xml</config>
-		<config>src/com/opengamma/bbg/bbg-reference-data-context.xml</config>
+		<config>src/main/java/com/opengamma/bbg/bbg-context-common.xml</config>
+		<config>src/main/java/com/opengamma/bbg/livedata/bbg-livedata-context.xml</config>
+		<config>src/main/java/com/opengamma/bbg/livedata/bbg-private-livedata-context.xml</config>
+		<config>src/main/java/com/opengamma/bbg/bbg-reference-data-context.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

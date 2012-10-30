@@ -15,7 +15,7 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 
 /**
  *
@@ -23,7 +23,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 public class LocalVolatilitySurfaceUtils {
 
   public static Set<ValueRequirement> ensureDupireLocalVolatilitySurfaceProperties(final ValueProperties constraints) {
-    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfaceUtils.ensureAllBlackSurfaceProperties(constraints);
+    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfacePropertyUtils.ensureAllBlackSurfaceProperties(constraints);
     if (blackSurfaceRequirements == null) {
       return null;
     }
@@ -36,7 +36,7 @@ public class LocalVolatilitySurfaceUtils {
 
   public static ValueProperties.Builder addDupireLocalVolatilitySurfaceProperties(final ValueProperties properties, final String instrumentType, final String blackSmileInterpolator,
       final String parameterizationType) {
-    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(properties, instrumentType, blackSmileInterpolator);
+    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(properties, instrumentType, blackSmileInterpolator);
     return blackSurfaceProperties
       .withAny(PROPERTY_DERIVATIVE_EPS)
       .with(PROPERTY_Y_AXIS_PARAMETERIZATION, parameterizationType)
@@ -46,7 +46,7 @@ public class LocalVolatilitySurfaceUtils {
   public static ValueProperties.Builder addDupireLocalVolatilitySurfaceProperties(final ValueProperties properties, final String instrumentType, final String blackSmileInterpolator,
       final String parameterizationType, final ValueRequirement desiredValue) {
     final String eps = desiredValue.getConstraint(PROPERTY_DERIVATIVE_EPS);
-    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(properties, instrumentType, desiredValue);
+    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(properties, instrumentType, desiredValue);
     return blackSurfaceProperties
       .with(PROPERTY_DERIVATIVE_EPS, eps)
       .with(PROPERTY_Y_AXIS_PARAMETERIZATION, parameterizationType)

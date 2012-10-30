@@ -198,11 +198,19 @@ $.register_module({
             meta.scrollbar_size = scrollbar_size;
             grid.col_widths();
             columns.headers = [];
+            columns.descriptions = [];
             columns.types = [];
-            columns.fixed[0].columns
-                .forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+            columns.fixed[0].columns.forEach(function (col) {
+                columns.headers.push(col.header);
+                columns.types.push(col.type);
+                columns.descriptions.push(col.description);
+            });
             columns.scroll.forEach(function (set) {
-                set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+                set.columns.forEach(function (col) {
+                    columns.headers.push(col.header);
+                    columns.types.push(col.type);
+                    columns.descriptions.push(col.description);
+                });
             });
             unravel_structure.call(grid);
             if (grid.elements.empty) {
@@ -218,7 +226,10 @@ $.register_module({
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
                         var columns = set.columns.map(function (col) {
-                            return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
+                            return {
+                                index: (col_offset || 0) + index++,
+                                name: col.header, description: col.description, width: col.width
+                            };
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
@@ -344,8 +355,8 @@ $.register_module({
             return (handler && handler.call(grid)), grid;
         };
         constructor.prototype.alive = function () {
-            var grid = this, live = $(grid.id).length;
-            return grid.elements.empty || live || (grid.kill(), false); // if empty, grid is still loading
+            var grid = this;
+            return grid.elements.empty || $(grid.id).length || (grid.kill(), false); // if empty, grid is still loading
         };
         constructor.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;

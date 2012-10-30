@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 
 /**
  * 
@@ -108,7 +108,7 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   @Override
   protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties equityProperties = getCurrencyPropertiesForVolatilitySurface(desiredValue);
-    final ValueProperties properties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(equityProperties, getInstrumentType(), desiredValue).get();
+    final ValueProperties properties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(equityProperties, getInstrumentType(), desiredValue).get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
   }
 

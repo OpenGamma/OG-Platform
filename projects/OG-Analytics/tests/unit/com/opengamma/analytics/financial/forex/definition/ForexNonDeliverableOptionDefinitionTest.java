@@ -58,9 +58,15 @@ public class ForexNonDeliverableOptionDefinitionTest {
    * Tests the class equal and hashCode
    */
   public void equalHash() {
+    assertEquals("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION, NDO_DEFINITION);
+    assertFalse("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(CURVE_NAMES));
+    assertFalse("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(null));
     final ForexNonDeliverableOptionDefinition newNdo = new ForexNonDeliverableOptionDefinition(NDF_DEFINITION, IS_CALL, IS_LONG);
-    assertTrue(NDO_DEFINITION.equals(newNdo));
-    assertTrue(NDO_DEFINITION.hashCode() == newNdo.hashCode());
+    assertTrue("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(newNdo));
+    assertTrue("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.hashCode() == newNdo.hashCode());
+    final ForexNonDeliverableOptionDefinition newNdo2 = new ForexNonDeliverableOptionDefinition(NDF_DEFINITION, !IS_CALL, !IS_LONG);
+    final ForexNonDeliverableOptionDefinition newNdo3 = new ForexNonDeliverableOptionDefinition(NDF_DEFINITION, !IS_CALL, !IS_LONG);
+    assertEquals("ForexNonDeliverableOptionDefinition: equal/hash code", newNdo2.hashCode(), newNdo3.hashCode());
     ForexNonDeliverableOptionDefinition modifiedNdo;
     modifiedNdo = new ForexNonDeliverableOptionDefinition(new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, STRIKE_USD_KRW + 1.0, FIXING_DATE, PAYMENT_DATE), IS_CALL, IS_LONG);
     assertFalse("Forex NDF: equal - hash code", NDO_DEFINITION.equals(modifiedNdo));

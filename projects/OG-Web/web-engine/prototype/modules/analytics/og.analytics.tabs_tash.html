@@ -1,9 +1,12 @@
 <div class="OG-gadget-tabs">
   <ul>
     {{#each tabs}}<li class="og-tab-{{this.id}}{{#if this.active}} og-active{{/if}}">
-        <div><div class="OG-multiselect">{{this.type}}</div>
-          {{#if this.name}}{{this.name}}{{/if}}
-          {{#if this.col_name}} {{this.col_name}} <span>on</span> {{this.row_name}}{{/if}}
+        <div>
+          <div class="OG-multiselect"></div>
+          <div class="OG-gadget-tabs-label">
+            {{#if this.name}}{{this.name}}{{/if}}
+            {{#if this.col_name}} {{this.col_name}} <span>on</span> {{this.row_name}}{{/if}}
+          </div>
         </div>
         {{#if this.delete}}<div class="og-delete"></div>{{/if}}
       </li>{{/each}}<li class="og-overflow" style="display: none"><div>...</div></li>

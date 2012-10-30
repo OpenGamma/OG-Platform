@@ -6,8 +6,9 @@ $.register_module({
     name: 'og.analytics.CellMenu',
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
-        var module = this, icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', open_inplace = '.og-icon-down-chevron',
-            expand_class = 'og-expanded', panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
+        var module = this, icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', 
+            open_inplace = '.og-icon-down-chevron', expand_class = 'og-expanded', 
+            panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
             mapping = og.common.gadgets.mapping, typemap = mapping.type_map,
             onlydepgraphs = []; // a list of datatypes that only support depgraph gadgets
         for (var i in typemap) if (typemap.hasOwnProperty(i))

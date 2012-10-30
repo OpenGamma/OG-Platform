@@ -165,7 +165,7 @@ $.register_module({
                             view.layout.inner.close('north');
                             $('.OG-layout-admin-details-north').empty();
                         }
-                        if (json.template_data.hts_id || args.timeseries) new common.gadgets.Timeseries({
+                        if (json.template_data.hts_id || args.timeseries) new common.gadgets.TimeseriesPlot({
                             selector: '.OG-timeseries-container',
                             id: json.template_data.hts_id || args.timeseries,
                             height: "450"
