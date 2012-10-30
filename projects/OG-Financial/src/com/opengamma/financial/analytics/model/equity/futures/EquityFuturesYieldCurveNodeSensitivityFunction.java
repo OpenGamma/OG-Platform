@@ -14,7 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
@@ -24,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivit
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.position.Trade;
@@ -95,7 +95,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 
     // 2. Build up the market data bundle
-    final EquityFutureDataBundle market = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValues.iterator().next());
+    final SimpleFutureDataBundle market = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValues.iterator().next());
 
     // 3. Create specification that matches the properties promised in getResults
     // For the curve we're bumping, create a bundle

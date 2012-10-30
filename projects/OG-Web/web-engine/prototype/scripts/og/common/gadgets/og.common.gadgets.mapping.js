@@ -20,30 +20,50 @@ $.register_module({
                 'dock-north' : [2, 4, 3, 1, 0],
                 'dock-center': [2, 4, 3, 1, 0],
                 'dock-south' : [2, 4, 3, 1, 0],
-                'new-window' : [2, 4, 3, 1, 0]
+                'new-window' : [2, 4, 3, 1, 0],
+                'in-place'   : [2, 4, 3, 1, 0]
             },
-            options: function (cell, grid, panel) {
-                var type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options = {
-                    gadget: 'og.common.gadgets.' + type,
+            options: function (cell, grid, panel, override) {
+                var gadget_type, source = $.extend({}, grid.source), gadget_options, 
+                    override_gadget = override || "";
+                gadget_type = override_gadget.length ? override_gadget : mapping.type(cell, panel);
+                gadget_options = {
+                    gadget: 'og.common.gadgets.' + gadget_type,
                     options: {source: source, child: true},
                     row_name: cell.row_name,
                     col_name: cell.col_name,
-                    type: gadget_names[type]
+                    gadget_name: gadget_names[gadget_type],
+                    gadget_type: gadget_type,
+                    data_type: cell.type
                 };
-                if (type === 'Data' || type === 'Curve' || type === 'Surface')
+                if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
-                if (type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
-                if (type === 'Timeseries')
+                if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
+                if (gadget_type === 'Timeseries')
                     $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
+
                 return gadget_options;
             },
             type : function (cell, panel) {
                 var order = mapping.panel_preference[panel || 'new-window'],
-                    type_map = mapping.type_map[cell.type], i, k;
-                for (i = 0; i < order.length; i++) for (k = 0; k < type_map.length; k++) if (order[i] === type_map[k])
-                    return mapping.gadgets[order[i]];
+                    type_map = mapping.data_type_map[cell.type], i, k; 
+                for (i = 0; i < order.length; i++) {
+                    for (k = 0; k < type_map.length; k++){
+                        if (order[i] === type_map[k])
+                         return mapping.gadgets[order[i]];   
+                    }
+                }
             },
-            type_map: {
+            available_types : function (data_type){
+                var types_array = mapping.data_type_map[data_type], i,  types = {gadgets:[]};
+                for (i = 0; i < types_array.length; i++){
+                    var current = mapping.gadgets[types_array[i]],  
+                    gadget = {name: current, gadget_name: gadget_names[current]};
+                    types.gadgets.push(gadget);
+                }
+                return types;
+            },
+            data_type_map: {
                 CURVE             : [1, 3],
                 DOUBLE            : [0],
                 LABELLED_MATRIX_1D: [0, 1],
@@ -55,6 +75,6 @@ $.register_module({
                 TIME_SERIES       : [4, 1],
                 UNKNOWN           : [0]
             }
-        }
+        };
     }
 });

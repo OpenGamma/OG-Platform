@@ -10,7 +10,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Abstract base class for formatters that don't support history values.
  */
-/* package */ abstract class NoHistoryFormatter<T> implements Formatter<T> {
+/* package */ abstract class NoHistoryFormatter<T> extends AbstractFormatter<T> {
 
   /**
    * Throws an UnsupportedOperationException.
@@ -20,6 +20,6 @@ import com.opengamma.engine.value.ValueSpecification;
    */
   @Override
   public Object formatForHistory(T history, ValueSpecification valueSpec) {
-    throw new UnsupportedOperationException("history not supported for format " + getFormatType().name());
+    throw new UnsupportedOperationException("history not supported for format " + getFormatForType().name());
   }
 }

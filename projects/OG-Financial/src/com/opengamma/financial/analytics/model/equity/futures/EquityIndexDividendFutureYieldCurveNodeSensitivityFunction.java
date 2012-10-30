@@ -14,11 +14,11 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.EquityFuturesRatesSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -79,7 +79,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
     final double marketPrice = getMarketPrice(security, inputs);
     //double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()), now);
     //dividendYield /= 100.0;
-    final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, new EquityFutureDataBundle(fundingCurve, marketPrice, spot, null, null));
+    final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, new SimpleFutureDataBundle(fundingCurve, marketPrice, spot, null, null));
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(security.getCurrency()));
     if (curveSpecObject == null) {
       throw new OpenGammaRuntimeException("Curve specification was null");

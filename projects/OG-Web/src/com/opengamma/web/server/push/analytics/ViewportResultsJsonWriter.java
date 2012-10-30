@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import static com.opengamma.web.server.push.analytics.formatting.Formatter.FormatType.UNKNOWN;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +53,14 @@ public class ViewportResultsJsonWriter {
       }
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
-      if (columnType == null || history != null || cell.isError()) {
+      Formatter.FormatType columnFormat = _formatter.getFormatForType(columnType);
+      if (columnFormat == UNKNOWN || history != null || cell.isError()) {
         // if there is history, an error or we need to send type info then we need to send an object, not just the value
         Map<String, Object> valueMap = Maps.newHashMap();
         valueMap.put(VALUE, formattedValue);
-        if (columnType == null) {
+        if (columnFormat == UNKNOWN) {
           // if the the column type isn't known then send the type with the value
-          valueMap.put(TYPE, getFormatType(cellValue).name());
+          valueMap.put(TYPE, _formatter.getFormatForValue(cellValue, cellValueSpec).name());
         }
         if (history != null) {
           valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
@@ -72,21 +75,6 @@ public class ViewportResultsJsonWriter {
     }
     ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(), DATA, results);
     return new JSONObject(resultsMap).toString();
-  }
-
-  /**
-   * Returns the {@link Formatter.FormatType format type} used for formatting a cell's value.
-   * @param cellValue The value, may be null
-   * @return The format type used for the value, non null
-   */
-  private Formatter.FormatType getFormatType(Object cellValue) {
-    Formatter.FormatType formatType;
-    if (cellValue == null) {
-      formatType = Formatter.FormatType.PRIMITIVE;
-    } else {
-      formatType = _formatter.getFormatType(cellValue.getClass());
-    }
-    return formatType;
   }
 
   /**

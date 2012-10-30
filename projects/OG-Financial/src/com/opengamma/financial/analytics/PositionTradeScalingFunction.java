@@ -193,6 +193,7 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
         scaledValue = new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, scaledValues);
       } else {
         //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
+        // TODO case 2012.10.26 CurrencyAmount ends up here :(
         scaledValue = value;
       }
       common = SumUtils.addProperties(common, input.getSpecification().getProperties());

@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -61,6 +62,7 @@ public class ResultsFormatter {
     BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
+    BlackVolatilitySurfaceMoneynessFormatter blackVolSurfaceMoneynessFormatter = new BlackVolatilitySurfaceMoneynessFormatter();
 
     _formatters.put(Double.class, doubleFormatter);
     _formatters.put(BigDecimal.class, bigDecimalFormatter);
@@ -77,7 +79,7 @@ public class ResultsFormatter {
     _formatters.put(MissingMarketDataSentinel.class, new FixedValueFormatter("Missing market data", null, null));
     _formatters.put(NotCalculatedSentinel.class, new NotCalculatedSentinelFormatter());
     _formatters.put(ForwardCurve.class, new ForwardCurveFormatter());
-    _formatters.put(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessFormatter());
+    _formatters.put(BlackVolatilitySurfaceMoneyness.class, blackVolSurfaceMoneynessFormatter);
     _formatters.put(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessFormatter());
     _formatters.put(BucketedGreekResultCollection.class, new BucketedGreekResultCollectionFormatter());
     _formatters.put(DoublesCurve.class, new DoublesCurveFormatter());
@@ -91,6 +93,7 @@ public class ResultsFormatter {
     _formatters.put(InterpolatedYieldCurveSpecificationWithSecurities.class, new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter());
     _formatters.put(HistoricalTimeSeriesBundle.class, new HistoricalTimeSeriesBundleFormatter());
     _formatters.put(VolatilitySurfaceSpecification.class, new VolatilitySurfaceSpecificationFormatter());
+    _formatters.put(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class, new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(blackVolSurfaceMoneynessFormatter));
   }
 
   private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
@@ -179,11 +182,22 @@ public class ResultsFormatter {
   }
 
   /**
-   * Returns the formatter type for a value type.
+   * Returns the format type for a value type.
    * @param type The value type
    * @return The formatter used for formatting the type
    */
-  public Formatter.FormatType getFormatType(Class<?> type) {
-    return getFormatterForType(type).getFormatType();
+  public Formatter.FormatType getFormatForType(Class<?> type) {
+    return getFormatterForType(type).getFormatForType();
+  }
+
+  /**
+   * Returns the format type for a value.
+   * @param value The value, possibly null
+   * @param valueSpec The value's specification, possibly null
+   * @return The format type for the value, not null
+   */
+  @SuppressWarnings("unchecked")
+  public Formatter.FormatType getFormatForValue(Object value, ValueSpecification valueSpec) {
+    return getFormatter(value, valueSpec).getFormatForValue(value);
   }
 }

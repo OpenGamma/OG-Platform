@@ -71,9 +71,9 @@ $.register_module({
         var constructor = function (config) {
             var grid = this;
             grid.config = config || {};
-            grid.elements = {empty: true, parent: $(config.selector).html('instantiating grid...')};
+            grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.events = {
-                cellhoverin: [], cellhoverout: [], cellselect: [], mousedown: [],
+                cellhoverin: [], cellhoverout: [], cellselect: [], fatal: [], mousedown: [],
                 rangeselect: [], render: [], scroll: [], select: [], viewchange: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
@@ -92,7 +92,9 @@ $.register_module({
             var grid = this, config = grid.config;
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);})
+                .on('fatal', function (error) {
+                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), fire(grid.events.fatal);
+                })
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
                         return {
@@ -177,14 +179,15 @@ $.register_module({
             grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
                 var cell, meta = grid.meta, events;
                 if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
-                    fire(grid.events.cellselect, cell, selection);
+                    fire(grid.events.cellselect, cell);
                 else
                     fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
-            og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
+            if (!config.child) // if this is a child gadget, rely on its parent to register with manager
+                og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
         var init_grid = function (meta) {
@@ -195,11 +198,19 @@ $.register_module({
             meta.scrollbar_size = scrollbar_size;
             grid.col_widths();
             columns.headers = [];
+            columns.descriptions = [];
             columns.types = [];
-            columns.fixed[0].columns
-                .forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+            columns.fixed[0].columns.forEach(function (col) {
+                columns.headers.push(col.header);
+                columns.types.push(col.type);
+                columns.descriptions.push(col.description);
+            });
             columns.scroll.forEach(function (set) {
-                set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
+                set.columns.forEach(function (col) {
+                    columns.headers.push(col.header);
+                    columns.types.push(col.type);
+                    columns.descriptions.push(col.description);
+                });
             });
             unravel_structure.call(grid);
             if (grid.elements.empty) {
@@ -215,7 +226,10 @@ $.register_module({
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
                         var columns = set.columns.map(function (col) {
-                            return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
+                            return {
+                                index: (col_offset || 0) + index++,
+                                name: col.header, description: col.description, width: col.width
+                            };
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
@@ -270,24 +284,22 @@ $.register_module({
             };
         })();
         var set_css = function (id, sets, offset) {
-            var partial_width = 0,
+            var partial = 0,
                 columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return sets.map(function (set, idx) {
                 var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
                 css = {
-                    prefix: id, index: idx + (offset || 0),
-                    left: partial_width, right: total_width - partial_width - set_width
+                    prefix: id, index: idx + (offset || 0), left: partial, right: total_width - partial - set_width
                 };
-                return (partial_width += set_width), css;
+                return (partial += set_width), css;
             });
         };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
             var all = function (total) {
-                cache[''] = 0;
                 for (var result = [], lcv = 0; lcv < total; lcv += 1) result.push({prefix: 0});
-                return result;
+                return (cache[''] = 0), result;
             };
             var rep = function (times, lcv, result) {
                 if (times in rep_memo) return rep_memo[times];
@@ -343,11 +355,8 @@ $.register_module({
             return (handler && handler.call(grid)), grid;
         };
         constructor.prototype.alive = function () {
-            var grid = this, live = $(grid.id).length;
-            if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
-            try {grid.dataman.kill();} catch (error) {return false;}
-            try {grid.clipboard.dataman.kill();} catch (error) {return false;}
-            try {grid.elements.style.remove();} catch (error) {return false;}
+            var grid = this;
+            return grid.elements.empty || $(grid.id).length || (grid.kill(), false); // if empty, grid is still loading
         };
         constructor.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
@@ -372,6 +381,15 @@ $.register_module({
                 set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
             });
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
+        };
+        constructor.prototype.kill = function () {
+            var grid = this;
+            try {grid.dataman.kill();}
+                catch (error) {og.dev.warn(module.name + ': dataman kill failed', error);}
+            try {grid.clipboard.dataman.kill();}
+                catch (error) {og.dev.warn(module.name + ': clipboard kill failed', error);}
+            try {grid.elements.style.remove();}
+                catch (error) {og.dev.warn(module.name + ': style remove failed', error);}
         };
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
@@ -448,6 +466,10 @@ $.register_module({
             else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
             return viewport.call(grid, render_header);
+        };
+        constructor.prototype.toggle = function (bool) {
+            var state = typeof bool !== 'undefined' ? !bool : !grid.clipboard.dataman.busy();
+            grid.dataman.busy(grid.clipboard.dataman.busy(state));
         };
         return constructor;
     }

@@ -142,7 +142,8 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE)
         .get();
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
+    ComputationTargetSpecification targetSpec = target.toSpecification();
+    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
   }
 
   @Override
@@ -166,6 +167,10 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     }
     final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
     if (samplingPeriods == null || samplingPeriods.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleCalculatorSet = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleCalculatorSet == null || scheduleCalculatorSet.size() != 1) {
       return null;
     }
     final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();

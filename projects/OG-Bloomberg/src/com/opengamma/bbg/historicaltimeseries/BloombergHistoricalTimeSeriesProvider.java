@@ -16,6 +16,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID;
 import static com.opengamma.bbg.BloombergConstants.RESPONSE_ERROR;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
+import static com.opengamma.bbg.util.BloombergDataUtils.toBloombergDate;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +43,10 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
@@ -203,7 +205,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
-        ExternalId preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        ExternalId preferredId = identifiers.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+        if (preferredId == null) {
+          preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        }
         s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);
@@ -217,8 +222,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       // general settings
       request.set("periodicityAdjustment", "ACTUAL");
       request.set("periodicitySelection", "DAILY");
-      request.set("startDate", dateRange.getStartDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
-      request.set("endDate", dateRange.getEndDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
+      request.set("startDate", toBloombergDate(dateRange.getStartDateInclusive()));
+      request.set("endDate", toBloombergDate(dateRange.getEndDateInclusive()));
       request.set("adjustmentSplit", true);
       if (maxPoints != null && maxPoints <= 0) {
         request.set("maxDataPoints", -maxPoints);

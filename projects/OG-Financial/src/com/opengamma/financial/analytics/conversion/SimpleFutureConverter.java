@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -25,7 +25,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 
 /**
- * 
+ *
  */
 public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleInstrumentDefinition<?>> {
 
@@ -46,7 +46,7 @@ public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleI
 
   @Override
   public SimpleInstrumentDefinition<?> visitEquityFutureSecurity(final EquityFutureSecurity security) {
-    throw new UnsupportedOperationException("Cannot use this converter for EquityFutureSecurity");
+    return getDefinition(security);
   }
 
   @Override
@@ -83,9 +83,14 @@ public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleI
   }
 
   private SimpleInstrumentDefinition<?> getDefinition(final FutureSecurity security) {
+    return getDefinition(security, 0.0);
+  }
+
+  private SimpleInstrumentDefinition<?> getDefinition(final FutureSecurity security, final double referencePrice) {
     Validate.notNull(security, "security");
     final ZonedDateTime expiry = security.getExpiry().getExpiry();
-    final double referencePrice = 0;
     return new SimpleFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount());
   }
+
+
 }

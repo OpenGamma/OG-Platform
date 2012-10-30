@@ -14,11 +14,12 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDiv
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFutureMarkToMarket;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 
 /**
  * Present value calculator for futures on Equity underlying assets
  */
-public final class EquityFuturesPresentValueCalculator extends AbstractDerivativeVisitor<EquityFutureDataBundle, Double> {
+public final class EquityFuturesPresentValueCalculator extends AbstractDerivativeVisitor<SimpleFutureDataBundle, Double> {
 
   private static final EquityFuturesPresentValueCalculator s_instance = new EquityFuturesPresentValueCalculator();
 
@@ -34,7 +35,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractDerivativ
   }
 
   @Override
-  public Double visit(final Derivative derivative, final EquityFutureDataBundle dataBundle) {
+  public Double visit(final Derivative derivative, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(derivative);
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getMarketPrice());
@@ -48,7 +49,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractDerivativ
   }
 
   @Override
-  public Double visitEquityFuture(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public Double visitEquityFuture(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future);
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getMarketPrice());
@@ -61,7 +62,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractDerivativ
   }
 
   @Override
-  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final EquityFutureDataBundle dataBundle) {
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final SimpleFutureDataBundle dataBundle) {
     return visitEquityFuture(future, dataBundle);
   }
 
@@ -76,7 +77,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractDerivativ
   }
 
   @Override
-  public Double visitEquityIndexOption(final EquityIndexOption equityIndexOption, final EquityFutureDataBundle data) {
+  public Double visitEquityIndexOption(final EquityIndexOption equityIndexOption, final SimpleFutureDataBundle data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass()
         + ") does not support visitEquityIndexOption(). Try EquityIndexOptionPresentValueCalculator");
   }

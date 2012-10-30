@@ -14,6 +14,7 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
@@ -59,7 +60,6 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
                                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                                               MarketDataSnapshotMaster snapshotMaster) {
-    _marketDataSpecRepo = marketDataSpecRepo;
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
@@ -69,6 +69,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
+    _marketDataSpecRepo = marketDataSpecRepo;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
     ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
@@ -109,7 +110,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */void start() {
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
-    _viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
+    _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {
@@ -145,17 +146,18 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     @Override
     public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
       _cycleReference.release();
+      ViewResultModel results = deltaResult != null ? deltaResult : fullResult;
       // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
       // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
       // this allows dependency graphs grids to be opened and populated without any delay
-      EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+      EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(results.getViewCycleId());
       if (cycleReference == null) {
         // this shouldn't happen if everything in the engine is working as it should
         _cycleReference = EmptyViewCycle.REFERENCE;
       } else {
         _cycleReference = cycleReference;
       }
-      _view.updateResults(fullResult, _cycleReference.get());
+      _view.updateResults(results, _cycleReference.get());
     }
 
     @Override

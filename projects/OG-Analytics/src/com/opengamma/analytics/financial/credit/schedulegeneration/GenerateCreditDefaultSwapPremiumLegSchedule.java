@@ -42,6 +42,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Look at DateAdjuster class for IMM date handling
   // TODO : FrontLong stubs - e.g. startDate = 20/12/2007, effDate = 21/12/2007; first coupon at 20/6/2008. ISDA model first coupon at 20/3/2008 (seems to use start date not eff date)
   // TODO : Remove one of the overloaded convertdatesToDoubles methods
+  // TODO : Rewrite and integrate constructISDACompliantCashflowSchedule into the code better
 
   // -------------------------------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Public method to generate a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
-  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, ISDACurve/*YieldCurve*/yieldCurve, HazardRateCurve hazardRateCurve,
+  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, ISDACurve yieldCurve, HazardRateCurve hazardRateCurve,
       double startTime, double endTime, boolean includeSchedule) {
 
     // ------------------------------------------------
@@ -225,6 +226,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     return tenorsAsDoubles;
   }
+
+  // -------------------------------------------------------------------------------------------
 
   // Public method to convert the input ZonedDateTime tenors into doubles relative to the specified date based on the daycount convention specified
   public double[] convertTenorsToDoubles(ZonedDateTime[] tenors, ZonedDateTime baselineDate, DayCount dayCountConvention) {

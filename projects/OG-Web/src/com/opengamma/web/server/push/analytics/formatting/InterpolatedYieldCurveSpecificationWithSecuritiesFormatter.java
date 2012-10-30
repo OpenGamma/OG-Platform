@@ -30,7 +30,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
   }
 
   @Override
-  public FormatType getFormatType() {
+  public FormatType getFormatForType() {
     return FormatType.PRIMITIVE;
   }
 }

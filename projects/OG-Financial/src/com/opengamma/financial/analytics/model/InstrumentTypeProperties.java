@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
 
 /**
- * 
+ *
  */
 public class InstrumentTypeProperties {
   /**
@@ -28,7 +28,8 @@ public class InstrumentTypeProperties {
   public static final String BOND_FUTURE_OPTION = "BOND_FUTURE_OPTION";
   /** Property representing a curve for bond futures */
   public static final String BOND_FUTURE_PRICE = "BOND_FUTURE_PRICE";
-
+  /** Property representing a surface for commodity options */
+  public static final String COMMODITY_FUTURE_OPTION = "COMMODITY_FUTURE_OPTION";
   /**
    * Name of the cube type property. This allows cubes to be distinguished by instrument type.
    */

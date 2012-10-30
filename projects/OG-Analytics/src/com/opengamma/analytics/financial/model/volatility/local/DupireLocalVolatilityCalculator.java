@@ -6,7 +6,8 @@
 
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -16,16 +17,17 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
-import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class DupireLocalVolatilityCalculator {
+  private static final Logger s_logger = LoggerFactory.getLogger(DupireLocalVolatilityCalculator.class);
   private final double _eps;
 
   public DupireLocalVolatilityCalculator() {
@@ -60,7 +62,8 @@ public class DupireLocalVolatilityCalculator {
         final double divK2 = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
         final double var = 2. * (divT + q * price + (r - q) * k * divK) / (k * k * divK2);
         if (var < 0) {
-          throw new MathException("Negative var in getLocalVolatility");
+          s_logger.info("Negative variance; returning 0");
+          return 0.;
         }
         return Math.sqrt(var);
       }
@@ -81,7 +84,8 @@ public class DupireLocalVolatilityCalculator {
    * @param rate interest rate
    * @return local vol surface
    */
-  public AbsoluteLocalVolatilitySurface getAbsoluteLocalVolatilitySurface(final BlackVolatilitySurfaceStrike impliedVolatilitySurface, final double spot, final double rate) {
+  public AbsoluteLocalVolatilitySurface getAbsoluteLocalVolatilitySurface(final BlackVolatilitySurfaceStrike impliedVolatilitySurface, final double spot,
+      final double rate) {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
@@ -93,7 +97,6 @@ public class DupireLocalVolatilityCalculator {
 
         final double vol = impliedVolatilitySurface.getVolatility(t, s);
 
-        //  double rootT = Math.sqrt(t);
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
         double var;
         if (s == 0) {
@@ -105,9 +108,8 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * h1 * s * divK + s * s * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
-            throw new MathException("negative variance");
-            //var = 0.0;
-            //TODO log error
+            s_logger.info("negative variance; returning 0");
+            return 0.;
           }
         }
         return s * Math.sqrt(var);
@@ -142,7 +144,6 @@ public class DupireLocalVolatilityCalculator {
 
         final double vol = impliedVolatilitySurface.getVolatility(t, s);
 
-        //  double rootT = Math.sqrt(t);
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
         double var;
         if (s == 0) {
@@ -154,8 +155,8 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + drift * s * divK)) / (1 + 2 * h1 * s * divK + s * s * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
+            s_logger.error("Negative variance; returning 0");
             var = 0.0;
-            //TODO log error
           }
         }
         return Math.sqrt(var);
@@ -166,7 +167,8 @@ public class DupireLocalVolatilityCalculator {
   }
 
   //TODO replace this
-  public <T extends StrikeType> LocalVolatilitySurface<?> getLocalVolatilitySurface(final BlackVolatilitySurface<T> impliedVolatilitySurface, final ForwardCurve forwardCurve) {
+  public <T extends StrikeType> LocalVolatilitySurface<?> getLocalVolatilitySurface(final BlackVolatilitySurface<T> impliedVolatilitySurface,
+      final ForwardCurve forwardCurve) {
     if (impliedVolatilitySurface instanceof BlackVolatilitySurfaceStrike) {
       return getLocalVolatility((BlackVolatilitySurfaceStrike) impliedVolatilitySurface, forwardCurve);
     } else if (impliedVolatilitySurface instanceof BlackVolatilitySurfaceMoneyness) {
@@ -205,9 +207,8 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + k * drift * divK)) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
-            // throw new MathException("negative variance");
+            s_logger.info("Negative variance; returning 0");
             var = 0.0;
-            //TODO log error
           }
         }
         return Math.sqrt(var);
@@ -254,8 +255,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
@@ -263,13 +264,13 @@ public class DupireLocalVolatilityCalculator {
         final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
         final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
 
-        double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
-        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
-        double theta = bTheta + vega * divT;
-        double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
-        double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
-        double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
-        double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
+        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        final double theta = bTheta + vega * divT;
+        final double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
+        final double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
+        final double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
+        final double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
         return Math.sqrt(2 * theta / dens) / m;
       }
 
@@ -294,15 +295,15 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
 
-        double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
-        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        final double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
         return bTheta + vega * divT;
       }
     };
@@ -326,19 +327,19 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
 
         final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
         final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
 
-        double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
-        double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
-        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
-        double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
-        double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
+        final double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
+        final double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
+        final double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        final double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
+        final double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
         return dens;
       }
     };
@@ -346,7 +347,7 @@ public class DupireLocalVolatilityCalculator {
     return FunctionalDoublesSurface.from(density);
   }
 
-  private Surface<Double, Double, Double> getLocalVolatility(final Surface<Double, Double, Double> surf) {
+  public Surface<Double, Double, Double> getLocalVolatility(final Surface<Double, Double, Double> surf) {
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -355,8 +356,8 @@ public class DupireLocalVolatilityCalculator {
         final double t = tm[0];
         final double m = tm[1];
 
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
+        ArgumentChecker.isTrue(t >= 0, "negative t");
+        ArgumentChecker.isTrue(m >= 0, "negative m");
 
         final double vol = surf.getZValue(t, m);
 
@@ -371,9 +372,8 @@ public class DupireLocalVolatilityCalculator {
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * m * divM + m * m * (h1 * h2 * divM * divM + t * vol * divM2));
           if (var < 0.0) {
-            //throw new MathException("negative variance");
+            s_logger.info("Negative variance; returning 0");
             var = 0.0;
-            //TODO log error
           }
         }
         return Math.sqrt(var);

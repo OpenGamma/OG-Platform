@@ -46,7 +46,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * This function splits a European ONE-LOOK Barrier Option into a sum of vanilla FXOptionSecurity's,
- * and then calls down to the FXOptionBlackFunction for the paricular requirement. <p>
+ * and then calls down to the FXOptionBlackFunction for the particular requirement. <p>
  * See FXBarrierOptionBlackFunction for Functions on TRUE Barriers. That is, options that knock in or out contingent on hitting a barrier,
  * at ANY time before expiry. The one-look case here only checks the barrier at expiry. <p>
  * The payoffs are thus restricted, on cannot have a Down-and-Out nor Down-and-In Calls, nor Up-and-In and Up-and-Out Puts <p>
@@ -140,6 +140,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
   
+  @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
     final String binaryOverhead = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);

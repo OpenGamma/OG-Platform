@@ -6,7 +6,7 @@
  */
 $.register_module({
     name: 'og.api.rest',
-    dependencies: ['og.dev', 'og.api.common', 'og.common.routes'],
+    dependencies: ['og.dev', 'og.api.common', 'og.common.events', 'og.common.routes'],
     obj: function () {
         jQuery.ajaxSettings.traditional = true; // instead of arr[]=1&arr[]=2 we want arr=1&arr=2
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
@@ -27,7 +27,7 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 30s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 15000 /* 15s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
@@ -107,16 +107,20 @@ $.register_module({
             return promise;
         };
         var register = function (req) {
-            return !req.config.meta.update ? true
-                : !api.id ? false
-                    : !!registrations.push({
-                        id: req.id, dependencies: req.config.meta.dependencies || [],
-                        config: req.config, method: req.method,
-                        update: req.config.meta.update, url: req.url, current: req.current
-                    });
+            if (!req.config.meta.update) return true;
+            if (!api.id) return false;
+            if (registrations.reduce(function (acc, val) { // do not add duplicates
+                return acc || val.method.join('/') === req.method.join('/') && val.update === req.config.meta.update;
+            }, false)) return true;
+            return !!registrations.push({
+                id: req.id, dependencies: req.config.meta.dependencies || [], config: req.config, method: req.method,
+                update: req.config.meta.update, url: req.url, current: req.current
+            });
         };
         var request = function (method, config, promise) {
-            var no_post_body = {GET: 0, DELETE: 0}, is_get = config.meta.type === 'GET', current = routes.current(),
+            var no_post_body = {GET: 0, DELETE: 0}, current = routes.current(),
+                is_get = config.meta.type === 'GET',
+                is_delete = config.meta.type === 'DELETE',
                 // build GET/DELETE URLs instead of letting $.ajax do it
                 url = config.url || (config.meta.type in no_post_body ?
                     [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
@@ -144,7 +148,8 @@ $.register_module({
                         // re-send requests that have timed out only if the are GETs
                         if (error === 'timeout' && is_get) return send();
                         var result = {
-                            error: true, data: null, meta: {},
+                            error: xhr.status || true, data: null,
+                            meta: {content_length: xhr.responseText.length, url: url},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
@@ -154,11 +159,10 @@ $.register_module({
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
-                        var meta = {content_length: xhr.responseText.length},
+                        var meta = {content_length: xhr.responseText.length, url: url},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
-                        if (config.meta.type in no_post_body) meta.url = url;
                         result = {error: false, message: status, data: post_process(data, url), meta: meta};
                         if (cache_for = config.meta.cache_for)
                             cache_set(url, result), setTimeout(function () {cache_del(url);}, cache_for);
@@ -190,6 +194,8 @@ $.register_module({
                 if (config.meta.cache_for) cache_set(url, true);
             }
             outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+            if (is_delete) registrations = registrations
+                .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
             return send(), promise;
         };
         var request_expired = function (request, current) {
@@ -268,9 +274,8 @@ $.register_module({
                     if (meta_request) method.push('metaData');
                     if (!meta_request && !template && (field_search || version_search || id_search || !id))
                         data = paginate(config);
-                    if (field_search) fields.forEach(function (val, idx) {
-                        if (val = str(config[val])) data[fields[idx]] = val;
-                    });
+                    if (field_search) fields
+                        .forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
                     if (data.type === '*') delete data.type; // * is superfluous here
                     if (id_search) data.configId = ids;
                     if (template) method.push('templates', template);
@@ -298,6 +303,8 @@ $.register_module({
             deregister: function (promise) {
                 registrations = registrations.filter(function (val) {return val.id !== promise.id;});
             },
+            disconnected: false,
+            events: {disconnect: [], reconnect: []},
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
                 get: default_get.partial(['name'], null),
@@ -335,6 +342,8 @@ $.register_module({
                 put: not_available.partial('put'),
                 del: not_available.partial('del')
             },
+            off: og.common.events.off,
+            on: og.common.events.on,
             portfolios: { // all requests that begin with /portfolios
                 root: 'portfolios',
                 get: function (config) {
@@ -748,6 +757,7 @@ $.register_module({
             api.id = result.data['clientId'];
             (fire_updates = function (reset, result) {
                 var current = routes.current(), handlers = [];
+                if (reset && api.disconnected) (api.disconnected = false), og.common.events.fire(api.events.reconnect);
                 registrations = registrations.filter(function (reg) {
                     return request_expired(reg, current) ? false // purge expired requests
                         // fire all updates if connection is reset (and clear registrations)
@@ -762,6 +772,7 @@ $.register_module({
             (listen = function () {
                 api.updates.get({handler: function (result) {
                     if (result.error) {
+                        if (!api.disconnected) (api.disconnected = true), og.common.events.fire(api.events.disconnect);
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }

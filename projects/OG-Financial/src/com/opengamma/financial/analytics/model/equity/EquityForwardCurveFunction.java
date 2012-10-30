@@ -12,6 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -31,7 +32,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.util.money.Currency;
 
@@ -47,35 +47,37 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties));
   }
 
   @Override
-  /** Expected Target is a BLOOMBERG_TICKER, e.g. DJX Index */
+  /* Expected Target is a BLOOMBERG_TICKER, e.g. DJX Index */
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
         targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
 
-  /** Spot value of the equity index or name */
+  /* Spot value of the equity index or name */
   private ValueRequirement getSpotRequirement(final ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
   }
 
-  /** Funding curve of the equity's currency */
-  private ValueRequirement getFundingCurveRequirement(final Currency ccy, final String curveName) {
+  /* Funding curve of the equity's currency */
+  private ValueRequirement getFundingCurveRequirement(final Currency ccy, final String curveName, final String curveCalculationConfig) {
     final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
         .with(ValuePropertyNames.CURVE, curveName)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(ccy), fundingProperties);
   }
 
   @Override
-  /** If a requirement is not found, return null, and go looking for a default TODO */
+  /* If a requirement is not found, return null, and go looking for a default */
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties constraints = desiredValue.getConstraints();
@@ -90,13 +92,18 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     }
     final Currency currency = Currency.of(ccyConstraint.iterator().next());
     // Funding Curve Name
-    final Set<String> fundingCurveNameSet = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final Set<String> fundingCurveNameSet = constraints.getValues(ValuePropertyNames.CURVE);
     if (fundingCurveNameSet  == null || fundingCurveNameSet.size() != 1) {
       return null;
     }
     final String fundingCurveName = fundingCurveNameSet.iterator().next();
+    final Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
+      return null;
+    }
+    final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     // Funding Curve Requirement
-    requirements.add(getFundingCurveRequirement(currency, fundingCurveName));
+    requirements.add(getFundingCurveRequirement(currency, fundingCurveName, curveCalculationConfig));
 
     return requirements;
   }
@@ -112,17 +119,15 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     if (spot == null) {
       throw new OpenGammaRuntimeException("Failed to get spot value requirement");
     }
-
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     // Curve Currency
     final String ccyName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     if (ccyName == null) {
       throw new OpenGammaRuntimeException("Failed to find " + ValuePropertyNames.CURVE_CURRENCY);
     }
-    final Currency currency = Currency.of(ccyName);
-
     // Funding
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final Object fundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, null, null));
+    final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final Object fundingCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (fundingCurveObject == null) {
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
@@ -135,8 +140,9 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccyName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
 
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
@@ -147,10 +153,4 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE; // Bloomberg ticker or weak ticker
   }
-
-
-
-
-
-
 }

@@ -21,6 +21,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String PNL_SERIES = "PNL_SERIES";
   public static final String INTEREST_RATE_INSTRUMENT_DEFAULTS = "INTEREST_RATE_INSTRUMENT_DEFAULTS";
   public static final String SABR_FITTING_DEFAULTS = "SABR_FITTING_DEFAULTS";
+  public static final String EQUITY_FUTURE_DEFAULTS = "EQUITY_FUTURE_DEFAULTS";
   public static final String FX_FORWARD_DEFAULTS = "FX_FORWARD_DEFAULTS";
   public static final String FX_FORWARD_THETA_DEFAULTS = "FX_FORWARD_THETA_DEFAULTS";
   public static final String FX_OPTION_BLACK_DEFAULTS = "FX_OPTION_BLACK_DEFAULTS";
@@ -33,6 +34,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String SWAPTION_BLACK_DEFAULTS = "SWAPTION_BLACK_DEFAULTS";
   public static final String INTEREST_RATE_FUTURE = "INTEREST_RATE_FUTURE";
   public static final String FUTURE_OPTION_BLACK = "FUTURE_OPTION_BLACK";
+  public static final String EQUITY_VARIANCE_SWAP_DEFAULTS = "EQUITY_VARIANCE_SWAP_DEFAULTS";
   //CSON
 
 }

@@ -16,7 +16,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
@@ -45,46 +44,51 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   }
 
   /**
-   * Equity requires an additional two properties.
+   * Equity requires an additional three properties.
    * This is to specify the Funding curve used to build the Equity Forwards.
-   * @return ValueProperties specifying withAny FundingCurve's Currency and Name
+   * @return ValueProperties specifying any currency, curve name and curve calculation config
    */
   protected ValueProperties getCurrencyProperties() {
     final ValueProperties equityProperties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .get();
     return equityProperties;
   }
 
   /**
-   * Equity requires an additional two properties.
+   * Equity requires an additional three properties.
    * This is to specify the Funding curve used to build the Equity Forwards.
    * @param desiredValue ValueRequirement containing "CurveCurrency" and "FundingCurve"
    * @return ValueProperties containing specified values
    */
   protected ValueProperties getCurrencyProperties(final ValueRequirement desiredValue) {
     final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
-    final String fundingCurve = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String fundingCurve = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ValueProperties equityProperties = createValueProperties()
         .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurve)
+        .with(ValuePropertyNames.CURVE, fundingCurve)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
     return equityProperties;
   }
 
   /**
-   * Equity requires an additional two properties.
+   * Equity requires an additional three properties.
    * This is to specify the Funding curve used to build the Equity Forwards.
    * @param desiredValue ValueRequirement containing "CurveCurrency" and "FundingCurve"
    * @return ValueProperties containing specified values
    */
   protected ValueProperties getCurrencyPropertiesForVolatilitySurface(final ValueRequirement desiredValue) {
     final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
-    final String fundingCurve = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String fundingCurve = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ValueProperties equityProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurve)
+        .with(ValuePropertyNames.CURVE, fundingCurve)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
     return equityProperties;
   }
@@ -146,8 +150,4 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
     }
 
   }
-
-
-
-
 }

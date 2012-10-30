@@ -31,8 +31,10 @@ $.register_module({
                 },
                 delete_handler = function (entry) {
                     if (menu.opts.length === 1) {
-                        return $checkbox[0].disabled = true, $query.text(default_sel_txt), 
-                            $select.val(default_sel_txt).focus(), remove_entry();
+                        if ($checkbox) $checkbox[0].disabled = true;
+                        $query.text(default_sel_txt);
+                        $select.val(default_sel_txt).focus();
+                        return remove_entry();
                     }
                     if($select !== undefined) menu.delete_handler($parent);
                     for (var i = ~entry ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
@@ -43,12 +45,12 @@ $.register_module({
                 },
                 add_handler = function () {
                     if (data.length === opts.length) return;
-                    menu.add_handler(); 
+                    menu.add_handler();
                 },
                 select_handler = function (entry) {
                     if (sel_val === default_sel_txt) {
                         remove_entry(entry);
-                        $checkbox[0].disabled = true;
+                        if ($checkbox) $checkbox[0].disabled = true;
                         if (ag_opts.length === 0) return $query.html(default_sel_txt);
                     } else if (~entry) ag_opts[entry].val = sel_val;
                     else {
@@ -77,13 +79,17 @@ $.register_module({
                     if ($elem.is('button')) return menu.button_handler($elem.text());
                 };
             menu.replay_query = function (config) {
-                opts.forEach(function (option) {
+                menu.opts.forEach(function (option, index) {
                     option.remove();
                 });
-                config.aggregators.forEach(function (entry, i) {
+                menu.opts.length = 0;
+                ag_opts = [];
+                config.aggregators.forEach(function (entry, index) {
                     add_handler();
-                    ag_opts[i] = {
-                        pos: i,
+                    $(select_s, menu.opts[index]).val(entry.val);
+                    $(checkbox_s, menu.opts[index])[0].disabled = false;
+                    ag_opts[index] = {
+                        pos: index,
                         val: entry.val,
                         required_field: entry.required_field   
                     };
@@ -92,6 +98,9 @@ $.register_module({
             };
             menu.get_query = function () {
                 return ag_opts.pluck('val');
+            };
+            menu.destroy = function () {
+
             };
             $dom.toggle_prefix.append('<span>Aggregated by</span>');
             if ($dom.menu) {

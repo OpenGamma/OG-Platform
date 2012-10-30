@@ -7,21 +7,23 @@ $.register_module({
     dependencies: ['og.analytics.Data'],
     obj: function () {
         var module = this, textarea, node, formatters = {
-            CURVE: function (value, standalone) {
-                if (!standalone) return '**CURVE**';
+            CURVE: function (value, single) {
+                if (!single || !value) return '**CURVE**';
                 return ($.isArray(value) ? value : value.v || [])
                     .map(function (row) {return row.join('\t');}).join('\n');
             },
             DOUBLE: function (value) {
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
             },
-            LABELLED_MATRIX_1D: function (value, standalone) {
-                if (!standalone) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+            LABELLED_MATRIX_1D: function (value, single) {
+                if (!single || !value)
+                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
                 return ($.isArray(value) ? value : value.v || [])
                     .map(function (row) {return row.join('\t');}).join('\n');
             },
-            LABELLED_MATRIX_2D: function (value, standalone) {
-                if (!standalone) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+            LABELLED_MATRIX_2D: function (value, single) {
+                if (!single || !value)
+                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
                 var rows, cols, matrix;
                 value = value.v || value;
                 cols = [''].concat(value['xLabels']);
@@ -30,11 +32,15 @@ $.register_module({
                 return cols.join('\t') + '\n' + matrix
                     .map(function (row, idx) {return rows[idx] + '\t' + row.join('\t');}).join('\n');
             },
+            LABELLED_MATRIX_3D: function (value, single) {
+                if (!single) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+                return '**3D MATRIX**';
+            },
             PRIMITIVE: function (value) {
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
             },
-            SURFACE_DATA: function (value, standalone) {
-                if (!standalone) return '** SURFACE DATA **';
+            SURFACE_DATA: function (value, single) {
+                if (!single || !value) return '** SURFACE DATA **';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
                 value = value.v || value;
                 col_len = (cols = value.x_labels).length;
@@ -47,8 +53,8 @@ $.register_module({
                 }
                 return result.join('\n');
             },
-            TIME_SERIES: function (value, standalone) {
-                if (!standalone) return '**TIME SERIES**';
+            TIME_SERIES: function (value, single) {
+                if (!single || !value) return '**TIME SERIES**';
                 var rows, cols;
                 var pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
                 value = value.v || value;
@@ -62,9 +68,12 @@ $.register_module({
                     return row.join('\t');
                 }).join('\n');
             },
-            UNKNOWN: function (value, standalone) {
+            UNKNOWN: function (value, single) {
                 var type = value.t;
-                return value && formatters[type] ? formatters[type](value, standalone) : value && value.v || '';
+                return value && formatters[type] ? formatters[type](value, single) : value && value.v || '';
+            },
+            UNPLOTTABLE_SURFACE_DATA: function (value, single) {
+                return formatters.LABELLED_MATRIX_2D(value, single);
             }
         };
         var constructor = function (grid) {
@@ -81,9 +90,9 @@ $.register_module({
                 row.push({value: data[index++], type: clipboard.selection.type[lcv]});
             if (!grid.selector.copyable) grid.selector.render();
         };
-        var format = function (cell, standalone) {
+        var format = function (cell, single) {
             if (typeof cell.value === 'undefined') return '';
-            if (formatters[cell.type]) return formatters[cell.type](cell.value, standalone);
+            if (formatters[cell.type]) return formatters[cell.type](cell.value, single);
             og.dev.warn(module.name + ': no formatter for ' + cell.type, cell);
             return typeof cell.value.v === 'string' ? cell.value.v : '';
         };
@@ -104,11 +113,12 @@ $.register_module({
         };
         constructor.prototype.select = function () {
             var clipboard = this, data = clipboard.data, selection = clipboard.selection,
-                standalone = selection.rows.length === 1 && selection.cols.length === 1;
+                single = selection.rows.length === 1 && selection.cols.length === 1;
             if (!data || !data.length) return og.dev.warn(module.name + ': no data to select'), select('');
-            select(data.map(function (row) {
-                return row.map(function (col) {return format(col, standalone);}).join('\t');
-            }).join('\n'));
+            if (!data.formatted) data.formatted = data.map(function (row) { // only format once per tick
+                return row.map(function (col) {return format(col, single);}).join('\t');
+            }).join('\n');
+            select(data.formatted);
         };
         constructor.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,

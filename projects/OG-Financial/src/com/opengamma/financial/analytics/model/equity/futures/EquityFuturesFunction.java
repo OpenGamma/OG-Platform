@@ -17,13 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -57,7 +57,7 @@ import com.opengamma.util.money.Currency;
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
-  // TODO: Refactor - this is a field name, like PX_LAST
+  // TODO: Refactor - this is a field name, like PX_LAST - Maybe we should reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
 
   private final String _valueRequirementName;
@@ -110,7 +110,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
       .with(ValuePropertyNames.CURRENCY, ccy.getCode())
       .withAny(ValuePropertyNames.CURVE)
       .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-      .with(ValuePropertyNames.CALCULATION_METHOD, _pricingMethodName);
+      .withAny(ValuePropertyNames.CALCULATION_METHOD);
     return properties;
   }
 
@@ -125,23 +125,23 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return properties;
   }
 
-  protected EquityFutureDataBundle getEquityFutureDataBundle(final EquityFutureSecurity security, final FunctionInputs inputs,
+  protected SimpleFutureDataBundle getEquityFutureDataBundle(final EquityFutureSecurity security, final FunctionInputs inputs,
         final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
     Double spotUnderlyer = getSpot(security, inputs);
     switch(getPricingMethodEnum()) {
       case MARK_TO_MARKET:
         Double marketPrice = getMarketPrice(security, inputs);
-        return new EquityFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
+        return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
       case COST_OF_CARRY:
         Double costOfCarry = getCostOfCarry(security, inputs);
-        return new EquityFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
+        return new SimpleFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
       case DIVIDEND_YIELD:
         Double dividendYield = timeSeriesBundle.get(DIVIDEND_YIELD_FIELD, security.getUnderlyingId()).getTimeSeries().getLatestValue();
         dividendYield /= 100.0;
         final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
         YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs, fundingCurveName, curveConfigName);
-        return new EquityFutureDataBundle(fundingCurve, null, spotUnderlyer, dividendYield, null);
+        return new SimpleFutureDataBundle(fundingCurve, null, spotUnderlyer, dividendYield, null);
       default:
         throw new OpenGammaRuntimeException("Unhandled pricingMethod");
     }
@@ -160,7 +160,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final EquityFuture derivative = definition.toDerivative(valuationTime);
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final EquityFutureDataBundle dataBundle = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
+    final SimpleFutureDataBundle dataBundle = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
     // Call OG-Analytics
     final double value = getComputedValue(derivative, dataBundle, trade);
     final ValueSpecification specification = new ValueSpecification(_valueRequirementName, target.toSpecification(),
@@ -172,7 +172,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * Given _valueRequirement and _pricingMethod supplied, this calls to OG-Analytics.
    * @return the required value computed and scaled by the number of contracts
    */
-  private double getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, Trade trade) {
+  private double getComputedValue(EquityFuture derivative, SimpleFutureDataBundle bundle, Trade trade) {
     final double value;
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
       value = _pricer.presentValue(derivative, bundle);
@@ -189,7 +189,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     } else {
       throw new OpenGammaRuntimeException("_valueRequirementName," + _valueRequirementName + ", unexpected. Should have been recognized in the constructor.");
     }
-    // final double nContracts = trade.getQuantity().doubleValue(); // This scaling is performed by PositionTradeScalingFunction
     return value;
   }
 
@@ -350,7 +349,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     ExternalIdBundle idBundle = security.getExternalIdBundle();
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
-      s_logger.error("Failed to find time series for: " + idBundle.toString());
+      s_logger.warn("Failed to find time series for: " + idBundle.toString());
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
@@ -365,14 +364,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, DIVIDEND_YIELD_FIELD,
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
-  }
-
-  /**
-   * Gets the dividendYieldField.
-   * @return the dividendYieldField
-   */
-  protected static final String getDividendYieldFieldName() {
-    return DIVIDEND_YIELD_FIELD;
   }
 
   /**

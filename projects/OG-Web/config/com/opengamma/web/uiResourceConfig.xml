@@ -151,6 +151,7 @@
     <fragment>/styles/analytics/og.analytics.OG-analytics-form.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-cell-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form-menu.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-type-menu.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -226,21 +227,22 @@
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
-    <fragment>/scripts/lib/Four.Matlib.js</fragment>
-    <fragment>/scripts/lib/Four.Buffer.js</fragment>
-    <fragment>/scripts/lib/Four.Tube.js</fragment>
-    <fragment>/scripts/lib/Four.Text3D.js</fragment>
-    <fragment>/scripts/lib/Four.InteractiveMeshes.js</fragment>
-    <fragment>/scripts/lib/Four.multimaterial_object.js</fragment>
-    <fragment>/scripts/lib/Four.scale.js</fragment>
-    <fragment>/scripts/lib/Four.buffercount.js</fragment>
-    <fragment>/scripts/lib/jsurface3d.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.Plane.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.Slice.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.Smile.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.Hud.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.Axis.js</fragment>
-    <fragment>/scripts/lib/JSurface3D.SurfacePlane.js</fragment>
+    <fragment>/scripts/lib/four/four.buffer.js</fragment>
+    <fragment>/scripts/lib/four/four.buffercount.js</fragment>
+    <fragment>/scripts/lib/four/four.interactivemeshes.js</fragment>
+    <fragment>/scripts/lib/four/four.matlib.js</fragment>
+    <fragment>/scripts/lib/four/four.multimaterial_object.js</fragment>
+    <fragment>/scripts/lib/four/four.scale.js</fragment>
+    <fragment>/scripts/lib/four/four.text3d.js</fragment>
+    <fragment>/scripts/lib/four/four.tube.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceworld.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.axis.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.hud.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.plane.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.slice.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.smile.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceplane.js</fragment>
     <fragment>/scripts/lib/stats.js</fragment>
     <fragment>/scripts/lib/event.emitter.js</fragment>
   </bundle>

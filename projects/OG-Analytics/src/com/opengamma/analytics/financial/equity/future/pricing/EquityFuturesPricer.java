@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.future.pricing;
 
-import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 
 /**
  * FIXME CASE REMOVE THIS CLASS??
@@ -25,7 +25,7 @@ public interface EquityFuturesPricer {
    * @return Present value of the derivative
    */
   double presentValue(final EquityFuture future,
-                             final EquityFutureDataBundle dataBundle);
+                             final SimpleFutureDataBundle dataBundle);
 
   /**
    * @param future EquityFuture derivative
@@ -33,7 +33,7 @@ public interface EquityFuturesPricer {
    * @return The change in the present value given a unit value change in the underlying's spot value
    */
   double spotDelta(final EquityFuture future,
-                             final EquityFutureDataBundle dataBundle);
+                             final SimpleFutureDataBundle dataBundle);
 
   /**
    * @param future EquityFuture derivative
@@ -41,27 +41,27 @@ public interface EquityFuturesPricer {
    * @return The change in the present value given a unit value change in the discount rate
    */
   double ratesDelta(final EquityFuture future,
-                             final EquityFutureDataBundle dataBundle);
+                             final SimpleFutureDataBundle dataBundle);
 
   /**
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The change in the present value given a basis point change in the discount rate
    */
-  double pv01(EquityFuture future, EquityFutureDataBundle dataBundle);
+  double pv01(EquityFuture future, SimpleFutureDataBundle dataBundle);
 
   /**
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The spot price of the equity or index
    */
-  double spotPrice(EquityFuture future, EquityFutureDataBundle dataBundle);
+  double spotPrice(EquityFuture future, SimpleFutureDataBundle dataBundle);
 
   /**
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The forward price of the equity or index
    */
-  double forwardPrice(EquityFuture future, EquityFutureDataBundle dataBundle);
+  double forwardPrice(EquityFuture future, SimpleFutureDataBundle dataBundle);
 
 }

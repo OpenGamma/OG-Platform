@@ -5,11 +5,14 @@
  */
 package com.opengamma.core.config.impl;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -94,13 +97,15 @@ public class DelegatingConfigSource
     Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Set<ConfigItem<R>> combined = newHashSet();
     for (ConfigSource configSource : delegates.values()) {
-      Collection<ConfigItem<R>> config = configSource.getAll(clazz, versionCorrection);
-      if (config != null && config.size() > 0) {
-        return config;
+      Collection<ConfigItem<R>> configs = configSource.getAll(clazz, versionCorrection);
+      if (configs != null) {
+        combined.addAll(configs);        
       }
     }
-    return getDefaultDelegate().getAll(clazz, versionCorrection);
+    combined.addAll(getDefaultDelegate().getAll(clazz, versionCorrection));
+    return combined;
   }
 
   @Override

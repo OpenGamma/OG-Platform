@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -19,12 +20,16 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a Standard fixed recovery CDS i.e. with the features of CDS contracts post the Big Bang in 2009
+ * Definition of a Standard fixed recovery CDS i.e. with the features of CDS contracts post the Big Bang in 2009 - WIP
  */
-/*
 public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
-  //-----------------------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
+
+  // TODO : Replace the int _cashSettlementDate with a ZoneddateTime
+  // TODO : Add hashCode and equals methods
+
+  // -----------------------------------------------------------------------------------------------
 
   // Member variables specific to the standard CDS contract 
 
@@ -59,6 +64,7 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefa
       double notional,
       double recoveryRate,
       boolean includeAccruedPremium,
+      PriceType priceType,
       boolean protectionStart,
       double quotedSpread,
       double upfrontAmount) {
@@ -89,6 +95,7 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefa
         notional,
         recoveryRate,
         includeAccruedPremium,
+        priceType,
         protectionStart);
 
     // -----------------------------------------------------------------------------------------------
@@ -114,4 +121,3 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefa
 
   // -----------------------------------------------------------------------------------------------
 }
-*/

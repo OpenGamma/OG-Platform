@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalcul
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -42,7 +43,7 @@ public final class EquityFuturesRatesSensitivityCalculator {
    * @param dataBundle the EquityFutureDataBundle
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
-  public DoubleMatrix1D calcDeltaBucketed(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public DoubleMatrix1D calcDeltaBucketed(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
     Validate.notNull(future, "null future");
     Validate.notNull(dataBundle, "null data bundle");
     if (!(dataBundle.getFundingCurve() instanceof YieldCurve)) {
@@ -54,10 +55,10 @@ public final class EquityFuturesRatesSensitivityCalculator {
     interpolatedCurves.setCurve(discCrvName, discCrv);
     final double settlement = future.getTimeToSettlement();
     final EquityFuturesPresentValueCalculator pricer = EquityFuturesPresentValueCalculator.getInstance();
-    EquityFutureDataBundle bumpedMarket = new EquityFutureDataBundle(discCrv.withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(),
+    SimpleFutureDataBundle bumpedMarket = new SimpleFutureDataBundle(discCrv.withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvUp = pricer.visit(future, bumpedMarket);
-    bumpedMarket = new EquityFutureDataBundle(discCrv.withSingleShift(settlement, -SHIFT), dataBundle.getMarketPrice(),
+    bumpedMarket = new SimpleFutureDataBundle(discCrv.withSingleShift(settlement, -SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvDown = pricer.visit(future, bumpedMarket);
     final double sensitivity = (pvUp - pvDown) / (2.0 * SHIFT);
