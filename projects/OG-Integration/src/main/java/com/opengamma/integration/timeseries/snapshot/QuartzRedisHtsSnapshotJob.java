@@ -30,6 +30,8 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   private SchemeBlackList _schemeBlackList;
   
   private DataFieldBlackList _dataFieldBlackList;
+  
+  private String _globalPrefix;
     
   /**
    * Gets the htsMaster.
@@ -142,11 +144,30 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
     _dataFieldBlackList = dataFieldBlackList;
   }
+  
+  /**
+   * Gets the globalPrefix.
+   * @return the globalPrefix
+   */
+  public String getGlobalPrefix() {
+    return _globalPrefix;
+  }
+
+  /**
+   * Sets the globalPrefix.
+   * @param globalPrefix  the globalPrefix
+   */
+  public void setGlobalPrefix(String globalPrefix) {
+    _globalPrefix = globalPrefix;
+  }
 
   @Override
   protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
     RedisHtsSnapshotJob job = new RedisHtsSnapshotJob();
     job.setHistoricalTimeSeriesMaster(getHtsMaster());
+    if (getGlobalPrefix() != null) {
+      job.setGlobalPrefix(getGlobalPrefix());
+    }
     job.setDataSource(getDataSource());
     job.setNormalizationRuleSetId(getNormalizationRuleSetId());
     job.setObservationTime(getObservationTime());

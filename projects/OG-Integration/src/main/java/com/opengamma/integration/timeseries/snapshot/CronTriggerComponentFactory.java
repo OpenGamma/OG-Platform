@@ -65,6 +65,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   
   @PropertyDefinition(validate = "notNull")
   private String _observationTime;
+  
+  @PropertyDefinition
+  private String _globalPrefix;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -80,6 +83,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     }
     if (getSchemeBlackList() != null) {
       jobDataAsMap.put("schemeBlackList", getSchemeBlackList());
+    }
+    if (getGlobalPrefix() != null) {
+      jobDataAsMap.put("globalPrefix", getGlobalPrefix());
     }
         
     CronTriggerBean cronTriggerBean = new CronTriggerBean();
@@ -131,6 +137,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         return getNormalizationRuleSetId();
       case 951232793:  // observationTime
         return getObservationTime();
+      case -747889643:  // globalPrefix
+        return getGlobalPrefix();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -165,6 +173,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
+      case -747889643:  // globalPrefix
+        setGlobalPrefix((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -197,6 +208,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
           super.equals(obj);
     }
     return false;
@@ -214,6 +226,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
     return hash ^ super.hashCode();
   }
 
@@ -451,6 +464,31 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the globalPrefix.
+   * @return the value of the property
+   */
+  public String getGlobalPrefix() {
+    return _globalPrefix;
+  }
+
+  /**
+   * Sets the globalPrefix.
+   * @param globalPrefix  the new value of the property
+   */
+  public void setGlobalPrefix(String globalPrefix) {
+    this._globalPrefix = globalPrefix;
+  }
+
+  /**
+   * Gets the the {@code globalPrefix} property.
+   * @return the property, not null
+   */
+  public final Property<String> globalPrefix() {
+    return metaBean().globalPrefix().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CronTriggerComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -505,6 +543,11 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", CronTriggerComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code globalPrefix} property.
+     */
+    private final MetaProperty<String> _globalPrefix = DirectMetaProperty.ofReadWrite(
+        this, "globalPrefix", CronTriggerComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -517,7 +560,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         "dataFieldBlackList",
         "dataSource",
         "normalizationRuleSetId",
-        "observationTime");
+        "observationTime",
+        "globalPrefix");
 
     /**
      * Restricted constructor.
@@ -546,6 +590,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           return _normalizationRuleSetId;
         case 951232793:  // observationTime
           return _observationTime;
+        case -747889643:  // globalPrefix
+          return _globalPrefix;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -636,6 +682,14 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> observationTime() {
       return _observationTime;
+    }
+
+    /**
+     * The meta-property for the {@code globalPrefix} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> globalPrefix() {
+      return _globalPrefix;
     }
 
   }
