@@ -121,27 +121,26 @@ $.register_module({
                     grid.resize().selector.clear();
                     return false; // kill bubbling if it's a node
                 })
-                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
-                    var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
+                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (timeout) {
                     return function (event) {
-                        (page_x = event.pageX), (page_y = event.pageY);
-                        if (counter++ % resolution) return;
-                        if (counter > resolution) counter = 1;
-                        if (grid.selector.busy()) return last_x = last_y = last_corner = null;
-                        if (page_x === last_x && page_y === last_y) return;
-                        var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                            scroll_top = grid.elements.scroll_body.scrollTop(),
-                            fixed_width = grid.meta.columns.width.fixed,
-                            x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                            y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
-                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
-                            selection = grid.selector.selection(rectangle);
-                        if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                        if (!(cell = grid.cell(selection))) return;
-                        cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
-                        cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
-                        last_corner = corner_cache; last_x = page_x; last_y = page_y;
-                        fire(grid.events.cellhoverin, cell);
+                        timeout = clearTimeout(timeout) || setTimeout(function () {
+                            (page_x = event.pageX), (page_y = event.pageY);
+                            if (grid.selector.busy()) return last_x = last_y = last_corner = null;
+                            if (page_x === last_x && page_y === last_y) return;
+                            var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                                scroll_top = grid.elements.scroll_body.scrollTop(),
+                                fixed_width = grid.meta.columns.width.fixed,
+                                x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
+                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
+                                rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
+                                selection = grid.selector.selection(rectangle);
+                            if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
+                            if (!(cell = grid.cell(selection))) return;
+                            cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
+                            cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
+                            last_corner = corner_cache; last_x = page_x; last_y = page_y;
+                            fire(grid.events.cellhoverin, cell);
+                        }, 50);
                     };
                 })(last_x = null, last_y = null, page_x, page_y, last_corner))
                 .on('mouseleave', function (event) {(last_corner = null), fire(grid.events.cellhoverout, cell);});

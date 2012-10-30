@@ -40,7 +40,7 @@ $.register_module({
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
                 if (gadget_type === 'Timeseries') $.extend(gadget_options.options, 
-					{menu: false, datapoints_link: false, col: cell.col, row: cell.row});
+                    {menu: false, datapoints_link: false, col: cell.col, row: cell.row});
                 return gadget_options;
             },
             type: function (cell, panel) {

@@ -21,6 +21,11 @@
   </scm>
 
   <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+  </build>
+
+  <build>
     <plugins>
       <plugin>
         <groupId>com.opengamma</groupId>
