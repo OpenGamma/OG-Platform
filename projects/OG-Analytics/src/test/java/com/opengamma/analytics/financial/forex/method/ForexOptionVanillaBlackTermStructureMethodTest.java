@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Map;
 
@@ -22,6 +21,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -114,6 +115,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final ForexOptionVanilla PUT_SHORT = PUT_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_VOL = 1.0E-8;
 
   @Test
   /**
@@ -139,8 +141,8 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     final MultipleCurrencyAmount pvCall = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount pvPut = METHOD_BLACK_TS.presentValue(PUT_SHORT, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount pvForward = PVC_BLACK_TS.visit(FX, CURVES_FX);
-    assertEquals("Forex vanilla option: present value put/call parity", BUNDLE_BLACK_TS.getFxRates().convert(pvForward, EUR).getAmount(),
-        BUNDLE_BLACK_TS.getFxRates().convert(pvCall.plus(pvPut), EUR).getAmount(), TOLERANCE_PV);
+    assertEquals("Forex vanilla option: present value put/call parity", BUNDLE_BLACK_TS.getFxRates().convert(pvForward, EUR).getAmount(), BUNDLE_BLACK_TS.getFxRates().convert(pvCall.plus(pvPut), EUR)
+        .getAmount(), TOLERANCE_PV);
   }
 
   @Test
@@ -162,7 +164,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     pvcsTS = pvcsTS.cleaned();
     MultipleCurrencyInterestRateCurveSensitivity pvcsSmile = METHOD_SMILE.presentValueCurveSensitivity(CALL_LONG, BUNDLE_SMILE);
     pvcsSmile = pvcsSmile.cleaned();
-    assertTrue("Forex vanilla option: present value curve sensitivity vs flat smile", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsTS, pvcsSmile, TOLERANCE_PV));
+    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity vs flat smile", pvcsTS, pvcsSmile, TOLERANCE_PV);
   }
 
   @Test
@@ -172,7 +174,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_BLACK_TS.presentValueCurveSensitivity(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK_TS.visit(CALL_LONG, BUNDLE_BLACK_TS);
-    assertTrue("Forex vanilla option: present value curve sensitivity Method vs Calculator", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_PV));
+    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test
@@ -183,6 +185,10 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     final MultipleCurrencyAmount pv = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount ce = METHOD_BLACK_TS.currencyExposure(CALL_LONG, BUNDLE_BLACK_TS);
     assertEquals("Forex vanilla option: currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(EUR) * SPOT, pv.getAmount(USD), TOLERANCE_PV);
+    InstrumentDerivative instrument = CALL_LONG;
+    final MultipleCurrencyAmount ce2 = METHOD_BLACK_TS.currencyExposure(instrument, BUNDLE_BLACK_TS);
+    assertEquals("Forex vanilla option: currency exposure", ce.getAmount(USD), ce2.getAmount(USD), TOLERANCE_PV);
+    assertEquals("Forex vanilla option: currency exposure", ce.getAmount(EUR), ce2.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -198,5 +204,19 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     assertEquals("Forex vanilla option: currency exposure put/call parity domestic", currencyExposureForward.getAmount(USD), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD),
         TOLERANCE_PV);
   }
+
+  @Test
+  /**
+   * Tests the implied volatility.
+   */
+  public void impliedVolatility() {
+    final double ivCall = METHOD_BLACK_TS.impliedVolatility(CALL_LONG, BUNDLE_BLACK_TS);
+    final double ivPut = METHOD_BLACK_TS.impliedVolatility(PUT_SHORT, BUNDLE_BLACK_TS);
+    final double volExpected = BLACK_TS_VOL.getVolatility(CALL_LONG.getTimeToExpiry());
+    assertEquals("Forex vanilla option: implied volatility", ivCall, volExpected, TOLERANCE_VOL);
+    assertEquals("Forex vanilla option: implied volatility", ivPut, volExpected, TOLERANCE_VOL);
+  }
+
+  // TODO: test delta relative and delta relative spot
 
 }

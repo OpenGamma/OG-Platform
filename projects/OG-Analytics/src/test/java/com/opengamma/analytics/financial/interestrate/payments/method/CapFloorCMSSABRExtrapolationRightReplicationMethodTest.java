@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -296,7 +297,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     InterestRateCurveSensitivity pvcsMethod = METHOD_EXTRAPOLATION_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_EXTRA_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE));
-    assertTrue("CMS cap/floor SABR: Present value : method vs calculator", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_DELTA));
+    AssertSensivityObjects.assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
   @Test

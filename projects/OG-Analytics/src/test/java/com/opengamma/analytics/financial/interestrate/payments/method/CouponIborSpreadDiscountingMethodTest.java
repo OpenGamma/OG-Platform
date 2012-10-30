@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -25,6 +24,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -96,7 +96,7 @@ public class CouponIborSpreadDiscountingMethodTest {
     InterestRateCurveSensitivity pvcsIbor = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, CURVES);
     InterestRateCurveSensitivity pvcsFixed = METHOD_FIXED.presentValueCurveSensitivity(CPN_FIXED, CURVES);
     InterestRateCurveSensitivity pvcsExpected = pvcsIbor.plus(pvcsFixed).cleaned();
-    assertTrue("CouponIborSpreadDiscountingMethod: present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsExpected, pvcsComputed, TOLERANCE_PV));
+    AssertSensivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", pvcsExpected, pvcsComputed, TOLERANCE_PV);
   }
 
   @Test
@@ -112,6 +112,6 @@ public class CouponIborSpreadDiscountingMethodTest {
     prcsComputed = prcsComputed.cleaned();
     InterestRateCurveSensitivity prcsIbor = METHOD_CPN_IBOR.parRateCurveSensitivity(CPN_IBOR, CURVES);
     prcsIbor = prcsIbor.cleaned();
-    assertTrue("CouponIborSpreadDiscountingMethod: present value curve sensitivity", InterestRateCurveSensitivity.compare(prcsIbor, prcsComputed, TOLERANCE_PV));
+    AssertSensivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", prcsIbor, prcsComputed, TOLERANCE_PV);
   }
 }

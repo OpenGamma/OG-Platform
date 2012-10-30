@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -62,7 +63,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Tests related to the pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  */
-public class ForexOptionVanillaMethodTest {
+public class ForexOptionVanillaBlackSmileMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -970,7 +971,7 @@ public class ForexOptionVanillaMethodTest {
     InterestRateCurveSensitivity sensiComp = new InterestRateCurveSensitivity();
     sensiComp = sensiComp.plus(CURVES_NAME[1], sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]));
     sensiComp = sensiComp.plus(CURVES_NAME[0], InterestRateCurveSensitivityUtils.multiplySensitivity(sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]), SPOT));
-    assertTrue("Forex Option: present value curve sensitivity converted", InterestRateCurveSensitivity.compare(sensiConverted, sensiComp, TOLERANCE_DELTA));
+    AssertSensivityObjects.assertEquals("Forex Option: present value curve sensitivity converted", sensiConverted, sensiComp, TOLERANCE_DELTA);
   }
 
   @Test

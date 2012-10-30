@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.cash.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
@@ -30,6 +29,7 @@ import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDi
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -277,7 +277,7 @@ public class CashDiscountingMethodTest {
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(deposit, CURVES);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
-    assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA));
+    AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
   @Test

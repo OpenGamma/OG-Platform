@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -143,7 +144,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     InterestRateCurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, CURVES_BUNDLE);
     InterestRateCurveSensitivity pvcsCalculator = PVCSC.visit(CPN_BEFORE, CURVES_BUNDLE);
-    assertTrue("CouponIborCompoundedDiscounting: Present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_SENSI));
+    AssertSensivityObjects.assertEquals("CouponIborCompoundedDiscounting: Present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_SENSI);
   }
 
 }

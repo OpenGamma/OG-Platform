@@ -142,27 +142,6 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   //TODO: do we need a cleaned() method with tolerance (like in InterestRateCurveSensitivity)?
 
   /**
-   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
-   * For each currency, the two sensitivities are suppose to be in the same time order.
-   * @param sensi1 The first sensitivity.
-   * @param sensi2 The second sensitivity.
-   * @param tolerance The tolerance.
-   * @return True if the difference is below the tolerance and False if not. If the currencies or the curves are not the same it returns False.
-   */
-  public static boolean compare(final MultipleCurrencyInterestRateCurveSensitivity sensi1, final MultipleCurrencyInterestRateCurveSensitivity sensi2, final double tolerance) {
-    final boolean keycmp = sensi1._sensitivity.keySet().equals(sensi2._sensitivity.keySet());
-    if (!keycmp) {
-      return false;
-    }
-    for (final Currency loopccy : sensi1._sensitivity.keySet()) {
-      if (!InterestRateCurveSensitivity.compare(sensi1.getSensitivity(loopccy), sensi2.getSensitivity(loopccy), tolerance)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Returns the set of currencies in the multiple currency sensitivities.
    * @return The set of currencies.
    */

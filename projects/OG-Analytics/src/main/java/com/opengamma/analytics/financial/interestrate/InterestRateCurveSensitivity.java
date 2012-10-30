@@ -156,17 +156,6 @@ public class InterestRateCurveSensitivity {
     return total;
   }
 
-  /**
-   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
-   * @param sensi1 The first sensitivity.
-   * @param sensi2 The second sensitivity.
-   * @param tolerance The tolerance.
-   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
-   */
-  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, final double tolerance) {
-    return InterestRateCurveSensitivityUtils.compare(sensi1.getSensitivities(), sensi2.getSensitivities(), tolerance);
-  }
-
   @Override
   public String toString() {
     return _sensitivity.toString();
