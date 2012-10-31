@@ -25,7 +25,6 @@ $.register_module({
                     clearTimeout(timer), timer = setTimeout(function () {cellmenu.menu.addClass(expand_class);}, 500);
                 })
                 .on('mouseenter', function () {
-                    console.log('mouseenter');
                     $.data(cellmenu, 'hover', true);
                 })
                 .on('click', open_icon, function () {
@@ -52,7 +51,6 @@ $.register_module({
                         || (depgraph && $.inArray(type, onlydepgraphs) > -1);
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 }).on('cellhoverout', function () {
-                    console.log('cellhoverout', cellmenu.menu.is(':hover'));
                     clearTimeout(timer);
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
@@ -60,7 +58,9 @@ $.register_module({
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (t) {
                     inplace_config = ({$cntr:  $('.og-inplace', cellmenu.menu), tmpl: t});
                     inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    inplace.$dom.toggle.on('click', inplace.toggle_handler.bind(inplace));
+                    inplace.$dom.toggle.on('click', function() {
+                       inplace.toggle_handler.bind(inplace);
+                    });
                 });
 
             });
