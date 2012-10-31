@@ -19,7 +19,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.quartz.JobDetail;
+import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.util.redis.RedisConnector;
 
 /**
  * Component factory to setup quartz cron trigger.
@@ -45,7 +47,10 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   private String _classifier;
   
   @PropertyDefinition(validate = "notNull")
-  private JobDetail _jobDetail;
+  private String _jobName;
+  
+  @PropertyDefinition
+  private String _jobGroup;
 
   @PropertyDefinition(validate = "notNull")
   private String _name;
@@ -70,6 +75,15 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   
   @PropertyDefinition
   private String _globalPrefix;
+  
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesMaster _htsMaster;
+  
+  @PropertyDefinition(validate = "notNull")
+  private RedisConnector _redisConnector;
+  
+  @PropertyDefinition(validate = "notNull")
+  private Scheduler _scheduler;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -89,15 +103,23 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     if (getGlobalPrefix() != null) {
       jobDataAsMap.put("globalPrefix", getGlobalPrefix());
     }
+    jobDataAsMap.put("htsMaster", getHtsMaster());
+    jobDataAsMap.put("redisConnector", getRedisConnector());
         
     CronTriggerBean cronTriggerBean = new CronTriggerBean();
     cronTriggerBean.setBeanName(getName());
-    cronTriggerBean.setJobDetail(getJobDetail());
     cronTriggerBean.setCronExpression(getCronExpression());
     cronTriggerBean.setJobDataAsMap(jobDataAsMap);
+    cronTriggerBean.setJobName(getJobName());
+    if (getJobGroup() != null) {
+      cronTriggerBean.setJobGroup(getJobGroup());
+    }
     cronTriggerBean.afterPropertiesSet();
     
     repo.registerComponent(info, cronTriggerBean);
+    
+    Scheduler scheduler = getScheduler();
+    scheduler.scheduleJob(cronTriggerBean);
   }
   
   private BlackList createBlackList(String blackList, String name) {
@@ -131,8 +153,10 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case 686431854:  // jobDetail
-        return getJobDetail();
+      case -1438096408:  // jobName
+        return getJobName();
+      case -1637271358:  // jobGroup
+        return getJobGroup();
       case 3373707:  // name
         return getName();
       case -348729402:  // cronExpression
@@ -149,6 +173,12 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         return getObservationTime();
       case -747889643:  // globalPrefix
         return getGlobalPrefix();
+      case -1707859415:  // htsMaster
+        return getHtsMaster();
+      case -745461486:  // redisConnector
+        return getRedisConnector();
+      case -160710469:  // scheduler
+        return getScheduler();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -159,8 +189,11 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case 686431854:  // jobDetail
-        setJobDetail((JobDetail) newValue);
+      case -1438096408:  // jobName
+        setJobName((String) newValue);
+        return;
+      case -1637271358:  // jobGroup
+        setJobGroup((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -186,6 +219,15 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
       case -747889643:  // globalPrefix
         setGlobalPrefix((String) newValue);
         return;
+      case -1707859415:  // htsMaster
+        setHtsMaster((HistoricalTimeSeriesMaster) newValue);
+        return;
+      case -745461486:  // redisConnector
+        setRedisConnector((RedisConnector) newValue);
+        return;
+      case -160710469:  // scheduler
+        setScheduler((Scheduler) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -193,12 +235,15 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jobDetail, "jobDetail");
+    JodaBeanUtils.notNull(_jobName, "jobName");
     JodaBeanUtils.notNull(_name, "name");
     JodaBeanUtils.notNull(_cronExpression, "cronExpression");
     JodaBeanUtils.notNull(_dataSource, "dataSource");
     JodaBeanUtils.notNull(_normalizationRuleSetId, "normalizationRuleSetId");
     JodaBeanUtils.notNull(_observationTime, "observationTime");
+    JodaBeanUtils.notNull(_htsMaster, "htsMaster");
+    JodaBeanUtils.notNull(_redisConnector, "redisConnector");
+    JodaBeanUtils.notNull(_scheduler, "scheduler");
     super.validate();
   }
 
@@ -210,7 +255,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       CronTriggerComponentFactory other = (CronTriggerComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getJobDetail(), other.getJobDetail()) &&
+          JodaBeanUtils.equal(getJobName(), other.getJobName()) &&
+          JodaBeanUtils.equal(getJobGroup(), other.getJobGroup()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCronExpression(), other.getCronExpression()) &&
           JodaBeanUtils.equal(getSchemeBlackList(), other.getSchemeBlackList()) &&
@@ -219,6 +265,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getNormalizationRuleSetId(), other.getNormalizationRuleSetId()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
           JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
+          JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           super.equals(obj);
     }
     return false;
@@ -228,7 +277,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJobDetail());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJobName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJobGroup());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCronExpression());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
@@ -237,6 +287,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     return hash ^ super.hashCode();
   }
 
@@ -268,28 +321,53 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the jobDetail.
+   * Gets the jobName.
    * @return the value of the property, not null
    */
-  public JobDetail getJobDetail() {
-    return _jobDetail;
+  public String getJobName() {
+    return _jobName;
   }
 
   /**
-   * Sets the jobDetail.
-   * @param jobDetail  the new value of the property, not null
+   * Sets the jobName.
+   * @param jobName  the new value of the property, not null
    */
-  public void setJobDetail(JobDetail jobDetail) {
-    JodaBeanUtils.notNull(jobDetail, "jobDetail");
-    this._jobDetail = jobDetail;
+  public void setJobName(String jobName) {
+    JodaBeanUtils.notNull(jobName, "jobName");
+    this._jobName = jobName;
   }
 
   /**
-   * Gets the the {@code jobDetail} property.
+   * Gets the the {@code jobName} property.
    * @return the property, not null
    */
-  public final Property<JobDetail> jobDetail() {
-    return metaBean().jobDetail().createProperty(this);
+  public final Property<String> jobName() {
+    return metaBean().jobName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the jobGroup.
+   * @return the value of the property
+   */
+  public String getJobGroup() {
+    return _jobGroup;
+  }
+
+  /**
+   * Sets the jobGroup.
+   * @param jobGroup  the new value of the property
+   */
+  public void setJobGroup(String jobGroup) {
+    this._jobGroup = jobGroup;
+  }
+
+  /**
+   * Gets the the {@code jobGroup} property.
+   * @return the property, not null
+   */
+  public final Property<String> jobGroup() {
+    return metaBean().jobGroup().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -499,6 +577,84 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the htsMaster.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesMaster getHtsMaster() {
+    return _htsMaster;
+  }
+
+  /**
+   * Sets the htsMaster.
+   * @param htsMaster  the new value of the property, not null
+   */
+  public void setHtsMaster(HistoricalTimeSeriesMaster htsMaster) {
+    JodaBeanUtils.notNull(htsMaster, "htsMaster");
+    this._htsMaster = htsMaster;
+  }
+
+  /**
+   * Gets the the {@code htsMaster} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesMaster> htsMaster() {
+    return metaBean().htsMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the redisConnector.
+   * @return the value of the property, not null
+   */
+  public RedisConnector getRedisConnector() {
+    return _redisConnector;
+  }
+
+  /**
+   * Sets the redisConnector.
+   * @param redisConnector  the new value of the property, not null
+   */
+  public void setRedisConnector(RedisConnector redisConnector) {
+    JodaBeanUtils.notNull(redisConnector, "redisConnector");
+    this._redisConnector = redisConnector;
+  }
+
+  /**
+   * Gets the the {@code redisConnector} property.
+   * @return the property, not null
+   */
+  public final Property<RedisConnector> redisConnector() {
+    return metaBean().redisConnector().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the scheduler.
+   * @return the value of the property, not null
+   */
+  public Scheduler getScheduler() {
+    return _scheduler;
+  }
+
+  /**
+   * Sets the scheduler.
+   * @param scheduler  the new value of the property, not null
+   */
+  public void setScheduler(Scheduler scheduler) {
+    JodaBeanUtils.notNull(scheduler, "scheduler");
+    this._scheduler = scheduler;
+  }
+
+  /**
+   * Gets the the {@code scheduler} property.
+   * @return the property, not null
+   */
+  public final Property<Scheduler> scheduler() {
+    return metaBean().scheduler().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code CronTriggerComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -513,10 +669,15 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", CronTriggerComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code jobDetail} property.
+     * The meta-property for the {@code jobName} property.
      */
-    private final MetaProperty<JobDetail> _jobDetail = DirectMetaProperty.ofReadWrite(
-        this, "jobDetail", CronTriggerComponentFactory.class, JobDetail.class);
+    private final MetaProperty<String> _jobName = DirectMetaProperty.ofReadWrite(
+        this, "jobName", CronTriggerComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code jobGroup} property.
+     */
+    private final MetaProperty<String> _jobGroup = DirectMetaProperty.ofReadWrite(
+        this, "jobGroup", CronTriggerComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -558,12 +719,28 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _globalPrefix = DirectMetaProperty.ofReadWrite(
         this, "globalPrefix", CronTriggerComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code htsMaster} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesMaster> _htsMaster = DirectMetaProperty.ofReadWrite(
+        this, "htsMaster", CronTriggerComponentFactory.class, HistoricalTimeSeriesMaster.class);
+    /**
+     * The meta-property for the {@code redisConnector} property.
+     */
+    private final MetaProperty<RedisConnector> _redisConnector = DirectMetaProperty.ofReadWrite(
+        this, "redisConnector", CronTriggerComponentFactory.class, RedisConnector.class);
+    /**
+     * The meta-property for the {@code scheduler} property.
+     */
+    private final MetaProperty<Scheduler> _scheduler = DirectMetaProperty.ofReadWrite(
+        this, "scheduler", CronTriggerComponentFactory.class, Scheduler.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "jobDetail",
+        "jobName",
+        "jobGroup",
         "name",
         "cronExpression",
         "schemeBlackList",
@@ -571,7 +748,10 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         "dataSource",
         "normalizationRuleSetId",
         "observationTime",
-        "globalPrefix");
+        "globalPrefix",
+        "htsMaster",
+        "redisConnector",
+        "scheduler");
 
     /**
      * Restricted constructor.
@@ -584,8 +764,10 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case 686431854:  // jobDetail
-          return _jobDetail;
+        case -1438096408:  // jobName
+          return _jobName;
+        case -1637271358:  // jobGroup
+          return _jobGroup;
         case 3373707:  // name
           return _name;
         case -348729402:  // cronExpression
@@ -602,6 +784,12 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           return _observationTime;
         case -747889643:  // globalPrefix
           return _globalPrefix;
+        case -1707859415:  // htsMaster
+          return _htsMaster;
+        case -745461486:  // redisConnector
+          return _redisConnector;
+        case -160710469:  // scheduler
+          return _scheduler;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -631,11 +819,19 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code jobDetail} property.
+     * The meta-property for the {@code jobName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<JobDetail> jobDetail() {
-      return _jobDetail;
+    public final MetaProperty<String> jobName() {
+      return _jobName;
+    }
+
+    /**
+     * The meta-property for the {@code jobGroup} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jobGroup() {
+      return _jobGroup;
     }
 
     /**
@@ -700,6 +896,30 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> globalPrefix() {
       return _globalPrefix;
+    }
+
+    /**
+     * The meta-property for the {@code htsMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesMaster> htsMaster() {
+      return _htsMaster;
+    }
+
+    /**
+     * The meta-property for the {@code redisConnector} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<RedisConnector> redisConnector() {
+      return _redisConnector;
+    }
+
+    /**
+     * The meta-property for the {@code scheduler} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Scheduler> scheduler() {
+      return _scheduler;
     }
 
   }
