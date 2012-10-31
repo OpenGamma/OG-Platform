@@ -479,6 +479,11 @@
         <artifactId>antlr</artifactId>
         <version>3.3</version>
       </dependency>
+      <dependency>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <version>1.8.1</version>
+      </dependency>
 
       <!-- Logging -->
       <dependency>
