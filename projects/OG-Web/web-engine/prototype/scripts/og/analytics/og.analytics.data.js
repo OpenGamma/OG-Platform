@@ -138,9 +138,8 @@ $.register_module({
             })(false);
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
-                if (view_id) api.del({view_id: view_id})
-                    .pipe(function (result) {view_id = graph_id = viewport_id = subscribed = null;});
-                else view_id = graph_id = viewport_id = subscribed = null;
+                if (view_id) api.del({view_id: view_id});
+                view_id = graph_id = viewport_id = subscribed = null;
             };
             data.events = {meta: [], data: [], fatal: [], types: []};
             data.id = id;
