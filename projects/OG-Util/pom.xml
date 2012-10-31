@@ -84,6 +84,10 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
     </dependency>
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
