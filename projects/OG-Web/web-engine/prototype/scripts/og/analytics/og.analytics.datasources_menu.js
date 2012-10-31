@@ -166,7 +166,7 @@ $.register_module({
                 for (var i = menu.opts.length - 1; 0 < i; i-=1){
                     if (menu.opts.length === 1) break;
                     var option = menu.opts[i];
-                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val === default_type_txt)
+                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val() === default_sel_txt)
                         menu.delete_handler(option);
                 }
             };  
