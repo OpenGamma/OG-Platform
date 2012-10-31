@@ -15,8 +15,8 @@ $.register_module({
         var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false, 
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
             fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
-            ds_template = null, ag_template = null, viewdefs = null, aggregators = null;
-            events = {
+            ds_template = null, ag_template = null, viewdefs = null, aggregators = null, ac_data = null, ag_data = null,
+            ds_data = null, events = {
                 focus: 'dropmenu:focus',
                 focused:'dropmenu:focused',
                 open: 'dropmenu:open',
@@ -95,6 +95,9 @@ $.register_module({
                     .addListener(events.querycancelled, query_cancelled)
                     .addListener(events.resetquery, menu.reset_query);
             });
+            if (ac_data) ac_menu.$input.val(ac_data);
+            if (ag_data) ag_menu.replay_query(ag_data);
+            if (ds_data) ds_menu.replay_query(ds_data);
             $dom.ag_fcntrls = $dom.ag.find(fcntrls_s), $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
             $dom.load_btn.on('click', load_query);
             emitter.addListener(events.closeall, function () {
@@ -120,41 +123,32 @@ $.register_module({
             
             if (JSON.stringify(url_config) === JSON.stringify(query)) return;
 
-            if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators)))
-                var ag_intv = setInterval(function () {
-                    if (ag_menu) {
-                        clearInterval(ag_intv);
-                        ag_menu.replay_query({
-                            aggregators: url_config.aggregators.map(function (entry) {
-                                return {val:entry, required_field:false};
-                            })
-                        });
-                    }
-                });
+            var ag_val, ds_val;
+            if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
+                ag_val = {
+                    aggregators: url_config.aggregators.map(function (entry) {
+                        return {val:entry, required_field:false};
+                    })
+                };
+                if (ag_menu) ag_menu.replay_query(ag_val); else ag_data = ag_val;
+            }
             
-            if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers)))
-                var ds_intv = setInterval(function (){
-                    if (ds_menu) {
-                        clearInterval(ds_intv);
-                        ds_menu.replay_query({
-                            datasources: url_config.providers.map(function (entry) {
-                                var obj = {};
-                                obj.marketDataType = entry.marketDataType;
-                                if (entry.source) obj.source = entry.source;
-                                else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
-                                return obj;
-                            })
-                        });
-                    }
-                });
+            if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
+                ds_val = {
+                    datasources: url_config.providers.map(function (entry) {
+                        var obj = {};
+                        obj.marketDataType = entry.marketDataType;
+                        if (entry.source) obj.source = entry.source;
+                        else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                        return obj;
+                    })
+                };
+                if (ds_menu) ds_menu.replay_query(ds_val); else ds_data = ds_val;
+            }
             
-            if (!query || (url_config.viewdefinition !== query.viewdefinition))
-                var ac_intv = setInterval(function (){
-                    if (ac_menu) {
-                        clearInterval(ac_intv);
-                        ac_menu.$input.val(url_config.viewdefinition);
-                    }
-                });
+            if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
+                if (ac_menu) ac_menu.$input.val(url_config.viewdefinition); else ac_data = url_config.viewdefinition;
+            }
 
             query = url_config;
         };

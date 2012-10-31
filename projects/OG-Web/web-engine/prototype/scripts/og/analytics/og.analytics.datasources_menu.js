@@ -196,22 +196,18 @@ $.register_module({
                     });
                 }
             };
-            menu.replay_query = function (config) { // TODO AG: refactor initial replay implementation
-                menu.opts.forEach(function (option) {
-                    option.remove();
-                });
-                menu.opts.length = 0;
-                query = [];
+            menu.replay_query = function (conf) { // TODO AG: refactor initial replay implementation
+                menu.reset_query();
                 var set_select_vals = function (src, index) {
-                        var source = src.snapshotId ? get_snapshot(src.snapshotId) : src.source,
-                            type = menu.capitalize(src.marketDataType);
-                        $type_select.val(type);
-                        $source_select.val(source);
-                        query.splice(index, 0, {pos: index, src: source, type: type});
-                        display_query();
-                    };
-                config.datasources.forEach(function (src, index) {
-                    menu.add_handler();
+                    var source = src.snapshotId ? get_snapshot(src.snapshotId) : src.source,
+                        type = menu.capitalize(src.marketDataType);
+                    $type_select.val(type);
+                    $source_select.val(source);
+                    query.splice(index, 0, {pos: index, src: source, type: type});
+                    display_query();
+                };
+                conf.datasources.forEach(function (src, index) {
+                    if (menu.opts.length < conf.datasources.length) menu.add_handler();
                     type_val = src.marketDataType;
                     switch (type_val) {
                         case 'live': 
@@ -239,6 +235,14 @@ $.register_module({
             };
             menu.get_query = function () {
                 if (!query.length) return;
+                for (var i = 0, len = menu.opts.length; i < len; i+=1){
+                    if (menu.opts.length === 1) break;
+                    var option = menu.opts[i];
+                    if ($(type_s, option).val() === default_type_txt || 
+                         $(source_s, option).val === default_type_txt) {
+                        menu.delete_handler(option);
+                    }
+                }
                 var arr = [];
                 query.forEach(function (entry) {
                     var obj = {}, val = entry.type.toLowerCase();
@@ -266,9 +270,10 @@ $.register_module({
                 return arr;
             };
             menu.reset_query = function () {
-                return menu.opts.forEach(function (option) {
-                    if (menu.opts.length > 1) option.remove();
-                }), query = [], init_menu_elems(0), remove_orphans(), reset_query();
+                return menu.opts.forEach(function (option, index) {
+                    init_menu_elems(index);
+                    delete_handler(index);
+                }), init_menu_elems(0), remove_orphans(), reset_query();
             };
             menu.destroy = function () {};
             return init(config), menu;
