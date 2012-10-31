@@ -134,10 +134,15 @@ $.register_module({
                 });
             };
             menu.reset_query = function () {
-                return menu.opts.forEach(function (option, index) {
-                    init_menu_elems(index);
-                    delete_handler(index);
-                }), init_menu_elems(0), reset_query();
+                for (var i = menu.opts.length - 1; 0 < i; i-=1) {
+                    if (menu.opts.length === 1) {
+                        menu.opts[i].val(default_sel_txt);
+                        break;
+                    }
+                    init_menu_elems(i);
+                    delete_handler(i);
+                } 
+                return init_menu_elems(0), reset_query();
             };
             return init(config), menu;
         };
