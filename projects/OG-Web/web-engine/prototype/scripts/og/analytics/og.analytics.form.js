@@ -85,19 +85,20 @@ $.register_module({
             $dom.ds = $('.og-datasources', $dom.form);
             $dom.load_btn = $('.og-load', $dom.form);
             $dom.form.on('keydown', fcntrls_s, keydown_handler);
-            ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', viewdefs);
+            ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
             ac_menu.$input.on(ac_s, auto_combo_handler).select();
-            ag_menu = new og.analytics.AggregatorsMenu({cntr:$dom.ag, tmpl:ag_template, data: aggregators});
-            ds_menu = new og.analytics.DatasourcesMenu({cntr:$dom.ds, tmpl:ds_template});
+            ag_menu = new og.analytics.AggregatorsMenu({
+                cntr:$dom.ag, tmpl:ag_template, data: aggregators, opts:ag_data
+            });
+            ds_menu = new og.analytics.DatasourcesMenu({
+                cntr:$dom.ds, tmpl:ds_template, opts:ds_data
+            });
             [ag_menu, ds_menu].forEach(function (menu) { 
                 menu.addListener(events.opened, close_dropmenu)
                     .addListener(events.queryselected, query_selected)
                     .addListener(events.querycancelled, query_cancelled)
                     .addListener(events.resetquery, menu.reset_query);
             });
-            if (ac_data) ac_menu.$input.val(ac_data);
-            if (ag_data) ag_menu.replay_query(ag_data);
-            if (ds_data) ds_menu.replay_query(ds_data);
             $dom.ag_fcntrls = $dom.ag.find(fcntrls_s), $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
             $dom.load_btn.on('click', load_query);
             emitter.addListener(events.closeall, function () {

@@ -13,7 +13,7 @@ $.register_module({
          * @param {Object} obj configuration object,
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
-        return function (selector, placeholder, d) {
+        return function (selector, placeholder, d, input_val) {
             var combo = this, data;
             data = d.sort((function(i){ // sort by name
                 return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
@@ -71,6 +71,7 @@ $.register_module({
                     combo.$input.autocomplete('close').select() : combo.open();
             });
             $([combo.$wrapper, combo.$button]).prependTo(selector);
+            if (input_val) combo.$input.val(input_val);
             return combo;
         };
     }

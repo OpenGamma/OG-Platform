@@ -193,11 +193,16 @@ $.register_module({
                         if ($dom.menu)
                             $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                                 .on('change', 'select', menu_handler);
+                        if (config.opts) menu.replay_query(config.opts);
                     });
                 }
             };
             menu.replay_query = function (conf) { // TODO AG: refactor initial replay implementation
-                menu.reset_query();
+                menu.opts.forEach(function (option) {
+                    option.remove();
+                });
+                menu.opts.length = 0;
+                query = [];
                 var set_select_vals = function (src, index) {
                     var source = src.snapshotId ? get_snapshot(src.snapshotId) : src.source,
                         type = menu.capitalize(src.marketDataType);

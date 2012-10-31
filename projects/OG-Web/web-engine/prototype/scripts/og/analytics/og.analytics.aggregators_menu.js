@@ -98,10 +98,15 @@ $.register_module({
                     $dom.menu
                         .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                         .on('change', 'select', menu_handler);
+                    if (config.opts) menu.replay_query(config.opts);
                 }
-            }
+            };
             menu.replay_query = function (conf) {
-                menu.reset_query();
+                menu.opts.forEach(function (option, index) {
+                    option.remove();
+                });
+                menu.opts.length = 0;
+                query = [];
                 conf.aggregators.forEach(function (entry, index) {
                     if (menu.opts.length < conf.aggregators.length) add_handler();
                     init_menu_elems(index);
