@@ -129,9 +129,9 @@ $.register_module({
                             if (page_x === last_x && page_y === last_y) return;
                             var scroll_left = grid.elements.scroll_body.scrollLeft(),
                                 scroll_top = grid.elements.scroll_body.scrollTop(),
-                                fixed_width = grid.meta.columns.width.fixed,
+                                fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
                                 x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
+                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
                                 rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                                 selection = grid.selector.selection(rectangle);
                             if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
@@ -267,7 +267,7 @@ $.register_module({
                 }
                 return result;
             };
-            return function (data) {
+            return function (data) { // TODO handle scenario where grid was busy but data stops ticking for a long time
                 var grid = this;
                 if (grid.dataman.busy()) return; else grid.dataman.busy(true); // don't accept more data if rendering
                 grid.data = data;
