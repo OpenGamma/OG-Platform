@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -67,7 +67,7 @@ public final class ViewDefinitionCompiler {
     private CompilationCompletionEstimate(final ViewCompilationContext context) {
       final Collection<DependencyGraphBuilder> builders = context.getBuilders();
       _buildEstimates = new ConcurrentHashMap<String, Double>();
-      for (DependencyGraphBuilder builder : builders) {
+      for (final DependencyGraphBuilder builder : builders) {
         _buildEstimates.put(builder.getCalculationConfigurationName(), 0d);
         Housekeeper.of(builder, this, builder.buildFractionEstimate()).start();
       }
@@ -77,7 +77,7 @@ public final class ViewDefinitionCompiler {
     public double[] estimates() {
       final double[] result = new double[_buildEstimates.size()];
       int i = 0;
-      for (Double estimate : _buildEstimates.values()) {
+      for (final Double estimate : _buildEstimates.values()) {
         result[i++] = estimate;
       }
       return result;
@@ -85,7 +85,7 @@ public final class ViewDefinitionCompiler {
 
     public double estimate() {
       double result = 0;
-      for (Double estimate : _buildEstimates.values()) {
+      for (final Double estimate : _buildEstimates.values()) {
         result += estimate;
       }
       return result / _buildEstimates.size();
@@ -111,7 +111,7 @@ public final class ViewDefinitionCompiler {
 
   }
 
-  // TODO: return something that provides the caller with access to a completion metric to feedback to any interactive user 
+  // TODO: return something that provides the caller with access to a completion metric to feedback to any interactive user
   private abstract static class CompilationTask implements Future<CompiledViewDefinitionWithGraphsImpl> {
 
     private final ViewCompilationContext _viewCompilationContext;
@@ -144,7 +144,7 @@ public final class ViewDefinitionCompiler {
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
       boolean result = true;
-      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         result &= builder.cancel(mayInterruptIfRunning);
       }
       return result;
@@ -156,7 +156,7 @@ public final class ViewDefinitionCompiler {
     @Override
     public boolean isCancelled() {
       boolean result = false;
-      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         result |= builder.isCancelled();
       }
       return result;
@@ -172,16 +172,16 @@ public final class ViewDefinitionCompiler {
 
     @Override
     public CompiledViewDefinitionWithGraphsImpl get() {
-      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         final FunctionCompilationContext functionContext = builder.getCompilationContext();
         final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
         functionContext.setComputationTargetResolver(TargetResolutionLogger.of(resolver, getResolutions()));
       }
       long t = -System.nanoTime();
       final Portfolio portfolio = compile();
-      Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(getContext());
+      final Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(getContext());
       t += System.nanoTime();
-      s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
+      s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
       _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphsByConfiguration, getResolutions(), portfolio, getContext().getServices()
           .getFunctionCompilationContext()
           .getFunctionInitId());
@@ -198,7 +198,7 @@ public final class ViewDefinitionCompiler {
     }
 
     @Override
-    public CompiledViewDefinitionWithGraphsImpl get(long timeout, TimeUnit unit) {
+    public CompiledViewDefinitionWithGraphsImpl get(final long timeout, final TimeUnit unit) {
       throw new UnsupportedOperationException();
     }
 
@@ -223,17 +223,19 @@ public final class ViewDefinitionCompiler {
   private static class IncrementalCompilationTask extends CompilationTask {
 
     private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
+    private final boolean _portfolioFull;
 
     protected IncrementalCompilationTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
         final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final boolean portfolioFull) {
       super(viewDefinition, compilationServices, valuationTime, versionCorrection, resolutions);
       _previousGraphs = previousGraphs;
+      _portfolioFull = portfolioFull;
     }
 
     @Override
     public Portfolio compile() {
-      for (DependencyGraphBuilder builder : getContext().getBuilders()) {
+      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
         final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.get(builder.getCalculationConfigurationName());
         if (graph != null) {
           builder.setDependencyGraph(graph.getFirst());
@@ -245,7 +247,11 @@ public final class ViewDefinitionCompiler {
           }
         }
       }
-      return PortfolioCompiler.executeIncremental(getContext(), getResolutions());
+      if (_portfolioFull) {
+        return PortfolioCompiler.executeFull(getContext(), getResolutions());
+      } else {
+        return PortfolioCompiler.executeIncremental(getContext(), getResolutions());
+      }
     }
 
   }
@@ -257,23 +263,24 @@ public final class ViewDefinitionCompiler {
 
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
       final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    return new IncrementalCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions);
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final boolean portfolioFull) {
+    return new IncrementalCompilationTask(viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, resolutions, portfolioFull);
   }
 
-  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
+  public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
+      final Instant valuationTime, final VersionCorrection versionCorrection) {
     try {
       return fullCompileTask(viewDefinition, compilationServices, valuationTime, versionCorrection).get();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
-    } catch (ExecutionException e) {
+    } catch (final ExecutionException e) {
       throw new OpenGammaRuntimeException("Failed", e);
     }
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
     final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    for (DependencyGraphBuilder builder : context.getBuilders()) {
+    for (final DependencyGraphBuilder builder : context.getBuilders()) {
       final DependencyGraph graph = builder.getDependencyGraph();
       graph.removeUnnecessaryValues();
       result.put(builder.getCalculationConfigurationName(), graph);
@@ -284,31 +291,31 @@ public final class ViewDefinitionCompiler {
     return result;
   }
 
-  private static void outputDependencyGraphs(Map<String, DependencyGraph> graphsByConfiguration) {
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
-      String configName = entry.getKey();
+  private static void outputDependencyGraphs(final Map<String, DependencyGraph> graphsByConfiguration) {
+    final StringBuilder sb = new StringBuilder();
+    for (final Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
+      final String configName = entry.getKey();
       sb.append("DepGraph for ").append(configName);
 
-      DependencyGraph depGraph = entry.getValue();
+      final DependencyGraph depGraph = entry.getValue();
       sb.append("\tProducing values ").append(depGraph.getOutputSpecifications());
-      for (DependencyNode depNode : depGraph.getDependencyNodes()) {
+      for (final DependencyNode depNode : depGraph.getDependencyNodes()) {
         sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
       }
     }
     s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
 
-  private static void outputLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
-      String configName = entry.getKey();
-      Collection<Pair<ValueRequirement, ValueSpecification>> requiredLiveData = entry.getValue().getAllRequiredMarketData();
+  private static void outputLiveDataRequirements(final Map<String, DependencyGraph> graphsByConfiguration) {
+    final StringBuilder sb = new StringBuilder();
+    for (final Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
+      final String configName = entry.getKey();
+      final Collection<Pair<ValueRequirement, ValueSpecification>> requiredLiveData = entry.getValue().getAllRequiredMarketData();
       if (requiredLiveData.isEmpty()) {
         sb.append(configName).append(" requires no live data.\n");
       } else {
         sb.append("Live data for ").append(configName).append("\n");
-        for (Pair<ValueRequirement, ValueSpecification> liveRequirement : requiredLiveData) {
+        for (final Pair<ValueRequirement, ValueSpecification> liveRequirement : requiredLiveData) {
           sb.append("\t").append(liveRequirement.getFirst()).append("\n");
         }
       }
@@ -317,7 +324,7 @@ public final class ViewDefinitionCompiler {
   }
 
   private static void outputFailureReports(final Collection<DependencyGraphBuilder> builders) {
-    for (DependencyGraphBuilder builder : builders) {
+    for (final DependencyGraphBuilder builder : builders) {
       outputFailureReport(builder);
     }
   }
@@ -325,7 +332,7 @@ public final class ViewDefinitionCompiler {
   public static void outputFailureReport(final DependencyGraphBuilder builder) {
     final Map<Throwable, Integer> exceptions = builder.getExceptions();
     if (!exceptions.isEmpty()) {
-      for (Map.Entry<Throwable, Integer> entry : exceptions.entrySet()) {
+      for (final Map.Entry<Throwable, Integer> entry : exceptions.entrySet()) {
         final Throwable exception = entry.getKey();
         final Integer count = entry.getValue();
         if (exception.getCause() != null) {
