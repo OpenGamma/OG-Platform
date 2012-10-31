@@ -24,6 +24,7 @@ $.register_module({
             clear_main: function () {
                 if (og.analytics.grid) og.analytics.grid.kill();
                 last_fingerprint.main = last_object.main = null;
+                return url;
             },
             last: last_object,
             launch: function (params) {

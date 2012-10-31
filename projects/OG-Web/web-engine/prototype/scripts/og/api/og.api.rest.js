@@ -27,7 +27,7 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 15000 /* 15s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 10000 /* 10s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
@@ -134,9 +134,9 @@ $.register_module({
                     url: url,
                     type: is_get ? 'POST' : config.meta.type,
                     data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
-                    headers: {'Accept': 'application/json'},
+                    headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
                     dataType: 'json',
-                    timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
+                    timeout: config.meta.timeout || (is_get ? TIMEOUTSOON : TIMEOUTFOREVER),
                     beforeSend: function (xhr, req) {
                         var aborted = !(promise.id in outstanding_requests),
                             message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
@@ -145,11 +145,11 @@ $.register_module({
                         if (aborted) return false;
                     },
                     error: function (xhr, status, error) {
-                        // re-send requests that have timed out only if the are GETs
-                        if (error === 'timeout' && is_get) return send();
+                        // re-send requests that have timed out only if they are GETs (/updates requests don't time out)
+                        if (error === 'timeout' && is_get && !config.meta.is_update) return send();
                         var result = {
                             error: xhr.status || true, data: null,
-                            meta: {content_length: xhr.responseText.length, url: url},
+                            meta: {content_length: (xhr.responseText || '').length, url: url},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
@@ -533,6 +533,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
+                    meta.timeout = 12500; meta.is_update = true; // back-end will timeout at 10s, so 12.5 should be fine
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
                 },
                 put: not_available.partial('put'),
@@ -772,7 +773,11 @@ $.register_module({
             (listen = function () {
                 api.updates.get({handler: function (result) {
                     if (result.error) {
-                        if (!api.disconnected) (api.disconnected = true), og.common.events.fire(api.events.disconnect);
+                        if (!api.disconnected) {
+                            api.disconnected = true;
+                            og.common.events.fire(api.events.disconnect);
+                            api.id = null;
+                        }
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }
