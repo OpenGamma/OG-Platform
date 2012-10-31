@@ -8,6 +8,7 @@ package com.opengamma.integration.timeseries.snapshot;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -42,9 +43,13 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     ComponentInfo info = new ComponentInfo(Scheduler.class, getClassifier());
     
-    Collection<Trigger> triggers = repo.getInstances(Trigger.class);
+    Properties quartzProperties = new Properties();
+    quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
     
+    Collection<Trigger> triggers = repo.getInstances(Trigger.class);
     SchedulerFactoryBean schedulerBean = new SchedulerFactoryBean();
+    schedulerBean.setWaitForJobsToCompleteOnShutdown(true);
+    schedulerBean.setQuartzProperties(quartzProperties);
     
     schedulerBean.setTriggers(triggers.toArray(new Trigger[0]));
     

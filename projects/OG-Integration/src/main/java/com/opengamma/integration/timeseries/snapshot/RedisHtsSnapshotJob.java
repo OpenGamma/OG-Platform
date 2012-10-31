@@ -39,8 +39,8 @@ public class RedisHtsSnapshotJob implements Runnable {
   
   private HistoricalTimeSeriesMaster _htsMaster;
   private String _dataSource;
-  private DataFieldBlackList _dataFieldBlackList;
-  private SchemeBlackList _schemeBlackList;
+  private BlackList _dataFieldBlackList;
+  private BlackList _schemeBlackList;
   private String _observationTime;
   private String _normalizationRuleSetId;
   
@@ -83,7 +83,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Gets the dataFieldBlackList.
    * @return the dataFieldBlackList
    */
-  public DataFieldBlackList getDataFieldBlackList() {
+  public BlackList getDataFieldBlackList() {
     return _dataFieldBlackList;
   }
 
@@ -91,7 +91,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Sets the dataFieldBlackList.
    * @param dataFieldBlackList  the dataFieldBlackList
    */
-  public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
+  public void setDataFieldBlackList(BlackList dataFieldBlackList) {
     _dataFieldBlackList = dataFieldBlackList;
   }
 
@@ -99,7 +99,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Gets the schemeBlackList.
    * @return the schemeBlackList
    */
-  public SchemeBlackList getSchemeBlackList() {
+  public BlackList getSchemeBlackList() {
     return _schemeBlackList;
   }
 
@@ -107,7 +107,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Sets the schemeBlackList.
    * @param schemeBlackList  the schemeBlackList
    */
-  public void setSchemeBlackList(SchemeBlackList schemeBlackList) {
+  public void setSchemeBlackList(BlackList schemeBlackList) {
     _schemeBlackList = schemeBlackList;
   }
 
@@ -194,7 +194,7 @@ public class RedisHtsSnapshotJob implements Runnable {
       String fieldName = lkvEntry.getKey();
       Double value = Double.parseDouble(lkvEntry.getValue());
       
-      if (haveDataFieldBlackList() && _dataFieldBlackList.getDataFieldBlackList().contains(fieldName.toUpperCase())) {
+      if (haveDataFieldBlackList() && _dataFieldBlackList.getBlackList().contains(fieldName.toUpperCase())) {
         continue;
       }
       if (value != null) {
@@ -212,7 +212,7 @@ public class RedisHtsSnapshotJob implements Runnable {
   }
 
   private boolean haveDataFieldBlackList() {
-    return _dataFieldBlackList != null && _dataFieldBlackList.getDataFieldBlackList() != null;
+    return _dataFieldBlackList != null && _dataFieldBlackList.getBlackList() != null;
   }
 
   private Map<ExternalId, Map<String, String>> loadLastKnownValues() {
@@ -220,7 +220,7 @@ public class RedisHtsSnapshotJob implements Runnable {
     
     Set<String> allSchemes = getAllSchemes();
     for (String scheme : allSchemes) {
-      if (haveSchemeBlackList() && _schemeBlackList.getSchemeBlackList().contains(scheme.toUpperCase())) {
+      if (haveSchemeBlackList() && _schemeBlackList.getBlackList().contains(scheme.toUpperCase())) {
         continue;
       }
      
@@ -234,7 +234,7 @@ public class RedisHtsSnapshotJob implements Runnable {
   }
 
   private boolean haveSchemeBlackList() {
-    return _schemeBlackList != null && _schemeBlackList.getSchemeBlackList() != null;
+    return _schemeBlackList != null && _schemeBlackList.getBlackList() != null;
   }
     
   @SuppressWarnings("unchecked")

@@ -8,12 +8,12 @@ package com.opengamma.integration.timeseries.snapshot;
 import java.util.List;
 
 /**
- * List of blackListed data fields in the historical timeseries snapshot
+ * List of blackListed data fields/schemes in the historical timeseries snapshot
  */
-public interface DataFieldBlackList {
+public interface BlackList {
   
   String getName();
   
-  List<String> getDataFieldBlackList();
+  List<String> getBlackList();
 
 }
