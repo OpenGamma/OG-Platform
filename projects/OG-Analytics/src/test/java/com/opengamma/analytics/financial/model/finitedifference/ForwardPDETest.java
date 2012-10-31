@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
@@ -14,14 +16,20 @@ import com.opengamma.analytics.financial.model.finitedifference.applications.Ini
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
@@ -187,6 +195,90 @@ public class ForwardPDETest {
 
     PDEFullResults1D prices = (PDEFullResults1D) solver.solve(db);
     PDEUtilityTools.printSurface("prices", prices);
+  }
+
+  @Test
+  public void deleteMeTest() {
+    final double spot = 10.0;
+    final double strike = 47.0;
+    final double r = 0.1;
+    final double y = 0.0;
+    final double vol = 0.3;
+    final double exp = 0.0475;
+    final double df = Math.exp(-r * exp);
+    final double fwd = spot / df;
+    final double price = 7.8609e-23;
+
+    final double iv = BlackFormulaRepository.impliedVolatility(price / df, fwd, strike, exp, ISCALL);
+    System.out.println(iv);
+
+    System.out.println(BlackFormulaRepository.price(fwd, strike, exp, vol, true) * df);
+    System.out.println(BlackFormulaRepository.price(fwd, strike, exp, iv, true) * df);
+
+    double x1 = 1e-24;
+    double x2 = 1 - x1;
+    double x3 = 1 - x2;
+    System.out.println(x1 + "\t" + x2 + "\t" + x3);
+  }
+
+  @Test
+  public void flatVolTest() {
+
+    final double spot = 10.0;
+    final double r = 0.1;
+    final double y = 0.0;
+    final double vol = 0.3;
+    final double expiry = 2.0;
+    final double mult = Math.exp(Math.sqrt(expiry) * vol * 6.0);
+
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
+    // ConvectionDiffusionPDESolver solver = new RichardsonExtrapolationFiniteDifference(base);
+
+    final int tNodes = 51;
+    final int xNodes = 101;
+
+    ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_DATA_PROVIDER.getForwardBlackSholes(r, y, vol);
+    Function1D<Double, Double> intCon = INITIAL_COND_PROVIDER.getForwardCallPut(spot, true);
+    //only true if y =0
+    BoundaryCondition lower = new DirichletBoundaryCondition(spot, 0);
+    BoundaryCondition upper = new DirichletBoundaryCondition(0, mult * spot);
+
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, expiry, tNodes, 3.0);
+    //final MeshingFunction spaceMesh = new ExponentialMeshing(0, 5 * spot, xNodes, 0.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, mult * spot, spot, xNodes, 0.05);
+
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
+
+    double[][] price = new double[tNodes][xNodes];
+    for (int i = 0; i < tNodes; i++) {
+      double t = grid.getTimeNode(i);
+      double df = Math.exp(-r * t);
+      double fwd = spot * Math.exp((r - y) * t);
+      for (int j = 0; j < xNodes; j++) {
+        price[i][j] = df * BlackFormulaRepository.price(fwd, grid.getSpaceNode(j), t, vol, true);
+      }
+    }
+
+    //    double k = grid.getSpaceNode(1);
+    //    double pdePrice = res.getFunctionValue(1, 1);
+    //    double analPrice = price[1][1];
+    //    double t = grid.getTimeNode(1);
+    //    double fPrice = pdePrice * Math.exp(r * t);
+    //    double fwd = spot * Math.exp(r * t);
+    //    double iv = BlackFormulaRepository.impliedVolatility(fPrice, fwd, k, t, true);
+    //
+    //    System.out.println("debug " + grid.getSpaceNode(1) + "\t" + price[1][1] + "\t" + res.getFunctionValue(1, 1) + "\t" + iv);
+
+    PDEUtilityTools.printSurface("PDE res", res);
+    PDEUtilityTools.printSurface("call price", price, grid.getSpaceNodes(), grid.getTimeNodes(), System.out);
+
+    Map<DoublesPair, Double> iv = PDEUtilityTools.priceToImpliedVol(new ForwardCurve(spot, r), new YieldCurve("", ConstantDoublesCurve.from(r)), res, 0, 2.0, 0.0, mult * spot);
+    GridInterpolator2D gridIn = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE);
+    Map<Double, Interpolator1DDataBundle> idb = gridIn.getDataBundle(iv);
+    PDEUtilityTools.printSurface("iv", idb, 0.1, 2.0, 0.7, 3 * spot, 100, 100);
   }
 
   private ConvectionDiffusionPDE1DStandardCoefficients getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol) {
