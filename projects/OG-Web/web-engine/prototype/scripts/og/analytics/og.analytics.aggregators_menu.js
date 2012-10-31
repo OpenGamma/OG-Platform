@@ -118,7 +118,7 @@ $.register_module({
                 return query.pluck('val');
             };
             menu.replay_query = function (conf) {
-                if (!conf && !conf.aggregators) return;
+                if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
                 menu.opts.forEach(function (option, index) {
                     option.remove();
                 });
