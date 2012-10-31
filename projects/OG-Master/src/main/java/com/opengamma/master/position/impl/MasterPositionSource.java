@@ -5,18 +5,19 @@
  */
 package com.opengamma.master.position.impl;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -59,10 +60,6 @@ public class MasterPositionSource implements PositionSource {
    * The position master.
    */
   private final PositionMaster _positionMaster;
-  /**
-   * The change manager (aggregate from both underlying masters).
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance with underlying masters which does not override versions.
@@ -75,7 +72,6 @@ public class MasterPositionSource implements PositionSource {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    _changeManager = new AggregatingChangeManager(Arrays.<ChangeProvider>asList(portfolioMaster, positionMaster));
   }
 
   /**
@@ -238,7 +234,26 @@ public class MasterPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
+    return new ChangeManager() {
+
+      @Override
+      public void addChangeListener(final ChangeListener listener) {
+        getPortfolioMaster().changeManager().addChangeListener(listener);
+        getPositionMaster().changeManager().addChangeListener(listener);
+      }
+
+      @Override
+      public void removeChangeListener(final ChangeListener listener) {
+        getPortfolioMaster().changeManager().removeChangeListener(listener);
+        getPositionMaster().changeManager().removeChangeListener(listener);
+      }
+
+      @Override
+      public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
+        throw new UnsupportedOperationException();
+      }
+
+    };
   }
 
   //-------------------------------------------------------------------------

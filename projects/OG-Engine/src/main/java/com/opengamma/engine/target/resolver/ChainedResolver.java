@@ -1,17 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.target.resolver;
 
-import javax.time.Instant;
-
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.change.PassthroughChangeManager;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -19,7 +15,7 @@ import com.opengamma.util.functional.Function2;
 
 /**
  * {@link ObjectResolver} implementation that will use a sequence of resolvers in turn if the first fails.
- * 
+ *
  * @param <T> the type to be resolved
  */
 public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectResolver<T> {
@@ -51,26 +47,7 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
 
   @Override
   public ChangeManager changeManager() {
-    return new ChangeManager() {
-
-      @Override
-      public void addChangeListener(final ChangeListener listener) {
-        getFirst().changeManager().addChangeListener(listener);
-        getSecond().changeManager().addChangeListener(listener);
-      }
-
-      @Override
-      public void removeChangeListener(final ChangeListener listener) {
-        getFirst().changeManager().removeChangeListener(listener);
-        getSecond().changeManager().removeChangeListener(listener);
-      }
-
-      @Override
-      public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
-        throw new UnsupportedOperationException();
-      }
-
-    };
+    return new PassthroughChangeManager(getFirst(), getSecond());
   }
 
   /**
@@ -80,7 +57,7 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
   public static final Function2<ObjectResolver<?>, ObjectResolver<?>, ObjectResolver<?>> CREATE = new Function2<ObjectResolver<?>, ObjectResolver<?>, ObjectResolver<?>>() {
     @SuppressWarnings({"rawtypes", "unchecked" })
     @Override
-    public ObjectResolver<?> execute(ObjectResolver<?> second, ObjectResolver<?> first) {
+    public ObjectResolver<?> execute(final ObjectResolver<?> second, final ObjectResolver<?> first) {
       return new ChainedResolver(first, second);
     }
   };

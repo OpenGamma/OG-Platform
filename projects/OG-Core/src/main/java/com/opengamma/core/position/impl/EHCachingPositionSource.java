@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.core.position.impl;
@@ -12,9 +12,6 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.change.BasicChangeManager;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -83,21 +80,13 @@ public class EHCachingPositionSource implements PositionSource {
    * The trade cache.
    */
   private final Cache _tradeCache;
-  /**
-   * Listens for changes in the underlying position source.
-   */
-  private final ChangeListener _changeListener;
-  /**
-   * Local change manager.
-   */
-  private final ChangeManager _changeManager;
 
   private final Map2<UniqueId, VersionCorrection, Object> _frontCacheByUID = new WeakValueHashMap2<UniqueId, VersionCorrection, Object>();
   private final Map2<ObjectId, VersionCorrection, Object> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, Object>();
 
   /**
    * Creates the cache around an underlying position source.
-   * 
+   *
    * @param underlying the underlying data, not null
    * @param cacheManager the cache manager, not null
    */
@@ -114,20 +103,12 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolioNodeCache = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
     _positionCache = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
     _tradeCache = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
-    _changeManager = new BasicChangeManager();
-    _changeListener = new ChangeListener() {
-      @Override
-      public void entityChanged(ChangeEvent event) {
-        changeManager().entityChanged(event.getType(), event.getObjectId(), event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());
-      }
-    };
-    underlying.changeManager().addChangeListener(_changeListener);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of positions.
-   * 
+   *
    * @return the underlying source of positions, not null
    */
   protected PositionSource getUnderlying() {
@@ -136,7 +117,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   /**
    * Gets the cache manager.
-   * 
+   *
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -148,7 +129,7 @@ public class EHCachingPositionSource implements PositionSource {
     if (f instanceof PortfolioNode) {
       return (PortfolioNode) f;
     } else {
-      for (PortfolioNode childNode : node.getChildNodes()) {
+      for (final PortfolioNode childNode : node.getChildNodes()) {
         addToFrontCache(childNode, versionCorrection);
       }
       for (Position position : node.getPositions()) {
@@ -405,14 +386,13 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
+    return getUnderlying().changeManager();
   }
 
   /**
    * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
    */
   protected void shutdown() {
-    _underlying.changeManager().removeChangeListener(_changeListener);
     _cacheManager.removeCache(PORTFOLIO_CACHE);
     _cacheManager.removeCache(PORTFOLIONODE_CACHE);
     _cacheManager.removeCache(POSITION_CACHE);
