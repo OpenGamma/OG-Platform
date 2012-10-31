@@ -8,6 +8,8 @@ $.register_module({
     obj: function () { 
         return function (config) {
             if (!config) return;
+
+            // Private
             var menu = new og.analytics.DropMenu({
                     $cntr: config.cntr,
                     data: ['Live', 'Snapshot', 'Historical'],
@@ -28,32 +30,21 @@ $.register_module({
                     dataselected: 'dropmenu:ds:dataselected',
                     optsrepositioned: 'dropmenu:ds:optsrespositioned'
                 };
-            var populate_src_options = function (data) {
-                $parent.data('type', type_val).addClass(type_val);
-                data.forEach(function (d) {
-                    if (d.name) snapshots[d.name] = d.id;
-                    $source_select.append($($option.html()).text(d.name || d));
-                });
+            var date_handler = function () { // TODO AG: refocus custom, hide datepicker, rm duplication entry retrieval
+                var entry = query.pluck('pos').indexOf(sel_pos);
+                $custom.addClass(active_s+ ' ' +date_selected_s); 
+                $latest.removeClass(active_s);
+                if ($custom.parent().is(versions_s)) query[entry].version_date = $custom.datepicker('getDate');
+                else if ($custom.parent().is(corrections_s))
+                    query[entry].correction_date = $custom.val();
+                else query[entry].date = $custom.val();
             };
-            var populate_livedatasources = function () {
-                og.api.rest.livedatasources.get().pipe(function (resp) {
-                    if (resp.error) return;
-                    populate_src_options(resp.data);
-                });
-            };
-            var populate_marketdatasnapshots = function () {
-                og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
-                    if (resp.error) return;
-                    populate_src_options(resp.data[0].snapshots);
-                });
-                /*.pipe(function () { 
-                    $source_select.after($snapshot_opts.html());
-                });*/
-            };
-            var populate_historical = function () {
-                if (resolver_keys) {
-                    populate_src_options(resolver_keys);
-                    $source_select.after($historical_opts.html());
+            var delete_handler = function (entry) {
+                if (menu.opts.length === 1) return remove_ext_opts(), reset_query();
+                if ($type_select !== undefined) menu.delete_handler($parent);
+                if (menu.opts.length) {
+                    for (var i = ~entry ? entry : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
+                    if (~entry) return remove_entry(entry), display_query(); // emitEvent; optsrepositioned
                 }
             };
             var display_query = function () {
@@ -66,57 +57,6 @@ $.register_module({
                     $query.html(arr.reduce(function (a, v) { return a += v.type ? v.type + ":" + v.src : v; }, ''));
                 } else $query.text(default_sel_txt);
             };
-            var remove_entry = function (entry) {
-                if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; resetquery
-                if (~entry) query.splice(entry, 1);
-            };  
-            var remove_orphans = function () {
-                return reset_source_select(), $parent.removeClass($parent.data('type'))
-                    .find('.extra-opts').remove();
-            };
-            var reset_query = function () {
-                return $query.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), remove_entry();
-            };
-            var reset_source_select = function () {
-                // IE doesn't seem to update Select on the fly, so, take it out of DOM, update childNodes, append
-                // it back to the parent
-                var sel_parent = $source_select.parent(), select = $source_select.remove();
-                select.empty().append($($option.html()).text(default_sel_txt));
-                sel_parent.append(select);
-            };
-            var type_handler = function (entry) {
-                if (type_val === default_type_txt){
-                    if (menu.opts.length === 1 && query.length === 1) return remove_orphans(), reset_query();
-                    return remove_entry(entry), remove_orphans(), display_query(), enable_extra_options(false);
-                    // emitEvent; typeselected
-                }
-                if ($parent.hasClass($parent.data('type'))) remove_entry(entry), remove_orphans(), display_query();
-                switch (type_val) {
-                    case 'live': populate_livedatasources(); break;
-                    case 'snapshot': populate_marketdatasnapshots(); break;
-                    case 'historical': populate_historical(); break;
-                    //no default
-                }
-            };
-            var source_handler = function (entry) {
-                if (ds_val === default_sel_txt) {
-                    return remove_entry(entry), display_query(), enable_extra_options(false);
-                } else if (~entry) {
-                    query[entry] = {pos:sel_pos, type:type_val, src:ds_val};
-                } else {
-                    query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:ds_val});
-                }
-                enable_extra_options(true);
-                display_query(); // emitEvent; dataselected 
-            };
-            var delete_handler = function (entry) {
-                if (menu.opts.length === 1) return remove_orphans(), reset_query();
-                if ($type_select !== undefined) menu.delete_handler($parent);
-                if (menu.opts.length) {
-                    for (var i = ~entry ? entry : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
-                    if (~entry) return remove_entry(entry), display_query(); // emitEvent; optsrepositioned
-                }
-            };
             var enable_extra_options = function (val) {
                 var $inputs = $extra_opts.find('input');
                 if (!$inputs) return;
@@ -124,26 +64,35 @@ $.register_module({
                 else $inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
                 $inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
             };
-            var date_handler = function () { // TODO AG: refocus custom, hide datepicker, rm duplication entry retrieval
-                var entry = query.pluck('pos').indexOf(sel_pos);
-                $custom.addClass(active_s+ ' ' +date_selected_s); 
-                $latest.removeClass(active_s);
-                if ($custom.parent().is(versions_s)) query[entry].version_date = $custom.datepicker('getDate');
-                else if ($custom.parent().is(corrections_s))
-                    query[entry].correction_date = $custom.val();
-                else query[entry].date = $custom.val();
-            };
-            var remove_date = function (entry) {
-                $latest.addClass(active_s);
-                $custom.removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
-                if ($custom.parent().is(versions_s)) delete query[entry].version_date;
-                else if ($custom.parent().is(corrections_s)) delete query[entry].correction_date;
-                else delete query[entry].date;
-            };
             var get_snapshot = function (id) {
                  return Object.keys(snapshots).filter(function(key) {
                     return snapshots[key] === id;
                  })[0];
+            };
+            var init = function (config) {
+                menu.addListener(events.resetquery, menu.reset_query);
+                opts = menu.opts;
+                data = menu.data;
+                $dom = menu.$dom;
+                if ($dom) {
+                    $query = $('.datasources-query', $dom.toggle);
+                    $option = $(wrapper).append('<option>');
+                    $.when(
+                        og.api.text({module: 'og.analytics.form_datasources_snapshot_opts_tash'}),
+                        og.api.text({module: 'og.analytics.form_datasources_historical_opts_tash'}),
+                        og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'})
+                    ).then(function(snapshot, historical, res_keys){ // TODO AG: need to check here for resources
+                        $snapshot_opts = $(wrapper).append(snapshot);
+                        $historical_opts = $(wrapper).append(historical);
+                        res_keys.data.data.forEach(function (entry) {
+                            resolver_keys.push(entry.split('|')[1]);
+                        });
+                        if ($dom.menu)
+                            $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                                .on('change', 'select', menu_handler);
+                        if (config.opts) menu.replay_query(config.opts);
+                    });
+                }
             };
             var init_menu_elems = function (index) {
                 $parent = menu.opts[index];
@@ -172,32 +121,126 @@ $.register_module({
                     return $latest = $elem, $custom = $elem.siblings().filter(custom_s), remove_date(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());
             };
-            var init = function (config) {
-                menu.addListener(events.resetquery, menu.reset_query);
-                opts = menu.opts;
-                data = menu.data;
-                $dom = menu.$dom;
-                if ($dom) {
-                    $query = $('.datasources-query', $dom.toggle);
-                    $option = $(wrapper).append('<option>');
-                    $.when(
-                        og.api.text({module: 'og.analytics.form_datasources_snapshot_opts_tash'}),
-                        og.api.text({module: 'og.analytics.form_datasources_historical_opts_tash'}),
-                        og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'})
-                    ).then(function(snapshot, historical, res_keys){
-                        $snapshot_opts = $(wrapper).append(snapshot);
-                        $historical_opts = $(wrapper).append(historical);
-                        res_keys.data.data.forEach(function (entry) {
-                            resolver_keys.push(entry.split('|')[1]);
-                        });
-                        if ($dom.menu)
-                            $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                                .on('change', 'select', menu_handler);
-                        if (config.opts) menu.replay_query(config.opts);
-                    });
+            var populate_historical = function () {
+                if (resolver_keys) {
+                    populate_src_options(resolver_keys);
+                    $source_select.after($historical_opts.html());
                 }
             };
+            var populate_livedatasources = function () {
+                og.api.rest.livedatasources.get().pipe(function (resp) {
+                    if (resp.error) return;
+                    populate_src_options(resp.data);
+                });
+            };
+            var populate_marketdatasnapshots = function () {
+                og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
+                    if (resp.error) return;
+                    populate_src_options(resp.data[0].snapshots);
+                });
+                /*.pipe(function () { 
+                    $source_select.after($snapshot_opts.html());
+                });*/
+            };
+            var populate_src_options = function (data) {
+                $parent.data('type', type_val).addClass(type_val);
+                data.forEach(function (d) {
+                    if (d.name) snapshots[d.name] = d.id;
+                    $source_select.append($($option.html()).text(d.name || d));
+                });
+            };
+            var remove_date = function (entry) {
+                $latest.addClass(active_s);
+                $custom.removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
+                if ($custom.parent().is(versions_s)) delete query[entry].version_date;
+                else if ($custom.parent().is(corrections_s)) delete query[entry].correction_date;
+                else delete query[entry].date;
+            };
+            var remove_entry = function (entry) {
+                if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // emitEvent; resetquery
+                if (~entry) query.splice(entry, 1);
+            };  
+            var remove_ext_opts = function () {
+                return reset_source_select(), $parent.removeClass($parent.data('type'))
+                    .find('.extra-opts').remove();
+            };
+            var remove_orphans = function () {
+                for (var i = menu.opts.length - 1; 0 < i; i-=1){
+                    if (menu.opts.length === 1) break;
+                    var option = menu.opts[i];
+                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val === default_type_txt)
+                        menu.delete_handler(option);
+                }
+            };  
+            var reset_query = function () {
+                return $query.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), remove_entry();
+            };
+            var reset_source_select = function () {
+                // IE doesn't seem to update Select on the fly, so, take it out of DOM, update childNodes, append
+                // it back to the parent
+                var sel_parent = $source_select.parent(), select = $source_select.remove();
+                select.empty().append($($option.html()).text(default_sel_txt));
+                sel_parent.append(select);
+            };
+            var source_handler = function (entry) {
+                if (ds_val === default_sel_txt) {
+                    return remove_entry(entry), display_query(), enable_extra_options(false);
+                } else if (~entry) {
+                    query[entry] = {pos:sel_pos, type:type_val, src:ds_val};
+                } else {
+                    query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:ds_val});
+                }
+                enable_extra_options(true);
+                display_query(); // emitEvent; dataselected 
+            };
+            var type_handler = function (entry) {
+                if (type_val === default_type_txt){
+                    if (menu.opts.length === 1 && query.length === 1) return remove_ext_opts(), reset_query();
+                    return remove_entry(entry), remove_ext_opts(), display_query(), enable_extra_options(false);
+                    // emitEvent; typeselected
+                }
+                if ($parent.hasClass($parent.data('type'))) remove_entry(entry), remove_ext_opts(), display_query();
+                switch (type_val) {
+                    case 'live': populate_livedatasources(); break;
+                    case 'snapshot': populate_marketdatasnapshots(); break;
+                    case 'historical': populate_historical(); break;
+                    //no default
+                }
+            };
+
+            // Public
+            menu.destroy = function () {};
+            menu.get_query = function () {
+                if (!query.length) return;
+                remove_orphans();
+                var arr = [];
+                query.forEach(function (entry) {
+                    var obj = {}, val = entry.type.toLowerCase();
+                    switch (val) {
+                        case 'historical':
+                            if (entry.date) {
+                                obj['marketDataType'] = 'fixedHistorical';
+                                obj['date'] = entry.date;
+                            } else obj.marketDataType = 'latestHistorical';
+                            obj['resolverKey'] = entry.src;
+                            break;
+                        case 'snapshot':
+                            obj['marketDataType'] = val;
+                            obj['snapshotId'] = snapshots[entry.src];
+                            break;
+                        case 'live':
+                            obj['marketDataType'] = val;
+                            obj['source'] = entry.src;
+                            break;
+
+                        //no default
+                    }
+                    arr.push(obj);
+                });
+                return arr;
+            };
             menu.replay_query = function (conf) { // TODO AG: refactor initial replay implementation
+                if (!conf && !conf.datasources) return;
                 menu.opts.forEach(function (option) {
                     option.remove();
                 });
@@ -234,53 +277,17 @@ $.register_module({
                             });
                             break;
                         case 'historical': populate_historical(); break;
+                        
                         //no default
                     }
                 });
-            };
-            menu.get_query = function () {
-                if (!query.length) return;
-                for (var i = 0, len = menu.opts.length; i < len; i+=1){
-                    if (menu.opts.length === 1) break;
-                    var option = menu.opts[i];
-                    if ($(type_s, option).val() === default_type_txt || 
-                         $(source_s, option).val === default_type_txt) {
-                        menu.delete_handler(option);
-                    }
-                }
-                var arr = [];
-                query.forEach(function (entry) {
-                    var obj = {}, val = entry.type.toLowerCase();
-                    switch (val) {
-                        case 'historical':
-                            if (entry.date) {
-                                obj['marketDataType'] = 'fixedHistorical';
-                                obj['date'] = entry.date;
-                            } else obj.marketDataType = 'latestHistorical';
-                            obj['resolverKey'] = entry.src;
-                            break;
-                        case 'snapshot':
-                            obj['marketDataType'] = val;
-                            obj['snapshotId'] = snapshots[entry.src];
-                            break;
-                        case 'live':
-                            obj['marketDataType'] = val;
-                            obj['source'] = entry.src;
-                            break;
-
-                        //no default
-                    }
-                    arr.push(obj);
-                });
-                return arr;
             };
             menu.reset_query = function () {
                 return menu.opts.forEach(function (option, index) {
                     init_menu_elems(index);
                     delete_handler(index);
-                }), init_menu_elems(0), remove_orphans(), reset_query();
+                }), init_menu_elems(0), remove_ext_opts(), reset_query();
             };
-            menu.destroy = function () {};
             return init(config), menu;
         };
     }

@@ -12,6 +12,8 @@ $.register_module({
         'og.views.common.layout'
     ],
     obj: function () {
+        
+        // Private
         var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false, 
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
             fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
@@ -28,43 +30,21 @@ $.register_module({
                 querycancelled: 'dropmenu:querycancelled',
                 resetdsquery:'dropmenu:resetquery'
             };
-        var keydown_handler = function (event) {
-            if (event.keyCode !== 9) return;
-            var $elem = $(this), shift_key = event.shiftKey,
-                active_pos = function (elms, pos) {
-                    return $elem.is(elms[pos]());
-                };
-            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
-            if (!shift_key && active_pos($dom.ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
-            if (!shift_key && active_pos($dom.ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
-            if (shift_key && $elem.is($dom.load_btn)) ds_menu.emitEvent(events.open);
-            if (shift_key && active_pos($dom.ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
-            if (shift_key && active_pos($dom.ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
-        };
-        var close_dropmenu = function (menu) {
-            if (menu === ds_menu) ag_menu.emitEvent(events.close);
-            else ds_menu.emitEvent(events.close);
-        };
         var auto_combo_handler = function (even, ui) {
             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
                 $dom.load_btn.removeClass('og-disabled').on('click', function () {status.play();});
             } else $dom.load_btn.addClass('og-disabled').off('click');
         };
-        var query_selected = function (menu) {
-            if (menu === ag_menu) ds_menu.emitEvent(events.open).emitEvent(events.focus);
-            else if (menu === ds_menu) $dom.load_btn.focus();
+        var close_dropmenu = function (menu) {
+            if (menu === ds_menu) ag_menu.emitEvent(events.close);
+            else ds_menu.emitEvent(events.close);
         };
-        var query_cancelled = function (menu) {
-            emitter.emitEvent(events.closeall);
-            ac_menu.$input.select();
-        };
-        var load_query = function () {
-            if (!~ac_menu.$input.val().indexOf('Db')) return;
-            og.analytics.url.main(query = {
-                viewdefinition: ac_menu.$input.val(),
-                providers: ds_menu.get_query(),
-                aggregators: ag_menu.get_query()
-            });
+        var constructor = function (conf) {
+            var form = this, config = conf || {};
+            selector = config.selector || '.OG-layout-analytics-masthead';
+            og.views.common.layout.main.allowOverflow('north');
+            if (template) init(); else fetch_template(init);
+            return form;
         };
         var fetch_template = function (callback) {
             $.when(
@@ -107,18 +87,39 @@ $.register_module({
             });
             status = new og.analytics.Status(selector + ' .og-status');
         };
-        var constructor = function (conf) {
-            var form = this, config = conf || {};
-            selector = config.selector || '.OG-layout-analytics-masthead';
-            og.views.common.layout.main.allowOverflow('north');
-            if (template) init(); else fetch_template(init);
-            return form;
+        var load_query = function () {
+            if (!~ac_menu.$input.val().indexOf('Db')) return;
+            og.analytics.url.main(query = {
+                viewdefinition: ac_menu.$input.val(),
+                providers: ds_menu.get_query(),
+                aggregators: ag_menu.get_query()
+            });
         };
-        constructor.prototype.reset_query = function () {
-            if (query) query = null;
-            [ag_menu, ds_menu].forEach(function (menu) { menu.emitEvent(events.resetquery); });
-            ac_menu.$input.val('search...');
+        var keydown_handler = function (event) {
+            if (event.keyCode !== 9) return;
+            var $elem = $(this), shift_key = event.shiftKey,
+                active_pos = function (elms, pos) {
+                    return $elem.is(elms[pos]());
+                };
+            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
+            if (!shift_key && active_pos($dom.ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
+            if (!shift_key && active_pos($dom.ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
+            if (shift_key && $elem.is($dom.load_btn)) ds_menu.emitEvent(events.open);
+            if (shift_key && active_pos($dom.ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
+            if (shift_key && active_pos($dom.ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
         };
+        var query_cancelled = function (menu) {
+            emitter.emitEvent(events.closeall);
+            ac_menu.$input.select();
+        };
+        var query_selected = function (menu) {
+            if (menu === ag_menu) ds_menu.emitEvent(events.open).emitEvent(events.focus);
+            else if (menu === ds_menu) $dom.load_btn.focus();
+        };
+
+        // Public
+        constructor.prototype.destroy = function () {};
+        constructor.prototype.initialized = function () { return initialized; };
         constructor.prototype.replay_query = function (url_config) {
             if (!url_config) return;
             
@@ -153,8 +154,11 @@ $.register_module({
 
             query = url_config;
         };
-        constructor.prototype.destroy = function () {};
-        constructor.prototype.initialized = function () { return initialized; };
+        constructor.prototype.reset_query = function () {
+            if (query) query = null;
+            [ag_menu, ds_menu].forEach(function (menu) { menu.emitEvent(events.resetquery); });
+            ac_menu.$input.val('search...');
+        };
         return constructor;
     }
 });
