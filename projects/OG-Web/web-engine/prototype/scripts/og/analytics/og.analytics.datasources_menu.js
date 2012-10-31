@@ -286,7 +286,7 @@ $.register_module({
                             $latest = $(latest_s, $extra_opts);
                             $custom = $(custom_s, $extra_opts);
                             enable_extra_options(true);
-                            query.splice(index, 0, {pos: index, src: src.resolverKey, type: 'historical'});
+                            query.splice(index, 0, {pos: index, src: src.resolverKey, type: 'Historical'});
                             if (src.date) {
                                 $custom.addClass(active_s+ ' ' +date_selected_s); 
                                 $latest.removeClass(active_s);
