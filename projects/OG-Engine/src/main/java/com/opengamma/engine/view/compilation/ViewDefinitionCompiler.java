@@ -7,6 +7,7 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,7 @@ import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -138,6 +140,17 @@ public final class ViewDefinitionCompiler {
 
     protected abstract Portfolio compile();
 
+    private void removeUnusedResolutions(final Map<String, DependencyGraph> graphsByConfiguration, final Portfolio portfolio) {
+      final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>();
+      validIdentifiers.add(portfolio.getUniqueId());
+      for (final DependencyGraph graph : graphsByConfiguration.values()) {
+        for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
+          validIdentifiers.add(target.getUniqueId());
+        }
+      }
+      getResolutions().values().retainAll(validIdentifiers);
+    }
+
     /**
      * Cancels any active builders.
      */
@@ -182,6 +195,7 @@ public final class ViewDefinitionCompiler {
       final Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(getContext());
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
+      removeUnusedResolutions(graphsByConfiguration, portfolio);
       _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphsByConfiguration, getResolutions(), portfolio, getContext().getServices()
           .getFunctionCompilationContext()
           .getFunctionInitId());
