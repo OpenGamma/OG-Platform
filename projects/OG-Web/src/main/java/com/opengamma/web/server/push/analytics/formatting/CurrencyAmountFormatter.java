@@ -31,7 +31,7 @@ import com.opengamma.util.money.CurrencyAmount;
     addFormatter(new Formatter<CurrencyAmount>(Format.HISTORY) {
       @Override
       Object format(CurrencyAmount value, ValueSpecification valueSpec) {
-        return formatForHistory(value, valueSpec);
+        return formatHistory(value, valueSpec);
       }
     });
   }
@@ -57,13 +57,7 @@ import com.opengamma.util.money.CurrencyAmount;
     }
   }
 
-  /**
-   * Returns the value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
-   * @param history The currency value, not null
-   * @param valueSpec The specification that produced the value
-   * @return The value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
-   */
-  private Object formatForHistory(CurrencyAmount history, ValueSpecification valueSpec) {
+  private Object formatHistory(CurrencyAmount history, ValueSpecification valueSpec) {
     double amount = history.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
