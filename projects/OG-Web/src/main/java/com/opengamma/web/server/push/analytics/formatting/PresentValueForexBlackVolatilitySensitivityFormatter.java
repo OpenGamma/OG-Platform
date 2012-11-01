@@ -12,22 +12,19 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  */
 /* package */ class PresentValueForexBlackVolatilitySensitivityFormatter
-    extends NoHistoryFormatter<PresentValueForexBlackVolatilitySensitivity> {
+    extends AbstractFormatter<PresentValueForexBlackVolatilitySensitivity> {
+
+  /* package */ PresentValueForexBlackVolatilitySensitivityFormatter() {
+    super(PresentValueForexBlackVolatilitySensitivity.class);
+  }
 
   @Override
-  public Object formatForDisplay(PresentValueForexBlackVolatilitySensitivity value, ValueSpecification valueSpec) {
+  public Object formatCell(PresentValueForexBlackVolatilitySensitivity value, ValueSpecification valueSpec) {
     return "Vector (" + value.getVega().getMap().size() + ")";
   }
 
   @Override
-  public Object formatForExpandedDisplay(PresentValueForexBlackVolatilitySensitivity value,
-                                         ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_1D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_1D;
   }
 }

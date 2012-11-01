@@ -19,15 +19,25 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
 /**
  *
  */
-/* package */ class LocalDateDoubleTimeSeriesFormatter extends NoHistoryFormatter<LocalDateDoubleTimeSeries> {
+/* package */ class LocalDateDoubleTimeSeriesFormatter extends AbstractFormatter<LocalDateDoubleTimeSeries> {
 
-  @Override
-  public String formatForDisplay(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec) {
-    return "Time-series (" + timeSeries.getEarliestTime().toLocalDate() + " to " + timeSeries.getLatestTime().toLocalDate() + ")";
+  /* package */ LocalDateDoubleTimeSeriesFormatter() {
+    super(LocalDateDoubleTimeSeries.class);
+    addFormatter(new Formatter<LocalDateDoubleTimeSeries>(Format.EXPANDED) {
+      @Override
+      Object format(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
+
   }
 
   @Override
-  public Map<String, Object> formatForExpandedDisplay(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
+  public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec) {
+    return "Time-series (" + timeSeries.getEarliestTime().toLocalDate() + " to " + timeSeries.getLatestTime().toLocalDate() + ")";
+  }
+
+  private Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
     ZonedDateTimeDoubleTimeSeries series = value.toZonedDateTimeDoubleTimeSeries();
     List<Object[]> data = Lists.newArrayListWithCapacity(series.size());
     for (Map.Entry<ZonedDateTime, Double> entry : series) {
@@ -43,7 +53,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.TIME_SERIES;
+  public DataType getDataType() {
+    return DataType.TIME_SERIES;
   }
 }

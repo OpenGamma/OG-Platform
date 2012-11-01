@@ -15,12 +15,22 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class ListDoubleArrayFormatter extends NoHistoryFormatter<List> {
+/* package */ class ListDoubleArrayFormatter extends AbstractFormatter<List> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ListDoubleArrayFormatter.class);
 
+  /* package */ ListDoubleArrayFormatter() {
+    super(List.class);
+    addFormatter(new Formatter<List>(Format.EXPANDED) {
+      @Override
+      Object format(List value, ValueSpecification valueSpec) {
+        return value;
+      }
+    });
+  }
+
   @Override
-  public Object formatForDisplay(List value, ValueSpecification valueSpec) {
+  public Object formatCell(List value, ValueSpecification valueSpec) {
     int rowCount = value.size();
     int colCount;
     if (rowCount == 0) {
@@ -39,12 +49,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public List formatForExpandedDisplay(List value, ValueSpecification valueSpec) {
-    return value;
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_2D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_2D;
   }
 }

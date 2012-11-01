@@ -14,12 +14,16 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class BucketedGreekResultCollectionFormatter extends NoHistoryFormatter<BucketedGreekResultCollection> {
+/* package */ class BucketedGreekResultCollectionFormatter extends AbstractFormatter<BucketedGreekResultCollection> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BucketedGreekResultCollectionFormatter.class);
 
+  /* package */ BucketedGreekResultCollectionFormatter() {
+    super(BucketedGreekResultCollection.class);
+  }
+
   @Override
-  public Object formatForDisplay(BucketedGreekResultCollection value, ValueSpecification valueSpec) {
+  public Object formatCell(BucketedGreekResultCollection value, ValueSpecification valueSpec) {
     if (value.getBucketedGreeks(BucketedGreekResultCollection.BUCKETED_VEGA) != null) {
       double[] expiries = value.getExpiries();
       double[][] strikes = value.getStrikes();
@@ -37,13 +41,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(BucketedGreekResultCollection value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.SURFACE_DATA;
+  public DataType getDataType() {
+    return DataType.SURFACE_DATA;
   }
 }

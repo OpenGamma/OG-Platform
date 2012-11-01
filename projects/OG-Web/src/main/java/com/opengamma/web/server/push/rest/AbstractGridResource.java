@@ -26,6 +26,7 @@ import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridCell;
 import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportDefinition;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for all analytics grids.
@@ -74,8 +75,8 @@ public abstract class AbstractGridResource {
                                  @FormParam("rows") List<Integer> rows,
                                  @FormParam("columns") List<Integer> columns,
                                  @FormParam("cells") List<GridCell> cells,
-                                 @FormParam("expanded") boolean expanded) {
-    ViewportDefinition viewportDefinition = ViewportDefinition.create(rows, columns, cells, expanded);
+                                 @FormParam("format") TypeFormatter.Format format) {
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(rows, columns, cells, format);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();

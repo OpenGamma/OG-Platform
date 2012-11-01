@@ -18,49 +18,34 @@ import com.opengamma.util.ArgumentChecker;
   private final BigDecimalFormatter _bigDecimalFormatter;
 
   DoubleFormatter(BigDecimalFormatter bigDecimalFormatter) {
+    super(Double.class);
     ArgumentChecker.notNull(bigDecimalFormatter, "_bigDecimalFormatter");
     _bigDecimalFormatter = bigDecimalFormatter;
   }
 
   @Override
-  public String formatForDisplay(Double value, ValueSpecification valueSpec) {
+  public String formatCell(Double value, ValueSpecification valueSpec) {
     BigDecimal bigDecimal = convertToBigDecimal(value);
     if (bigDecimal == null) {
       return Double.toString(value);
     } else {
-      return _bigDecimalFormatter.formatForDisplay(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.formatCell(bigDecimal, valueSpec);
     }
   }
 
   @Override
-  public String formatForExpandedDisplay(Double value, ValueSpecification valueSpec) {
+  public Object format(Double value, ValueSpecification valueSpec, Format format) {
     BigDecimal bigDecimal = convertToBigDecimal(value);
     if (bigDecimal == null) {
       return Double.toString(value);
     } else {
-      return _bigDecimalFormatter.formatForExpandedDisplay(bigDecimal, valueSpec);
-    }
-  }
-
-  /**
-   * Returns the value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
-   * @param history The value, not null
-   * @param valueSpec The specification that produced the value
-   * @return The value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
-   */
-  @Override
-  public BigDecimal formatForHistory(Double history, ValueSpecification valueSpec) {
-    BigDecimal bigDecimal = convertToBigDecimal(history);
-    if (bigDecimal == null) {
-      return null;
-    } else {
-      return _bigDecimalFormatter.formatForHistory(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, format);
     }
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.DOUBLE;
+  public DataType getDataType() {
+    return DataType.DOUBLE;
   }
 
   private static BigDecimal convertToBigDecimal(Double value) {

@@ -11,21 +11,19 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
 /**
  *
  */
-/* package */ class LabelledMatrix3DFormatter extends NoHistoryFormatter<LabelledMatrix3D> {
+/* package */ class LabelledMatrix3DFormatter extends AbstractFormatter<LabelledMatrix3D> {
+
+  /* package */ LabelledMatrix3DFormatter() {
+    super(LabelledMatrix3D.class);
+  }
 
   @Override
-  public String formatForDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix3D value, ValueSpecification valueSpec) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + " x " + value.getZKeys().length + ")";
   }
 
   @Override
-  public Object formatForExpandedDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_3D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_3D;
   }
 }

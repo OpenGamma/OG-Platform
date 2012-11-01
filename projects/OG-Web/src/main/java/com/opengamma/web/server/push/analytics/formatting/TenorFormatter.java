@@ -13,20 +13,19 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-/* package */ class TenorFormatter extends NoHistoryFormatter<Tenor> {
+/* package */ class TenorFormatter extends AbstractFormatter<Tenor> {
+
+  protected TenorFormatter() {
+    super(Tenor.class);
+  }
 
   @Override
-  public Period formatForDisplay(Tenor tenor, ValueSpecification valueSpec) {
+  public Period formatCell(Tenor tenor, ValueSpecification valueSpec) {
     return tenor.getPeriod();
   }
 
   @Override
-  public Period formatForExpandedDisplay(Tenor tenor, ValueSpecification valueSpec) {
-    return tenor.getPeriod();
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.TENOR;
+  public DataType getDataType() {
+    return DataType.TENOR;
   }
 }
