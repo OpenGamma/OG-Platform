@@ -61,6 +61,13 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * @return the Spring application context, not null
    */
   protected GenericApplicationContext createApplicationContext(ComponentRepository repo) {
+    Resource springFile = getSpringFile();
+    try {
+      repo.getLogger().logDebug("  Spring file: " + springFile.getURI());
+    } catch (Exception ex) {
+      // ignore
+    }
+    
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     GenericApplicationContext appContext = new GenericApplicationContext(beanFactory);
     
@@ -71,7 +78,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     beanDefinitionReader.setValidating(true);
     beanDefinitionReader.setResourceLoader(appContext);
     beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(appContext));
-    beanDefinitionReader.loadBeanDefinitions(getSpringFile());
+    beanDefinitionReader.loadBeanDefinitions(springFile);
     
     appContext.getBeanFactory().registerSingleton("injectedProperties", properties);
     appContext.getBeanFactory().registerSingleton("componentRepository", repo);
