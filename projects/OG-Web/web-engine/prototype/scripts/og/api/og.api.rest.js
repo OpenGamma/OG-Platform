@@ -652,16 +652,13 @@ $.register_module({
                             },
                             put: function (config) {
                                 config = config || {};
-                                var root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['view_id', 'grid_type', 'graph_id', 'viewport_id', 'rows', 'columns'],
+                                var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns']}]
+                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns', 'format']}]
                                 });
                                 meta.type = 'POST';
-                                data.rows = config.rows;
-                                data.columns = config.columns;
-                                data.expanded = !!config.expanded;
+                                ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                                 data['clientId'] = api.id;
                                 method[1] = config.view_id;
                                 method[2] = config.grid_type;
@@ -717,16 +714,13 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'grid_type', 'viewport_id', 'rows', 'columns'],
+                            var root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
-                                required: [{all_of: ['view_id', 'rows', 'columns']}]
+                                required: [{all_of: ['view_id', 'rows', 'columns', 'format']}]
                             });
                             meta.type = 'POST';
-                            data.rows = config.rows;
-                            data.columns = config.columns;
-                            data.expanded = !!config.expanded;
+                            ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
                             method[2] = config.grid_type;

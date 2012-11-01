@@ -90,9 +90,9 @@ $.register_module({
         var load_query = function () {
             if (!~ac_menu.$input.val().indexOf('Db')) return;
             og.analytics.url.main(query = {
-                viewdefinition: ac_menu.$input.val(),
+                aggregators: ag_menu.get_query(),
                 providers: ds_menu.get_query(),
-                aggregators: ag_menu.get_query()
+                viewdefinition: ac_menu.$input.val()
             });
         };
         var keydown_handler = function (event) {
@@ -142,6 +142,10 @@ $.register_module({
                         obj.marketDataType = entry.marketDataType;
                         if (entry.source) obj.source = entry.source;
                         else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                        else if (entry.resolverKey) {
+                            obj.resolverKey = entry.resolverKey;
+                            if (entry.date) obj.date = entry.date;
+                        }
                         return obj;
                     })
                 };

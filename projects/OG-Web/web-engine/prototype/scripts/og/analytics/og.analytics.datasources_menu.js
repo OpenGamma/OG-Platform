@@ -35,8 +35,7 @@ $.register_module({
                 $custom.addClass(active_s+ ' ' +date_selected_s); 
                 $latest.removeClass(active_s);
                 if ($custom.parent().is(versions_s)) query[entry].version_date = $custom.datepicker('getDate');
-                else if ($custom.parent().is(corrections_s))
-                    query[entry].correction_date = $custom.val();
+                else if ($custom.parent().is(corrections_s)) query[entry].correction_date = $custom.val();
                 else query[entry].date = $custom.val();
             };
             var delete_handler = function (entry) {
@@ -98,7 +97,6 @@ $.register_module({
                 $parent = menu.opts[index];
                 $type_select = $parent.find(type_s);
                 $source_select = $parent.find(source_s);
-                $extra_opts = $parent.find(extra_opts_s);
             };
             var menu_handler = function (event) { // TODO AG: Refactor
                 var $elem = $(event.srcElement || event.target), entry;
@@ -168,7 +166,7 @@ $.register_module({
                 for (var i = menu.opts.length - 1; 0 < i; i-=1){
                     if (menu.opts.length === 1) break;
                     var option = menu.opts[i];
-                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val === default_type_txt)
+                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val() === default_sel_txt)
                         menu.delete_handler(option);
                 }
             };  
@@ -240,7 +238,7 @@ $.register_module({
                 return arr;
             };
             menu.replay_query = function (conf) { // TODO AG: refactor initial replay implementation
-                if (!conf && !conf.datasources) return;
+                if (!conf && !conf.datasources || !$.isArray(conf.datasources)) return;
                 menu.opts.forEach(function (option) {
                     option.remove();
                 });
@@ -256,12 +254,12 @@ $.register_module({
                 };
                 conf.datasources.forEach(function (src, index) {
                     if (menu.opts.length < conf.datasources.length) menu.add_handler();
-                    type_val = src.marketDataType;
-                    switch (type_val) {
+                    switch (src.marketDataType) {
                         case 'live': 
                             og.api.rest.livedatasources.get().pipe(function (resp) {
                                 if (resp.error) return;
                                 init_menu_elems(index);
+                                type_val = src.marketDataType;
                                 populate_src_options(resp.data);
                             }).pipe(function () {
                                 set_select_vals(src, index);
@@ -270,23 +268,48 @@ $.register_module({
                         case 'snapshot': 
                             og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                                 if (resp.error) return;
+                                type_val = src.marketDataType;
                                 init_menu_elems(index);
                                 populate_src_options(resp.data[0].snapshots);
                             }).pipe(function () {
                                 set_select_vals(src, index);
                             });
                             break;
-                        case 'historical': populate_historical(); break;
+                        case 'latestHistorical':
+                        case 'fixedHistorical' :
+                            type_val = 'historical';
+                            init_menu_elems(index);
+                            populate_historical();
+                            $type_select.val('Historical');
+                            $source_select.val(src.resolverKey);
+                            $extra_opts = $parent.find(extra_opts_s);
+                            $latest = $(latest_s, $extra_opts);
+                            $custom = $(custom_s, $extra_opts);
+                            enable_extra_options(true);
+                            query.splice(index, 0, {pos: index, src: src.resolverKey, type: 'Historical'});
+                            if (src.date) {
+                                $custom.addClass(active_s+ ' ' +date_selected_s); 
+                                $latest.removeClass(active_s);
+                                $custom.val(src.date);
+                                query[index].date = src.date;
+                            }
+                            display_query();
+                            break;
                         
                         //no default
                     }
                 });
             };
             menu.reset_query = function () {
-                return menu.opts.forEach(function (option, index) {
-                    init_menu_elems(index);
-                    delete_handler(index);
-                }), init_menu_elems(0), remove_ext_opts(), reset_query();
+                for (var i = menu.opts.length - 1; 0 < i; i-=1) {
+                    if (menu.opts.length === 1) {
+                        menu.opts[i].val(default_sel_txt);
+                        break;
+                    }
+                    init_menu_elems(i);
+                    delete_handler(i);
+                }
+                return init_menu_elems(0), remove_ext_opts(), reset_query();
             };
             return init(config), menu;
         };

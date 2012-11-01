@@ -8,17 +8,23 @@ $.register_module({
     obj: function () {
         var module = this, events = og.common.events, constructor = function (config) {
             var cell = this;
+            var fatal_handler = function (message) {
+                try {events.fire(cell.events.fatal, message);}
+                catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
+            };
             cell.dataman = new og.analytics.Data(config.source, true /* bypass checking for primitives/portfolio */)
-                .viewport({rows: [config.row], cols: [config.col], expanded: true})
+                .viewport({rows: [config.row], cols: [config.col], format: config.format})
                 .on('data', function (data) {
                     var cell_data = data[0];
                     try {events.fire(cell.events.data, cell_data);}
-                    catch (error) {og.dev.warn(module.name + ': a data handler threw ', error);}
+                    catch (error) {
+                        og.dev.warn(module.name + ': a data handler threw ', error);
+                        cell.kill();
+                        fatal_handler(module.name + ': a data handler threw error: ' +
+                            (error.message || 'an unknown error') + ' (check console.$)');
+                    }
                 })
-                .on('fatal', function (message) {
-                    try {events.fire(cell.events.fatal, message);}
-                    catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
-                });
+                .on('fatal', fatal_handler);
             cell.events = {data: [], fatal: []};
         };
         constructor.prototype.kill = function () {this.dataman.kill();};

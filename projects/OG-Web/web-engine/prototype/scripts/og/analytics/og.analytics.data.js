@@ -16,14 +16,21 @@ $.register_module({
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = null, depgraph = !!config.depgraph, types_emitted = false, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
-            var data_handler = function (result) {
-                data.busy(false);
-                if (!result || result.error) // do not kill connection even if there is an error, just warn
-                    return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
-                if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
-                if (viewport && viewport.empty !== true && result.data.version === viewport_version)
-                    fire(data.events.data, result.data.data);
-            };
+            var data_handler = (function () {
+                var timeout = null, rate = 500, last = +new Date, current, delta, handler = function (result) {
+                    data.busy(false);
+                    if (!result || result.error) // do not kill connection even if there is an error, just warn
+                        return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
+                    if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
+                    if (viewport && viewport.empty !== true && result.data.version === viewport_version)
+                        fire(data.events.data, result.data.data);
+                };
+                return function (result) {
+                    clearTimeout(timeout);
+                    if ((delta = (current = +new Date) - last) >= rate) return (last = current), handler(result);
+                    timeout = setTimeout(data_handler.partial(result), rate - delta);
+                };
+            })();
             var data_setup = function () {
                 if (!view_id || !viewport) return;
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
@@ -35,11 +42,11 @@ $.register_module({
                 }) : viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
-                        rows: viewport.rows, columns: viewport.cols, expanded: viewport.expanded
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
                     }).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) // goes to data_setup so take care
-                            return (view_id = graph_id = viewport_id = subscribed = null);
+                            return (view_id = graph_id = viewport_id = subscribed = null), result;
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports.get({
                             view_id: view_id, grid_type: grid_type, graph_id: graph_id,
@@ -167,7 +174,7 @@ $.register_module({
                 try { // viewport definitions come from outside, so try/catch
                     viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
-                        rows: viewport.rows, columns: viewport.cols, expanded: !!viewport.expanded
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
                     }).pipe(function (result) {
                         if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
                     });
