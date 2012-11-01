@@ -14,14 +14,14 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
  */
 public class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalculatedSentinel> {
 
-  /**
-   * @param value The value
-   * @param valueSpec Its specification
-   * @return Description of the value (which is the reason the calculation failed)
-   */
-  @Override
-  public Object formatForDisplay(NotCalculatedSentinel value, ValueSpecification valueSpec) {
-    return value.toString();
+  /* package */ NotCalculatedSentinelFormatter() {
+    super(NotCalculatedSentinel.class);
+    addFormatter(new Formatter<NotCalculatedSentinel>(Format.HISTORY) {
+      @Override
+      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+        return null;
+      }
+    });
   }
 
   /**
@@ -30,22 +30,12 @@ public class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalcula
    * @return Description of the value (which is the reason the calculation failed)
    */
   @Override
-  public Object formatForExpandedDisplay(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+  public Object formatCell(NotCalculatedSentinel value, ValueSpecification valueSpec) {
     return value.toString();
   }
 
-  /**
-   * @param history The value
-   * @param valueSpec Its specification
-   * @return null
-   */
   @Override
-  public Object formatForHistory(NotCalculatedSentinel history, ValueSpecification valueSpec) {
-    return null;
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.PRIMITIVE;
+  public DataType getDataType() {
+    return DataType.PRIMITIVE;
   }
 }

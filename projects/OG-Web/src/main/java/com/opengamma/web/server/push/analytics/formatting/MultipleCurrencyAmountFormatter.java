@@ -11,21 +11,19 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-/* package */ class MultipleCurrencyAmountFormatter extends NoHistoryFormatter<MultipleCurrencyAmount> {
+/* package */ class MultipleCurrencyAmountFormatter extends AbstractFormatter<MultipleCurrencyAmount> {
+
+  /* package */ MultipleCurrencyAmountFormatter() {
+    super(MultipleCurrencyAmount.class);
+  }
 
   @Override
-  public String formatForDisplay(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+  public String formatCell(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
     return "Vectors (" + value.size() + ")";
   }
 
   @Override
-  public Object formatForExpandedDisplay(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_1D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_1D;
   }
 }

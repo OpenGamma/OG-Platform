@@ -11,22 +11,26 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class HistoricalTimeSeriesFormatter extends NoHistoryFormatter<HistoricalTimeSeries> {
+/* package */ class HistoricalTimeSeriesFormatter extends AbstractFormatter<HistoricalTimeSeries> {
 
   private final LocalDateDoubleTimeSeriesFormatter _delegate = new LocalDateDoubleTimeSeriesFormatter();
 
-  @Override
-  public Object formatForDisplay(HistoricalTimeSeries value, ValueSpecification valueSpec) {
-    return _delegate.formatForDisplay(value.getTimeSeries(), valueSpec);
+  /* package */ HistoricalTimeSeriesFormatter() {
+    super(HistoricalTimeSeries.class);
   }
 
   @Override
-  public Object formatForExpandedDisplay(HistoricalTimeSeries value, ValueSpecification valueSpec) {
-    return _delegate.formatForExpandedDisplay(value.getTimeSeries(), valueSpec);
+  public Object formatCell(HistoricalTimeSeries value, ValueSpecification valueSpec) {
+    return _delegate.formatCell(value.getTimeSeries(), valueSpec);
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.TIME_SERIES;
+  public Object format(HistoricalTimeSeries value, ValueSpecification valueSpec, Format format) {
+    return super.format(value, valueSpec, format);
+  }
+
+  @Override
+  public DataType getDataType() {
+    return DataType.TIME_SERIES;
   }
 }

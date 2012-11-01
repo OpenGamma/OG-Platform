@@ -12,38 +12,17 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 /* package */ class NullFormatter extends AbstractFormatter<Object> {
 
-  /**
-   * @param nullValue Not used
-   * @param valueSpec Not used
-   * @return An empty string
-   */
+  NullFormatter() {
+    super(Object.class);
+  }
+
   @Override
-  public String formatForDisplay(Object nullValue, ValueSpecification valueSpec) {
+  public Object formatCell(Object value, ValueSpecification valueSpec) {
     return "";
   }
 
-  /**
-   * @param nullValue Not used
-   * @param valueSpec Not used
-   * @return An empty string
-   */
   @Override
-  public Object formatForExpandedDisplay(Object nullValue, ValueSpecification valueSpec) {
-    return "";
-  }
-
-  /**
-   * @param nullHistoryValue Not used
-   * @param valueSpec Not used
-   * @return null
-   */
-  @Override
-  public Object formatForHistory(Object nullHistoryValue, ValueSpecification valueSpec) {
-    return null;
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.PRIMITIVE;
+  public DataType getDataType() {
+    return DataType.PRIMITIVE;
   }
 }

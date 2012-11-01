@@ -10,10 +10,20 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class DoubleObjectArrayFormatter extends NoHistoryFormatter<Double[][]> {
+/* package */ class DoubleObjectArrayFormatter extends AbstractFormatter<Double[][]> {
+
+  /* package */ DoubleObjectArrayFormatter() {
+    super(Double[][].class);
+    addFormatter(new Formatter<Double[][]>(Format.EXPANDED) {
+      @Override
+      Object format(Double[][] value, ValueSpecification valueSpec) {
+        return value;
+      }
+    });
+  }
 
   @Override
-  public Object formatForDisplay(Double[][] value, ValueSpecification valueSpec) {
+  public Object formatCell(Double[][] value, ValueSpecification valueSpec) {
     int rowCount;
     int colCount;
     rowCount = value.length;
@@ -26,12 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Double[][] formatForExpandedDisplay(Double[][] value, ValueSpecification valueSpec) {
-    return value;
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_2D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_2D;
   }
 }

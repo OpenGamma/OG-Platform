@@ -13,6 +13,7 @@ import javax.time.Duration;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * Set of calculation results for displaying in the viewport of a grid of analytics data.
@@ -69,8 +70,8 @@ public class ViewportResults {
    * @return Whether the data is a summary or the full data. Summary data fits in a single grid cell whereas
    * the full data might need more space. e.g. displaying matrix data in a window that pops up over the main grid.
    */
-  /* package */ boolean isExpanded() {
-    return _viewportDefinition.isExpanded();
+  /* package */ TypeFormatter.Format getFormat() {
+    return _viewportDefinition.getFormat();
   }
 
   /**

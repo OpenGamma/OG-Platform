@@ -21,12 +21,22 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class ForwardCurveFormatter extends NoHistoryFormatter<ForwardCurve> {
+/* package */ class ForwardCurveFormatter extends AbstractFormatter<ForwardCurve> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ForwardCurveFormatter.class);
 
+  /* package */ ForwardCurveFormatter() {
+    super(ForwardCurve.class);
+    addFormatter(new Formatter<ForwardCurve>(Format.EXPANDED) {
+      @Override
+      Object format(ForwardCurve value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
+  }
+
   @Override
-  public List<Double[]> formatForDisplay(ForwardCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(ForwardCurve value, ValueSpecification valueSpec) {
     List<Double[]> data = new ArrayList<Double[]>();
     if (value.getForwardCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getForwardCurve();
@@ -49,8 +59,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  @Override
-  public List<Double[]> formatForExpandedDisplay(ForwardCurve value, ValueSpecification valueSpec) {
+  private List<Double[]> formatExpanded(ForwardCurve value) {
     Curve<Double, Double> forwardCurve = value.getForwardCurve();
     if (forwardCurve instanceof FunctionalDoublesCurve) {
       return formatFunctionalDoubleCurve((FunctionalDoublesCurve) forwardCurve);
@@ -82,7 +91,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.CURVE;
+  public DataType getDataType() {
+    return DataType.CURVE;
   }
 }

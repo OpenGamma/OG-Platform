@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import static com.opengamma.web.server.push.analytics.formatting.Formatter.FormatType.UNKNOWN;
+import static com.opengamma.web.server.push.analytics.formatting.DataType.UNKNOWN;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -19,8 +19,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormatter;
-import com.opengamma.web.server.push.analytics.formatting.Formatter;
+import com.opengamma.web.server.push.analytics.formatting.DataType;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * Creates a JSON object from an instance of {@link ViewportResults}.
@@ -50,21 +51,17 @@ public class ViewportResultsJsonWriter {
       Object formattedValue;
       Object cellValue = cell.getValue();
       ValueSpecification cellValueSpec = cell.getValueSpecification();
-      if (viewportResults.isExpanded()) {
-        formattedValue = _formatter.formatForExpandedDisplay(cellValue, cellValueSpec);
-      } else {
-        formattedValue = _formatter.formatForDisplay(cellValue, cellValueSpec);
-      }
+      formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
-      Formatter.FormatType columnFormat = _formatter.getFormatForType(columnType);
+      DataType columnFormat = _formatter.getDataType(columnType);
       if (columnFormat == UNKNOWN || history != null || cell.isError()) {
         // if there is history, an error or we need to send type info then we need to send an object, not just the value
         Map<String, Object> valueMap = Maps.newHashMap();
         valueMap.put(VALUE, formattedValue);
         if (columnFormat == UNKNOWN) {
           // if the the column type isn't known then send the type with the value
-          valueMap.put(TYPE, _formatter.getFormatForValue(cellValue, cellValueSpec).name());
+          valueMap.put(TYPE, _formatter.getDataTypeForValue(cellValue, cellValueSpec).name());
         }
         if (history != null) {
           valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
@@ -93,7 +90,7 @@ public class ViewportResultsJsonWriter {
   private List<Object> formatHistory(ValueSpecification cellValueSpec, Collection<Object> history) {
     List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
     for (Object historyValue : history) {
-      formattedHistory.add(_formatter.formatForHistory(historyValue, cellValueSpec));
+      formattedHistory.add(_formatter.format(historyValue, cellValueSpec, TypeFormatter.Format.HISTORY));
     }
     return formattedHistory;
   }

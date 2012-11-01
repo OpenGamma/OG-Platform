@@ -19,55 +19,63 @@ import com.opengamma.util.money.CurrencyAmount;
   private final BigDecimalFormatter _bigDecimalFormatter;
 
   /* package */ CurrencyAmountFormatter(BigDecimalFormatter bigDecimalFormatter) {
+    super(CurrencyAmount.class);
     ArgumentChecker.notNull(bigDecimalFormatter, "");
     _bigDecimalFormatter = bigDecimalFormatter;
+    addFormatter(new Formatter<CurrencyAmount>(Format.EXPANDED) {
+      @Override
+      Object format(CurrencyAmount value, ValueSpecification valueSpec) {
+        return formatExpanded(value, valueSpec);
+      }
+    });
+    addFormatter(new Formatter<CurrencyAmount>(Format.HISTORY) {
+      @Override
+      Object format(CurrencyAmount value, ValueSpecification valueSpec) {
+        return formatForHistory(value, valueSpec);
+      }
+    });
   }
 
   @Override
-  public String formatForDisplay(CurrencyAmount value, ValueSpecification valueSpec) {
+  public String formatCell(CurrencyAmount value, ValueSpecification valueSpec) {
     double amount = value.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
       return Double.toString(amount);
     } else {
-      return value.getCurrency().getCode() + " " + _bigDecimalFormatter.formatForDisplay(bigDecimal, valueSpec);
+      return value.getCurrency().getCode() + " " + _bigDecimalFormatter.formatCell(bigDecimal, valueSpec);
     }
   }
 
-  @Override
-  public String formatForExpandedDisplay(CurrencyAmount value, ValueSpecification valueSpec) {
+  private Object formatExpanded(CurrencyAmount value, ValueSpecification valueSpec) {
     double amount = value.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
       return Double.toString(amount);
     } else {
-      return _bigDecimalFormatter.formatForExpandedDisplay(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.EXPANDED);
     }
   }
 
   /**
    * Returns the value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
-   *
-   *
-   *
    * @param history The currency value, not null
    * @param valueSpec The specification that produced the value
    * @return The value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
    */
-  @Override
-  public BigDecimal formatForHistory(CurrencyAmount history, ValueSpecification valueSpec) {
+  private Object formatForHistory(CurrencyAmount history, ValueSpecification valueSpec) {
     double amount = history.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
       return null;
     } else {
-      return _bigDecimalFormatter.formatForHistory(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.HISTORY);
     }
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.DOUBLE;
+  public DataType getDataType() {
+    return DataType.DOUBLE;
   }
 
   /**

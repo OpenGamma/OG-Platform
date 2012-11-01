@@ -15,10 +15,14 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class DoublesCurveFormatter extends NoHistoryFormatter<DoublesCurve> {
+/* package */ class DoublesCurveFormatter extends AbstractFormatter<DoublesCurve> {
+
+  /* package */ DoublesCurveFormatter() {
+    super(DoublesCurve.class);
+  }
 
   @Override
-  public Object formatForDisplay(DoublesCurve value, ValueSpecification valueSpec) {
+  public Object formatCell(DoublesCurve value, ValueSpecification valueSpec) {
     if (value instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value;
       List<Double[]> data = new ArrayList<Double[]>();
@@ -34,13 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(DoublesCurve value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.CURVE;
+  public DataType getDataType() {
+    return DataType.CURVE;
   }
 }

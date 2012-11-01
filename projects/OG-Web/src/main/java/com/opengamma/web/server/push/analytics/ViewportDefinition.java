@@ -9,22 +9,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 
 /**
  * Definition of a viewport on an grid displaying analytics data. A viewport represents the visible part of a grid.
  */
 public abstract class ViewportDefinition implements Iterable<GridCell> {
+  
+  private final TypeFormatter.Format _format;
 
-  /**
-   * Whether the viewport's data should be displayed as a summary or in full. Summary data fits in a single
-   * grid cell whereas the full data might need more space. e.g. displaying matrix data in a window that pops
-   * up over the main grid.
-   */
-  private final boolean _expanded;
-
-  protected ViewportDefinition(boolean expanded) {
-    _expanded = expanded;
+  protected ViewportDefinition(TypeFormatter.Format format) {
+    ArgumentChecker.notNull(format, "format");
+    _format = format;
   }
 
   /**
@@ -41,15 +38,6 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
   /* package */ abstract boolean isValidFor(GridStructure gridStructure);
 
   /**
-   * @return Whether the viewport's data should be displayed as a summary or in full. Summary data fits in a single
-   * grid cell whereas the full data might need more space. e.g. displaying matrix data in a window that pops
-   * up over the main grid.
-   */
-  /* package */ boolean isExpanded() {
-    return _expanded;
-  }
-
-  /**
    * Creates a viewport definition from row and column indices <em>or</em> a list of cells. If row and column indices
    * are specified they must both be non-empty and cells must be empty. If specifying cells the row and column indices
    * must be empty.
@@ -62,7 +50,10 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
    * @param expanded Whether the cell data should show all the data (true) or be formatted to fit in a single cell (false)
    * @return A new viewport definition
    */
-  public static ViewportDefinition create(List<Integer> rows, List<Integer> columns, List<GridCell> cells, boolean expanded) {
+  public static ViewportDefinition create(List<Integer> rows,
+                                          List<Integer> columns,
+                                          List<GridCell> cells,
+                                          TypeFormatter.Format format) {
     ArgumentChecker.notNull(cells, "cells");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
@@ -70,12 +61,19 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
       if (rows.size() != 0 || columns.size() != 0) {
         throw new IllegalArgumentException("rows and columns must be empty if cells are specified");
       }
-      return new ArbitraryViewportDefinition(cells, expanded);
+      return new ArbitraryViewportDefinition(cells, format);
     } else {
       if (rows.size() == 0 || columns.size() == 0) {
         throw new IllegalArgumentException("rows and columns must not be empty if no cells are specified");
       }
-      return new RectangularViewportDefinition(rows, columns, expanded);
+      return new RectangularViewportDefinition(rows, columns, format);
     }
+  }
+
+  /**
+   * @return
+   */
+  public TypeFormatter.Format getFormat() {
+    return _format;
   }
 }

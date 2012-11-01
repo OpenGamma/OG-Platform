@@ -17,6 +17,7 @@ import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridCell;
 import com.opengamma.web.server.push.analytics.ViewportDefinition;
 import com.opengamma.web.server.push.analytics.ViewportResults;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for grid viewports. A viewport represents the part of the grid that is visible.
@@ -55,8 +56,8 @@ public abstract class AbstractViewportResource {
   public ViewportVersion update(@FormParam("rows") List<Integer> rows,
                                 @FormParam("columns") List<Integer> columns,
                                 @FormParam("cells") List<GridCell> cells,
-                                @FormParam("expanded") boolean expanded) {
-    long version = update(ViewportDefinition.create(rows, columns, cells, expanded));
+                                @FormParam("format") TypeFormatter.Format format) {
+    long version = update(ViewportDefinition.create(rows, columns, cells, format));
     return new ViewportVersion(version);
   }
 

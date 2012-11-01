@@ -16,6 +16,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 public class RectangularViewportDefinitionTest {
 
@@ -23,7 +24,7 @@ public class RectangularViewportDefinitionTest {
   public void iterator() {
     RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10, 11),
-                                                                                    true);
+                                                                                    TypeFormatter.Format.EXPANDED);
     ImmutableList<GridCell> gridCells = ImmutableList.copyOf(viewportCells.iterator());
     List<GridCell> expectedCells = ImmutableList.of(
         new GridCell(3, 8),
@@ -42,7 +43,7 @@ public class RectangularViewportDefinitionTest {
   public void isValidForGrid() {
     RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10),
-                                                                                    true);
+                                                                                    TypeFormatter.Format.EXPANDED);
     GridStructure validStructure = mock(GridStructure.class);
     stub(validStructure.getColumnCount()).toReturn(20);
     stub(validStructure.getRowCount()).toReturn(10);
