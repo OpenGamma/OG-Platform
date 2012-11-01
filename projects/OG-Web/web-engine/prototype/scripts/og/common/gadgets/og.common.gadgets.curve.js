@@ -9,7 +9,8 @@ $.register_module({
         var prefix = 'og_curve_gadget_', counter = 1, module = this;
         return function (config) {
             var gadget = this, $curve, alive = prefix + counter++;
-            gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
+            gadget.dataman = new og.analytics
+                .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'})
                 .on('data', function (data) {
                     data = data.v || data; 
                     if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);

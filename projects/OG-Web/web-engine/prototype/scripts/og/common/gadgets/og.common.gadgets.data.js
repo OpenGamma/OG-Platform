@@ -13,7 +13,8 @@ $.register_module({
             gadget.alive = function () {return $(config.selector).length ? true : (gadget.die(), false);};
             gadget.load = function () {
                 $(config.selector).addClass(alive).css(css_position);
-                gadget.dataman = new og.analytics.Cell({source: config.source, col: config.col, row: config.row})
+                gadget.dataman = new og.analytics
+                    .Cell({source: config.source, col: config.col, row: config.row, format: 'EXPANDED'})
                     .on('data', function (data) {
                         data = data.v || data;
                         if (data && typeof data === 'object') {

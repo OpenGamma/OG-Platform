@@ -42,11 +42,11 @@ $.register_module({
                 }) : viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
-                        rows: viewport.rows, columns: viewport.cols, expanded: viewport.expanded
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
                     }).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) // goes to data_setup so take care
-                            return (view_id = graph_id = viewport_id = subscribed = null);
+                            return (view_id = graph_id = viewport_id = subscribed = null), result;
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports.get({
                             view_id: view_id, grid_type: grid_type, graph_id: graph_id,
@@ -174,7 +174,7 @@ $.register_module({
                 try { // viewport definitions come from outside, so try/catch
                     viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
-                        rows: viewport.rows, columns: viewport.cols, expanded: !!viewport.expanded
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
                     }).pipe(function (result) {
                         if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
                     });

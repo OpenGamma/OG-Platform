@@ -16,9 +16,11 @@ $.register_module({
                 return live;
             };
             gadget.resize = function () {try {timeseries.resize();} catch (error) {}};
-            gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
+            gadget.dataman = new og.analytics
+                .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'})
                 .on('data', function (data) {
-                    timeseries = new og.common.gadgets.TimeseriesPlot($.extend(true, {}, config, {data: [data]}));
+                    if (!timeseries) timeseries = new og.common.gadgets
+                        .TimeseriesPlot($.extend(true, {}, config, {data: [data.v || data]}));
                 })
                 .on('fatal', function (message) {$selector.html(message)});
             if (!config.child) og.common.gadgets.manager.register(gadget);

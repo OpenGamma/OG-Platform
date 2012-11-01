@@ -122,14 +122,15 @@ $.register_module({
         };
         constructor.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
-                expanded = selection.rows.length === 1 && selection.cols.length === 1;
+                expanded = selection.rows.length === 1 && selection.cols.length === 1,
+                format = expanded ? 'EXPANDED' : 'CELL';
             if (selection === null) return clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
             grid_data = grid.range(selection, expanded);
             if (same_viewport(clipboard.selection, selection)) if (same_viewport(selection, data_viewport))
                 return grid_data ? (clipboard.dataman.viewport(null), clipboard.data = grid_data) : null;
             return (clipboard.selection = selection) && grid_data ?
                 (clipboard.dataman.viewport(null), clipboard.data = grid_data)
-                    : (clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols, expanded: expanded}),
+                    : (clipboard.dataman.viewport({rows: selection.rows, cols: selection.cols, format: format}),
                         clipboard.data = null);
         };
         $(function () {
