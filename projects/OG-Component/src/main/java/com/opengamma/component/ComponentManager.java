@@ -10,8 +10,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -20,8 +22,6 @@ import javax.time.calendar.TimeZone;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -59,8 +59,6 @@ import com.opengamma.util.PlatformConfigUtils;
  */
 public class ComponentManager {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
   /**
    * The server name property.
    */
@@ -78,6 +76,10 @@ public class ComponentManager {
    * The component repository.
    */
   private final ComponentRepository _repo;
+  /**
+   * The component logger.
+   */
+  private final ComponentLogger _logger;
   /**
    * The component properties.
    */
@@ -104,12 +106,22 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
+   * Creates an instance that does not log.
    * 
    * @param serverName  the server name, not null
    */
   public ComponentManager(String serverName) {
-    this(serverName, new ComponentRepository());
+    this(serverName, ComponentLogger.Sink.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param serverName  the server name, not null
+   * @param logger  the logger, not null
+   */
+  public ComponentManager(String serverName, ComponentLogger logger) {
+    this(serverName, new ComponentRepository(logger));
   }
 
   /**
@@ -122,6 +134,7 @@ public class ComponentManager {
     ArgumentChecker.notNull(serverName, "serverName");
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
+    _logger = repo.getLogger();
     getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
   }
 
@@ -191,6 +204,8 @@ public class ComponentManager {
    * @return the created repository, not null
    */
   public ComponentRepository start(Resource resource) {
+    _logger.logInfo("  Using file: " + resource.getDescription());
+    
     if (resource.getFilename().endsWith(".properties")) {
       String nextConfig = loadProperties(resource);
       if (nextConfig == null) {
@@ -244,11 +259,25 @@ public class ComponentManager {
    * @param resource  the INI resource location, not null
    */
   protected void loadIni(Resource resource) {
+    logProperties();
+    
     ComponentConfigLoader loader = new ComponentConfigLoader();
     ComponentConfig config = loader.load(resource, getProperties());
     getRepository().pushThreadLocal();
     initGlobal(config);
     init(config);
+  }
+
+  private void logProperties() {
+    _logger.logDebug("--- Using merged properties ---");
+    Map<String, String> properties = new TreeMap<String, String>(getProperties());
+    for (String key : properties.keySet()) {
+      if (key.contains("password")) {
+        _logger.logDebug(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
+      } else {
+        _logger.logDebug(" " + key + " = " + properties.get(key));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -285,8 +314,13 @@ public class ComponentManager {
    * Starts the components.
    */
   protected void start() {
-    s_logger.info("Starting repository");
+    _logger.logInfo("--- Starting Lifecycle ---");
+    long startInstant = System.nanoTime();
+    
     getRepository().start();
+    
+    long endInstant = System.nanoTime();
+    _logger.logInfo("--- Started Lifecycle in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
   }
 
   //-------------------------------------------------------------------------
@@ -297,9 +331,13 @@ public class ComponentManager {
    * @param groupConfig  the config data, not null
    */
   protected void initComponent(String groupName, LinkedHashMap<String, String> groupConfig) {
+    _logger.logInfo("--- Initializing " + groupName + " ---");
+    long startInstant = System.nanoTime();
+    
     LinkedHashMap<String, String> remainingConfig = new LinkedHashMap<String, String>(groupConfig);
     String typeStr = remainingConfig.remove("factory");
-    s_logger.debug("Initializing component: {} with properties {}", typeStr, remainingConfig);
+    _logger.logDebug(" Initializing factory '" + typeStr);
+    _logger.logDebug(" Using properties " + remainingConfig);
     
     // load factory
     ComponentFactory factory = loadFactory(typeStr);
@@ -317,6 +355,9 @@ public class ComponentManager {
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + groupConfig, ex);
     }
+    
+    long endInstant = System.nanoTime();
+    _logger.logInfo("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
   }
 
   //-------------------------------------------------------------------------
