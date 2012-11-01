@@ -60,13 +60,13 @@ import com.opengamma.util.tuple.Pair;
    * Puts a set of results into the cache.
    * @param results The results, not null
    */
-  /* package */ void put(ViewResultModel results) {
+  /* package */ void put(final ViewResultModel results) {
     ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     _lastCalculationDuration = results.getCalculationDuration();
-    List<ViewResultEntry> allResults = results.getAllResults();
-    for (ViewResultEntry result : allResults) {
-      ComputedValue computedValue = result.getComputedValue();
+    final List<ViewResultEntry> allResults = results.getAllResults();
+    for (final ViewResultEntry result : allResults) {
+      final ComputedValue computedValue = result.getComputedValue();
       put(result.getCalculationConfiguration(), computedValue.getSpecification(), computedValue.getValue());
     }
   }
@@ -77,12 +77,12 @@ import com.opengamma.util.tuple.Pair;
    * @param results The results
    * @param duration Duration of the calculation cycle that produced the results
    */
-  /* package */ void put(String calcConfigName, List<Pair<ValueSpecification, Object>> results, Duration duration) {
+  /* package */ void put(final String calcConfigName, final List<Pair<ValueSpecification, Object>> results, final Duration duration) {
     _lastUpdateId++;
     _lastCalculationDuration = duration;
-    for (Pair<ValueSpecification, Object> result : results) {
-      ValueSpecification spec = result.getFirst();
-      Object value = result.getSecond();
+    for (final Pair<ValueSpecification, Object> result : results) {
+      final ValueSpecification spec = result.getFirst();
+      final Object value = result.getSecond();
       put(calcConfigName, spec, value);
     }
   }
@@ -93,11 +93,11 @@ import com.opengamma.util.tuple.Pair;
    * @param spec The value's specification
    * @param value The value
    */
-  private void put(String calcConfigName, ValueSpecification spec, Object value) {
-    ResultKey key = new ResultKey(calcConfigName, spec);
-    CacheItem cacheResult = _results.get(key);
+  private void put(final String calcConfigName, final ValueSpecification spec, final Object value) {
+    final ResultKey key = new ResultKey(calcConfigName, spec);
+    final CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
-      CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
+      final CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
       _results.put(key, newResult);
     } else {
       cacheResult.setLatestValue(value, _lastUpdateId);
@@ -111,7 +111,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The item's history or null if no history is stored for the item's type or no value has ever been received
    * for the item
    */
-  /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec) {
+  /* package */ Collection<Object> getHistory(final String calcConfigName, final ValueSpecification valueSpec) {
     return getResult(calcConfigName, valueSpec, null).getHistory();
   }
 
@@ -124,11 +124,11 @@ import com.opengamma.util.tuple.Pair;
    * provided for missing values.
    * @return A cache result, not null
    */
-  /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
-    CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
+  /* package */ Result getResult(final String calcConfigName, final ValueSpecification valueSpec, final Class<?> columnType) {
+    final CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
     if (item != null) {
       // flag whether this result was updated by the last set of results that were put into the cache
-      boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
+      final boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
       return new Result(item.getValue(), item.getHistory(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
@@ -156,7 +156,7 @@ import com.opengamma.util.tuple.Pair;
     private final Collection<Object> _history;
     private final boolean _updated;
 
-    private Result(Object value, Collection<Object> history, boolean updated) {
+    private Result(final Object value, final Collection<Object> history, final boolean updated) {
       _value = value;
       _history = history;
       _updated = updated;
@@ -210,12 +210,12 @@ import com.opengamma.util.tuple.Pair;
     private long _lastUpdateId = -1;
 
     @SuppressWarnings("unchecked")
-    private CacheItem(Collection<Object> history) {
+    private CacheItem(final Collection<Object> history) {
       _history = history;
     }
 
     @SuppressWarnings("unchecked")
-    private static CacheItem forValue(Object value, long lastUpdateId) {
+    private static CacheItem forValue(final Object value, final long lastUpdateId) {
       ArgumentChecker.notNull(value, "latestValue");
       CircularFifoBuffer history;
       if (s_historyTypes.contains(value.getClass())) {
@@ -223,7 +223,7 @@ import com.opengamma.util.tuple.Pair;
       } else {
         history = null;
       }
-      CacheItem result = new CacheItem(history);
+      final CacheItem result = new CacheItem(history);
       result.setLatestValue(value, lastUpdateId);
       return result;
     }
@@ -237,7 +237,7 @@ import com.opengamma.util.tuple.Pair;
      * @param latestValue The value
      * @param lastUpdateId ID of the set of results that calculated it
      */
-    private void setLatestValue(Object latestValue, long lastUpdateId) {
+    private void setLatestValue(final Object latestValue, final long lastUpdateId) {
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
       if (_history != null) {
@@ -262,6 +262,20 @@ import com.opengamma.util.tuple.Pair;
     private long getLastUpdateId() {
       return _lastUpdateId;
     }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("Result(");
+      sb.append(getLastUpdateId());
+      sb.append(", ");
+      if (getValue() != null) {
+        sb.append(getValue().toString());
+      } else {
+        sb.append("NULL");
+      }
+      return sb.append(")").toString();
+    }
+
   }
 
   /**
@@ -272,20 +286,20 @@ import com.opengamma.util.tuple.Pair;
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;
 
-    private ResultKey(String calcConfigName, ValueSpecification valueSpec) {
+    private ResultKey(final String calcConfigName, final ValueSpecification valueSpec) {
       _calcConfigName = calcConfigName;
       _valueSpec = valueSpec;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      ResultKey resultKey = (ResultKey) o;
+      final ResultKey resultKey = (ResultKey) o;
       if (!_calcConfigName.equals(resultKey._calcConfigName)) {
         return false;
       }
@@ -298,5 +312,11 @@ import com.opengamma.util.tuple.Pair;
       result = 31 * result + _valueSpec.hashCode();
       return result;
     }
+
+    @Override
+    public String toString() {
+      return _valueSpec.toString() + "/" + _calcConfigName;
+    }
+
   }
 }

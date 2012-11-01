@@ -83,7 +83,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
       @Override
       public Row apply(final PortfolioNode parentNode, final Position position) {
-        final ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId());
+        final ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId().toLatest());
         return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
 
