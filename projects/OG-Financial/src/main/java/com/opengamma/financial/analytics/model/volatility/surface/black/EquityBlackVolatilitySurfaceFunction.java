@@ -141,7 +141,7 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
 
   @Override
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs) {
-    final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DATA);
+    final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface data");
     }
