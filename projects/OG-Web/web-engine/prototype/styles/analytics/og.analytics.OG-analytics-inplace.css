@@ -3,12 +3,11 @@
  * Please see distribution for license.
  */
 .OG-analytics-inplace .og-menu {
-    background-color: #C9CACB;
     display: none;
     height: 300px;
     margin-left: 3px;
     margin-top: 20px;
-    width: 400px;
+    width: 480px;
     position: absolute;
 }
 
@@ -19,3 +18,28 @@
     height: 11px;
     left: -2px;
 }
+
+.OG-analytics-inplace .ui-layout-content {
+    background-color: #F8F8F8;
+    box-shadow: 3px 3px 3px #ebebeb;
+    -moz-box-shadow: 3px 3px 3px #ebebeb;
+    -webkit-box-shadow: 3px 3px 3px #ebebeb;
+    height:275px;
+}
+
+.OG-analytics-inplace .ui-layout-header {
+    background: none;
+}
+
+.OG-analytics-inplace .OG-gadgets-container {
+    background: none;
+}
+
+.OG-analytics-inplace .OG-gadget-tabs {
+    border-top: none;
+}
+
+.OG-analytics-inplace .OG-gadget-tabs ul:before {
+    height: 0;
+}
+
