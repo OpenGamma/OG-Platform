@@ -15,6 +15,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -29,7 +30,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   private final AnalyticsNode _root;
 
-  /* package */PortfolioGridStructure(CompiledViewDefinition compiledViewDef) {
+  /* package */PortfolioGridStructure(final CompiledViewDefinition compiledViewDef) {
     super(compiledViewDef, rows(compiledViewDef));
     ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
@@ -43,12 +44,13 @@ public class PortfolioGridStructure extends MainGridStructure {
     return new PortfolioGridStructure();
   }
 
-  protected List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-    List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
-    for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
-      String valueName = portfolioOutput.getFirst();
-      ValueProperties constraints = portfolioOutput.getSecond();
-      RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
+  @Override
+  protected List<RequirementBasedColumnKey> buildColumns(final ViewCalculationConfiguration calcConfig) {
+    final List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
+    for (final Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
+      final String valueName = portfolioOutput.getFirst();
+      final ValueProperties constraints = portfolioOutput.getSecond();
+      final RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
       columnKeys.add(columnKey);
     }
     return columnKeys;
@@ -63,11 +65,11 @@ public class PortfolioGridStructure extends MainGridStructure {
     if (portfolio == null) {
       return Collections.emptyList();
     }
-    PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
+    final PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
 
       @Override
-      public Row apply(PortfolioNode node) {
-        ComputationTargetSpecification target = ComputationTargetSpecification.of(node);
+      public Row apply(final PortfolioNode node) {
+        final ComputationTargetSpecification target = ComputationTargetSpecification.of(node);
         String nodeName;
         // if the parent ID is null it's the root node
         if (node.getParentNodeId() == null) {
@@ -80,10 +82,11 @@ public class PortfolioGridStructure extends MainGridStructure {
       }
 
       @Override
-      public Row apply(Position position) {
-        ComputationTargetSpecification target = ComputationTargetSpecification.of(position);
+      public Row apply(final PortfolioNode parentNode, final Position position) {
+        final ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(ComputationTargetType.POSITION, position.getUniqueId());
         return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
+
     };
     return PortfolioMapper.map(portfolio.getRootNode(), targetFn);
   }
