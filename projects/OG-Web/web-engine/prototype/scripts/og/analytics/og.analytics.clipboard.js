@@ -79,7 +79,8 @@ $.register_module({
         var constructor = function (grid) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
-            clipboard.dataman = new og.analytics.Data(grid.source, true).on('data', data_handler, clipboard);
+            clipboard.dataman = new og.analytics.Data(grid.source, true, 'clipboard')
+                .on('data', data_handler, clipboard);
             clipboard.grid = grid.on('select', function (selection) {clipboard.viewport(selection);});
         };
         var data_handler = function (data) {
