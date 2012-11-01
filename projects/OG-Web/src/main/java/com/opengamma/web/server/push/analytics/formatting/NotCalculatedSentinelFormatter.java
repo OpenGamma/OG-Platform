@@ -22,6 +22,12 @@ public class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalcula
         return null;
       }
     });
+    addFormatter(new Formatter<NotCalculatedSentinel>(Format.EXPANDED) {
+      @Override
+      Object format(NotCalculatedSentinel value, ValueSpecification valueSpec) {
+        return value.toString();
+      }
+    });
   }
 
   /**

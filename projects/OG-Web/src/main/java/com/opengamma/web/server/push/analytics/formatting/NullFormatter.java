@@ -12,8 +12,20 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 /* package */ class NullFormatter extends AbstractFormatter<Object> {
 
-  NullFormatter() {
+  /* package */ NullFormatter() {
     super(Object.class);
+    addFormatter(new Formatter<Object>(Format.HISTORY) {
+      @Override
+      Object format(Object value, ValueSpecification valueSpec) {
+        return null;
+      }
+    });
+    addFormatter(new Formatter<Object>(Format.EXPANDED) {
+      @Override
+      Object format(Object value, ValueSpecification valueSpec) {
+        return null;
+      }
+    });
   }
 
   @Override
