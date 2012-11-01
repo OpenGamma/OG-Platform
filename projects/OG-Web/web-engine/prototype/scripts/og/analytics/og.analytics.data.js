@@ -77,9 +77,7 @@ $.register_module({
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
-                catch (error) {
-                    data.kill(message = data.prefix + error.message), fire(data.events.fatal, message);
-                }
+                catch (error) {data.kill(message = data.prefix + error.message), fire(data.events.fatal, message);}
             };
             var reconnect_handler = function () {initialize();};
             var structure_handler = function (result) {
@@ -177,9 +175,8 @@ $.register_module({
                 if (!new_viewport.rows.length || !new_viewport.cols.length)
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
                 if (same_viewport(viewport_cache, new_viewport))
-                    return og.dev.warn(data.prefix + 'duplicate viewport'), data;;
-                data.meta.viewport = viewport = new_viewport;
-                viewport_cache = JSON.parse(JSON.stringify(viewport));
+                    return og.dev.warn(data.prefix + 'duplicate viewport'), data;
+                viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 data.busy(true);
                 try { // viewport definitions come from outside, so try/catch
@@ -189,9 +186,7 @@ $.register_module({
                     }).pipe(function (result) {
                         if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
                     });
-                } catch (error) {
-                    data.kill(message = data.prefix + ': ' + error.message), fire(data.events.fatal, message);
-                }
+                } catch (error) {data.kill(message = data.prefix + error.message), fire(data.events.fatal, message);}
                 return data;
             };
             connections[data.id] = data;
