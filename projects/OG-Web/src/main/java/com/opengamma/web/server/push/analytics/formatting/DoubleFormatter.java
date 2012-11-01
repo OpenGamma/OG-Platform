@@ -19,8 +19,20 @@ import com.opengamma.util.ArgumentChecker;
 
   DoubleFormatter(BigDecimalFormatter bigDecimalFormatter) {
     super(Double.class);
-    ArgumentChecker.notNull(bigDecimalFormatter, "_bigDecimalFormatter");
+    ArgumentChecker.notNull(bigDecimalFormatter, "bigDecimalFormatter");
     _bigDecimalFormatter = bigDecimalFormatter;
+    addFormatter(new Formatter<Double>(Format.HISTORY) {
+      @Override
+      Object format(Double value, ValueSpecification valueSpec) {
+        return formatHistory(value, valueSpec);
+      }
+    });
+    addFormatter(new Formatter<Double>(Format.EXPANDED) {
+      @Override
+      Object format(Double value, ValueSpecification valueSpec) {
+        return formatExpanded(value, valueSpec);
+      }
+    });
   }
 
   @Override
@@ -33,13 +45,21 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  @Override
-  public Object format(Double value, ValueSpecification valueSpec, Format format) {
+  private Object formatExpanded(Double value, ValueSpecification valueSpec) {
     BigDecimal bigDecimal = convertToBigDecimal(value);
     if (bigDecimal == null) {
       return Double.toString(value);
     } else {
-      return _bigDecimalFormatter.format(bigDecimal, valueSpec, format);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.EXPANDED);
+    }
+  }
+
+  private Object formatHistory(Double history, ValueSpecification valueSpec) {
+    BigDecimal bigDecimal = convertToBigDecimal(history);
+    if (bigDecimal == null) {
+      return null;
+    } else {
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.HISTORY);
     }
   }
 

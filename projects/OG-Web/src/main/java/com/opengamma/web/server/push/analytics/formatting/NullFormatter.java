@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
     addFormatter(new Formatter<Object>(Format.EXPANDED) {
       @Override
       Object format(Object value, ValueSpecification valueSpec) {
-        return null;
+        return "";
       }
     });
   }

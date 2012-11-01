@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
@@ -41,7 +41,7 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
   public InstrumentDefinition<?> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
-    final BondFutureSecurity underlyingSecurity = ((BondFutureSecurity) _securitySource.get(ExternalIdBundle.of(underlyingIdentifier)));
+    final BondFutureSecurity underlyingSecurity = ((BondFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
     final BondFutureDefinition underlyingFuture = _underlyingConverter.visitBondFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();

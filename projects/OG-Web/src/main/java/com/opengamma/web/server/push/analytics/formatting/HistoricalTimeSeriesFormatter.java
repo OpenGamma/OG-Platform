@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public Object format(HistoricalTimeSeries value, ValueSpecification valueSpec, Format format) {
-    return super.format(value, valueSpec, format);
+    return _delegate.format(value.getTimeSeries(), valueSpec, format);
   }
 
   @Override

@@ -68,7 +68,7 @@ public class BlackVolatilitySurfaceUtils {
         }
       }
       if (availableVols.size() == 0) {
-        throw new OpenGammaRuntimeException("Unexpected error. No Vols found for an expiry."); // Use ArrayLists for fullStrikes (and Vols). But first, check input surface data
+        throw new OpenGammaRuntimeException("No volatility values found for expiry " + expiries[i]);
       }
       fullStrikes[i] = availableStrikes.toDoubleArray();
       fullValues[i] = availableVols.toDoubleArray();
@@ -162,7 +162,20 @@ public class BlackVolatilitySurfaceUtils {
     final int n = xData.length;
     expiries = new double[n];
     for (int i = 0; i < n; i++) {
-      expiries[i] = (Double) xData[i];
+      final Object data = xData[i];
+      if (data instanceof Double) {
+        expiries[i] = (Double) xData[i];
+      } else if (data instanceof Float) {
+        expiries[i] = ((Float) xData[i]).doubleValue();
+      } else if (data instanceof Long) {
+        expiries[i] = ((Long) xData[i]).doubleValue();
+      } else if (data instanceof Integer) {
+        expiries[i] = ((Integer) xData[i]).doubleValue();
+      } else if (data instanceof Byte) {
+        expiries[i] = ((Byte) xData[i]).doubleValue();
+      } else {
+        throw new OpenGammaRuntimeException("Cannot cast " + data.getClass() + " to double");
+      }
     }
     return expiries;
   }

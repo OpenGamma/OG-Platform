@@ -16,16 +16,17 @@ import org.springframework.web.context.ServletContextAware;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test component repository.
  */
 @Test
-public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
+public class ComponentRepositoryTest {
+
+  private static final ComponentLogger LOGGER = ComponentLogger.Sink.INSTANCE;
 
   public void test_registerSimple() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockSimple.class, "test");
     MockSimple mock = new MockSimple();
     repo.registerComponent(info, mock);
@@ -42,7 +43,7 @@ public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_registerLifecycle() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockInterfaces.class, "test");
     MockInterfaces mock = new MockInterfaces();
     repo.registerComponent(info, mock);
@@ -65,7 +66,7 @@ public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_registerSCAware() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockInterfaces.class, "test");
     MockInterfaces mock = new MockInterfaces();
     repo.registerComponent(info, mock);
@@ -83,7 +84,7 @@ public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_registerInitializingBean() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockInterfaces.class, "test");
     MockInterfaces mock = new MockInterfaces();
     assertEquals(0, mock.inits);
@@ -100,7 +101,7 @@ public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_registerFactoryBean() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockInterfaces.class, "test");
     MockFactory mock = new MockFactory();
     assertEquals(0, mock.inits);
@@ -120,7 +121,7 @@ public class ComponentRepositoryTest extends AbstractFudgeBuilderTestCase {
 
   @Test(expectedExceptions = RuntimeException.class)
   public void test_registerAfterStart() {
-    ComponentRepository repo = new ComponentRepository();
+    ComponentRepository repo = new ComponentRepository(LOGGER);
     ComponentInfo info = new ComponentInfo(MockSimple.class, "test");
     repo.registerComponent(info, new MockSimple());
     repo.start();

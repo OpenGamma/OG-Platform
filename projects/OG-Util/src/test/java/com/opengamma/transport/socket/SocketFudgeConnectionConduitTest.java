@@ -155,6 +155,7 @@ public class SocketFudgeConnectionConduitTest {
 
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void parallelIOTest() throws Exception {
     final MessageReadWrite serverThread = new MessageReadWrite();
     // receiver will attach the serverThread to the connection and start the thread

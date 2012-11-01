@@ -161,7 +161,18 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
 
   /* package */ BigDecimalFormatter() {
     super(BigDecimal.class);
-    addFormatter(new HistoryFormatter());
+    addFormatter(new Formatter<BigDecimal>(Format.HISTORY) {
+      @Override
+      Object format(BigDecimal value, ValueSpecification valueSpec) {
+        return getFormatter(valueSpec).getRoundedValue(value);
+      }
+    });
+    addFormatter(new Formatter<BigDecimal>(Format.EXPANDED) {
+      @Override
+      Object format(BigDecimal value, ValueSpecification valueSpec) {
+        return formatCell(value, valueSpec);
+      }
+    });
   }
   
   private static void addBulkConversion(String valueRequirementFieldNamePattern, DoubleValueFormatter conversionSettings) {
@@ -220,18 +231,4 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
 
-  /**
-   * Formats instances of {@link BigDecimal} for format type {@link Format#HISTORY HISTORY}.
-   */
-  private static class HistoryFormatter extends Formatter<BigDecimal> {
-
-    private HistoryFormatter() {
-      super(Format.HISTORY);
-    }
-
-    @Override
-    Object format(BigDecimal value, ValueSpecification valueSpec) {
-      return getFormatter(valueSpec).getRoundedValue(value);
-    }
-  }
 }
