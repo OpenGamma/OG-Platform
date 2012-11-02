@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswapoption.definition;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswapoption;
 
 /**
  * 

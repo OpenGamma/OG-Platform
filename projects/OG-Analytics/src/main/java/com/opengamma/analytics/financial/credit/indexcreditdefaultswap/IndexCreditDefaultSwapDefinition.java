@@ -3,14 +3,16 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswap;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CDSIndex;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.underlyingpool.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -40,15 +42,17 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   // TODO : Work In Progress
 
+  // TODO : Add the hashCode and equals methods
   // TODO : Replace _series, _version with enums
-  // TODO : Replace the _underlyingPool obligor with a dedicated 'pool' class
+  // TODO : Add index coupon and index spread fields
+  // TODO : Need to sort out the quoting conventions for the different indices
+  // TODO : Do we need the flag to adjust the maturity date to an IMM date - standard CDS index positions always mature on an IMM date anyway
+  // TODO : Accrued calculations are going to be quite problematic - will need to sort out
+  // TODO : Generalise the model so that if the underlying pool has only a single name, the code knows we are modelling the index as a single name CDS
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables (all private and final) of the CDS index swap contract (defines what a CDS index swap is)
-
-  // The number of obligors in the underlying pool (usually 125 for CDX and iTraxx - although defaults can reduce this)
-  private final int _numberOfObligors;
 
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
@@ -59,8 +63,8 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // The protection seller
   private final Obligor _protectionSeller;
 
-  // A vector of obligors representing the names in the underlying pool
-  private final Obligor[] _underlyingPool = new Obligor[125];
+  // The pool of obligors which constitute the index e.g. the names in the CDX.NA.IG index for a particular series
+  private final UnderlyingPool _underlyingPool;
 
   private final CDSIndex _index;
   private final int _series;
@@ -71,6 +75,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
+
+  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt (CDX is NORE, but iTraxx can have restructuring as a default trigger)
+  private final RestructuringClause _restructuringClause;
 
   // The date of the contract inception
   private final ZonedDateTime _startDate;
@@ -90,14 +97,23 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // The method for generating the schedule of premium payments
   private final StubType _stubType;
 
-  // The frequency of coupon payments (usually quarterly for legacy and standard CDS)
+  // The frequency of coupon payments (usually quarterly)
   private final PeriodFrequency _couponFrequency;
 
-  // Day-count convention (usually Act/360 for legacy and standard CDS)
+  // Day-count convention (usually Act/360)
   private final DayCount _daycountFractionConvention;
 
-  // Business day adjustment convention (usually following for legacy and standard CDS)
+  // Business day adjustment convention (usually following)
   private final BusinessDayConvention _businessdayAdjustmentConvention;
+
+  // Flag to determine if we adjust the maturity date to fall on the next IMM date (not a standard feature of index CDS positions)
+  private final boolean _immAdjustMaturityDate;
+
+  //Flag to determine if we business day adjust the user input effective date (not a standard feature of index CDS positions)
+  private final boolean _adjustEffectiveDate;
+
+  // Flag to determine if we business day adjust the final maturity date (not a standard feature of index CDS positions)
+  private final boolean _adjustMaturityDate;
 
   //The trade notional (in the trade currency)
   private final double _notional;
@@ -111,12 +127,13 @@ public abstract class IndexCreditDefaultSwapDefinition {
   public IndexCreditDefaultSwapDefinition(BuySellProtection buySellProtection,
       Obligor protectionBuyer,
       Obligor protectionSeller,
-      Obligor[] underlyingPool,
+      UnderlyingPool underlyingPool,
       CDSIndex cdsIndex,
       int series,
       String version,
       Currency currency,
       Calendar calendar,
+      RestructuringClause restructuringClause,
       ZonedDateTime startDate,
       ZonedDateTime effectiveDate,
       ZonedDateTime maturityDate,
@@ -126,7 +143,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
       PeriodFrequency couponFrequency,
       DayCount daycountFractionConvention,
       BusinessDayConvention businessdayAdjustmentConvention,
-      int numberOfObligors,
+      boolean immAdjustMaturityDate,
+      boolean adjustEffectiveDate,
+      boolean adjustMaturityDate,
       double notional,
       double premiumLegCoupon) {
 
@@ -138,12 +157,14 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer");
     ArgumentChecker.notNull(protectionSeller, "Protection seller");
-    //ArgumentChecker.notNull(referenceEntity, "Reference entity");
+    ArgumentChecker.notNull(underlyingPool, "Underlying Pool");
 
     ArgumentChecker.notNull(cdsIndex, "CDS Index");
 
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(calendar, "Calendar");
+
+    ArgumentChecker.notNull(restructuringClause, "Restructuring clause");
 
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(effectiveDate, "Effective date");
@@ -156,8 +177,6 @@ public abstract class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount fraction convention");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business dat adjustment convention");
 
-    ArgumentChecker.notNegative(numberOfObligors, "Number of obligors");
-
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
 
@@ -167,7 +186,7 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
     _protectionBuyer = protectionBuyer;
     _protectionSeller = protectionSeller;
-    //_underlyingPool = underlyingPool;
+    _underlyingPool = underlyingPool;
 
     _index = cdsIndex;
     _version = version;
@@ -175,6 +194,8 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
     _currency = currency;
     _calendar = calendar;
+
+    _restructuringClause = restructuringClause;
 
     _startDate = startDate;
     _effectiveDate = effectiveDate;
@@ -187,7 +208,10 @@ public abstract class IndexCreditDefaultSwapDefinition {
     _daycountFractionConvention = daycountFractionConvention;
     _businessdayAdjustmentConvention = businessdayAdjustmentConvention;
 
-    _numberOfObligors = numberOfObligors;
+    _immAdjustMaturityDate = immAdjustMaturityDate;
+    _adjustEffectiveDate = adjustEffectiveDate;
+    _adjustMaturityDate = adjustMaturityDate;
+
     _notional = notional;
     _premuiumLegCoupon = premiumLegCoupon;
   }
@@ -208,7 +232,7 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _protectionSeller;
   }
 
-  public Obligor[] getUnderlyingPool() {
+  public UnderlyingPool getUnderlyingPool() {
     return _underlyingPool;
   }
 
@@ -230,6 +254,10 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   public Calendar getCalendar() {
     return _calendar;
+  }
+
+  public RestructuringClause getRestructuringClause() {
+    return _restructuringClause;
   }
 
   public ZonedDateTime getStartDate() {
@@ -268,8 +296,16 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _businessdayAdjustmentConvention;
   }
 
-  public int getNumberOfObligors() {
-    return _numberOfObligors;
+  public boolean getIMMAdjustMaturityDate() {
+    return _immAdjustMaturityDate;
+  }
+
+  public boolean getAdjustEffectiveDate() {
+    return _adjustEffectiveDate;
+  }
+
+  public boolean getAdjustMaturityDate() {
+    return _adjustMaturityDate;
   }
 
   public double getNotional() {
