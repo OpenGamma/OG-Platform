@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
         var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24, 
-            templates = null, default_col_width = 175, scrollbar_size = (function () {
+            templates = null, default_col_width = 175, scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
@@ -109,6 +109,24 @@ $.register_module({
         var init_elements = function () {
             var grid = this, config = grid.config, elements, cellmenu,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
+            var mousemove_handler = function (event) {
+                (page_x = event.pageX), (page_y = event.pageY);
+                if (grid.selector.busy()) return last_x = last_y = last_corner = null;
+                if (page_x === last_x && page_y === last_y) return;
+                var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    scroll_top = grid.elements.scroll_body.scrollTop(),
+                    fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
+                    x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
+                    y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
+                    rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
+                    selection = grid.selector.selection(rectangle);
+                if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
+                if (!(cell = grid.cell(selection))) return;
+                cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
+                cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
+                last_corner = corner_cache; last_x = page_x; last_y = page_y;
+                fire(grid.events.cellhoverin, cell);
+            };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
                 .on('click', '.OG-g-h-set-name a', function (event) {
@@ -124,26 +142,9 @@ $.register_module({
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (timeout) {
                     return function (event) {
-                        timeout = clearTimeout(timeout) || setTimeout(function () {
-                            (page_x = event.pageX), (page_y = event.pageY);
-                            if (grid.selector.busy()) return last_x = last_y = last_corner = null;
-                            if (page_x === last_x && page_y === last_y) return;
-                            var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                                scroll_top = grid.elements.scroll_body.scrollTop(),
-                                fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
-                                x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
-                                rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
-                                selection = grid.selector.selection(rectangle);
-                            if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                            if (!(cell = grid.cell(selection))) return;
-                            cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
-                            cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
-                            last_corner = corner_cache; last_x = page_x; last_y = page_y;
-                            fire(grid.events.cellhoverin, cell);
-                        }, 50);
+                        timeout = clearTimeout(timeout) || setTimeout(mousemove_handler.partial(event), 50);
                     };
-                })(last_x = null, last_y = null, page_x, page_y, last_corner))
+                })())
                 .on('mouseleave', function (event) {(last_corner = null), fire(grid.events.cellhoverout, cell);});
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
@@ -196,7 +197,7 @@ $.register_module({
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
             meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
-            meta.scrollbar_size = scrollbar_size;
+            meta.scrollbar = scrollbar;
             grid.col_widths();
             columns.headers = [];
             columns.descriptions = [];
@@ -224,7 +225,7 @@ $.register_module({
             var head_data = function (grid, sets, col_offset, set_offset) {
                 var width = grid.meta.columns.width, index = 0, depgraph = grid.config.source.depgraph;
                 return {
-                    width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
+                    width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar : 0,
                     sets: sets.map(function (set, idx) {
                         var columns = set.columns.map(function (col) {
                             return {
@@ -250,11 +251,15 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, data, fixed) {
-                var meta = grid.meta, viewport = meta.viewport, fixed_len = meta.fixed_length, i, j, index, data_row,
-                    cols = viewport.cols, rows = viewport.rows, grid_row = meta.available.indexOf(rows[0]), value,
+                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner,
+                    cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
-                    row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells,
-                    result = {holder_height: meta.inner.height + (fixed ? scrollbar_size : 0), rows: []};
+                    row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
+                    result = {
+                        rows: [],
+                        holder_height: Math
+                            .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
+                    };
                 for (i = 0; i < row_len; i += 1) {
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
@@ -375,7 +380,7 @@ $.register_module({
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             fixed_width = meta.columns.fixed[0].columns
                 .reduce(function (acc, col, idx) {return acc + (col.width = idx ? 150 : 250);}, 0);
-            remainder = (scroll_width = parent_width - fixed_width - scrollbar_size) -
+            remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
                 ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
             scroll_cols.forEach(function (set) {
                 set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
@@ -444,7 +449,7 @@ $.register_module({
             };
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
-            data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar_size;
+            data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
             meta.rows = (meta.available = available(grid.meta)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
@@ -455,7 +460,7 @@ $.register_module({
                 id: id, viewport_width: meta.inner.width,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
-                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
+                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 set_height: config.source.depgraph ? 0 : set_height,

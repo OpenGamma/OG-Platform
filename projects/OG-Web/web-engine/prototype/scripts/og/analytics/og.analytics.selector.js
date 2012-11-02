@@ -37,19 +37,18 @@ $.register_module({
                 grid_width = meta.columns.width.fixed + inner.width;
                 grid_height = inner.scroll_height + meta.header_height;
                 fixed_width = meta.columns.width.fixed;
-                max_scroll_top = inner.height - inner.scroll_height + meta.scrollbar_size;
+                max_scroll_top = inner.height - inner.scroll_height + meta.scrollbar;
                 $(grid.id + ' ' + overlay).remove();
             };
-            var mousedown_observer = function (event) {
+            var mousedown = function (event) {
                 if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
-                var $target, is_overlay, x = event.pageX - grid_offset.left + (event.pageX > fixed_width ?
-                        grid.elements.scroll_body.scrollLeft() : 0),
-                    y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
-                if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
-                    .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
+                var $target = $(event.target), scroll_body = grid.elements.scroll_body,
+                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
+                    is_cell = ($target.is(cell) ? $target : $target.parents(cell + ':first')).length,
+                    y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
                 selector.clear();
-                if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
+                if (!is_cell || $target.is(overlay)) return;
                 selector.busy(true);
                 setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
                     if (!selector.registered) selector.registered = !!grid.elements.parent
@@ -68,11 +67,10 @@ $.register_module({
                     if (reset) counter = 0;
                     if (counter++ % resolution) return;
                     if (counter > resolution) counter = 1;
-                    var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                        scroll_top = grid.elements.scroll_body.scrollTop(),
+                    var scroll_body = grid.elements.scroll_body, regions = [], rectangle = {},
+                        scroll_left = scroll_body.scrollLeft(), scroll_top = scroll_body.scrollTop(),
                         x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
-                        y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                        regions = [], rectangle = {};
+                        y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
                     auto_scroll(event, scroll_top, scroll_left, start);
                     rectangle.top_left = grid.nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
                     rectangle.bottom_right = grid.nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
@@ -108,7 +106,7 @@ $.register_module({
             selector.grid = grid;
             selector.rectangle = null;
             selector.regions = null;
-            grid.on('mousedown', mousedown_observer).on('render', selector.render, selector); // initialize
+            grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
             var selector = this;
