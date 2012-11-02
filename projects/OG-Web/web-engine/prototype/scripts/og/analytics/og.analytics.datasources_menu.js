@@ -139,11 +139,13 @@ $.register_module({
                     if (config && config.postHandler) config.postHandler();
                 });
             };
-            var populate_marketdatasnapshots = function (entry) {
+            var populate_marketdatasnapshots = function (entry, config) {
                 if (!~entry || !menu.opts[entry]) return;
                 og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                     if (resp.error) return;
+                    if (confg && config.preHandler) config.preHandler();
                     if (resp.data && resp.data[0]) populate_src_options(entry, resp.data[0].snapshots);
+                    if (confg && config.postHandler) config.postHandler();
                 });
                 /*.pipe(function () {
                     $source_select.after($snapshot_opts.html());
@@ -212,10 +214,11 @@ $.register_module({
                 source_select.empty().append($($option.html()).text(default_sel_txt));
                 parent.append(source_select);
             };
-            var splice_replay_vals = function (entry, data) {
-                if (!~entry || !data) return;
-                var source = data.snapshotId ? get_snapshot(data.snapshotId) : data.source,
-                    type = menu.capitalize(data.marketDataType);
+            var splice_replay_vals = function (entry, d) {
+                if (!~entry || !d) return;
+                var source = d.snapshotId ? get_snapshot(d.snapshotId) : 
+                    d.resolverKey ? d.resolverKey : d.source ? d.source : "";
+                    type = menu.capitalize(d.marketDataType);
                 query.splice(entry, 0, {pos: entry, src: source, type: type});
             };
             var source_handler = function (entry) {
@@ -278,38 +281,32 @@ $.register_module({
                 return arr;
             };
             menu.replay_query = function (conf) {
-                console.log(conf);
                 if (!conf && !conf.datasources || !$.isArray(conf.datasources)) return;
                 menu.opts.forEach(function (option) {
                     option.remove();
                 });
                 menu.opts.length = 0;
                 query = [];
+                var replay_handler = function (index, src) {
+                    return function () {
+                        splice_replay_vals(index, src);
+                        replay_val(index, src);
+                        display_query();
+                    };
+                };
                 conf.datasources.forEach(function (src, index) {
                     if (menu.opts.length < conf.datasources.length) menu.add_handler();
                     switch (src.marketDataType) {
                         case 'live':
-                            return populate_livedatasources(index,{
-                                postHandler: (function (index, src) {
-                                    return function () {
-                                        splice_replay_vals(index, src);
-                                        replay_val(index, src);
-                                        display_query();
-                                    }
-                                })(index, src)
-                            });
-                        /*case 'snapshot':
-                            og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
-                                if (resp.error) return;
-                                populate_src_options(resp.data[0].snapshots);
-                            }).pipe(function () {
-                                set_select_vals(src, index);
-                            });
+                            populate_livedatasources(index, { postHandler: replay_handler(index, src)});
                             break;
-                        case 'latestHistorical':
+                        case 'snapshot':
+                            populate_marketdatasnapshots(index, { postHandler: replay_handler(index, src)});
+                            break;
+                        /*case 'latestHistorical':
                         case 'fixedHistorical' :
                             populate_historical();
-                            enable_extra_options(true);
+                            enable_extra_options(entry, true);
                             query.splice(index, 0, {pos: index, src: src.resolverKey, type: 'Historical'});
                             if (src.date) {
                                 $custom.addClass(active_s+ ' ' +date_selected_s);
@@ -318,9 +315,9 @@ $.register_module({
                                 query[index].date = src.date;
                             }
                             display_query();
-                            break;
+                            break;*/
 
-                        //no default*/
+                        //no default
                     }
                 });
             };
