@@ -35,7 +35,6 @@ $.register_module({
                 })
                 .on('click', open_icon, function () {
                     cellmenu.destroy_frozen();
-                    cellmenu.blah();
                     cellmenu.menu.addClass(expand_class);
                 })
                 .on('mouseenter', icons, function () {
@@ -68,7 +67,6 @@ $.register_module({
                     inplace_config = ({$cntr:  $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', 'container');
-                    container.init();
                     cellmenu.inplace.$dom.toggle.on('click', function() {
                         if(cellmenu.inplace.toggle()) cellmenu.create_inplace();
                         else cellmenu.destroy_frozen();
@@ -77,7 +75,7 @@ $.register_module({
             });
         };
         constructor.prototype.destroy_frozen = function () {
-            $('OG-cell-options og-frozen').remove();
+            $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, cell = cellmenu.current, panel = 'inplace', options;
@@ -85,6 +83,7 @@ $.register_module({
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
+            console.log(JSON.stringify(options));
             container.add([options]);
             cellmenu.grid.new_menu(cellmenu);
         };
