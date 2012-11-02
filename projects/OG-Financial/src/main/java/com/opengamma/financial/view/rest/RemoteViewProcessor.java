@@ -12,8 +12,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -39,7 +37,6 @@ public class RemoteViewProcessor implements ViewProcessor {
   private final ScheduledExecutorService _heartbeatScheduler;
   private final FudgeRestClient _client;
   private final JmsConnector _jmsConnector;
-  private final ChangeManager _changeManager;
 
   /**
    * Constructs an instance.
@@ -53,7 +50,6 @@ public class RemoteViewProcessor implements ViewProcessor {
     _heartbeatScheduler = heartbeatScheduler;
     _client = FudgeRestClient.create();
     _jmsConnector = jmsConnector;
-    _changeManager = new JmsChangeManager(_jmsConnector); 
   }
   
   @Override
@@ -64,9 +60,8 @@ public class RemoteViewProcessor implements ViewProcessor {
 
   @Override
   public ConfigSource getConfigSource() {
-    URI uri = null; //TODO      get the uri for RemoteConfigSource !!!!!
-    
-    return new RemoteConfigSource(uri, _changeManager);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CONFIG_SOURCE).build();
+    return new RemoteConfigSource(uri);
   }
 
   @Override

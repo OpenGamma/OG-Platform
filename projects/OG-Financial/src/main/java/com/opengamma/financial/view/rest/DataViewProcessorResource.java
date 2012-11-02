@@ -24,6 +24,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -46,15 +47,34 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * The period after which, if a view client has not been accessed, it may be shut down.
    */
   public static final long VIEW_CLIENT_TIMEOUT_MILLIS = 30000;
-
-  //CSOFF: just constants
+  /**
+   * URI path to the config source.
+   */
+  public static final String PATH_CONFIG_SOURCE = "configSource";
+  /**
+   * URI path to the market data repository.
+   */
   public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
+  /**
+   * URI path to the name.
+   */
   public static final String PATH_NAME = "name";
+  /**
+   * URI path to the clients.
+   */
   public static final String PATH_CLIENTS = "clients";
+  /**
+   * URI path to the processes.
+   */
   public static final String PATH_PROCESSES = "processes";
+  /**
+   * URI path to the cycles.
+   */
   public static final String PATH_CYCLES = "cycles";
+  /**
+   * URI path to the snapshotter.
+   */
   public static final String PATH_SNAPSHOTTER = "marketDataSnapshotter";
-  //CSON: just constants
 
   /**
    * The view processor.
@@ -128,7 +148,12 @@ public class DataViewProcessorResource extends AbstractDataResource {
   public Response getName() {
     return responseOk(_viewProcessor.getName());
   }
-  
+
+  @Path(PATH_CONFIG_SOURCE)
+  public DataConfigSourceResource getViewDefinitionRepository() {
+    return new DataConfigSourceResource(_viewProcessor.getConfigSource());
+  }
+
   @Path(PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY)
   public DataNamedMarketDataSpecificationRepositoryResource getLiveMarketDataSourceRegistry() {
     return new DataNamedMarketDataSpecificationRepositoryResource(_viewProcessor.getNamedMarketDataSpecificationRepository());
