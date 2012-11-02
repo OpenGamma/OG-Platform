@@ -47,7 +47,7 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPosition().getSecurity().getSecurityType() != SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE;
+    return true;//target.getPosition().getSecurity().getSecurityType() != SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE;
   }
 
   @Override
