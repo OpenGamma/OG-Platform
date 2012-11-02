@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -58,12 +58,17 @@ import com.opengamma.util.tuple.Pair;
   /**
    * All dependency graph nodes.
    */
-  private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
+  private final Set<DependencyNode> _graphNodes = new HashSet<DependencyNode>();
 
   /**
-   * Terminal value resolutions, mapping the requested value requirement to the satisfying value specification.
+   * All leaf graph nodes.
    */
-  private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
+  private final Set<DependencyNode> _leafNodes = new HashSet<DependencyNode>();
+
+  /**
+   * Terminal value resolutions, mapping the resolved value specifications back to the originally requested requested value requirements.
+   */
+  private final Map<ValueSpecification, Collection<ValueRequirement>> _resolvedValues = new HashMap<ValueSpecification, Collection<ValueRequirement>>();
 
   /**
    * Queue of completed resolutions that have not been processed into the partial graph. Graph construction is single threaded, with this queue holding work items if other thread produce results while
@@ -82,6 +87,11 @@ import com.opengamma.util.tuple.Pair;
    */
   private ResolutionFailureVisitor<?> _failureVisitor;
 
+  /**
+   * Optional logic to collapse nodes on mutually compatible targets into a single node.
+   */
+  private ComputationTargetCollapser _computationTargetCollapser;
+
   public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
   }
@@ -90,8 +100,12 @@ import com.opengamma.util.tuple.Pair;
     _failureVisitor = failureVisitor;
   }
 
+  public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
+    _computationTargetCollapser = collapser;
+  }
+
   public ResolvedValue getProduction(final ValueSpecification specification) {
-    ResolvedValue value = _resolvedBuffer.get(specification);
+    final ResolvedValue value = _resolvedBuffer.get(specification);
     if (value == null) {
       final DependencyNode node = _spec2Node.get(specification);
       if (node != null) {
@@ -121,7 +135,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    nextA: for (ValueSpecification a : as) { //CSIGNORE
+    nextA: for (final ValueSpecification a : as) { //CSIGNORE
       if (bs.contains(a)) {
         // Exact match
         continue;
@@ -129,7 +143,7 @@ import com.opengamma.util.tuple.Pair;
       final String aName = a.getValueName();
       final ValueProperties aProperties = a.getProperties();
       boolean mismatch = false;
-      for (ValueSpecification b : bs) {
+      for (final ValueSpecification b : bs) {
         if (aName == b.getValueName()) {
           // Match the name; check the constraints
           if (aProperties.isSatisfiedBy(b.getProperties())) {
@@ -150,7 +164,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
    * compatible.
-   * 
+   *
    * @param as the first set of values, not null
    * @param bs the second set of values, not null
    * @return true if the values can't be composed, false if they can
@@ -161,32 +175,137 @@ import com.opengamma.util.tuple.Pair;
 
   public synchronized void populateState(final DependencyGraph graph) {
     final Set<DependencyNode> remove = new HashSet<DependencyNode>();
-    for (DependencyNode node : graph.getDependencyNodes()) {
-      for (DependencyNode dependent : node.getDependentNodes()) {
+    for (final DependencyNode node : graph.getDependencyNodes()) {
+      for (final DependencyNode dependent : node.getDependentNodes()) {
         if (!graph.containsNode(dependent)) {
           // Need to remove "dependent" from the node. We can leave the output values there; they might be used, or will get discarded by discardUnusedOutputs afterwards
           remove.add(dependent);
         }
       }
       _graphNodes.add(node);
-      for (ValueSpecification output : node.getOutputValues()) {
+      for (final ValueSpecification output : node.getOutputValues()) {
         _spec2Node.put(output, node);
       }
       getOrCreateNodes(node.getFunction(), node.getComputationTarget()).add(node);
     }
-    for (DependencyNode node : remove) {
+    for (final DependencyNode node : remove) {
       node.clearInputs();
     }
-    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : graph.getTerminalOutputs().entrySet()) {
-      for (ValueRequirement requirement : terminal.getValue()) {
-        _resolvedValues.put(requirement, terminal.getKey());
-      }
+    for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : graph.getTerminalOutputs().entrySet()) {
+      _resolvedValues.put(terminal.getKey(), new ArrayList<ValueRequirement>(terminal.getValue()));
     }
   }
 
-  // Caller must hold the object monitor
+  private DependencyNode collapseNode(final DependencyNode node, final DependencyNode peer) {
+    final ComputationTargetSpecification collapsed = _computationTargetCollapser.collapse(node.getFunction().getFunction(), peer.getComputationTarget(), node.getComputationTarget());
+    if (collapsed == null) {
+      return null;
+    }
+    if (collapsed.equals(peer.getComputationTarget())) {
+      s_logger.debug("Collapsing new node {} into existing node {}", node, peer);
+      node.replaceWith(peer);
+      return peer;
+    } else if (collapsed.equals(node.getComputationTarget())) {
+      s_logger.debug("Collapsing existing node {} into new node {}", peer, node);
+      peer.replaceWith(node);
+      // Replace references to the original peer with the new node
+      for (final ValueSpecification output : peer.getOutputValues()) {
+        _spec2Node.put(output, node);
+      }
+      _graphNodes.remove(peer);
+      _leafNodes.remove(peer);
+      return node;
+    } else {
+      s_logger.debug("Collapsing {} and {} into new target {}", new Object[] {node, peer, collapsed });
+      final DependencyNode collapsedNode = new DependencyNode(collapsed);
+      collapsedNode.setFunction(node.getFunction());
+      peer.replaceWith(collapsedNode);
+      node.replaceWith(collapsedNode);
+      // Replace the references to the original peer to the collapsed node. The new node is not referenced other than by graph edges.
+      for (final ValueSpecification output : peer.getOutputValues()) {
+        _spec2Node.put(output, collapsedNode);
+        final Collection<ValueRequirement> requirements = _resolvedValues.remove(output);
+        if (requirements != null) {
+          _resolvedValues.put(MemoryUtils.instance(new ValueSpecification(output.getValueName(), collapsed, output.getProperties())), requirements);
+        }
+      }
+      _graphNodes.remove(peer);
+      _graphNodes.add(collapsedNode);
+      if (_leafNodes.remove(peer)) {
+        _leafNodes.add(collapsedNode);
+      }
+      return collapsedNode;
+    }
+  }
 
-  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode node,
+  private static boolean equals(final ParameterizedFunction a, final ParameterizedFunction b) {
+    if (a == b) {
+      return true;
+    }
+    if (a.getFunction() != b.getFunction()) {
+      if (!a.getFunction().getFunctionDefinition().getUniqueId().equals(b.getFunction().getFunctionDefinition().getUniqueId())) {
+        return false;
+      }
+    }
+    return a.getParameters().equals(b.getParameters());
+  }
+
+  private DependencyNode collapseNode(final DependencyNode node) {
+    final Set<DependencyNode> inputs = node.getInputNodes();
+    final ParameterizedFunction function = node.getFunction();
+    if (inputs.isEmpty()) {
+      for (final DependencyNode peer : _leafNodes) {
+        if (peer == node) {
+          // Can't merge with ourselves
+          continue;
+        }
+        if (!equals(peer.getFunction(), function)) {
+          // Can't merge with different function
+          continue;
+        }
+        if (!peer.getComputationTarget().getType().equals(node.getComputationTarget().getType())) {
+          // Can't merge with different types
+          continue;
+        }
+        final DependencyNode collapsed = collapseNode(node, peer);
+        if (collapsed == null) {
+          // Collapser couldn't handle the nodes
+          continue;
+        }
+        return collapsed;
+      }
+    } else {
+      for (final DependencyNode inputNode : inputs) {
+        for (final DependencyNode peer : inputNode.getDependentNodes()) {
+          if (peer == node) {
+            // Can't merge with ourselves
+            continue;
+          }
+          if (!equals(peer.getFunction(), function)) {
+            // Can't merge with different function
+            continue;
+          }
+          if (!peer.getComputationTarget().getType().equals(node.getComputationTarget().getType())) {
+            // Can't merge with different types
+            continue;
+          }
+          if (!inputs.equals(peer.getInputNodes())) {
+            // Can't merge with different inputs
+            continue;
+          }
+          final DependencyNode collapsed = collapseNode(node, peer);
+          if (collapsed == null) {
+            // Collapser couldn't handle the nodes
+            continue;
+          }
+          return collapsed;
+        }
+      }
+    }
+    return node;
+  }
+
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, DependencyNode node,
       final boolean newNode) {
     Set<ValueSpecification> downstreamCopy = null;
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
@@ -222,8 +341,8 @@ import com.opengamma.util.tuple.Pair;
       s_logger.debug("Adding {} to graph set", node);
       // [PLAT-346] Here is a good spot to tackle PLAT-346; which node's outputs do we discard if there are multiple
       // productions for a given value specification?
-      for (ValueSpecification valueSpecification : resolvedValue.getFunctionOutputs()) {
-        DependencyNode existing = _spec2Node.get(valueSpecification);
+      for (final ValueSpecification valueSpecification : resolvedValue.getFunctionOutputs()) {
+        final DependencyNode existing = _spec2Node.get(valueSpecification);
         if (existing == null) {
           _spec2Node.put(valueSpecification, node);
         } else {
@@ -231,7 +350,24 @@ import com.opengamma.util.tuple.Pair;
           node.removeOutputValue(valueSpecification);
         }
       }
-      _graphNodes.add(node);
+      if (_computationTargetCollapser != null) {
+        // Test if the targets can be collapsed and another node used here
+        final DependencyNode collapsedNode = collapseNode(node);
+        if (collapsedNode != node) {
+          s_logger.debug("Rewrite after collapse to {}", collapsedNode);
+          node = collapsedNode;
+        } else {
+          _graphNodes.add(node);
+          if (resolvedValue.getFunctionInputs().isEmpty()) {
+            _leafNodes.add(node);
+          }
+        }
+      } else {
+        _graphNodes.add(node);
+        if (resolvedValue.getFunctionInputs().isEmpty()) {
+          _leafNodes.add(node);
+        }
+      }
       _resolvedBuffer.remove(resolvedValue.getValueSpecification());
     }
     return node;
@@ -268,7 +404,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
-    for (DependencyNode node : nodes) {
+    for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> outputValues = node.getOutputValues();
       if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
         s_logger.debug("Can't reuse {} for {}", node, resolvedValue);
@@ -276,14 +412,14 @@ import com.opengamma.util.tuple.Pair;
         s_logger.debug("Reusing {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
         List<ValueSpecification> replacements = null;
-        for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
+        for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) {
           if (outputValues.contains(output)) {
             // Exact match found
             continue;
           }
           final String outputName = output.getValueName();
           final ValueProperties outputProperties = output.getProperties();
-          for (ValueSpecification outputValue : outputValues) {
+          for (final ValueSpecification outputValue : outputValues) {
             if (outputName == outputValue.getValueName()) {
               if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
                 // Found match
@@ -318,7 +454,7 @@ import com.opengamma.util.tuple.Pair;
                 node.removeOutputValue(newValue);
               } else {
                 int existingConsumers = 0;
-                for (DependencyNode child : n.getDependentNodes()) {
+                for (final DependencyNode child : n.getDependentNodes()) {
                   if (child.hasInputValue(newValue)) {
                     existingConsumers++;
                   }
@@ -330,13 +466,13 @@ import com.opengamma.util.tuple.Pair;
                 } else {
                   if (newConsumers <= existingConsumers) {
                     // Adjust the consumers of the reduced value to use the existing one
-                    for (DependencyNode child : node.getDependentNodes()) {
+                    for (final DependencyNode child : node.getDependentNodes()) {
                       child.replaceInput(newValue, node, n);
                     }
                     node.removeOutputValue(newValue);
                   } else {
                     // Adjust the consumers of the existing value to use the new one
-                    for (DependencyNode child : n.getDependentNodes()) {
+                    for (final DependencyNode child : n.getDependentNodes()) {
                       child.replaceInput(newValue, n, node);
                     }
                     n.removeOutputValue(newValue);
@@ -377,8 +513,17 @@ import com.opengamma.util.tuple.Pair;
         while (resolved != null) {
           final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
           if (node != null) {
-            assert node.getOutputValues().contains(resolved.getSecond().getValueSpecification());
-            _resolvedValues.put(resolved.getFirst(), resolved.getSecond().getValueSpecification());
+            ValueSpecification outputValue = resolved.getSecond().getValueSpecification();
+            if (!outputValue.getTargetSpecification().equals(node.getComputationTarget())) {
+              outputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), node.getComputationTarget(), outputValue.getProperties()));
+            }
+            assert node.getOutputValues().contains(outputValue);
+            Collection<ValueRequirement> requirements = _resolvedValues.get(outputValue);
+            if (requirements == null) {
+              requirements = new ArrayList<ValueRequirement>();
+              _resolvedValues.put(outputValue, requirements);
+            }
+            requirements.add(resolved.getFirst());
           } else {
             s_logger.error("Resolved {} to {} but couldn't create one or more dependency node", resolved.getFirst(), resolved.getSecond().getValueSpecification());
           }
@@ -412,7 +557,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Returns the dependency graph nodes built by calls to {@link #resolved}. It is only valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned.
    * A copy of the internal structure is used so that it may be modified by the caller and this callback instance be used to process subsequent resolutions.
-   * 
+   *
    * @return the dependency graph nodes, not null
    */
   public synchronized Collection<DependencyNode> getGraphNodes() {
@@ -423,11 +568,17 @@ import com.opengamma.util.tuple.Pair;
    * Returns the map of top level requirements requested of the graph builder to the specifications it produced that are in the dependency graph. Failed resolutions are not reported here. It is only
    * valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned. A copy of the internal structure is used so that it may be modified by the caller
    * and this callback instance be used to process subsequent resolutions.
-   * 
+   *
    * @return the map of resolutions, not null
    */
   public synchronized Map<ValueRequirement, ValueSpecification> getTerminalValues() {
-    return new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues);
+    final Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues.size());
+    for (final Map.Entry<ValueSpecification, Collection<ValueRequirement>> resolvedValues : _resolvedValues.entrySet()) {
+      for (final ValueRequirement requirement : resolvedValues.getValue()) {
+        result.put(requirement, resolvedValues.getKey());
+      }
+    }
+    return result;
   }
 
   public void reportStateSize() {

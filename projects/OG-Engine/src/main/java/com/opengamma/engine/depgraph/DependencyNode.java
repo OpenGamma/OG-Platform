@@ -242,6 +242,31 @@ public class DependencyNode {
   }
 
   /**
+   * Cuts all edges linking this node, replacing it with the given node. The new node will be updated to include the input and output value specifications from this node.
+   *
+   * @param newNode the node to replace this in the graph
+   */
+  /* package */void replaceWith(final DependencyNode newNode) {
+    for (final DependencyNode input : _inputNodes) {
+      if (input._dependentNodes.remove(this)) {
+        input._dependentNodes.add(newNode);
+        newNode._inputNodes.add(input);
+      }
+    }
+    newNode._inputValues.addAll(_inputValues);
+    for (final DependencyNode output : _dependentNodes) {
+      if (output._inputNodes.remove(this)) {
+        output._inputNodes.add(newNode);
+        newNode._dependentNodes.add(output);
+      }
+    }
+    // Rewrite the original outputs to use the target of the new node
+    for (final ValueSpecification outputValue : _outputValues) {
+      newNode._outputValues.add(MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties())));
+    }
+  }
+
+  /**
    * Returns the set of output values produced by this node.
    *
    * @return the set of output values

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -9,8 +9,9 @@ import javax.time.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.MapComputationTargetResolver;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -29,7 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * 
+ *
  */
 public class DepGraphTestHelper {
 
@@ -72,7 +73,7 @@ public class DepGraphTestHelper {
 
   public DepGraphTestHelper() {
     _functionRepo = new InMemoryFunctionRepository();
-    UniqueId targetId = UniqueId.of("Scheme", "Value");
+    final UniqueId targetId = UniqueId.of("Scheme", "Value");
     _target = new ComputationTarget(ComputationTargetType.PRIMITIVE, targetId);
     final ComputationTargetSpecification targetSpec = _target.toSpecification();
     _req1 = new ValueRequirement(REQUIREMENT_1, targetSpec);
@@ -106,14 +107,14 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing1and2() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_1_AND_2, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_1_AND_2, _target);
     function.addResults(Sets.newHashSet(_value1, _value2));
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionRequiring2Producing1() {
-    MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
+    final MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
     function.addRequirement(_req2);
     function.addResult(_value1);
     _functionRepo.addFunction(function);
@@ -121,28 +122,28 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing2() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_2, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_2, _target);
     function.addResult(_value2);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionProducing2Beta() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_2_BETA, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_2_BETA, _target);
     function.addResult(_value2Beta);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionProducing(final ComputedValue result) {
-    MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
+    final MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
     function.addResult(result);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionRequiringProducing(final ValueRequirement requirement, final ComputedValue result) {
-    MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
+    final MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
     function.addRequirement(requirement);
     function.addResult(result);
     _functionRepo.addFunction(function);
@@ -162,7 +163,7 @@ public class DepGraphTestHelper {
     final DependencyGraphBuilder builder = new DependencyGraphBuilder();
     builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+    final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver();
     context.setRawComputationTargetResolver(targetResolver);
     context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
     builder.setCompilationContext(context);
@@ -175,7 +176,6 @@ public class DepGraphTestHelper {
       resolver = new DefaultFunctionResolver(compilationService);
     }
     builder.setFunctionResolver(resolver.compile(now));
-    targetResolver.addTarget(_target);
     builder.setCalculationConfigurationName("testCalcConf");
     return builder;
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -51,6 +51,7 @@ public class DependencyGraphBuilderFactory {
   private boolean _enableFailureReporting = System.getProperty("DependencyGraphBuilderFactory.enableFailureReporting", "FALSE").equalsIgnoreCase("TRUE");
   private RunQueueFactory _runQueue = DependencyGraphBuilder.getDefaultRunQueueFactory();
   private FunctionExclusionGroups _functionExclusionGroups;
+  private ComputationTargetCollapser _computationTargetCollapser;
   private final Executor _executor = createExecutor();
 
   public DependencyGraphBuilderFactory() {
@@ -76,7 +77,7 @@ public class DependencyGraphBuilderFactory {
    * Set whether the graph building algorithm should retain information about failed productions and backtracking options to produce more thorough details of why requirements could not be specified.
    * Enabling this will increase the memory footprint of the graph building algorithm. The default setting is taken from system property {@code DependencyGraphBuilderFactory.enableFailureReporting} if
    * set, otherwise it is off.
-   * 
+   *
    * @param enableFailureReporting true to enable, false to disable
    */
   public void setEnableFailureReporting(final boolean enableFailureReporting) {
@@ -103,6 +104,14 @@ public class DependencyGraphBuilderFactory {
     return _functionExclusionGroups;
   }
 
+  public void setComputationTargetCollapser(final ComputationTargetCollapser computationTargetCollapser) {
+    _computationTargetCollapser = computationTargetCollapser;
+  }
+
+  public ComputationTargetCollapser getComputationTargetCollapser() {
+    return _computationTargetCollapser;
+  }
+
   public DependencyGraphBuilder newInstance() {
     final DependencyGraphBuilder builder = new DependencyGraphBuilder(getExecutor(), getRunQueueFactory());
     configureBuilder(builder);
@@ -113,6 +122,7 @@ public class DependencyGraphBuilderFactory {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
     builder.setDisableFailureReporting(!isEnableFailureReporting());
     builder.setFunctionExclusionGroups(getFunctionExclusionGroups());
+    builder.setComputationTargetCollapser(getComputationTargetCollapser());
   }
 
   protected Executor createExecutor() {
