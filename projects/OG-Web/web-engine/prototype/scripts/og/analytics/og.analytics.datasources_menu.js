@@ -29,12 +29,13 @@ $.register_module({
                     resetdsquery:'dropmenu:resetquery',
                     queryresequested:'dropmenu:queryresequested'
                 };
-            var date_handler = function (entry) { // TODO AG: refocus custom, hide datepicker
+            var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
                 if (!~entry || !menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]), latest = $(latest_s, menu.opts[entry]),
                     idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
                 if (custom) custom.addClass(active_s+ ' ' +date_selected_s);
                 if (latest) latest.removeClass(active_s);
+                if (preload && 'date' in preload) custom.val(preload.date);
                 if (custom.parent().is(versions_s)) query[idx].version_date = custom.datepicker('getDate');
                 else if (custom.parent().is(corrections_s)) query[idx].correction_date = custom.val();
                 else query[idx].date = custom.val();
@@ -122,42 +123,44 @@ $.register_module({
                 if (elem.is(latest_s)) return remove_date(entry);
                 if (elem.is('button')) return menu.button_handler(elem.text());
             };
-            var populate_historical = function (entry) {
+            var populate_historical = function (entry, config) {
                 if (!~entry || !menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]);
-                if (resolver_keys && source_select) {
+                if (resolver_keys.length && source_select) {
+                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
                     populate_src_options(entry, resolver_keys);
                     source_select.after($historical_opts.html());
+                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
                 }
             };
             var populate_livedatasources = function (entry, config) {
                 if (!~entry || !menu.opts[entry]) return;
                 og.api.rest.livedatasources.get().pipe(function (resp) {
                     if (resp.error) return;
-                    if (config && config.preHandler) config.preHandler();
+                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
                     if (resp.data) populate_src_options(entry, resp.data);
-                    if (config && config.postHandler) config.postHandler();
+                }).pipe(function () {
+                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
                 });
             };
             var populate_marketdatasnapshots = function (entry, config) {
                 if (!~entry || !menu.opts[entry]) return;
                 og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                     if (resp.error) return;
-                    if (confg && config.preHandler) config.preHandler();
+                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
                     if (resp.data && resp.data[0]) populate_src_options(entry, resp.data[0].snapshots);
-                    if (confg && config.postHandler) config.postHandler();
+                }).pipe(function () {
+                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
+                     // $source_select.after($snapshot_opts.html());
                 });
-                /*.pipe(function () {
-                    $source_select.after($snapshot_opts.html());
-                });*/
             };
             var populate_src_options = function (entry, data) {
                 if (!~entry || !menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
                 if (type_val) menu.opts[entry].data('type', type_val).addClass(type_val);
-                if (source_select) data.forEach(function (d) {
-                    if (d.name) snapshots[d.name] = d.id;
+                if (source_select) (data || []).forEach(function (d) {
+                    if ($.isPlainObject(d) && typeof d.name === 'string') snapshots[d.name] = d.id;
                     source_select.append($($option.html()).text(d.name || d));
                 });
             };
@@ -191,18 +194,21 @@ $.register_module({
                 var type_select = $(type_s, menu.opts[entry]);
                 return $query.text(default_sel_txt), type_select.val(default_sel_txt).focus(), remove_entry();
             };
-            var replay_val = function (entry, data) {
-                if ((!~entry || !data) && !menu.opts[entry]) return;
-                var type_select = $(type_s, menu.opts[entry]), source_select = $(source_s, menu.opts[entry]),
-                    source = data.snapshotId ? get_snapshot(data.snapshotId) : data.source,
-                    type = menu.capitalize(data.marketDataType);
-                switch (data.marketDataType) {
+            var replay_post_handler = function (entry, src) {
+                if (!~entry || !src || !menu.opts[entry]) return;
+                return function () {
+                    source_handler(entry, src);
+                };
+            };
+            var replay_type_vals = function (entry, d) {
+                if (!~entry || !d || !$.isPlainObject(d) || !menu.opts[entry]) return;
+                if (!('marketDataType' in d) || typeof d.marketDataType !== 'string') return;
+                var type_select = $(type_s, menu.opts[entry]);
+                switch (d.marketDataType) {
                     case 'live' :
-                    case 'snapshot':
-                        type_select.val(type); source_select.val(source); break;
+                    case 'snapshot': if (type_select) type_select.val(menu.capitalize(d.marketDataType)); break;
                     case 'latestHistorical':
-                    case 'fixedHistorical':
-                        break;
+                    case 'fixedHistorical': if (type_select) type_select.val('Historical'); break;
                 }
             };
             var reset_source_select = function (entry) {
@@ -214,29 +220,29 @@ $.register_module({
                 source_select.empty().append($($option.html()).text(default_sel_txt));
                 parent.append(source_select);
             };
-            var splice_replay_vals = function (entry, d) {
-                if (!~entry || !d) return;
-                var source = d.snapshotId ? get_snapshot(d.snapshotId) : 
-                    d.resolverKey ? d.resolverKey : d.source ? d.source : "";
-                    type = menu.capitalize(d.marketDataType);
-                query.splice(entry, 0, {pos: entry, src: source, type: type});
-            };
-            var source_handler = function (entry) {
+            var source_handler = function (entry, preload) {
                 if (!~entry || !menu.opts[entry]) return;
-                var sel_pos = menu.opts[entry].data('pos'),
+                var val, src, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
                     idx = query.pluck('pos').indexOf(sel_pos);
-                if (source_val === default_sel_txt) {
+                if (preload) {
+                    src = preload.src;
+                    val = src.snapshotId ? get_snapshot(src.snapshotId) : src.resolverKey ?
+                          src.resolverKey : src.source ? src.source : "";
+                    source_select.val(val); source_val = source_select.val();
+                }
+                if (!preload && source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
                 } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val};
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val});
                 enable_extra_options(entry, true);
+                if (preload && 'date' in src && typeof src.date === 'string') date_handler(entry, src);
                 display_query();
                 // emitEvent; dataselected
             };
-            var type_handler = function (entry) {
+            var type_handler = function (entry, conf) {
                 if (!~entry || !menu.opts[entry]) return;
                 var parent = menu.opts[entry], type_select = $(type_s, parent),
                     type_val = type_select.val().toLowerCase(), idx = query.pluck('pos').indexOf(parent.data('pos'));
@@ -250,9 +256,9 @@ $.register_module({
                     remove_entry(idx); remove_ext_opts(entry); display_query();
                 }
                 switch (type_val) {
-                    case 'live': populate_livedatasources(entry); break;
-                    case 'snapshot': populate_marketdatasnapshots(entry); break;
-                    case 'historical': populate_historical(entry); break;
+                    case 'live': populate_livedatasources(entry, conf); break;
+                    case 'snapshot': populate_marketdatasnapshots(entry, conf); break;
+                    case 'historical': populate_historical(entry, conf); break;
                     //no default
                 }
             };
@@ -282,54 +288,25 @@ $.register_module({
             };
             menu.replay_query = function (conf) {
                 if (!conf && !conf.datasources || !$.isArray(conf.datasources)) return;
-                menu.opts.forEach(function (option) {
-                    option.remove();
-                });
-                menu.opts.length = 0;
-                query = [];
-                var replay_handler = function (index, src) {
-                    return function () {
-                        splice_replay_vals(index, src);
-                        replay_val(index, src);
-                        display_query();
-                    };
-                };
-                conf.datasources.forEach(function (src, index) {
-                    if (menu.opts.length < conf.datasources.length) menu.add_handler();
-                    switch (src.marketDataType) {
-                        case 'live':
-                            populate_livedatasources(index, { postHandler: replay_handler(index, src)});
-                            break;
-                        case 'snapshot':
-                            populate_marketdatasnapshots(index, { postHandler: replay_handler(index, src)});
-                            break;
-                        /*case 'latestHistorical':
-                        case 'fixedHistorical' :
-                            populate_historical();
-                            enable_extra_options(entry, true);
-                            query.splice(index, 0, {pos: index, src: src.resolverKey, type: 'Historical'});
-                            if (src.date) {
-                                $custom.addClass(active_s+ ' ' +date_selected_s);
-                                $latest.removeClass(active_s);
-                                $custom.val(src.date);
-                                query[index].date = src.date;
-                            }
-                            display_query();
-                            break;*/
-
-                        //no default
-                    }
-                });
+                var i, len, src;
+                menu.opts.forEach(function (option) { option.remove(); }); menu.opts.length = 0; query = [];
+                for (len = conf.datasources.length, src; menu.opts.length < len; menu.add_handler());
+                for (i = 0, len = conf.datasources.length; i < len; i+=1) {
+                    replay_type_vals(i, conf.datasources[i]);
+                    type_handler(i, {post_handler: replay_post_handler(i, {src:conf.datasources[i]})});
+                }
             };
             menu.reset_query = function () {
-                for (var i = menu.opts.length - 1; 0 < i; i-=1) {
-                    if (menu.opts.length === 1) {
-                        menu.opts[i].val(default_sel_txt);
+                for (var i = menu.opts.length - 1; i >= 0; i-=1) {
+                    if (menu.opts.length === 1 && menu.opts[i]) {
+                        $(type_s, menu.opts[i]).val(default_sel_txt);
+                        $(source_s, menu.opts[i]).val(default_type_txt);
+                        remove_ext_opts(i);
+                        reset_query(i);
                         break;
                     }
                     delete_handler(i);
                 }
-                return remove_ext_opts(), reset_query();
             };
             return init(config), menu;
         };
