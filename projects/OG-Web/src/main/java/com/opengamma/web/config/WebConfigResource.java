@@ -152,6 +152,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     ConfigDocument oldDoc = data().getConfig();
     ConfigItem<?> newItem = ConfigItem.of(newConfigValue);    
     newItem.setName(name);
+    newItem.setType(oldDoc.getType());
     ConfigDocument doc = new ConfigDocument(newItem);
     doc.setUniqueId(oldDoc.getUniqueId());
     doc = data().getConfigMaster().update(doc);

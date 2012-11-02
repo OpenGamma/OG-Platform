@@ -317,6 +317,7 @@ import com.opengamma.util.paging.PagingRequest;
       
       ConfigItem<?> item = ConfigItem.of(value);
       item.setName(name);
+      item.setType(reifiedType);
       ConfigDocument doc = new ConfigDocument(item);
       UniqueId uniqueId = createUniqueId(docOid, docId);
       doc.setUniqueId(uniqueId);
