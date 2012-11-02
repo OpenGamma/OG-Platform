@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.target;
+package com.opengamma.engine.target.lazy;
 
 import java.math.BigDecimal;
 

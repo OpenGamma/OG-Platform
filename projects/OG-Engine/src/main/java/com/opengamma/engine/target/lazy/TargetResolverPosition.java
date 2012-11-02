@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.target;
+package com.opengamma.engine.target.lazy;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,7 +12,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.target.lazy.LazyTargetResolverTrade;
 
 /**
  * A position implementation that defers to a target resolver for the component parts.

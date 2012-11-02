@@ -9,7 +9,6 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverObject;
 
 /**
  * Base class for lazily resolved object.

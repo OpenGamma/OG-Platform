@@ -20,7 +20,6 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverTrade;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;

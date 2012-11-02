@@ -11,7 +11,6 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverPortfolio;
 import com.opengamma.id.UniqueId;
 
 /**

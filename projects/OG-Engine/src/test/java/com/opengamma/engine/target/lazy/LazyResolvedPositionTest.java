@@ -19,7 +19,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverPosition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;

@@ -14,7 +14,6 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverPosition;
 
 /**
  * A position implementation that may not be fully resolved at construction but will appear fully resolved when used.

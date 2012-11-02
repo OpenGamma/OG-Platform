@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.target;
+package com.opengamma.engine.target.lazy;
 
 import java.util.List;
 
@@ -11,8 +11,6 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.target.lazy.LazyTargetResolverPortfolioNode;
-import com.opengamma.engine.target.lazy.LazyTargetResolverPosition;
 import com.opengamma.id.UniqueId;
 
 /**

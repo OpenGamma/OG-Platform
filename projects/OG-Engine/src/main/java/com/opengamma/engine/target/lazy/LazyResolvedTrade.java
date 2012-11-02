@@ -14,7 +14,6 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverTrade;
 import com.opengamma.util.money.Currency;
 
 /**

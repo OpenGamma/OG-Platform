@@ -19,7 +19,6 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.target.MockComputationTargetResolver;
-import com.opengamma.engine.target.TargetResolverPortfolioNode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
