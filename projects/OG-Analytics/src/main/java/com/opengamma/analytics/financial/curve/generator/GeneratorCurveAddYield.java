@@ -9,9 +9,9 @@ import java.util.Arrays;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -74,7 +74,7 @@ public class GeneratorCurveAddYield extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface bundle, double[] parameters) {
     return generateCurve(name, parameters);
   }
 

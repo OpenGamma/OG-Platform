@@ -79,7 +79,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
             double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
             cpnRate[loopcpn] = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
             calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn.getIndex(),
-                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
+                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingAccrualFactor(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
           } else {
             if (getNthPayment(loopcpn) instanceof CouponFixed) {
               CouponFixed cpn = (CouponFixed) getNthPayment(loopcpn);

@@ -9,8 +9,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -57,7 +57,7 @@ public abstract class CouponInflation extends Coupon {
    * @param market The market curve data.
    * @return The estimated index.
    */
-  public abstract double estimatedIndex(IMarketBundle market);
+  public abstract double estimatedIndex(InflationProviderInterface market);
 
   @Override
   public int hashCode() {

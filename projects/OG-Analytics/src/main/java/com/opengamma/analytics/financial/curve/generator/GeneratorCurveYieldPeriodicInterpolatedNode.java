@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicCurve;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -67,7 +67,7 @@ public class GeneratorCurveYieldPeriodicInterpolatedNode extends GeneratorYDCurv
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
     return generateCurve(name, parameters);
   }
 

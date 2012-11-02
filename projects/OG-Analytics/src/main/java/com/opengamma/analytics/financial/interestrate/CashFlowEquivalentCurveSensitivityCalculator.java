@@ -117,7 +117,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
     double paymentTime = payment.getPaymentTime();
     final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
         / discountingCurve.getDiscountFactor(fixingStartTime);
-    double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
+    double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor();
 
     Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
     final Map<String, List<DoublesPair>> resultPVS = new HashMap<String, List<DoublesPair>>();

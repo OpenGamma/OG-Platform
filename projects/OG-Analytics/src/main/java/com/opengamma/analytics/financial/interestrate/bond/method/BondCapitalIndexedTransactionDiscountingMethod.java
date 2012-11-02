@@ -7,24 +7,21 @@ package com.opengamma.analytics.financial.interestrate.bond.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
-import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method for inflation bond transaction. The price is computed by index estimation and discounting.
  */
-public final class BondCapitalIndexedTransactionDiscountingMethod implements PricingMarketMethod {
+public final class BondCapitalIndexedTransactionDiscountingMethod {
 
   /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   /**
    * The method used for security computation.
    */
@@ -33,34 +30,28 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
   /**
    * Computes the present value of a capital indexed bound transaction by index estimation and discounting.
    * @param bond The bond transaction.
-   * @param market The market.
+   * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
-    final MultipleCurrencyAmount pvBond = PVIC.visit(bond.getBondTransaction(), market);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface provider) {
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValue(bond.getBondTransaction(), provider);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
-  }
-
-  @Override
-  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
-    Validate.isTrue(instrument instanceof BondCapitalIndexedTransaction<?>, "Capital inflation indexed bond.");
-    return presentValue((BondCapitalIndexedTransaction<?>) instrument, (MarketDiscountBundle) market);
   }
 
   /**
    * Computes the security present value from a quoted clean real price.
    * @param bond The bond transaction.
-   * @param market The market.
+   * @param provider The provider.
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final InflationIssuerProviderInterface provider, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
-    Validate.notNull(market, "Market");
-    MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+    Validate.notNull(provider, "Provider");
+    MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), provider, cleanPriceReal);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);
   }

@@ -12,53 +12,45 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
+import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for inflation zero-coupon. The price is computed by index estimation and discounting.
  */
-public class CouponInflationZeroCouponInterpolationDiscountingMethod implements PricingMarketMethod {
+public class CouponInflationZeroCouponInterpolationDiscountingMethod {
 
   /**
    * Computes the present value of the zero-coupon coupon with reference index at start of the month.
    * @param coupon The zero-coupon payment.
-   * @param market The market bundle.
+   * @param inflation The inflation provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponInterpolation coupon, IMarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
-    Validate.notNull(market, "Market");
-    double estimatedIndex = coupon.estimatedIndex(market);
-    double discountFactor = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndex = coupon.estimatedIndex(inflation);
+    double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
-  }
-
-  @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
-    Validate.isTrue(instrument instanceof CouponInflationZeroCouponInterpolation, "Zero-coupon inflation with start of month reference date.");
-    return presentValue((CouponInflationZeroCouponInterpolation) instrument, market);
   }
 
   /**
    * Compute the present value sensitivity to rates of a Inflation coupon.
    * @param coupon The coupon.
-   * @param market The market curves.
+   * @param inflation The inflation provider.
    * @return The present value sensitivity.
    */
-  public CurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolation coupon, final IMarketBundle market) {
+  public CurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
-    Validate.notNull(market, "Market");
-    double estimatedIndexMonth0 = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
-    double estimatedIndexMonth1 = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
+    double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
     double estimatedIndex = coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
-    double discountFactor = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
     double discountFactorBar = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
@@ -68,12 +60,12 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod implements 
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
-    resultMapDisc.put(market.getName(coupon.getCurrency()), listDiscounting);
+    resultMapDisc.put(inflation.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
-    resultMapPrice.put(market.getName(coupon.getPriceIndex()), listPrice);
+    resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
     final CurveSensitivityMarket result = CurveSensitivityMarket.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
     return result;
   }

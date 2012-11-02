@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -100,7 +101,7 @@ public interface IMarketBundle {
    * @param pointSensitivity The point yield sensitivity.
    * @return The parameters sensitivity.
    */
-  double[] parameterSensitivity(IborIndex index, List<MarketForwardSensitivity> pointSensitivity);
+  double[] parameterSensitivity(IborIndex index, List<ForwardSensitivity> pointSensitivity);
 
   /**
    * Returns the number of parameters associated to an index.
@@ -146,7 +147,7 @@ public interface IMarketBundle {
    * @param pointSensitivity The point yield sensitivity.
    * @return The parameters sensitivity.
    */
-  double[] parameterSensitivity(IndexON index, List<MarketForwardSensitivity> pointSensitivity);
+  double[] parameterSensitivity(IndexON index, List<ForwardSensitivity> pointSensitivity);
 
   /**
    * Returns the number of parameters associated to an index.

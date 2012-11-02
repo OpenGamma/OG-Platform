@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 
 /**
  * Interface for describing and generating curves in curve construction process.
@@ -44,7 +44,7 @@ public abstract class GeneratorYDCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  public abstract YieldAndDiscountCurve generateCurve(final String name, final IMarketBundle bundle, final double[] parameters);
+  public abstract YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface bundle, final double[] parameters);
 
   /**
    * Some generators require a two stage process. The generator with the general description (like interpolated) and 

@@ -8,31 +8,30 @@ package com.opengamma.analytics.financial.interestrate.bond.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundleDiscountingDecorated;
-import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.
  */
-public final class BondCapitalIndexedSecurityDiscountingMethod implements PricingMarketMethod {
+public final class BondCapitalIndexedSecurityDiscountingMethod {
 
   /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   //TODO: REVIEW: Method depends on Calculator; Calculator would depend on Method (code duplicated to avoid circularity).
   /**
    * The root bracket used for yield finding.
@@ -46,21 +45,15 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
   /**
    * Computes the present value of a capital indexed bound by index estimation and discounting. The value is the value of the nominal and the coupons but not the settlement.
    * @param bond The bond.
-   * @param market The market.
+   * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<String, Currency>(bond.getIssuer(), bond.getCurrency()));
     final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
     final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
-  }
-
-  @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
-    Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
-    return presentValue((BondCapitalIndexedSecurity<?>) instrument, (MarketDiscountBundle) market);
   }
 
   /**
@@ -71,12 +64,12 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market);
+    double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
     double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
     double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
@@ -112,10 +105,10 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean real price.
    * @return The net amount.
    */
-  public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
+  public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market);
+    double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
     double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
     return netAmount;
   }

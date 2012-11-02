@@ -69,7 +69,7 @@ public class CouponIborSpreadDiscountingMethodTest {
     CurrencyAmount pvComputed = METHOD_CPN_IBOR_SPREAD.presentValue(CPN_IBOR_SPREAD, CURVES);
     double forward = (CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(CPN_IBOR_SPREAD.getFixingPeriodStartTime())
         / CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(CPN_IBOR_SPREAD.getFixingPeriodEndTime()) - 1.0)
-        / CPN_IBOR_SPREAD.getFixingYearFraction();
+        / CPN_IBOR_SPREAD.getFixingAccrualFactor();
     double pv = NOTIONAL * CPN_IBOR_SPREAD.getPaymentYearFraction() * (forward + SPREAD) * CURVES.getCurve(CURVE_NAMES[0]).getDiscountFactor(CPN_IBOR_SPREAD.getPaymentTime());
     CurrencyAmount pvExpected = CurrencyAmount.of(EURIBOR3M.getCurrency(), pv);
     assertEquals("CouponIborSpreadDiscountingMethod: present value", pvExpected.getAmount(), pvComputed.getAmount(), TOLERANCE_PV);
@@ -83,7 +83,7 @@ public class CouponIborSpreadDiscountingMethodTest {
     CurrencyAmount pvComputed = METHOD_CPN_IBOR_SPREAD.presentValueNoSpreadPositiveNotional(CPN_IBOR_SPREAD, CURVES);
     double forward = (CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(CPN_IBOR_SPREAD.getFixingPeriodStartTime())
         / CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(CPN_IBOR_SPREAD.getFixingPeriodEndTime()) - 1.0)
-        / CPN_IBOR_SPREAD.getFixingYearFraction();
+        / CPN_IBOR_SPREAD.getFixingAccrualFactor();
     double pv = Math.abs(NOTIONAL) * CPN_IBOR_SPREAD.getPaymentYearFraction() * forward * CURVES.getCurve(CURVE_NAMES[0]).getDiscountFactor(CPN_IBOR_SPREAD.getPaymentTime());
     CurrencyAmount pvExpected = CurrencyAmount.of(EURIBOR3M.getCurrency(), pv);
     assertEquals("CouponIborSpreadDiscountingMethod: present value", pvExpected.getAmount(), pvComputed.getAmount(), TOLERANCE_PV);

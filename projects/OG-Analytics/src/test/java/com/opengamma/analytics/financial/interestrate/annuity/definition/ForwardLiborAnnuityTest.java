@@ -279,7 +279,7 @@ public class ForwardLiborAnnuityTest {
       assertEquals(p.getPaymentTime(), t[index], 0);
       assertEquals(p.getSpread(), spreads[index], 0);
       assertEquals(p.getPaymentYearFraction(), paymentYearFractions[index], 0);
-      assertEquals(p.getFixingYearFraction(), forwardYearFractions[index], 0);
+      assertEquals(p.getFixingAccrualFactor(), forwardYearFractions[index], 0);
       index++;
     }
   }

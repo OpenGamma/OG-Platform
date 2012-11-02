@@ -102,10 +102,10 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
     double paymentTime = payment.getPaymentTime();
     final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
         / discountingCurve.getDiscountFactor(fixingStartTime);
-    PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingYearFraction(),
+    PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
         payment.getFundingCurveName());
     PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getNotional() + payment.getSpreadAmount()) * payment.getPaymentYearFraction()
-        / payment.getFixingYearFraction(), payment.getFundingCurveName());
+        / payment.getFixingAccrualFactor(), payment.getFundingCurveName());
     return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
   }
 

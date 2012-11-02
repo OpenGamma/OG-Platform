@@ -16,12 +16,13 @@ import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecur
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
-import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountDataSets;
+import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationIssuerCalculator;
+import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderDiscount;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -39,15 +40,16 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
-  private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MarketDiscountDataSets.getPriceIndexes();
+  private static final InflationIssuerProviderDiscount MARKET = ProviderDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = ProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
-  private static final String[] ISSUER_NAMES = MarketDiscountDataSets.getIssuerNames();
+  private static final String[] ISSUER_NAMES = ProviderDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod();
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueDiscountingInflationCalculator PVDIC = PresentValueDiscountingInflationCalculator.getInstance();
+  private static final PresentValueDiscountingInflationIssuerCalculator PVDIIC = PresentValueDiscountingInflationIssuerCalculator.getInstance();
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
@@ -67,7 +69,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
       .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MarketDiscountDataSets.usCpiFrom2009();
+  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = ProviderDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   private static final double QUANTITY_TIPS_1 = 654321;
@@ -81,7 +83,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   public void presentValueTips1() {
     MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
     MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
+    MultipleCurrencyAmount pvSettlement = PVDIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET.getInflationProvider()).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
         pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
@@ -93,7 +95,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

@@ -132,7 +132,7 @@ public class CouponIborSpreadTest {
     assertEquals(FIXING_PERIOD_END_TIME, PAYMENT2.getFixingPeriodEndTime(), 0);
     assertEquals(FIXING_PERIOD_START_TIME, PAYMENT2.getFixingPeriodStartTime(), 0);
     assertEquals(RESET_TIME, PAYMENT2.getFixingTime(), 0);
-    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingYearFraction(), 0);
+    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingAccrualFactor(), 0);
     assertEquals(LIBOR_CURVE_NAME, PAYMENT2.getForwardCurveName());
     assertEquals(FUNDING_CURVE_NAME, PAYMENT2.getFundingCurveName());
     assertEquals(NOTIONAL, PAYMENT2.getNotional(), 0);

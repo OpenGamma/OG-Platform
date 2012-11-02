@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRa
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketForwardSensitivity;
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
+import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
@@ -60,10 +60,10 @@ public class AssertSensivityObjects {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2, final double tolerance) {
+  private static boolean compareFwd(final Map<String, List<ForwardSensitivity>> sensi1, final Map<String, List<ForwardSensitivity>> sensi2, final double tolerance) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
-    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi1.entrySet()) {
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensi1.entrySet()) {
       final String name = entry.getKey();
       if (sensi2.containsKey(name)) {
         if (!compareFwd(entry.getValue(), sensi2.get(name), tolerance)) {
@@ -73,7 +73,7 @@ public class AssertSensivityObjects {
         return false;
       }
     }
-    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi2.entrySet()) {
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensi2.entrySet()) {
       if (!(sensi1.containsKey(entry.getKey()))) {
         return false;
       }
@@ -88,7 +88,7 @@ public class AssertSensivityObjects {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not.
    */
-  private static boolean compareFwd(final List<MarketForwardSensitivity> sensi1, final List<MarketForwardSensitivity> sensi2, final double tolerance) {
+  private static boolean compareFwd(final List<ForwardSensitivity> sensi1, final List<ForwardSensitivity> sensi2, final double tolerance) {
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
       final double startTime1 = sensi1.get(looptime).getStartTime();
       final double startTime2 = sensi2.get(looptime).getStartTime();
@@ -192,7 +192,7 @@ public class AssertSensivityObjects {
    * @param opposite The flag indicating if the opposite result should be used.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean compare(final String msg, final InterestRateCurveSensitivity sensitivity1, final InterestRateCurveSensitivity sensitivity2, final double tolerance, final boolean opposite) {
+  private static boolean compare(final String msg, final InterestRateCurveSensitivity sensitivity1, final InterestRateCurveSensitivity sensitivity2, final double tolerance, final boolean opposite) {
     boolean cmp = true;
     cmp = InterestRateCurveSensitivityUtils.compare(sensitivity1.getSensitivities(), sensitivity2.getSensitivities(), tolerance);
     if (opposite) {

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -114,7 +114,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   }
 
   @Override
-  public double estimatedIndex(IMarketBundle market) {
+  public double estimatedIndex(InflationProviderInterface market) {
     double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
     double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
     double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
