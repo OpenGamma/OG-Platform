@@ -45,8 +45,6 @@
   <!-- ==================================================================== -->
   <!-- standard build setup -->
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>tests/unit</testSourceDirectory>
     <resources>
       <resource>
         <targetPath>.</targetPath>

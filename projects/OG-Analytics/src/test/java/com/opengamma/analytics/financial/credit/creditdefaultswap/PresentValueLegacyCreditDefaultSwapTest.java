@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -49,6 +48,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // TODO : Add all the tests
   // TODO : Move the calendar into a seperate TestCalendar class
   // TODO : Fix the time decay test
+  // TODO : Make the flag to output to console a class wide variable
 
   // ----------------------------------------------------------------------------------
 
@@ -112,21 +112,21 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
-  private static final Calendar calendar = new MyCalendar();
+  private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2022, 7, 17);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final StubType stubType = StubType.FRONTSHORT;
-  private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
+  private static final PeriodFrequency couponFrequency = PeriodFrequency.SEMI_ANNUAL;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
-  private static final boolean immAdjustMaturityDate = true;
-  private static final boolean adjustEffectiveDate = true;
-  private static final boolean adjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
+  private static final boolean adjustEffectiveDate = false;
+  private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
@@ -140,9 +140,15 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // Dummy yield curve
 
+  // Need to sort out understanding of this better
+
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+  final int baseDateYear = 2008;
+  final int baseDateMonth = 9;
+  final int baseDateDay = 22;
+
+  final ZonedDateTime baseDate = ZonedDateTime.of(baseDateYear, baseDateMonth, baseDateDay, 0, 0, 0, 0, TimeZone.UTC);
 
   double[] times = {
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
@@ -281,6 +287,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
   final double offset = s_act365.getDayCountFraction(valuationDate, baseDate);
 
+  // Build the yield curve object
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
 
   // ----------------------------------------------------------------------------------
@@ -301,7 +308,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
-  // No offset - survival probability = 1 on valuationDate
+  // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
   private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
@@ -472,52 +479,6 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     }
 
     // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  // Bespoke calendar class (have made this public - may want to change this)
-  public static class MyCalendar implements Calendar {
-
-    private static final Calendar weekend = new MondayToFridayCalendar("GBP");
-
-    @Override
-    public boolean isWorkingDay(LocalDate date) {
-
-      if (!weekend.isWorkingDay(date)) {
-        return false;
-      }
-
-      /*
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2012, 8, 27))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2012, 8, 28))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2017, 8, 28))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2017, 8, 29))) {
-        return false;
-      }
-       */
-
-      return true;
-    }
-
-    @Override
-    public String getConventionName() {
-      return "";
-    }
-
   }
 
   // -----------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // TODO : Add a method to calc both the legs in one method (useful for performance reasons e.g. not computing survival probabilities and discount factors twice)
   // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
   // TODO : Fix the bug when val date is very close to mat date
-  // TODO : Need to add the code for when the settlement date > 0 business days
+  // TODO : Need to add the code for when the settlement date > 0 business days (just a discount factor)
   // TODO : Should build the cashflow schedules outside of the leg valuation routines to avoid repitition of calculations
   // TODO : Eventually replace the ISDACurve with a YieldCurve object (using ISDACurve built by RiskCare as this allows exact comparison with the ISDA model)
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault, calculateAccruedInterest and calculateISDAContingentLeg methods
