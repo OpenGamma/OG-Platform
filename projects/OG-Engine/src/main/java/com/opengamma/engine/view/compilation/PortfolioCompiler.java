@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -39,12 +39,12 @@ public final class PortfolioCompiler {
   // --------------------------------------------------------------------------
   /**
    * Adds portfolio targets to the dependency graphs as required by a full compilation, and fully resolves the portfolio structure.
-   * 
+   *
    * @param compilationContext the context of the view definition compilation
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio executeFull(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+  protected static Portfolio executeFull(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -58,7 +58,7 @@ public final class PortfolioCompiler {
 
     Portfolio portfolio = null;
 
-    for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
+    for (final ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       if (calcConfig.getAllPortfolioRequirements().size() == 0) {
         // No portfolio requirements for this calculation configuration - avoid further processing.
         continue;
@@ -69,7 +69,7 @@ public final class PortfolioCompiler {
         portfolio = getPortfolio(compilationContext);
         resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, compilationContext.getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
       }
-      
+
       // Add portfolio requirements to the dependency graph
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
       final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions);
@@ -78,26 +78,34 @@ public final class PortfolioCompiler {
       // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
       try {
         builder.waitForDependencyGraphBuild();
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
       }
 
     }
-    
+
     return portfolio;
   }
 
   /**
    * Adds portfolio targets to dependency graphs as required by an incremental compilation (nothing), and fully resolved the portfolio structure.
-   * 
+   *
    * @param compilationContext the context of the view definition compiler
    * @param resolutions the resolutions within the portfolio structure (for example the position object identifiers and underlying security references)
    * @return the fully-resolved portfolio structure if any portfolio targets are required, null otherwise
    */
-  protected static Portfolio executeIncremental(final ViewCompilationContext compilationContext, ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+  protected static Portfolio executeIncremental(final ViewCompilationContext compilationContext, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
     if (isPortfolioOutputEnabled(compilationContext.getViewDefinition())) {
-      Portfolio portfolio = getPortfolio(compilationContext);
-      resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, compilationContext.getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
+      Portfolio portfolio = null;
+      for (final ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
+        if (!calcConfig.getAllPortfolioRequirements().isEmpty()) {
+          portfolio = getPortfolio(compilationContext);
+          break;
+        }
+      }
+      if (portfolio != null) {
+        resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, compilationContext.getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
+      }
       return portfolio;
     } else {
       return null;
@@ -106,24 +114,24 @@ public final class PortfolioCompiler {
 
   /**
    * Tests whether the view has portfolio outputs enabled.
-   * 
+   *
    * @param viewDefinition  the view definition
    * @return true if there is at least one portfolio target
    */
-  private static boolean isPortfolioOutputEnabled(ViewDefinition viewDefinition) {
-    ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
+  private static boolean isPortfolioOutputEnabled(final ViewDefinition viewDefinition) {
+    final ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
     return resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE || resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
   }
 
   /**
    * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved {@link Security} objects for each {@link Position} within the portfolio. Note however that any
    * underlying or related data referenced by a security will not be resolved at this stage.
-   * 
+   *
    * @param compilationContext the compilation context containing the view being compiled, not null
    * @return the resolved portfolio, not null
    */
-  private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
-    UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
+  private static Portfolio getPortfolio(final ViewCompilationContext compilationContext) {
+    final UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
@@ -142,7 +150,7 @@ public final class PortfolioCompiler {
 
   /**
    * Resolves the securities in the portfolio at the latest version-correction.
-   * 
+   *
    * @param portfolio  the portfolio to resolve, not null
    * @param executorService  the threading service, not null
    * @param securitySource  the security source, not null
@@ -151,10 +159,10 @@ public final class PortfolioCompiler {
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
     return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
   }
-  
+
   /**
    * Resolves the securities in the portfolio at the given version-correction.
-   * 
+   *
    * @param portfolio  the portfolio to resolve, not null
    * @param executorService  the threading service, not null
    * @param securitySource  the security source, not null
@@ -162,7 +170,7 @@ public final class PortfolioCompiler {
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
-    Portfolio cloned = new SimplePortfolio(portfolio);
+    final Portfolio cloned = new SimplePortfolio(portfolio);
     new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
     return cloned;
   }

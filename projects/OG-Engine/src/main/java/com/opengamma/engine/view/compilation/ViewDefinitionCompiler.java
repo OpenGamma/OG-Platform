@@ -142,7 +142,9 @@ public final class ViewDefinitionCompiler {
 
     private void removeUnusedResolutions(final Map<String, DependencyGraph> graphsByConfiguration, final Portfolio portfolio) {
       final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>();
-      validIdentifiers.add(portfolio.getUniqueId());
+      if (portfolio != null) {
+        validIdentifiers.add(portfolio.getUniqueId());
+      }
       for (final DependencyGraph graph : graphsByConfiguration.values()) {
         for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
           validIdentifiers.add(target.getUniqueId());
@@ -197,8 +199,7 @@ public final class ViewDefinitionCompiler {
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
       removeUnusedResolutions(graphsByConfiguration, portfolio);
       _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getViewDefinition(), graphsByConfiguration, getResolutions(), portfolio, getContext().getServices()
-          .getFunctionCompilationContext()
-          .getFunctionInitId());
+          .getFunctionCompilationContext().getFunctionInitId());
       if (OUTPUT_DEPENDENCY_GRAPHS) {
         outputDependencyGraphs(graphsByConfiguration);
       }

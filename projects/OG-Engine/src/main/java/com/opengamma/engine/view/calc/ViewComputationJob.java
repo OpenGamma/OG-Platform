@@ -922,10 +922,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
-    if (compiledViewDefinition.getValidTo() != null) {
+    if ((compiledViewDefinition.getValidTo() != null) && getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       final Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
       final long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
+      // REVIEW Andrew 2012-11-02 -- If we are ticking live, then this is almost right (System.nanoTime will be close to valuationTime, depending on how
+      // long the compilation took). If we are running through historical data then this is quite a meaningless trigger.
     } else {
       _compilationExpiryCycleTrigger.reset();
     }

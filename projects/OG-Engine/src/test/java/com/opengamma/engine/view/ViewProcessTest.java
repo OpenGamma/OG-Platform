@@ -15,7 +15,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Collections;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
@@ -46,108 +45,107 @@ import com.opengamma.util.test.Timeout;
 public class ViewProcessTest {
 
   public void testLifecycle() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
+    final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
-    
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    
+
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+
     assertEquals(env.getViewDefinition().getUniqueId(), viewProcess.getDefinitionId());
-    
+
     viewProcess.stop();
     assertFalse(client.isAttached());
     vp.stop();
   }
-  
+
   public void testViewAccessors() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
+    final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
-    
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    
+
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+
     assertNull(client.getLatestResult());
     assertEquals(env.getViewDefinition(), viewProcess.getLatestViewDefinition());
-    
+
     vp.stop();
   }
-  
+
   public void testCreateClient() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
+    final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client.getUniqueId());
-    
+
     assertEquals(ViewClientState.STARTED, client.getState());
     client.pause();
     assertEquals(ViewClientState.PAUSED, client.getState());
     client.resume();
     assertEquals(ViewClientState.STARTED, client.getState());
-    
+
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
-    
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));    
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
-    
+
     // Should automatically detach the client
     assertFalse(client.isAttached());
     assertEquals(ViewClientState.STARTED, client.getState());
-    
+
     vp.stop();
   }
-  
+
   public void testGraphRebuild() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    
-    TestViewResultListener resultListener = new TestViewResultListener();
+
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+
+    final TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    
+
     final Instant time0 = Instant.now();
-    ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
+    final ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
-        
+
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-    
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
-    Thread computationThread = env.getCurrentComputationThread(viewProcess);
-    
-    CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
+
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    final ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
+    final Thread computationThread = env.getCurrentComputationThread(viewProcess);
+
+    final CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
 
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
-    
+
     computationJob.requestCycle();
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
         compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
-      public boolean isValidFor(final InstantProvider timestampProvider) {
-        Instant timestamp = timestampProvider.toInstant();
-        return (!timestamp.isAfter(time0.plusMillis(20)));
+      public Instant getValidTo() {
+        return time0.plusMillis(20);
       }
     };
     computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
-    
+
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.requestCycle();
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
@@ -155,21 +153,21 @@ public class ViewProcessTest {
 
     // time0 + 30 requires a rebuild
     computationJob.requestCycle();
-    CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
+    final CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
     assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
-    
+
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
-    
+
     assertTrue(executionOptions.getExecutionSequence().isEmpty());
-    
+
     // Job should have terminated automatically with no further evaluation times
     assertEquals(ViewProcessState.FINISHED, viewProcess.getState());
     assertTrue(computationJob.isTerminated());
     assertFalse(computationThread.isAlive());
-    
+
     vp.stop();
   }
 
@@ -179,42 +177,41 @@ public class ViewProcessTest {
     final ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
 
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.setFragmentResultMode(ViewResultMode.FULL_ONLY);
 
-    TestViewResultListener resultListener = new TestViewResultListener();
+    final TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
 
     final Instant time0 = Instant.now();
-    ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
+    final ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
 
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
-    Thread computationThread = env.getCurrentComputationThread(viewProcess);
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    final ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
+    final Thread computationThread = env.getCurrentComputationThread(viewProcess);
 
-    CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
+    final CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
 
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Full calculation
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
 
     computationJob.requestCycle();
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Unchanged data fragment
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Delta calculation
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
         compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
-      public boolean isValidFor(final InstantProvider timestampProvider) {
-        Instant timestamp = timestampProvider.toInstant();
-        return (!timestamp.isAfter(time0.plusMillis(20)));
+      public Instant getValidTo() {
+        return time0.plusMillis(20);
       }
     };
     computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
@@ -222,18 +219,19 @@ public class ViewProcessTest {
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.requestCycle();
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Unchanged data fragment
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Delta calculation
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
     computationJob.requestCycle();
-    CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
+    final CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Full calculation
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Delta calculation
     assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
 
@@ -248,5 +246,5 @@ public class ViewProcessTest {
 
     vp.stop();
   }
-  
+
 }
