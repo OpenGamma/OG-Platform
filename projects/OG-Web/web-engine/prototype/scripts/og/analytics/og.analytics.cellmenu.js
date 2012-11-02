@@ -49,7 +49,6 @@ $.register_module({
                     var panel = panels[+$(this).text() - 1], cell = cellmenu.current,
                         options = mapping.options(cell, grid, panel);
                     cellmenu.destroy_frozen();
-                    cellmenu.blah();
                     cellmenu.hide();
                     if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
@@ -77,14 +76,12 @@ $.register_module({
                 });
             });
         };
-        constructor.prototype.blah = function () {
-            var cellmenu = this;
-        };
         constructor.prototype.destroy_frozen = function () {
             $('OG-cell-options og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, cell = cellmenu.current, panel = 'inplace', options;
+            cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
