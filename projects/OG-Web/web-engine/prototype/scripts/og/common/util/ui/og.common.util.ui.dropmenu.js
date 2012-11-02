@@ -48,9 +48,9 @@ $.register_module({
             if (this.$dom.menu) {
                 if (this.opened) this.close();
                 else this.open();
+                return this.opened;
             }
         };
-
         DropMenu.prototype.close = function () {
             if (this.$dom.menu) {
                 return this.$dom.menu.hide(), this.state = 'closed', this.opened = false,

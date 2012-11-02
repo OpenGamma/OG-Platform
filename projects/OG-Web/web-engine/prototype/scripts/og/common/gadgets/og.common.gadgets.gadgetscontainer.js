@@ -202,7 +202,6 @@ $.register_module({
                         });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
-
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });

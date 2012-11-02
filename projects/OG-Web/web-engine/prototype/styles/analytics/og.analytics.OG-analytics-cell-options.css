@@ -24,6 +24,10 @@
     -webkit-box-shadow: 2px 2px 2px #ebebeb;
 }
 
+.OG-cell-options.og-frozen{
+    z-index:5;
+}
+
 .OG-cell-options.og-expanded .og-num {
     color: #555;
     background-color: #fff;
