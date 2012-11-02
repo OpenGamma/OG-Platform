@@ -6,11 +6,10 @@ $.register_module({
     name: 'og.analytics.Clipboard',
     dependencies: ['og.analytics.Data'],
     obj: function () {
-        var module = this, tab = '\t', line = '\n', textarea, node, formatters = {
+        var module = this, tab = '\t', line = '\n', textarea, node, is_array = $.isArray, formatters = {
             CURVE: function (value, single) {
                 if (!single || !value) return '**CURVE**';
-                return ($.isArray(value) ? value : value.v || [])
-                    .map(function (row) {return row.join(tab);}).join(line);
+                return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
             DOUBLE: function (value) {
                 return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
@@ -18,8 +17,7 @@ $.register_module({
             LABELLED_MATRIX_1D: function (value, single) {
                 if (!single || !value)
                     return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
-                return ($.isArray(value) ? value : value.v || [])
-                    .map(function (row) {return row.join(tab);}).join(line);
+                return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_2D: function (value, single) {
                 if (!single || !value)
@@ -55,8 +53,7 @@ $.register_module({
             },
             TIME_SERIES: function (value, single) {
                 if (!single || !value) return '**TIME SERIES**';
-                var rows, cols;
-                var pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
+                var rows, cols, pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];

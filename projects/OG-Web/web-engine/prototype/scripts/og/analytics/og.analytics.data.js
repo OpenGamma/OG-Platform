@@ -171,8 +171,7 @@ $.register_module({
                 }
                 if (!new_viewport.rows.length || !new_viewport.cols.length)
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
-                if (same_viewport(viewport_cache, new_viewport))
-                    return og.dev.warn(data.prefix + 'duplicate viewport'), data;
+                if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 data.busy(true);

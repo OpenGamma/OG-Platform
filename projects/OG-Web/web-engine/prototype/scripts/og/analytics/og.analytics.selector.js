@@ -23,11 +23,11 @@ $.register_module({
                     auto_scroll(event, scroll_body.scrollTop(), scroll_body.scrollLeft(), start);
                 }, interval);
             };
-            (auto_scroll.timeout = null), (auto_scroll.scroll = false);
+            auto_scroll.timeout = auto_scroll.scroll = null;
             var clean_up = function () {
                 var selection = selector.selection();
                 $(document).off(namespace);
-                (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
+                auto_scroll.timeout = auto_scroll.scroll = clearTimeout(auto_scroll.timeout), null;
                 if (selection) og.common.events.fire(selector.events.select, selection);
                 selector.busy(false);
             };
@@ -77,24 +77,22 @@ $.register_module({
                     rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                     rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
                     if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
-                        position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
+                        fixed: true, position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
                         dimensions: {
                             height: rectangle.height + 1,
                             width: (rectangle.width + rectangle.top_left.left > fixed_width ?
                                 fixed_width - rectangle.top_left.left : rectangle.width) + 1
-                        },
-                        fixed: true
+                        }
                     });
                     if (rectangle.bottom_right.right > fixed_width) regions.push({ // scroll overlay
-                        position: {
+                        fixed: false, position: {
                             top: rectangle.top_left.top,
                             left: (regions[0] ? 0 : rectangle.top_left.left - fixed_width) - 1
                         },
                         dimensions: {
                             height: rectangle.height + 1,
                             width: (regions[0] ? rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
-                        },
-                        fixed: false
+                        }
                     });
                     selector.render(regions.length ? regions : null, rectangle);
                 }
@@ -104,8 +102,7 @@ $.register_module({
             })(false);
             selector.events = {select: []};
             selector.grid = grid;
-            selector.rectangle = null;
-            selector.regions = null;
+            selector.rectangle = selector.regions = null;
             grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
@@ -129,7 +126,7 @@ $.register_module({
         };
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, grid = this.grid, meta = grid.meta,
+            var selector = this, grid = selector.grid, meta = grid.meta,
                 bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),

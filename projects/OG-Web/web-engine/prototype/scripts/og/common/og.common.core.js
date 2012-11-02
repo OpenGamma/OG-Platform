@@ -28,7 +28,6 @@
             live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',
             obj: function () {return default_obj;}
         };
-    if (!self.console) self.console = {log: $.noop};
     $.extend(default_obj, {warn: warn, log: log});
     /** @private */
     check_dependencies = function (module) {
@@ -38,9 +37,7 @@
                 dependency.split('.').reduce(function (acc, val) {
                     if (typeof acc[val] === 'undefined') throw new Error; else return acc[val];
                 }, top_level);
-            } catch (error) {
-                throw new ReferenceError(module.name + ' requires ' + dependency);
-            }
+            } catch (error) {throw new ReferenceError(module.name + ' requires ' + dependency);}
         });
     };
     $.extend({
@@ -69,3 +66,9 @@
         }
     });
 })(jQuery, this, document);
+// add a global error listener
+window.onerror = function (message, url, line) {
+    var file = url + ':' + line, agent = navigator.userAgent;
+    og.dev.warn(['UNCAUGHT ERROR!', message, file, agent].join('\n'));
+    return true; // all errors are caught here as a last resort
+};
