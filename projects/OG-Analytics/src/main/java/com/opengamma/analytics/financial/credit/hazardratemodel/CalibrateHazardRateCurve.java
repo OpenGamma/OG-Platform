@@ -54,6 +54,7 @@ public class CalibrateHazardRateCurve {
 
   // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists - speed is not a concern at the moment)
   // TODO : Add a method to convert the hazard rates to survival probabilities
+  // TODO : Currently only implementing piecewise constant hazard rate term structure assumption (market standard approach). Need to add further choices in due course.
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
 
   // ------------------------------------------------------------------------

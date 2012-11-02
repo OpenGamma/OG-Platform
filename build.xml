@@ -343,7 +343,7 @@
 
   <target name="test-batch" depends="buildlist,test-batch-clean">
     <subant target="test-batch" buildpathref="build-path">
-      <property name="tests.junit.dir" value="${basedir}/tests/output"/>
+      <property name="tests.junit.dir" value="${basedir}/${build.dir}/test-reports"/>
       <!--property name="tests.dir" value="${basedir}/tests"/-->
     </subant>
   </target>

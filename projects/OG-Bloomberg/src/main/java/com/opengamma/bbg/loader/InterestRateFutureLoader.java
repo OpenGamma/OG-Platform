@@ -71,6 +71,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
   static {
     BBGCODE_UNDERLYING.put("ED", "US0003M Index");
     BBGCODE_UNDERLYING.put("0E", "US0003M Index");
+    BBGCODE_UNDERLYING.put("2E", "US0003M Index");
     BBGCODE_UNDERLYING.put("EM", "US0001M Index");
     BBGCODE_UNDERLYING.put("ER", "EUR003M Index");
     BBGCODE_UNDERLYING.put("0R", "EUR003M Index");

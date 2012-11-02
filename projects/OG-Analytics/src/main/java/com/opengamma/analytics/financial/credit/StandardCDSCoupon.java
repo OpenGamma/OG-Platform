@@ -22,6 +22,10 @@ public enum StandardCDSCoupon {
    */
   _500bps,
   /**
+   * 750bps contract
+   */
+  _750bps,
+  /**
    * 1000bps contract
    */
   _1000bps;
