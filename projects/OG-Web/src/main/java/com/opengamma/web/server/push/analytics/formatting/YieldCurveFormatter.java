@@ -21,12 +21,22 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
 /**
  *
  */
-/* package */ class YieldCurveFormatter extends NoHistoryFormatter<YieldCurve> {
+/* package */ class YieldCurveFormatter extends AbstractFormatter<YieldCurve> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFormatter.class);
 
+  /* package */ YieldCurveFormatter() {
+    super(YieldCurve.class);
+    addFormatter(new Formatter<YieldCurve>(Format.EXPANDED) {
+      @Override
+      Object format(YieldCurve value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
+  }
+
   @Override
-  public List<Double[]> formatForDisplay(YieldCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(YieldCurve value, ValueSpecification valueSpec) {
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
       List<Double[]> data = new ArrayList<Double[]>();
@@ -64,8 +74,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
     }
   }
 
-  @Override
-  public List<Double[]> formatForExpandedDisplay(YieldCurve value, ValueSpecification valueSpec) {
+  private List<Double[]> formatExpanded(YieldCurve value) {
     NodalDoublesCurve detailedCurve = YieldCurveInterpolatingFunction.interpolateCurve(value.getCurve());
     List<Double[]> detailedData = new ArrayList<Double[]>();
     Double[] xs = detailedCurve.getXData();
@@ -77,7 +86,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.CURVE;
+  public DataType getDataType() {
+    return DataType.CURVE;
   }
 }

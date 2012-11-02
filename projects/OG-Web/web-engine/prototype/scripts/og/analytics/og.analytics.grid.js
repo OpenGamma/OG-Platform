@@ -91,7 +91,8 @@ $.register_module({
         var init_data = function () {
             var grid = this, config = grid.config;
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
-            grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
+            grid.dataman = new og.analytics.Data(grid.source, false, 'grid')
+                .on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), fire(grid.events.fatal);
                 })
@@ -129,9 +130,9 @@ $.register_module({
                             if (page_x === last_x && page_y === last_y) return;
                             var scroll_left = grid.elements.scroll_body.scrollLeft(),
                                 scroll_top = grid.elements.scroll_body.scrollTop(),
-                                fixed_width = grid.meta.columns.width.fixed,
+                                fixed_width = grid.meta.columns.width.fixed, corner, corner_cache,
                                 x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
-                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
+                                y = page_y - grid.offset.top + scroll_top - grid.meta.header_height,
                                 rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                                 selection = grid.selector.selection(rectangle);
                             if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
@@ -192,6 +193,7 @@ $.register_module({
         var init_grid = function (meta) {
             var grid = this, config = grid.config, columns = meta.columns;
             grid.meta = meta;
+            meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
             meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
             meta.scrollbar_size = scrollbar_size;
@@ -252,7 +254,7 @@ $.register_module({
                     cols = viewport.cols, rows = viewport.rows, grid_row = meta.available.indexOf(rows[0]), value,
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells,
-                    result = {holder_height: viewport.height + (fixed ? scrollbar_size : 0), rows: []};
+                    result = {holder_height: meta.inner.height + (fixed ? scrollbar_size : 0), rows: []};
                 for (i = 0; i < row_len; i += 1) {
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
@@ -267,7 +269,7 @@ $.register_module({
                 }
                 return result;
             };
-            return function (data) {
+            return function (data) { // TODO handle scenario where grid was busy but data stops ticking for a long time
                 var grid = this;
                 if (grid.dataman.busy()) return; else grid.dataman.busy(true); // don't accept more data if rendering
                 grid.data = data;
@@ -283,8 +285,7 @@ $.register_module({
             };
         })();
         var set_css = function (id, sets, offset) {
-            var partial = 0,
-                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+            var partial = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return sets.map(function (set, idx) {
                 var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
@@ -334,11 +335,11 @@ $.register_module({
             };
         })();
         var viewport = function (handler) {
-            var grid = this, meta = grid.meta, viewport = meta.viewport, elements = grid.elements,
+            var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
-                fixed_len = meta.fixed_length, row_start = Math.floor((top_position / viewport.height) * meta.rows),
+                fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
                 row_len = meta.visible_rows, row_end = Math.min(row_start + row_len, meta.available.length),
-                lcv = row_start, scroll_position = left_position + viewport.width, scroll_cols = meta.columns.scroll
+                lcv = row_start, scroll_position = left_position + inner.width, scroll_cols = meta.columns.scroll
                     .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
@@ -392,7 +393,7 @@ $.register_module({
         };
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
-                row_height = grid.meta.row_height, grid_height = grid.meta.viewport.height;
+                row_height = grid.meta.row_height, grid_height = grid.meta.inner.height;
             for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
             bottom = (Math.floor(Math.max(0, Math.min(y, grid_height - row_height)) / row_height) + 1) * row_height;
             top = bottom - row_height;
@@ -445,18 +446,18 @@ $.register_module({
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar_size;
             meta.rows = (meta.available = available(grid.meta)).length;
-            meta.viewport = {
+            meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
                 width: Math.min(width, data_width) - columns.width.fixed
             };
-            meta.visible_rows = Math.min(Math.ceil(meta.viewport.scroll_height / row_height), meta.rows);
+            meta.visible_rows = Math.min(Math.ceil(meta.inner.scroll_height / row_height), meta.rows);
             css = templates.css({
-                id: id, viewport_width: meta.viewport.width,
+                id: id, viewport_width: meta.inner.width,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
                 scroll_left: columns.width.fixed,
-                height: meta.viewport.scroll_height, header_height: header_height, row_height: row_height,
+                height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

@@ -18,49 +18,54 @@ import com.opengamma.util.ArgumentChecker;
   private final BigDecimalFormatter _bigDecimalFormatter;
 
   DoubleFormatter(BigDecimalFormatter bigDecimalFormatter) {
-    ArgumentChecker.notNull(bigDecimalFormatter, "_bigDecimalFormatter");
+    super(Double.class);
+    ArgumentChecker.notNull(bigDecimalFormatter, "bigDecimalFormatter");
     _bigDecimalFormatter = bigDecimalFormatter;
+    addFormatter(new Formatter<Double>(Format.HISTORY) {
+      @Override
+      Object format(Double value, ValueSpecification valueSpec) {
+        return formatHistory(value, valueSpec);
+      }
+    });
+    addFormatter(new Formatter<Double>(Format.EXPANDED) {
+      @Override
+      Object format(Double value, ValueSpecification valueSpec) {
+        return formatExpanded(value, valueSpec);
+      }
+    });
   }
 
   @Override
-  public String formatForDisplay(Double value, ValueSpecification valueSpec) {
+  public String formatCell(Double value, ValueSpecification valueSpec) {
     BigDecimal bigDecimal = convertToBigDecimal(value);
     if (bigDecimal == null) {
       return Double.toString(value);
     } else {
-      return _bigDecimalFormatter.formatForDisplay(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.formatCell(bigDecimal, valueSpec);
     }
   }
 
-  @Override
-  public String formatForExpandedDisplay(Double value, ValueSpecification valueSpec) {
+  private Object formatExpanded(Double value, ValueSpecification valueSpec) {
     BigDecimal bigDecimal = convertToBigDecimal(value);
     if (bigDecimal == null) {
       return Double.toString(value);
     } else {
-      return _bigDecimalFormatter.formatForExpandedDisplay(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.EXPANDED);
     }
   }
 
-  /**
-   * Returns the value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
-   * @param history The value, not null
-   * @param valueSpec The specification that produced the value
-   * @return The value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
-   */
-  @Override
-  public BigDecimal formatForHistory(Double history, ValueSpecification valueSpec) {
+  private Object formatHistory(Double history, ValueSpecification valueSpec) {
     BigDecimal bigDecimal = convertToBigDecimal(history);
     if (bigDecimal == null) {
       return null;
     } else {
-      return _bigDecimalFormatter.formatForHistory(bigDecimal, valueSpec);
+      return _bigDecimalFormatter.format(bigDecimal, valueSpec, Format.HISTORY);
     }
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.DOUBLE;
+  public DataType getDataType() {
+    return DataType.DOUBLE;
   }
 
   private static BigDecimal convertToBigDecimal(Double value) {

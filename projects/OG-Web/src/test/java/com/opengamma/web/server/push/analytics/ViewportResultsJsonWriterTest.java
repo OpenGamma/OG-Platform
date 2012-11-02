@@ -22,13 +22,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 public class ViewportResultsJsonWriterTest {
 
   private static final Duration DURATION = Duration.ofMillis(1234);
   
   private final ViewportDefinition _viewportDefinition =
-      ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), false);
+      ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), TypeFormatter.Format.CELL);
   private final ValueRequirement _valueReq =
       new ValueRequirement("valueName", ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
   private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq, "fnName");

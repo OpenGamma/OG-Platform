@@ -32,12 +32,12 @@ $.register_module({
                 selector.busy(false);
             };
             var initialize = function () {
-                var meta = grid.meta, viewport = grid.meta.viewport;
+                var meta = grid.meta, inner = grid.meta.inner;
                 grid_offset = grid.offset;
-                grid_width = meta.columns.width.fixed + viewport.width;
-                grid_height = viewport.scroll_height + meta.header_height;
+                grid_width = meta.columns.width.fixed + inner.width;
+                grid_height = inner.scroll_height + meta.header_height;
                 fixed_width = meta.columns.width.fixed;
-                max_scroll_top = viewport.height - viewport.scroll_height + meta.scrollbar_size;
+                max_scroll_top = inner.height - inner.scroll_height + meta.scrollbar_size;
                 $(grid.id + ' ' + overlay).remove();
             };
             var mousedown_observer = function (event) {

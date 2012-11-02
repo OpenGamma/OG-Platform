@@ -159,6 +159,22 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
   }
 
+  /* package */ BigDecimalFormatter() {
+    super(BigDecimal.class);
+    addFormatter(new Formatter<BigDecimal>(Format.HISTORY) {
+      @Override
+      Object format(BigDecimal value, ValueSpecification valueSpec) {
+        return getFormatter(valueSpec).getRoundedValue(value);
+      }
+    });
+    addFormatter(new Formatter<BigDecimal>(Format.EXPANDED) {
+      @Override
+      Object format(BigDecimal value, ValueSpecification valueSpec) {
+        return formatCell(value, valueSpec);
+      }
+    });
+  }
+  
   private static void addBulkConversion(String valueRequirementFieldNamePattern, DoubleValueFormatter conversionSettings) {
     Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
     for (Field field : ValueRequirementNames.class.getFields()) {
@@ -175,7 +191,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     }
   }
 
-  private DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
+  private static DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
     if (valueSpec == null) {
       return s_defaultFormatter;
     }
@@ -187,9 +203,13 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     }
   }
 
+  @Override
+  public DataType getDataType() {
+    return DataType.DOUBLE;
+  }
 
   @Override
-  public String formatForDisplay(BigDecimal value, ValueSpecification valueSpec) {
+  public String formatCell(BigDecimal value, ValueSpecification valueSpec) {
     DoubleValueFormatter formatter = getFormatter(valueSpec);
     String formattedNumber = formatter.format(value);
     String formattedValue;
@@ -210,18 +230,5 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     return formattedValue;
   }
 
-  @Override
-  public String formatForExpandedDisplay(BigDecimal value, ValueSpecification valueSpec) {
-    return formatForDisplay(value, valueSpec);
-  }
 
-  @Override
-  public BigDecimal formatForHistory(BigDecimal value, ValueSpecification valueSpec) {
-    return getFormatter(valueSpec).getRoundedValue(value);
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.DOUBLE;
-  }
 }

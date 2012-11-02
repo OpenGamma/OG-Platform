@@ -142,6 +142,7 @@ public class HistoricalTimeSeriesMasterUtils {
     htsSearchReq.setDataSource(dataSource);
     htsSearchReq.setDataProvider(dataProvider);
     htsSearchReq.setDataField(dataField);
+    htsSearchReq.setObservationTime(observationTime);
     HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(htsSearchReq);
     if (searchResult.getDocuments().size() > 0) {
       // update existing time series

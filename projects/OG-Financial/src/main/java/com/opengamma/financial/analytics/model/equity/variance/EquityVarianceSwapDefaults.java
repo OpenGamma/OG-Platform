@@ -91,7 +91,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
     final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
     if (!_surfacesPerEquity.containsKey(underlyingEquity)) {
-      s_logger.error("Could not get config for pay currency " + underlyingEquity + "; should never happen");
+      s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
       return null;
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {

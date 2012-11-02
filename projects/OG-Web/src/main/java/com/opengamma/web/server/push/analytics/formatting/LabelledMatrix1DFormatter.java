@@ -17,28 +17,34 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class LabelledMatrix1DFormatter extends NoHistoryFormatter<LabelledMatrix1D> {
+/* package */ class LabelledMatrix1DFormatter extends AbstractFormatter<LabelledMatrix1D> {
 
   private final DoubleFormatter _doubleFormatter;
 
   LabelledMatrix1DFormatter(DoubleFormatter doubleFormatter) {
+    super(LabelledMatrix1D.class);
     ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
     _doubleFormatter = doubleFormatter;
+    addFormatter(new Formatter<LabelledMatrix1D>(Format.EXPANDED) {
+      @Override
+      Object format(LabelledMatrix1D value, ValueSpecification valueSpec) {
+        return formatExpanded(value, valueSpec);
+      }
+    });
   }
 
   @Override
-  public String formatForDisplay(LabelledMatrix1D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix1D value, ValueSpecification valueSpec) {
     return "Vector (" + value.getKeys().length + ")";
   }
 
-  @Override
-  public List<List<String>> formatForExpandedDisplay(LabelledMatrix1D value, ValueSpecification valueSpec) {
+  private List<List<String>> formatExpanded(LabelledMatrix1D value, ValueSpecification valueSpec) {
     int length = value.getKeys().length;
     List<List<String>> results = Lists.newArrayListWithCapacity(length);
     for (int i = 0; i < length; i++) {
       Object labelObject = value.getLabels()[i];
       String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString();
-      String formattedValue = _doubleFormatter.formatForDisplay(value.getValues()[i], valueSpec);
+      String formattedValue = _doubleFormatter.formatCell(value.getValues()[i], valueSpec);
       List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);
     }
@@ -46,7 +52,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_1D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_1D;
   }
 }

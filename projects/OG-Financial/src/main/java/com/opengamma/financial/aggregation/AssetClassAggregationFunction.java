@@ -23,6 +23,8 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyCDSSecurity;
+import com.opengamma.financial.security.cds.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -96,7 +98,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
   /* package */static final String UNKNOWN = "Unknown Security Type";
   /* package */static final String NAME = "Asset Class";
-  /* package */static final String CDSS = "CDSs"; // TODO: is this the correct abreviation? 
+  /* package */static final String CDS = "CDS"; // TODO: is this the correct abbreviation?
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -125,17 +127,17 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       return finSec.accept(new FinancialSecurityVisitor<String>() {
 
         @Override
-        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+        public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
           return BONDS;
         }
 
         @Override
-        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
+        public String visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return BONDS;
         }
 
         @Override
-        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+        public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return BONDS;
         }
 
@@ -195,12 +197,12 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+        public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
           return COMMODITY_FUTURE_OPTIONS;
         }
 
         @Override
-        public String visitBondFutureOptionSecurity(BondFutureOptionSecurity bondFutureOptionSecurity) {
+        public String visitBondFutureOptionSecurity(final BondFutureOptionSecurity bondFutureOptionSecurity) {
           return BOND_FUTURE_OPTIONS;
         }
 
@@ -266,78 +268,88 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+        public String visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitBondFutureSecurity(BondFutureSecurity security) {
+        public String visitBondFutureSecurity(final BondFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+        public String visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+        public String visitEquityFutureSecurity(final EquityFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+        public String visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitFXFutureSecurity(FXFutureSecurity security) {
+        public String visitFXFutureSecurity(final FXFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
+        public String visitForwardSwapSecurity(final ForwardSwapSecurity security) {
           return SWAPS;
         }
 
         @Override
-        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+        public String visitIndexFutureSecurity(final IndexFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+        public String visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+        public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitStockFutureSecurity(StockFutureSecurity security) {
+        public String visitStockFutureSecurity(final StockFutureSecurity security) {
           return FUTURES;
         }
 
         @Override
-        public String visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+        public String visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
           return FORWARDS;
         }
 
         @Override
-        public String visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+        public String visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
           return FORWARDS;
         }
 
         @Override
-        public String visitMetalForwardSecurity(MetalForwardSecurity security) {
+        public String visitMetalForwardSecurity(final MetalForwardSecurity security) {
           return FORWARDS;
         }
-        
+
         @Override
-        public String visitCDSSecurity(CDSSecurity security) {
-          return CDSS;
+        public String visitCDSSecurity(final CDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitStandardCDSSecurity(final StandardCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return CDS;
         }
       });
     } else {

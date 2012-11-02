@@ -5,11 +5,6 @@
  */
 package com.opengamma.component;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -19,7 +14,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.io.Resource;
 
 /**
  * Main entry point for OpenGamma component-based servers.
@@ -33,7 +27,7 @@ import org.springframework.core.io.Resource;
  * The INI file is described in {@link ComponentConfigLoader}.
  */
 public class OpenGammaComponentServer {
-  
+
   /**
    * The server name property.
    * DO NOT deduplicate with the same value in ComponentManager.
@@ -58,6 +52,11 @@ public class OpenGammaComponentServer {
   private static final Options OPTIONS = getOptions();
 
   /**
+   * The logger in use.
+   */
+  private ComponentLogger _logger = ComponentLogger.Console.VERBOSE;
+
+  /**
    * Main method to start an OpenGamma JVM process.
    * 
    * @param args  the arguments
@@ -67,15 +66,7 @@ public class OpenGammaComponentServer {
       System.exit(0);
     }
   }
-  
-  protected void log(final String msg) {
-    System.out.println(msg);
-  }
-  
-  protected void log(final Throwable t) {
-    t.printStackTrace(System.err);
-  }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Runs the server.
@@ -88,7 +79,7 @@ public class OpenGammaComponentServer {
     try {
       cmdLine = (new PosixParser()).parse(OPTIONS, args);
     } catch (ParseException ex) {
-      log(ex.getMessage());
+      _logger.logError(ex.getMessage());
       usage();
       return false;
     }
@@ -98,31 +89,31 @@ public class OpenGammaComponentServer {
       return false;
     }
     
-    int verbosity = 1;
+    int verbosity = 2;
     if (cmdLine.hasOption(VERBOSE_OPTION)) {
-      verbosity = 2;
+      verbosity = 3;
     } else if (cmdLine.hasOption(QUIET_OPTION)) {
       verbosity = 0;
     }
+    _logger = createLogger(verbosity);
     
     args = cmdLine.getArgs();
     if (args.length == 0) {
-      log("No config file specified");
+      _logger.logError("No config file specified");
       usage();
       return false;
     }
     if (args.length > 1) {
-      log("Only one config file can be specified");
+      _logger.logError("Only one config file can be specified");
       usage();
       return false;
     }
     String configFile = args[0];
     
-    return run(verbosity, configFile);
+    return run(configFile);
   }
 
   //-------------------------------------------------------------------------
-  
   /**
    * Called just before the server is started. The default implementation here
    * creates a monitor thread that allows the server to be stopped remotely.
@@ -136,25 +127,20 @@ public class OpenGammaComponentServer {
   /**
    * Runs the server with config file.
    * 
-   * @param verbosity  the verbosity (0 quiet, 1 normal, 2 verbose)
    * @param configFile  the config file, not null
    * @return true if the server was started, false if there was a problem
    */
-  protected boolean run(int verbosity, String configFile) {
+  protected boolean run(String configFile) {
     long start = System.nanoTime();
-    if (verbosity > 0) {
-      log("======== STARTING OPENGAMMA ========");
-      if (verbosity > 1) {
-        log(" Config file: " + configFile);
-      }
-    }
+    _logger.logInfo("======== STARTING OPENGAMMA ========");
+    _logger.logDebug(" Config file: " + configFile);
     
     // extract the server name from the file name
     String serverName = extractServerName(configFile);
     System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
     
     // create the manager
-    ComponentManager manager = createManager(serverName, verbosity);
+    ComponentManager manager = createManager(serverName);
     
     // start server
     try {
@@ -162,19 +148,16 @@ public class OpenGammaComponentServer {
       manager.start(configFile);
       
     } catch (Exception ex) {
-      log(ex);
-      log("======== OPENGAMMA STARTUP FAILED ========");
+      _logger.logError(ex);
+      _logger.logError("======== OPENGAMMA STARTUP FAILED ========");
       return false;
     }
     
-    if (verbosity > 0) {
-      long end = System.nanoTime();
-      log("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
-    }
+    long end = System.nanoTime();
+    _logger.logInfo("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     return true;
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Extracts the server name.
    * <p>
@@ -197,23 +180,25 @@ public class OpenGammaComponentServer {
     return first + "-" + second;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the logger.
+   * 
+   * @param verbosity  the verbosity required, 0=errors, 3=debug
+   * @return the logger, not null
+   */
+  protected ComponentLogger createLogger(int verbosity) {
+    return new ComponentLogger.Console(verbosity);
+  }
+
   /**
    * Creates the component manager.
    *
    * @param serverName  the server name, not null
-   * @param verbosity  the verbosity level, 0 to 2
    * @return the manager, not null
    */
-  protected ComponentManager createManager(String serverName, int verbosity) {
-    ComponentManager manager;
-    if (verbosity == 2) {
-      manager = new VerboseManager(serverName, new VerboseRepository());
-    } else if (verbosity == 1) {
-      manager = new VerboseManager(serverName);
-    } else {
-      manager = new ComponentManager(serverName);
-    }
-    return manager;
+  protected ComponentManager createManager(String serverName) {
+    return new ComponentManager(serverName, _logger);
   }
 
   //-------------------------------------------------------------------------
@@ -230,87 +215,6 @@ public class OpenGammaComponentServer {
         .addOption(new Option("q", QUIET_OPTION, false, "be quiet during startup"))
         .addOption(new Option("v", VERBOSE_OPTION, false, "be verbose during startup")));
     return options;
-  }
-
-  //-------------------------------------------------------------------------  
-  /**
-   * Manager that can output more verbose messages.
-   */
-  private class VerboseManager extends ComponentManager {
-    public VerboseManager(String serverName) {
-      super(serverName);
-    }
-    public VerboseManager(String serverName, ComponentRepository repo) {
-      super(serverName, repo);
-    }
-    @Override
-    public ComponentRepository start(Resource resource) {
-      try {
-        log("  Using file: " + resource.getURI());
-      } catch (IOException ex) {
-        try {
-          log("  Using file: " + resource.getFile());
-        } catch (IOException ex2) {
-          log("  Using file: " + resource);
-        }
-      }
-      return super.start(resource);
-    }
-    @Override
-    protected void loadIni(Resource resource) {
-      log("--- Using merged properties ---");
-      Map<String, String> properties = new TreeMap<String, String>(getProperties());
-      for (String key : properties.keySet()) {
-        if (key.contains("password")) {
-          log(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
-        } else {
-          log(" " + key + " = " + properties.get(key));
-        }
-      }
-      super.loadIni(resource);
-    }
-    @Override
-    protected void initComponent(String groupName, LinkedHashMap<String, String> remainingConfig) {
-      String typeStr = remainingConfig.get("factory");
-      log("--- Initializing " + groupName + " ---");
-      if (typeStr != null) {
-        log(" Using factory " + typeStr);
-      }
-      
-      long startInstant = System.nanoTime();
-      super.initComponent(groupName, remainingConfig);
-      long endInstant = System.nanoTime();
-      
-      log("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
-    }
-    @Override
-    protected void start() {
-      log("--- Starting Lifecycle ---");
-      super.start();
-      log("--- Started Lifecycle ---");
-    }
-  }
-
-  /**
-   * Repository that can output more verbose messages.
-   */
-  private class VerboseRepository extends ComponentRepository {
-    @Override
-    protected void registered(Object registeredKey, Object registeredObject) {
-      if (registeredKey instanceof ComponentInfo) {
-        ComponentInfo info = (ComponentInfo) registeredKey;
-        if (info.getAttributes().isEmpty()) {
-          log(" Registered component: " + info.toComponentKey());
-        } else {
-          log(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
-        }
-      } else if (registeredKey instanceof ComponentKey) {
-        log(" Registered component: " + registeredKey);
-      } else {
-        log(" Registered callback: " + registeredObject);
-      }
-      super.registered(registeredKey, registeredObject);
-    }
   }
 
 }

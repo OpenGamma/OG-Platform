@@ -16,12 +16,16 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class BlackVolatilitySurfaceMoneynessFormatter extends NoHistoryFormatter<BlackVolatilitySurfaceMoneyness> {
+/* package */ class BlackVolatilitySurfaceMoneynessFormatter extends AbstractFormatter<BlackVolatilitySurfaceMoneyness> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceMoneynessFormatter.class);
 
+  /* package */ BlackVolatilitySurfaceMoneynessFormatter() {
+    super(BlackVolatilitySurfaceMoneyness.class);
+  }
+
   @Override
-  public String formatForDisplay(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
+  public String formatCell(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
     int xCount;
     int yCount;
     if (value.getSurface() instanceof InterpolatedDoublesSurface) {
@@ -39,13 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.SURFACE_DATA;
+  public DataType getDataType() {
+    return DataType.SURFACE_DATA;
   }
 }

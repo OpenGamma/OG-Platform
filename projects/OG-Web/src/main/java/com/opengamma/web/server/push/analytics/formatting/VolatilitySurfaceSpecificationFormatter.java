@@ -8,21 +8,19 @@ package com.opengamma.web.server.push.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
-public class VolatilitySurfaceSpecificationFormatter extends NoHistoryFormatter<VolatilitySurfaceSpecification> {
+public class VolatilitySurfaceSpecificationFormatter extends AbstractFormatter<VolatilitySurfaceSpecification> {
+
+  /* package */ VolatilitySurfaceSpecificationFormatter() {
+    super(VolatilitySurfaceSpecification.class);
+  }
 
   @Override
-  public Object formatForDisplay(VolatilitySurfaceSpecification spec, ValueSpecification valueSpec) {
+  public Object formatCell(VolatilitySurfaceSpecification spec, ValueSpecification valueSpec) {
     return "Volatility Surface Spec - " + spec.getName() + "/" + spec.getSurfaceQuoteType() + "/" + spec.getQuoteUnits();
   }
 
   @Override
-  public Object formatForExpandedDisplay(VolatilitySurfaceSpecification value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.PRIMITIVE;
+  public DataType getDataType() {
+    return DataType.PRIMITIVE;
   }
 }

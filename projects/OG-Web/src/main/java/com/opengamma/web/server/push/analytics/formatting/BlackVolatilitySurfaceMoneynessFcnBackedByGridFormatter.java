@@ -16,24 +16,32 @@ import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
 public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter 
-    extends NoHistoryFormatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid> {
+    extends AbstractFormatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid> {
 
   private final BlackVolatilitySurfaceMoneynessFormatter _delegate;
 
-  public BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(BlackVolatilitySurfaceMoneynessFormatter delegate) {
+  /* package */ BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(BlackVolatilitySurfaceMoneynessFormatter delegate) {
+    super(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class);
+    ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
+    addFormatter(new Formatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid>(Format.EXPANDED) {
+      @Override
+      Object format(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
   }
 
   @Override
-  public Object formatForDisplay(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
-    return _delegate.formatForDisplay(value, valueSpec);
+  public Object formatCell(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
+    return _delegate.formatCell(value, valueSpec);
   }
 
-  @Override
-  public Object formatForExpandedDisplay(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
+  private Object formatExpanded(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value) {
     SmileSurfaceDataBundle gridData = value.getGridData();
     Set<Double> strikes = new TreeSet<Double>();
     for (double[] outer : gridData.getStrikes()) {
@@ -73,7 +81,7 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.SURFACE_DATA;
+  public DataType getDataType() {
+    return DataType.SURFACE_DATA;
   }
 }

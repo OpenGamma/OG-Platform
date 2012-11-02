@@ -90,16 +90,6 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
-      return null;
-    }
-    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-    if (currencies == null || currencies.size() != 1) {
-      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
-      return null;
-    }
     final Set<String> payCurveNames = constraints.getValues(ValuePropertyNames.PAY_CURVE);
     if (payCurveNames == null || payCurveNames.size() != 1) {
       return null;
@@ -114,6 +104,16 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     }
     final Set<String> receiveCurveConfigNames = constraints.getValues(RECEIVE_CURVE_CALC_CONFIG);
     if (receiveCurveConfigNames == null || receiveCurveConfigNames.size() != 1) {
+      return null;
+    }
+    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
+    if (curveNames == null || curveNames.size() != 1) {
+      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
+      return null;
+    }
+    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (currencies == null || currencies.size() != 1) {
+      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
       return null;
     }
     final String payCurveName = payCurveNames.iterator().next();

@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenGammaComponentService extends OpenGammaComponentServer {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaComponentService.class);
+  /** Logger. */
+  private static final Logger s_startupLogger = LoggerFactory.getLogger(ComponentManager.class);
 
   private static final OpenGammaComponentService INSTANCE = new OpenGammaComponentService();
 
@@ -80,16 +83,7 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
     }
   }
 
-  @Override
-  protected void log(final String msg) {
-    s_logger.info(msg);
-  }
-  
-  @Override
-  protected void log(final Throwable t) {
-    s_logger.error("Caught exception", t);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean run(final String[] args) {
     if (!super.run(args)) {
@@ -105,6 +99,11 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
       s_logger.warn("Service interrupted");
       return false;
     }
+  }
+
+  @Override
+  protected ComponentLogger createLogger(int verbosity) {
+    return new ComponentLogger.Slf4JLogger(s_startupLogger);
   }
 
   @Override

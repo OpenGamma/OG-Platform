@@ -14,15 +14,24 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
 /**
  *
  */
-/* package */ class LabelledMatrix2DFormatter extends NoHistoryFormatter<LabelledMatrix2D> {
+/* package */ class LabelledMatrix2DFormatter extends AbstractFormatter<LabelledMatrix2D> {
 
-  @Override
-  public String formatForDisplay(LabelledMatrix2D value, ValueSpecification valueSpec) {
-    return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + ")";
+  /* package */ LabelledMatrix2DFormatter() {
+    super(LabelledMatrix2D.class);
+    addFormatter(new Formatter<LabelledMatrix2D>(Format.EXPANDED) {
+      @Override
+      Map<String, Object> format(LabelledMatrix2D value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
   }
 
   @Override
-  public Map<String, Object> formatForExpandedDisplay(LabelledMatrix2D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix2D value, ValueSpecification valueSpec) {
+    return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + ")";
+  }
+
+  private Map<String, Object> formatExpanded(LabelledMatrix2D value) {
     Map<String, Object> results = Maps.newHashMap();
     int rowCount = value.getYKeys().length;
     int columnCount = value.getXKeys().length;
@@ -41,7 +50,7 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_2D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_2D;
   }
 }

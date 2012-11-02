@@ -17,7 +17,8 @@ $.register_module({
                 return live;
             };
             gadget.resize = function () {try {surface.resize();} catch (error) {}};
-            gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
+            gadget.dataman = new og.analytics
+                .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'surface')
                 .on('data', function (data) {
                     data = data.v || data;
                     if (!data.x_values || !data.y_values)
