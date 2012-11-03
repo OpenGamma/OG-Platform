@@ -12,8 +12,12 @@ $.register_module({
             if (!('cntr' in config) || !config.cntr)
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.cntr] to constructor.');
 
-            if (!('tmpl' in config) || !config.tmpl || typeof config.tmpl !== 'string')
+            if (!('tmpl' in config) || !config.tmpl)
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.tmpl] to constructor.');
+
+            if (typeof config.tmpl !== 'string') return og.dev.warn(
+                'og.analytics.DatasourcesMenu Invalid type param key [config.tmpl] to constructor; expected "string"'
+            );
 
             // Private
             var menu = new og.analytics.DropMenu({
