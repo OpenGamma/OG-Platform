@@ -69,38 +69,47 @@ $.register_module({
             });
         };
         var init = function () {
-            if (!selector) return;
-            $dom.form = $(selector).html(template); 
-            $dom.ag = $('.og-aggregation', $dom.form);
-            $dom.ds = $('.og-datasources', $dom.form);
-            $dom.load_btn = $('.og-load', $dom.form);
-            if ($dom.form) $dom.form.on('keydown', fcntrls_s, keydown_handler);
-            ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
-            ac_menu.$input.on(ac_s, auto_combo_handler).select();
-            ag_menu = new og.analytics.AggregatorsMenu({
-                cntr:$dom.ag, tmpl:ag_template, data: aggregators, opts:ag_data
-            });
-            ds_menu = new og.analytics.DatasourcesMenu({
-                cntr:$dom.ds, tmpl:ds_template, opts:ds_data
-            });
-            [ag_menu, ds_menu].forEach(function (menu) { 
-                menu.addListener(events.opened, close_dropmenu)
-                    .addListener(events.queryselected, query_selected)
-                    .addListener(events.querycancelled, query_cancelled)
-                    .addListener(events.resetquery, menu.reset_query);
-            });
-            $dom.ag_fcntrls = $dom.ag.find(fcntrls_s), $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
-            $dom.load_btn.on('click', load_query);
-            emitter.addListener(events.closeall, function () {
-                close_dropmenu(ag_menu);
-                close_dropmenu(ds_menu);
-            });
+            if (!selector || !template) return;
+            $dom.form = $(selector).html(template);
+            if ($dom.form) {
+                $dom.ag = $('.og-aggregation', $dom.form);
+                $dom.ds = $('.og-datasources', $dom.form);
+                $dom.load_btn = $('.og-load', $dom.form);
+                $dom.form.on('keydown', fcntrls_s, keydown_handler);
+            }
+            if (viewdefs) {
+                ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
+                ac_menu.$input.on(ac_s, auto_combo_handler).select();
+            }
+            if ($dom.ag && ag_template) {
+                ag_menu = new og.analytics.AggregatorsMenu({
+                    cntr:$dom.ag, tmpl:ag_template, data: aggregators, opts:ag_data
+                });
+            }
+            if ($dom.ds && ds_template) {
+                ds_menu = new og.analytics.DatasourcesMenu({cntr:$dom.ds, tmpl:ds_template, opts:ds_data});
+            }
+            if (ag_menu && ds_menu) {
+                [ag_menu, ds_menu].forEach(function (menu) {
+                    menu.addListener(events.opened, close_dropmenu)
+                        .addListener(events.queryselected, query_selected)
+                        .addListener(events.querycancelled, query_cancelled)
+                        .addListener(events.resetquery, menu.reset_query);
+                });
+                emitter.addListener(events.closeall, function () {
+                    close_dropmenu(ag_menu);
+                    close_dropmenu(ds_menu);
+                });
+            }
+            if ($dom.ag) $dom.ag_fcntrls = $dom.ag.find(fcntrls_s);
+            if ($dom.ds) $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
+            if ($dom.load_btn) $dom.load_btn.on('click', load_query);
             status = new og.analytics.Status(selector + ' .og-status');
         };
         var load_query = function () {
-            if (!~ac_menu.$input.val().indexOf('Db')) return;
+            if ((!ac_menu && !ds_menu) || !~ac_menu.$input.val().indexOf('Db')) return;
             og.analytics.url.main(query = {
-                aggregators: ag_menu.get_query(),
+                aggregators: ag_menu ? ag_menu.get_query() : [],
                 providers: ds_menu.get_query(),
                 viewdefinition: ac_menu.$input.val()
             });
@@ -166,8 +175,12 @@ $.register_module({
                 }
             }
             
-            if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
-                if (ac_menu) ac_menu.$input.val(url_config.viewdefinition); else ac_data = url_config.viewdefinition;
+            if ('viewdefinition' in url_config && url_config.viewdefinition && 
+                typeof url_config.viewdefinition === 'string') {
+                if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
+                    if (ac_menu) ac_menu.$input.val(url_config.viewdefinition); 
+                    else ac_data = url_config.viewdefinition;
+                }
             }
 
             query = url_config;
