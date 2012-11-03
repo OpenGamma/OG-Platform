@@ -28,7 +28,7 @@ $.register_module({
                 closeall: 'dropmenu:closeall',
                 queryselected: 'dropmenu:queryselected',
                 querycancelled: 'dropmenu:querycancelled',
-                resetdsquery:'dropmenu:resetquery'
+                resetquery:'dropmenu:resetquery'
             };
         var auto_combo_handler = function (even, ui) {
             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
@@ -40,8 +40,14 @@ $.register_module({
             else ds_menu.emitEvent(events.close);
         };
         var constructor = function (conf) {
-            var form = this, config = conf || {};
-            selector = config.selector || '.OG-layout-analytics-masthead';
+            if (!conf) return og.dev.warn('og.analytics.Form: Missing param [conf] to constructor');
+            if (!('selector' in conf) || !conf.selector)
+                return og.dev.warn('og.analytics.Form: Missing param key [conf.selector] to constructor');
+            if (typeof conf.selector !== 'string')
+                return og.dev.warn(
+                    'og.analytics.Form: Invalid type param key [conf.selector] to constructor; expected "string"'
+                );
+            var form = this; selector = conf.selector;
             og.views.common.layout.main.allowOverflow('north');
             if (template) init(); else fetch_template(init);
             return form;
@@ -54,17 +60,21 @@ $.register_module({
                 og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get()
             ).pipe(function (tmpl, ag_tmpl, ds_tmpl, vds, ag_data) {
-                template = tmpl; ag_template = ag_tmpl; ds_template = ds_tmpl;
-                viewdefs = vds.data; aggregators = ag_data.data;
-                callback();
+                if (!tmpl.error) template = tmpl;
+                if (!ag_tmpl.error) ag_template = ag_tmpl;
+                if (!ds_tmpl.error) ds_template = ds_tmpl;
+                if (!vds.error && 'data' in vds) viewdefs = vds.data;
+                if (!ag_data.error && 'data' in ag_data) aggregators = ag_data.data;
+                if (callback) callback();
             });
         };
         var init = function () {
+            if (!selector) return;
             $dom.form = $(selector).html(template); 
             $dom.ag = $('.og-aggregation', $dom.form);
             $dom.ds = $('.og-datasources', $dom.form);
             $dom.load_btn = $('.og-load', $dom.form);
-            $dom.form.on('keydown', fcntrls_s, keydown_handler);
+            if ($dom.form) $dom.form.on('keydown', fcntrls_s, keydown_handler);
             ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
             ac_menu.$input.on(ac_s, auto_combo_handler).select();
             ag_menu = new og.analytics.AggregatorsMenu({
@@ -126,30 +136,34 @@ $.register_module({
             if (JSON.stringify(url_config) === JSON.stringify(query)) return;
 
             var ag_val, ds_val;
-            if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
-                ag_val = {
-                    aggregators: url_config.aggregators.map(function (entry) {
-                        return {val:entry, required_field:false};
-                    })
-                };
-                if (ag_menu) ag_menu.replay_query(ag_val); else ag_data = ag_val;
+            if ('aggregators' in url_config && $.isArray(url_config.aggregators) && url_config.aggregators.length) {
+                if (!query || (JSON.stringify(url_config.aggregators) !== JSON.stringify(query.aggregators))) {
+                    ag_val = {
+                        aggregators: url_config.aggregators.map(function (entry) {
+                            return {val:entry, required_field:false};
+                        })
+                    };
+                    if (ag_menu) ag_menu.replay_query(ag_val); else ag_data = ag_val;
+                }
             }
             
-            if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
-                ds_val = {
-                    datasources: url_config.providers.map(function (entry) {
-                        var obj = {};
-                        obj.marketDataType = entry.marketDataType;
-                        if (entry.source) obj.source = entry.source;
-                        else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
-                        else if (entry.resolverKey) {
-                            obj.resolverKey = entry.resolverKey;
-                            if (entry.date) obj.date = entry.date;
-                        }
-                        return obj;
-                    })
-                };
-                if (ds_menu) ds_menu.replay_query(ds_val); else ds_data = ds_val;
+            if ('providers' in url_config && $.isArray(url_config.providers) && url_config.providers.length) {
+                if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
+                    ds_val = {
+                        datasources: url_config.providers.map(function (entry) {
+                            var obj = {};
+                            if (entry.marketDataType) obj.marketDataType = entry.marketDataType;
+                            if (entry.source) obj.source = entry.source;
+                            else if (entry.snapshotId) obj.snapshotId = entry.snapshotId;
+                            else if (entry.resolverKey) {
+                                obj.resolverKey = entry.resolverKey;
+                                if (entry.date) obj.date = entry.date;
+                            }
+                            return obj;
+                        })
+                    };
+                    if (ds_menu) ds_menu.replay_query(ds_val); else ds_data = ds_val;
+                }
             }
             
             if (!query || (url_config.viewdefinition !== query.viewdefinition)) {

@@ -7,7 +7,13 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () {
         return function (config) {
-            if (!config) return;
+            if (!config) return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
+
+            if (!('cntr' in config) || !config.cntr)
+                return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.cntr] to constructor.');
+
+            if (!('tmpl' in config) || !config.tmpl || typeof config.tmpl !== 'string')
+                return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.tmpl] to constructor.');
 
             // Private
             var menu = new og.analytics.DropMenu({
@@ -26,7 +32,7 @@ $.register_module({
                     typeselected:'dropmenu:ds:typesselected',
                     dataselected: 'dropmenu:ds:dataselected',
                     optsrepositioned: 'dropmenu:ds:optsrespositioned',
-                    resetdsquery:'dropmenu:resetquery',
+                    resetquery:'dropmenu:resetquery',
                     queryresequested:'dropmenu:queryresequested'
                 };
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
@@ -97,7 +103,8 @@ $.register_module({
                     ).then(function(snapshot, historical, res_keys){
                         if (!snapshot.error) $snapshot_opts = $(wrapper).append(snapshot);
                         if (!historical.error) $historical_opts = $(wrapper).append(historical);
-                        if (!res_keys.error && res_keys.data && res_keys.data.data)
+                        if (!res_keys.error &&  'data' in res_keys && res_keys.data &&
+                            'data' in res_keys.data && res_keys.data.data)
                             res_keys.data.data.forEach(function (entry) {resolver_keys.push(entry.split('|')[1]);});
                         if ($dom.menu) {
                             $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
@@ -110,6 +117,7 @@ $.register_module({
             };
             var init_listeners = function () {
                 menu.addListener(events.queryresequested, remove_orphans);
+                menu.addListener(events.resetquery, menu.reset_query);
             };
             var menu_handler = function (event) { // TODO AG: Refactor
                 var entry, sel_pos, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
@@ -297,10 +305,13 @@ $.register_module({
                 }
             };
             menu.reset_query = function () {
+                var type_select, source_select;
                 for (var i = menu.opts.length - 1; i >= 0; i-=1) {
                     if (menu.opts.length === 1 && menu.opts[i]) {
-                        $(type_s, menu.opts[i]).val(default_sel_txt);
-                        $(source_s, menu.opts[i]).val(default_type_txt);
+                        type_select = $(type_s, menu.opts[i]),
+                        source_select = $(source_s, menu.opts[i]);
+                        if (type_select) type_select.val(default_sel_txt);
+                        if (source_select) source_select.val(default_type_txt);
                         remove_ext_opts(i);
                         reset_query(i);
                         break;

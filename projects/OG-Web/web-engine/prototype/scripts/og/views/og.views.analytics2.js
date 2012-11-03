@@ -20,7 +20,7 @@ $.register_module({
             },
             load: function (args) {
                 var new_page = false;
-                if (!form) form = new og.analytics.Form();
+                if (!form) form = new og.analytics.Form({selector:'.OG-layout-analytics-masthead'});
                 form.replay_query(og.analytics.url.last.main);
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; view.default_details();}}
