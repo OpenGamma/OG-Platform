@@ -9,9 +9,10 @@ package com.opengamma.financial.security.cds;
  * Types of legacy CDS.
  */
 public enum CDSType {
-
+  /** Vanilla */
+  VANILLA,
   /** Lock */
-  LOCK,
+  RECOVERY_LOCK,
   /** Fixed recovery */
   FIXED_RECOVERY
 }
