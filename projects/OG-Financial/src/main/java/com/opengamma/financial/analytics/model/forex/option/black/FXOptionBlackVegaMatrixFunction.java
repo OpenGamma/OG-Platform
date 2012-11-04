@@ -66,7 +66,7 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
     throw new OpenGammaRuntimeException("Can only calculate vega matrix for surfaces with smiles");
   }
 
-  private String getFormattedExpiry(final double expiry) {
+  private static String getFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
       return days + "D";

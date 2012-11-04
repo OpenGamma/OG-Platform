@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
@@ -36,19 +37,9 @@ public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXDigi
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
-      final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String spread, final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
-        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
-        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
-        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(PROPERTY_CALL_SPREAD_VALUE, spread);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    return desiredValue.getConstraints().copy()
+        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId());
   }
 
 }
