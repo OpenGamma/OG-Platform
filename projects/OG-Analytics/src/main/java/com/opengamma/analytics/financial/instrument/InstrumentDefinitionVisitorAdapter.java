@@ -72,14 +72,14 @@ import com.opengamma.util.ArgumentChecker;
  * @param <DATA_TYPE> Type of the data 
  * @param <RESULT_TYPE> Type of the result
  */
-public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   private final RESULT_TYPE _defaultReturnType;
 
-  public AbstractInstrumentDefinitionVisitor() {
+  public InstrumentDefinitionVisitorAdapter() {
     _defaultReturnType = null;
   }
 
-  public AbstractInstrumentDefinitionVisitor(final RESULT_TYPE defaultReturnType) {
+  public InstrumentDefinitionVisitorAdapter(final RESULT_TYPE defaultReturnType) {
     ArgumentChecker.notNull(defaultReturnType, "default return type");
     _defaultReturnType = defaultReturnType;
   }

@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefi
 import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
-import com.opengamma.analytics.financial.instrument.AbstractInstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 
 /**
@@ -55,7 +55,7 @@ public class ForexDefinitionVisitorTest {
     assertEquals(FX_OPTION_DIGITAL_DEFINITION.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
-  private static class MyVisitor<T, U> extends AbstractInstrumentDefinitionVisitor<T, String> {
+  private static class MyVisitor<T, U> extends InstrumentDefinitionVisitorAdapter<T, String> {
 
     @Override
     public String visitForexDefinition(final ForexDefinition fx, final T data) {
