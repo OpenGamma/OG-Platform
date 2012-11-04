@@ -39,6 +39,9 @@ $.register_module({
                     resetquery:'dropmenu:resetquery',
                     queryresequested:'dropmenu:queryresequested'
                 };
+            var add_handler = function () {
+                menu.add_handler();
+            };
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
                 if (!~entry || !menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]), latest = $(latest_s, menu.opts[entry]),
@@ -127,7 +130,7 @@ $.register_module({
                 var entry, sel_pos, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), menu.add_handler();
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -250,8 +253,8 @@ $.register_module({
                 } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val};
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val});
                 enable_extra_options(entry, true);
-                if (preload && 'date' in src && typeof src.date === 'string') date_handler(entry, src);
                 display_query();
+                if (preload && 'date' in src && typeof src.date === 'string') date_handler(entry, src);
                 // emitEvent; dataselected
             };
             var type_handler = function (entry, conf) {
