@@ -19,7 +19,6 @@ $.register_module({
             label = label ? label + '-' : '';
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta, handler = function (result) {
-                    data.busy(false);
                     if (!result || result.error) // do not kill connection even if there is an error, just warn
                         return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
                     if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
@@ -37,7 +36,6 @@ $.register_module({
                 if (!view_id || !viewport) return;
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
-                data.busy(true);
                 (viewport_id ? viewports.get({
                     view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                     viewport_id: viewport_id, update: data_setup
@@ -141,9 +139,6 @@ $.register_module({
                 data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
                 return grid_type ? structure_setup() : type_setup();
             };
-            data.busy = (function (busy) {
-                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
-            })(false);
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
                 if (view_id) api.del({view_id: view_id});
@@ -162,9 +157,8 @@ $.register_module({
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {
-                    if (viewport_id && data.busy(true)) viewports.del({
-                        view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id
-                    }).pipe(function (result) {data.busy(false);});
+                    if (viewport_id) viewports
+                        .del({view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id});
                     viewport = viewport_cache = viewport_id = null;
                     if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
                     return data;
@@ -174,14 +168,11 @@ $.register_module({
                 if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
-                data.busy(true);
                 try { // viewport definitions come from outside, so try/catch
                     viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, columns: viewport.cols, format: viewport.format
-                    }).pipe(function (result) {
-                        if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
-                    });
+                    }).pipe(function (result) {if (result.error) return; else viewport_version = result.data.version;});
                 } catch (error) {fire(data.events.fatal, data.prefix + error.message);}
                 return data;
             };

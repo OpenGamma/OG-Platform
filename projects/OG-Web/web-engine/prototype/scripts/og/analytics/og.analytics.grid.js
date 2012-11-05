@@ -90,6 +90,9 @@ $.register_module({
         var fire = og.common.events.fire;
         var init_data = function () {
             var grid = this, config = grid.config;
+            grid.busy = (function (busy) {
+                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
+            })(false);
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
             grid.dataman = new og.analytics.Data(grid.source, false, 'grid')
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
@@ -154,12 +157,12 @@ $.register_module({
             elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
             (function () {
                 var started, pause = 200,
-                    jump = function () {viewport.call(grid, function () {grid.dataman.busy(false);}), started = null;};
+                    jump = function () {viewport.call(grid, function () {grid.busy(false);}), started = null;};
                 elements.fixed_body.on('scroll', (function (timeout) {
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
                         if (!started && $(event.target).is(elements.fixed_body)) started = 'fixed';
                         if (started !== 'fixed') return clearTimeout(timeout);
-                        grid.dataman.busy(true);
+                        grid.busy(true);
                         if (cellmenu) cellmenu.hide();
                         elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
@@ -169,7 +172,7 @@ $.register_module({
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
                         if (!started && $(event.target).is(elements.scroll_body)) started = 'scroll';
                         if (started !== 'scroll') return clearTimeout(timeout);
-                        grid.dataman.busy(true);
+                        grid.busy(true);
                         if (cellmenu) cellmenu.hide();
                         elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
                         elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
@@ -276,16 +279,16 @@ $.register_module({
             };
             return function (data) { // TODO handle scenario where grid was busy but data stops ticking for a long time
                 var grid = this;
-                if (grid.dataman.busy()) return; else grid.dataman.busy(true); // don't accept more data if rendering
+                if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
                 grid.data = data;
                 grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 grid.updated(+new Date);
-                grid.dataman.busy(false);
                 grid.elements.main.find('.node').each(function (idx, val) {
                     var $node = $(this);
                     $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
                 });
+                grid.busy(false);
                 fire(grid.events.render);
             };
         })();
@@ -473,8 +476,8 @@ $.register_module({
             return viewport.call(grid, render_header);
         };
         constructor.prototype.toggle = function (bool) {
-            var state = typeof bool !== 'undefined' ? !bool : !grid.clipboard.dataman.busy();
-            grid.dataman.busy(grid.clipboard.dataman.busy(state));
+            var grid = this, state = typeof bool !== 'undefined' ? !bool : !grid.busy();
+            return grid.busy(state);
         };
         return constructor;
     }
