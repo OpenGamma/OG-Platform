@@ -41,6 +41,9 @@ $.register_module({
                 };
             var add_handler = function () {
                 menu.add_handler();
+                var idx = menu.opts.length-1;
+                set_type_select(idx, {type: 'live'});
+                type_handler(idx, {post_handler: replay_post_handler(idx, {src:{idx:1}})});
             };
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
                 if (!~entry || !menu.opts[entry]) return;
@@ -119,6 +122,10 @@ $.register_module({
                             init_listeners();
                         }
                         if (config.opts) menu.replay_query(config.opts);
+                        else {
+                            set_type_select(0, {type: 'live'});
+                            type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
+                        }
                     });
                 }
             };
@@ -126,11 +133,11 @@ $.register_module({
                 menu.addListener(events.queryresequested, remove_orphans);
                 menu.addListener(events.resetquery, menu.reset_query);
             };
-            var menu_handler = function (event) { // TODO AG: Refactor
+            var menu_handler = function (event) {
                 var entry, sel_pos, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(menu.opts.length);
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -215,13 +222,13 @@ $.register_module({
                     source_handler(entry, src);
                 };
             };
-            var replay_type_vals = function (entry, d) {
+            var set_type_select = function (entry, d) {
                 if (!~entry || !d || !$.isPlainObject(d) || !menu.opts[entry]) return;
-                if (!('marketDataType' in d) || typeof d.marketDataType !== 'string') return;
+                if (!('type' in d) || !d.type || typeof d.type !== 'string') return;
                 var type_select = $(type_s, menu.opts[entry]);
-                switch (d.marketDataType) {
+                switch (d.type) {
                     case 'live' :
-                    case 'snapshot': if (type_select) type_select.val(menu.capitalize(d.marketDataType)); break;
+                    case 'snapshot': if (type_select) type_select.val(menu.capitalize(d.type)); break;
                     case 'latestHistorical':
                     case 'fixedHistorical': if (type_select) type_select.val('Historical'); break;
                 }
@@ -237,7 +244,7 @@ $.register_module({
             };
             var source_handler = function (entry, preload) {
                 if (!~entry || !menu.opts[entry]) return;
-                var val, src, sel_pos = menu.opts[entry].data('pos'),
+                var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
@@ -245,8 +252,13 @@ $.register_module({
                 if (preload) {
                     src = preload.src;
                     val = src.snapshotId ? get_snapshot(src.snapshotId) : src.resolverKey ?
-                          src.resolverKey : src.source ? src.source : "";
-                    source_select.val(val); source_val = source_select.val();
+                          src.resolverKey : src.source ? src.source : src.idx ? src.idx : "";
+                    if (typeof val === 'string') source_select.val(val); else if (typeof val === 'number') {
+                        option = $('option:eq('+val+')', source_select) ? $('option:eq('+val+')', source_select) :
+                            $('option:eq(0)', source_select) ? $('option:eq(0)', source_select) : null;
+                        if (option) option.attr('selected', 'selected');
+                    }
+                    source_val = source_select.val();
                 }
                 if (!preload && source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
@@ -302,12 +314,14 @@ $.register_module({
                 return arr;
             };
             menu.replay_query = function (conf) {
-                if (!conf && !conf.datasources || !$.isArray(conf.datasources)) return;
+                if (!conf && !conf.datasources || !$.isArray(conf.datasources) || !conf.datasources.length) return;
                 var i, len, src;
                 menu.opts.forEach(function (option) { option.remove(); }); menu.opts.length = 0; query = [];
                 for (len = conf.datasources.length, src; menu.opts.length < len; menu.add_handler());
                 for (i = 0, len = conf.datasources.length; i < len; i+=1) {
-                    replay_type_vals(i, conf.datasources[i]);
+                    if ('marketDataType' in conf.datasources[i] && conf.datasources[i] &&
+                        typeof conf.datasources[i].marketDataType === 'string')
+                        set_type_select(i, {type:conf.datasources[i].marketDataType});
                     type_handler(i, {post_handler: replay_post_handler(i, {src:conf.datasources[i]})});
                 }
             };
@@ -325,6 +339,8 @@ $.register_module({
                     }
                     delete_handler(i);
                 }
+                set_type_select(0, {type: 'live'});
+                type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
             };
             return init(config), menu;
         };

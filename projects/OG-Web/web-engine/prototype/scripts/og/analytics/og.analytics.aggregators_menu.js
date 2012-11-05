@@ -16,7 +16,7 @@ $.register_module({
                     tmpl: config.tmpl
                 }),
                 $dom, opts, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
-                default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
+                default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
             var add_handler = function () {
                 if (data.length === opts.length) return;
