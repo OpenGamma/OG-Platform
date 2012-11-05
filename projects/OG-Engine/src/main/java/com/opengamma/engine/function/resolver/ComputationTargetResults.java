@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.resolver;
@@ -25,6 +25,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionCompilationContextAware;
 import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -38,7 +39,7 @@ import com.opengamma.util.PublicAPI;
  * Service to interrogate the results available on a computation target.
  */
 @PublicAPI
-public class ComputationTargetResults {
+public class ComputationTargetResults implements FunctionCompilationContextAware {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ComputationTargetResults.class);
 
@@ -54,17 +55,15 @@ public class ComputationTargetResults {
    * that are defined in terms of the available outputs of others from being caught
    * in an infinite loop of recursive calls.
    */
-  private final FunctionCompilationContext _context;
+  private FunctionCompilationContext _context;
 
   /**
    * Creates a new instance.
-   * 
+   *
    * @param rules the resolution rules to use, not null
-   * @param context the containing context, not null
    */
-  public ComputationTargetResults(final Collection<ResolutionRule> rules, final FunctionCompilationContext context) {
+  public ComputationTargetResults(final Collection<ResolutionRule> rules) {
     ArgumentChecker.notNull(rules, "rules");
-    ArgumentChecker.notNull(context, "context");
     _rules = new ArrayList<ResolutionRule>(rules);
     Collections.sort(_rules, new Comparator<ResolutionRule>() {
 
@@ -80,15 +79,19 @@ public class ComputationTargetResults {
       }
 
     });
-    _context = context.clone();
-    _context.setComputationTargetResults(null);
-    // TODO: This is bad; we shouldn't be taking the clone at construction as we might miss things. What if we had "lifecycle" methods like spring beans
-    // so we can iterate through a context and call "init" when the context is fully constructed (and pass in a reference then to the context).
+  }
+
+  @Override
+  public void setFunctionCompilationContext(final FunctionCompilationContext context) {
+    if (_context == null) {
+      _context = context.clone();
+      _context.setComputationTargetResults(null);
+    }
   }
 
   /**
    * Gets the list of resolution rules, in descending priority order.
-   * 
+   *
    * @return the rules, not null
    */
   protected List<ResolutionRule> getRules() {
@@ -97,7 +100,7 @@ public class ComputationTargetResults {
 
   /**
    * Gets the function compilation context (lacking this service).
-   * 
+   *
    * @return the context, not null
    */
   protected FunctionCompilationContext getContext() {
@@ -106,7 +109,7 @@ public class ComputationTargetResults {
 
   /**
    * Gets the target resolver to use for partial result resolution.
-   * 
+   *
    * @return the target resolver, not null
    */
   protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
@@ -115,7 +118,7 @@ public class ComputationTargetResults {
 
   /**
    * Gets the specification resolver to use for targets specified by external identifier only.
-   * 
+   *
    * @return the
    */
   protected ComputationTargetSpecificationResolver.AtVersionCorrection getTargetSpecificationResolver() {
@@ -125,15 +128,15 @@ public class ComputationTargetResults {
   /**
    * Returns the maximal result sets from all functions on the given target. The results
    * are presented in the descending priority order of the rules that produced them.
-   * 
+   *
    * @param target the target to get results for, not null
    * @return the list of maximal results, not null
    */
   public List<ValueSpecification> getMaximalResults(final ComputationTarget target) {
     final Set<ValueSpecification> result = new LinkedHashSet<ValueSpecification>();
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       if (rule.getParameterizedFunction().getFunction().getTargetType().isCompatible(target.getType())) {
-        Set<ValueSpecification> results = rule.getResults(target, getContext());
+        final Set<ValueSpecification> results = rule.getResults(target, getContext());
         if (results != null) {
           result.addAll(results);
         }
@@ -150,14 +153,14 @@ public class ComputationTargetResults {
    * <p>
    * This differs from {@link #getMaximalResults} by following the requirements of any
    * functions that produce non-finite properties on their maximal outputs.
-   * 
+   *
    * @param target the target to get results for, not null
    * @return the list of partially resolved results, not null
    */
   public List<ValueSpecification> getPartialResults(final ComputationTarget target) {
     final Map<ComputationTargetType, ComputationTarget> adjustedTargetCache = new HashMap<ComputationTargetType, ComputationTarget>();
     final Set<ValueSpecification> result = new LinkedHashSet<ValueSpecification>();
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       final CompiledFunctionDefinition function = rule.getParameterizedFunction().getFunction();
       if (!function.getTargetType().isCompatible(target.getType())) {
         continue;
@@ -169,7 +172,7 @@ public class ComputationTargetResults {
         if (results == null) {
           continue;
         }
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         s_logger.warn("Couldn't call getResults on {} - {}", rule, t);
         s_logger.debug("Caught exception", t);
         continue;
@@ -177,7 +180,7 @@ public class ComputationTargetResults {
       //CSOFF
       resultsLoop:
       //CSON
-      for (ValueSpecification spec : results) {
+      for (final ValueSpecification spec : results) {
         if (!spec.getProperties().getProperties().isEmpty()) {
           result.add(spec);
           continue resultsLoop;
@@ -194,7 +197,7 @@ public class ComputationTargetResults {
 
   /**
    * Attempts partial resolution of a requirement. Requirement chains are followed until a specification is found with finite properties.
-   * 
+   *
    * @param requirement requirement to resolve, not null
    * @param visited requirements visited so far, to detect recursion, not null
    * @param adjustedTargetCache cache of adjusted targets, keyed by the target function type, not null
@@ -215,7 +218,7 @@ public class ComputationTargetResults {
       return null;
     }
     s_logger.debug("Partially resolving {}", requirement);
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       final CompiledFunctionDefinition function = rule.getParameterizedFunction().getFunction();
       if (!function.getTargetType().isCompatible(target.getType())) {
         continue;
@@ -227,7 +230,7 @@ public class ComputationTargetResults {
         if (result == null) {
           continue;
         }
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         s_logger.warn("Couldn't call getResult on {} - {}", rule, t);
         s_logger.debug("Caught exception", t);
         continue;
@@ -251,7 +254,7 @@ public class ComputationTargetResults {
 
   /**
    * Attempts partial resolution of a non-finite specification produced as part of a function's maximal outputs. Requirement chains are followed until a specification is found with finite properties.
-   * 
+   *
    * @param specification maximal output specification, non-finite properties, not null
    * @param target computation target the function is to operate on, not null
    * @param function function to apply, not null
@@ -268,14 +271,14 @@ public class ComputationTargetResults {
       if (reqs == null) {
         return null;
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.warn("Couldn't call getRequirements on {} - {}", function, t);
       s_logger.debug("Caught exception", t);
       return null;
     }
     s_logger.debug("Need partial resolution of {} to continue", reqs);
     final Map<ValueSpecification, ValueRequirement> resolved = Maps.newHashMapWithExpectedSize(reqs.size());
-    for (ValueRequirement req : reqs) {
+    for (final ValueRequirement req : reqs) {
       // TODO: need to call "simplify type" on requirement
       final ValueSpecification resolvedReq = resolvePartialRequirement(req, visited, adjustedTarget);
       if (resolvedReq == null) {
@@ -289,12 +292,12 @@ public class ComputationTargetResults {
       if ((lateResults == null) || lateResults.isEmpty()) {
         return null;
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.warn("Couldn't call getResults on {} - {}", function, t);
       s_logger.debug("Caught exception", t);
       return null;
     }
-    for (ValueSpecification lateSpec : lateResults) {
+    for (final ValueSpecification lateSpec : lateResults) {
       if (!lateSpec.getProperties().getProperties().isEmpty()) {
         s_logger.debug("Deep resolution of {} to {}", specification, lateSpec);
         return lateSpec;

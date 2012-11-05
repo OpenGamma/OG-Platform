@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.resolver;
@@ -115,6 +115,7 @@ public class ComputationTargetResultsTest {
       super(type, resultValue, resultProperties, requirementValue, requirementConstraints);
     }
 
+    @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       final ValueSpecification input = inputs.keySet().iterator().next();
       return Collections.singleton(new ValueSpecification(super._resultValue, target.toSpecification(), input.getProperties()));
@@ -171,7 +172,9 @@ public class ComputationTargetResultsTest {
     cfs.initialize();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     final CompiledFunctionResolver compiledFunctionResolver = functionResolver.compile(Instant.now());
-    return new ComputationTargetResults(compiledFunctionResolver.getAllResolutionRules(), context);
+    final ComputationTargetResults results = new ComputationTargetResults(compiledFunctionResolver.getAllResolutionRules());
+    results.setFunctionCompilationContext(context);
+    return results;
   }
 
   public void testMaximalResults_emptyRepo() {
@@ -184,7 +187,7 @@ public class ComputationTargetResultsTest {
 
   private Set<String> getResults(final Collection<ValueSpecification> values) {
     final Set<String> results = Sets.newHashSetWithExpectedSize(values.size());
-    for (ValueSpecification value : values) {
+    for (final ValueSpecification value : values) {
       results.add(value.getValueName());
     }
     return results;

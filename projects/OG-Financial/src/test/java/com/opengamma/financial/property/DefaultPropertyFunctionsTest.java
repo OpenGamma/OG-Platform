@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.property;
@@ -396,7 +396,8 @@ public class DefaultPropertyFunctionsTest {
     ctx.setViewCalculationConfiguration(new ViewCalculationConfiguration(new ViewDefinition("Name", "User"), "Default"));
     builder.setCompilationContext(ctx);
     final CompiledFunctionResolver cfr = createFunctionResolver(ctx);
-    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules(), ctx));
+    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules()));
+    ctx.init();
     builder.setFunctionResolver(cfr);
     builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
         .asList(MarketDataRequirementNames.MARKET_VALUE)));

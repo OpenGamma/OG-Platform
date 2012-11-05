@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -33,13 +33,14 @@ public class ViewCompilationContext {
   private final Map<String, DependencyGraphBuilder> _configurationGraphs;
   private final VersionCorrection _resolverVersionCorrection;
 
-  /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection resolverVersionCorrection) {
+  /* package */ViewCompilationContext(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
+      final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     _viewDefinition = viewDefinition;
     _services = compilationServices;
     final Map<String, DependencyGraphBuilder> configurationGraphs = new HashMap<String, DependencyGraphBuilder>();
     final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     final ComputationTargetResolver.AtVersionCorrection resolver = compilationServices.getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(resolverVersionCorrection);
-    for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
+    for (final String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = compilationServices.getDependencyGraphBuilder().newInstance();
       builder.setCalculationConfigurationName(configName);
       builder.setMarketDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
@@ -48,10 +49,11 @@ public class ViewCompilationContext {
       compilationContext.setViewCalculationConfiguration(calcConfig);
       compilationContext.setComputationTargetResolver(resolver);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
-      compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext));
+      compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules));
       final DefaultCompiledFunctionResolver functionResolver = new DefaultCompiledFunctionResolver(compilationContext, transformedRules);
       functionResolver.compileRules();
       builder.setFunctionResolver(functionResolver);
+      compilationContext.init();
       builder.setCompilationContext(compilationContext);
       configurationGraphs.put(configName, builder);
     }
