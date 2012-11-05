@@ -41,11 +41,11 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class FXDigitalCallSpreadBlackDV01Function extends FXDigitalCallSpreadBlackSingleValuedFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackDV01Function.class);
+public class FXDigitalCallSpreadBlackPV01Function extends FXDigitalCallSpreadBlackSingleValuedFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackPV01Function.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
 
-  public FXDigitalCallSpreadBlackDV01Function() {
+  public FXDigitalCallSpreadBlackPV01Function() {
     super(ValueRequirementNames.PV01);
   }
 
