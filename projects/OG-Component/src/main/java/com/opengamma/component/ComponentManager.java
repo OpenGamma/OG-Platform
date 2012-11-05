@@ -284,10 +284,7 @@ public class ComponentManager {
   protected void initGlobal(ComponentConfig config) {
     LinkedHashMap<String, String> global = config.getGroup("global");
     if (global != null) {
-      String mds = global.get("market.data.source");
-      if (mds != null) {
-        PlatformConfigUtils.configureSystemProperties(mds);
-      }
+      PlatformConfigUtils.configureSystemProperties();
       String zoneId = global.get("time.zone");
       if (zoneId != null) {
         OpenGammaClock.setZone(TimeZone.of(zoneId));

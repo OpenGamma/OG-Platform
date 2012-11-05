@@ -16,7 +16,6 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
 
 /**
  * Starts a jetty server configured from spring.
@@ -24,18 +23,9 @@ import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
 public class JettyServer {
 
   /**
-   * The market data source.
-   */
-  private final MarketDataSource _marketDataSource;
-
-  /**
    * Creates an instance.
-   * 
-   * @param marketDataSource  the market data source, not null
    */
-  public JettyServer(MarketDataSource marketDataSource) {
-    ArgumentChecker.notNull(marketDataSource, "marketDataSource");
-    _marketDataSource = marketDataSource;
+  public JettyServer() {
   }
 
   /**
@@ -52,7 +42,7 @@ public class JettyServer {
       System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
-    PlatformConfigUtils.configureSystemProperties(_marketDataSource);
+    PlatformConfigUtils.configureSystemProperties();
     
     // server
     try {
