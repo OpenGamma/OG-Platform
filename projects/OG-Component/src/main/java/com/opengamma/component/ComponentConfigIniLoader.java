@@ -31,10 +31,10 @@ import com.opengamma.OpenGammaRuntimeException;
  *  </code>key = value</code> defines a single config element within a group<br>
  *  Everything is trimmed as necessary.
  */
-public class ComponentConfigLoader {
+public class ComponentConfigIniLoader {
 
   /**
-   * Starts the components defined in the specified resource.
+   * Loads the configuration defining components from the specified resource.
    * <p>
    * The specified properties are simple key=value pairs and must not be surrounded with ${}.
    * 

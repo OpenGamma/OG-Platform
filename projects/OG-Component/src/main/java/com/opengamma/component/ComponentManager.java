@@ -42,7 +42,7 @@ import com.opengamma.util.PlatformConfigUtils;
  * The end result is a populated {@link ComponentRepository}.
  * <p>
  * Two types of config file format are recognized - properties and INI.
- * The INI file is the primary file for loading the components, see {@link ComponentConfigLoader}.
+ * The INI file is the primary file for loading the components, see {@link ComponentConfigIniLoader}.
  * The behavior of an INI file can be controlled using properties.
  * <p>
  * The properties can either be specified manually before {@link #start(Resource))}
@@ -232,16 +232,13 @@ public class ComponentManager {
    * @return the next configuration file to load, not null
    */
   protected String loadProperties(Resource resource) {
-    Properties properties = new Properties();
-    try {
-      properties.load(resource.getInputStream());
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
-    }
+    ComponentConfigPropertiesLoader loader = new ComponentConfigPropertiesLoader();
+    Map<String, String> properties = loader.load(resource);
+    
     String nextConfig = null;
-    for (Entry<Object, Object> entry : properties.entrySet()) {
-      String key = entry.getKey().toString();
-      String value = entry.getValue().toString();
+    for (Entry<String, String> entry : properties.entrySet()) {
+      String key = entry.getKey();
+      String value = entry.getValue();
       if (key.equals(MANAGER_NEXT_FILE)) {
         // the next config file to load
         nextConfig = value;
@@ -261,7 +258,7 @@ public class ComponentManager {
   protected void loadIni(Resource resource) {
     logProperties();
     
-    ComponentConfigLoader loader = new ComponentConfigLoader();
+    ComponentConfigIniLoader loader = new ComponentConfigIniLoader();
     ComponentConfig config = loader.load(resource, getProperties());
     getRepository().pushThreadLocal();
     initGlobal(config);

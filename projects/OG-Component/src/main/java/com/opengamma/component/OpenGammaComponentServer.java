@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
  * Two types of config file format are recognized - properties and INI.
  * A properties file must be in the standard Java format and contain a key "component.ini"
  * which is the resource location of the main INI file.
- * The INI file is described in {@link ComponentConfigLoader}.
+ * The INI file is described in {@link ComponentConfigIniLoader}.
  */
 public class OpenGammaComponentServer {
 
