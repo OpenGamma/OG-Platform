@@ -118,22 +118,6 @@ public class DependencyNode {
   }
 
   /**
-   * Returns the dependent node. This call is only valid if there is a single (or no) dependent node.
-   *
-   * @return the node, or null if there are no dependent nodes
-   * @throws IllegalStateException if there are multiple dependent nodes
-   */
-  public DependencyNode getDependentNode() {
-    if (_dependentNodes.isEmpty()) {
-      return null;
-    } else if (_dependentNodes.size() > 1) {
-      throw new IllegalStateException("More than one dependent node");
-    } else {
-      return _dependentNodes.iterator().next();
-    }
-  }
-
-  /**
    * Returns the set of all immediate input nodes - i.e. nodes that produce one or more of the input values to the function
    * attached to this node.
    *

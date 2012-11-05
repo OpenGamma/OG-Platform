@@ -145,7 +145,7 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
 
           @Override
           public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
-            if (specification.getUniqueId().isLatest()) {
+            if ((specification.getUniqueId() != null) && (specification.getUniqueId().isLatest())) {
               Set<ComputationTargetSpecification> specifications = specificationByType.get(specification.getType());
               if (specifications == null) {
                 if (_resolve.get(specification.getType()) != null) {
@@ -175,12 +175,12 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
           }
 
         };
-        for (ComputationTargetReference reference : references) {
+        for (final ComputationTargetReference reference : references) {
           reference.accept(visitor);
         }
         // TODO: sort the target types - some resolvers will cause caching behavior that will help others out (e.g. resolving Portfolio OID will cache all component Position OID/UIDs).
         // TODO: should there be a threshold for single vs bulk - e.g. are two calls in succession quicker than the map/set operations?
-        for (Map.Entry<ComputationTargetType, Set<ComputationTargetRequirement>> entry : requirementByType.entrySet()) {
+        for (final Map.Entry<ComputationTargetType, Set<ComputationTargetRequirement>> entry : requirementByType.entrySet()) {
           switch (entry.getValue().size()) {
             case 0:
               // No resolver for this type
@@ -197,11 +197,11 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
             default: {
               // Bulk lookup
               final Set<ExternalIdBundle> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
-              for (ComputationTargetRequirement requirement : entry.getValue()) {
+              for (final ComputationTargetRequirement requirement : entry.getValue()) {
                 identifiers.add(requirement.getIdentifiers());
               }
               final Map<ExternalIdBundle, UniqueId> uids = _resolve.get(entry.getKey()).resolveExternalIds(identifiers, versionCorrection);
-              for (ComputationTargetRequirement requirement : entry.getValue()) {
+              for (final ComputationTargetRequirement requirement : entry.getValue()) {
                 final UniqueId uid = uids.get(requirement.getIdentifiers());
                 if (uid != null) {
                   result.put(requirement, requirement.replaceIdentifier(uid));
@@ -211,7 +211,7 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
             }
           }
         }
-        for (Map.Entry<ComputationTargetType, Set<ComputationTargetSpecification>> entry : specificationByType.entrySet()) {
+        for (final Map.Entry<ComputationTargetType, Set<ComputationTargetSpecification>> entry : specificationByType.entrySet()) {
           switch (entry.getValue().size()) {
             case 0:
               // No resolver for this type
@@ -228,11 +228,11 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
             default: {
               // Bulk lookup
               final Set<ObjectId> identifiers = Sets.newHashSetWithExpectedSize(entry.getValue().size());
-              for (ComputationTargetSpecification specification : entry.getValue()) {
+              for (final ComputationTargetSpecification specification : entry.getValue()) {
                 identifiers.add(specification.getUniqueId().getObjectId());
               }
               final Map<ObjectId, UniqueId> uids = _resolve.get(entry.getKey()).resolveObjectIds(identifiers, versionCorrection);
-              for (ComputationTargetSpecification specification : entry.getValue()) {
+              for (final ComputationTargetSpecification specification : entry.getValue()) {
                 final UniqueId uid = uids.get(specification.getUniqueId().getObjectId());
                 if (uid != null) {
                   result.put(specification, specification.replaceIdentifier(uid));
