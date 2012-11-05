@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -39,9 +39,9 @@ public class FunctionalVolatilitySurfaceData {
     ArgumentChecker.isTrue(xMinimum < xMaximum, "minimum value of x {} must be less than the maximum value {}", xMinimum, xMaximum);
     ArgumentChecker.isTrue(nX > 0, "number of x samples {} must be greater than zero", nX);
     ArgumentChecker.isTrue(yMinimum < yMaximum, "minimum value of y {} must be less than the maximum value {}", yMinimum, yMaximum);
-    ArgumentChecker.isTrue(nX > 0, "number of y samples {} must be greater than zero", nX);
+    ArgumentChecker.isTrue(nY > 0, "number of y samples {} must be greater than zero", nY);
     ArgumentChecker.isTrue(zMinimum < zMaximum, "minimum value of z {} must be less than the maximum value {}", zMinimum, zMaximum);
-    ArgumentChecker.isTrue(nX > 0, "number of z samples {} must be greater than zero", nX);
+    ArgumentChecker.isTrue(nZ > 0, "number of z samples {} must be greater than zero", nZ);
     _surface = surface;
     _xLabel = xLabel;
     _xMinimum = xMinimum;

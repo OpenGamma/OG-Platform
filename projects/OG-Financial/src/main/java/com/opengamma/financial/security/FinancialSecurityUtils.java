@@ -24,8 +24,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.LegacyCDSSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -509,14 +513,35 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitStandardCDSSecurity(final StandardCDSSecurity security) {
+        public Currency visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           return security.getNotional().getCurrency();
         }
 
         @Override
-        public Currency visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+        public Currency visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
           return security.getNotional().getCurrency();
         }
+
+        @Override
+        public Currency visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -803,12 +828,32 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitStandardCDSSecurity(final StandardCDSSecurity security) {
+        public Collection<Currency> visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           return Collections.singletonList(security.getNotional().getCurrency());
         }
 
         @Override
-        public Collection<Currency> visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+        public Collection<Currency> visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return Collections.singletonList(security.getNotional().getCurrency());
         }
       });

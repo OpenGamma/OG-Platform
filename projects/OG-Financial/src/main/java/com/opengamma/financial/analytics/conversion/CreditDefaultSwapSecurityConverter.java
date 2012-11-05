@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardFixedRecoveryCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -32,8 +33,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.security.cds.CDSType;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -71,25 +72,16 @@ public class CreditDefaultSwapSecurityConverter {
 
   public CreditDefaultSwapDefinition visitStandardCDSSecurity(final StandardCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType) {
     ArgumentChecker.notNull(security, "security");
-    final CDSType type = security.getCdsType();
-    switch (type) {
-      case VANILLA:
-        return createVanillaStandardCDS(security, valuationDate, priceType);
-      case FIXED_RECOVERY:
-      case RECOVERY_LOCK:
-      default:
-        throw new OpenGammaRuntimeException("Cannot convert standard CDS security of type " + type);
-    }
+    return null;
   }
 
-  private StandardCreditDefaultSwapDefinition createVanillaStandardCDS(final StandardCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType) {
+  private StandardCreditDefaultSwapDefinition createVanillaStandardCDS(final StandardVanillaCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType) {
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final ExternalId regionId = security.getRegionId();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final ZonedDateTime startDate = security.getStartDate();
     final ZonedDateTime effectiveDate = security.getEffectiveDate();
     final ZonedDateTime maturityDate = security.getMaturityDate();
-    final StubType stubType = security.getStubType();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
     final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
@@ -102,13 +94,18 @@ public class CreditDefaultSwapSecurityConverter {
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final double quotedSpread = security.getQuotedSpread();
-    final StandardCDSCoupon premiumLegCoupon = getCoupon(security.getCouponRate());
+    final StandardCDSCoupon premiumLegCoupon = getCoupon(security.getCoupon());
     final double upFrontAmount = security.getUpfrontAmount().getAmount();
-    final int cashSettlementDate = DateUtils.getDaysBetween(effectiveDate, security.getCashSettlementDate());
+    final StubType stubType = null;
+    final int cashSettlementDate = DateUtils.getDaysBetween(effectiveDate, security.getSettlementDate());
     return new StandardCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency, DUMMY_SENIORITY,
         DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType, couponFrequency, dayCount, businessDayConvention,
         immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, cashSettlementDate, amount, includeAccruedPremium, priceType,
         protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate);
+  }
+
+  private StandardFixedRecoveryCreditDefaultSwapDefinition createFixedRecoveryStandardCDS(final StandardCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType ) {
+    return null;
   }
 
   private PeriodFrequency getPeriodFrequency(final Frequency frequency) {
