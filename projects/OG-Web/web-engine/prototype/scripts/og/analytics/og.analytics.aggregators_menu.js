@@ -5,9 +5,22 @@
 $.register_module({
     name: 'og.analytics.AggregatorsMenu',
     dependencies: ['og.analytics.DropMenu'],
-    obj: function () { 
+    obj: function () {
         return function (config) {
             if (!config) return;
+
+            if (!('cntr' in config) || !config.cntr)
+                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.cntr] to constructor.');
+
+            if (!('tmpl' in config) || !config.tmpl)
+                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.tmpl] to constructor.');
+
+            if (!('data' in config) || !config.data || !config.data.length)
+                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
+
+            if (typeof config.tmpl !== 'string') return og.dev.warn(
+                'og.analytics.AggregatorsMenu Invalid type param key [config.tmpl] to constructor; expected "string"'
+            );
 
             // Private
             var menu = new og.analytics.DropMenu({
@@ -15,11 +28,11 @@ $.register_module({
                     data: config.data,
                     tmpl: config.tmpl
                 }),
-                $dom, opts, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
+                $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
                 default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
             var add_handler = function () {
-                if (data.length === opts.length) return;
+                if (menu.data.length === menu.opts.length) return;
                 menu.add_handler();
             };
             var checkbox_handler = function (entry) {
@@ -52,17 +65,17 @@ $.register_module({
                     $query.html(query_val);
                 } else $query.text(default_sel_txt);
             };
-            var init = function (config) {
-                opts = menu.opts; 
-                data = menu.data;
+            var init = function (conf) {
                 $dom = menu.$dom;
-                $query = $('.aggregation-selection', $dom.toggle);
-                $dom.toggle_prefix.append('<span>Aggregated by</span>');
-                if ($dom.menu) {
-                    $dom.menu
-                        .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                        .on('change', 'select', menu_handler);
-                    if (config.opts) menu.replay_query(config.opts);
+                if ($dom) {
+                    $query = $('.aggregation-selection', $dom.toggle);
+                    $dom.toggle_prefix.append('<span>Aggregated by</span>');
+                    if ($dom.menu) {
+                        $dom.menu
+                            .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change', 'select', menu_handler);
+                        if (conf.opts) menu.replay_query(conf.opts);
+                    }
                 }
             };
             var init_menu_elems = function (index) {
