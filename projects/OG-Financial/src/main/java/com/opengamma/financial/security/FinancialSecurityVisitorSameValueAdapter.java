@@ -12,8 +12,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.LegacyCDSSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -280,12 +284,32 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   }
 
   @Override
-  public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+  public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+  public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     return _value;
   }
 }
