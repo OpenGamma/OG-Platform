@@ -19,6 +19,7 @@ $.register_module({
                 });
             },
             load: function (args) {
+                $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false;
                 if (!form) form = new og.analytics.Form({selector:'.OG-layout-analytics-masthead'});
                 form.replay_query(og.analytics.url.last.main);

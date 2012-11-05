@@ -14,10 +14,8 @@ $.register_module({
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
                         togglerLength_open: 0
                     },
-                    north:    {spacing_open: 0, size: 43, paneClass: 'OG-layout-admin-masthead'},
-                    south:    {spacing_open: 0, size: 36, paneClass: 'OG-layout-admin-footer'},
-                    east:     {spacing_closed: 0, initClosed: true}, // Not used
-                    west:     {spacing_open: 7, size: '33%', paneClass: 'OG-layout-admin-search'},
+                    north:    {spacing_open: 0, size: 25, paneClass: 'OG-layout-admin-masthead'},
+                    west:     {spacing_open: 8, size: '33%', paneClass: 'OG-layout-admin-search'},
                     center:   {paneClass: 'ui-layout-details'}
                 }),
                 inner: $('.ui-layout-details').layout({
@@ -44,8 +42,7 @@ $.register_module({
             analytics: function () {return {
                 main: $('.OG-layout-admin-container').layout({
                     defaults: {enableCursorHotkey: false},
-                    north: {spacing_open: 0, paneClass: 'OG-layout-admin-masthead', size: 43},
-                    south: {spacing_open: 0, paneClass: 'OG-layout-admin-footer', size: 36},
+                    north: {spacing_open: 0, paneClass: 'OG-layout-admin-masthead', size: 25},
                     center: {paneClass: 'OG-layout-analytics', contentSelector: '.ui-layout-content'}
                 })
             };},
@@ -62,8 +59,7 @@ $.register_module({
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
                         togglerLength_open: 0
                     },
-                    north: {spacing_open: 0, paneClass: 'OG-layout-analytics-masthead', size: 43},
-                    south: {spacing_open: 0, paneClass: 'OG-layout-analytics-footer', size: 20},
+                    north: {spacing_open: 0, paneClass: 'OG-layout-analytics-masthead', size: 67},
                     east: {spacing_open: 7, paneClass: 'OG-layout-analytics-dock', size: "25%"},
                     center: {paneClass: 'OG-layout-analytics2'}
                 }),
