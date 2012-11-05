@@ -531,13 +531,7 @@ public class ComponentManager {
         mp.setString(bean, value);
         
       } catch (RuntimeException ex) {
-        // TODO: remove this inference and force use of double colon
-        // set property by repo lookup
-        try {
-          mp.set(bean, getRepository().getInstance(propertyType, value));
-        } catch (RuntimeException ex2) {
-          throw new IllegalArgumentException("Unable to set property " + mp, ex2);
-        }
+        throw new IllegalArgumentException("Unable to set property " + mp, ex);
       }
     }
   }
