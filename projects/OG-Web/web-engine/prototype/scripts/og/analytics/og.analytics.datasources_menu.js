@@ -134,7 +134,7 @@ $.register_module({
                 menu.addListener(events.resetquery, menu.reset_query);
             };
             var menu_handler = function (event) {
-                var entry, sel_pos, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
+                var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
                 if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(menu.opts.length);
@@ -180,11 +180,14 @@ $.register_module({
                 if (!~entry || !menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
+                if (!source_select) return;
                 if (type_val) menu.opts[entry].data('type', type_val).addClass(type_val);
-                if (source_select) (data || []).forEach(function (d) {
-                    if ($.isPlainObject(d) && typeof d.name === 'string') snapshots[d.name] = d.id;
+                source_select.hide();
+                (data || []).forEach(function (d) {
+                    if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
                     source_select.append($($option.html()).text(d.name || d));
                 });
+                source_select.show();
             };
             var remove_date = function (entry) {
                 if (!~entry || !menu.opts[entry]) return;
@@ -222,6 +225,15 @@ $.register_module({
                     source_handler(entry, src);
                 };
             };
+            var reset_source_select = function (entry) {
+                if (!~entry || !menu.opts[entry]) return;
+                var source_select = $(source_s, menu.opts[entry]).hide(), options = $('option', source_select), i;
+                if (!source_select || !options.length) return;
+                options.each(function(idx){ // IE
+                    if (idx > 0) $(this).remove();
+                });
+                source_select.show();
+            };
             var set_type_select = function (entry, d) {
                 if (!~entry || !d || !$.isPlainObject(d) || !menu.opts[entry]) return;
                 if (!('type' in d) || !d.type || typeof d.type !== 'string') return;
@@ -232,15 +244,6 @@ $.register_module({
                     case 'latestHistorical':
                     case 'fixedHistorical': if (type_select) type_select.val('Historical'); break;
                 }
-            };
-            var reset_source_select = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
-                var parent = $(source_s, menu.opts[entry]).parent(), source_select = $(source_s, parent).remove();
-                if (!parent && !source_select) return;
-                // IE doesn't seem to update Select on the fly, so, take it out of DOM, update childNodes, append
-                // it back to the parent
-                source_select.empty().append($($option.html()).text(default_sel_txt));
-                parent.append(source_select);
             };
             var source_handler = function (entry, preload) {
                 if (!~entry || !menu.opts[entry]) return;
