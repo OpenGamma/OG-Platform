@@ -12,11 +12,11 @@ $.register_module({
         'og.views.common.layout'
     ],
     obj: function () {
-        
+
         // Private
-        var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false, 
+        var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false,
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
-            fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
+            fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
             ds_template = null, ag_template = null, viewdefs = null, aggregators = null, ac_data = null, ag_data = null,
             ds_data = null, events = {
                 focus: 'dropmenu:focus',
@@ -141,7 +141,7 @@ $.register_module({
         constructor.prototype.initialized = function () { return initialized; };
         constructor.prototype.replay_query = function (url_config) {
             if (!url_config) return;
-            
+
             if (JSON.stringify(url_config) === JSON.stringify(query)) return;
 
             var ag_val, ds_val;
@@ -155,7 +155,7 @@ $.register_module({
                     if (ag_menu) ag_menu.replay_query(ag_val); else ag_data = ag_val;
                 }
             }
-            
+
             if ('providers' in url_config && $.isArray(url_config.providers) && url_config.providers.length) {
                 if (!query || (JSON.stringify(url_config.providers) !== JSON.stringify(query.providers))) {
                     ds_val = {
@@ -174,11 +174,11 @@ $.register_module({
                     if (ds_menu) ds_menu.replay_query(ds_val); else ds_data = ds_val;
                 }
             }
-            
-            if ('viewdefinition' in url_config && url_config.viewdefinition && 
+
+            if ('viewdefinition' in url_config && url_config.viewdefinition &&
                 typeof url_config.viewdefinition === 'string') {
                 if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
-                    if (ac_menu) ac_menu.$input.val(url_config.viewdefinition); 
+                    if (ac_menu) ac_menu.$input.val(url_config.viewdefinition);
                     else ac_data = url_config.viewdefinition;
                 }
             }
@@ -187,7 +187,7 @@ $.register_module({
         };
         constructor.prototype.reset_query = function () {
             if (query) query = null;
-            [ag_menu, ds_menu].forEach(function (menu) { menu.emitEvent(events.resetquery); });
+            [ag_menu, ds_menu].forEach(function (menu) { if (menu) menu.emitEvent(events.resetquery); });
             ac_menu.$input.val('search...');
         };
         return constructor;
