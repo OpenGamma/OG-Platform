@@ -96,7 +96,7 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = getResultProperties(target);
+    final ValueProperties.Builder properties = getResultProperties();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_RHO, target.toSpecification(), properties.get()));
   }
 
@@ -149,7 +149,7 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
     return Sets.newHashSet(pairQuoteRequirement, sensitivitiesRequirement);
   }
 
-  private ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+  private ValueProperties.Builder getResultProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
@@ -161,7 +161,6 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.CURRENCY);
-//        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target));
   }
 
   private ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {

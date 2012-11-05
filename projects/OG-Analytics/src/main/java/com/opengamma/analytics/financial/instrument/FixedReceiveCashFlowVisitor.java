@@ -34,7 +34,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Returns all of the known receive cash-flows, including floating payments that have fixed. 
  * The payments are always positive.
  */
-public final class FixedReceiveCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class FixedReceiveCashFlowVisitor extends InstrumentDefinitionVisitorAdapter<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final Logger s_logger = LoggerFactory.getLogger(FixedReceiveCashFlowVisitor.class);
   private static final FixedReceiveCashFlowVisitor INSTANCE = new FixedReceiveCashFlowVisitor();
 

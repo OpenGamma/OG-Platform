@@ -124,7 +124,7 @@ public class BloombergFXOptionSpotRateFunction extends AbstractFunction.NonCompi
     return null;
   }
 
-  private ExternalId getBBGId(final UnorderedCurrencyPair currencyPair, final CurrencyPair baseQuotePair) {
+  private static ExternalId getBBGId(final UnorderedCurrencyPair currencyPair, final CurrencyPair baseQuotePair) {
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + currencyPair.getFirstCurrency() + ", " + currencyPair.getSecondCurrency() + ")");
     }

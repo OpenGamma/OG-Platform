@@ -181,8 +181,9 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     }
     return commonReqs;
   }
+  
   // TODO: Consider whether to interpret overhedge so that a positive value always reduces the price, i.e. incorporate isLong
-  private Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
+  private static Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
       final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
     final HashSet<ForexOptionVanilla> vanillas = new HashSet<ForexOptionVanilla>();

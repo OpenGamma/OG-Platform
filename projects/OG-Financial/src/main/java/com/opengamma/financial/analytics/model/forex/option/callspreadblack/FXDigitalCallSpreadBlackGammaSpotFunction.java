@@ -11,7 +11,11 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.calculator.GammaSpotCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
@@ -26,7 +30,8 @@ public class FXDigitalCallSpreadBlackGammaSpotFunction extends FXDigitalCallSpre
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final GammaSpotCallSpreadBlackForexCalculator calculator = new GammaSpotCallSpreadBlackForexCalculator(spread);
     final CurrencyAmount result = calculator.visit(fxDigital, data);
     final double gammaSpot = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available

@@ -18,6 +18,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -43,7 +44,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Has the protection been bought. If false, protection has been sold.
    */
   @PropertyDefinition(validate = "notNull")
-  private boolean _isBuy;
+  private boolean _buy;
 
   /**
    * The protection buyer.
@@ -76,10 +77,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   private String _restructuringClause;
 
   /**
-   * The calendar id.
+   * The region id.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _calendarId;
+  private ExternalId _regionId;
 
   /**
    * The start date.
@@ -98,6 +99,12 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _maturityDate;
+
+  /**
+   * The stub type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private StubType _stubType;
 
   /**
    * The coupon frequency.
@@ -169,22 +176,23 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   }
 
   public CreditDefaultSwapSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
-      final String debtSeniority, final String restructuringClause, final ExternalId calendarId, final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency couponFrequency, final DayCount dayCount,
+      final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart, final CDSType cdsType) {
     super(SECURITY_TYPE);
-    setIsBuy(isBuy);
+    setBuy(isBuy);
     setProtectionSeller(protectionSeller);
     setProtectionBuyer(protectionBuyer);
     setReferenceEntity(referenceEntity);
     setDebtSeniority(debtSeniority);
     setRestructuringClause(restructuringClause);
-    setCalendarId(calendarId);
+    setRegionId(regionId);
     setStartDate(startDate);
     setEffectiveDate(effectiveDate);
     setMaturityDate(maturityDate);
+    setStubType(stubType);
     setCouponFrequency(couponFrequency);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
@@ -217,10 +225,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 100462844:  // isBuy
-        return isIsBuy();
+      case 97926:  // buy
+        return isBuy();
       case 2087835226:  // protectionBuyer
         return getProtectionBuyer();
       case 769920952:  // protectionSeller
@@ -231,14 +239,16 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
         return getDebtSeniority();
       case -1774904020:  // restructuringClause
         return getRestructuringClause();
-      case 428682489:  // calendarId
-        return getCalendarId();
+      case -690339025:  // regionId
+        return getRegionId();
       case -2129778896:  // startDate
         return getStartDate();
       case -930389515:  // effectiveDate
         return getEffectiveDate();
       case -414641441:  // maturityDate
         return getMaturityDate();
+      case 1873675528:  // stubType
+        return getStubType();
       case 144480214:  // couponFrequency
         return getCouponFrequency();
       case 1905311443:  // dayCount
@@ -266,10 +276,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 100462844:  // isBuy
-        setIsBuy((Boolean) newValue);
+      case 97926:  // buy
+        setBuy((Boolean) newValue);
         return;
       case 2087835226:  // protectionBuyer
         setProtectionBuyer((ExternalId) newValue);
@@ -286,8 +296,8 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
       case -1774904020:  // restructuringClause
         setRestructuringClause((String) newValue);
         return;
-      case 428682489:  // calendarId
-        setCalendarId((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
       case -2129778896:  // startDate
         setStartDate((ZonedDateTime) newValue);
@@ -297,6 +307,9 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
         return;
       case -414641441:  // maturityDate
         setMaturityDate((ZonedDateTime) newValue);
+        return;
+      case 1873675528:  // stubType
+        setStubType((StubType) newValue);
         return;
       case 144480214:  // couponFrequency
         setCouponFrequency((Frequency) newValue);
@@ -337,16 +350,17 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_isBuy, "isBuy");
+    JodaBeanUtils.notNull(_buy, "buy");
     JodaBeanUtils.notNull(_protectionBuyer, "protectionBuyer");
     JodaBeanUtils.notNull(_protectionSeller, "protectionSeller");
     JodaBeanUtils.notNull(_referenceEntity, "referenceEntity");
     JodaBeanUtils.notNull(_debtSeniority, "debtSeniority");
     JodaBeanUtils.notNull(_restructuringClause, "restructuringClause");
-    JodaBeanUtils.notNull(_calendarId, "calendarId");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_effectiveDate, "effectiveDate");
     JodaBeanUtils.notNull(_maturityDate, "maturityDate");
+    JodaBeanUtils.notNull(_stubType, "stubType");
     JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
@@ -362,22 +376,23 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapSecurity other = (CreditDefaultSwapSecurity) obj;
-      return JodaBeanUtils.equal(isIsBuy(), other.isIsBuy()) &&
+      final CreditDefaultSwapSecurity other = (CreditDefaultSwapSecurity) obj;
+      return JodaBeanUtils.equal(isBuy(), other.isBuy()) &&
           JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
           JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
           JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
           JodaBeanUtils.equal(getDebtSeniority(), other.getDebtSeniority()) &&
           JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause()) &&
-          JodaBeanUtils.equal(getCalendarId(), other.getCalendarId()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
           JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
@@ -397,16 +412,17 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsBuy());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isBuy());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
@@ -426,25 +442,25 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Gets has the protection been bought. If false, protection has been sold.
    * @return the value of the property, not null
    */
-  public boolean isIsBuy() {
-    return _isBuy;
+  public boolean isBuy() {
+    return _buy;
   }
 
   /**
    * Sets has the protection been bought. If false, protection has been sold.
-   * @param isBuy  the new value of the property, not null
+   * @param buy  the new value of the property, not null
    */
-  public void setIsBuy(boolean isBuy) {
-    JodaBeanUtils.notNull(isBuy, "isBuy");
-    this._isBuy = isBuy;
+  public void setBuy(final boolean buy) {
+    JodaBeanUtils.notNull(buy, "buy");
+    this._buy = buy;
   }
 
   /**
-   * Gets the the {@code isBuy} property.
+   * Gets the the {@code buy} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isBuy() {
-    return metaBean().isBuy().createProperty(this);
+  public final Property<Boolean> buy() {
+    return metaBean().buy().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -460,7 +476,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the protection buyer.
    * @param protectionBuyer  the new value of the property, not null
    */
-  public void setProtectionBuyer(ExternalId protectionBuyer) {
+  public void setProtectionBuyer(final ExternalId protectionBuyer) {
     JodaBeanUtils.notNull(protectionBuyer, "protectionBuyer");
     this._protectionBuyer = protectionBuyer;
   }
@@ -486,7 +502,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the protection seller.
    * @param protectionSeller  the new value of the property, not null
    */
-  public void setProtectionSeller(ExternalId protectionSeller) {
+  public void setProtectionSeller(final ExternalId protectionSeller) {
     JodaBeanUtils.notNull(protectionSeller, "protectionSeller");
     this._protectionSeller = protectionSeller;
   }
@@ -512,7 +528,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the reference entity.
    * @param referenceEntity  the new value of the property, not null
    */
-  public void setReferenceEntity(ExternalId referenceEntity) {
+  public void setReferenceEntity(final ExternalId referenceEntity) {
     JodaBeanUtils.notNull(referenceEntity, "referenceEntity");
     this._referenceEntity = referenceEntity;
   }
@@ -538,7 +554,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the debt seniority.
    * @param debtSeniority  the new value of the property, not null
    */
-  public void setDebtSeniority(String debtSeniority) {
+  public void setDebtSeniority(final String debtSeniority) {
     JodaBeanUtils.notNull(debtSeniority, "debtSeniority");
     this._debtSeniority = debtSeniority;
   }
@@ -564,7 +580,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the restructuring clause.
    * @param restructuringClause  the new value of the property, not null
    */
-  public void setRestructuringClause(String restructuringClause) {
+  public void setRestructuringClause(final String restructuringClause) {
     JodaBeanUtils.notNull(restructuringClause, "restructuringClause");
     this._restructuringClause = restructuringClause;
   }
@@ -579,28 +595,28 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendar id.
+   * Gets the region id.
    * @return the value of the property, not null
    */
-  public ExternalId getCalendarId() {
-    return _calendarId;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
-   * Sets the calendar id.
-   * @param calendarId  the new value of the property, not null
+   * Sets the region id.
+   * @param regionId  the new value of the property, not null
    */
-  public void setCalendarId(ExternalId calendarId) {
-    JodaBeanUtils.notNull(calendarId, "calendarId");
-    this._calendarId = calendarId;
+  public void setRegionId(final ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code calendarId} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> calendarId() {
-    return metaBean().calendarId().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -616,7 +632,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the start date.
    * @param startDate  the new value of the property, not null
    */
-  public void setStartDate(ZonedDateTime startDate) {
+  public void setStartDate(final ZonedDateTime startDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     this._startDate = startDate;
   }
@@ -642,7 +658,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the effective date.
    * @param effectiveDate  the new value of the property, not null
    */
-  public void setEffectiveDate(ZonedDateTime effectiveDate) {
+  public void setEffectiveDate(final ZonedDateTime effectiveDate) {
     JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
     this._effectiveDate = effectiveDate;
   }
@@ -668,7 +684,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the maturity date.
    * @param maturityDate  the new value of the property, not null
    */
-  public void setMaturityDate(ZonedDateTime maturityDate) {
+  public void setMaturityDate(final ZonedDateTime maturityDate) {
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     this._maturityDate = maturityDate;
   }
@@ -679,6 +695,32 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    */
   public final Property<ZonedDateTime> maturityDate() {
     return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the stub type.
+   * @return the value of the property, not null
+   */
+  public StubType getStubType() {
+    return _stubType;
+  }
+
+  /**
+   * Sets the stub type.
+   * @param stubType  the new value of the property, not null
+   */
+  public void setStubType(final StubType stubType) {
+    JodaBeanUtils.notNull(stubType, "stubType");
+    this._stubType = stubType;
+  }
+
+  /**
+   * Gets the the {@code stubType} property.
+   * @return the property, not null
+   */
+  public final Property<StubType> stubType() {
+    return metaBean().stubType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -694,7 +736,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the coupon frequency.
    * @param couponFrequency  the new value of the property, not null
    */
-  public void setCouponFrequency(Frequency couponFrequency) {
+  public void setCouponFrequency(final Frequency couponFrequency) {
     JodaBeanUtils.notNull(couponFrequency, "couponFrequency");
     this._couponFrequency = couponFrequency;
   }
@@ -720,7 +762,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the day-count convention.
    * @param dayCount  the new value of the property, not null
    */
-  public void setDayCount(DayCount dayCount) {
+  public void setDayCount(final DayCount dayCount) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this._dayCount = dayCount;
   }
@@ -746,7 +788,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the business-day convention.
    * @param businessDayConvention  the new value of the property, not null
    */
-  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
+  public void setBusinessDayConvention(final BusinessDayConvention businessDayConvention) {
     JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
     this._businessDayConvention = businessDayConvention;
   }
@@ -772,7 +814,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets adjust maturity to the next IMM date.
    * @param immAdjustMaturityDate  the new value of the property, not null
    */
-  public void setImmAdjustMaturityDate(boolean immAdjustMaturityDate) {
+  public void setImmAdjustMaturityDate(final boolean immAdjustMaturityDate) {
     JodaBeanUtils.notNull(immAdjustMaturityDate, "immAdjustMaturityDate");
     this._immAdjustMaturityDate = immAdjustMaturityDate;
   }
@@ -798,7 +840,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets adjust effective date.
    * @param adjustEffectiveDate  the new value of the property, not null
    */
-  public void setAdjustEffectiveDate(boolean adjustEffectiveDate) {
+  public void setAdjustEffectiveDate(final boolean adjustEffectiveDate) {
     JodaBeanUtils.notNull(adjustEffectiveDate, "adjustEffectiveDate");
     this._adjustEffectiveDate = adjustEffectiveDate;
   }
@@ -824,7 +866,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets adjust maturity date.
    * @param adjustMaturityDate  the new value of the property, not null
    */
-  public void setAdjustMaturityDate(boolean adjustMaturityDate) {
+  public void setAdjustMaturityDate(final boolean adjustMaturityDate) {
     JodaBeanUtils.notNull(adjustMaturityDate, "adjustMaturityDate");
     this._adjustMaturityDate = adjustMaturityDate;
   }
@@ -850,7 +892,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the notional.
    * @param notional  the new value of the property, not null
    */
-  public void setNotional(InterestRateNotional notional) {
+  public void setNotional(final InterestRateNotional notional) {
     JodaBeanUtils.notNull(notional, "notional");
     this._notional = notional;
   }
@@ -876,7 +918,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the recovery rate.
    * @param recoveryRate  the new value of the property, not null
    */
-  public void setRecoveryRate(double recoveryRate) {
+  public void setRecoveryRate(final double recoveryRate) {
     JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
     this._recoveryRate = recoveryRate;
   }
@@ -902,7 +944,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets include accrued premium.
    * @param includeAccruedPremium  the new value of the property, not null
    */
-  public void setIncludeAccruedPremium(boolean includeAccruedPremium) {
+  public void setIncludeAccruedPremium(final boolean includeAccruedPremium) {
     JodaBeanUtils.notNull(includeAccruedPremium, "includeAccruedPremium");
     this._includeAccruedPremium = includeAccruedPremium;
   }
@@ -928,7 +970,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets protection start.
    * @param protectionStart  the new value of the property, not null
    */
-  public void setProtectionStart(boolean protectionStart) {
+  public void setProtectionStart(final boolean protectionStart) {
     JodaBeanUtils.notNull(protectionStart, "protectionStart");
     this._protectionStart = protectionStart;
   }
@@ -954,7 +996,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the CDS type.
    * @param cdsType  the new value of the property, not null
    */
-  public void setCdsType(CDSType cdsType) {
+  public void setCdsType(final CDSType cdsType) {
     JodaBeanUtils.notNull(cdsType, "cdsType");
     this._cdsType = cdsType;
   }
@@ -978,10 +1020,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code isBuy} property.
+     * The meta-property for the {@code buy} property.
      */
-    private final MetaProperty<Boolean> _isBuy = DirectMetaProperty.ofReadWrite(
-        this, "isBuy", CreditDefaultSwapSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _buy = DirectMetaProperty.ofReadWrite(
+        this, "buy", CreditDefaultSwapSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code protectionBuyer} property.
      */
@@ -1008,10 +1050,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     private final MetaProperty<String> _restructuringClause = DirectMetaProperty.ofReadWrite(
         this, "restructuringClause", CreditDefaultSwapSecurity.class, String.class);
     /**
-     * The meta-property for the {@code calendarId} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _calendarId = DirectMetaProperty.ofReadWrite(
-        this, "calendarId", CreditDefaultSwapSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", CreditDefaultSwapSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -1027,6 +1069,11 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      */
     private final MetaProperty<ZonedDateTime> _maturityDate = DirectMetaProperty.ofReadWrite(
         this, "maturityDate", CreditDefaultSwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code stubType} property.
+     */
+    private final MetaProperty<StubType> _stubType = DirectMetaProperty.ofReadWrite(
+        this, "stubType", CreditDefaultSwapSecurity.class, StubType.class);
     /**
      * The meta-property for the {@code couponFrequency} property.
      */
@@ -1087,16 +1134,17 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "isBuy",
+        "buy",
         "protectionBuyer",
         "protectionSeller",
         "referenceEntity",
         "debtSeniority",
         "restructuringClause",
-        "calendarId",
+        "regionId",
         "startDate",
         "effectiveDate",
         "maturityDate",
+        "stubType",
         "couponFrequency",
         "dayCount",
         "businessDayConvention",
@@ -1116,10 +1164,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100462844:  // isBuy
-          return _isBuy;
+        case 97926:  // buy
+          return _buy;
         case 2087835226:  // protectionBuyer
           return _protectionBuyer;
         case 769920952:  // protectionSeller
@@ -1130,14 +1178,16 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
           return _debtSeniority;
         case -1774904020:  // restructuringClause
           return _restructuringClause;
-        case 428682489:  // calendarId
-          return _calendarId;
+        case -690339025:  // regionId
+          return _regionId;
         case -2129778896:  // startDate
           return _startDate;
         case -930389515:  // effectiveDate
           return _effectiveDate;
         case -414641441:  // maturityDate
           return _maturityDate;
+        case 1873675528:  // stubType
+          return _stubType;
         case 144480214:  // couponFrequency
           return _couponFrequency;
         case 1905311443:  // dayCount
@@ -1181,11 +1231,11 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code isBuy} property.
+     * The meta-property for the {@code buy} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isBuy() {
-      return _isBuy;
+    public final MetaProperty<Boolean> buy() {
+      return _buy;
     }
 
     /**
@@ -1229,11 +1279,11 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code calendarId} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> calendarId() {
-      return _calendarId;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**
@@ -1258,6 +1308,14 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ZonedDateTime> maturityDate() {
       return _maturityDate;
+    }
+
+    /**
+     * The meta-property for the {@code stubType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<StubType> stubType() {
+      return _stubType;
     }
 
     /**

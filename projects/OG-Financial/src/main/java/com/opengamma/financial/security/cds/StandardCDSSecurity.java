@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -64,14 +65,14 @@ public class StandardCDSSecurity extends CreditDefaultSwapSecurity {
   }
 
   public StandardCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
-      final String debtSeniority, final String restructuringClause, final ExternalId calendarId, final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency couponFrequency, final DayCount dayCount,
+      final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart, final CDSType cdsType, final double quotedSpread, final InterestRateNotional upfrontAmount,
       final ZonedDateTime cashSettlementDate, final double couponRate, final CDSType type) {
-    super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, calendarId, startDate,
-        effectiveDate, maturityDate, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate,
+    super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate,
+        effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate,
         adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, cdsType);
     setQuotedSpread(quotedSpread);
     setUpfrontAmount(upfrontAmount);

@@ -87,16 +87,6 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
-      return null;
-    }
-    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-    if (currencies == null || currencies.size() != 1) {
-      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
-      return null;
-    }
     final Set<String> putCurveNames = constraints.getValues(PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
@@ -127,6 +117,16 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     }
     final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
+    if (curveNames == null || curveNames.size() != 1) {
+      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
+      return null;
+    }
+    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (currencies == null || currencies.size() != 1) {
+      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
       return null;
     }
     final String putCurveName = putCurveNames.iterator().next();
@@ -172,7 +172,6 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     }
     requirements.add(getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName));
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, resultCurveName, target));
     requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));

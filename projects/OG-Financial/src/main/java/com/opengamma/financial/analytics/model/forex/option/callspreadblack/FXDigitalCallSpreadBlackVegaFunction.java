@@ -12,7 +12,11 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolat
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
@@ -27,7 +31,8 @@ public class FXDigitalCallSpreadBlackVegaFunction extends FXDigitalCallSpreadBla
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator(spread);
     final PresentValueForexBlackVolatilitySensitivity result = calculator.visit(fxDigital, data);
     final CurrencyAmount vegaValue = result.toSingleValue();
