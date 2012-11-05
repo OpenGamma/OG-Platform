@@ -131,7 +131,7 @@ $.register_module({
                 fire(grid.events.cellhoverin, cell);
             };
             var hoverout_handler = function () {
-                if (!last_x) return; else (last_x, last_y, last_corner = null), fire(grid.events.cellhoverout, cell);
+                if (!last_x) return; else (last_x = last_y = last_corner = null), fire(grid.events.cellhoverout, cell);
             };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
