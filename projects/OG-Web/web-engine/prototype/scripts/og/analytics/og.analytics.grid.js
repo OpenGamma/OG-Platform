@@ -466,6 +466,9 @@ $.register_module({
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
+                rest_scroll: Math.max(0, meta.inner.scroll_height - meta.inner.height - scrollbar),
+                rest_fixed: Math.max(0, meta.inner.scroll_height - meta.inner.height),
+                rest_top: meta.inner.height,
                 set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

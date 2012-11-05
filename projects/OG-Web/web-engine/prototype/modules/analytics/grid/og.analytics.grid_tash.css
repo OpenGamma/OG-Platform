@@ -19,6 +19,15 @@
 {{id}} .OG-g-b {top: {{header_height}}px}
 {{id}} .OG-g-h-cols {top: {{set_height}}px}
 {{id}} .OG-g-row, .OG-g-cell {height: {{row_height}}px;}
+{{id}} .OG-g-rest {
+    position: relative;
+    background: #fff;
+    top: {{rest_top}}px;
+    opacity: 0.55;
+    filter: alpha(opacity=55);
+}
+{{id}} .OG-g-b-fixed .OG-g-rest {height: {{rest_fixed}}px;}
+{{id}} .OG-g-b-scroll .OG-g-rest {height: {{rest_scroll}}px;}
 {{#each sets}}
     {{prefix}} .OG-g .s{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}
