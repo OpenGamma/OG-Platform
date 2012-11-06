@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Represents the result of an execution.
@@ -23,12 +22,10 @@ public class ExecutionResult {
   /**
    * Constructs an instance.
    * 
-   * @param nodes  the dependency nodes executed, in execution order, not null
-   * @param result  the result of the calculation job, not null
+   * @param nodes  the dependency nodes executed, in execution order
+   * @param result  the result of the calculation job
    */
   public ExecutionResult(final List<DependencyNode> nodes, final CalculationJobResult result) {
-    ArgumentChecker.notNull(nodes, "nodes");
-    ArgumentChecker.notNull(result, "result");
     _nodes = nodes;
     _result = result;
   }
@@ -37,7 +34,7 @@ public class ExecutionResult {
   /**
    * Gets the nodes from the dependency graph that were executed, in execution order.
    *  
-   * @return a list of nodes from the dependency graph that were executed, not null
+   * @return a list of nodes from the dependency graph that were executed
    */
   public List<DependencyNode> getNodes() {
     return _nodes;
@@ -46,7 +43,7 @@ public class ExecutionResult {
   /**
    * Gets the result of the calculation job, not null
    * 
-   * @return the result of the calcualtion job, not null
+   * @return the result of the calcualtion job
    */
   public CalculationJobResult getResult() {
     return _result;
