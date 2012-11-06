@@ -434,6 +434,7 @@ import com.opengamma.financial.analytics.timeseries.FXVolatilitySurfaceHistorica
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestSecurityValueFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestValueFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalValuationFunction;
 import com.opengamma.financial.analytics.timeseries.YieldCurveHistoricalTimeSeriesFunction;
 import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesFunction;
 import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated;
@@ -594,6 +595,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
     functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestSecurityValueFunction.class));
+    functionConfigs.add(functionConfiguration(HistoricalValuationFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(FXVolatilitySurfaceHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));

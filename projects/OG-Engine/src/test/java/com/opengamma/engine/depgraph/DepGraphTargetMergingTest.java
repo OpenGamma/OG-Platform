@@ -115,13 +115,19 @@ public class DepGraphTargetMergingTest extends AbstractDependencyGraphBuilderTes
   }
 
   protected ComputationTargetCollapser collapser() {
-    return new ComputationTargetCollapser() {
+    final DefaultComputationTargetCollapser collapser = new DefaultComputationTargetCollapser();
+    collapser.addCollapser(ComputationTargetType.PRIMITIVE, new ComputationTargetCollapser() {
 
       private void add(final List<String> ids, final ComputationTargetSpecification target) {
         final String v = target.getUniqueId().getValue();
         for (int i = 0; i < v.length(); i += 2) {
           ids.add(v.substring(i, i + 2));
         }
+      }
+
+      @Override
+      public boolean canApplyTo(final ComputationTargetSpecification a) {
+        return "Test".equals(a.getUniqueId().getScheme());
       }
 
       @Override
@@ -142,7 +148,8 @@ public class DepGraphTargetMergingTest extends AbstractDependencyGraphBuilderTes
         }
       }
 
-    };
+    });
+    return collapser;
   }
 
   private Set<String> getTargets(final DependencyGraph graph) {

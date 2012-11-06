@@ -44,6 +44,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
+import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -137,16 +138,21 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private FunctionBlacklist _compilationBlacklist;
+  /**
+   * The temporary target repository.
+   */
+  @PropertyDefinition
+  private TempTargetRepository _tempTargetRepository;
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     initFunctionCompilationContext(repo, configuration);
-    OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
+    final OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
     initFunctionExecutionContext(repo, configuration, ooc);
   }
 
-  protected void initFunctionCompilationContext(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected void initFunctionCompilationContext(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
@@ -159,6 +165,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
     OpenGammaCompilationContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
+    if (getTempTargetRepository() != null) {
+      OpenGammaCompilationContext.setTempTargets(context, getTempTargetRepository());
+    }
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     context.setRawComputationTargetResolver(getTargetResolver());
@@ -168,19 +177,19 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     if (getExecutionBlacklist() != null) {
       context.setGraphExecutionBlacklist(new DefaultFunctionBlacklistQuery(getExecutionBlacklist()));
     }
-    ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
 
-  protected OverrideOperationCompiler initOverrideOperationCompiler(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
+  protected OverrideOperationCompiler initOverrideOperationCompiler(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
 
-    ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
     repo.registerComponent(info, ooc);
     return ooc;
   }
 
-  protected void initFunctionExecutionContext(ComponentRepository repo, LinkedHashMap<String, String> configuration, OverrideOperationCompiler ooc) {
+  protected void initFunctionExecutionContext(final ComponentRepository repo, final LinkedHashMap<String, String> configuration, final OverrideOperationCompiler ooc) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
@@ -192,7 +201,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     context.setSecuritySource(getSecuritySource());
     context.setExternalIdLookup(new ExternalIdLookup(null, getSecuritySource()));
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
-    ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
 
@@ -251,6 +260,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getExecutionBlacklist();
       case 1210914458:  // compilationBlacklist
         return getCompilationBlacklist();
+      case 491227055:  // tempTargetRepository
+        return getTempTargetRepository();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -309,6 +320,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case 1210914458:  // compilationBlacklist
         setCompilationBlacklist((FunctionBlacklist) newValue);
         return;
+      case 491227055:  // tempTargetRepository
+        setTempTargetRepository((TempTargetRepository) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -357,6 +371,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
           JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
           JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
+          JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
           super.equals(obj);
     }
     return false;
@@ -382,6 +397,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
     return hash ^ super.hashCode();
   }
 
@@ -827,6 +843,31 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the temporary target repository.
+   * @return the value of the property
+   */
+  public TempTargetRepository getTempTargetRepository() {
+    return _tempTargetRepository;
+  }
+
+  /**
+   * Sets the temporary target repository.
+   * @param tempTargetRepository  the new value of the property
+   */
+  public void setTempTargetRepository(TempTargetRepository tempTargetRepository) {
+    this._tempTargetRepository = tempTargetRepository;
+  }
+
+  /**
+   * Gets the the {@code tempTargetRepository} property.
+   * @return the property, not null
+   */
+  public final Property<TempTargetRepository> tempTargetRepository() {
+    return metaBean().tempTargetRepository().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EngineContextsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -921,6 +962,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FunctionBlacklist> _compilationBlacklist = DirectMetaProperty.ofReadWrite(
         this, "compilationBlacklist", EngineContextsComponentFactory.class, FunctionBlacklist.class);
     /**
+     * The meta-property for the {@code tempTargetRepository} property.
+     */
+    private final MetaProperty<TempTargetRepository> _tempTargetRepository = DirectMetaProperty.ofReadWrite(
+        this, "tempTargetRepository", EngineContextsComponentFactory.class, TempTargetRepository.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -941,7 +987,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesSource",
         "historicalTimeSeriesResolver",
         "executionBlacklist",
-        "compilationBlacklist");
+        "compilationBlacklist",
+        "tempTargetRepository");
 
     /**
      * Restricted constructor.
@@ -986,6 +1033,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _executionBlacklist;
         case 1210914458:  // compilationBlacklist
           return _compilationBlacklist;
+        case 491227055:  // tempTargetRepository
+          return _tempTargetRepository;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1140,6 +1189,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<FunctionBlacklist> compilationBlacklist() {
       return _compilationBlacklist;
+    }
+
+    /**
+     * The meta-property for the {@code tempTargetRepository} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<TempTargetRepository> tempTargetRepository() {
+      return _tempTargetRepository;
     }
 
   }

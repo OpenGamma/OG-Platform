@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConf
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -38,6 +39,7 @@ public final class OpenGammaCompilationContext {
   private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
   private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
   private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
+  private static final String TEMPORARY_TARGETS_NAME = "tempTargets";
 
   /**
    * Restricted constructor.
@@ -190,11 +192,11 @@ public final class OpenGammaCompilationContext {
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
-  
+
   public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
   }
-  
+
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
   }
@@ -205,6 +207,14 @@ public final class OpenGammaCompilationContext {
 
   public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
     set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+  }
+
+  public static TempTargetRepository getTempTargets(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, TEMPORARY_TARGETS_NAME);
+  }
+
+  public static void setTempTargets(final FunctionCompilationContext compilationContext, final TempTargetRepository tempTargets) {
+    set(compilationContext, TEMPORARY_TARGETS_NAME, tempTargets);
   }
 
 }
