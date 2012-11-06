@@ -24,7 +24,7 @@ $.register_module({
                     });
                 }).on('mouseup', function () {
                     if (!bottom || !right) return;
-                    layout.inner.sizePane('south', bottom - layout.main.south.options.size);
+                    layout.inner.sizePane('south', bottom);
                     layout.main.sizePane('east', right);
                     $bars.remove(), $overlay.remove();
                 });
