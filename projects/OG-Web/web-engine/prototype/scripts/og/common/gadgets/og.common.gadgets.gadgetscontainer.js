@@ -200,7 +200,6 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    console.log("Display ", panel_container, $(panel_container).width(), $(panel_container).height());
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
