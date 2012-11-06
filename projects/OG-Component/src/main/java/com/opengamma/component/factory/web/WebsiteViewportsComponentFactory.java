@@ -62,6 +62,7 @@ import com.opengamma.web.analytics.push.MasterChangeManager;
 import com.opengamma.web.analytics.push.WebPushServletContextUtils;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
 import com.opengamma.web.analytics.rest.LiveDataSourcesResource;
+import com.opengamma.web.analytics.rest.LogResource;
 import com.opengamma.web.analytics.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.TimeSeriesResolverKeysResource;
@@ -194,6 +195,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(new LiveDataSourcesResource(getMarketDataSpecificationRepository()));
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
+    repo.getRestComponents().publishResource(new LogResource());
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
     repo.getRestComponents().publishHelper(new ViewportVersionMessageBodyWriter());
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));

@@ -10,7 +10,6 @@ import java.util.Set;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
  * Specifies the header label of a column and the type of data it displays.
@@ -38,7 +37,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static AnalyticsColumn forKey(RequirementBasedColumnKey key, Class<?> columnType) {
+  /* package */ static AnalyticsColumn forKey(ColumnKey key, Class<?> columnType) {
     return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType);
   }
 
@@ -63,7 +62,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     return _type;
   }
 
-  private static String createHeader(RequirementBasedColumnKey columnKey) {
+  private static String createHeader(ColumnKey columnKey) {
     String header;
     String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
     if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {

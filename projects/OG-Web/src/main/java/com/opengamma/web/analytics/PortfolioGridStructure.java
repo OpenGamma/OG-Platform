@@ -21,7 +21,6 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
  *
@@ -44,12 +43,12 @@ public class PortfolioGridStructure extends MainGridStructure {
     return new PortfolioGridStructure();
   }
 
-  protected List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-    List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
+  protected List<ColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
+    List<ColumnKey> columnKeys = Lists.newArrayList();
     for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
       String valueName = portfolioOutput.getFirst();
       ValueProperties constraints = portfolioOutput.getSecond();
-      RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
+      ColumnKey columnKey = new ColumnKey(calcConfig.getName(), valueName, constraints);
       columnKeys.add(columnKey);
     }
     return columnKeys;

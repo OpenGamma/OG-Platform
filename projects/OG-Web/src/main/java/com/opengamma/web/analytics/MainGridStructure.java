@@ -24,7 +24,6 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
  * TODO label and quantity columns are hard-coded here and in {@link MainGridViewport}. there has to be a better way
@@ -41,9 +40,9 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   private final List<Row> _rows;
   private final AnalyticsColumnGroups _columnGroups;
   /** Column keys in column index order. */
-  private final List<RequirementBasedColumnKey> _columnKeys = Lists.newArrayList();
+  private final List<ColumnKey> _columnKeys = Lists.newArrayList();
   /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
-  private final Map<RequirementBasedColumnKey, Integer> _colIndexByRequirement;
+  private final Map<ColumnKey, Integer> _colIndexByRequirement;
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
   /** Mappings of requirements to specifications. */
@@ -82,8 +81,8 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       }
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
 
-      List<RequirementBasedColumnKey> columnKeys = buildColumns(calcConfig);
-      for (RequirementBasedColumnKey columnKey : columnKeys) {
+      List<ColumnKey> columnKeys = buildColumns(calcConfig);
+      for (ColumnKey columnKey : columnKeys) {
         if (!_colIndexByRequirement.containsKey(columnKey)) {
           _colIndexByRequirement.put(columnKey, colIndex);
           colIndex++;
@@ -99,7 +98,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     _rows = rows;
   }
 
-  /* package */ abstract List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
+  /* package */ abstract List<ColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
 
   /* package */ Row getRowAtIndex(int rowIndex) {
     return _rows.get(rowIndex);
@@ -117,7 +116,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
     }
-    RequirementBasedColumnKey colKey = _columnKeys.get(colIndex);
+    ColumnKey colKey = _columnKeys.get(colIndex);
     if (colKey == null) {
       return null;
     }

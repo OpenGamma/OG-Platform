@@ -18,7 +18,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
  *
@@ -36,13 +35,13 @@ public class PrimitivesGridStructure extends MainGridStructure {
     return new PrimitivesGridStructure();
   }
 
-  /* package */ List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-    List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
+  /* package */ List<ColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
+    List<ColumnKey> columnKeys = Lists.newArrayList();
     for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
       if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
         String valueName = specificRequirement.getValueName();
         ValueProperties constraints = specificRequirement.getConstraints();
-        RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
+        ColumnKey columnKey = new ColumnKey(calcConfig.getName(), valueName, constraints);
         columnKeys.add(columnKey);
       }
     }
