@@ -14,7 +14,7 @@ $.register_module({
     obj: function () {
 
         // Private
-        var query = null, template = null, emitter = new EventEmitter(), api = {}, initialized = false,
+        var query = null, template = null, emitter = new EventEmitter(), initialized = false,
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
             fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
             ds_template = null, ag_template = null, viewdefs = null, aggregators = null, ac_data = null, ag_data = null,
@@ -30,12 +30,16 @@ $.register_module({
                 querycancelled: 'dropmenu:querycancelled',
                 resetquery:'dropmenu:resetquery'
             };
-        var auto_combo_handler = function (even, ui) {
+        var auto_combo_handler = function (event, ui) {
+            if (!$dom || !('load_btn' in $dom) || !$dom.load_btn) return;
             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                $dom.load_btn.removeClass('og-disabled').on('click', function () {status.play();});
+                $dom.load_btn.removeClass('og-disabled').on('click', function () {
+                    if (status) status.play();
+                });
             } else $dom.load_btn.addClass('og-disabled').off('click');
         };
         var close_dropmenu = function (menu) {
+            if (!menu || !ds_menu || !ag_menu) return;
             if (menu === ds_menu) ag_menu.emitEvent(events.close);
             else ds_menu.emitEvent(events.close);
         };
@@ -70,12 +74,12 @@ $.register_module({
         };
         var init = function () {
             if (!selector || !template) return;
-            $dom.form = $(selector).html(template);
+            $dom.form = $(selector);
             if ($dom.form) {
+                $dom.form.html(template).on('keydown', fcntrls_s, keydown_handler);
                 $dom.ag = $('.og-aggregation', $dom.form);
                 $dom.ds = $('.og-datasources', $dom.form);
                 $dom.load_btn = $('.og-load', $dom.form);
-                $dom.form.on('keydown', fcntrls_s, keydown_handler);
             }
             if (viewdefs) {
                 ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
@@ -104,10 +108,10 @@ $.register_module({
             if ($dom.ag) $dom.ag_fcntrls = $dom.ag.find(fcntrls_s);
             if ($dom.ds) $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
             if ($dom.load_btn) $dom.load_btn.on('click', load_query);
-            status = new og.analytics.Status(selector + ' .og-status');
+            //status = new og.analytics.Status(selector + ' .og-status');
         };
         var load_query = function () {
-            if ((!ac_menu && !ds_menu) || !~ac_menu.$input.val().indexOf('Db')) return;
+            if ((!ac_menu || !ds_menu || !ag_menu) || !~ac_menu.$input.val().indexOf('Db')) return;
             og.analytics.url.main(query = {
                 aggregators: ag_menu ? ag_menu.get_query() : [],
                 providers: ds_menu.get_query(),
@@ -120,6 +124,7 @@ $.register_module({
                 active_pos = function (elms, pos) {
                     return $elem.is(elms[pos]());
                 };
+            if (!$elem || !ac_menu || !ag_menu || !ds_menu) return;
             if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
             if (!shift_key && active_pos($dom.ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
             if (!shift_key && active_pos($dom.ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
@@ -129,9 +134,10 @@ $.register_module({
         };
         var query_cancelled = function (menu) {
             emitter.emitEvent(events.closeall);
-            ac_menu.$input.select();
+            if (ac_menu) ac_menu.$input.select();
         };
         var query_selected = function (menu) {
+            if (!ac_menu || !ds_menu) return;
             if (menu === ag_menu) ds_menu.emitEvent(events.open).emitEvent(events.focus);
             else if (menu === ds_menu) $dom.load_btn.focus();
         };
@@ -188,7 +194,7 @@ $.register_module({
         constructor.prototype.reset_query = function () {
             if (query) query = null;
             [ag_menu, ds_menu].forEach(function (menu) { if (menu) menu.emitEvent(events.resetquery); });
-            ac_menu.$input.val('search...');
+            if (ac_menu) ac_menu.$input.val('search...');
         };
         return constructor;
     }
