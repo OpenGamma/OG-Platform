@@ -62,7 +62,7 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
    * @return a result item representing success, not null
    */
   public static CalculationJobResultItem success() {
-    return new CalculationJobResultItem(ImmutableSet.<ValueSpecification>of(), ImmutableSet.<ValueSpecification>of(), new EmptyExecutionLog());
+    return new CalculationJobResultItem(ImmutableSet.<ValueSpecification>of(), ImmutableSet.<ValueSpecification>of(), ExecutionLog.EMPTY);
   }
   
   /**
