@@ -45,7 +45,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.MARK, ComputationTargetType.POSITION, target.getPosition().getUniqueId(),
+                new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.POSITION, target.getPosition().getUniqueId(),
                     ValueProperties.with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
                     getUniqueId()),
                     price));
@@ -61,7 +61,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
     final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(securityEntryData.getId().toBundle(), null, null, null, "PX_LAST", null);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(securityEntryData.getId().toBundle(), null, "LITHIUM", null, "PX_LAST", null);
     if (timeSeries == null) {
       return null;
     }
@@ -74,7 +74,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
       final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
       final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
       return Collections.<ValueSpecification>singleton(
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARK,
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE,
               ComputationTargetType.POSITION,
               target.getPosition().getUniqueId(),
               ValueProperties.with(ValuePropertyNames.CURRENCY,
