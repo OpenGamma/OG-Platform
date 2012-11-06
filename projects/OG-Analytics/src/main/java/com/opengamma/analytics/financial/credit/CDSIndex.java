@@ -18,15 +18,15 @@ public enum CDSIndex {
    */
   CDXNAHY,
   /**
-   * CDX.NA.XO North American Crossover Credits index
+   * CDX.NA.XO North American Crossover Credits index (A crossover credit is one which was previously IG but has since been downgraded)
    */
   CDXNAXO,
   /**
-   * CDX Emerging Market Sovereign Credits index
+   * CDX.EM Emerging Market Sovereign Credits index
    */
   CDXEM,
   /**
-   * CDX Emerging Market Sovereign and Corporate Credits index
+   * CDX.EM.Diversified Emerging Market Sovereign and Corporate Credits index
    */
   CDXEMDIVERS,
   /**
@@ -45,6 +45,10 @@ public enum CDSIndex {
    * iTraxx Europe Crossover Credits index
    */
   iTraxxXO,
+  /**
+   * iTraxx Western Europe Sovereigns
+   */
+  iTraxxSovX,
   /**
    * iTraxx Japanese Investment Grade index
    */

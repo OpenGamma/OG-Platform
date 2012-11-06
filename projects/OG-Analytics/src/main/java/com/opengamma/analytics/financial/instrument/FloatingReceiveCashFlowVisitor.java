@@ -29,7 +29,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Returns all of the floating cash-flows of an instrument. The notionals returned are those that will be received 
  * (i.e. a semi-annual swap with a notional of $1MM will return notionals of ~$0.5MM)
  */
-public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class FloatingReceiveCashFlowVisitor extends InstrumentDefinitionVisitorAdapter<Object, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FloatingReceiveCashFlowVisitor INSTANCE = new FloatingReceiveCashFlowVisitor();
 
   public static FloatingReceiveCashFlowVisitor getInstance() {

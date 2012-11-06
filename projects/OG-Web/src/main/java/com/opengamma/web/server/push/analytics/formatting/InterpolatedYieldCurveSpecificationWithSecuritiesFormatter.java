@@ -9,11 +9,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 
 public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
-    extends NoHistoryFormatter<InterpolatedYieldCurveSpecificationWithSecurities> {
+    extends AbstractFormatter<InterpolatedYieldCurveSpecificationWithSecurities> {
+
+  /* package */ InterpolatedYieldCurveSpecificationWithSecuritiesFormatter() {
+    super(InterpolatedYieldCurveSpecificationWithSecurities.class);
+  }
 
   @Override
-  public Object formatForDisplay(InterpolatedYieldCurveSpecificationWithSecurities value,
-                                 ValueSpecification valueSpec) {
+  public Object formatCell(InterpolatedYieldCurveSpecificationWithSecurities value,
+                           ValueSpecification valueSpec) {
     String name;
     if (value.getName() == null) {
       name = value.getCurrency().getCode();
@@ -24,13 +28,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
   }
 
   @Override
-  public Object formatForExpandedDisplay(InterpolatedYieldCurveSpecificationWithSecurities value,
-                                         ValueSpecification valueSpec) {
-    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.PRIMITIVE;
+  public DataType getDataType() {
+    return DataType.PRIMITIVE;
   }
 }

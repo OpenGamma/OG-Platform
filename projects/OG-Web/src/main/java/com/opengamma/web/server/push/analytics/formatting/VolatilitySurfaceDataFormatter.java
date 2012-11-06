@@ -23,18 +23,27 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
-/* package */ class VolatilitySurfaceDataFormatter extends NoHistoryFormatter<VolatilitySurfaceData> {
+/* package */ class VolatilitySurfaceDataFormatter extends AbstractFormatter<VolatilitySurfaceData> {
+
+  protected VolatilitySurfaceDataFormatter() {
+    super(VolatilitySurfaceData.class);
+    addFormatter(new Formatter<VolatilitySurfaceData>(Format.EXPANDED) {
+      @Override
+      Object format(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+        return formatExpanded(value);
+      }
+    });
+  }
 
   @Override
-  public String formatForDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+  public String formatCell(VolatilitySurfaceData value, ValueSpecification valueSpec) {
     int xSize = value.getUniqueXValues().size();
     int ySize = Sets.newHashSet(value.getYs()).size();
     return "Volatility Surface (" + xSize + " x " + ySize + ")";
   }
 
   @SuppressWarnings("unchecked")
-  @Override
-  public Map<String, Object> formatForExpandedDisplay(VolatilitySurfaceData surface, ValueSpecification valueSpec) {
+  private Map<String, Object> formatExpanded(VolatilitySurfaceData surface) {
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
     SortedSet xVals = surface.getUniqueXValues();
@@ -156,29 +165,29 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * Returns {@link FormatType#UNKNOWN UNKNOWN} because the format type can be differ for different instances of
+   * Returns {@link DataType#UNKNOWN UNKNOWN} because the format type can be differ for different instances of
    * {@link VolatilitySurfaceData} depending on the axis types. The type for a given surface instance can
-   * be obtained from {@link #getFormatForValue}
-   * @return {@link FormatType#UNKNOWN}
+   * be obtained from {@link #getDataTypeForValue}
+   * @return {@link DataType#UNKNOWN}
    */
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.UNKNOWN;
+  public DataType getDataType() {
+    return DataType.UNKNOWN;
   }
 
   /**
-   * If the axis values can be sensibly converted to numbers this returns {@link FormatType#SURFACE_DATA}, if not
-   * it returns {@link FormatType#UNPLOTTABLE_SURFACE_DATA}.
+   * If the axis values can be sensibly converted to numbers this returns {@link DataType#SURFACE_DATA}, if not
+   * it returns {@link DataType#UNPLOTTABLE_SURFACE_DATA}.
    * @param surfaceData The surface data
-   * @return The format type for the surface data, {@link FormatType#SURFACE_DATA} or 
-   * {@link FormatType#UNPLOTTABLE_SURFACE_DATA} depending on the axis types of the data
+   * @return The format type for the surface data, {@link DataType#SURFACE_DATA} or 
+   * {@link DataType#UNPLOTTABLE_SURFACE_DATA} depending on the axis types of the data
    */
   @Override
-  public FormatType getFormatForValue(VolatilitySurfaceData surfaceData) {
+  public DataType getDataTypeForValue(VolatilitySurfaceData surfaceData) {
     if (isPlottable(surfaceData)) {
-      return FormatType.SURFACE_DATA;
+      return DataType.SURFACE_DATA;
     } else {
-      return FormatType.UNPLOTTABLE_SURFACE_DATA;
+      return DataType.UNPLOTTABLE_SURFACE_DATA;
     }
   }
 

@@ -106,6 +106,7 @@ import com.opengamma.util.ArgumentChecker;
       s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
       _timeoutTask.reset();
       _continuation = continuation;
+      _continuation.setTimeout(10000);
       // if there are updates queued sent them immediately otherwise save the continuation until an update
       if (!_updates.isEmpty()) {
         try {

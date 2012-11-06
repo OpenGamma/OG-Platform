@@ -13,8 +13,7 @@ $.register_module({
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
-                    // TODO this is a global ... remove it!
-                    grid = new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
+                    new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
                 });
             },
             gadgetscontainer: function (args) {
@@ -43,7 +42,7 @@ $.register_module({
                 if (args.id) options.id = args.id; else options.data = og.api.common.cache_get(args.key);
                 if (args.key) og.api.common.cache_del(args.key);
                 if (!options.data && !options.id) return $('#gadget_content').html('There is no data to load.');
-                new gadgets.Timeseries(options);
+                new gadgets.TimeseriesPlot(options);
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},

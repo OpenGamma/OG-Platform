@@ -13,8 +13,13 @@ $.register_module({
          * @param {Object} obj configuration object,
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
-        return function (selector, placeholder, data) {
-            var combo = this;
+        return function (selector, placeholder, d, input_val) {
+            var combo = this, data;
+            if (d) {
+                data = d.sort((function(i){ // sort by name
+                    return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
+                })('name'));
+            }
             combo.state = 'blurred';
             combo.open = function () {
                 combo.$input.autocomplete('search', '').select();
@@ -31,17 +36,19 @@ $.register_module({
                     var escaped = $.ui.autocomplete.escapeRegex(req.term),
                         matcher = new RegExp(escaped, 'i'),
                         htmlize = function (str) {
-                        return !req.term ? str : str.replace(
+                            return !req.term ? str : str.replace(
                                 new RegExp(
                                     '(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'
                                 ), '<strong>$1</strong>'
                             );
                         };
-                    res(data.reduce(function (acc, val) {
-                        if (!req.term || matcher.test(val.name))
-                            acc.push({label: htmlize(val.name), value: val.id});
-                        return acc;
-                    }, []));
+                    if (data) {
+                        res(data.reduce(function (acc, val) {
+                            if (!req.term || matcher.test(val.name))
+                                acc.push({label: htmlize(val.name), value: val.id});
+                            return acc;
+                        }, []));
+                    }
                 }
             };
             // wrap input in div, enable input width 100% of parent, FF, IE
@@ -68,6 +75,7 @@ $.register_module({
                     combo.$input.autocomplete('close').select() : combo.open();
             });
             $([combo.$wrapper, combo.$button]).prependTo(selector);
+            if (input_val) combo.$input.val(input_val);
             return combo;
         };
     }

@@ -5,40 +5,12 @@
  */
 package com.opengamma.web.server.push.analytics.formatting;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.analytics.math.curve.DoublesCurve;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.financial.analytics.LabelledMatrix1D;
-import com.opengamma.financial.analytics.LabelledMatrix2D;
-import com.opengamma.financial.analytics.LabelledMatrix3D;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.util.ClassMap;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.web.server.push.analytics.ValueTypes;
 
 /**
@@ -50,11 +22,11 @@ public class ResultsFormatter {
   private static final Logger s_logger = LoggerFactory.getLogger(ResultsFormatter.class);
 
   /** For formatting null values. */
-  private final Formatter _nullFormatter = new NullFormatter();
+  private final TypeFormatter _nullFormatter = new NullFormatter();
   /** For formatting values with no specific formatter. */
-  private final Formatter _defaultFormatter = new DefaultFormatter();
+  private final TypeFormatter _defaultFormatter = new DefaultFormatter();
   /** Formatters keyed on the type of value they can format. */
-  private final ClassMap<Formatter<?>> _formatters = new ClassMap<Formatter<?>>();
+  private final ClassMap<TypeFormatter<?>> _formatters = new ClassMap<TypeFormatter<?>>();
   /** Formatter for values whose type isn't know in advance or whose type can changes between calculation cycles. */
   private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
@@ -64,39 +36,45 @@ public class ResultsFormatter {
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
     BlackVolatilitySurfaceMoneynessFormatter blackVolSurfaceMoneynessFormatter = new BlackVolatilitySurfaceMoneynessFormatter();
 
-    _formatters.put(Double.class, doubleFormatter);
-    _formatters.put(BigDecimal.class, bigDecimalFormatter);
-    _formatters.put(CurrencyAmount.class, currencyAmountFormatter);
-    _formatters.put(YieldCurve.class, new YieldCurveFormatter());
-    _formatters.put(VolatilityCubeData.class, new VolatilityCubeDataFormatter());
-    _formatters.put(VolatilitySurfaceData.class, new VolatilitySurfaceDataFormatter());
-    _formatters.put(VolatilitySurface.class, new VolatilitySurfaceFormatter());
-    _formatters.put(LabelledMatrix1D.class, new LabelledMatrix1DFormatter(doubleFormatter));
-    _formatters.put(LabelledMatrix2D.class, new LabelledMatrix2DFormatter());
-    _formatters.put(LabelledMatrix3D.class, new LabelledMatrix3DFormatter());
-    _formatters.put(Tenor.class, new TenorFormatter());
-    _formatters.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountFormatter());
-    _formatters.put(MissingMarketDataSentinel.class, new FixedValueFormatter("Missing market data", null, null));
-    _formatters.put(NotCalculatedSentinel.class, new NotCalculatedSentinelFormatter());
-    _formatters.put(ForwardCurve.class, new ForwardCurveFormatter());
-    _formatters.put(BlackVolatilitySurfaceMoneyness.class, blackVolSurfaceMoneynessFormatter);
-    _formatters.put(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessFormatter());
-    _formatters.put(BucketedGreekResultCollection.class, new BucketedGreekResultCollectionFormatter());
-    _formatters.put(DoublesCurve.class, new DoublesCurveFormatter());
-    _formatters.put(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesFormatter());
-    _formatters.put(HistoricalTimeSeries.class, new HistoricalTimeSeriesFormatter());
-    _formatters.put(double[][].class, new DoubleArrayFormatter());
-    _formatters.put(Double[][].class, new DoubleObjectArrayFormatter());
-    _formatters.put(List.class, new ListDoubleArrayFormatter());
-    _formatters.put(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueForexBlackVolatilitySensitivityFormatter());
-    _formatters.put(SnapshotDataBundle.class, new SnapshotDataBundleFormatter(doubleFormatter));
-    _formatters.put(InterpolatedYieldCurveSpecificationWithSecurities.class, new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter());
-    _formatters.put(HistoricalTimeSeriesBundle.class, new HistoricalTimeSeriesBundleFormatter());
-    _formatters.put(VolatilitySurfaceSpecification.class, new VolatilitySurfaceSpecificationFormatter());
-    _formatters.put(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class, new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(blackVolSurfaceMoneynessFormatter));
+    addFormatters(doubleFormatter,
+                  bigDecimalFormatter,
+                  currencyAmountFormatter,
+                  new YieldCurveFormatter(),
+                  new VolatilityCubeDataFormatter(),
+                  new VolatilitySurfaceDataFormatter(),
+                  new VolatilitySurfaceFormatter(),
+                  new LabelledMatrix1DFormatter(doubleFormatter),
+                  new LabelledMatrix2DFormatter(),
+                  new LabelledMatrix3DFormatter(),
+                  new TenorFormatter(),
+                  new MultipleCurrencyAmountFormatter(),
+                  new MissingMarketDataSentinelFormatter(),
+                  new NotCalculatedSentinelFormatter(),
+                  new ForwardCurveFormatter(),
+                  blackVolSurfaceMoneynessFormatter,
+                  new LocalVolatilitySurfaceMoneynessFormatter(),
+                  new BucketedGreekResultCollectionFormatter(),
+                  new DoublesCurveFormatter(),
+                  new LocalDateDoubleTimeSeriesFormatter(),
+                  new HistoricalTimeSeriesFormatter(),
+                  new DoubleArrayFormatter(),
+                  new DoubleObjectArrayFormatter(),
+                  new ListDoubleArrayFormatter(),
+                  new PresentValueForexBlackVolatilitySensitivityFormatter(),
+                  new SnapshotDataBundleFormatter(doubleFormatter),
+                  new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter(),
+                  new HistoricalTimeSeriesBundleFormatter(),
+                  new VolatilitySurfaceSpecificationFormatter(),
+                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(blackVolSurfaceMoneynessFormatter));
   }
 
-  private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
+  private void addFormatters(TypeFormatter<?>... formatters) {
+    for (TypeFormatter<?> formatter : formatters) {
+      _formatters.put(formatter.getType(), formatter);
+    }
+  }
+
+  private TypeFormatter getFormatter(Object value, ValueSpecification valueSpec) {
     if (value == null) {
       return _nullFormatter;
     } else if (isError(value) || valueSpec == null) {
@@ -128,11 +106,11 @@ public class ResultsFormatter {
     }
   }
 
-  private Formatter getFormatterForType(Class<?> type) {
+  private TypeFormatter getFormatterForType(Class<?> type) {
     if (type == null) {
       return _unknownTypeFormatter;
     }
-    Formatter formatter = _formatters.get(type);
+    TypeFormatter formatter = _formatters.get(type);
     if (formatter == null) {
       return _defaultFormatter;
     } else {
@@ -152,10 +130,12 @@ public class ResultsFormatter {
    * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
    * for display in the UI.
    */
+/*
   @SuppressWarnings("unchecked")
   public Object formatForDisplay(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).formatForDisplay(value, valueSpec);
   }
+*/
 
   /**
    * Returns a formatted version of a value including all information. This might not fit into a single grid cell in
@@ -165,10 +145,12 @@ public class ResultsFormatter {
    * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
    * for display in the UI.
    */
+/*
   @SuppressWarnings("unchecked")
   public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).formatForExpandedDisplay(value, valueSpec);
   }
+*/
 
   /**
    * Formats a single history value in a format suitable for embedding in a JSON object.
@@ -176,18 +158,25 @@ public class ResultsFormatter {
    * @param valueSpec The value's specification
    * @return A formatted value suitable for embedding in a JSON object or null if the value is null
    */
+/*
   @SuppressWarnings("unchecked")
   public Object formatForHistory(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).formatForHistory(value, valueSpec);
   }
+*/
 
+  @SuppressWarnings("unchecked")
+  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format) {
+    return getFormatter(value, valueSpec).format(value, valueSpec, format);
+  }
+  
   /**
    * Returns the format type for a value type.
    * @param type The value type
    * @return The formatter used for formatting the type
    */
-  public Formatter.FormatType getFormatForType(Class<?> type) {
-    return getFormatterForType(type).getFormatForType();
+  public DataType getDataType(Class<?> type) {
+    return getFormatterForType(type).getDataType();
   }
 
   /**
@@ -197,7 +186,7 @@ public class ResultsFormatter {
    * @return The format type for the value, not null
    */
   @SuppressWarnings("unchecked")
-  public Formatter.FormatType getFormatForValue(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).getFormatForValue(value);
+  public DataType getDataTypeForValue(Object value, ValueSpecification valueSpec) {
+    return getFormatter(value, valueSpec).getDataTypeForValue(value);
   }
 }

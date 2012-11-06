@@ -73,7 +73,7 @@ public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
     final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
     if (!_equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity)) {
-      s_logger.error("Could not get config for pay equity " + underlyingEquity + "; should never happen");
+      s_logger.error("Could not get config for equity " + underlyingEquity + "; should never happen");
       return null;
     }
     final Pair<String, String> pair = _equityCurveConfigAndDiscountingCurveNames.get(underlyingEquity);

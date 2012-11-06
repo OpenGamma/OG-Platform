@@ -102,6 +102,7 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePr
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
@@ -476,9 +477,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     }
     if (args.length == 0) {
       return new StaticFunctionConfiguration(clazz.getName());
-    } else {
-      return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
-    }
+    } 
+    return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
   }
 
   protected static void addValueFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -948,6 +948,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityVarianceSwapDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "BBG"));
     functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
+    functionConfigs.add(functionConfiguration(EquityForwardCurveDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));
@@ -1352,12 +1354,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
   }
 
-  /** See BlackVolatilitySurfacePropertyNamesAndValues for Strings one might use to override the defaults */
   private static void addLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
     // Interpolator properties. There are three types: SABR, MIXED_LOGNORMAL, SPLINE.
-    final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
-        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y, BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE, Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
+        BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
+        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y, 
+        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE, 
+        Interpolator1DFactory.DOUBLE_QUADRATIC,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, 
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final List<String> mixedLogNormalProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
     mixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
     final List<String> sabrProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);

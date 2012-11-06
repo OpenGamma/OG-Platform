@@ -23,16 +23,14 @@ import com.opengamma.util.OpenGammaClock;
  */
 public class BloombergIRFuturePriceCurveInstrumentProviderTest {
   private static final String PREFIX_EUR = "ER";
-  private static final String PREFIX_USD = "ED";
   private static final String POSTFIX = "Comdty";
   private static final LocalDate SNAPSHOT_DATE = LocalDate.of(2010, 6, 14); // Last Trading Date of ERM10 Comdty
   private static final String FIELD_NAME = MarketDataRequirementNames.MARKET_VALUE;
 
   private static final BloombergIRFuturePriceCurveInstrumentProvider PROVIDER_EUR = new BloombergIRFuturePriceCurveInstrumentProvider(PREFIX_EUR, POSTFIX, FIELD_NAME);
-  private static final BloombergIRFuturePriceCurveInstrumentProvider PROVIDER_USD = new BloombergIRFuturePriceCurveInstrumentProvider(PREFIX_USD, POSTFIX, FIELD_NAME);
 
   private static final int nFutures = 9;
-  private static final String[] RESULTS_EUR = new String[] {"ERM10 Comdty","ERU10 Comdty","ERZ10 Comdty","ERH11 Comdty", "ERM11 Comdty", "ERU11 Comdty","ERZ1 Comdty","ERH2 Comdty", "ERM2 Comdty"};
+  private static final String[] RESULTS_EUR = new String[] {"ERM10 Comdty", "ERU10 Comdty", "ERZ10 Comdty", "ERH11 Comdty", "ERM11 Comdty", "ERU11 Comdty", "ERZ1 Comdty", "ERH2 Comdty", "ERM2 Comdty" };
 
   /**
    *  The first test will begin to fail in August, on the 17th or 20th. Good, but not quite good enough.
@@ -43,31 +41,31 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
   public void testEur() {
     String expected;
     for (int ithFuture = 1; ithFuture <= nFutures; ithFuture++) {
-      expected = RESULTS_EUR[ithFuture-1];
+      expected = RESULTS_EUR[ithFuture - 1];
       final ExternalId result = PROVIDER_EUR.getInstrument(ithFuture, SNAPSHOT_DATE);
       assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, result.getScheme());
       assertEquals(expected, result.getValue());
     }
   }
+
   /**
    * Want to nail down when ERZ1 Comdty is no longer available, and then infer what fields of the Security this is based on.
    */
   @Test
   public void whenThisBeginsToFailCheckIfERZ1IsValid() {
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    assertTrue(today.isBefore(LocalDate.of(2012,11,16)));
+    assertTrue(today.isBefore(LocalDate.of(2012, 11, 16)));
   }
 
   @Test
   public void testERM() {
 
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    final LocalDate lastTradeDateOfERM1 = LocalDate.of(2011,6,13);
-    final LocalDate lastTradeDateOfERM2 = LocalDate.of(2012,6,18);
+    final LocalDate lastTradeDateOfERM1 = LocalDate.of(2011, 6, 13);
 
     final ExternalId actual = PROVIDER_EUR.getInstrument(5, SNAPSHOT_DATE);
     final String expected;
-    if(today.isBefore(lastTradeDateOfERM1.plusMonths(11))) {
+    if (today.isBefore(lastTradeDateOfERM1.plusMonths(11))) {
       expected = "ERM1 Comdty";
     } else {
       expected = "ERM11 Comdty";
@@ -75,7 +73,5 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
     assertEquals(expected, actual.getValue());
 
   }
-
-
 
 }

@@ -9,12 +9,6 @@
     visibility: hidden;
 }
 
-.OG-layout-analytics-footer {
-    background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2MUFxf/b2BkzAADjO6eXv8vnDvLABMEC4BkYYJwAZggAPOTD9RNbjElAAAAAElFTkSuQmCC);
-    color: #ccc;
-    border-top: 1px solid #555;
-}
-
 .OG-layout-analytics-center {
     background: #f8f8f8;
 }

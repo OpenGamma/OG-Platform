@@ -4,24 +4,26 @@
  */
 
 .OG-form .og-ex-params label > span {
-  display: inline-block;
+    display: inline-block;
 }
 
 .OG-form .og-ex-params span input {
-  width: 100%;
-  min-width: 40px;
+    width: 100%;
+    min-width: 40px;
 }
 
 .OG-form .og-ex-params span {
-  min-width: 40px;
+    min-width: 40px;
 }
 
 .OG-form .og-ex-params .og-c1 {
-  padding-right: 10px;
-  white-space: nowrap;
+    padding-right: 10px;
+    white-space: nowrap;
+    padding-top: 2px;
+    vertical-align: top;
 }
 
 .OG-form .og-ex-params .og-c2 {
-  margin-right: 10px;
-  width: 50%;
+    margin-right: 10px;
+    width: 50%;
 }

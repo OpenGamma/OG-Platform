@@ -46,7 +46,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 public class TimeSeriesLoaderTest {
   
-  private static final String FILENAME = "tests/unit/com/opengamma/integration/copier/TimeSeries.csv";
+  private static final String FILENAME = "src/test/java/com/opengamma/integration/copier/TimeSeries.csv";
   private static final String DATA_SOURCE = "source";
   private static final String DATA_PROVIDER = "provider";
   private static final String DATA_FIELD = "field";

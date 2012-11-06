@@ -12,6 +12,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * Represents a rectangular set of cells visible in a grid. The viewport is defined by collections of row and
@@ -30,10 +31,10 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   /**
    * @param rows Indices of rows in the viewport, not empty
    * @param columns Indices of columns in the viewport, not empty
-   * @param expanded Whether the cell data should show all the data (true) or be formatted to fit in a single cell (false)
+   * @param format
    */
-  /* package */ RectangularViewportDefinition(List<Integer> rows, List<Integer> columns, boolean expanded) {
-    super(expanded);
+  /* package */ RectangularViewportDefinition(List<Integer> rows, List<Integer> columns, TypeFormatter.Format format) {
+    super(format);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
     List<Integer> sortedColumns = Lists.newArrayList(columns);

@@ -26,6 +26,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -113,6 +119,12 @@ public class FinancialSecurityUtils {
         } else {
           return ValueProperties.none();
         }
+      }
+    });
+    map.put(ComputationTargetType.CURRENCY, new Function1<ComputationTarget, ValueProperties>() {
+      @Override
+      public ValueProperties execute(final ComputationTarget target) {
+        return ValueProperties.with(ValuePropertyNames.CURRENCY, target.getUniqueId().getValue()).get();
       }
     });
     return map;
@@ -383,7 +395,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-          return null;
+          return commodityFutureOptionSecurity.getCurrency();
         }
 
         @Override
@@ -515,11 +527,42 @@ public class FinancialSecurityUtils {
         public Currency visitMetalForwardSecurity(final MetalForwardSecurity security) {
           return security.getCurrency();
         }
-        
+
         @Override
-        public Currency visitCDSSecurity(CDSSecurity security) {
+        public Currency visitCDSSecurity(final CDSSecurity security) {
           return security.getCurrency();
         }
+
+        @Override
+        public Currency visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -799,10 +842,40 @@ public class FinancialSecurityUtils {
         public Collection<Currency> visitMetalForwardSecurity(final MetalForwardSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
-        
+
         @Override
-        public Collection<Currency> visitCDSSecurity(CDSSecurity security) {
+        public Collection<Currency> visitCDSSecurity(final CDSSecurity security) {
           return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
         }
       });
       return ccy;

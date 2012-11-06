@@ -64,12 +64,11 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String fullName = surfaceName + "_" + target.getUniqueId().getValue();  // e.g. FOO_DJX
 
-    // 2. We (MAY) need the definition and the specification, to loop over axes, and to get inputs respectively.
     final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
     final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
 
-    // 3. Get the RawEquityVolatilitySurfaceData object
+    // 2. Get the RawEquityVolatilitySurfaceData object
     final ValueProperties surfaceProperties = ValueProperties.builder() // createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
@@ -83,7 +82,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
 
-    // 4. Remove empties, convert expiries from number to years, and scale vols
+    // 3. Remove empties, convert expiries from number to years, and scale vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
@@ -103,7 +102,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<Double, Double>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(), rawSurface.getTarget(),
         tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
 
-    // 5. Return
+    // 4. Return
     final ValueProperties stdVolProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)

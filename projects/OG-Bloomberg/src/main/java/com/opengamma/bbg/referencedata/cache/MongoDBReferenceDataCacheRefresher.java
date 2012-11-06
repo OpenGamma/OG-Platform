@@ -21,7 +21,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
 
 /**
  * A utility to refresh some portion of a mongodb cache by requerying fields from the underlying 
@@ -94,7 +93,7 @@ public class MongoDBReferenceDataCacheRefresher {
    * @throws Exception 
    */
   public static void main(final String[] args) throws Exception { // CSIGNORE
-    PlatformConfigUtils.configureSystemProperties(MarketDataSource.DIRECT);
+    PlatformConfigUtils.configureSystemProperties();
     System.out.println("Starting connections");
     String configLocation = "com/opengamma/bbg/bbg-reference-data-context.xml";
     

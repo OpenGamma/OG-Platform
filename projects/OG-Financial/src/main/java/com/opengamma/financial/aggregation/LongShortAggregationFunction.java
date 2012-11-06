@@ -22,6 +22,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -99,17 +105,17 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
       final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitor<String>() {
 
         @Override
-        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
+        public String visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
-        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+        public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
-        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+        public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
@@ -169,12 +175,12 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
-        public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+        public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
-        public String visitBondFutureOptionSecurity(BondFutureOptionSecurity bondFutureOptionSecurity) {
+        public String visitBondFutureOptionSecurity(final BondFutureOptionSecurity bondFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
@@ -240,78 +246,108 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
-        public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+        public String visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitBondFutureSecurity(BondFutureSecurity security) {
+        public String visitBondFutureSecurity(final BondFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+        public String visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+        public String visitEquityFutureSecurity(final EquityFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+        public String visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitFXFutureSecurity(FXFutureSecurity security) {
+        public String visitFXFutureSecurity(final FXFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
+        public String visitForwardSwapSecurity(final ForwardSwapSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+        public String visitIndexFutureSecurity(final IndexFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+        public String visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+        public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitStockFutureSecurity(StockFutureSecurity security) {
+        public String visitStockFutureSecurity(final StockFutureSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+        public String visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+        public String visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
           return null;  //TODO implement me !
         }
 
         @Override
-        public String visitMetalForwardSecurity(MetalForwardSecurity security) {
+        public String visitMetalForwardSecurity(final MetalForwardSecurity security) {
           return null;  //TODO implement me !
         }
-        
+
         @Override
-        public String visitCDSSecurity(CDSSecurity security) {
+        public String visitCDSSecurity(final CDSSecurity security) {
           return null; //TODO Should be possible to see direction of CDS trade? quantity < 0?
+        }
+
+        @Override
+        public String visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return null; //TODO
+        }
+
+        @Override
+        public String visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return null; //TODO
+        }
+
+        @Override
+        public String visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return null; //TODO
+        }
+
+        @Override
+        public String visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return null; //TODO
+        }
+
+        @Override
+        public String visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return null; //TODO
+        }
+
+        @Override
+        public String visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return null; //TODO
         }
       };
       if (position.getSecurity() instanceof FinancialSecurity) {

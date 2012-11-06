@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.timeseries.snapshot;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
@@ -39,8 +40,8 @@ public class RedisHtsSnapshotJob implements Runnable {
   
   private HistoricalTimeSeriesMaster _htsMaster;
   private String _dataSource;
-  private DataFieldBlackList _dataFieldBlackList;
-  private SchemeBlackList _schemeBlackList;
+  private BlackList _dataFieldBlackList;
+  private BlackList _schemeBlackList;
   private String _observationTime;
   private String _normalizationRuleSetId;
   
@@ -83,7 +84,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Gets the dataFieldBlackList.
    * @return the dataFieldBlackList
    */
-  public DataFieldBlackList getDataFieldBlackList() {
+  public BlackList getDataFieldBlackList() {
     return _dataFieldBlackList;
   }
 
@@ -91,7 +92,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Sets the dataFieldBlackList.
    * @param dataFieldBlackList  the dataFieldBlackList
    */
-  public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
+  public void setDataFieldBlackList(BlackList dataFieldBlackList) {
     _dataFieldBlackList = dataFieldBlackList;
   }
 
@@ -99,7 +100,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Gets the schemeBlackList.
    * @return the schemeBlackList
    */
-  public SchemeBlackList getSchemeBlackList() {
+  public BlackList getSchemeBlackList() {
     return _schemeBlackList;
   }
 
@@ -107,7 +108,7 @@ public class RedisHtsSnapshotJob implements Runnable {
    * Sets the schemeBlackList.
    * @param schemeBlackList  the schemeBlackList
    */
-  public void setSchemeBlackList(SchemeBlackList schemeBlackList) {
+  public void setSchemeBlackList(BlackList schemeBlackList) {
     _schemeBlackList = schemeBlackList;
   }
 
@@ -170,11 +171,9 @@ public class RedisHtsSnapshotJob implements Runnable {
   @Override
   public void run() {
     validateState();
-    Map<ExternalId, Map<String, String>> redisLKV = loadLastKnownValues();
+    Map<ExternalId, Map<String, String>> redisLKV = getRedisLKValues();
     for (Entry<ExternalId, Map<String, String>> lkvEntry : redisLKV.entrySet()) {
-      ExternalId externalId = lkvEntry.getKey();
-      Map<String, String> lkv = lkvEntry.getValue();
-      updateTimeSeries(externalId, lkv);
+      updateTimeSeries(lkvEntry.getKey(), lkvEntry.getValue());
     }
     s_logger.debug("Total loaded lkv: {}", redisLKV.size());
   }
@@ -194,7 +193,7 @@ public class RedisHtsSnapshotJob implements Runnable {
       String fieldName = lkvEntry.getKey();
       Double value = Double.parseDouble(lkvEntry.getValue());
       
-      if (haveDataFieldBlackList() && _dataFieldBlackList.getDataFieldBlackList().contains(fieldName.toUpperCase())) {
+      if (haveDataFieldBlackList() && _dataFieldBlackList.getBlackList().contains(fieldName.toUpperCase())) {
         continue;
       }
       if (value != null) {
@@ -212,52 +211,57 @@ public class RedisHtsSnapshotJob implements Runnable {
   }
 
   private boolean haveDataFieldBlackList() {
-    return _dataFieldBlackList != null && _dataFieldBlackList.getDataFieldBlackList() != null;
+    return _dataFieldBlackList != null && _dataFieldBlackList.getBlackList() != null;
   }
 
-  private Map<ExternalId, Map<String, String>> loadLastKnownValues() {
-    Map<ExternalId, Map<String, String>> result = Maps.newHashMap();
-    
-    Set<String> allSchemes = getAllSchemes();
-    for (String scheme : allSchemes) {
-      if (haveSchemeBlackList() && _schemeBlackList.getSchemeBlackList().contains(scheme.toUpperCase())) {
-        continue;
-      }
-     
-      Set<String> allIdentifiers = getAllIdentifiers(scheme);
-      // batch in groups of 20000
-      for (List<String> partition : Iterables.partition(allIdentifiers, 20000)) {
-        result.putAll(loadSubListLKValues(Lists.newArrayList(partition), scheme));
-      }
-    }
-    return result;
+  private Map<ExternalId, Map<String, String>> getRedisLKValues() {
+    List<ExternalId> allSecurities = getAllSecurities();
+    return getLastKnownValues(allSecurities);
   }
-
-  private boolean haveSchemeBlackList() {
-    return _schemeBlackList != null && _schemeBlackList.getSchemeBlackList() != null;
-  }
-    
+  
   @SuppressWarnings("unchecked")
-  private Map<ExternalId, Map<String, String>> loadSubListLKValues(final List<String> subList, final String scheme) {
+  private Map<ExternalId, Map<String, String>> getLastKnownValues(final List<ExternalId> allSecurities) {
     Map<ExternalId, Map<String, String>> result = Maps.newHashMap();
     JedisPool jedisPool = _redisConnector.getJedisPool();
     Jedis jedis = jedisPool.getResource();
     Pipeline pipeline = jedis.pipelined();
-    for (String identifier : subList) {
-      String redisKey = generateRedisKey(scheme, identifier, getNormalizationRuleSetId());
+    //start transaction
+    pipeline.multi();
+    for (ExternalId identifier : allSecurities) {
+      String redisKey = generateRedisKey(identifier.getScheme().getName(), identifier.getValue(), getNormalizationRuleSetId());
       pipeline.hgetAll(redisKey);
     }
-    List<Object> lkvalues = pipeline.syncAndReturnAll();
-  
-    int count = 0;
-    for (Object lkvObj : lkvalues) {
-      String identifier = subList.get(count++);
-      result.put(ExternalId.of(scheme, identifier), (Map<String, String>) lkvObj);
-    }    
+    Response<List<Object>> response = pipeline.exec();
+    pipeline.sync();
+    
+    final Iterator<ExternalId> allSecItr = allSecurities.iterator();
+    final Iterator<Object> responseItr = response.get().iterator();
+    while (responseItr.hasNext() && allSecItr.hasNext()) {
+      result.put(allSecItr.next(), (Map<String, String>) responseItr.next());
+    }
     jedisPool.returnResource(jedis);
     return result;
   }
 
+  private List<ExternalId> getAllSecurities() {
+    List<ExternalId> securities = Lists.newArrayList();
+    Set<String> allSchemes = getAllSchemes();
+    for (String scheme : allSchemes) {
+      if (haveSchemeBlackList() && _schemeBlackList.getBlackList().contains(scheme.toUpperCase())) {
+        continue;
+      }
+      Set<String> allIdentifiers = getAllIdentifiers(scheme);
+      for (String identifier : allIdentifiers) {
+        securities.add(ExternalId.of(scheme, identifier));
+      }
+    }
+    return securities;
+  }
+
+  private boolean haveSchemeBlackList() {
+    return _schemeBlackList != null && _schemeBlackList.getBlackList() != null;
+  }
+    
   private String generateRedisKey(String scheme, String identifier, String normalizationRuleSetId) {
     StringBuilder sb = new StringBuilder();
     if (getGlobalPrefix() != null) {

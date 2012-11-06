@@ -18,34 +18,40 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class SnapshotDataBundleFormatter extends NoHistoryFormatter<SnapshotDataBundle> {
+public class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
 
   private final DoubleFormatter _doubleFormatter;
 
-  public SnapshotDataBundleFormatter(DoubleFormatter doubleFormatter) {
+  public SnapshotDataBundleFormatter(final DoubleFormatter doubleFormatter) {
+    super(SnapshotDataBundle.class);
     ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
     _doubleFormatter = doubleFormatter;
+    addFormatter(new Formatter<SnapshotDataBundle>(Format.EXPANDED) {
+      @Override
+      List<List<String>> format(final SnapshotDataBundle value, final ValueSpecification valueSpec) {
+        return formatExpanded(value, valueSpec);
+      }
+    });
   }
 
   @Override
-  public String formatForDisplay(SnapshotDataBundle bundle, ValueSpecification valueSpec) {
+  public String formatCell(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
     return "Data Bundle (" + bundle.getDataPoints().size() + " points)";
   }
 
-  @Override
-  public List<List<String>> formatForExpandedDisplay(SnapshotDataBundle bundle, ValueSpecification valueSpec) {
-    Map<ExternalId, Double> dataPoints = bundle.getDataPoints();
-    List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
-    for (Map.Entry<ExternalId, Double> entry : dataPoints.entrySet()) {
-      String idStr = entry.getKey().toString();
-      String formattedValue = _doubleFormatter.formatForDisplay(entry.getValue(), valueSpec);
+  private List<List<String>> formatExpanded(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
+    final Map<ExternalId, Double> dataPoints = bundle.getDataPoints();
+    final List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
+    for (final Map.Entry<ExternalId, Double> entry : dataPoints.entrySet()) {
+      final String idStr = entry.getKey().toString();
+      final String formattedValue = _doubleFormatter.formatCell(entry.getValue(), valueSpec);
       results.add(ImmutableList.of(idStr, formattedValue));
     }
     return results;
   }
 
   @Override
-  public FormatType getFormatForType() {
-    return FormatType.LABELLED_MATRIX_1D;
+  public DataType getDataType() {
+    return DataType.LABELLED_MATRIX_1D;
   }
 }

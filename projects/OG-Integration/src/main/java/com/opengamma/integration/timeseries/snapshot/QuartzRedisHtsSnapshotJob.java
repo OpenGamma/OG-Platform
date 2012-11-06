@@ -27,9 +27,11 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   
   private RedisConnector _redisConnector;
   
-  private SchemeBlackList _schemeBlackList;
+  private BlackList _schemeBlackList;
   
-  private DataFieldBlackList _dataFieldBlackList;
+  private BlackList _dataFieldBlackList;
+  
+  private String _globalPrefix;
     
   /**
    * Gets the htsMaster.
@@ -115,7 +117,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Gets the schemeBlackList.
    * @return the schemeBlackList
    */
-  public SchemeBlackList getSchemeBlackList() {
+  public BlackList getSchemeBlackList() {
     return _schemeBlackList;
   }
 
@@ -123,7 +125,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Sets the schemeBlackList.
    * @param schemeBlackList  the schemeBlackList
    */
-  public void setSchemeBlackList(SchemeBlackList schemeBlackList) {
+  public void setSchemeBlackList(BlackList schemeBlackList) {
     _schemeBlackList = schemeBlackList;
   }
 
@@ -131,7 +133,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Gets the dataFieldBlackList.
    * @return the dataFieldBlackList
    */
-  public DataFieldBlackList getDataFieldBlackList() {
+  public BlackList getDataFieldBlackList() {
     return _dataFieldBlackList;
   }
 
@@ -139,14 +141,35 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
    * Sets the dataFieldBlackList.
    * @param dataFieldBlackList  the dataFieldBlackList
    */
-  public void setDataFieldBlackList(DataFieldBlackList dataFieldBlackList) {
+  public void setDataFieldBlackList(BlackList dataFieldBlackList) {
     _dataFieldBlackList = dataFieldBlackList;
+  }
+  
+  /**
+   * Gets the globalPrefix.
+   * @return the globalPrefix
+   */
+  public String getGlobalPrefix() {
+    return _globalPrefix;
+  }
+
+  /**
+   * Sets the globalPrefix.
+   * @param globalPrefix  the globalPrefix
+   */
+  public void setGlobalPrefix(String globalPrefix) {
+    _globalPrefix = globalPrefix;
   }
 
   @Override
   protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
     RedisHtsSnapshotJob job = new RedisHtsSnapshotJob();
     job.setHistoricalTimeSeriesMaster(getHtsMaster());
+    if (getGlobalPrefix() != null) {
+      job.setGlobalPrefix(getGlobalPrefix());
+    }
+    job.setDataFieldBlackList(getDataFieldBlackList());
+    job.setSchemeBlackList(getSchemeBlackList());
     job.setDataSource(getDataSource());
     job.setNormalizationRuleSetId(getNormalizationRuleSetId());
     job.setObservationTime(getObservationTime());

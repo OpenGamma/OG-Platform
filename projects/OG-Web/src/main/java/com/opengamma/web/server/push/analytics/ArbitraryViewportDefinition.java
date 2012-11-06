@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.formatting.TypeFormatter;
 
 /**
  * Viewport containing an arbitrary collection of cells.
@@ -22,10 +23,10 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
 
   /**
    * @param cells Cells in the viewport, not empty
-   * @param expanded Whether the cell data should show all the data (true) or be formatted to fit in a single cell (false)
+   * @param format 
    */
-  /* package */ ArbitraryViewportDefinition(List<GridCell> cells, boolean expanded) {
-    super(expanded);
+  /* package */ ArbitraryViewportDefinition(List<GridCell> cells, TypeFormatter.Format format) {
+    super(format);
     ArgumentChecker.notEmpty(cells, "cells");
     _cells = new ArrayList<GridCell>(cells);
     Collections.sort(_cells);

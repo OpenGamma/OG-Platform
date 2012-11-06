@@ -21,8 +21,8 @@
   </scm>
 
   <build>
-    <sourceDirectory>Client/src</sourceDirectory>
-    <testSourceDirectory>Client/tests/unit</testSourceDirectory>
+    <sourceDirectory>Client/src/main/java</sourceDirectory>
+    <testSourceDirectory>Client/src/test/java</testSourceDirectory>
   </build>
 
   <dependencies>

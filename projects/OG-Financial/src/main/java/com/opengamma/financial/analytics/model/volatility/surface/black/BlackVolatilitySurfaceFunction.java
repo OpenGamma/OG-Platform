@@ -76,7 +76,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(target, surfaceName);
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(target, desiredValue);
-    return Sets.newHashSet(interpolatorRequirement, forwardCurveRequirement, volatilitySurfaceRequirement);
+    return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
   }
 
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs);

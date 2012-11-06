@@ -25,7 +25,7 @@ $.register_module({
             },
             options: function (cell, grid, panel, override) {
                 var gadget_type, source = $.extend({}, grid.source), gadget_options, 
-                    override_gadget = override || "";
+                    override_gadget = override || '';
                 gadget_type = override_gadget.length ? override_gadget : mapping.type(cell, panel);
                 gadget_options = {
                     gadget: 'og.common.gadgets.' + gadget_type,
@@ -39,20 +39,16 @@ $.register_module({
                 if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
-                if (gadget_type === 'Timeseries')
-                    $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
-
+                if (gadget_type === 'Timeseries') $.extend(gadget_options.options, 
+                    {menu: false, datapoints_link: false, col: cell.col, row: cell.row});
                 return gadget_options;
             },
-            type : function (cell, panel) {
+            type: function (cell, panel) {
                 var order = mapping.panel_preference[panel || 'new-window'],
                     type_map = mapping.data_type_map[cell.type], i, k; 
-                for (i = 0; i < order.length; i++) {
-                    for (k = 0; k < type_map.length; k++){
-                        if (order[i] === type_map[k])
-                         return mapping.gadgets[order[i]];   
-                    }
-                }
+                for (i = 0; i < order.length; i++)
+                    for (k = 0; k < type_map.length; k++)
+                        if (order[i] === type_map[k]) return mapping.gadgets[order[i]];   
             },
             available_types : function (data_type){
                 var types_array = mapping.data_type_map[data_type], i,  types = {gadgets:[]};
@@ -64,16 +60,17 @@ $.register_module({
                 return types;
             },
             data_type_map: {
-                CURVE             : [1, 3],
-                DOUBLE            : [0],
-                LABELLED_MATRIX_1D: [0, 1],
-                LABELLED_MATRIX_2D: [0, 1],
-                LABELLED_MATRIX_3D: [0, 1],
-                PRIMITIVE         : [0],
-                SURFACE_DATA      : [2, 1],
-                TENOR             : [0],
-                TIME_SERIES       : [4, 1],
-                UNKNOWN           : [0]
+                CURVE                   : [1, 3],
+                DOUBLE                  : [0],
+                LABELLED_MATRIX_1D      : [0, 1],
+                LABELLED_MATRIX_2D      : [0, 1],
+                LABELLED_MATRIX_3D      : [0, 1],
+                PRIMITIVE               : [0],
+                SURFACE_DATA            : [2, 1],
+                UNPLOTTABLE_SURFACE_DATA: [1],
+                TENOR                   : [0],
+                TIME_SERIES             : [4, 1],
+                UNKNOWN                 : [0]
             }
         };
     }

@@ -8,21 +8,19 @@ package com.opengamma.web.server.push.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 
-public class HistoricalTimeSeriesBundleFormatter extends NoHistoryFormatter<HistoricalTimeSeriesBundle> {
+public class HistoricalTimeSeriesBundleFormatter extends AbstractFormatter<HistoricalTimeSeriesBundle> {
+
+  /* package */ HistoricalTimeSeriesBundleFormatter() {
+    super(HistoricalTimeSeriesBundle.class);
+  }
 
   @Override
-  public Object formatForDisplay(HistoricalTimeSeriesBundle bundle, ValueSpecification valueSpec) {
+  public Object formatCell(HistoricalTimeSeriesBundle bundle, ValueSpecification valueSpec) {
     return "Time-series Bundle";
   }
 
   @Override
-  public Object formatForExpandedDisplay(HistoricalTimeSeriesBundle value, ValueSpecification valueSpec) {
-    // TODO format as matrix 1D, labels are fields, values are lists of external IDs. data not currently exposed by bundle
-    throw new UnsupportedOperationException("Expanded display not supported for HistoricalTimeSeriesBundleFormatter");
-  }
-
-  @Override
-  public FormatType getFormatForType() {
-    return FormatType.PRIMITIVE;
+  public DataType getDataType() {
+    return DataType.PRIMITIVE;
   }
 }

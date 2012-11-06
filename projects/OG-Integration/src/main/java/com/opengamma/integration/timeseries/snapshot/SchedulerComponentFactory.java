@@ -5,9 +5,9 @@
  */
 package com.opengamma.integration.timeseries.snapshot;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.quartz.Scheduler;
-import org.quartz.Trigger;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import com.opengamma.component.ComponentInfo;
@@ -42,12 +41,13 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     ComponentInfo info = new ComponentInfo(Scheduler.class, getClassifier());
     
-    Collection<Trigger> triggers = repo.getInstances(Trigger.class);
+    Properties quartzProperties = new Properties();
+    quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
     
     SchedulerFactoryBean schedulerBean = new SchedulerFactoryBean();
-    
-    schedulerBean.setTriggers(triggers.toArray(new Trigger[0]));
-    
+    schedulerBean.setWaitForJobsToCompleteOnShutdown(true);
+    schedulerBean.setQuartzProperties(quartzProperties);
+        
     repo.registerComponent(info, schedulerBean);
     repo.registerLifecycle(schedulerBean);
   }

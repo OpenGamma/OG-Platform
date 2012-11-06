@@ -13,7 +13,11 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolat
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -30,7 +34,8 @@ public class FXDigitalCallSpreadBlackVegaMatrixFunction extends FXDigitalCallSpr
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator(spread);
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = calculator.visit(fxDigital, data);
     final double[] expiries = result.getExpiries().getData();
@@ -57,7 +62,7 @@ public class FXDigitalCallSpreadBlackVegaMatrixFunction extends FXDigitalCallSpr
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
 
-  private String getFormattedExpiry(final double expiry) {
+  private static String getFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
       return days + "D";
