@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () {
         return function (config) {
-            if (!config) return;
+            if (!config) return og.dev.warn('og.analytics.AggregatorsMenu: Missing param [config] to constructor.');
 
             if (!('cntr' in config) || !config.cntr)
                 return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.cntr] to constructor.');
@@ -15,12 +15,12 @@ $.register_module({
             if (!('tmpl' in config) || !config.tmpl)
                 return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.tmpl] to constructor.');
 
-            if (!('data' in config) || !config.data || !config.data.length)
-                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
-
             if (typeof config.tmpl !== 'string') return og.dev.warn(
                 'og.analytics.AggregatorsMenu Invalid type param key [config.tmpl] to constructor; expected "string"'
             );
+
+            if (!('data' in config) || !config.data || !config.data.length)
+                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
 
             // Private
             var menu = new og.analytics.DropMenu({
@@ -31,6 +31,7 @@ $.register_module({
                 $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
                 default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
+
             var add_handler = function () {
                 if (menu.data.length === menu.opts.length) return;
                 menu.add_handler();
@@ -102,7 +103,7 @@ $.register_module({
                 query.splice(entry, 1);
             };
             var remove_orphans = function () {
-                for (var i = menu.opts.length - 1; 0 < i; i-=1) {
+                for (var i = menu.opts.length-1; i >= 0; i-=1) {
                     if (menu.opts.length === 1) break;
                     var option = menu.opts[i];
                     if ($(select_s, option).val() === default_sel_txt) menu.delete_handler(option);
@@ -147,7 +148,7 @@ $.register_module({
                 });
             };
             menu.reset_query = function () {
-                for (var i = menu.opts.length - 1; 0 < i; i-=1) {
+                for (var i = menu.opts.length-1; i >=0; i-=1) {
                     if (menu.opts.length === 1) {
                         menu.opts[i].val(default_sel_txt);
                         break;

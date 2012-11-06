@@ -114,8 +114,8 @@ $.register_module({
             if ((!ac_menu || !ds_menu || !ag_menu) || !~ac_menu.$input.val().indexOf('Db')) return;
             og.analytics.url.main(query = {
                 aggregators: ag_menu ? ag_menu.get_query() : [],
-                providers: ds_menu.get_query(),
-                viewdefinition: ac_menu.$input.val()
+                providers: ds_menu ? ds_menu.get_query() : [],
+                viewdefinition: (ac_menu && ac_menu.$input) ? ac_menu.$input.val() : ''
             });
         };
         var keydown_handler = function (event) {
