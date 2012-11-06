@@ -40,6 +40,7 @@ $.register_module({
             process: function (args, handler) {
                 og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
                     var config = result.data.data, current_main;
+                    console.log(config);
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                         if (og.analytics.grid) og.analytics.grid.kill();

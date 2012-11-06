@@ -130,7 +130,6 @@ $.register_module({
                         }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
                     });
                 };
-                console.log(id);
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
                     if (id === void 0) id = live_id;                  
@@ -201,7 +200,7 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    console.log($(panel_container).width(), $(panel_container).height());
+                    console.log(panel_container, $(panel_container).width(), $(panel_container).height());
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;

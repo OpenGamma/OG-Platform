@@ -64,9 +64,10 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
+                    var unique = grid.config.selector.replace('.OG-layout-analytics-', '.og-inplace-');
                     inplace_config = ({$cntr:  $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', 'container');
+                    container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', 'container ' + unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
                         if(cellmenu.inplace.toggle()) cellmenu.create_inplace();
                         else cellmenu.destroy_frozen();
@@ -82,8 +83,8 @@ $.register_module({
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
+            cellmenu.grid.config.cellmenu = false;
             options = mapping.options(cell, cellmenu.grid, panel);
-            console.log(JSON.stringify(options));
             container.add([options]);
             cellmenu.grid.new_menu(cellmenu);
         };
