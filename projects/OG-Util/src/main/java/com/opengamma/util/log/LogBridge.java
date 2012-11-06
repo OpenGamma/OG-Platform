@@ -20,7 +20,7 @@ public final class LogBridge {
 
   private static final LogBridge s_instance = new LogBridge();
   
-  private final Set<LogBridgeListener> _listeners = new CopyOnWriteArraySet<LogBridgeListener>();
+  private final Set<LogEventListener> _listeners = new CopyOnWriteArraySet<LogEventListener>();
 
   //-------------------------------------------------------------------------
   /**
@@ -44,7 +44,7 @@ public final class LogBridge {
    * 
    * @param listener  the listener to add, not null
    */
-  public void addListener(LogBridgeListener listener) {
+  public void addListener(LogEventListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
@@ -54,7 +54,7 @@ public final class LogBridge {
    * 
    * @param listener  the listener to remove, not null
    */
-  public void removeListener(LogBridgeListener listener) {
+  public void removeListener(LogEventListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.remove(listener);
   }
@@ -70,19 +70,18 @@ public final class LogBridge {
   
   //-------------------------------------------------------------------------
   /**
-   * Passes a log message to all registered listeners.
+   * Passes a log event to all registered listeners.
    * 
-   * @param level  the logging level, not null
-   * @param message  the log message, not null
+   * @param event  the logging event, not null
    */
-  public void log(LogLevel level, String message) {
-    for (LogBridgeListener listener : getListeners()) {
-      listener.logReceived(level, message);
+  public void log(LogEvent event) {
+    for (LogEventListener listener : getListeners()) {
+      listener.log(event);
     }
   }
   
   //-------------------------------------------------------------------------
-  private Set<LogBridgeListener> getListeners() {
+  private Set<LogEventListener> getListeners() {
     return _listeners;
   }
   

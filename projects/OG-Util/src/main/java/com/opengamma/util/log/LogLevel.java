@@ -6,10 +6,14 @@
 package com.opengamma.util.log;
 
 /**
- * A standard set of logging levels for use with {@link LogBridge}.
+ * A standard set of logging levels for use with {@link LogEvent}.
  */
 public enum LogLevel {
 
+  /**
+   * Fatal.
+   */
+  FATAL,
   /**
    * Error.
    */
