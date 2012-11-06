@@ -20,6 +20,11 @@ import com.opengamma.util.log.LogEvent;
 public interface ExecutionLog {
   
   /**
+   * An empty execution log.
+   */
+  ExecutionLog EMPTY = EmptyExecutionLog.INSTANCE;
+  
+  /**
    * Indicates whether any error-level log events occurred.
    * 
    * @return true if any error-level log events occurred, false otherwise

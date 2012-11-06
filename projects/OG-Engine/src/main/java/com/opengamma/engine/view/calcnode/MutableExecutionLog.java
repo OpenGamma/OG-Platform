@@ -9,6 +9,8 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
@@ -108,4 +110,38 @@ public class MutableExecutionLog implements ExecutionLog {
     return _exceptionStackTrace;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_events == null) ? 0 : _events.hashCode());
+    result = prime * result + ((_exceptionClass == null) ? 0 : _exceptionClass.hashCode());
+    result = prime * result + ((_exceptionMessage == null) ? 0 : _exceptionMessage.hashCode());
+    result = prime * result + ((_exceptionStackTrace == null) ? 0 : _exceptionStackTrace.hashCode());
+    result = prime * result + ((_levels == null) ? 0 : _levels.hashCode());
+    result = prime * result + ((_logMode == null) ? 0 : _logMode.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof MutableExecutionLog)) {
+      return false;
+    }
+    MutableExecutionLog other = (MutableExecutionLog) obj;
+    return ObjectUtils.equals(_events, other._events)
+        && ObjectUtils.equals(_exceptionClass, other._exceptionClass)
+        && ObjectUtils.equals(_exceptionMessage, other._exceptionMessage)
+        && ObjectUtils.equals(_exceptionStackTrace, other._exceptionStackTrace)
+        && ObjectUtils.equals(_levels, other._levels)
+        && ObjectUtils.equals(_logMode, other._logMode);
+  }
+  
 }

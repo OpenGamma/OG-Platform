@@ -7,13 +7,26 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.log.LogEvent;
 
 /**
  * Represents an empty execution log, mainly for testing.
  */
-public class EmptyExecutionLog implements ExecutionLog {
+public final class EmptyExecutionLog implements ExecutionLog {
 
+  /**
+   * An instance of an empty execution log.
+   */
+  public static final ExecutionLog INSTANCE = new EmptyExecutionLog();
+  
+  /**
+   * Hidden constructor.
+   */
+  private EmptyExecutionLog() {
+  }
+  
   @Override
   public boolean hasError() {
     return false;
@@ -52,6 +65,17 @@ public class EmptyExecutionLog implements ExecutionLog {
   @Override
   public String getExceptionStackTrace() {
     return null;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof EmptyExecutionLog;
   }
 
 }
