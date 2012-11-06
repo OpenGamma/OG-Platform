@@ -6,5 +6,9 @@
       {{/each}}
     </div>
   {{/each}}
-  <div class="OG-g-rest"></div>
 </div>
+{{#if loading}}
+  <div class="OG-g-rest" style="top: 0px;"></div>
+{{else}}
+  <div class="OG-g-rest"></div>
+{{/if}}

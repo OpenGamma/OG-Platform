@@ -20,7 +20,8 @@ $.register_module({
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
-                var type = value.t;
+                var type = value && value.t;
+                if (!type) return '';
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             formatter.CURVE = function (value) {

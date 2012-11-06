@@ -12,6 +12,14 @@
     position: relative;
 }
 
+.OG-g-loading {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+}
+
 .OG-g-cell {
     position: absolute;
     overflow: hidden;

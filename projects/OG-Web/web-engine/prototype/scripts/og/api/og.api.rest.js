@@ -41,7 +41,7 @@ $.register_module({
                 throw new TypeError(params.bundle.method + ': config.to requires config.from');
             if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
                 params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
+            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
                 return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
             }, {type: 'GET'});
         };
@@ -196,7 +196,7 @@ $.register_module({
             outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
             if (is_delete) registrations = registrations
                 .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
-            return send(), promise;
+            return config.meta.dry ? promise : send(), promise;
         };
         var request_expired = function (request, current) {
             return (current.page !== request.current.page) || request.dependencies.some(function (field) {

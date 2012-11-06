@@ -60,10 +60,12 @@ $.register_module({
             var grid = this, css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
                 container = og.api.text({module: 'og.analytics.grid.container_tash'}),
+                loading = og.api.text({module: 'og.analytics.grid.loading_tash'}),
                 row = og.api.text({module: 'og.analytics.grid.row_tash'}), compile = Handlebars.compile;
-            $.when(css, header, container, row).then(function (css, header, container, row) {
+            $.when(css, header, container, loading, row).then(function (css, header, container, loading, row) {
                 templates = {
-                    css: compile(css), header: compile(header), container: compile(container), row: compile(row)
+                    css: compile(css), header: compile(header),
+                    container: compile(container), loading: compile(loading), row: compile(row)
                 };
                 handler.call(grid);
             });
@@ -230,6 +232,7 @@ $.register_module({
                 init_elements.call(grid);
             }
             grid.resize();
+            render_rows.call(grid, null, true);
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
@@ -260,41 +263,46 @@ $.register_module({
             };
         })();
         var render_rows = (function () {
-            var row_data = function (grid, data, fixed) {
-                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner, error,
+            var notified = null, row_data = function (grid, data, fixed, loading) {
+                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     result = {
-                        rows: [],
-                        holder_height: Math
+                        rows: [], loading: loading, holder_height: Math
                             .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
                     };
+                if (loading) return result;
                 for (i = 0; i < row_len; i += 1) {
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (data_row = rows[i]; j < col_end; j += 1) {
-                        index = i * total_cols + j; column = cols[j]; error = !!data[index].error;
+                        index = i * total_cols + j; column = cols[j];
                         value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
                         cells.push({
-                            column: column, error: error,
+                            column: column, error: data[index] && data[index].error,
                             value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
                         });
                     }
                 }
                 return result;
             };
-            return function (data) { // TODO handle scenario where grid was busy but data stops ticking for a long time
-                var grid = this;
+            return function (data, loading) { // TODO handle scenario where grid was busy when data stopped ticking
+                var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
                 grid.data = data;
-                grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
-                grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
+                grid.elements.fixed_body.html(templates.row(row_data(grid, data, true, loading)));
+                grid.elements.scroll_body.html(templates.row(row_data(grid, data, false, loading)));
                 grid.updated(+new Date);
-                grid.elements.main.find('.node').each(function (idx, val) {
-                    var $node = $(this);
-                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
-                });
+                if (loading) {
+                    if (!notified) grid.elements.main.append(notified = $(templates.loading()));
+                } else {
+                    if (notified) notified = (notified.remove(), null);
+                    grid.elements.main.find('.node').each(function (idx, val) {
+                        var $node = $(this);
+                        $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
+                    });
+                }
                 grid.busy(false);
                 grid.fire('render');
             };
@@ -435,7 +443,7 @@ $.register_module({
                 return row.pluck('type').every(function (type) {return type in do_not_expand;});
             }) ? result : null;
         };
-        constructor.prototype.resize = function (handler) {
+        constructor.prototype.resize = function () {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
                 width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
                 header_height = meta.header_height;
@@ -474,8 +482,6 @@ $.register_module({
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
                 scroll_left: columns.width.fixed,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
-                rest_scroll: Math.max(0, meta.inner.scroll_height - meta.inner.height - scrollbar),
-                rest_fixed: Math.max(0, meta.inner.scroll_height - meta.inner.height),
                 rest_top: meta.inner.height,
                 set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
