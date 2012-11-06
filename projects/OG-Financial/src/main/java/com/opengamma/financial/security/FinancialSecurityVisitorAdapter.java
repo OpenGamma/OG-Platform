@@ -12,8 +12,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.LegacyCDSSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -234,12 +238,32 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   }
 
   @Override
-  public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+  public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
   }
 
   @Override
-  public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+  public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
   }
 
@@ -1109,20 +1133,60 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
-    public Builder<T> standardCDSSecurityVisitor(final T value) {
+    public Builder<T> standardVanillaCDSSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
-        public T visitStandardCDSSecurity(final StandardCDSSecurity security) {
+        public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           return value;
         }
       };
       return this;
     }
 
-    public Builder<T> legacyCDSSecurityVisitor(final T value) {
+    public Builder<T> standardFixedRecoveryCDSSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
-        public T visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+        public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> standardRecoveryLockCDSSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> legacyVanillaCDSSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> legacyFixedRecoveryCDSSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> legacyRecoveryLockCDSSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return value;
         }
       };

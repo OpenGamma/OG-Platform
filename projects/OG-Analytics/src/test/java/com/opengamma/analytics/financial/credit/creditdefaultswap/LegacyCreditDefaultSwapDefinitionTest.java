@@ -33,13 +33,13 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Tests to verify the correct construction of a legacy CDS contract 
+ *  Tests to verify the correct construction of a legacy CDS contract
  */
 public class LegacyCreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Make sure that all the input arguments have been error checked 
+  // TODO : Make sure that all the input arguments have been error checked
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

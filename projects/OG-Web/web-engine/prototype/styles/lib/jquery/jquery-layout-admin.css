@@ -1,6 +1,5 @@
 .OG-layout-admin-container {
     height: 100%;
-    margin: 0 5px;
     visibility: hidden;
 }
 
@@ -9,57 +8,22 @@
     z-index: 0!important;
 }
 
-.OG-layout-admin-footer {
-    background: transparent;
-    z-index: 1!important;
-}
-
 .OG-layout-admin-search,
 .OG-layout-analytics { /* legacy analytics */
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
     background: #fff;
-    border: 1px solid #bbb;
-    border-radius: 3px;
+    border-top: 1px solid #bbb;
+    border-right: 1px solid #bbb;
     position: relative;
     overflow: hidden;
 }
 
-.OG-layout-admin-search:after {
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-top-right-radius: 3px;
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-topright: 3px;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    content: '';
-    background-color: #394249;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-}
-
 .OG-layout-admin-details-center,
 .OG-layout-admin-details-south {
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
     background: #fff;
-    border: 1px solid #bbb;
-    border-radius: 3px;
+    border-top: 1px solid #bbb;
+    border-left: 1px solid #bbb;
     position: relative;
     overflow: auto;
-}
-
-/* IE has some glitch at 3px, renders wierdly */
-.ie9 .OG-layout-admin-search {
-    border-radius: 4px;
-}
-
-.ie9 .OG-layout-admin-details-center,
-.ie9 .OG-layout-admin-details-south {
-    border-radius: 4px;
 }
 
 .OG-layout-admin-details-center .ui-layout-header { /* Keeps the header in the main section from jumping on load */

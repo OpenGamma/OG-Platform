@@ -69,23 +69,23 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private String _contractCategory;
-  
+
   /**
-     * The underlying identifier.
-     */
-    @PropertyDefinition
-    private ExternalId _underlyingId;
+   * The underlying identifier.
+   */
+  @PropertyDefinition
+  private ExternalId _underlyingId;
 
 
   CommodityForwardSecurity() { //For builder
     super(SECURITY_TYPE);
   }
 
-  public CommodityForwardSecurity(String unitName, Double unitNumber, Expiry expiry, Currency currency, double unitAmount, String category) {    
+  public CommodityForwardSecurity(final String unitName, final Double unitNumber, final Expiry expiry, final Currency currency, final double unitAmount, final String category) {
     super(SECURITY_TYPE);
     ArgumentChecker.notNull(category, "category");
     setUnitName(unitName);
-    setUnitAmount(unitNumber);
+    setUnitNumber(unitNumber);
     setExpiry(expiry);
     setCurrency(currency);
     setUnitAmount(unitAmount);
@@ -111,7 +111,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 2053402093:  // unitNumber
         return getUnitNumber();
@@ -132,7 +132,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 2053402093:  // unitNumber
         setUnitNumber((Double) newValue);
@@ -168,12 +168,12 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CommodityForwardSecurity other = (CommodityForwardSecurity) obj;
+      final CommodityForwardSecurity other = (CommodityForwardSecurity) obj;
       return JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
           JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
@@ -212,7 +212,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets quantity of unit.
    * @param unitNumber  the new value of the property
    */
-  public void setUnitNumber(Double unitNumber) {
+  public void setUnitNumber(final Double unitNumber) {
     this._unitNumber = unitNumber;
   }
 
@@ -237,7 +237,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets name of the unit.
    * @param unitName  the new value of the property
    */
-  public void setUnitName(String unitName) {
+  public void setUnitName(final String unitName) {
     this._unitName = unitName;
   }
 
@@ -262,7 +262,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets the expiry.
    * @param expiry  the new value of the property, not null
    */
-  public void setExpiry(Expiry expiry) {
+  public void setExpiry(final Expiry expiry) {
     JodaBeanUtils.notNull(expiry, "expiry");
     this._expiry = expiry;
   }
@@ -288,7 +288,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(Currency currency) {
+  public void setCurrency(final Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -314,7 +314,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets the unit amount.
    * @param unitAmount  the new value of the property
    */
-  public void setUnitAmount(double unitAmount) {
+  public void setUnitAmount(final double unitAmount) {
     this._unitAmount = unitAmount;
   }
 
@@ -339,7 +339,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets the future category.
    * @param contractCategory  the new value of the property, not null
    */
-  public void setContractCategory(String contractCategory) {
+  public void setContractCategory(final String contractCategory) {
     JodaBeanUtils.notNull(contractCategory, "contractCategory");
     this._contractCategory = contractCategory;
   }
@@ -365,7 +365,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    * Sets the underlying identifier.
    * @param underlyingId  the new value of the property
    */
-  public void setUnderlyingId(ExternalId underlyingId) {
+  public void setUnderlyingId(final ExternalId underlyingId) {
     this._underlyingId = underlyingId;
   }
 
@@ -442,7 +442,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 2053402093:  // unitNumber
           return _unitNumber;

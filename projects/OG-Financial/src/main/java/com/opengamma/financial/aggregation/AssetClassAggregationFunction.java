@@ -23,8 +23,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.LegacyCDSSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -343,14 +347,35 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitStandardCDSSecurity(final StandardCDSSecurity security) {
+        public String visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
           return CDS;
         }
 
         @Override
-        public String visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+        public String visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
           return CDS;
         }
+
+        @Override
+        public String visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+          return CDS;
+        }
+
       });
     } else {
       if (security instanceof RawSecurity && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {

@@ -81,7 +81,7 @@
 .slick-header {
   position: relative;
   background: #d7e7f2;
-  border-bottom: 1px solid #fff;
+  border: 1px solid #fff;
 }
 
 /*.slick-header input,*/
@@ -150,7 +150,7 @@
   color: #555;
   font-weight: bold;
   display: inline-block;
-  line-height: 20px;
+  line-height: 21px;
   vertical-align: middle;
 }
 
@@ -171,11 +171,6 @@
 /**
  * Search
  **/
-.OG-js-search .slick-header {
-    background: #a3ceec;
-    border-top: 5px solid #fff;
-}
-
 .OG-js-search .slick-header-column.ui-state-default  {
     border-style: none;
     background: none;

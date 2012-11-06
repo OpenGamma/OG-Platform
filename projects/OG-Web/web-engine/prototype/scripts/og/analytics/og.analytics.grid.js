@@ -110,9 +110,9 @@ $.register_module({
                 });
         };
         var init_elements = function () {
-            var grid = this, config = grid.config, elements, cellmenu,
-                last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
-            var mousemove_handler = function (event) {
+            var grid = this, config = grid.config, elements, cellmenu, in_timeout, out_timeout, stall = 15,
+                last_x, last_y, page_x, page_y, last_corner, cell // cached values for hover events;
+            var hoverin_handler = function (event) {
                 (page_x = event.pageX), (page_y = event.pageY);
                 if (grid.selector.busy()) return last_x = last_y = last_corner = null;
                 if (page_x === last_x && page_y === last_y) return;
@@ -130,12 +130,15 @@ $.register_module({
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
                 fire(grid.events.cellhoverin, cell);
             };
+            var hoverout_handler = function () {
+                if (!last_x) return; else (last_x = last_y = last_corner = null), fire(grid.events.cellhoverout, cell);
+            };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
-                .on('click', '.OG-g-h-set-name a', function (event) {
+                .off('click').on('click', '.OG-g-h-set-name a', function (event) {
                     return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
                 })
-                .on('mousedown', function (event) {
+                .off('mousedown').on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
                     if (!$target.is('.node')) return fire(grid.events.mousedown, event), void 0;
@@ -143,12 +146,18 @@ $.register_module({
                     grid.resize().selector.clear();
                     return false; // kill bubbling if it's a node
                 })
-                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (timeout) {
-                    return function (event) {
-                        timeout = clearTimeout(timeout) || setTimeout(mousemove_handler.partial(event), 50);
-                    };
-                })())
-                .on('mouseleave', function (event) {(last_corner = null), fire(grid.events.cellhoverout, cell);});
+                .off('mousemove').on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
+                    in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
+                })
+                .off('mouseover').on('mouseover', '.OG-g-rest, .OG-g-h-cols', function () {
+                    out_timeout = clearTimeout(out_timeout) || setTimeout(hoverout_handler, stall);
+                })
+                .on('mouseover', '.OG-g-sel, .OG-g-cell', function (event) {
+                    in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
+                })
+                .off('mouseleave').on('mouseleave', function () {
+                    out_timeout = clearTimeout(out_timeout) || setTimeout(hoverout_handler, stall);
+                });
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
             elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
