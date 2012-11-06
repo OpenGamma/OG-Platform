@@ -350,7 +350,7 @@ import com.opengamma.util.tuple.Pair;
           node.removeOutputValue(valueSpecification);
         }
       }
-      if (_computationTargetCollapser != null) {
+      if ((_computationTargetCollapser != null) && _computationTargetCollapser.canApplyTo(node.getComputationTarget().getSpecification())) {
         // Test if the targets can be collapsed and another node used here
         final DependencyNode collapsedNode = collapseNode(node);
         if (collapsedNode != node) {
