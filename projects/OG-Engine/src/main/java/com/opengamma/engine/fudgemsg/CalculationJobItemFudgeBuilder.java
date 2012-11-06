@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 
 /**
  * Fudge message builder for {@code CalculationJobItem}.
@@ -42,6 +43,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
   private static final String FUNCTION_PARAMETERS_FIELD_NAME = "parameters";
   private static final String INPUT_IDENTIFIERS_FIELD_NAME = "input";
   private static final String OUTPUT_IDENTIFIERS_FIELD_NAME = "output";
+  private static final String LOG_MODE_FIELD_NAME = "logMode";
 
   public static MutableFudgeMsg buildMessageImpl(final FudgeSerializer serializer, final CalculationJobItem object, final Map<ComputationTargetSpecification, Integer> targets,
       final Map<String, Integer> functions, final Map<FunctionParameters, Integer> parameters) {
@@ -84,6 +86,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     }
     msg.add(INPUT_IDENTIFIERS_FIELD_NAME, object.getInputIdentifiers());
     msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, object.getOutputIdentifiers());
+    msg.add(LOG_MODE_FIELD_NAME, object.getLogMode());
     return msg;
   }
 
@@ -126,7 +129,8 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     }
     final long[] inputIdentifiers = message.getValue(long[].class, INPUT_IDENTIFIERS_FIELD_NAME);
     final long[] outputIdentifiers = message.getValue(long[].class, OUTPUT_IDENTIFIERS_FIELD_NAME);
-    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, outputIdentifiers);
+    final ExecutionLogMode logMode = message.getValue(ExecutionLogMode.class, LOG_MODE_FIELD_NAME);
+    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, outputIdentifiers, logMode);
   }
 
   @Override

@@ -49,7 +49,7 @@ import com.opengamma.id.UniqueId;
 public class RemoteNodeServerTest {
 
   private final CalculationJobItem JOB_ITEM = new CalculationJobItem("1", new EmptyFunctionParameters(), new ComputationTargetSpecification(""),
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   // Blacklisting subclasses
 

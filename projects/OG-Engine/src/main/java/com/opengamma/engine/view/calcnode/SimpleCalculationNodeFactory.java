@@ -18,6 +18,7 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 /**
  * Creates more-or-less identical nodes.
@@ -38,6 +39,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private FunctionBlacklistQuery _blacklistQuery;
   private FunctionBlacklistMaintainer _blacklistUpdate;
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
+  private ThreadLocalLogEventListener _threadLocalLogListener;
 
   private int _uid;
 
@@ -158,6 +160,14 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   public MaximumJobItemExecutionWatchdog getMaxJobItemExecution() {
     return _maxJobItemExecution;
   }
+  
+  public void setThreadLocalLogListener(final ThreadLocalLogEventListener threadLocalLogListener) {
+    _threadLocalLogListener = threadLocalLogListener;
+  }
+  
+  public ThreadLocalLogEventListener getThreadLocalLogListener() {
+    return _threadLocalLogListener;
+  }
 
   public synchronized SimpleCalculationNode createNode() {
     final String identifier;
@@ -166,8 +176,9 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     } else {
       identifier = SimpleCalculationNode.createNodeId();
     }
+    final CalculationNodeLogEventListener logListener = new CalculationNodeLogEventListener(getThreadLocalLogListener());
     final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer());
+          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer(), logListener);
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
@@ -190,6 +201,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
     ArgumentChecker.notNull(getComputationTargetResolver(), "computationTargetResolver");
     ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
+    ArgumentChecker.notNull(getThreadLocalLogListener(), "threadLocalLogListener");
   }
 
 }

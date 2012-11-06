@@ -64,6 +64,7 @@ import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
+import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
@@ -81,6 +82,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
 
 public class CancelExecutionTest {
@@ -157,7 +159,7 @@ public class CancelExecutionTest {
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new SimpleCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
-        viewProcessorQuerySender, "node", Executors.newCachedThreadPool(), functionInvocationStatistics)));
+        viewProcessorQuerySender, "node", Executors.newCachedThreadPool(), functionInvocationStatistics, new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()))));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());

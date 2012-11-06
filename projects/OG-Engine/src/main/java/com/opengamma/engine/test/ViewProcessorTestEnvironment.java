@@ -48,6 +48,7 @@ import com.opengamma.engine.view.calc.ExecutionResult;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
+import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
@@ -67,6 +68,8 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.log.LogBridge;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 /**
  * Provides access to a ready-made and customisable view processing environment for testing.
@@ -142,8 +145,10 @@ public class ViewProcessorTestEnvironment {
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext() != null ? getFunctionExecutionContext() : generateFunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
+    ThreadLocalLogEventListener threadLocalLogListener = new ThreadLocalLogEventListener();
+    LogBridge.getInstance().addListener(threadLocalLogListener);
     SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, new DefaultComputationTargetResolver(
-        securitySource, positionSource), calcNodeQuerySender, "node", Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
+        securitySource, positionSource), calcNodeQuerySender, "node", Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(threadLocalLogListener));
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));

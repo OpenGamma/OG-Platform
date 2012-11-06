@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
@@ -26,6 +27,7 @@ import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 public class TestCalculationNode extends SimpleCalculationNode {
 
@@ -50,6 +52,6 @@ public class TestCalculationNode extends SimpleCalculationNode {
             // No-op
           }
 
-        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
+        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()));
   }
 }

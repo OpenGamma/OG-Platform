@@ -33,6 +33,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.Cancelable;
@@ -69,7 +70,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputValues());
+          node.getComputationTarget(), inputs, node.getOutputValues(), ExecutionLogMode.INDICATORS);
       items.add(jobItem);
       // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values
       for (ValueSpecification specification : node.getOutputValues()) {

@@ -17,6 +17,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -52,7 +53,7 @@ public class CalculationNodeUtils {
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), CALC_CONF_NAME, valuationTime, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
-        function.getResultSpecs());
+        function.getResultSpecs(), ExecutionLogMode.INDICATORS);
     CalculationJob calcJob = new CalculationJob(jobSpec, 0L, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;
   }

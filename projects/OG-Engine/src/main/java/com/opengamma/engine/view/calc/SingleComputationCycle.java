@@ -47,6 +47,7 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
@@ -59,6 +60,7 @@ import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -117,6 +119,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private final Map<DependencyNode, NodeStateFlag> _nodeStates = new ConcurrentHashMap<DependencyNode, NodeStateFlag>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
+  private final Map<ValueSpecification, CalculationJobResultItem> _resultMap = new ConcurrentHashMap<ValueSpecification, CalculationJobResultItem>();
 
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
@@ -348,7 +351,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       calculationJobResultStreamConsumer.terminate();
     }
 
-    //wait for StreamCalculationJobResultConsumer to finish
+    // Wait for calculationJobResultStreamConsumer to finish
     try {
       if (resultStreamConsumerJobInProgress != null) {
         resultStreamConsumerJobInProgress.get();
@@ -357,7 +360,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Thread.currentThread().interrupt();
     }
 
-    populateResultModel();
+    completeResultModel();
     _state = ViewCycleState.EXECUTED;
   }
 
@@ -411,12 +414,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       addToAllCaches(marketDataRequirement.getKey(), data, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
-      s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
+      // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this as well as the individual value logs
+      s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingMarketData(missingMarketData));
     }
     notifyFragmentCompleted(marketDataResultFragment);
   }
+  
+  private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
+    result.addMarketData(marketData);
+    for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
+      if (depGraph.getTerminalOutputSpecifications().contains(marketDataSpecification)) {
+        result.addValue(depGraph.getCalculationConfigurationName(), marketData);
+      }
+    }
+  }
 
-  private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
+  private static String formatMissingMarketData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
     for (ValueSpecification spec : missingLiveData) {
       sb.append("[").append(spec.getValueName()).append(" on ");
@@ -430,7 +443,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   /**
-   *
+   * Ensures that a computation cache exists for for each calculation configuration.
    */
   private void createAllCaches() {
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
@@ -530,35 +543,28 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return newValues;
   }
 
-  private void populateResultModel() {
+  private void completeResultModel() {
     getResultModel().setCalculationTime(Instant.now());
     getResultModel().setCalculationDuration(getDuration());
-    for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
-      populateResultModel(depGraph);
-    }
   }
 
-  private void populateResultModel(DependencyGraph depGraph) {
-    ViewComputationCache computationCache = getComputationCache(depGraph.getCalculationConfigurationName());
-    for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
-      if (value.getValue() == null) {
-        continue;
-      }
-      if (value.getValue() instanceof MissingInput) {
-        continue;
-      }
-      getResultModel().addValue(depGraph.getCalculationConfigurationName(), new ComputedValue(value.getFirst(), value.getSecond()));
-    }
-  }
-
-  /*package*/void calculationJobsCompleted(List<ExecutionResult> results) {
+  //-------------------------------------------------------------------------
+  /**
+   * Processes the results from one or more calculation jobs.
+   * <p>
+   * This generates a fragment result immediately from the given results, and also adds the values to the full result
+   * model.
+   * 
+   * @param results  the execution results, not null
+   */
+  /*package*/ void calculationJobsCompleted(List<ExecutionResult> results) {
     try {
-      ViewComputationResultModel fragmentResult = generateCycleFragmentResult(results);
+      ViewComputationResultModel fragmentResult = processFragmentResult(results);
       if (fragmentResult != null) {
         notifyFragmentCompleted(fragmentResult);
       }
-    } catch (Exception e) {
-      s_logger.warn("Error forming cycle fragment result after calculation jobs completed: " + results, e);
+    } catch (Exception e) { 
+      s_logger.error("Error processing results after calculation jobs completed: " + results, e);
     }
   }
 
@@ -570,65 +576,56 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationResultModel generateCycleFragmentResult(List<ExecutionResult> calculationJobResults) {
-    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
+  private ViewComputationResultModel processFragmentResult(List<ExecutionResult> calculationJobResults) {
+    InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     for (ExecutionResult calculationJobResult : calculationJobResults) {
-      String calcConfigurationName = calculationJobResult.getResult().getSpecification().getCalcConfigName();
-      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-      ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-      final Iterator<CalculationJobResultItem> itrResultItem = calculationJobResult.getResult().getResultItems().iterator();
-      final Iterator<DependencyNode> itrNode = calculationJobResult.getNodes().iterator();
-      while (itrResultItem.hasNext()) {
-        assert itrNode.hasNext();
-        final CalculationJobResultItem resultItem = itrResultItem.next();
-        final DependencyNode node = itrNode.next();
-        Set<ValueSpecification> specifications = node.getOutputValues();
-        Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-        resultModel.addRequirements(requirements);
-        for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
-          final ValueSpecification valueSpec = value.getFirst();
-          final Object calculatedValue = value.getSecond();
-          if ((calculatedValue == null) || !requirements.containsKey(valueSpec)) {
-            // Not in cache or not a terminal output
-            continue;
-          }
-          if (calculatedValue instanceof MissingMarketDataSentinel) {
-            continue;
-          }
-          ComputedValue computedValue = new ComputedValue(valueSpec, calculatedValue);
-          computedValue.setInvocationResult(resultItem.getResult());
-          computedValue.setMissingInputs(resultItem.getMissingInputs());
-          computedValue.setExceptionClass(resultItem.getExceptionClass());
-          computedValue.setExceptionMsg(resultItem.getExceptionMsg());
-          computedValue.setStackTrace(resultItem.getStackTrace());
-          computedValue.setRequirements(depGraph.getTerminalOutputs().get(valueSpec));
-          computedValue.setComputeNodeId(calculationJobResult.getResult().getComputeNodeId());
-          resultModel.addValue(calcConfigurationName, computedValue);
-        }
-      }
+      processExecutionResult(calculationJobResult, fragmentResultModel, getResultModel());
     }
-    return !resultModel.getAllResults().isEmpty() ? resultModel : null;
+    return !fragmentResultModel.getAllResults().isEmpty() ? fragmentResultModel : null;
   }
 
-  private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
-    result.addMarketData(marketData);
-    for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
-      if (depGraph.getTerminalOutputSpecifications().contains(marketDataSpecification)) {
-        result.addValue(depGraph.getCalculationConfigurationName(), marketData);
-      }
+  private void processExecutionResult(ExecutionResult executionResult, InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel) {
+    final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
+    final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
+    final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+    final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
+    final Iterator<DependencyNode> itrNode = executionResult.getNodes().iterator();
+    while (itrResultItem.hasNext()) {
+      assert itrNode.hasNext();
+      CalculationJobResultItem resultItem = itrResultItem.next();
+      DependencyNode node = itrNode.next();
+      String computeNodeId = executionResult.getResult().getComputeNodeId();
+      processDependencyNodeResult(computeNodeId, resultItem, depGraph, node, computationCache, fragmentResultModel, fullResultModel);
     }
   }
 
-  private Set<ValueSpecification> getOutputSpecificationsForResultModel(DependencyGraph depGraph) {
-    Set<ValueSpecification> outputSpecifications = new HashSet<ValueSpecification>();
-    for (ValueSpecification valueSpecification : depGraph.getOutputSpecifications()) {
-      if (getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpecification, depGraph)) {
-        outputSpecifications.add(valueSpecification);
+  private void processDependencyNodeResult(String computeNodeId, CalculationJobResultItem resultItem, DependencyGraph depGraph,
+      DependencyNode node, ViewComputationCache computationCache,
+      InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel) {
+    Set<ValueSpecification> specifications = node.getOutputValues();
+    Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
+    fragmentResultModel.addRequirements(requirements);
+    fullResultModel.addRequirements(requirements);
+    for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
+      final ValueSpecification valueSpec = value.getFirst();
+      final Object calculatedValue = value.getSecond();
+      if (calculatedValue == null || !requirements.containsKey(valueSpec) ||
+          !getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
+        // Not in cache, not a terminal output, or not requested in results
+        continue;
       }
+      ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, resultItem, computeNodeId);
+      fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+      fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
     }
-    return outputSpecifications;
   }
 
+  private ComputedValueResult createComputedValueResult(ValueSpecification valueSpec, Object calculatedValue, CalculationJobResultItem resultItem, String computeNodeId) {
+    return new ComputedValueResult(valueSpec, calculatedValue, resultItem.getExecutionLog(), computeNodeId,
+        resultItem.getMissingInputs(), resultItem.getResult());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the dependency graph used by this cycle for the given calculation configuration.
    * 
