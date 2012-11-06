@@ -14,6 +14,7 @@ public final class OpenGammaFunctionExclusions {
   }
 
   //CSOFF
+  public static final String PURE_VOLATILITY_SURFACE_DEFAULTS = "PURE_VOLATILITY_SURFACE_DEFAULTS";
   public static final String BLACK_VOLATILITY_SURFACE_DEFAULTS = "BLACK_VOLATILITY_SURFACE_DEFAULTS";
   public static final String BLACK_VOLATILITY_SURFACE_INTERPOLATOR_DEFAULTS = "BLACK_VOLATILITY_SURFACE_INTERPOLATOR_DEFAULTS";
   public static final String PDE_DEFAULTS = "PDE_DEFAULTS";
@@ -37,7 +38,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String INTEREST_RATE_FUTURE = "INTEREST_RATE_FUTURE";
   public static final String FUTURE_OPTION_BLACK = "FUTURE_OPTION_BLACK";
   //CSON
-  
-  
+
+
 
 }
