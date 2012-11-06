@@ -32,10 +32,14 @@ public class CalculationNodeUtils {
 
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
+    configureTestCalcNode(calcNode, mockFunction);
+    return calcNode;
+  }
+  
+  public static void configureTestCalcNode(TestCalculationNode calcNode, MockFunction mockFunction) {
     InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepository();
     functionRepo.addFunction(mockFunction);
     calcNode.getFunctionCompilationService().initialize();
-    return calcNode;
   }
 
   public static MockFunction getMockFunction() {

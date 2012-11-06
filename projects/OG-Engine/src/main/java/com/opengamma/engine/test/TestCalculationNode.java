@@ -30,7 +30,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 public class TestCalculationNode extends SimpleCalculationNode {
-
+  
   private static CompiledFunctionService initializedCFS() {
     final CompiledFunctionService cfs = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
     cfs.initialize();
@@ -38,6 +38,10 @@ public class TestCalculationNode extends SimpleCalculationNode {
   }
 
   public TestCalculationNode() {
+    this(new ThreadLocalLogEventListener());
+  }
+  
+  public TestCalculationNode(ThreadLocalLogEventListener logEventListener) {
     super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new InMemorySecuritySource(),
         new MockPositionSource()), new ViewProcessorQuerySender(
         new FudgeRequestSender() {
@@ -52,6 +56,7 @@ public class TestCalculationNode extends SimpleCalculationNode {
             // No-op
           }
 
-        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()));
+        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(logEventListener));    
   }
+
 }
