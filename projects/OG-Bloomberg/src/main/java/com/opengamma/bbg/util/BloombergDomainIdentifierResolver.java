@@ -80,7 +80,7 @@ public final class BloombergDomainIdentifierResolver {
           buf.append(id);
         } else {
           String[] splits = id.split(" ");
-          if (id.endsWith("CURNCY")) {
+          if (id.endsWith("CURNCY") || id.endsWith("INDEX")) {
             buf.append(splits[0]).append(" ").append(dataProvider);
           } else {
             buf.append(splits[0]).append("@").append(dataProvider);
