@@ -44,6 +44,26 @@ public class ComputedValueResult extends ComputedValue {
     this(specification, value, executionLog, null, null, null);
   }
   
+  /**
+   * Creates a computed value result from a {@link ComputedValue}.
+   * 
+   * @param computedValue  the computed value, not null
+   * @param executionLog  the execution log, not null
+   */
+  public ComputedValueResult(ComputedValue computedValue, ExecutionLog executionLog) {
+    this(computedValue.getSpecification(), computedValue.getValue(), executionLog);
+  }
+  
+  /**
+   * Creates a computed value result.
+   * 
+   * @param specification  the specification of the value, not null
+   * @param value  the actual value
+   * @param executionLog  the execution log, not null
+   * @param computeNodeId  the identifier of the compute node on which the engine function executed
+   * @param missingInputs  any missing inputs 
+   * @param invocationResult  the invocation result
+   */
   public ComputedValueResult(ValueSpecification specification, Object value, ExecutionLog executionLog,
       String computeNodeId, Set<ValueSpecification> missingInputs, InvocationResult invocationResult) {
     super(specification, value);
@@ -96,6 +116,7 @@ public class ComputedValueResult extends ComputedValue {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _executionLog.hashCode();
     result = prime * result + ((_computeNodeId == null) ? 0 : _computeNodeId.hashCode());
     result = prime * result + ((_invocationResult == null) ? 0 : _invocationResult.hashCode());
     result = prime * result + ((_missingInputs == null) ? 0 : _missingInputs.hashCode());
@@ -116,7 +137,8 @@ public class ComputedValueResult extends ComputedValue {
     ComputedValueResult other = (ComputedValueResult) obj;
     return ObjectUtils.equals(_computeNodeId, other._computeNodeId)
         && ObjectUtils.equals(_invocationResult, other._invocationResult)
-        && ObjectUtils.equals(_missingInputs, other._missingInputs);
+        && ObjectUtils.equals(_missingInputs, other._missingInputs)
+        && ObjectUtils.equals(_executionLog, other._executionLog);
   }
   
 }
