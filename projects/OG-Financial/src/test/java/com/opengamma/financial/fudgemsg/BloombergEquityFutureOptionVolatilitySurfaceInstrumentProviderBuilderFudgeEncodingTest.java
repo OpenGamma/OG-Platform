@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider;
 
@@ -21,11 +22,15 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderBuild
   private static final String FUTURE_OPTION_PREFIX = "DJX";
   private static final String POSTFIX = "Index";
   private static final String EXCHANGE = "OSE";
+  private static final String SCHEME = ExternalSchemes.BLOOMBERG_BUID_WEAK.getName();
 
   @Test
   public void testCycle() {
-    final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider provider = new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
+    BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider provider = new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
         DATA_FIELD_NAME, CALL_ABOVE_STRIKE, EXCHANGE);
+    assertEquals(provider, cycleObject(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
+    provider = new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
+        DATA_FIELD_NAME, CALL_ABOVE_STRIKE, EXCHANGE, SCHEME);
     assertEquals(provider, cycleObject(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
   }
 }

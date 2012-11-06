@@ -127,13 +127,13 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
 
   @Override
   public int hashCode() {
-    return getFXPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
+    return getFXPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode() + getSchemeName().hashCode();
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null) {
-      return false;
+    if (this == obj) {
+      return true;
     }
     if (!(obj instanceof BloombergFXOptionVolatilitySurfaceInstrumentProvider)) {
       return false;

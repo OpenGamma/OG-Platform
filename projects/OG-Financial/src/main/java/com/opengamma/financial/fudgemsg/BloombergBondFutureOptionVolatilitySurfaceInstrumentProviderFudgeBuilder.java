@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider;
 
 /**
@@ -25,6 +26,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergBondFutureO
 public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider> {
   private static final String CALL_FIELD_NAME = "useCallAboveStrikeValue";
   private static final String EXCHANGE_ID_FIELD_NAME = "exchangeId";
+  private static final String SCHEME_NAME = "schemeName";
   // backwards compatibility
   private static final String DEFAULT_EXCHANGE_ID = "CBT";
 
@@ -37,6 +39,7 @@ public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBu
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
     message.add(CALL_FIELD_NAME, object.useCallAboveStrike());
     message.add(EXCHANGE_ID_FIELD_NAME, object.getExchangeIdName());
+    message.add(SCHEME_NAME, object.getSchemeName());
     return message;
   }
 
@@ -57,12 +60,16 @@ public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBu
     if (dataFieldName == null) {
       dataFieldName = message.getString("dataFieldName");
     }
+    String schemeName = message.getString(SCHEME_NAME);
+    if (schemeName == null) {
+      schemeName = ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName();
+    }
     final Double useCallAboveValue = message.getDouble(CALL_FIELD_NAME);
     if (message.hasField(EXCHANGE_ID_FIELD_NAME)) {
       final String exchangeId = message.getString(EXCHANGE_ID_FIELD_NAME);
-      return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, exchangeId);
+      return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, exchangeId, schemeName);
     }
-    return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, DEFAULT_EXCHANGE_ID);
+    return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, DEFAULT_EXCHANGE_ID, schemeName);
   }
 
 }
