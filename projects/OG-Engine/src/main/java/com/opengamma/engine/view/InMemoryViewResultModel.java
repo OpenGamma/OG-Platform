@@ -19,7 +19,7 @@ import javax.time.Duration;
 import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -106,7 +106,7 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     return _resultsByConfiguration.get(calcConfigurationName);
   }
 
-  public void addValue(final String calcConfigurationName, final ComputedValue value) {
+  public void addValue(final String calcConfigurationName, final ComputedValueResult value) {
     final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
 
     ViewCalculationResultModelImpl result = _resultsByConfiguration.get(calcConfigurationName);

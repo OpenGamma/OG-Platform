@@ -7,7 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.Collection;
 
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 
 /**
  * A simple implementation of the per-target calculation result model.
@@ -22,7 +22,7 @@ public class ViewTargetResultModelImpl extends AbstractResultModel<String> imple
   }
   
   @Override
-  public Collection<ComputedValue> getAllValues(final String calcConfigurationName) {
+  public Collection<ComputedValueResult> getAllValues(final String calcConfigurationName) {
     return super.getAllValues(calcConfigurationName);
   }
 

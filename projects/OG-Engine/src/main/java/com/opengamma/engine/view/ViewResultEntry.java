@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -14,10 +15,10 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewResultEntry {
   
   private final String _calculationConfiguration;
-  private final ComputedValue _computedValue;
+  private final ComputedValueResult _computedValue;
   
   public ViewResultEntry(String calculationConfiguration,
-      ComputedValue computedValue) {
+      ComputedValueResult computedValue) {
     ArgumentChecker.notNull(calculationConfiguration, "calculationConfiguration");
     ArgumentChecker.notNull(computedValue, "computedValue");
     _calculationConfiguration = calculationConfiguration;
@@ -28,7 +29,7 @@ public class ViewResultEntry {
     return _calculationConfiguration;
   }
   
-  public ComputedValue getComputedValue() {
+  public ComputedValueResult getComputedValue() {
     return _computedValue;
   }
 
