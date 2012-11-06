@@ -23,7 +23,7 @@ $.register_module({
                         return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
                     if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                     if (viewport && viewport.empty !== true && result.data.version === viewport_version)
-                        fire(data.events.data, result.data.data);
+                        fire('data', result.data.data);
                 };
                 return function (result) {
                     clearTimeout(timeout);
@@ -58,12 +58,10 @@ $.register_module({
             var disconnect_handler = function () {data.disconnect(data.prefix + 'disconnected');};
             var fire = (function () {
                 var fatal_fired = false, types;
-                return function () {
-                    var events = arguments[0], args = Array.prototype.slice.call(arguments),
-                        type = (types || (types = Object.keys(data.events)))
-                            .filter(function (type) {return data.events[type] === events;})[0];
+                return function (type) {
+                    var args = Array.prototype.slice.call(arguments);
                     try {
-                        if (events !== data.events.fatal) return og.common.events.fire.apply(data, args);
+                        if (type !== 'fatal') return og.common.events.fire.apply(data, args);
                         if (!fatal_fired) return (fatal_fired = true), og.common.events.fire.apply(data, args);
                     } catch (error) {og.dev.warn(data.prefix + 'a ' + type + ' handler threw ', error);}
                 }
@@ -75,18 +73,18 @@ $.register_module({
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
-                catch (error) {fire(data.events.fatal, data.prefix + error.message);}
+                catch (error) {fire('fatal', data.prefix + error.message);}
             };
             var reconnect_handler = function () {initialize();};
             var structure_handler = function (result) {
                 if (!grid_type || (depgraph && !graph_id)) return;
-                if (result.error) return fire(data.events.fatal, data.prefix + result.message);
+                if (result.error) return fire('fatal', data.prefix + result.message);
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
-                fire(data.events.meta, meta);
+                fire('meta', meta);
                 if (!subscribed) return data_setup();
             };
             var same_viewport = function (one, two) {
@@ -103,7 +101,7 @@ $.register_module({
                         return api.grid.depgraphs.put({
                             view_id: view_id, grid_type: grid_type, row: config.row, col: config.col
                         }).pipe(function (result) {
-                            if (result.error) return fire(data.events.fatal, data.prefix + result.message);
+                            if (result.error) return fire('fatal', data.prefix + result.message);
                             return api.grid.depgraphs.structure.get({
                                 view_id: view_id, grid_type: grid_type,
                                 graph_id: (graph_id = result.meta.id), update: initialize
@@ -126,26 +124,26 @@ $.register_module({
                         if (initial_load) initialize();
                         if (types_emitted || !(portfolio || primitives)) return;
                         types_emitted = true;
-                        return fire(data.events.types, {portfolio: portfolio, primitives: primitives});
+                        return fire('types', {portfolio: portfolio, primitives: primitives});
                     }
                     grid_type = config.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
                     if (portfolio && primitives && !types_emitted) // if both come back immediately, fire types event
-                        (types_emitted = true), fire(data.events.types, {portfolio: portfolio, primitives: primitives});
+                        (types_emitted = true), fire('types', {portfolio: portfolio, primitives: primitives});
                     if (portfolio || primitives) initialize();
                 });
             };
             var view_handler = function (result) {
-                if (result.error) return fire(data.events.fatal, data.prefix + result.message);
+                if (result.error) return fire('fatal', data.prefix + result.message);
                 data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
                 return grid_type ? structure_setup() : type_setup();
             };
+            og.common.events.register.call(data, 'data', 'fatal', 'meta', 'types');
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
                 if (view_id) api.del({view_id: view_id});
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 view_id = graph_id = viewport_id = subscribed = null;
             };
-            data.events = {meta: [], data: [], fatal: [], types: []};
             data.id = id;
             data.kill = function () {
                 data.disconnect.apply(data, Array.prototype.slice.call(arguments));
@@ -173,7 +171,7 @@ $.register_module({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, columns: viewport.cols, format: viewport.format
                     }).pipe(function (result) {if (result.error) return; else viewport_version = result.data.version;});
-                } catch (error) {fire(data.events.fatal, data.prefix + error.message);}
+                } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
             };
             connections[data.id] = data;

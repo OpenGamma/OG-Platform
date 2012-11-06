@@ -65,7 +65,7 @@ $.register_module({
                         new_window = function (i, dropped) {
                             var index = extract_index(extract_id($(this).attr('class')));
                             if (!dropped) {
-                                og.common.events.fire(container.events.launch, gadgets[index].config);
+                                container.fire('launch', gadgets[index].config);
                                 setTimeout(container.del.partial(gadgets[i]));
                             }
                         };
@@ -135,8 +135,8 @@ $.register_module({
                     if (id === void 0) id = live_id;                  
                     tabs = gadgets.reduce(function (acc, val, i) {
                         return acc.push({
-                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 
-                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id, 'delete': true, 
+                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
+                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id,
                             'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
                             'gadget': val, 'gadget_index': i
                         }) && acc;
@@ -225,9 +225,8 @@ $.register_module({
                     : null;
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
-                if (!silent) og.common.events.fire(container.events.del, index);
+                if (!silent) container.fire('del', index);
             };
-            container.events = {del: [], drop: [], launch: []};
             container.gadgets = function () {return gadgets;};
             /**
              * Highlight gadget panel with number
@@ -293,7 +292,7 @@ $.register_module({
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                if (false !== og.common.events.fire(container.events.drop, data.gadget.config))
+                                if (false !== container.fire('drop', data.gadget.config))
                                     container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
@@ -323,7 +322,10 @@ $.register_module({
                 gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
                 return container;
             };
+            og.common.events.register.call(container, 'del', 'drop', 'launch');
         };
+        constructor.prototype.fire = og.common.events.fire;
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         return constructor;
     }

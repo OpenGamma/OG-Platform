@@ -304,13 +304,13 @@ $.register_module({
                 registrations = registrations.filter(function (val) {return val.id !== promise.id;});
             },
             disconnected: false,
-            events: {disconnect: [], reconnect: []},
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
                 get: default_get.partial(['name'], null),
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            fire: og.common.events.fire,
             handshake: { // all requests that begin with /handshake
                 root: 'handshake',
                 get: function (config) {
@@ -744,6 +744,7 @@ $.register_module({
                 }
             }
         };
+        og.common.events.register.call(api, 'disconnect', 'reconnect');
         common.cache_clear(module.name); // empty the cache from another session or window if it still exists
         api.subscribe = subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
@@ -752,7 +753,7 @@ $.register_module({
             api.id = result.data['clientId'];
             (fire_updates = function (reset, result) {
                 var current = routes.current(), handlers = [];
-                if (reset && api.disconnected) (api.disconnected = false), og.common.events.fire(api.events.reconnect);
+                if (reset && api.disconnected) (api.disconnected = false), api.fire('reconnect');
                 registrations = registrations.filter(function (reg) {
                     return request_expired(reg, current) ? false // purge expired requests
                         // fire all updates if connection is reset (and clear registrations)
@@ -769,7 +770,7 @@ $.register_module({
                     if (result.error) {
                         if (!api.disconnected) {
                             api.disconnected = true;
-                            og.common.events.fire(api.events.disconnect);
+                            api.fire('disconnect');
                             api.id = null;
                         }
                         warn(module.name + ': subscription failed\n', result.message);

@@ -26,6 +26,8 @@
     white-space: nowrap;
 }
 
+.OG-g-cell + .og-error {color: gray;}
+
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {
     position: absolute;
@@ -127,7 +129,7 @@
     background: #42669a;
 }
 
-/* Indicator arrows */
+/* Indicator area */
 .OG-g-cell .og-icon-tick-down,
 .OG-g-cell .og-icon-tick-up,
 .OG-g-cell .og-icon-tick-static {

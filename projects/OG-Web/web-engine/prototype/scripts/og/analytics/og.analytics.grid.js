@@ -72,10 +72,9 @@ $.register_module({
             var grid = this;
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
-            grid.events = {
-                cellhoverin: [], cellhoverout: [], cellselect: [], fatal: [], mousedown: [],
-                rangeselect: [], render: [], scroll: [], select: [], viewchange: []
-            };
+            og.common.events.register.call(grid,
+                'cellhoverin', 'cellhoverout', 'cellselect', 'fatal', 'mousedown',
+                'rangeselect', 'render', 'scroll', 'select', 'viewchange');
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;
@@ -87,7 +86,6 @@ $.register_module({
             })(null, 0);
             if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
         };
-        var fire = og.common.events.fire;
         var init_data = function () {
             var grid = this, config = grid.config;
             grid.busy = (function (busy) {
@@ -97,7 +95,7 @@ $.register_module({
             grid.dataman = new og.analytics.Data(grid.source, false, 'grid')
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {
-                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), fire(grid.events.fatal);
+                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
@@ -128,20 +126,20 @@ $.register_module({
                 cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
                 cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
-                fire(grid.events.cellhoverin, cell);
+                grid.fire('cellhoverin', cell);
             };
             var hoverout_handler = function () {
-                if (!last_x) return; else (last_x = last_y = last_corner = null), fire(grid.events.cellhoverout, cell);
+                if (!last_x) return; else (last_x = last_y = last_corner = null), grid.fire('cellhoverout', cell);
             };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
                 .off('click').on('click', '.OG-g-h-set-name a', function (event) {
-                    return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
+                    return grid.fire('viewchange', $(this).html().toLowerCase()), false;
                 })
                 .off('mousedown').on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
-                    if (!$target.is('.node')) return fire(grid.events.mousedown, event), void 0;
+                    if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
                     grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                     grid.resize().selector.clear();
                     return false; // kill bubbling if it's a node
@@ -192,10 +190,10 @@ $.register_module({
             grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
                 var cell, meta = grid.meta, events;
                 if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
-                    fire(grid.events.cellselect, cell);
+                    grid.fire('cellselect', cell);
                 else
-                    fire(grid.events.rangeselect, selection);
-                fire(grid.events.select, selection); // fire for single and multiple selections
+                    grid.fire('rangeselect', selection);
+                grid.fire('select', selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
@@ -263,7 +261,7 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, data, fixed) {
-                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner,
+                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner, error,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
@@ -276,10 +274,10 @@ $.register_module({
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (data_row = rows[i]; j < col_end; j += 1) {
-                        index = i * total_cols + j; column = cols[j];
+                        index = i * total_cols + j; column = cols[j]; error = !!data[index].error;
                         value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
                         cells.push({
-                            column: column,
+                            column: column, error: error,
                             value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
                         });
                     }
@@ -298,7 +296,7 @@ $.register_module({
                     $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
                 });
                 grid.busy(false);
-                fire(grid.events.render);
+                grid.fire('render');
             };
         })();
         var set_css = function (id, sets, offset) {
@@ -399,6 +397,7 @@ $.register_module({
             });
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
+        constructor.prototype.fire = og.common.events.fire;
         constructor.prototype.kill = function () {
             var grid = this;
             try {grid.dataman.kill();}
