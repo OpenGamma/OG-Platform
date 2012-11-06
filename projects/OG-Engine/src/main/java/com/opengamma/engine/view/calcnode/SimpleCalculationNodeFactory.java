@@ -18,6 +18,7 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.log.LogBridge;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 /**
@@ -39,7 +40,12 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private FunctionBlacklistQuery _blacklistQuery;
   private FunctionBlacklistMaintainer _blacklistUpdate;
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
-  private final ThreadLocalLogEventListener _threadLocalLogListener = new ThreadLocalLogEventListener();
+  private final ThreadLocalLogEventListener _threadLocalLogListener;
+  
+  public SimpleCalculationNodeFactory() {
+    _threadLocalLogListener = new ThreadLocalLogEventListener();
+    LogBridge.getInstance().addListener(_threadLocalLogListener);
+  }
 
   private int _uid;
 
