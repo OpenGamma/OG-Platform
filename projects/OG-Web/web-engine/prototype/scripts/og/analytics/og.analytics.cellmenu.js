@@ -64,20 +64,14 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    console.log("Setup ", cellmenu.grid.config.selector);
                     var unique = cellmenu.grid.config.selector.split(" ", 1)[0].replace('.OG-layout-analytics-', '');
                     inplace_config = ({
                         $cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data: {name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle()) 
-                        {
-                            console.log("Click ", cellmenu.grid.config.selector);
-                            cellmenu.create_inplace();
-                        }
-                        else 
-                            cellmenu.destroy_frozen();
+                        if(cellmenu.inplace.toggle()) cellmenu.create_inplace();
+                        else cellmenu.destroy_frozen();
                     });
                 });
             });
@@ -87,7 +81,6 @@ $.register_module({
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, cell, panel = 'inplace', options;
-            console.log("Create ", cellmenu.grid.config.selector);
             cell = cellmenu.current;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
@@ -105,8 +98,10 @@ $.register_module({
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
+            console.log(cellmenu);
             if (cellmenu.menu && cellmenu.menu.length){
-                (cellmenu.menu).appendTo($('body')).css({top: current.top, left: current.right - width}).show();
+                (cellmenu.menu).appendTo($('body')).css(
+                    {top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
             }
         };
         return constructor;
