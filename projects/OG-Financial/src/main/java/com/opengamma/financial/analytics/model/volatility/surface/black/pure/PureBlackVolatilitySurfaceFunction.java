@@ -85,7 +85,13 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
 
     @Override
     protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue).get();
+      final String surfaceName = desiredValue.getConstraint(SURFACE);
+      final String curveName = desiredValue.getConstraint(CURVE);
+      final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
+      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue)
+          .with(SURFACE, surfaceName)
+          .with(CURVE, curveName)
+          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     }
   }
 
