@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -32,7 +32,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
   private final Map<String, Triple<String, String, String>> _perEquityConfig;
 
   public EquityForwardCurveDefaults(final String priority, final String... perEquityConfig) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.PRIMITIVE, true); // REVIEW Andrew 2012-11-06 -- Is PRIMITIVE correct, shouldn't it be SECURITY or even EquitySecurity?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
     final int nPairs = perEquityConfig.length;
@@ -47,9 +47,6 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
     final String equityId = target.getUniqueId().getValue();
     return _perEquityConfig.containsKey(equityId);
   }
