@@ -175,6 +175,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, resultCurveName, target));
     requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
     return requirements;
   }
 

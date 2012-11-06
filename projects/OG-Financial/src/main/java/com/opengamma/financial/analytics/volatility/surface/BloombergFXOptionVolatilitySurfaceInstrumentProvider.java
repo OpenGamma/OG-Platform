@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -17,11 +17,10 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 //TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
-  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   /** Type of the volatility quote */
   public enum FXVolQuoteType {
     /** ATM */
@@ -35,14 +34,26 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
   private final String _fxPrefix; //expecting something like USDJPY
   private final String _postfix; //expecting Curncy
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
-
+  private final ExternalScheme _scheme; // e.g. BLOOMBERG_TICKER_WEAK
   public BloombergFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName) {
+    this(fxPrefix, postfix, dataFieldName, ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+  }
+  public BloombergFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName,
+      final String schemeName) {
     ArgumentChecker.notNull(fxPrefix, "fx prefix");
     ArgumentChecker.notNull(postfix, "postfix");
     ArgumentChecker.notNull(dataFieldName, "data field name");
+    ArgumentChecker.notNull(schemeName, "scheme name");
+    final boolean schemeTest = schemeName.equals(ExternalSchemes.BLOOMBERG_BUID.getName()) ||
+        schemeName.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName()) ||
+        schemeName.equals(ExternalSchemes.BLOOMBERG_TCM.getName()) ||
+        schemeName.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
+        schemeName.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+    ArgumentChecker.isTrue(schemeTest, "scheme name {} was not appropriate for Bloomberg data");
     _fxPrefix = fxPrefix;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
+    _scheme = ExternalScheme.of(schemeName);
   }
 
   public String getFXPrefix() {
@@ -56,6 +67,10 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
   @Override
   public String getDataFieldName() {
     return _dataFieldName;
+  }
+
+  public String getSchemeName() {
+    return _scheme.getName();
   }
 
   @Override
@@ -107,18 +122,18 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(bbgCode);
     ticker.append(" ");
     ticker.append(_postfix);
-    return ExternalId.of(SCHEME, ticker.toString());
+    return ExternalId.of(_scheme, ticker.toString());
   }
 
   @Override
   public int hashCode() {
-    return getFXPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
+    return getFXPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode() + getSchemeName().hashCode();
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null) {
-      return false;
+    if (this == obj) {
+      return true;
     }
     if (!(obj instanceof BloombergFXOptionVolatilitySurfaceInstrumentProvider)) {
       return false;
@@ -126,6 +141,7 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     final BloombergFXOptionVolatilitySurfaceInstrumentProvider other = (BloombergFXOptionVolatilitySurfaceInstrumentProvider) obj;
     return getFXPrefix().equals(other.getFXPrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
-        getDataFieldName().equals(other.getDataFieldName());
+        getDataFieldName().equals(other.getDataFieldName()) &&
+        getSchemeName().equals(other.getSchemeName());
   }
 }

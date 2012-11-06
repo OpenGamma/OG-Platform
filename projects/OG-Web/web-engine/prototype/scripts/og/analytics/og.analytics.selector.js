@@ -28,7 +28,7 @@ $.register_module({
                 var selection = selector.selection();
                 $(document).off(namespace);
                 auto_scroll.timeout = auto_scroll.scroll = clearTimeout(auto_scroll.timeout), null;
-                if (selection) og.common.events.fire(selector.events.select, selection);
+                if (selection) selector.fire('select', selection);
                 selector.busy(false);
             };
             var initialize = function () {
@@ -100,9 +100,9 @@ $.register_module({
             selector.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            selector.events = {select: []};
             selector.grid = grid;
             selector.rectangle = selector.regions = null;
+            og.common.events.register.call(selector, 'select');
             grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
@@ -110,6 +110,8 @@ $.register_module({
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };
+        constructor.prototype.fire = og.common.events.fire;
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.render = function (regions, rectangle) {
             var selector = this, grid = selector.grid, data, copyable;

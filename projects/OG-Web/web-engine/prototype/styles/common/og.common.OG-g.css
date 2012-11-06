@@ -12,6 +12,14 @@
     position: relative;
 }
 
+.OG-g-loading {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+}
+
 .OG-g-cell {
     position: absolute;
     overflow: hidden;
@@ -25,6 +33,8 @@
     cursor: default;
     white-space: nowrap;
 }
+
+.OG-g-cell + .og-error {color: gray;}
 
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {
@@ -127,7 +137,7 @@
     background: #42669a;
 }
 
-/* Indicator arrows */
+/* Indicator area */
 .OG-g-cell .og-icon-tick-down,
 .OG-g-cell .og-icon-tick-up,
 .OG-g-cell .og-icon-tick-static {

@@ -173,12 +173,12 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
   }
-  
+
   public ConfigMaster getConfigMaster() {
     return _configMaster;
   }
-  
-  public void setConfigMaster(final ConfigMaster configMaster) {
+
+  public void setConfigMaster(ConfigMaster configMaster) {
     _configMaster = configMaster;
   }
 

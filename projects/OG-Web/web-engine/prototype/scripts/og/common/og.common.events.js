@@ -8,8 +8,9 @@ $.register_module({
     obj: function () {
         var module = this;
         return {
-            fire: function (events) {
-                var args = Array.prototype.slice.call(arguments, 1), lcv, len = events.length;
+            fire: function (type) {
+                var args = Array.prototype.slice.call(arguments, 1), lcv,
+                    events = this.events[type], len = events.length;
                 for (lcv = 0; lcv < len; lcv += 1)
                     if (false === events[lcv].handler.apply(events[lcv].context, events[lcv].args.concat(args)))
                         return false;
@@ -27,6 +28,10 @@ $.register_module({
                     .push({handler: handler, args: Array.prototype.slice.call(arguments, 3), context: context});
                 else throw new TypeError(module.name + ': no ' + type + ' event exists');
                 return this;
+            },
+            register: function () {
+                this.events = Array.prototype.reduce
+                    .call(arguments, function (acc, val) {return (acc[val] = []), acc;}, {});
             }
         };
     }

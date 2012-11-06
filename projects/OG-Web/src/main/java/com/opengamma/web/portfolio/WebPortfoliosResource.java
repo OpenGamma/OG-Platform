@@ -40,9 +40,9 @@ import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
+import com.opengamma.web.analytics.rest.MasterType;
+import com.opengamma.web.analytics.rest.Subscribe;
+import com.opengamma.web.analytics.rest.SubscribeMaster;
 
 /**
  * RESTful resource for all portfolios.

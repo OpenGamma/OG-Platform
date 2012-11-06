@@ -41,7 +41,7 @@ $.register_module({
                 throw new TypeError(params.bundle.method + ': config.to requires config.from');
             if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
                 params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
+            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
                 return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
             }, {type: 'GET'});
         };
@@ -196,7 +196,7 @@ $.register_module({
             outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
             if (is_delete) registrations = registrations
                 .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
-            return send(), promise;
+            return config.meta.dry ? promise : send(), promise;
         };
         var request_expired = function (request, current) {
             return (current.page !== request.current.page) || request.dependencies.some(function (field) {
@@ -304,13 +304,13 @@ $.register_module({
                 registrations = registrations.filter(function (val) {return val.id !== promise.id;});
             },
             disconnected: false,
-            events: {disconnect: [], reconnect: []},
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
                 get: default_get.partial(['name'], null),
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            fire: og.common.events.fire,
             handshake: { // all requests that begin with /handshake
                 root: 'handshake',
                 get: function (config) {
@@ -744,6 +744,7 @@ $.register_module({
                 }
             }
         };
+        og.common.events.register.call(api, 'disconnect', 'reconnect');
         common.cache_clear(module.name); // empty the cache from another session or window if it still exists
         api.subscribe = subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
@@ -752,7 +753,7 @@ $.register_module({
             api.id = result.data['clientId'];
             (fire_updates = function (reset, result) {
                 var current = routes.current(), handlers = [];
-                if (reset && api.disconnected) (api.disconnected = false), og.common.events.fire(api.events.reconnect);
+                if (reset && api.disconnected) (api.disconnected = false), api.fire('reconnect');
                 registrations = registrations.filter(function (reg) {
                     return request_expired(reg, current) ? false // purge expired requests
                         // fire all updates if connection is reset (and clear registrations)
@@ -769,7 +770,7 @@ $.register_module({
                     if (result.error) {
                         if (!api.disconnected) {
                             api.disconnected = true;
-                            og.common.events.fire(api.events.disconnect);
+                            api.fire('disconnect');
                             api.id = null;
                         }
                         warn(module.name + ': subscription failed\n', result.message);
