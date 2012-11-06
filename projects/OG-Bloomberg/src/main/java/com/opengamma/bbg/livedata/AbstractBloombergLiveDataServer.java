@@ -13,6 +13,8 @@ import java.util.Set;
 import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -36,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
  * Allows common functionality to be shared between the live and recorded Bloomberg data servers
  */
 public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataServer {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergLiveDataServer.class);
   private NormalizationRuleResolver _normalizationRules;
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
@@ -89,10 +91,14 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
     for (String buid : buids) {
       FudgeMsg fieldData = snapshotValues.get(buid);
       if (fieldData == null) {
-        throw new OpenGammaRuntimeException("Result for " + buid + " was not found");
+        Exception e = new Exception("Stack Trace");
+        e.fillInStackTrace();
+        s_logger.error("Could not find result for {} in data snapshot, skipping", buid, e);
+        //throw new OpenGammaRuntimeException("Result for " + buid + " was not found");
+      } else {
+        String securityUniqueId = buid.substring("/buid/".length());
+        returnValue.put(securityUniqueId, fieldData);
       }
-      String securityUniqueId = buid.substring("/buid/".length());
-      returnValue.put(securityUniqueId, fieldData);
     }
     return returnValue;
   }
