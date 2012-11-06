@@ -2,7 +2,11 @@
  * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-analytics-inplace .OG-analytics-inplace-container {
+.OG-analytics-inplace .OG-analytics-inplace-center,
+.OG-analytics-inplace .OG-analytics-inplace-south,
+.OG-analytics-inplace .OG-analytics-inplace-dock-north,
+.OG-analytics-inplace .OG-analytics-inplace-dock-center,
+.OG-analytics-inplace .OG-analytics-inplace-dock-south{
     display: none;
     height: 300px;
     margin-left: -1px;
@@ -10,7 +14,6 @@
     width: 480px;
     position: absolute;
 }
-
 .OG-analytics-inplace .OG-icon.og-icon-down-chevron {
     background: transparent;
     border: 1px solid #dadcdd;
@@ -18,7 +21,6 @@
     height: 11px;
     left: -2px;
 }
-
 .OG-analytics-inplace .ui-layout-content {
     background-color: #F8F8F8;
     box-shadow: 3px 3px 3px #ebebeb;
@@ -42,4 +44,3 @@
 .OG-analytics-inplace .OG-gadget-tabs ul:before {
     height: 0;
 }
-

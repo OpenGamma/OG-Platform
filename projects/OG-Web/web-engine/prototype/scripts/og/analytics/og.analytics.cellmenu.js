@@ -64,13 +64,20 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    var unique = grid.config.selector.replace('.OG-layout-analytics-', '.og-inplace-');
-                    inplace_config = ({$cntr:  $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace});
+                    console.log("Setup ", cellmenu.grid.config.selector);
+                    var unique = cellmenu.grid.config.selector.split(" ", 1)[0].replace('.OG-layout-analytics-', '');
+                    inplace_config = ({
+                        $cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data: {name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', 'container ' + unique);
+                    cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle()) cellmenu.create_inplace();
-                        else cellmenu.destroy_frozen();
+                        if(cellmenu.inplace.toggle()) 
+                        {
+                            console.log("Click ", cellmenu.grid.config.selector);
+                            cellmenu.create_inplace();
+                        }
+                        else 
+                            cellmenu.destroy_frozen();
                     });
                 });
             });
@@ -79,13 +86,15 @@ $.register_module({
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
-            var cellmenu = this, cell = cellmenu.current, panel = 'inplace', options;
+            var cellmenu = this, cell, panel = 'inplace', options;
+            console.log("Create ", cellmenu.grid.config.selector);
+            cell = cellmenu.current;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             cellmenu.grid.config.cellmenu = false;
             options = mapping.options(cell, cellmenu.grid, panel);
-            container.add([options]);
+            cellmenu.container.add([options]);
             cellmenu.grid.new_menu(cellmenu);
         };
         constructor.prototype.hide = function () {
