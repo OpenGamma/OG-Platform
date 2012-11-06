@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -9,10 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
 
 /**
- * 
+ *
  */
 public class BloombergFXOptionVolatilitySurfaceInstrumentProviderBuilderFudgeEncodingTest extends FinancialTestBase {
   private static final String PREFIX = "EURJPY";
@@ -21,7 +22,9 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProviderBuilderFudgeEnc
 
   @Test
   public void testCycle() {
-    final BloombergFXOptionVolatilitySurfaceInstrumentProvider provider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME);
+    BloombergFXOptionVolatilitySurfaceInstrumentProvider provider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME);
+    assertEquals(provider, cycleObject(BloombergFXOptionVolatilitySurfaceInstrumentProvider.class, provider));
+    provider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, ExternalSchemes.BLOOMBERG_TCM.getName());
     assertEquals(provider, cycleObject(BloombergFXOptionVolatilitySurfaceInstrumentProvider.class, provider));
   }
 }
