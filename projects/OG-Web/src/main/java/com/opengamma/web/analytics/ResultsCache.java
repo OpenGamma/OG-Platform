@@ -147,6 +147,20 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
+   * Returns empty history appropriate for the type. For types that support history it will be an empty collection,
+   * for types that don't it will be null.
+   * @param type The type, possibly null
+   * @return The history, possibly null
+   */
+  public Collection<Object> getEmptyHistory(Class<?> type) {
+    if (s_historyTypes.contains(type)) {
+      return Collections.emptyList();
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * An item from the cache including its history and a flag indicating whether it was updated by the most recent
    * calculation cycle. Instances of this class are intended for users of the cache.
    */

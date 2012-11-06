@@ -55,8 +55,8 @@ public class ViewportResultsJsonWriter {
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
       DataType columnFormat = _formatter.getDataType(columnType);
+      // if there is history, an error or we need to send type info then we need to send an object, not just the value
       if (columnFormat == UNKNOWN || history != null || cell.isError()) {
-        // if there is history, an error or we need to send type info then we need to send an object, not just the value
         Map<String, Object> valueMap = Maps.newHashMap();
         valueMap.put(VALUE, formattedValue);
         if (columnFormat == UNKNOWN) {

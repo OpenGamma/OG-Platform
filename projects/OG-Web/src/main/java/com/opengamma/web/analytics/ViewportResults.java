@@ -20,9 +20,6 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  */
 public class ViewportResults {
 
-  /** An empty grid cell. */
-  private static final Cell s_emptyCell = new Cell(null, null, null, 0);
-
   /** The result values by row. */
   private final List<Cell> _allResults;
   /** The grid columns. */
@@ -121,9 +118,12 @@ public class ViewportResults {
   /**
    * Factory method that returns a grid cell with no value.
    * @return An empty cell
+   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
+   * be an empty collection, for types that don't it should be null.
+   * @param colIndex Index of the cell's grid column
    */
-  /* package */ static Cell emptyCell() {
-    return s_emptyCell;
+  /* package */ static Cell emptyCell(Collection<Object> emptyHistory, int colIndex) {
+    return new Cell(null, null, emptyHistory, colIndex);
   }
 
   @Override

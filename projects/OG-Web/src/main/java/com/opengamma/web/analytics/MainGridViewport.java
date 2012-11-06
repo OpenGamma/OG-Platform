@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,15 +56,16 @@ public class MainGridViewport extends AnalyticsViewport {
         results.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), colIndex));
       } else {
         Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, colIndex);
+        Class<?> columnType = _gridStructure.getColumnType(colIndex);
         if (cellTarget != null) {
-          Class<?> columnType = _gridStructure.getColumnType(colIndex);
           String calcConfigName = cellTarget.getFirst();
           ValueSpecification valueSpec = cellTarget.getSecond();
           ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
           updated = updated || cacheResult.isUpdated();
           results.add(ViewportResults.valueCell(cacheResult.getValue(), valueSpec, cacheResult.getHistory(), colIndex));
         } else {
-          results.add(ViewportResults.emptyCell());
+          Collection<Object> emptyHistory = cache.getEmptyHistory(columnType);
+          results.add(ViewportResults.emptyCell(emptyHistory, colIndex));
         }
       }
     }
