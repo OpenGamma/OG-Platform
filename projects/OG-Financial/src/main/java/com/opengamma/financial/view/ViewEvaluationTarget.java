@@ -6,16 +6,24 @@
 package com.opengamma.financial.view;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Target for functions which can create and manipulate a view client to perform one or more evaluations.
  */
 public class ViewEvaluationTarget extends TempTarget {
+
+  private static final long serialVersionUID = 1L;
 
   private final ViewDefinition _viewDefinition;
   private String _firstValuationDate = "";
@@ -33,6 +41,15 @@ public class ViewEvaluationTarget extends TempTarget {
     _viewDefinition = new ViewDefinition("Temp", user);
   }
 
+  protected ViewEvaluationTarget(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    super(deserializer, message);
+    _viewDefinition = deserializer.fieldValueToObject(ViewDefinition.class, message.getByName("viewDefinition"));
+    _firstValuationDate = message.getString("firstValuationDate");
+    _includeFirstValuationDate = message.getBoolean("includeFirstValuationDate");
+    _lastValuationDate = message.getString("lastValuationDate");
+    _includeLastValuationDate = message.getBoolean("includeLastValuationDate");
+  }
+
   private ViewEvaluationTarget(final ViewDefinition viewDefinition) {
     super();
     _viewDefinition = viewDefinition;
@@ -47,6 +64,7 @@ public class ViewEvaluationTarget extends TempTarget {
   }
 
   public void setFirstValuationDate(final String firstValuationDate) {
+    ArgumentChecker.notNull(firstValuationDate, "firstValuationDate");
     _firstValuationDate = firstValuationDate;
   }
 
@@ -63,6 +81,7 @@ public class ViewEvaluationTarget extends TempTarget {
   }
 
   public void setLastValuationDate(final String lastValuationDate) {
+    ArgumentChecker.notNull(lastValuationDate, "lastValuationDate");
     _lastValuationDate = lastValuationDate;
   }
 
@@ -146,6 +165,19 @@ public class ViewEvaluationTarget extends TempTarget {
     hc += (hc << 4) + getLastValuationDate().hashCode();
     hc += (hc << 4) + (isIncludeLastValuationDate() ? -1 : 0);
     return hc;
+  }
+
+  @Override
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+    serializer.addToMessageWithClassHeaders(message, "viewDefinition", null, getViewDefinition(), ViewDefinition.class);
+    message.add("firstValuationDate", null, FudgeWireType.STRING, getFirstValuationDate());
+    message.add("includeFirstValuationDate", null, FudgeWireType.BOOLEAN, isIncludeFirstValuationDate());
+    message.add("lastValuationDate", null, FudgeWireType.STRING, getLastValuationDate());
+    message.add("includeLastValuationDate", null, FudgeWireType.BOOLEAN, isIncludeLastValuationDate());
+  }
+
+  public static ViewEvaluationTarget fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return new ViewEvaluationTarget(deserializer, message);
   }
 
 }

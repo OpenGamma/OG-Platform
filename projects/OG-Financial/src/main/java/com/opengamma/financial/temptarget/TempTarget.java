@@ -5,6 +5,14 @@
  */
 package com.opengamma.financial.temptarget;
 
+import java.io.Serializable;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -12,7 +20,9 @@ import com.opengamma.id.UniqueIdentifiable;
 /**
  * Base class for temporary target objects.
  */
-public abstract class TempTarget implements UniqueIdentifiable {
+public abstract class TempTarget implements UniqueIdentifiable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The computation target type corresponding to a temporary target.
@@ -20,6 +30,16 @@ public abstract class TempTarget implements UniqueIdentifiable {
   public static final ComputationTargetType TYPE = ComputationTargetType.of(TempTarget.class);
 
   private UniqueId _uid;
+
+  public TempTarget() {
+  }
+
+  protected TempTarget(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final FudgeField field = message.getByName("uid");
+    if (field != null) {
+      _uid = deserializer.fieldValueToObject(UniqueId.class, field);
+    }
+  }
 
   /**
    * Returns the unique identifier of the target, if one is set.
@@ -75,6 +95,10 @@ public abstract class TempTarget implements UniqueIdentifiable {
   @Override
   public final int hashCode() {
     return getClass().hashCode() + hashCodeImpl();
+  }
+
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+    serializer.addToMessage(message, "uid", null, getUniqueId());
   }
 
 }
