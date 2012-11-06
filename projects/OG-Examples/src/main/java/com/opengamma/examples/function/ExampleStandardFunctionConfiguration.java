@@ -44,16 +44,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.LastHistoricalValueFunction;
-import com.opengamma.financial.analytics.PortfolioNodeWeightFunction;
-import com.opengamma.financial.analytics.PositionScalingFunction;
-import com.opengamma.financial.analytics.PositionTradeScalingFunction;
-import com.opengamma.financial.analytics.PositionWeightFunction;
-import com.opengamma.financial.analytics.SummingFunction;
-import com.opengamma.financial.analytics.UnitPositionScalingFunction;
-import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
-import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
+import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
@@ -83,7 +74,6 @@ import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurve
 import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxFlatSpreadFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
@@ -194,7 +184,6 @@ import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLDefau
 import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunctionDeprecated;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction;
@@ -276,14 +265,6 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRInterpolatorDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineInterpolatorDefaults;
-import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestSecurityValueFunction;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestValueFunction;
-import com.opengamma.financial.analytics.timeseries.YieldCurveHistoricalTimeSeriesFunction;
-import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesFunction;
-import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated;
-import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
@@ -308,6 +289,8 @@ import com.opengamma.util.money.Currency;
  */
 public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
 
+  // TODO: Change to inherit from AbstractRepositoryConfigurationBean
+
   private static final String USD = Currency.USD.getCode();
   private static final String SECONDARY = "SECONDARY";
   private static final String COST_OF_CARRY_FIELD = "COST_OF_CARRY";
@@ -326,37 +309,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   protected static void addValueFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE);
     functionConfigs.add(functionConfiguration(ValueFunction.class));
-    functionConfigs.add(functionConfiguration(PositionWeightFunction.class));
-    functionConfigs.add(functionConfiguration(PortfolioNodeWeightFunction.class));
-  }
-
-  public static void addScalingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(PositionScalingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
-  }
-
-  public static void addUnitScalingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
-  }
-
-  /**
-   * Adds a summing function for the value.
-   *
-   * @param functionConfigs the configuration block to add the definition to
-   * @param requirementName the requirement to sum at portfolio node levels
-   */
-  public static void addSummingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
-  }
-
-  protected static void addValueGreekAndSummingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(OptionGreekToValueGreekConverterFunction.class, requirementName));
-    addSummingFunction(functionConfigs, requirementName);
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
@@ -399,38 +352,10 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(AttributableDefaultPropertyFunction.class));
   }
 
-  protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    addUnitScalingFunction(functionConfigs, requirementName);
-    functionConfigs.add(functionConfiguration(LastHistoricalValueFunction.class, requirementName));
-//    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
-  }
-
-  protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_MARKET_CAP);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_PRICE);
-    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
-    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
-    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestSecurityValueFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
-  }
-
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addValueFunctions(functionConfigs);
-
-    functionConfigs.add(functionConfiguration(SecurityMarketPriceFunction.class));
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
@@ -463,151 +388,18 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addEquityDerivativesCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
-
-    addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
-
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA_BLEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.STRIKE_DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DRIFTLESS_THETA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GAMMA_P);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.STRIKE_GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GAMMA_BLEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GAMMA_P_BLEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VEGA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VEGA_P);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VARIANCE_VEGA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VEGA_BLEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.THETA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.RHO);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.CARRY_RHO);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ZETA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ZETA_BLEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DZETA_DVOL);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ELASTICITY);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PHI);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ZOMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ZOMMA_P);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ULTIMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VARIANCE_ULTIMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPEED);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPEED_P);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VANNA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VARIANCE_VANNA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DVANNA_DVOL);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VOMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VOMMA_P);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.VARIANCE_VOMMA);
-
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DUAL_DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DUAL_GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VEGA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.IMPLIED_VOLATILITY);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_DUAL_DELTA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_DUAL_GAMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VEGA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VANNA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VOMMA);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_IMPLIED_VOLATILITY);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_PRESENT_VALUE);
-
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_DIRTY_PRICE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_CLEAN_PRICE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_YTM);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.CLEAN_PRICE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DIRTY_PRICE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.YTM);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
-
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GROSS_BASIS);
-    addSummingFunction(functionConfigs, ValueRequirementNames.GROSS_BASIS);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.NET_BASIS);
-    addSummingFunction(functionConfigs, ValueRequirementNames.NET_BASIS);
-
-    addScalingFunction(functionConfigs, ValueRequirementNames.PV01);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
-
-    addSummingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PV01);
-    addSummingFunction(functionConfigs, ValueRequirementNames.DV01);
-    addSummingFunction(functionConfigs, ValueRequirementNames.CS01);
-    addSummingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    addSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY);
-    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    addSummingFunction(functionConfigs, ValueRequirementNames.EXTERNAL_SENSITIVITIES);
-    addSummingFunction(functionConfigs, ValueRequirementNames.CREDIT_SENSITIVITIES);
-
-    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
-    addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
-
-    addScalingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
-    addScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
-
-    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
-    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
-    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
-    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_VEGA);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_VEGA);
-
-    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
-
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD);
-    addSummingFunction(functionConfigs, ValueRequirementNames.FORWARD);
-    addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
-    addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);
-
     addCurrencyConversionFunctions(functionConfigs);
     addLateAggregationFunctions(functionConfigs);
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
-    addHistoricalDataFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
 
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceHazardCurveFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
+
+    functionConfigs.addAll(AnalyticsFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
 
     final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
@@ -695,7 +487,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));    
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1129,8 +921,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01FunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PAR_RATE_STRING));
-    functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PRESENT_VALUE_STRING));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR",
         "GBP", "JPY", "NZD", USD));
   }
