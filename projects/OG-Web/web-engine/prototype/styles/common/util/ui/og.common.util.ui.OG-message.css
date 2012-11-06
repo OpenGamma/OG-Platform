@@ -3,35 +3,32 @@
  * Please see distribution for license.
  */
 .OG-message {
-  -webkit-border-top-right-radius: 3px;
-  -webkit-border-bottom-left-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  -moz-border-radius-bottomleft: 3px;
-  border-top-right-radius: 3px;
-  border-bottom-left-radius: 3px;
-  background-color: #313b44;
-  bottom: 0;
-  color: #fff;
-  padding: 0 4px 0 4px;
-  position: absolute;
-  left: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  opacity: .8;
-  filter: alpha(opacity=80);
-  z-index: 2;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-right-radius: 3px;
+    background-color: #313b44;
+    bottom: 0;
+    color: #fff;
+    padding: 0 4px 0 4px;
+    position: absolute;
+    left: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: .8;
+    filter: alpha(opacity=80);
+    z-index: 2;
 }
 
 .OG-message a {
-  color: #fff;
-  border-bottom-color: #fff;
+    color: #fff;
+    border-bottom-color: #fff;
 }
 
 .OG-message a:hover {
-  border-bottom-color: #cf8e8e;
+    border-bottom-color: #cf8e8e;
 }
 
 .OG-message.og-strong {
-  background-color: #960505;
+    background-color: #960505;
 }
