@@ -133,7 +133,7 @@ $.register_module({
             };
             menu.replay_query = function (conf) {
                 if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
-                menu.opts.forEach(function (option, index) {
+                menu.opts.forEach(function (option) {
                     option.remove();
                 });
                 menu.opts.length = 0;

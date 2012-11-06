@@ -29,9 +29,9 @@ $.register_module({
 
             if (!data.length) og.dev.warn('og.common.util.ui.AutoCombo: Empty array param [data]');
 
-            d = data.sort((function(i){ // sort by name
-                return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
-            })('name'));
+            d = data.sort((function(){
+                return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
+            })());
             combo.state = 'blurred';
             combo.open = function () {
                 if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '').select();
@@ -56,9 +56,7 @@ $.register_module({
                         };
                     if (d && d.length) {
                         res(d.reduce(function (acc, val) {
-                            if (!req.term || 'name' in val && val.name && matcher.test(val.name) &&
-                                'id' in val && val.id)
-                                acc.push({label: htmlize(val.name), value: val.id});
+                            if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
                             return acc;
                         }, []));
                     }

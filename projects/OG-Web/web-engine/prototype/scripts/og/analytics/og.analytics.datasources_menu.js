@@ -137,7 +137,7 @@ $.register_module({
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(menu.opts.length);
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);

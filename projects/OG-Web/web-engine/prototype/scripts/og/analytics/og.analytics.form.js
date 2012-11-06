@@ -17,8 +17,9 @@ $.register_module({
         var query = null, template = null, emitter = new EventEmitter(), initialized = false,
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
             fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
-            ds_template = null, ag_template = null, viewdefs = null, aggregators = null, ac_data = null, ag_data = null,
-            ds_data = null, events = {
+            ds_template = null, ag_template = null, viewdefs = null, viewdefs_store = [], aggregators = null,
+            ac_data = null, ag_data = null, ds_data = null,
+            events = {
                 focus: 'dropmenu:focus',
                 focused:'dropmenu:focused',
                 open: 'dropmenu:open',
@@ -67,10 +68,19 @@ $.register_module({
                 if (!tmpl.error) template = tmpl;
                 if (!ag_tmpl.error) ag_template = ag_tmpl;
                 if (!ds_tmpl.error) ds_template = ds_tmpl;
-                if (!vds.error && 'data' in vds) viewdefs = vds.data;
+                if (!vds.error && 'data' in vds && vds.data.length) viewdefs = (viewdefs_store = vds.data).pluck('name');
                 if (!ag_data.error && 'data' in ag_data) aggregators = ag_data.data;
                 if (callback) callback();
             });
+        };
+        var get_view_index = function (val, key) {
+            var pick;
+            if (viewdefs_store && viewdefs_store.length){
+                viewdefs_store.forEach(function (entry, idx) {
+                    if (entry[key === 'id' ? 'name' : key] === val) pick = key === 'id' ? entry.id : entry.name;
+                });
+            }
+            return pick;
         };
         var init = function () {
             if (!selector || !template) return;
@@ -82,6 +92,7 @@ $.register_module({
                 $dom.load_btn = $('.og-load', $dom.form);
             }
             if (viewdefs) {
+                if (ac_data) ac_data = get_view_index(ac_data, 'name');
                 ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
                 ac_menu.$input.on(ac_s, auto_combo_handler).select();
             }
@@ -111,11 +122,13 @@ $.register_module({
             //status = new og.analytics.Status(selector + ' .og-status');
         };
         var load_query = function () {
-            if ((!ac_menu || !ds_menu || !ag_menu) || !~ac_menu.$input.val().indexOf('Db')) return;
+            if (!ac_menu || !ds_menu) return;
+            var id = get_view_index(ac_menu.$input.val(), 'id');
+            if (!id) return;
             og.analytics.url.main(query = {
                 aggregators: ag_menu ? ag_menu.get_query() : [],
-                providers: ds_menu ? ds_menu.get_query() : [],
-                viewdefinition: (ac_menu && ac_menu.$input) ? ac_menu.$input.val() : ''
+                providers: ds_menu.get_query(),
+                viewdefinition: id
             });
         };
         var keydown_handler = function (event) {
@@ -184,7 +197,8 @@ $.register_module({
             if ('viewdefinition' in url_config && url_config.viewdefinition &&
                 typeof url_config.viewdefinition === 'string') {
                 if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
-                    if (ac_menu) ac_menu.$input.val(url_config.viewdefinition);
+                    var name = get_view_index(url_config.viewdefinition, 'name');
+                    if (ac_menu && name) ac_menu.$input.val(name);
                     else ac_data = url_config.viewdefinition;
                 }
             }
