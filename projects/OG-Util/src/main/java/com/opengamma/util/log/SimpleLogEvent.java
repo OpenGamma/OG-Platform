@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.log;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,4 +39,30 @@ public class SimpleLogEvent implements LogEvent {
     return _message;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_level == null) ? 0 : _level.hashCode());
+    result = prime * result + ((_message == null) ? 0 : _message.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof SimpleLogEvent)) {
+      return false;
+    }
+    SimpleLogEvent other = (SimpleLogEvent) obj;
+    return ObjectUtils.equals(_level, other._level)
+        && ObjectUtils.equals(_message, other._message);
+  }
+  
 }

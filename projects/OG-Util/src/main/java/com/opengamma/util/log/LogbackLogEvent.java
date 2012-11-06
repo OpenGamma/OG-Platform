@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.log;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 
 import com.opengamma.util.ArgumentChecker;
@@ -53,5 +54,29 @@ public class LogbackLogEvent implements LogEvent {
   private ILoggingEvent getLoggingEvent() {
     return _loggingEvent;
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    return prime * ((_loggingEvent == null) ? 0 : _loggingEvent.hashCode());
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof LogbackLogEvent)) {
+      return false;
+    }
+    LogbackLogEvent other = (LogbackLogEvent) obj;
+    return ObjectUtils.equals(_loggingEvent, other._loggingEvent);
+  }
+  
+  
 
 }
