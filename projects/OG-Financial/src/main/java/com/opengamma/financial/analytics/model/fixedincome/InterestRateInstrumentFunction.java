@@ -304,7 +304,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (security instanceof SwapSecurity) {
       final SwapSecurity swapSecurity = (SwapSecurity) security;
       final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(swapSecurity);
-      if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD) {
+      if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
         final Frequency resetFrequency;
         if (swapSecurity.getPayLeg() instanceof FloatingInterestRateLeg) {
           resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getPayLeg()).getFrequency();

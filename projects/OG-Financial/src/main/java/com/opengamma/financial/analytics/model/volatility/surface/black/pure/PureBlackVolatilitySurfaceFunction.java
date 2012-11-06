@@ -27,7 +27,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -44,9 +43,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -85,7 +81,13 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
 
     @Override
     protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue).get();
+      final String surfaceName = desiredValue.getConstraint(SURFACE);
+      final String curveName = desiredValue.getConstraint(CURVE);
+      final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
+      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue)
+          .with(SURFACE, surfaceName)
+          .with(CURVE, curveName)
+          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     }
   }
 
@@ -128,21 +130,21 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return ComputationTargetType.PRIMITIVE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    final Security security = target.getSecurity();
-    return security instanceof EquityVarianceSwapSecurity || security instanceof EquityIndexOptionSecurity || security instanceof EquityOptionSecurity;
+    return true;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
+    final Object temp = new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
 

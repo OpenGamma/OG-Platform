@@ -150,7 +150,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   @Override
   public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodDate[0]),
+    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
+    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -177,7 +178,6 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     }
 
     // FIXME Historical time series do not have time information to begin with.
-    // Remove this in FixedIncomeConverterDataProvider.getIndexTimeSeries st indexFixingTimeSeries contains dates when it gets here
     final LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(TimeZone.UTC);
 
     // Accrue notional for fixings before today; up to and including yesterday
@@ -185,14 +185,13 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     double accruedNotional = getNotional();
     while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
 
-      LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
+      final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
       final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
         final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
-        final ZonedDateTime latestTime = indexFixingTimeSeries.getLatestTime();
         if (currentDate.isAfter(latestDate)) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available is on " + latestDate);
+          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
         }
         throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
       }
