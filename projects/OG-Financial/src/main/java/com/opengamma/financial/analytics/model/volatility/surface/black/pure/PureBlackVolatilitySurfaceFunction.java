@@ -56,7 +56,7 @@ import com.opengamma.util.tuple.Triple;
  */
 public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
   private static final String X_LABEL = "Expiry (years)";
-  private static final String Y_LABEL = "Strike";
+  private static final String Y_LABEL = "Moneyness";
 
   /**
    * Spline interpolator function for pure Black volatility surfaces
@@ -134,10 +134,8 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     final VolatilitySurfaceInterpolator surfaceInterpolator = (VolatilitySurfaceInterpolator) interpolatorObject;
     final PureImpliedVolatilitySurface pureSurface = EquityVolatilityToPureVolatilitySurfaceConverter.getConvertedSurface(spot, curve, dividends, expiries, strikes, prices,
         surfaceInterpolator);
-    final double minStrike = getMaxOrMinStrike(strikes, false);
-    final double maxStrike = getMaxOrMinStrike(strikes, true);
     final FunctionalVolatilitySurfaceData surfaceData = new FunctionalVolatilitySurfaceData(pureSurface, X_LABEL, expiries[0], expiries[expiries.length - 1], 25, Y_LABEL,
-        minStrike, maxStrike, 25, 0, 0.6);
+        0.25, 1.75, 50, 0, 0.6);
     final ValueProperties properties = getResultProperties(desiredValue);
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties), surfaceData));
   }
@@ -233,20 +231,4 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     return expiries;
   }
 
-  private double getMaxOrMinStrike(final double[][] strikes, final boolean getMax) {
-    if (strikes.length == 0) {
-      throw new OpenGammaRuntimeException("No strike data");
-    }
-    double result = strikes[0][strikes[0].length - 1];
-    for (int i = 1; i < strikes.length; i++) {
-      final double[] strip = strikes[i];
-      final int n = strip.length - 1;
-      if (getMax && strip[n] > result) {
-        result = strip[n];
-      } else if (!getMax && strip[n] < result) {
-        result = strip[n];
-      }
-    }
-    return result;
-  }
 }
