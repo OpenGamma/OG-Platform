@@ -5,6 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -676,6 +685,96 @@ class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements Ins
   @Override
   public RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
     return _delegate.visitForexOptionDigitalDefinition(fx);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition future, DATA_TYPE data) {
+    return _delegate.visitMetalForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition future) {
+    return _delegate.visitMetalForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitMetalFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future) {
+    return _delegate.visitMetalFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition future, DATA_TYPE data) {
+    return _delegate.visitMetalFutureOptionDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition future) {
+    return _delegate.visitMetalFutureOptionDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition future, DATA_TYPE data) {
+    return _delegate.visitAgricultureForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition future) {
+    return _delegate.visitAgricultureForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitAgricultureFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future) {
+    return _delegate.visitAgricultureFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition future, DATA_TYPE data) {
+    return _delegate.visitAgricultureFutureOptionDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition future) {
+    return _delegate.visitAgricultureFutureOptionDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition future, DATA_TYPE data) {
+    return _delegate.visitEnergyForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition future) {
+    return _delegate.visitEnergyForwardDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future, DATA_TYPE data) {
+    return _delegate.visitEnergyFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future) {
+    return _delegate.visitEnergyFutureDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition future, DATA_TYPE data) {
+    return _delegate.visitEnergyFutureOptionDefinition(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition future) {
+    return _delegate.visitEnergyFutureOptionDefinition(future);
   }
 
 }

@@ -5,6 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -691,5 +700,95 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
     return visit(futures);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, DATA_TYPE data) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
+    return visit(future);
   }
 }

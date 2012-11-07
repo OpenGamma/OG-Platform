@@ -14,6 +14,15 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -770,6 +779,96 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitCDSDerivative(ISDACDSDerivative cds) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalForward(MetalForward future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalForward(MetalForward future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalFuture(MetalFuture future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalFuture(MetalFuture future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalFutureOption(MetalFutureOption future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitMetalFutureOption(MetalFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureForward(AgricultureForward future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureForward(AgricultureForward future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureFuture(AgricultureFuture future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureFuture(AgricultureFuture future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureFutureOption(AgricultureFutureOption future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAgricultureFutureOption(AgricultureFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyForward(EnergyForward future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyForward(EnergyForward future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyFuture(EnergyFuture future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyFuture(EnergyFuture future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyFutureOption(EnergyFutureOption future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitEnergyFutureOption(EnergyFutureOption future) {
       return null;
     }
 
