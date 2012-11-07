@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.hazardratemodel;
 
 /**
- * Class for the construction of flat survival curves (mostly used for testing purposes)
+ * Class for the construction of flat survival curves (mostly used for testing purposes - will remove this code in due course)
  */
 public class FlatSurvivalCurve {
 

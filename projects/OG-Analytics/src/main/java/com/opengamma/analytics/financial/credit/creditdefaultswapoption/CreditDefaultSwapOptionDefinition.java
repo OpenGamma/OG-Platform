@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition;
+package com.opengamma.analytics.financial.credit.creditdefaultswapoption;
 
 /**
  * Definition of a generic Single Name Credit Default Swap Option contract 

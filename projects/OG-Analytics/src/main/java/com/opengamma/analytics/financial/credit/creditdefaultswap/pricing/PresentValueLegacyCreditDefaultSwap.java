@@ -49,7 +49,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // TODO : Fix the bug when val date is very close to mat date
   // TODO : Need to add the code for when the settlement date > 0 business days (just a discount factor)
   // TODO : Should build the cashflow schedules outside of the leg valuation routines to avoid repitition of calculations
-  // TODO : Eventually replace the ISDACurve with a YieldCurve object (using ISDACurve built by RiskCare as this allows exact comparison with the ISDA model)
+  // TODO : Eventually replace the ISDACurve with a YieldCurve object (currently using ISDACurve built by RiskCare as this allows exact comparison with the ISDA model)
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault, calculateAccruedInterest and calculateISDAContingentLeg methods
 
   // -------------------------------------------------------------------------------------------------
@@ -280,6 +280,7 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   //-------------------------------------------------------------------------------------------------
 
+  // Need to re-write this code completely
   private double valueFeeLegAccrualOnDefault(final double amount, final double[] timeline, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve, final int startIndex,
       final int endIndex, final double stepinTime, final double stepinDiscountFactor) {
 

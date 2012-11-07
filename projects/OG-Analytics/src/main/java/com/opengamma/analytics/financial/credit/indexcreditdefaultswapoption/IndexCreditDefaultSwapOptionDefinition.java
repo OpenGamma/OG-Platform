@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.indexcreditdefaultswapoption;
 
 /**
- * 
+ * Definition of a generic Index Credit Default Swap option contract
  */
 public abstract class IndexCreditDefaultSwapOptionDefinition {
 

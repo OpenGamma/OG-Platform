@@ -38,10 +38,10 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
   // The quoted market observed spread (differs from the contract standard spread) 
   private final double _quotedSpread;
 
-  // The standard coupon to apply to the premium leg (e.g. 100 or 500bps)
+  // The standard coupon to apply to the premium leg (chosen from an enumerated list e.g. 100 or 500bps)
   private final StandardCDSCoupon _premiumLegCoupon;
 
-  // The upfront amount to exchange at contract inception
+  // The upfront amount to exchange at contract inception (can be positive or negative)
   private final double _upfrontAmount;
 
   // The number of business days after trade date for the exchange of upfront
