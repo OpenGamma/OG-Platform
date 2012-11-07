@@ -37,6 +37,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -225,8 +226,8 @@ public class ViewClientTest {
     assertNotNull(result1);
 
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 1);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), 2);
     assertComputationResult(expected, env.getCalculationResult(result1));
     
     client.pause();
@@ -246,7 +247,7 @@ public class ViewClientTest {
 
     
     expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 3);
     assertComputationResult(expected, env.getCalculationResult(result2));
   }
   
@@ -509,8 +510,8 @@ public class ViewClientTest {
     Set<ValueRequirement> remaining = new HashSet<ValueRequirement>(expected.keySet());
     Collection<ComputationTargetSpecification> targets = result.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
-      Map<Pair<String, ValueProperties>, ComputedValue> values = result.getValues(target);
-      for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> value : values.entrySet()) {
+      Map<Pair<String, ValueProperties>, ComputedValueResult> values = result.getValues(target);
+      for (Map.Entry<Pair<String, ValueProperties>, ComputedValueResult> value : values.entrySet()) {
         String valueName = value.getKey().getFirst();
         ValueRequirement requirement = new ValueRequirement(valueName, target.getType(), target.getUniqueId());
         assertTrue(expected.containsKey(requirement));

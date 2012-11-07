@@ -16,10 +16,11 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.calcnode.ExecutionLog;
 import com.opengamma.id.UniqueId;
 
 public class ResultsCacheTest {
@@ -37,8 +38,8 @@ public class ResultsCacheTest {
     String spec2value1 = "spec2value1";
 
     InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
-    results1.addValue(CALC_CONFIG, new ComputedValue(_spec1, spec1value1));
-    results1.addValue(CALC_CONFIG, new ComputedValue(_spec2, spec2value1));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value1, ExecutionLog.EMPTY));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec2, spec2value1, ExecutionLog.EMPTY));
 
     ResultsCache cache = new ResultsCache();
     cache.put(results1);
@@ -54,7 +55,7 @@ public class ResultsCacheTest {
 
     String spec1value2 = "spec1value2";
     InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
-    results2.addValue(CALC_CONFIG, new ComputedValue(_spec1, spec1value2));
+    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value2, ExecutionLog.EMPTY));
     cache.put(results2);
 
     ResultsCache.Result result1_2 = cache.getResult(CALC_CONFIG, _spec1, String.class);
@@ -70,7 +71,7 @@ public class ResultsCacheTest {
   @Test
   public void putResultsWithHistory() {
     InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
-    results1.addValue(CALC_CONFIG, new ComputedValue(_spec1, 1d));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, ExecutionLog.EMPTY));
     ResultsCache cache = new ResultsCache();
     cache.put(results1);
 
@@ -80,7 +81,7 @@ public class ResultsCacheTest {
     assertEquals(1d, result1.getHistory().iterator().next());
 
     InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
-    results2.addValue(CALC_CONFIG, new ComputedValue(_spec1, 2d));
+    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 2d, ExecutionLog.EMPTY));
     cache.put(results2);
 
     ResultsCache.Result result2 = cache.getResult(CALC_CONFIG, _spec1, Double.class);

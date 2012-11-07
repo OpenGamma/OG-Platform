@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.volatility.surface.black.pure;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.EQUITY_OPTION;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
@@ -17,6 +18,8 @@ import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCub
 
 import java.util.Collections;
 import java.util.Set;
+
+import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -40,17 +43,20 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.analytics.volatility.surface.FunctionalVolatilitySurfaceData;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *
  */
 public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final String X_LABEL = "Expiry (years)";
+  private static final String Y_LABEL = "Moneyness";
 
   /**
    * Spline interpolator function for pure Black volatility surfaces
@@ -76,6 +82,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
       return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get())
           .withAny(SURFACE)
           .withAny(CURVE)
+          .withAny(CURVE_CURRENCY)
           .withAny(CURVE_CALCULATION_CONFIG).get();
     }
 
@@ -83,10 +90,12 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
       final String surfaceName = desiredValue.getConstraint(SURFACE);
       final String curveName = desiredValue.getConstraint(CURVE);
+      final String currency = desiredValue.getConstraint(CURVE_CURRENCY);
       final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
       return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue)
           .with(SURFACE, surfaceName)
           .with(CURVE, curveName)
+          .with(CURVE_CURRENCY, currency)
           .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     }
   }
@@ -94,6 +103,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final LocalDate date = executionContext.getValuationClock().zonedDateTime().toLocalDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {
@@ -113,19 +123,21 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     }
     final double spot = (Double) spotObject;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-    final AffineDividends dividends = null;
+    final AffineDividends dividends = AffineDividends.noDividends();
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Object, Object> volatilitySurfaceData = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
-    final double[] expiries = BlackVolatilitySurfaceUtils.getUniqueExpiries(volatilitySurfaceData);
-    final double[] uniqueStrikes = BlackVolatilitySurfaceUtils.getUniqueStrikes(volatilitySurfaceData);
-    final Pair<double[][], double[][]> strikesAndValues = BlackVolatilitySurfaceUtils.getStrikesAndValues(expiries, uniqueStrikes, volatilitySurfaceData);
-    final double[][] strikes = strikesAndValues.getFirst();
-    final double[][] prices = strikesAndValues.getSecond();
+    final Triple<double[], double[][], double[][]> strikesAndValues = BlackVolatilitySurfaceUtils.getStrippedStrikesAndValues(volatilitySurfaceData);
+    final double[] expiryNumber = strikesAndValues.getFirst();
+    final double[] expiries = getExpiries(expiryNumber, date);
+    final double[][] strikes = strikesAndValues.getSecond();
+    final double[][] prices = strikesAndValues.getThird();
     final VolatilitySurfaceInterpolator surfaceInterpolator = (VolatilitySurfaceInterpolator) interpolatorObject;
     final PureImpliedVolatilitySurface pureSurface = EquityVolatilityToPureVolatilitySurfaceConverter.getConvertedSurface(spot, curve, dividends, expiries, strikes, prices,
         surfaceInterpolator);
+    final FunctionalVolatilitySurfaceData surfaceData = new FunctionalVolatilitySurfaceData(pureSurface, X_LABEL, expiries[0], expiries[expiries.length - 1], 25, Y_LABEL,
+        0.25, 1.75, 50, 0, 0.6);
     final ValueProperties properties = getResultProperties(desiredValue);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties), pureSurface));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties), surfaceData));
   }
 
   @Override
@@ -144,7 +156,6 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
-    final Object temp = new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
 
@@ -163,14 +174,19 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
+    final Set<String> currencies = constraints.getValues(CURVE_CURRENCY);
+    if (currencies == null || currencies.size() != 1) {
+      return null;
+    }
     final String surfaceName = Iterables.getOnlyElement(surfaceNames);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(currency, desiredValue);
+    final Currency currency = Currency.of(Iterables.getOnlyElement(currencies));
+    final ValueRequirement curveRequirement = getCurveRequirement(currency, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(targetSpec, surfaceName);
+    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
     // ValueRequirement dividendsRequirement = getDividendRequirement(targetSpec, desiredValue); //TODO include
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(targetSpec, desiredValue);
-    return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
+    return Sets.newHashSet(curveRequirement, volatilitySurfaceRequirement, spotRequirement, interpolatorRequirement);
   }
 
   protected abstract ValueProperties getResultProperties();
@@ -205,4 +221,14 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     //TODO implement
     return null;
   }
+
+  private double[] getExpiries(final double[] expiryNumber, final LocalDate date) {
+    final int n = expiryNumber.length;
+    final double[] expiries = new double[n];
+    for (int i = 0; i < n; i++) {
+      expiries[i] = FutureOptionExpiries.EQUITY.getFutureOptionTtm((int) expiryNumber[i], date);
+    }
+    return expiries;
+  }
+
 }

@@ -281,12 +281,15 @@ import com.opengamma.transport.FudgeMessageSender;
         for (int j = 0; j < i; j++) {
           newItems.add(originalItems.get(j));
         }
-        newItems.add(new CalculationJobItem(NoOpFunction.UNIQUE_ID, item.getFunctionParameters(), item.getComputationTargetSpecification(), item.getInputIdentifiers(), item.getOutputIdentifiers()));
+        newItems.add(new CalculationJobItem(
+            NoOpFunction.UNIQUE_ID, item.getFunctionParameters(), item.getComputationTargetSpecification(),
+            item.getInputIdentifiers(), item.getOutputIdentifiers(), ExecutionLogMode.INDICATORS));
         for (int j = i + 1; j < size; j++) {
           item = originalItems.get(i);
           if (query.isBlacklisted(item)) {
-            newItems
-                .add(new CalculationJobItem(NoOpFunction.UNIQUE_ID, item.getFunctionParameters(), item.getComputationTargetSpecification(), item.getInputIdentifiers(), item.getOutputIdentifiers()));
+            newItems.add(new CalculationJobItem(
+                NoOpFunction.UNIQUE_ID, item.getFunctionParameters(), item.getComputationTargetSpecification(),
+                item.getInputIdentifiers(), item.getOutputIdentifiers(), ExecutionLogMode.INDICATORS));
           } else {
             newItems.add(item);
           }

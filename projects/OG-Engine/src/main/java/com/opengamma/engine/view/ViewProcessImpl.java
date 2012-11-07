@@ -76,9 +76,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
-  private ExecutorService _calcJobResultExecutorService = Executors.newSingleThreadExecutor();
-
-
+  private ExecutorService _calcJobResultExecutor = Executors.newSingleThreadExecutor();
 
   /**
    * Constructs an instance.
@@ -91,8 +89,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param cycleObjectId  the object identifier of cycles, not null
    */
   public ViewProcessImpl(UniqueId viewProcessId, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-                         ViewProcessContext viewProcessContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
-                         ObjectId cycleObjectId) {
+                         ViewProcessContext viewProcessContext,
+                         EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -449,6 +447,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
     return _cycleManager;
   }
+  
+  public ExecutorService getCalcJobResultExecutor() {
+    return _calcJobResultExecutor;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -561,6 +563,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         break;
       case RUNNING:
         throw new IllegalStateException("Already running.");
+      case FINISHED:
+        throw new IllegalStateException("The computation job has already been run.");
       case TERMINATED:
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
@@ -571,7 +575,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   /**
    * Instructs the background computation job to finish. The background job might actually terminate asynchronously,
-   * but any outstanding result will be discarded. A replacement background computation job job may be started immediately.
+   * but any outstanding result will be discarded. A replacement background computation job may be started immediately.
    */
   private void stopComputationJob() {
     // Caller MUST hold the semaphore
@@ -633,7 +637,4 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     setComputationThread(null);
   }
 
-  public ExecutorService getCalcJobResultExecutorService() {
-    return _calcJobResultExecutorService;
-  }
 }

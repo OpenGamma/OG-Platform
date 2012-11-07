@@ -11,8 +11,9 @@ import javax.time.Duration;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
+import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
@@ -70,10 +71,17 @@ public class RemoteViewCycle implements ViewCycle {
   }
 
   @Override
-  public ComputationCacheResponse queryComputationCaches(ComputationCacheQuery computationCacheQuery) {
-    ArgumentChecker.notNull(computationCacheQuery, "computationCacheQuery");
+  public ComputationCacheResponse queryComputationCaches(ComputationCycleQuery query) {
+    ArgumentChecker.notNull(query, "query");
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_QUERY_CACHES).build();
-    return _client.accessFudge(uri).post(ComputationCacheResponse.class, computationCacheQuery);
+    return _client.accessFudge(uri).post(ComputationCacheResponse.class, query);
+  }
+
+  @Override
+  public ComputationResultsResponse queryResults(ComputationCycleQuery query) {
+    ArgumentChecker.notNull(query, "query");
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_QUERY_RESULTS).build();
+    return _client.accessFudge(uri).post(ComputationResultsResponse.class, query);
   }
 
 }

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
@@ -22,7 +22,7 @@ public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCa
 
   @Test
   public void testEmptyQuery() {
-    ComputationCacheQuery query = new ComputationCacheQuery();
+    ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName("DEFAULT");
     query.setValueSpecifications(new ArrayList<ValueSpecification>());
     checkCycle(query);
@@ -30,7 +30,7 @@ public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCa
   
   @Test
   public void testSingleQuery() {
-    ComputationCacheQuery query = new ComputationCacheQuery();
+    ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName("DEFAULT");
     ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueId.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
     query.setValueSpecifications(Lists.newArrayList(spec));
@@ -40,7 +40,7 @@ public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCa
   
   @Test
   public void testMultipleQuery() {
-    ComputationCacheQuery query = new ComputationCacheQuery();
+    ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName("DEFAULT");
     ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueId.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
     ValueSpecification spec2 = ValueSpecification.of("SomeOtherValue", UniqueId.of("SomeScheme","SomeOtherValue"), "SomeOtherFunc", "USD", ValueProperties.none());
@@ -49,8 +49,8 @@ public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCa
     checkCycle(query);
   }
 
-  private void checkCycle(ComputationCacheQuery query) {
-    ComputationCacheQuery cycled = cycleObject(ComputationCacheQuery.class, query);
+  private void checkCycle(ComputationCycleQuery query) {
+    ComputationCycleQuery cycled = cycleObject(ComputationCycleQuery.class, query);
     
     
     assertEquals(query.getCalculationConfigurationName(), cycled.getCalculationConfigurationName());

@@ -7,7 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.Collection;
 
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -29,6 +29,6 @@ public interface ViewTargetResultModel {
    * @param calcConfigurationName the calculation configuration name, not null
    * @return the computed values, or null if the configuration name is unknown
    */
-  Collection<ComputedValue> getAllValues(String calcConfigurationName);
+  Collection<ComputedValueResult> getAllValues(String calcConfigurationName);
 
 }

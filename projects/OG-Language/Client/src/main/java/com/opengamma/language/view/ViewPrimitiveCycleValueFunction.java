@@ -14,7 +14,7 @@ import org.apache.commons.lang.BooleanUtils;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -74,8 +74,8 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
       // TODO should return #NA if notAvailableValue is null 
       return notAvailableValue;
     }
-    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
-    ComputedValue result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
+    Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
+    ComputedValueResult result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
     Object resultValue = result != null ? result.getValue() : null;
     if (resultValue != null) {
       return flattenValue ? resultValue.toString() : resultValue;

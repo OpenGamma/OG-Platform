@@ -42,6 +42,7 @@ import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -52,6 +53,7 @@ import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
+import com.opengamma.engine.view.calcnode.ExecutionLog;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -120,22 +122,22 @@ public class ViewClientTest {
 
     assertEquals(
       newHashSet(
-        new ComputedValue(
+        new ComputedValueResult(
           new ValueSpecification(
             "Value2",
             new ComputationTargetSpecification(
               ComputationTargetType.PRIMITIVE,
               UniqueId.of("Scheme", "PrimitiveValue")),
             ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 2),
-        new ComputedValue(
+          (byte) 2, ExecutionLog.EMPTY),
+        new ComputedValueResult(
           new ValueSpecification(
             "Value1",
             new ComputationTargetSpecification(
               ComputationTargetType.PRIMITIVE,
               UniqueId.of("Scheme", "PrimitiveValue")),
             ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 1)
+          (byte) 1, ExecutionLog.EMPTY)
       ),
       fullFragment.getValue().getAllMarketData());
 

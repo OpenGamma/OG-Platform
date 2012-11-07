@@ -16,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.TerminatableJob;
 
 /**
- * 
+ * Consumes the results produced on completion of calculation jobs until all jobs have been executed.
+ * <p>
+ * The results are passed in batches to a {@link SingleComputationCycle} for processing.
  */
 public class CalculationJobResultStreamConsumer extends TerminatableJob {
   

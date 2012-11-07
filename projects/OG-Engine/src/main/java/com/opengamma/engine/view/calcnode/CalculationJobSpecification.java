@@ -13,9 +13,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.id.UniqueId;
 
 /**
- * A description of a job that will be executed by a Calculation Node.
- * Providers of jobs pass over a full {@link CalculationJob}, and the
- * specification of that job is returned by the Calculation Node.
+ * A description of a job to be executed by a calculation node.
+ * <p>
+ * Providers of jobs pass over a full {@link CalculationJob} including a specification. The specification is returned
+ * with the results as the correlation identifier between the result and the job.
  */
 public final class CalculationJobSpecification {
   
