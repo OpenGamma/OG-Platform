@@ -56,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class EquityVarianceSwapStaticReplicationFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirementName;
-  private EquityVarianceSwapConverter _converter; // set in init()
+  private EquityVarianceSwapConverter _converter;
 
   /** CalculationMethod constraint used in configuration to choose this model */
   public static final String CALCULATION_METHOD = "StaticReplication";
@@ -80,7 +80,7 @@ public abstract class EquityVarianceSwapStaticReplicationFunction extends Abstra
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime().minusYears(2); //TODO remove me - just for testing
 
-    final VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapTrade(security);
+    final VarianceSwapDefinition defn = security.accept(_converter);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final VarianceSwap deriv = defn.toDerivative(now, timeSeries.getTimeSeries());
 
