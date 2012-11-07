@@ -42,6 +42,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
       throw new OpenGammaRuntimeException("Could not get latest data point");
     }
     final Double price = (Double) latestDataPointObject;
+
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
