@@ -73,6 +73,11 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "RectangularViewportDefinition [_rows=" + _rows + ", _columns=" + _columns + "]";
+  }
+
   /**
    * Iterator that returns the viewports cells by traversing rows followed by columns.
    */

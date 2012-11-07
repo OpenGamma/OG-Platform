@@ -58,6 +58,11 @@ public class PortfolioGridStructure extends MainGridStructure {
     return _root;
   }
 
+  @Override
+  public String toString() {
+    return "PortfolioGridStructure [_root=" + _root + "]";
+  }
+
   private static List<Row> rows(final CompiledViewDefinition viewDef) {
     final Portfolio portfolio = viewDef.getPortfolio();
     if (portfolio == null) {

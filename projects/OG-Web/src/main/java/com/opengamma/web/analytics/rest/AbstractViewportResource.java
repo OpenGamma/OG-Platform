@@ -47,8 +47,7 @@ public abstract class AbstractViewportResource {
    * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
    * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
    * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
-   * @param expanded Whether the full data should be returned (e.g. for display in a popup window) or if it should
-   * be formatted to fit in a single grid cell
+   * @param format Specifies the way the data should be formatted
    * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
    * its current state
    */

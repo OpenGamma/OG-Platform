@@ -34,15 +34,21 @@ import com.opengamma.util.ArgumentChecker;
   private final Set<String> _updates = new HashSet<String>();
   private final String _userId;
   private final ConnectionTimeoutTask _timeoutTask;
+  private final String _clientId;
 
   private Continuation _continuation;
 
   /**
    * Creates a new listener for a user.
+   * @param clientId Client ID of the connection
    * @param userId Login ID of the user
    * @param timeoutTask Connection timeout task that the listener must reset every time the connection is set up
    */
-  /* package */ LongPollingUpdateListener(String userId, ConnectionTimeoutTask timeoutTask) {
+  /* package */ LongPollingUpdateListener(String clientId, String userId, ConnectionTimeoutTask timeoutTask) {
+    _clientId = clientId;
+    ArgumentChecker.notEmpty(clientId, "clientId");
+    //ArgumentChecker.notEmpty(userId, "userId");
+    ArgumentChecker.notNull(timeoutTask, "timeoutTask");
     _userId = userId;
     _timeoutTask = timeoutTask;
   }
@@ -85,7 +91,9 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          sendUpdate(formatUpdate(callbackIds));
+          String urls = formatUpdate(callbackIds);
+          sendUpdate(urls);
+          s_logger.debug("Sent update to client {}: {}", _clientId, urls);
         } catch (JSONException e) {
           // this shouldn't ever happen, the updates are all URLs
           s_logger.warn("Unable to format URLs as JSON. URLs: " + callbackIds, e);
@@ -102,8 +110,7 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
-      // TODO why doesn't this log anything?
-      s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
+      //s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
       _timeoutTask.reset();
       _continuation = continuation;
       _continuation.setTimeout(10000);

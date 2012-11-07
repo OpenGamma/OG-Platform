@@ -27,6 +27,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * TODO label and quantity columns are hard-coded here and in {@link MainGridViewport}. there has to be a better way
+ * TODO quantity is only needed for the portfolio view, this class is effectively portfolio grid structure
+ * TODO factor out the view column structure (shared between the 2 grids) and the rows / fixed cols (which differs)
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
@@ -149,6 +151,11 @@ import com.opengamma.util.tuple.Pair;
 
   public Class<?> getColumnType(int colIndex) {
     return _columnGroups.getColumn(colIndex).getType();
+  }
+
+  @Override
+  public String toString() {
+    return "MainGridStructure [_rows=" + _rows + ", _columnGroups=" + _columnGroups + "]";
   }
 
   // TODO add quantity for position rows?

@@ -29,7 +29,7 @@ public class LongPollingConnectionManager {
    * @return A listener that publishes to the client when it receives a notification
    */
   /* package */ LongPollingUpdateListener handshake(String userId, String clientId, ConnectionTimeoutTask timeoutTask) {
-    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId, timeoutTask);
+    LongPollingUpdateListener listener = new LongPollingUpdateListener(clientId, userId, timeoutTask);
     _updateListeners.put(clientId, listener);
     return listener;
   }

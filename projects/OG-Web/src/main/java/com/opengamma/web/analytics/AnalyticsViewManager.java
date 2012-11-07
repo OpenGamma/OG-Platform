@@ -79,7 +79,8 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    AnalyticsView view = new SimpleAnalyticsView(portfolioGridId, primitivesGridId, _targetResolver);
+    s_logger.debug("Creating new view with ID {}", viewId);
+    AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
@@ -90,7 +91,6 @@ public class AnalyticsViewManager {
                                                                                  _snapshotMaster);
     _viewConnections.put(viewId, connection);
     connection.start();
-    s_logger.debug("Created new view with ID {}", viewId);
     clientConnection.addDisconnectionListener(new DisconnectionListener(viewId));
   }
 
