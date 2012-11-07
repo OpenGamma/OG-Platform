@@ -32,7 +32,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.id.UniqueId;
@@ -101,7 +101,7 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
         continue;
       }
 
-      ComputationCacheQuery cacheQuery = new ComputationCacheQuery();
+      ComputationCycleQuery cacheQuery = new ComputationCycleQuery();
       cacheQuery.setCalculationConfigurationName(entry.getKey());
       cacheQuery.setValueSpecifications(requiredSpecs);
       ComputationCacheResponse computationCacheResponse = viewCycle.queryComputationCaches(cacheQuery);

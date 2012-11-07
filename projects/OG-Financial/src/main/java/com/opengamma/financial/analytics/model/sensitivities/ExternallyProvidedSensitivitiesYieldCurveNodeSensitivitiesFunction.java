@@ -213,7 +213,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
         if (computedValue != null) {
           final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
           final Double value = (Double) mhts.getTimeSeries().getLatestValue();
-          entries[i] = value;
+          entries[i] = -value; // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
           s_logger.warn("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
           entries[i] = 0d;

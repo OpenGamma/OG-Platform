@@ -21,8 +21,7 @@ import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The definition of a particular job that must be performed by
- * a Calculation Node.
+ * The definition of a particular job that must be performed by a calculation node.
  */
 public class CalculationJob implements IdentifierEncodedValueSpecifications {
   

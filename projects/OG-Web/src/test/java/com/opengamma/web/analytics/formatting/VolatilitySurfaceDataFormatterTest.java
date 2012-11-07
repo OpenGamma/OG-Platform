@@ -38,9 +38,9 @@ public class VolatilitySurfaceDataFormatterTest {
     VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>(name, name, target, xVals, yVals, vol);
 
     Map<String, Object> map = (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED);
-    assertEquals(Lists.newArrayList("1D", "7D", "14D"), map.get("x_labels"));
-    assertEquals(Lists.newArrayList("1Y", "2Y"), map.get("y_labels"));
-    assertEquals(Lists.newArrayList(10d, 11d, 12d, 13d, 14d, 15d), map.get("vol"));
+    assertEquals(Lists.newArrayList("1D", "7D", "14D"), map.get(SurfaceFormatterUtils.X_LABELS));
+    assertEquals(Lists.newArrayList("1Y", "2Y"), map.get(SurfaceFormatterUtils.Y_LABELS));
+    assertEquals(Lists.newArrayList(10d, 11d, 12d, 13d, 14d, 15d), map.get(SurfaceFormatterUtils.VOL));
   }
 
   @SuppressWarnings("unchecked")
@@ -58,8 +58,8 @@ public class VolatilitySurfaceDataFormatterTest {
     VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>(name, name, target, xs, ys, values);
 
     Map<String, Object> map = (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED);
-    assertEquals(Lists.newArrayList("1D", "7D", "14D", "1M"), map.get("x_labels"));
-    assertEquals(Lists.newArrayList("1Y", "2Y"), map.get("y_labels"));
-    assertEquals(Lists.newArrayList(10d, 11d, 12d, null, null, null, 13d, 14d), map.get("vol"));
+    assertEquals(Lists.newArrayList("1D", "7D", "14D", "1M"), map.get(SurfaceFormatterUtils.X_LABELS));
+    assertEquals(Lists.newArrayList("1Y", "2Y"), map.get(SurfaceFormatterUtils.Y_LABELS));
+    assertEquals(Lists.newArrayList(10d, 11d, 12d, null, null, null, 13d, 14d), map.get(SurfaceFormatterUtils.VOL));
   }
 }

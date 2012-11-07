@@ -49,8 +49,8 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     SortedSet xVals = surface.getUniqueXValues();
     SortedSet yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
     Map<String, Object> results = Maps.newHashMap();
-    results.put("x_labels", getAxisLabels(xVals));
-    results.put("y_labels", getAxisLabels(yVals));
+    results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(xVals));
+    results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(yVals));
     if (isPlottable(surface)) {
       return formatForPlotting(surface, xVals, yVals, results);
     } else {
@@ -96,12 +96,12 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * and the UI shouldn't attempt to plot the surface.</p>
    *
    * @param surface The surface
-   * @return {x_labels: [...],
-   *          x_values: [...],
-   *          x_title: "X Axis Title",
-   *          y_labels: [...],
-   *          y_values: [...],
-   *          y_title: "Y Axis Title",
+   * @return {xLabels: [...],
+   *          xValues: [...],
+   *          xTitle: "X Axis Title",
+   *          yLabels: [...],
+   *          yValues: [...],
+   *          yTitle: "Y Axis Title",
    *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
   @SuppressWarnings("unchecked")
@@ -129,14 +129,14 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     // then it will be null and won't be added to the collection. so if the collection is empty it isn't added to the
     // results and a plot won't be generated
     if (!yAxisValues.isEmpty()) {
-      results.put("y_values", yAxisValues);
+      results.put(SurfaceFormatterUtils.Y_VALUES, yAxisValues);
     }
     if (!xAxisValues.isEmpty()) {
-      results.put("x_values", xAxisValues);
+      results.put(SurfaceFormatterUtils.X_VALUES, xAxisValues);
     }
-    results.put("x_title", surface.getXLabel());
-    results.put("y_title", surface.getYLabel());
-    results.put("vol", vol);
+    results.put(SurfaceFormatterUtils.X_TITLE, surface.getXLabel());
+    results.put(SurfaceFormatterUtils.Y_TITLE, surface.getYLabel());
+    results.put(SurfaceFormatterUtils.VOL, vol);
     return results;
   }
 

@@ -1259,7 +1259,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), Arrays
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
     addLocalVolatilityGridFunctions(functionConfigs);
-    addLocalVolatilityDefaultProperties(functionConfigs);
+    addFXLocalVolatilityDefaultProperties(functionConfigs);
+    addEquityLocalVolatilityDefaultProperties(functionConfigs);
   }
 
   private static void addLocalVolatilityGridFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -1319,7 +1320,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
   }
 
-  private static void addLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
+  private static void addFXLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
     // Interpolator properties. There are three types: SABR, MIXED_LOGNORMAL, SPLINE.
     final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
         BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
@@ -1433,7 +1434,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexBlackSurfaceMixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(), forexBlackSurfaceSABRProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), blackSurfaceSplineProperties));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(PureVolatilitySurfaceSplineDefaults.class.getName(), blackSurfaceSplineProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexLocalSurfaceMixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSABRDefaults.class.getName(), forexLocalSurfaceSABRProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSplineDefaults.class.getName(), forexLocalSurfaceSplineProperties));
@@ -1445,6 +1445,35 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForwardPDESplineDefaults.class.getName(), forexForwardPDESplineProperties));
   }
 
+  private static void addEquityLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
+        BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
+        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y, 
+        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE, 
+        Interpolator1DFactory.DOUBLE_QUADRATIC,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, 
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final List<String> splineProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
+    splineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    splineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
+
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorDefaults.class.getName(), splineProperties));
+
+    final List<String> commonPureSurfaceProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
+    commonPureSurfaceProperties.add("Discounting");
+    commonPureSurfaceProperties.add("DefaultTwoCurveUSDConfig");
+    commonPureSurfaceProperties.add("BBG_PRICE");
+    commonPureSurfaceProperties.add("USD");
+    commonPureSurfaceProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    commonPureSurfaceProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    commonPureSurfaceProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    commonPureSurfaceProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
+
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PureVolatilitySurfaceSplineDefaults.class.getName(), commonPureSurfaceProperties));
+  }
+  
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));

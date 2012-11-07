@@ -27,11 +27,9 @@ public class FunctionalVolatilitySurfaceData {
   private final int _nY;
   private final double _zMinimum;
   private final double _zMaximum;
-  private final int _nZ;
 
   public FunctionalVolatilitySurfaceData(final VolatilitySurface surface, final String xLabel, final double xMinimum, final double xMaximum,
-      final int nX, final String yLabel, final double yMinimum, final double yMaximum, final int nY, final double zMinimum, final double zMaximum,
-      final int nZ) {
+      final int nX, final String yLabel, final double yMinimum, final double yMaximum, final int nY, final double zMinimum, final double zMaximum) {
     ArgumentChecker.notNull(surface, "surface");
     ArgumentChecker.notNull(xLabel, "x label");
     ArgumentChecker.notNull(yLabel, "y label");
@@ -40,8 +38,6 @@ public class FunctionalVolatilitySurfaceData {
     ArgumentChecker.isTrue(nX > 0, "number of x samples {} must be greater than zero", nX);
     ArgumentChecker.isTrue(yMinimum < yMaximum, "minimum value of y {} must be less than the maximum value {}", yMinimum, yMaximum);
     ArgumentChecker.isTrue(nY > 0, "number of y samples {} must be greater than zero", nY);
-    ArgumentChecker.isTrue(zMinimum < zMaximum, "minimum value of z {} must be less than the maximum value {}", zMinimum, zMaximum);
-    ArgumentChecker.isTrue(nZ > 0, "number of z samples {} must be greater than zero", nZ);
     _surface = surface;
     _xLabel = xLabel;
     _xMinimum = xMinimum;
@@ -53,7 +49,6 @@ public class FunctionalVolatilitySurfaceData {
     _nY = nY;
     _zMinimum = zMinimum;
     _zMaximum = zMaximum;
-    _nZ = nZ;
   }
 
   public VolatilitySurface getSurface() {
@@ -100,10 +95,6 @@ public class FunctionalVolatilitySurfaceData {
     return _zMaximum;
   }
 
-  public int getNZSamples() {
-    return _nZ;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -112,7 +103,6 @@ public class FunctionalVolatilitySurfaceData {
     long temp;
     temp = Double.doubleToLongBits(_nY);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _nZ;
     result = prime * result + _surface.hashCode();
     result = prime * result + _xLabel.hashCode();
     temp = Double.doubleToLongBits(_xMaximum);
@@ -144,9 +134,6 @@ public class FunctionalVolatilitySurfaceData {
       return false;
     }
     if (_nY != other._nY) {
-      return false;
-    }
-    if (_nZ != other._nZ) {
       return false;
     }
     if (Double.compare(_xMinimum, other._xMinimum) != 0) {

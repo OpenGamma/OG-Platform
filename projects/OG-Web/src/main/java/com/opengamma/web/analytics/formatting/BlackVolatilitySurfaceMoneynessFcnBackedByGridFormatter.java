@@ -62,13 +62,13 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
       }
     }
     Map<String, Object> results = Maps.newHashMap();
-    results.put("x_values", expiries);
-    results.put("x_labels", getAxisLabels(expiries));
-    results.put("x_title", "Time to Expiry");
-    results.put("y_values", strikes);
-    results.put("y_labels", getAxisLabels(strikes));
-    results.put("y_title", "Strike");
-    results.put("vol", vol);
+    results.put(SurfaceFormatterUtils.X_VALUES, expiries);
+    results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(expiries));
+    results.put(SurfaceFormatterUtils.X_TITLE, "Time to Expiry");
+    results.put(SurfaceFormatterUtils.Y_VALUES, strikes);
+    results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(strikes));
+    results.put(SurfaceFormatterUtils.Y_TITLE, "Strike");
+    results.put(SurfaceFormatterUtils.VOL, vol);
     return results;
   }
 

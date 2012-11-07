@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 
 /**
- * 
+ *
  */
 public class FunctionalVolatilitySurfaceDataTest {
   private static final String X_LABEL = "X";
@@ -29,14 +29,13 @@ public class FunctionalVolatilitySurfaceDataTest {
   private static final int NY = 200;
   private static final double Z_MIN = 0;
   private static final double Z_MAX = 200;
-  private static final int NZ = 140;
 
   @Test
   public void testObject() {
     final FunctionalDoublesSurface f = getSurface();
     final VolatilitySurface vol = new VolatilitySurface(f);
     final FunctionalVolatilitySurfaceData data = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL,
-        Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+        Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertEquals(X_LABEL, data.getXLabel());
     assertEquals(X_MIN, data.getXMinimum());
     assertEquals(X_MAX, data.getXMaximum());
@@ -47,8 +46,7 @@ public class FunctionalVolatilitySurfaceDataTest {
     assertEquals(NY, data.getNYSamples());
     assertEquals(Z_MIN, data.getZMinimum());
     assertEquals(Z_MAX, data.getZMaximum());
-    assertEquals(NZ, data.getNZSamples());
-    FunctionalVolatilitySurfaceData other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    FunctionalVolatilitySurfaceData other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertEquals(data, other);
     final FunctionalDoublesSurface otherF = FunctionalDoublesSurface.from(new Function<Double, Double>() {
 
@@ -73,29 +71,27 @@ public class FunctionalVolatilitySurfaceDataTest {
 
     }, "NAME2");
     final VolatilitySurface otherVol = new VolatilitySurface(otherF);
-    other = new FunctionalVolatilitySurfaceData(otherVol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(otherVol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL + "a", X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL + "a", X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN + 1, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN + 1, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX + 1, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX + 1, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX + 1, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX + 1, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL + 1, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL + 1, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN + 1, Y_MAX, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN + 1, Y_MAX, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX + 1, NY, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX + 1, NY, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY + 1, Z_MIN, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY + 1, Z_MIN, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN + 1, Z_MAX, NZ);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN + 1, Z_MAX);
     assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX + 1, NZ);
-    assertFalse(data.equals(other));
-    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX, NZ + 1);
+    other = new FunctionalVolatilitySurfaceData(vol, X_LABEL, X_MIN, X_MAX, NX, Y_LABEL, Y_MIN, Y_MAX, NY, Z_MIN, Z_MAX + 1);
     assertFalse(data.equals(other));
   }
 

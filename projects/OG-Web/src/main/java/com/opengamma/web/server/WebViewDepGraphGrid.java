@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
@@ -58,7 +58,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
-  private ComputationCacheQuery _cacheQuery;
+  private ComputationCycleQuery _cacheQuery;
   
   protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache,
       Client local, Client remote, WebGridCell parentGridCell, String parentCalcConfigName,
@@ -85,7 +85,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       _rowStructure = generateRowStructure(depGraph, valueSpecification, rowIdMap);
       _rowIdMap = rowIdMap;
       
-      _cacheQuery = new ComputationCacheQuery();
+      _cacheQuery = new ComputationCycleQuery();
       _cacheQuery.setCalculationConfigurationName(calcConfigName);
       _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
     } catch (Exception e) {

@@ -29,6 +29,7 @@ $.register_module({
                 })
                 .on('fatal', fatal_handler);
         };
+        constructor.prototype.fire = events.fire;
         constructor.prototype.kill = function () {this.dataman.kill();};
         constructor.prototype.off = events.off;
         constructor.prototype.on = events.on;

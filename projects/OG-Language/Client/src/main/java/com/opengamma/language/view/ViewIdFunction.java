@@ -8,7 +8,6 @@ package com.opengamma.language.view;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;

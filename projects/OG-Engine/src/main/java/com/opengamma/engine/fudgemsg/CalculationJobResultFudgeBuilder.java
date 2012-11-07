@@ -59,7 +59,7 @@ public class CalculationJobResultFudgeBuilder implements FudgeBuilder<Calculatio
   protected List<CalculationJobResultItem> buildItemsObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final List<CalculationJobResultItem> result = new ArrayList<CalculationJobResultItem>(msg.getNumFields());
     for (FudgeField field : msg) {
-      result.add(CalculationJobResultItemFudgeBuilder.buildObjectImpl((FudgeMsg) field.getValue()));
+      result.add(CalculationJobResultItemFudgeBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue()));
     }
     return result;
   }

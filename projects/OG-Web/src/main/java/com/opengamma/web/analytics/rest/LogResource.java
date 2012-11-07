@@ -17,12 +17,13 @@ import org.slf4j.LoggerFactory;
 /**
  * REST endpoint that allows the web client to log errors on the server. Messages are logged at error level
  * with a logger name starting with {@link #LOGGER_NAME}.
+ * TODO harden this for real deployments - escape the message, limit the size?
  */
 @Path("clienterror")
 public class LogResource {
 
   /** Default name for the logger. */
-  private static final String LOGGER_NAME = "com.opengamma.web.analytics.rest.client";
+  private static final String LOGGER_NAME = "com.opengamma.web.js";
 
   /**
    * Logs an error to the server-side log.
