@@ -86,7 +86,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     }
     msg.add(INPUT_IDENTIFIERS_FIELD_NAME, object.getInputIdentifiers());
     msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, object.getOutputIdentifiers());
-    msg.add(LOG_MODE_FIELD_NAME, object.getLogMode());
+    serializer.addToMessage(msg, LOG_MODE_FIELD_NAME, null, object.getLogMode());
     return msg;
   }
 
@@ -129,7 +129,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     }
     final long[] inputIdentifiers = message.getValue(long[].class, INPUT_IDENTIFIERS_FIELD_NAME);
     final long[] outputIdentifiers = message.getValue(long[].class, OUTPUT_IDENTIFIERS_FIELD_NAME);
-    final ExecutionLogMode logMode = message.getValue(ExecutionLogMode.class, LOG_MODE_FIELD_NAME);
+    final ExecutionLogMode logMode = deserializer.fieldValueToObject(ExecutionLogMode.class, message.getByName(LOG_MODE_FIELD_NAME));
     return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, outputIdentifiers, logMode);
   }
 
