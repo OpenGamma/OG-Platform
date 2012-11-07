@@ -226,8 +226,8 @@ public class ViewClientTest {
     assertNotNull(result1);
 
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 1);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), 2);
     assertComputationResult(expected, env.getCalculationResult(result1));
     
     client.pause();
@@ -247,7 +247,7 @@ public class ViewClientTest {
 
     
     expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 3);
     assertComputationResult(expected, env.getCalculationResult(result2));
   }
   
