@@ -37,7 +37,7 @@ $.register_module({
                 $dom.load_btn.removeClass('og-disabled').on('click', function () {
                     if (status) status.play();
                 });
-            } else $dom.load_btn.addClass('og-disabled').off('click');
+            } else $dom.load_btn.addClass('og-disabled');
         };
         var close_dropmenu = function (menu) {
             if (!menu || !ds_menu || !ag_menu) return;
