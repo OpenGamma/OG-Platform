@@ -29,12 +29,14 @@ public abstract class PureVolatilitySurfaceDefaults extends DefaultPropertyFunct
   private final String _timeInterpolator;
   private final String _timeLeftExtrapolator;
   private final String _timeRightExtrapolator;
-  private final String _forwardCurveName;
-  private final String _forwardCurveCalculationMethod;
+  private final String _discountingCurveName;
+  private final String _discountingCurveCalculationConfig;
   private final String _surfaceName;
+  private final String _curveCurrency;
 
   public PureVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
-      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName) {
+      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String discountingCurveName, final String discountingCurveCalculationConfig, final String surfaceName,
+      final String curveCurrency) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(timeAxis, "time axis");
     ArgumentChecker.notNull(yAxis, "y axis");
@@ -42,11 +44,12 @@ public abstract class PureVolatilitySurfaceDefaults extends DefaultPropertyFunct
     ArgumentChecker.notNull(timeInterpolator, "time interpolator");
     ArgumentChecker.notNull(timeLeftExtrapolator, "time left extrapolator");
     ArgumentChecker.notNull(timeRightExtrapolator, "time right extrapolator");
-    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
-    ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
+    ArgumentChecker.notNull(discountingCurveName, "discounting curve name");
+    ArgumentChecker.notNull(discountingCurveCalculationConfig, "discounting curve calculation method");
     ArgumentChecker.notNull(surfaceName, "surface name");
-    _forwardCurveName = forwardCurveName;
-    _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
+    ArgumentChecker.notNull(curveCurrency, "curve currency");
+    _discountingCurveName = discountingCurveName;
+    _discountingCurveCalculationConfig = discountingCurveCalculationConfig;
     _surfaceName = surfaceName;
     _timeAxis = timeAxis;
     _yAxis = yAxis;
@@ -54,6 +57,7 @@ public abstract class PureVolatilitySurfaceDefaults extends DefaultPropertyFunct
     _timeInterpolator = timeInterpolator;
     _timeLeftExtrapolator = timeLeftExtrapolator;
     _timeRightExtrapolator = timeRightExtrapolator;
+    _curveCurrency = curveCurrency;
   }
 
   @Override
@@ -65,8 +69,9 @@ public abstract class PureVolatilitySurfaceDefaults extends DefaultPropertyFunct
     defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_LEFT_EXTRAPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_RIGHT_EXTRAPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, ValuePropertyNames.SURFACE);
+    defaults.addValuePropertyName(ValueRequirementNames.PURE_VOLATILITY_SURFACE, ValuePropertyNames.CURVE_CURRENCY);
   }
 
   @Override
@@ -90,13 +95,16 @@ public abstract class PureVolatilitySurfaceDefaults extends DefaultPropertyFunct
       return Collections.singleton(_timeRightExtrapolator);
     }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
+      return Collections.singleton(_discountingCurveName);
     }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethod);
+    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
+      return Collections.singleton(_discountingCurveCalculationConfig);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
+    }
+    if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
+      return Collections.singleton(_curveCurrency);
     }
     return null;
   }

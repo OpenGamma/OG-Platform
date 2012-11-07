@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -31,7 +31,6 @@ public class FunctionalVolatilitySurfaceDataFudgeBuilder implements FudgeBuilder
   private static final String Y_SAMPLES_FIELD = "ySamples";
   private static final String Z_MINIMUM_FIELD = "zMinimum";
   private static final String Z_MAXIMUM_FIELD = "zMaximum";
-  private static final String Z_SAMPLES_FIELD = "zSamples";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FunctionalVolatilitySurfaceData object) {
@@ -47,7 +46,6 @@ public class FunctionalVolatilitySurfaceDataFudgeBuilder implements FudgeBuilder
     message.add(Y_SAMPLES_FIELD, object.getNYSamples());
     message.add(Z_MINIMUM_FIELD, object.getZMinimum());
     message.add(Z_MAXIMUM_FIELD, object.getZMaximum());
-    message.add(Z_SAMPLES_FIELD, object.getNZSamples());
     return message;
   }
 
@@ -64,7 +62,6 @@ public class FunctionalVolatilitySurfaceDataFudgeBuilder implements FudgeBuilder
     final int nY = message.getInt(Y_SAMPLES_FIELD);
     final double zMinimum = message.getDouble(Z_MINIMUM_FIELD);
     final double zMaximum = message.getDouble(Z_MAXIMUM_FIELD);
-    final int nZ = message.getInt(Z_SAMPLES_FIELD);
-    return new FunctionalVolatilitySurfaceData(surface, xLabel, xMinimum, xMaximum, nX, yLabel, yMinimum, yMaximum, nY, zMinimum, zMaximum, nZ);
+    return new FunctionalVolatilitySurfaceData(surface, xLabel, xMinimum, xMaximum, nX, yLabel, yMinimum, yMaximum, nY, zMinimum, zMaximum);
   }
 }

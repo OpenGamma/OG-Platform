@@ -26,9 +26,10 @@ public class PureVolatilitySurfaceSplineDefaults extends PureVolatilitySurfaceDe
   private final String _splineExtrapolatorFailBehaviour;
 
   public PureVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
-      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
-      final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String splineExtrapolatorFailureBehaviour) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName);
+      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String discountingCurveName, final String discountingCurveCalculationConfig, final String surfaceName,
+      final String curveCurrency, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String splineExtrapolatorFailureBehaviour) {
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, discountingCurveName, discountingCurveCalculationConfig, surfaceName,
+        curveCurrency);
     ArgumentChecker.notNull(yInterpolator, "y interpolator");
     ArgumentChecker.notNull(yLeftExtrapolator, "y left extrapolator");
     ArgumentChecker.notNull(yRightExtrapolator, "y right extrapolator");
