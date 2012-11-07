@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.equity;
+package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Collections;
 import java.util.Set;

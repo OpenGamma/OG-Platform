@@ -55,50 +55,10 @@ import com.opengamma.util.tuple.Triple;
  *
  */
 public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Property describing the treatment of dividends */
+  public static final String PROPERTY_DIVIDEND_TREATMENT = "DividendTreatment";
   private static final String X_LABEL = "Expiry (years)";
   private static final String Y_LABEL = "Moneyness";
-
-  /**
-   * Spline interpolator function for pure Black volatility surfaces
-   */
-  public static class Spline extends PureBlackVolatilitySurfaceFunction {
-
-    @Override
-    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final Set<ValueRequirement> specificRequirements = BlackVolatilitySurfacePropertyUtils.ensureSplineVolatilityInterpolatorProperties(desiredValue.getConstraints());
-      if (specificRequirements == null) {
-        return null;
-      }
-      final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
-      if (requirements == null) {
-        return null;
-      }
-      requirements.addAll(specificRequirements);
-      return requirements;
-    }
-
-    @Override
-    protected ValueProperties getResultProperties() {
-      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get())
-          .withAny(SURFACE)
-          .withAny(CURVE)
-          .withAny(CURVE_CURRENCY)
-          .withAny(CURVE_CALCULATION_CONFIG).get();
-    }
-
-    @Override
-    protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-      final String surfaceName = desiredValue.getConstraint(SURFACE);
-      final String curveName = desiredValue.getConstraint(CURVE);
-      final String currency = desiredValue.getConstraint(CURVE_CURRENCY);
-      final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(desiredValue.getConstraints(), desiredValue)
-          .with(SURFACE, surfaceName)
-          .with(CURVE, curveName)
-          .with(CURVE_CURRENCY, currency)
-          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
-    }
-  }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -123,7 +83,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     }
     final double spot = (Double) spotObject;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-    final AffineDividends dividends = AffineDividends.noDividends();
+    final AffineDividends dividends = getDividends(inputs);
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Object, Object> volatilitySurfaceData = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
     final Triple<double[], double[][], double[][]> strikesAndValues = BlackVolatilitySurfaceUtils.getStrippedStrikesAndValues(volatilitySurfaceData);
@@ -184,7 +144,6 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     final ValueRequirement curveRequirement = getCurveRequirement(currency, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(targetSpec, surfaceName);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
-    // ValueRequirement dividendsRequirement = getDividendRequirement(targetSpec, desiredValue); //TODO include
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(targetSpec, desiredValue);
     return Sets.newHashSet(curveRequirement, volatilitySurfaceRequirement, spotRequirement, interpolatorRequirement);
   }
@@ -192,6 +151,8 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   protected abstract ValueProperties getResultProperties();
 
   protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
+
+  protected abstract AffineDividends getDividends(FunctionInputs inputs);
 
   private ValueRequirement getVolatilityDataRequirement(final ComputationTargetSpecification target, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder()
@@ -216,11 +177,6 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, target, properties);
   }
 
-  @SuppressWarnings("unused")
-  private ValueRequirement getDividendRequirement(final ComputationTargetSpecification target, final ValueRequirement desiredValue) {
-    //TODO implement
-    return null;
-  }
 
   private double[] getExpiries(final double[] expiryNumber, final LocalDate date) {
     final int n = expiryNumber.length;

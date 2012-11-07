@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.equity;
+package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.Validate;
 
@@ -11,7 +11,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;

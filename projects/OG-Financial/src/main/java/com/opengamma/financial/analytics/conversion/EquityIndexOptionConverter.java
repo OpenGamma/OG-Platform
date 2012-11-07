@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.equity;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
