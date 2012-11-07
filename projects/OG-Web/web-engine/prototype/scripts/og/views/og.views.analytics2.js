@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: ['og.analytics.Form'],
     obj: function () {
-        var routes = og.common.routes, module = this, view, default_template, default_object,
+        var routes = og.common.routes, module = this, view,
             main_selector = '.OG-layout-analytics-center', form;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
@@ -21,7 +21,7 @@ $.register_module({
                 ]});
                 og.analytics.resize();
                 if (!new_page && !args.data && og.analytics.url.last.main) {
-                    og.analytics.url.clear_main(), $(main_selector).html(default_template(default_object));
+                    og.analytics.url.clear_main(), $(main_selector).html('');
                     if (!og.analytics.url.last.main) form.reset_query();
                 }
             },

@@ -278,7 +278,8 @@ $.register_module({
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (data_row = rows[i]; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
-                        value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
+                        value = (formatter[type = types[column]] ? formatter[type](data[index])
+                            : (data[index] && data[index].v) || data[index]) || '';
                         cells.push({
                             column: column, error: data[index] && data[index].error,
                             value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
