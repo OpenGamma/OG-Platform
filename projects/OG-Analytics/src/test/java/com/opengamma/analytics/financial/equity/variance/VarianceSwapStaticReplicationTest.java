@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -26,6 +25,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.Strike;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;

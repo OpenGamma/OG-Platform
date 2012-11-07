@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.conversion;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.convention.calendar.Calendar;

@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.equity.variance;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.variance.derivative.EquityVarianceSwap;
-import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.equity.variance.pricing.EquityDividendsCurvesBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapPricer;
@@ -22,6 +20,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MultiHo
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.MixedLogNormalVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;

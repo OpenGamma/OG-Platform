@@ -12,7 +12,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
-import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.variance.derivative;
+package com.opengamma.analytics.financial.varianceswap;
 
 import java.util.Arrays;
 

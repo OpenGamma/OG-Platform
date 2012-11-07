@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
-import com.opengamma.analytics.financial.equity.variance.derivative.EquityVarianceSwap;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -160,7 +160,7 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Calculates the price of an equity variance swap from implied volatilities. The surface used is a pure implied volatility surface.
-   * @param swap The details of the equality variance swap, not null
+   * @param swap The details of the equity variance swap, not null
    * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
@@ -183,7 +183,7 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Calculates the price of an equity variance swap from implied volatilities. The surface used is a local volatility surface.
-   * @param swap The details of the equality variance swap, not null
+   * @param swap The details of the equity variance swap, not null
    * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
