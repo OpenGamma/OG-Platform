@@ -61,14 +61,19 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
+import com.opengamma.engine.view.calcnode.EmptyExecutionLog;
 import com.opengamma.engine.view.calcnode.ExecutionLog;
+import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.engine.view.calcnode.MutableExecutionLog;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.log.LogLevel;
+import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -417,34 +422,42 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
     Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
-    InMemoryViewComputationResultModel marketDataResultFragment = constructTemplateResultModel();
+    final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
+    final InMemoryViewComputationResultModel fullResultModel = getResultModel();
     final Map<ValueRequirement, ComputedValue> marketDataValues = snapshot.query(marketDataRequirements.keySet());
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
-      ComputedValue data = marketDataValues.get(marketDataRequirement.getKey());
-      if (data == null) {
+      ComputedValue computedValue = marketDataValues.get(marketDataRequirement.getKey());
+      ComputedValueResult computedValueResult;
+      if (computedValue == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataRequirement.getValue());
-        data = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
+        // TODO jonathan 2012-11-07 -- allow log mode to be upgraded in same way as any other output; message is lost here
+        ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, "Market data missing from snapshot " + getValuationTime()), ExecutionLogMode.INDICATORS);
+        computedValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
+        computedValueResult = new ComputedValueResult(computedValue, executionLog);
       } else {
-        // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the result by default?
-        getResultModel().addMarketData(data);
-        ComputedValueResult result = new ComputedValueResult(data, ExecutionLog.EMPTY);
-        addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), result);
+        computedValueResult = new ComputedValueResult(computedValue, ExecutionLog.EMPTY);
+        fragmentResultModel.addMarketData(computedValueResult);
+        fullResultModel.addMarketData(computedValueResult);
       }
-      addToAllCaches(marketDataRequirement.getKey(), data, cacheMarketDataOperation);
+      addMarketDataToResults(marketDataRequirement.getValue(), computedValueResult, fragmentResultModel, getResultModel());
+      addToAllCaches(marketDataRequirement.getKey(), computedValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
       s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingMarketData(missingMarketData));
     }
-    notifyFragmentCompleted(marketDataResultFragment);
+    notifyFragmentCompleted(fragmentResultModel);
   }
   
-  private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValueResult marketData) {
-    result.addMarketData(marketData);
+  private void addMarketDataToResults(ValueSpecification valueSpec, ComputedValueResult computedValueResult,
+      InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel) {
+    // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the results?
     for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
-      if (depGraph.getTerminalOutputSpecifications().contains(marketDataSpecification)) {
-        result.addValue(depGraph.getCalculationConfigurationName(), marketData);
+      if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
+          && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
+        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
       }
     }
   }
@@ -619,21 +632,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       DependencyNode node, ViewComputationCache computationCache,
       InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel) {
     Set<ValueSpecification> specifications = node.getOutputValues();
-    Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-    fragmentResultModel.addRequirements(requirements);
-    fullResultModel.addRequirements(requirements);
+    Map<ValueSpecification, Set<ValueRequirement>> specToRequirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
+    fragmentResultModel.addRequirements(specToRequirements);
+    fullResultModel.addRequirements(specToRequirements);
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
       final ValueSpecification valueSpec = value.getFirst();
       final Object calculatedValue = value.getSecond();
       storeResultMetadata(valueSpec, jobExecutionResult);
-      if (calculatedValue == null || !requirements.containsKey(valueSpec) ||
-          !getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
-        // Not in cache, not a terminal output, or not requested in results
-        continue;
+      if (calculatedValue != null && specToRequirements.containsKey(valueSpec) &&
+          getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
+        ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
+        fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
+        fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
       }
-      ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
-      fragmentResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
-      fullResultModel.addValue(depGraph.getCalculationConfigurationName(), computedValueResult);
     }
   }
 
