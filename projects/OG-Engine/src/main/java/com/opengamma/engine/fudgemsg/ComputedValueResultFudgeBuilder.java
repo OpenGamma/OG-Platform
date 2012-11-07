@@ -35,7 +35,7 @@ public class ComputedValueResultFudgeBuilder implements FudgeBuilder<ComputedVal
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputedValueResult object) {
     MutableFudgeMsg msg = serializer.newMessage();
     ComputedValueFudgeBuilder.appendToMsg(serializer, object, msg);
-    serializer.addToMessage(msg, EXECUTION_LOG_FIELD, null, object);
+    serializer.addToMessage(msg, EXECUTION_LOG_FIELD, null, object.getExecutionLog());
     if (object.getComputeNodeId() != null) {
       msg.add(COMPUTE_NODE_ID_FIELD, object.getComputeNodeId());
     }
