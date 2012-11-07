@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.variance;
+package com.opengamma.financial.analytics.model.equity.varianceswap;
 
 import java.util.Set;
 

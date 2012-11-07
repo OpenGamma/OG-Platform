@@ -43,7 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.examples.volatility.surface.ExampleEquityOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationFunction;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;

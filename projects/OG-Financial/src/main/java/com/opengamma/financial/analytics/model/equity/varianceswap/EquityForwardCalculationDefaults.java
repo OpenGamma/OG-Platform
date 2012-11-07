@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.variance;
+package com.opengamma.financial.analytics.model.equity.varianceswap;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,32 +30,25 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
+public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCalculationDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX
+    ValueRequirementNames.FORWARD
   };
   private final PriorityClass _priority;
-  private final Map<String, Pair<String, String>> _curvesPerEquity;
-  private final Map<String, String> _surfacesPerEquity;
+  private final Map<String, Pair<String, String>> _equityCurveConfigAndDiscountingCurveNames;
 
-  public EquityVarianceSwapDefaults(final String priority, final String... perEquityConfig) {
+  public EquityForwardCalculationDefaults(final String priority, final String... equityCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(perEquityConfig, "per equity config");
-    final int n = perEquityConfig.length;
-    ArgumentChecker.isTrue(n % 4 == 0, "Must have one curve config, discounting curve name and surface name per equity");
+    ArgumentChecker.notNull(equityCurveConfigAndDiscountingCurveNames, "equity and curve config names");
+    final int nPairs = equityCurveConfigAndDiscountingCurveNames.length;
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per equity");
     _priority = PriorityClass.valueOf(priority);
-    _curvesPerEquity = new LinkedHashMap<String, Pair<String, String>>();
-    _surfacesPerEquity = new LinkedHashMap<String, String>();
-    for (int i = 0; i < perEquityConfig.length; i += 4) {
-      final String currency = perEquityConfig[i];
-      final Pair<String, String> pair = Pair.of(perEquityConfig[i + 1], perEquityConfig[i + 2]);
-      final String surfaceName = perEquityConfig[i + 3];
-      _curvesPerEquity.put(currency, pair);
-      _surfacesPerEquity.put(currency, surfaceName);
+    _equityCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < equityCurveConfigAndDiscountingCurveNames.length; i += 3) {
+      final Pair<String, String> pair = Pair.of(equityCurveConfigAndDiscountingCurveNames[i + 1], equityCurveConfigAndDiscountingCurveNames[i + 2]);
+      _equityCurveConfigAndDiscountingCurveNames.put(equityCurveConfigAndDiscountingCurveNames[i], pair);
     }
   }
 
@@ -73,7 +66,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
     }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
     final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
-    return _surfacesPerEquity.containsKey(underlyingEquity);
+    return _equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity);
   }
 
   @Override
@@ -81,7 +74,6 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
     }
   }
 
@@ -90,15 +82,11 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
       final String propertyName) {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
     final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
-    if (!_surfacesPerEquity.containsKey(underlyingEquity)) {
-      s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
+    if (!_equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity)) {
+      s_logger.error("Could not get config for equity " + underlyingEquity + "; should never happen");
       return null;
     }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      final String surfaceName = _surfacesPerEquity.get(underlyingEquity);
-      return Collections.singleton(surfaceName);
-    }
-    final Pair<String, String> pair = _curvesPerEquity.get(underlyingEquity);
+    final Pair<String, String> pair = _equityCurveConfigAndDiscountingCurveNames.get(underlyingEquity);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(pair.getFirst());
     }
@@ -117,5 +105,4 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.EQUITY_VARIANCE_SWAP_DEFAULTS;
   }
-
 }
