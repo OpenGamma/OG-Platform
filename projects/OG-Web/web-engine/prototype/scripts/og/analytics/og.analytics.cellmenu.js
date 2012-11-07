@@ -64,15 +64,12 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    
                     var unique = cellmenu.grid.id.slice(1);
-                    console.log(unique);
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle_click()){
-
+                        if(cellmenu.inplace.toggle_handler()){
                             cellmenu.create_inplace();
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
@@ -82,7 +79,6 @@ $.register_module({
             });
         };
         constructor.prototype.destroy_frozen = function () {
-            console.log("destroy");
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
