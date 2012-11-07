@@ -103,10 +103,16 @@ public class ComputedValue implements Serializable {
 
   @Override
   public String toString() {
-    // carefully select useful fields for toString
-    ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     StringBuffer sb = new StringBuffer();
+    ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     style.appendStart(sb, this);
+    appendFieldsToString(sb, style);
+    style.appendEnd(sb, this);
+    return sb.toString();
+  }
+
+  protected void appendFieldsToString(StringBuffer sb, ToStringStyle style) {
+    // carefully select useful fields for toString
     ValueSpecification spec = getSpecification();
     if (spec != null) {
       style.append(sb, "name", spec.getValueName(), null);
@@ -116,8 +122,6 @@ public class ComputedValue implements Serializable {
       style.append(sb, "properties", spec.getProperties(), null);
     }
     style.append(sb, "value", getValue(), null);
-    style.appendEnd(sb, this);
-    return sb.toString();
   }
 
 }

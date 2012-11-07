@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogEvent;
@@ -142,6 +143,21 @@ public class MutableExecutionLog implements ExecutionLog {
         && ObjectUtils.equals(_exceptionStackTrace, other._exceptionStackTrace)
         && ObjectUtils.equals(_levels, other._levels)
         && ObjectUtils.equals(_logMode, other._logMode);
+  }
+
+  @Override
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
+    style.appendStart(sb, this);
+    style.append(sb, "error", hasError(), null);
+    style.append(sb, "warn", hasWarn(), null);
+    style.append(sb, "info", hasInfo(), null);
+    if (hasException()) {
+      style.append(sb, "exception", getExceptionClass(), null);
+    }
+    style.appendEnd(sb, this);
+    return sb.toString();
   }
   
 }

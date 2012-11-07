@@ -7,8 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.util.log.LogEvent;
 
 /**
@@ -78,4 +76,9 @@ public final class EmptyExecutionLog implements ExecutionLog {
     return obj instanceof EmptyExecutionLog;
   }
 
+  @Override
+  public String toString() {
+    return "ExecutionLog[]";
+  }
+  
 }

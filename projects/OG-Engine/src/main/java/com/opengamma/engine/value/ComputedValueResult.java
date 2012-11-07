@@ -8,7 +8,9 @@ package com.opengamma.engine.value;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.calcnode.ExecutionLog;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.util.ArgumentChecker;
@@ -139,6 +141,12 @@ public class ComputedValueResult extends ComputedValue {
         && ObjectUtils.equals(_invocationResult, other._invocationResult)
         && ObjectUtils.equals(_missingInputs, other._missingInputs)
         && ObjectUtils.equals(_executionLog, other._executionLog);
+  }
+
+  @Override
+  protected void appendFieldsToString(StringBuffer sb, ToStringStyle style) {
+    super.appendFieldsToString(sb, style);
+    style.append(sb, "log", getExecutionLog(), null);
   }
   
 }
