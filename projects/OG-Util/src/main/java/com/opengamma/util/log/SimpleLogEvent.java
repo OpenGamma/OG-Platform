@@ -29,6 +29,17 @@ public class SimpleLogEvent implements LogEvent {
     _message = message;
   }
   
+  /**
+   * Constructs an instance.
+   * 
+   * @param level  the log level, not null
+   * @param message  the log message
+   * @return the instance, not null
+   */
+  public static LogEvent of(LogLevel level, String message) {
+    return new SimpleLogEvent(level, message);
+  }
+  
   @Override
   public LogLevel getLevel() {
     return _level;
