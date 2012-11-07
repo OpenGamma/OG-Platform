@@ -6,15 +6,16 @@ $.register_module({
     name: 'og.common.gadgets.Depgraph',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var module = this, prefix = 'og_depgraph_gadget_', counter = 1;
+        var module = this, prefix = 'og_depgraph_gadget_', counter = 1, menu;
         return function (config) {
             var gadget = this, alive = prefix + counter++,
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
             gadget.alive = function () {return grid.alive();};
             gadget.load = function () {
                 $(config.selector).addClass(alive).css(css_position);
+                menu = (config.selector.indexOf('inplace') >= 0) ? false : true;
                 grid = new og.analytics.Grid({
-                    selector: config.selector, source: config.source, cellmenu: true, child: config.child
+                    selector: config.selector, source: config.source, cellmenu: menu, child: config.child
                 });
             };
             gadget.load();

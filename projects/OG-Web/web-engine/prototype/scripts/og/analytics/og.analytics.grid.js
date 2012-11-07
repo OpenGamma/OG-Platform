@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24, 
+        var module = this, cellmenu, counter = 1, row_height = 21, title_height = 31, set_height = 24, 
             templates = null, default_col_width = 175, scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -390,6 +390,9 @@ $.register_module({
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
                 row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
             };
+        };
+        constructor.prototype.new_menu = function(frozen) {
+            cellmenu = new og.analytics.CellMenu(this);
         };
         constructor.prototype.col_widths = function () {
             var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,

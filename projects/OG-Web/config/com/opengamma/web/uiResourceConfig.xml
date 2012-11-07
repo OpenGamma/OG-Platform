@@ -153,6 +153,7 @@
     <fragment>/styles/analytics/og.analytics.OG-analytics-cell-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form-menu.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-type-menu.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-inplace.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />

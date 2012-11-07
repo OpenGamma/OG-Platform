@@ -21,7 +21,7 @@ $.register_module({
                 'dock-center': [2, 4, 3, 1, 0],
                 'dock-south' : [2, 4, 3, 1, 0],
                 'new-window' : [2, 4, 3, 1, 0],
-                'in-place'   : [2, 4, 3, 1, 0]
+                'inplace'    : [2, 4, 3, 1, 0]
             },
             options: function (cell, grid, panel, override) {
                 var gadget_type, source = $.extend({}, grid.source), gadget_options, 

@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, counter = 1,
-            header = ' .ui-layout-header';
+        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, 
+        counter = 1, header = ' .ui-layout-header';
         var constructor = function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, highlight_timer,
                 selector = selector_prefix + pane, $selector = $(selector),
@@ -160,7 +160,6 @@ $.register_module({
                             container.add([swap_config], val.gadget_index);
                             menu.close();
                         });
-
                         for(var i = 0; i < radios.length; i++) {
                             radios[i].checked = false;
                             if(radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
@@ -202,8 +201,8 @@ $.register_module({
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
+                    console.log(gadget);
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
-
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
@@ -253,7 +252,7 @@ $.register_module({
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
                     api.text({module: 'og.analytics.dropbox_tash'}),
                     api.text({module: 'og.analytics.typemenu_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl) {
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, gadget_tmpl) {
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
