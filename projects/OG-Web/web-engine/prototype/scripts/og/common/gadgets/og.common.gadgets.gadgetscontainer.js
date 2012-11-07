@@ -201,7 +201,6 @@ $.register_module({
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
-                    console.log(gadget);
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;

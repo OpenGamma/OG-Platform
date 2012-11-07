@@ -17,7 +17,7 @@ $.register_module({
             $selector; 
             type_map = mapping.data_type_map,
             onlydepgraphs = Object.keys(type_map) // a list of datatypes that only support depgraph gadgets
-                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0});
+                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0;});
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent,
                 inplace_config; cellmenu.frozen = false; cellmenu.grid = grid;
@@ -82,21 +82,25 @@ $.register_module({
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
-            var cellmenu = this, cell, panel = 'inplace', options;
-            cell = cellmenu.current;
+            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, 
+                offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
             cellmenu.container.add([options]);
-            
+            if((offset.top + inner.height())> $(window).height())
+                inner.css({marginTop: -inner.height()});
+            if((offset.left + inner.width())> $(window).width())
+                inner.css({marginLeft: -inner.width() + width} );
             cellmenu.grid.new_menu(cellmenu);
+            
         };
         constructor.prototype.hide = function () {
-           var cellmenu = this;
+           /*var cellmenu = this;
             if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) {
                 cellmenu.menu.hide();
-            }
+            }*/
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
