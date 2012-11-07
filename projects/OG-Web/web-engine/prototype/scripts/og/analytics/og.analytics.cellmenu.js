@@ -75,6 +75,9 @@ $.register_module({
                         }
                         else cellmenu.destroy_frozen();
                     });
+                     cellmenu.container.on('del', function(){
+                        cellmenu.destroy_frozen();
+                    });
                 });
             });
         };
