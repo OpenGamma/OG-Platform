@@ -163,7 +163,7 @@
         position: absolute;
         right: -5px;
         top: -5px;
-        z-index: 2;
+        z-index: 4;
     }
 
     .OG-gadget-tabs li .og-delete:hover {
