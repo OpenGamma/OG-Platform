@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -79,7 +79,7 @@ public class DateConstraint {
 
   }
 
-  protected static LocalDate getLocalDate(final FunctionExecutionContext context, final String str) {
+  public static LocalDate getLocalDate(final FunctionExecutionContext context, final String str) {
     if (str.length() == 0) {
       return null;
     } else if (str.charAt(0) == '-') {

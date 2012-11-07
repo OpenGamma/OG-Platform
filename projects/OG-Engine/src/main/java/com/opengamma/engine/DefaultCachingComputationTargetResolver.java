@@ -77,7 +77,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   /**
    * Creates an instance using the specified cache manager.
-   * 
+   *
    * @param underlying the underlying resolver, not null
    * @param cacheManager the cache manager, not null
    */
@@ -109,7 +109,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   /**
    * Gets the cache manager.
-   * 
+   *
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -199,27 +199,48 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         DefaultCachingComputationTargetResolver.this.cacheTargets(targets, versionCorrection);
       }
 
+      @Override
+      public VersionCorrection getVersionCorrection() {
+        return versionCorrection;
+      }
+
     };
   }
 
+  /**
+   * @param positions the positions to cache
+   * @deprecated implemented by calling {@link #cacheTargets}; use that instead.
+   */
   @Override
   @Deprecated
-  public void cachePositions(Collection<Position> positions) {
+  public void cachePositions(final Collection<Position> positions) {
     cacheTargets(positions, VersionCorrection.LATEST);
   }
 
+  /**
+   * @param trades the trades to cache
+   * @deprecated implemented by calling {@link #cacheTargets}; use that instead.
+   */
   @Override
   @Deprecated
-  public void cacheTrades(Collection<Trade> trades) {
+  public void cacheTrades(final Collection<Trade> trades) {
     cacheTargets(trades, VersionCorrection.LATEST);
   }
 
+  /**
+   * @param securities the securities to cache
+   * @deprecated implemented by calling {@link #cacheTargets}; use that instead.
+   */
   @Override
   @Deprecated
-  public void cacheSecurities(Collection<Security> securities) {
+  public void cacheSecurities(final Collection<Security> securities) {
     cacheTargets(securities, VersionCorrection.LATEST);
   }
 
+  /**
+   * @param nodes the portfolio nodes to cache
+   * @deprecated implemented by calling {@link #cacheTargets}; use that instead.
+   */
   @Override
   @Deprecated
   public void cachePortfolioNodes(final Collection<PortfolioNode> nodes) {
@@ -264,14 +285,14 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   @Override
   public void cacheTargets(final Collection<? extends UniqueIdentifiable> targets, final VersionCorrection versionCorrection) {
-    for (UniqueIdentifiable target : targets) {
+    for (final UniqueIdentifiable target : targets) {
       cacheTarget(target, versionCorrection);
     }
   }
 
   /**
    * Returns a string suitable for debugging.
-   * 
+   *
    * @return the string, not null
    */
   @Override

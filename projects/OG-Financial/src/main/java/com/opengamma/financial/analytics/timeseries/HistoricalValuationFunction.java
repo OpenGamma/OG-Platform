@@ -38,10 +38,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Iterates a view client over historical data to produce a historical valuation of a target.
+ * Iterates a view client over historical data to produce a historical valuation of a target. The view client iteration is performed by a helper function on a {@link ViewEvaluationTarget} created by
+ * this function. The time series appropriate to this function's target are then extracted from the overall evaluation results.
  */
 public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -80,6 +80,15 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    */
   public static final String TARGET_SPECIFICATION_EXTERNAL = "External";
 
+  // FunctionDefinition
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    if (OpenGammaCompilationContext.getTempTargets(context) == null) {
+      throw new IllegalStateException("Function compilation context does not contain " + OpenGammaCompilationContext.TEMPORARY_TARGETS_NAME);
+    }
+  }
+
   // CompiledFunctionDefinition
 
   @Override
@@ -95,6 +104,9 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ViewEvaluationTarget tempTarget = new ViewEvaluationTarget(context.getViewCalculationConfiguration().getViewDefinition().getMarketDataUser());
+    // TODO: get a suitable time zone for the target
+    // TODO: get a suitable valuation time for the target
+    tempTarget.setCorrection(context.getComputationTargetResolver().getVersionCorrection().getCorrectedTo());
     String valueName = ValueRequirementNames.VALUE;
     ComputationTargetReference requirementTarget = null;
     final ValueProperties.Builder requirementConstraints = ValueProperties.builder();
@@ -197,7 +209,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
     final UniqueId requirement = targets.locateOrStore(tempTarget);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(ViewEvaluationTarget.TYPE, requirement), ValueProperties.none()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(TempTarget.TYPE, requirement), ValueProperties.none()));
   }
 
   protected ValueProperties.Builder createValueProperties(final ViewEvaluationTarget tempTarget) {
@@ -210,6 +222,8 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
     return builder;
   }
+
+  // TODO: Our declared type of anything means there will never be a parent context, this will probably need fixing
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
@@ -316,7 +330,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
               }
             }
           }
-          results.add(new ValueSpecification(ValueRequirementNames.VALUE, targetSpec, properties.get()));
+          results.add(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, targetSpec, properties.get()));
         }
       }
       return results;
@@ -328,8 +342,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   // FunctionInvoker
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     // TODO: fetch the valuation results from the cache and construct a time series of the desired value, or from our inputs.
     // Not currently sure whether the values should be written to the shared cache directly, or whether the HTS master should be
     // used to hold them (as they are generated for example) and the result bundle is the set of HTS unique identifiers corresponding

@@ -41,10 +41,10 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.AnalyticsFunctions;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
@@ -586,7 +586,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
 
-    functionConfigs.addAll(AnalyticsFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
+    functionConfigs.addAll(FinancialFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
 
     final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 

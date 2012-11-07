@@ -37,18 +37,18 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
   private final DefaultComputationTargetSpecificationResolver _specificationResolver = new DefaultComputationTargetSpecificationResolver();
 
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification, VersionCorrection versionCorrection) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
     return _backingMap.get(specification);
   }
 
   @Override
-  public ComputationTargetType simplifyType(ComputationTargetType type) {
+  public ComputationTargetType simplifyType(final ComputationTargetType type) {
     return type;
   }
 
   /**
    * Adds a target to the resolver.
-   * 
+   *
    * @param target  the target to add, not null
    */
   public void addTarget(final ComputationTarget target) {
@@ -72,7 +72,7 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
     return new AtVersionCorrection() {
 
       @Override
-      public ComputationTarget resolve(ComputationTargetSpecification specification) {
+      public ComputationTarget resolve(final ComputationTargetSpecification specification) {
         return MapComputationTargetResolver.this.resolve(specification, versionCorrection);
       }
 
@@ -82,9 +82,15 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
       }
 
       @Override
-      public ComputationTargetType simplifyType(ComputationTargetType type) {
+      public ComputationTargetType simplifyType(final ComputationTargetType type) {
         return MapComputationTargetResolver.this.simplifyType(type);
       }
+
+      @Override
+      public VersionCorrection getVersionCorrection() {
+        return versionCorrection;
+      }
+
     };
   }
 
@@ -95,7 +101,7 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
 
   /**
    * Returns a string suitable for debugging.
-   * 
+   *
    * @return the string, not null
    */
   @Override

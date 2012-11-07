@@ -303,6 +303,11 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return specificationResolver;
       }
 
+      @Override
+      public VersionCorrection getVersionCorrection() {
+        return versionCorrection;
+      }
+
     };
   }
 

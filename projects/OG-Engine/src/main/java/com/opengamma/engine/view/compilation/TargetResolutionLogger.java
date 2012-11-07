@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -27,6 +27,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Wraps an existing specification resolver to log all of the resolutions calls. This allows any values that were considered during the compilation to be recorded and returned as part of the compiled
@@ -52,7 +53,7 @@ import com.opengamma.id.UniqueIdentifiable;
       public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
         final List<ComputationTargetType> result = new ArrayList<ComputationTargetType>(types.size());
         boolean different = false;
-        for (ComputationTargetType type : types) {
+        for (final ComputationTargetType type : types) {
           final ComputationTargetType leafType = type.accept(this, null);
           if (leafType != null) {
             result.add(leafType);
@@ -132,7 +133,7 @@ import com.opengamma.id.UniqueIdentifiable;
     @Override
     public Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(final Set<ComputationTargetReference> references) {
       final Map<ComputationTargetReference, ComputationTargetSpecification> resolveds = _underlying.getTargetSpecifications(references);
-      for (Map.Entry<ComputationTargetReference, ComputationTargetSpecification> resolved : resolveds.entrySet()) {
+      for (final Map.Entry<ComputationTargetReference, ComputationTargetSpecification> resolved : resolveds.entrySet()) {
         storeResolution(resolved.getKey(), resolved.getValue());
       }
       return resolveds;
@@ -191,6 +192,11 @@ import com.opengamma.id.UniqueIdentifiable;
   @Override
   public ComputationTargetType simplifyType(final ComputationTargetType type) {
     return _underlying.simplifyType(type);
+  }
+
+  @Override
+  public VersionCorrection getVersionCorrection() {
+    return _underlying.getVersionCorrection();
   }
 
 }

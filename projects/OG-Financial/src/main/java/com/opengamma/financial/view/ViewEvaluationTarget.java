@@ -5,11 +5,16 @@
  */
 package com.opengamma.financial.view;
 
+import javax.time.Instant;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeZone;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.types.secondary.JSR310InstantFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -30,6 +35,9 @@ public class ViewEvaluationTarget extends TempTarget {
   private boolean _includeFirstValuationDate = true;
   private String _lastValuationDate = "";
   private boolean _includeLastValuationDate = true;
+  private TimeZone _timeZone = TimeZone.UTC;
+  private LocalTime _valuationTime = LocalTime.MIDDAY;
+  private Instant _correction;
 
   /**
    * Creates a new target with an empty/default view definition.
@@ -48,6 +56,9 @@ public class ViewEvaluationTarget extends TempTarget {
     _includeFirstValuationDate = message.getBoolean("includeFirstValuationDate");
     _lastValuationDate = message.getString("lastValuationDate");
     _includeLastValuationDate = message.getBoolean("includeLastValuationDate");
+    _timeZone = TimeZone.of(message.getString("timeZone"));
+    _valuationTime = message.getValue(LocalTime.class, "valuationTime");
+    _correction = message.getValue(Instant.class, "correction");
   }
 
   private ViewEvaluationTarget(final ViewDefinition viewDefinition) {
@@ -93,6 +104,32 @@ public class ViewEvaluationTarget extends TempTarget {
     _includeLastValuationDate = includeLastValuationDate;
   }
 
+  public TimeZone getTimeZone() {
+    return _timeZone;
+  }
+
+  public void setTimeZone(final TimeZone timeZone) {
+    ArgumentChecker.notNull(timeZone, "timeZone");
+    _timeZone = timeZone;
+  }
+
+  public LocalTime getValuationTime() {
+    return _valuationTime;
+  }
+
+  public void setValuationTime(final LocalTime valuationTime) {
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _valuationTime = valuationTime;
+  }
+
+  public Instant getCorrection() {
+    return _correction;
+  }
+
+  public void setCorrection(final Instant correction) {
+    _correction = correction;
+  }
+
   /**
    * Creates a target which is the union of this and another. The other target must have compatible valuation parameters.
    *
@@ -104,7 +141,10 @@ public class ViewEvaluationTarget extends TempTarget {
     if (!getFirstValuationDate().equals(other.getFirstValuationDate())
         || (isIncludeFirstValuationDate() != other.isIncludeFirstValuationDate())
         || !getLastValuationDate().equals(other.getLastValuationDate())
-        || (isIncludeLastValuationDate() != other.isIncludeLastValuationDate())) {
+        || (isIncludeLastValuationDate() != other.isIncludeLastValuationDate())
+        || !getTimeZone().equals(other.getTimeZone())
+        || !getValuationTime().equals(other.getValuationTime())
+        || !ObjectUtils.equals(getCorrection(), other.getCorrection())) {
       return null;
     }
     // Check the basic view definitions are compatible
@@ -149,11 +189,14 @@ public class ViewEvaluationTarget extends TempTarget {
   @Override
   protected boolean equalsImpl(final Object o) {
     final ViewEvaluationTarget other = (ViewEvaluationTarget) o;
-    return getViewDefinition().equals(other.getViewDefinition())
-        && getFirstValuationDate().equals(other.getFirstValuationDate())
+    return getFirstValuationDate().equals(other.getFirstValuationDate())
         && (isIncludeFirstValuationDate() == other.isIncludeFirstValuationDate())
         && getLastValuationDate().equals(other.getLastValuationDate())
-        && (isIncludeLastValuationDate() == other.isIncludeLastValuationDate());
+        && (isIncludeLastValuationDate() == other.isIncludeLastValuationDate())
+        && getTimeZone().equals(other.getTimeZone())
+        && getValuationTime().equals(other.getValuationTime())
+        && getViewDefinition().equals(other.getViewDefinition())
+        && ObjectUtils.equals(getCorrection(), other.getCorrection());
   }
 
   @Override
@@ -164,6 +207,9 @@ public class ViewEvaluationTarget extends TempTarget {
     hc += (hc << 4) + (isIncludeFirstValuationDate() ? -1 : 0);
     hc += (hc << 4) + getLastValuationDate().hashCode();
     hc += (hc << 4) + (isIncludeLastValuationDate() ? -1 : 0);
+    hc += (hc << 4) + getTimeZone().hashCode();
+    hc += (hc << 4) + getValuationTime().hashCode();
+    hc += (hc << 4) + ObjectUtils.hashCode(getCorrection());
     return hc;
   }
 
@@ -174,6 +220,9 @@ public class ViewEvaluationTarget extends TempTarget {
     message.add("includeFirstValuationDate", null, FudgeWireType.BOOLEAN, isIncludeFirstValuationDate());
     message.add("lastValuationDate", null, FudgeWireType.STRING, getLastValuationDate());
     message.add("includeLastValuationDate", null, FudgeWireType.BOOLEAN, isIncludeLastValuationDate());
+    message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getID());
+    message.add("valuationTime", null, FudgeWireType.TIME, getValuationTime());
+    message.add("correction", null, JSR310InstantFieldType.INSTANCE, getCorrection());
   }
 
   public static ViewEvaluationTarget fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {

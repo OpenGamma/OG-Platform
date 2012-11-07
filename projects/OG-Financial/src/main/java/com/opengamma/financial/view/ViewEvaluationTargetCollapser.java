@@ -52,25 +52,32 @@ public class ViewEvaluationTargetCollapser implements ComputationTargetCollapser
 
   @Override
   public ComputationTargetSpecification collapse(final CompiledFunctionDefinition function, final ComputationTargetSpecification a, final ComputationTargetSpecification b) {
+    s_logger.debug("Request to collapse {} against {}", a, b);
     final ViewEvaluationTarget targetA = getTarget(a);
     if (targetA == null) {
+      s_logger.warn("Target {} not found", a);
       return null;
     }
     final ViewEvaluationTarget targetB = getTarget(b);
     if (targetB == null) {
+      s_logger.warn("Target {} not found", b);
       return null;
     }
     final ViewEvaluationTarget merged = targetA.union(targetB);
     if (merged == null) {
+      s_logger.debug("Can't merge {} and {}", targetA, targetB);
       return null;
     }
     if (merged == targetA) {
+      s_logger.debug("A) is a superset - {}", targetA);
       return a;
     }
     if (merged == targetB) {
+      s_logger.debug("B) is a superset - {}", targetB);
       return b;
     }
     final UniqueId uid = getTempTargets().locateOrStore(merged);
+    s_logger.debug("Created merged target {}", uid);
     return a.replaceIdentifier(uid);
   }
 

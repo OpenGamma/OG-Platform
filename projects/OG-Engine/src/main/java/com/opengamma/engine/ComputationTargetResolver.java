@@ -30,7 +30,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
     /**
      * Resolves the specification to a real target, using the bound version/correction for any deep resolution of the object. An instance of this will be bound to the function compilation and
      * execution contexts that is correctly configured for the view. Any functions can then use this for all resolutions and not have to be aware of version/correction issues.
-     * 
+     *
      * @param specification the specification to resolve, not null
      * @return the resolved target, null if not found
      */
@@ -39,7 +39,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
     /**
      * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This is the resolver bound to the parent {@link ComputationTargetResolver}
      * that is applied to the same version/correction as this instance.
-     * 
+     *
      * @return the specification resolver, not null
      */
     ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver();
@@ -49,11 +49,18 @@ public interface ComputationTargetResolver extends ChangeProvider {
      * resolution will take place regardless of whether the type is a security or a sub-class of it. If no simplification is possible, the original type may be returned.
      * <p>
      * Note that it is always correct to return the type object unchanged.
-     * 
+     *
      * @param type the type to simplify, not null
      * @return the simplified type, not null
      */
     ComputationTargetType simplifyType(ComputationTargetType type);
+
+    /**
+     * Returns the version/correction instants this instance is locked to.
+     *
+     * @return the version/correction instants, not null
+     */
+    VersionCorrection getVersionCorrection();
 
   }
 
@@ -63,7 +70,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
    * The specification contains a {@link UniqueId} that refers to a real target, such as a portfolio or security. The resolver converts this reference back to the original fully formed object. The
    * type component of the specification may be used as a hint on how to resolve the unique identifier. The type field of the resolved target may be a sub-type of the hinted type that more accurately
    * describes the target object.
-   * 
+   *
    * @param specification the specification to resolve, not null
    * @param versionCorrection the version/correction time to perform any deep resolutions at, not null
    * @return the resolved target, null if not found
@@ -75,7 +82,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
    * resolution will take place regardless of whether the type is a security or a sub-class of it. If no simplification is possible, the original type may be returned.
    * <p>
    * Note that it is always correct to return the type object unchanged.
-   * 
+   *
    * @param type the type to simplify, not null
    * @return the simplified type, not null
    */
@@ -84,7 +91,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
   /**
    * Returns the {@link SecuritySource} associated with the resolver, if any. If there is no security source then the resolver will not be able to resolve {@link ComputationTargetType#SECURITY}
    * targets. When portfolios are retrieved, the objects are fully resolved using this security source.
-   * 
+   *
    * @return the security source, or null if none
    */
   SecuritySource getSecuritySource();
@@ -92,7 +99,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
   /**
    * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This should return a resolver configured with the same sources that are used
    * for strict target resolution.
-   * 
+   *
    * @return the specification resolver, not null
    */
   ComputationTargetSpecificationResolver getSpecificationResolver();
@@ -100,7 +107,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
   /**
    * Partially applies the {@link #resolve} operation for the given version/correction. Any calls made on the returned instance are equivalent to calling methods on this with the supplied
    * version/correction parameter.
-   * 
+   *
    * @param versionCorrection the version/correction to use, not null
    * @return the partial application, not null
    */
