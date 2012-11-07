@@ -97,10 +97,10 @@ $.register_module({
             
         };
         constructor.prototype.hide = function () {
-           /*var cellmenu = this;
+           var cellmenu = this;
             if (cellmenu.menu && cellmenu.menu.length && !cellmenu.frozen) {
                 cellmenu.menu.hide();
-            }*/
+            }
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
