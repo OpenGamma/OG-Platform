@@ -71,14 +71,18 @@ $.register_module({
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle_click())
+                        if(cellmenu.inplace.toggle_click()){
+
                             cellmenu.create_inplace();
+                            cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
+                        }
                         else cellmenu.destroy_frozen();
                     });
                 });
             });
         };
         constructor.prototype.destroy_frozen = function () {
+            console.log("destroy");
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
