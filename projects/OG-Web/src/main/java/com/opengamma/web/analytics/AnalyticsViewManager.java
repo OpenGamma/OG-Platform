@@ -63,6 +63,7 @@ public class AnalyticsViewManager {
   /**
    * Creates a new view.
    * @param request Details of the view
+   * @param clientId ID of the client connection
    * @param user User requesting the view
    * @param clientConnection Connection that will be notified of changes to the view
    * @param viewId ID of the view, must be unique
@@ -70,6 +71,7 @@ public class AnalyticsViewManager {
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
    */
   public void createView(ViewRequest request,
+                         String clientId,
                          UserPrincipal user,
                          ClientConnection clientConnection,
                          final String viewId,
@@ -79,7 +81,7 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    s_logger.debug("Creating new view with ID {}", viewId);
+    s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
     AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);

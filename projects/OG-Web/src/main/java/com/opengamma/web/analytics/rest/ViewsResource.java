@@ -93,7 +93,7 @@ public class ViewsResource {
     String userName = null;
     //String userName = user.getUserName();
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
-    _viewManager.createView(viewRequest, user, connection, viewId, portfolioGridUri.getPath(), primitivesGridUri.getPath());
+    _viewManager.createView(viewRequest, clientId, user, connection, viewId, portfolioGridUri.getPath(), primitivesGridUri.getPath());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }
