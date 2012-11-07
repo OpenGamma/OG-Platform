@@ -44,7 +44,7 @@ $.register_module({
                 this.opened = true, this.$dom.toggle.addClass('og-active'), this.emitEvent(events.opened, [this]), this;
             }
         };
-        DropMenu.prototype.toggle = function () {
+        DropMenu.prototype.toggle_click = function () {
             if (this.$dom.menu) {
                 if (this.opened) this.close();
                 else this.open();
