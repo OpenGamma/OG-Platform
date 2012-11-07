@@ -14,7 +14,7 @@ $.register_module({
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
         return function (selector, placeholder, data, input_val) {
-            var combo = this, d;
+            var combo = this, d, replace_val;
 
             if (!selector || typeof selector !== 'string')
                 return og.dev.warn('og.common.util.ui.AutoCombo: Missing or invalid param [selector]');
@@ -32,6 +32,10 @@ $.register_module({
             d = data.sort((function(){
                 return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
             })());
+            var replace_placeholder = function (event) {
+                var val = combo.$input.val().replace(/<(|\/)strong>/gi, "");
+                combo.$input.val(val);
+            };
             combo.state = 'blurred';
             combo.open = function () {
                 if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '').select();
@@ -39,7 +43,7 @@ $.register_module({
             combo.placeholder = placeholder || '';
             combo.autocomplete_obj = {
                 minLength: 0, delay: 0,
-                open: function() {
+                open: function(event) {
                     $(this).autocomplete('widget').blurkill(function () {
                         if ('$input' in combo && combo.$input) combo.$input.autocomplete('close');
                     });
@@ -60,7 +64,9 @@ $.register_module({
                             return acc;
                         }, []));
                     }
-                }
+                },
+                close: replace_placeholder,
+                focus: replace_placeholder
             };
             // wrap input in div, enable input width 100% of parent, FF, IE
             combo.$wrapper = $('<div>').html('<input type="text">');
@@ -75,6 +81,7 @@ $.register_module({
                         combo.state = 'blurred';
                         if (combo.$input && combo.$input.val() === placeholder) combo.$input.val('');
                     })
+                    .on('keydown', replace_placeholder)
                     .on('focus', function () {
                         combo.state = 'focused';
                         if (combo.$input) combo.$input.trigger('open', combo.$input);

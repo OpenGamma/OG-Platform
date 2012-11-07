@@ -76,8 +76,8 @@ $.register_module({
         var get_view_index = function (val, key) {
             var pick;
             if (viewdefs_store && viewdefs_store.length){
-                viewdefs_store.forEach(function (entry, idx) {
-                    if (entry[key === 'id' ? 'name' : key] === val) pick = key === 'id' ? entry.id : entry.name;
+                viewdefs_store.forEach(function (entry) {
+                    if (entry[key] === val) pick = key === 'id' ? entry.name: entry.id;
                 });
             }
             return pick;
@@ -92,7 +92,7 @@ $.register_module({
                 $dom.load_btn = $('.og-load', $dom.form);
             }
             if (viewdefs) {
-                if (ac_data) ac_data = get_view_index(ac_data, 'name');
+                if (ac_data) ac_data = get_view_index(ac_data, 'id');
                 ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s, 'search...', viewdefs, ac_data);
                 ac_menu.$input.on(ac_s, auto_combo_handler).select();
             }
@@ -123,7 +123,7 @@ $.register_module({
         };
         var load_query = function () {
             if (!ac_menu || !ds_menu) return;
-            var id = get_view_index(ac_menu.$input.val(), 'id');
+            var id = get_view_index(ac_menu.$input.val(), 'name');
             if (!id) return;
             og.analytics.url.main(query = {
                 aggregators: ag_menu ? ag_menu.get_query() : [],
@@ -197,8 +197,7 @@ $.register_module({
             if ('viewdefinition' in url_config && url_config.viewdefinition &&
                 typeof url_config.viewdefinition === 'string') {
                 if (!query || (url_config.viewdefinition !== query.viewdefinition)) {
-                    var name = get_view_index(url_config.viewdefinition, 'name');
-                    if (ac_menu && name) ac_menu.$input.val(name);
+                    if (ac_menu) ac_menu.$input.val(get_view_index(url_config.viewdefinition, 'id'));
                     else ac_data = url_config.viewdefinition;
                 }
             }
