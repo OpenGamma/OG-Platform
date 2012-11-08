@@ -114,8 +114,8 @@ $.register_module({
                     : acc || val.method.join('/') === req.method.join('/') && val.update === req.config.meta.update;
             }, false)) return true;
             return !!registrations.push({
-                id: req.promise.id, dependencies: req.config.meta.dependencies || [], config: req.config, url: req.url,
-                promise: req.promise, method: req.method, update: req.config.meta.update, current: req.current
+                id: req.id, dependencies: req.config.meta.dependencies || [], config: req.config, url: req.url,
+                method: req.method, update: req.config.meta.update, current: req.current
             });
         };
         var request = function (method, config, promise) {
@@ -160,6 +160,7 @@ $.register_module({
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
+                        if (promise.ignore) return;
                         var meta = {content_length: xhr.responseText.length, url: url},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
@@ -173,7 +174,7 @@ $.register_module({
                     complete: loading_end
                 });
             };
-            if (is_get && !register({promise: promise, config: config, current: current, url: url, method: method}))
+            if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
                 // if registration fails, it's because we don't have a client ID yet, so stall
                 return setTimeout(request.partial(method, config, promise), STALL), promise;
             if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
@@ -194,7 +195,9 @@ $.register_module({
                     return setTimeout(request.partial(method, config, promise), STALL), promise;
                 if (config.meta.cache_for) cache_set(url, true);
             }
-            outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+            outstanding_requests[promise.id] = {
+                current: current, dependencies: config.meta.dependencies, promise: promise
+            };
             if (is_delete) registrations = registrations
                 .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
             return config.meta.dry ? promise : send(), promise;
@@ -569,7 +572,9 @@ $.register_module({
                     config = config || {};
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'],
+                        fields = [
+                            'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'
+                        ],
                         api_fields = [
                             'viewDefinitionId', 'aggregators', 'marketDataProviders',
                             'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
@@ -582,11 +587,13 @@ $.register_module({
                         required: [{all_of: ['viewdefinition', 'providers']}]
                     });
                     meta.type = 'POST';
+                    promise.ignore = true; // this request will be answered in fire_updates NOT in ajax handler
                     fields.forEach(function (val, idx) {
                         var is_object = typeof config[val] === 'object';
                         if (is_object ? val = JSON.stringify(config[val]) : val = str(config[val])) // is truthy
                             data[api_fields[idx]] = val;
                     });
+                    data['requestId'] = promise.id;
                     data['aggregators'] = config.aggregators; // send traditional form array and not JSON
                     data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta}, promise);
@@ -759,7 +766,15 @@ $.register_module({
                     .filter(function (reg) {return !request_expired(reg, current);});
                 if (reset) return registrations = registrations // fire all updates if connection is reset (and clear)
                     .filter(function (reg) {return reg.update($.extend({reset: true}, reg)) && false;});
-                result.data.updates.forEach(function (update) {
+                result.data.updates.filter(function (update) {
+                    var simple = typeof update === 'string', promise, request;
+                    if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)){
+                        promise.deferred
+                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        delete outstanding_requests[promise.id];
+                    }
+                    return simple;
+                }).forEach(function (update) {
                     var lcv, len = registrations.length, reg;
                     for (lcv = 0; lcv < len; lcv += 1)
                         if ((reg = registrations[lcv]).url === update) (registrations[lcv] = null), reg.update(reg);
