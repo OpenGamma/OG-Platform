@@ -78,6 +78,8 @@ public interface MulticurveProviderInterface {
    */
   Integer getNumberOfParameters(String name);
 
+  List<String> getUnderlyingCurvesNames(String name);
+
   //     =====     Related methods for the discounting curves     =====
 
   /**

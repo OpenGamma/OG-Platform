@@ -21,13 +21,13 @@ import com.opengamma.util.tuple.ObjectsPair;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is ParameterSensitivity object.
  */
-public class ParameterSensitivityMulticurveProviderCalculator extends AbstractParameterSensitivityMulticurveProviderCalculator {
+public class ParameterSensitivityMulticurveCalculator extends AbstractParameterSensitivityMulticurveCalculator {
 
   /**
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityMulticurveProviderCalculator(InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityMulticurveCalculator(InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 

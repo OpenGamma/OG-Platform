@@ -24,10 +24,10 @@ import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitiv
 import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -64,12 +64,12 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final ForwardRateAgreementDiscountingProviderMethod FRA_METHOD = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final ParameterSensitivityMulticurveProviderCalculator PSC = new ParameterSensitivityMulticurveProviderCalculator(PVCSDC);
+  private static final ParameterSensitivityMulticurveCalculator PSC = new ParameterSensitivityMulticurveCalculator(PVCSDC);
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
   private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQDC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final SimpleParameterSensitivityMulticurveProviderCalculator PSPSC = new SimpleParameterSensitivityMulticurveProviderCalculator(PSMQCSDC);
+  private static final SimpleParameterSensitivityMulticurveCalculator PSPSC = new SimpleParameterSensitivityMulticurveCalculator(PSMQCSDC);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSMQCS_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;

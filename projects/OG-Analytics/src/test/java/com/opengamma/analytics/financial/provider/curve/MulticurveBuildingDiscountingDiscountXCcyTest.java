@@ -346,7 +346,7 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQDC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
 
-  private static final MulticurveProviderDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
   private static final double TOLERANCE_CAL = 1.0E-9;
 
@@ -400,10 +400,58 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 10;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/EUR 3 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/EUR 3 units: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/JPY 3 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/JPY 3 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 10 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/JPY 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/JPY 1 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 265 ms for 10 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/EUR 3 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/EUR 3 units: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/JPY 3 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/JPY 3 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 10 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / USD/JPY 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction USD/JPY 1 unit: 06-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 265 ms for 10 sets.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

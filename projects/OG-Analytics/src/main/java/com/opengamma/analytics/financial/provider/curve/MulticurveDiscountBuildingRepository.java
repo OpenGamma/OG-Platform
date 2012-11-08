@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMatrixMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMatrixMulticurveUnderlyingCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.Pair;
  * Functions to build curves.
  * TODO: REVIEW: Embed in a better object.
  */
-public class MulticurveProviderDiscountBuildingRepository {
+public class MulticurveDiscountBuildingRepository {
 
   /**
    * The absolute tolerance for the root finder.
@@ -65,12 +65,13 @@ public class MulticurveProviderDiscountBuildingRepository {
    * @param toleranceRel The relative tolerance for the root finder.
    * @param stepMaximum The maximum number of step for the root finder.
    */
-  public MulticurveProviderDiscountBuildingRepository(double toleranceAbs, double toleranceRel, int stepMaximum) {
+  public MulticurveDiscountBuildingRepository(double toleranceAbs, double toleranceRel, int stepMaximum) {
     _toleranceAbs = toleranceAbs;
     _toleranceRel = toleranceRel;
     _stepMaximum = stepMaximum;
     _rootFinder = new BroydenVectorRootFinder(_toleranceAbs, _toleranceRel, _stepMaximum, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
-    // TODO: make the root finder flexible.
+    // TODO: make the root finder flexible. 
+    // TODO: create a way to select the SensitivityMatrixMulticurve calculator (with underlying curve or not)
   }
 
   /**
@@ -91,10 +92,12 @@ public class MulticurveProviderDiscountBuildingRepository {
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
-    final MulticurveProviderDiscountBuildingData data = new MulticurveProviderDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveProviderDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderDiscountFinderJacobian(
-        new ParameterSensitivityMatrixMulticurveProviderCalculator(sensitivityCalculator), data);
+    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
+        data);
+    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
+    //        new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<MulticurveProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
@@ -121,9 +124,11 @@ public class MulticurveProviderDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
-    final MulticurveProviderDiscountBuildingData data = new MulticurveProviderDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderDiscountFinderJacobian(
-        new ParameterSensitivityMatrixMulticurveProviderCalculator(sensitivityCalculator), data);
+    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
+        data);
+    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = 
+    //        new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     double[][] matrixTotal = inverseJacobian.getData();

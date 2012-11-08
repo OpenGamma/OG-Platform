@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,6 +201,19 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     } else {
       ArgumentChecker.isTrue(curveObject instanceof DoublesCurve, "Curve not a DoublesCurve, can not computed sensitivity");
       return ((DoublesCurve) curveObject).size();
+    }
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(String name) {
+    final Object curveObject = _allCurves.get(name);
+    if (curveObject instanceof YieldAndDiscountCurve) {
+      return ((YieldAndDiscountCurve) curveObject).getUnderlyingCurvesNames();
+    } else {
+      ArgumentChecker.isTrue(curveObject instanceof DoublesCurve, "Curve not a DoublesCurve, can not computed sensitivity");
+      List<String> list = new ArrayList<String>();
+      list.add(name);
+      return list;
     }
   }
 

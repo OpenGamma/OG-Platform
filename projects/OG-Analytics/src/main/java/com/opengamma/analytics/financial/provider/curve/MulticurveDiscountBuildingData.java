@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Data required to build curves in the Multiple Curve on MulticurvePrividerDiscount framework.
  */
-public class MulticurveProviderDiscountBuildingData {
+public class MulticurveDiscountBuildingData {
 
   /**
    * The list of instruments. Not null.
@@ -32,7 +32,7 @@ public class MulticurveProviderDiscountBuildingData {
    * @param instruments The list of instruments.
    * @param generator The market generator.
    */
-  public MulticurveProviderDiscountBuildingData(final InstrumentDerivative[] instruments, final GeneratorMulticurveProviderDiscount generator) {
+  public MulticurveDiscountBuildingData(final InstrumentDerivative[] instruments, final GeneratorMulticurveProviderDiscount generator) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(generator, "Market generator");
     _instruments = instruments;

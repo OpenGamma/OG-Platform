@@ -18,7 +18,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * Function computing the Jacobian of the error of valuation produce by a array representing the curve parameters. 
  * @author marc
  */
-public class MulticurveProviderDiscountFinderJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
+public class MulticurveDiscountFinderJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
 
   /**
    * The instrument parameter sensitivity calculator.
@@ -27,15 +27,15 @@ public class MulticurveProviderDiscountFinderJacobian extends Function1D<DoubleM
   /**
    * The data required for curve building.
    */
-  private final MulticurveProviderDiscountBuildingData _data;
+  private final MulticurveDiscountBuildingData _data;
 
   /**
    * Constructor.
    * @param parameterSensitivityCalculator The instrument parameter sensitivity calculator.
    * @param data The data required for curve building.
    */
-  public MulticurveProviderDiscountFinderJacobian(final AbstractParameterSensitivityMatrixMulticurveProviderCalculator parameterSensitivityCalculator, 
-      final MulticurveProviderDiscountBuildingData data) {
+  public MulticurveDiscountFinderJacobian(final AbstractParameterSensitivityMatrixMulticurveProviderCalculator parameterSensitivityCalculator, 
+      final MulticurveDiscountBuildingData data) {
     _parameterSensitivityCalculator = parameterSensitivityCalculator;
     _data = data;
   }

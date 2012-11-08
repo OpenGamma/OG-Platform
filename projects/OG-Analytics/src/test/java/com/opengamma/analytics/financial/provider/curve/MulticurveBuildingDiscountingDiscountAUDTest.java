@@ -137,6 +137,28 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static final String CURVE_NAME_FWD3_AUD = "AUD Fwd 3M";
   private static final String CURVE_NAME_FWD6_AUD = "AUD Fwd 6M";
 
+  //  /** Simplified versions for the note */
+  //  /** Market values for the dsc USD curve */
+  //  public static final double[] DSC_AUD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
+  //  /** Generators for the dsc USD curve */
+  //  public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD};
+  //  /** Tenors for the dsc USD curve */
+  //  public static final Period[] DSC_AUD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5)};
+  //
+  //  /** Market values for the Fwd 3M USD curve */
+  //  public static final double[] FWD3_AUD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0470, 0.0020};
+  //  /** Generators for the Fwd 3M USD curve */
+  //  public static final GeneratorInstrument[] FWD3_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB3M, GENERATOR_FRA_3M, AUD3MBBSW3M, AUDBBSW3MBBSW6M};
+  //  /** Tenors for the Fwd 3M USD curve */
+  //  public static final Period[] FWD3_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5)};
+  //
+  //  /** Market values for the Fwd 3M USD curve */
+  //  public static final double[] FWD6_AUD_MARKET_QUOTES = new double[] {0.0440, 0.0020, 0.0560};
+  //  /** Generators for the Fwd 3M USD curve */
+  //  public static final GeneratorInstrument[] FWD6_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB6M, AUDBBSW3MBBSW6M, AUD6MBBSW6M};
+  //  /** Tenors for the Fwd 3M USD curve */
+  //  public static final Period[] FWD6_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(5)};
+
   /** Market values for the dsc USD curve */
   public static final double[] DSC_AUD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
@@ -224,7 +246,7 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
 
-  private static final MulticurveProviderDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
   private static final double TOLERANCE_CAL = 1.0E-9;
 
@@ -277,10 +299,42 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " x 3 curves construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 08-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 810 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " x 3 curves construction / 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 unit: 08-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 995 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " x 3 curves construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 850 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " x 3 curves construction / 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1025 ms for 100 sets.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

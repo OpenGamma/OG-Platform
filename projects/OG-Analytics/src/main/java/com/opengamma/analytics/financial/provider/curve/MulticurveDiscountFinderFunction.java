@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * Function computing the error of valuation produce by an array representing the curve parameters. 
  * @author marc
  */
-public class MulticurveProviderDiscountFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+public class MulticurveDiscountFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   /**
    * The instrument value calculator.
@@ -25,14 +25,14 @@ public class MulticurveProviderDiscountFinderFunction extends Function1D<DoubleM
   /**
    * The data required for curve building.
    */
-  private final MulticurveProviderDiscountBuildingData _data;
+  private final MulticurveDiscountBuildingData _data;
 
   /**
    * Constructor. 
    * @param calculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public MulticurveProviderDiscountFinderFunction(final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator, MulticurveProviderDiscountBuildingData data) {
+  public MulticurveDiscountFinderFunction(final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator, MulticurveDiscountBuildingData data) {
     ArgumentChecker.notNull(calculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
     _calculator = calculator;

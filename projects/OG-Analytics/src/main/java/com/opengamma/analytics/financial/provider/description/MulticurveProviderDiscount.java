@@ -175,6 +175,11 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   @Override
+  public List<String> getUnderlyingCurvesNames(String name) {
+    return _allCurves.get(name).getUnderlyingCurvesNames();
+  }
+
+  @Override
   public double getDiscountFactor(final Currency ccy, final Double time) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy).getDiscountFactor(time);

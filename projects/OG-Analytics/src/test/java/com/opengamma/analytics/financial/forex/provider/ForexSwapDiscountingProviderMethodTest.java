@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitiv
 import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -62,7 +62,7 @@ public class ForexSwapDiscountingProviderMethodTest {
   private static final CurrencyExposureDiscountingCalculator CEDC = CurrencyExposureDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQDC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final SimpleParameterSensitivityMulticurveProviderCalculator PSPSC = new SimpleParameterSensitivityMulticurveProviderCalculator(PSMQCSDC);
+  private static final SimpleParameterSensitivityMulticurveCalculator PSPSC = new SimpleParameterSensitivityMulticurveCalculator(PSMQCSDC);
   private static final double SHIFT = 1.0E-7;
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSMQCS_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT);
 
