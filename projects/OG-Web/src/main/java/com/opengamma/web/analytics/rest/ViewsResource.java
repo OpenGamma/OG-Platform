@@ -18,8 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.json.JSONObject;
-
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.UniqueId;
@@ -99,8 +97,7 @@ public class ViewsResource {
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri);
-    String viewCallbackId = new JSONObject(callbackMap).toString();
-    _viewManager.createView(viewRequest, clientId, user, connection, viewId, viewCallbackId,
+    _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath());
     return Response.status(Response.Status.CREATED).build();
   }

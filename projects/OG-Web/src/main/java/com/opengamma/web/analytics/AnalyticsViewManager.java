@@ -76,7 +76,7 @@ public class AnalyticsViewManager {
                          UserPrincipal user,
                          ClientConnection clientConnection,
                          String viewId,
-                         String viewCallbackId,
+                         Object viewCallbackId,
                          String portfolioGridId,
                          String primitivesGridId) {
     if (_viewConnections.containsKey(viewId)) {
@@ -95,6 +95,7 @@ public class AnalyticsViewManager {
                                                                                  _snapshotMaster);
     _viewConnections.put(viewId, connection);
     // need to notify the listener that the view has been created
+    // TODO would it be neater to leave this to the constructor of NotifyingAnalyticsView
     clientConnection.itemUpdated(viewCallbackId);
     connection.start();
     clientConnection.addDisconnectionListener(new DisconnectionListener(viewId));

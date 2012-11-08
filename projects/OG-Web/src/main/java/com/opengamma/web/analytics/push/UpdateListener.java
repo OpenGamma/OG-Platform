@@ -16,11 +16,11 @@ public interface UpdateListener {
    * Invoked when something has been updated.
    * @param callbackId The callback IDs of the updated data
    */
-  void itemUpdated(String callbackId);
+  void itemUpdated(Object callbackId);
 
   /**
    * Invoked when multiple items have been updated.
    * @param callbackIds The RESTful URLs of the updated data
    */
-  void itemsUpdated(Collection<String> callbackIds);
+  void itemsUpdated(Collection<?> callbackIds);
 }
