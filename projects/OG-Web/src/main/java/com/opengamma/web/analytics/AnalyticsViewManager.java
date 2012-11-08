@@ -67,6 +67,7 @@ public class AnalyticsViewManager {
    * @param user User requesting the view
    * @param clientConnection Connection that will be notified of changes to the view
    * @param viewId ID of the view, must be unique
+   * @param viewCallbackId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
    */
@@ -74,7 +75,8 @@ public class AnalyticsViewManager {
                          String clientId,
                          UserPrincipal user,
                          ClientConnection clientConnection,
-                         final String viewId,
+                         String viewId,
+                         String viewCallbackId,
                          String portfolioGridId,
                          String primitivesGridId) {
     if (_viewConnections.containsKey(viewId)) {
@@ -92,6 +94,8 @@ public class AnalyticsViewManager {
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);
     _viewConnections.put(viewId, connection);
+    // need to notify the listener that the view has been created
+    clientConnection.itemUpdated(viewCallbackId);
     connection.start();
     clientConnection.addDisconnectionListener(new DisconnectionListener(viewId));
   }
