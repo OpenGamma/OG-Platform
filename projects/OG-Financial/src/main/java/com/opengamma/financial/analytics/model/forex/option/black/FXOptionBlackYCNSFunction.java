@@ -170,7 +170,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
-      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
+      s_logger.info("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
       return null;
     }
     if (currency.equals(putCurrency.getCode())) {

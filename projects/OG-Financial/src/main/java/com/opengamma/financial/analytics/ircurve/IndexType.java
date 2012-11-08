@@ -16,5 +16,7 @@ public enum IndexType {
   /** Euribor */
   Euribor,
   /** BBSW (AUD) */
-  BBSW
+  BBSW,
+  /** Swap */
+  Swap
 }

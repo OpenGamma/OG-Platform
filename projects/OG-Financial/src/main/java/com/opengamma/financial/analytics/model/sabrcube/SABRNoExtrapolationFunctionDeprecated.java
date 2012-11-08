@@ -43,11 +43,15 @@ public abstract class SABRNoExtrapolationFunctionDeprecated extends SABRFunction
       return false;
     }
     final Security security = target.getSecurity();
-    return security instanceof SwaptionSecurity
-        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
-        || security instanceof CapFloorSecurity;
+    try {
+      return security instanceof SwaptionSecurity
+          || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
+          || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+          || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+          || security instanceof CapFloorSecurity;
+    } catch (final OpenGammaRuntimeException e) {
+      return false;
+    }
   }
 
   @Override
