@@ -43,7 +43,7 @@ public class ComputedValueResultFudgeBuilder implements FudgeBuilder<ComputedVal
       serializer.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     }
     if (object.getInvocationResult() != null) {
-      serializer.addToMessage(msg, INVOCATION_RESULT_FIELD_NAME, null, object.getInvocationResult());
+      msg.add(INVOCATION_RESULT_FIELD_NAME, object.getInvocationResult().name());
     }
     return msg;
   }

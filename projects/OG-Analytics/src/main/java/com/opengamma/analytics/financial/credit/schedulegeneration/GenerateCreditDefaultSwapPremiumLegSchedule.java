@@ -5,17 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.TreeSet;
-
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -29,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
  *  Class containing methods to generate the premium leg cashflow schedule for a CDS (following the market conventions for CDS)
  */
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
+
+  // -------------------------------------------------------------------------------------------
 
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -77,97 +73,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // ------------------------------------------------
 
     return cashflowSchedule;
-  }
-
-  // -------------------------------------------------------------------------------------------
-
-  // Public method to generate a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
-  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, ISDACurve yieldCurve, HazardRateCurve hazardRateCurve,
-      double startTime, double endTime, boolean includeSchedule) {
-
-    // ------------------------------------------------
-
-    // Check input arguments are not null
-
-    ArgumentChecker.notNull(cds, "CDS");
-    ArgumentChecker.notNull(yieldCurve, "Yield curve");
-    ArgumentChecker.notNull(hazardRateCurve, "Hazard rate curve");
-
-    ArgumentChecker.notNull(startTime, "Start time");
-    ArgumentChecker.notNull(endTime, "End time");
-
-    // ------------------------------------------------
-
-    double offset = 0.0;
-
-    ZonedDateTime[] cashflowSchedule = this.constructCreditDefaultSwapPremiumLegSchedule(cds);
-
-    double[] cashflowScheduleAsDoubles = convertTenorsToDoubles(cashflowSchedule, cds.getValuationDate(), ACT_365);
-
-    NavigableSet<Double> allTimePoints = new TreeSet<Double>();
-
-    Set<Double> timePointsInRange;
-
-    double[] x = yieldCurve.getTimePoints();
-
-    // ------------------------------------------------
-
-    for (int i = 0; i < x.length; i++) {
-      allTimePoints.add(new Double(x[i]));
-    }
-
-    x = hazardRateCurve.getShiftedTimePoints();
-
-    for (int i = 0; i < x.length; i++) {
-      allTimePoints.add(new Double(x[i]));
-    }
-
-    allTimePoints.add(new Double(startTime));
-    allTimePoints.add(new Double(endTime));
-
-    // ------------------------------------------------
-
-    if (includeSchedule) {
-
-      if (cds.getProtectionStart()) {
-        offset = cds.getProtectionOffset();
-      }
-
-      double offsetStartTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cashflowSchedule[1], ACT_365) - offset;
-      allTimePoints.add(new Double(offsetStartTime));
-
-      double periodEndTime = 0.0;
-      for (int i = 0; i < cashflowSchedule.length; i++) {
-
-        if (i < cashflowSchedule.length - 1) {
-          periodEndTime = cashflowScheduleAsDoubles[i] - offset;
-        } else {
-          periodEndTime = cashflowScheduleAsDoubles[i];
-        }
-
-        allTimePoints.add(new Double(periodEndTime));
-      }
-
-      timePointsInRange = allTimePoints.subSet(new Double(offsetStartTime), true, new Double(endTime), true);
-
-    } else {
-      timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
-    }
-
-    // ------------------------------------------------
-
-    Double[] boxed = new Double[timePointsInRange.size()];
-    timePointsInRange.toArray(boxed);
-
-    double[] timePoints = new double[boxed.length];
-
-    for (int i = 0; i < boxed.length; ++i) {
-      timePoints[i] = boxed[i].doubleValue();
-    }
-
-    // ------------------------------------------------
-
-    return timePoints;
   }
 
   // -------------------------------------------------------------------------------------------

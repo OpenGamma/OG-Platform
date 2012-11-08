@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -133,7 +131,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = false;
+  private static final boolean includeAccruedPremium = true;
   private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
 
@@ -392,8 +390,8 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  @Test
-  public void testAdHocPresentValueLegacyCreditDefaultSwap() {
+  //@Test
+  public void testPresentValueLegacyCreditDefaultSwapAdHoc() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -418,7 +416,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   //@Test
-  public void testRecoveryRateSensitivityPresentValueLegacyCreditDefaultSwap() {
+  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivit() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -452,7 +450,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   //@Test
-  public void testSpreadSensitivityPresentValueLegacyCreditDefaultSwap() {
+  public void testPresentValueLegacyCreditDefaultSwapSpreadSensitivity() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -515,7 +513,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
 
     // start at the initial valuation date
-    ZonedDateTime rollingdate = startDate.minusDays(1); //valuationDate.minusDays(1);
+    ZonedDateTime rollingdate = valuationDate.minusDays(1);
 
     // Specify the end date
     ZonedDateTime endDate = maturityDate.plusDays(3);
