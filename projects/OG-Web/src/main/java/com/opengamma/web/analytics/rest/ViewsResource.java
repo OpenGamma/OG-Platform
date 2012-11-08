@@ -15,10 +15,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -63,6 +65,7 @@ public class ViewsResource {
 
   @POST
   public Response createView(@Context UriInfo uriInfo,
+                             @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
                              @FormParam("marketDataProviders") String marketDataProviders,
@@ -70,10 +73,11 @@ public class ViewsResource {
                              @FormParam("portfolioVersionTime") String portfolioVersionTime,
                              @FormParam("portfolioCorrectionTime") String portfolioCorrectionTime,
                              @FormParam("clientId") String clientId) {
-    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
+    ArgumentChecker.notEmpty(requestId, "requestId");
+    ArgumentChecker.notEmpty(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
-    ArgumentChecker.notNull(marketDataProviders, "marketDataProviders");
-    ArgumentChecker.notNull(clientId, "clientId");
+    ArgumentChecker.notEmpty(marketDataProviders, "marketDataProviders");
+    ArgumentChecker.notEmpty(clientId, "clientId");
     List<MarketDataSpecification> marketDataSpecs = MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
     VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
                                                                parseInstant(portfolioCorrectionTime));
@@ -93,9 +97,12 @@ public class ViewsResource {
     String userName = null;
     //String userName = user.getUserName();
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
-    _viewManager.createView(viewRequest, user, connection, viewId, portfolioGridUri.getPath(), primitivesGridUri.getPath());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri);
+    String viewCallbackId = new JSONObject(callbackMap).toString();
+    _viewManager.createView(viewRequest, clientId, user, connection, viewId, viewCallbackId,
+                            portfolioGridUri.getPath(), primitivesGridUri.getPath());
+    return Response.status(Response.Status.CREATED).build();
   }
 
   /**

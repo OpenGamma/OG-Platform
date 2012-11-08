@@ -63,23 +63,28 @@ public class AnalyticsViewManager {
   /**
    * Creates a new view.
    * @param request Details of the view
+   * @param clientId ID of the client connection
    * @param user User requesting the view
    * @param clientConnection Connection that will be notified of changes to the view
    * @param viewId ID of the view, must be unique
+   * @param viewCallbackId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
    */
   public void createView(ViewRequest request,
+                         String clientId,
                          UserPrincipal user,
                          ClientConnection clientConnection,
-                         final String viewId,
+                         String viewId,
+                         String viewCallbackId,
                          String portfolioGridId,
                          String primitivesGridId) {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    AnalyticsView view = new SimpleAnalyticsView(portfolioGridId, primitivesGridId, _targetResolver);
+    s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
+    AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
@@ -89,8 +94,9 @@ public class AnalyticsViewManager {
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);
     _viewConnections.put(viewId, connection);
+    // need to notify the listener that the view has been created
+    clientConnection.itemUpdated(viewCallbackId);
     connection.start();
-    s_logger.debug("Created new view with ID {}", viewId);
     clientConnection.addDisconnectionListener(new DisconnectionListener(viewId));
   }
 

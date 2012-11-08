@@ -58,4 +58,9 @@ public class AnalyticsColumnGroups {
   public List<AnalyticsColumnGroup> getGroups() {
     return _columnGroups;
   }
+
+  @Override
+  public String toString() {
+    return "AnalyticsColumnGroups [_columns=" + _columns + ", _columnGroups=" + _columnGroups + "]";
+  }
 }
