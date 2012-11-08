@@ -5,6 +5,9 @@
  */
 package com.opengamma.component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -14,6 +17,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Main entry point for OpenGamma component-based servers.
@@ -103,14 +108,28 @@ public class OpenGammaComponentServer {
       usage();
       return false;
     }
+    Map<String, String> properties = new HashMap<String, String>();
     if (args.length > 1) {
-      _logger.logError("Only one config file can be specified");
-      usage();
-      return false;
+      for (int i = 1; i < args.length; i++) {
+        String arg = args[i];
+        int equalsPosition = arg.indexOf('=');
+        if (equalsPosition < 0) {
+          throw new OpenGammaRuntimeException("Invalid property format, must be key=value (no spaces)");
+        }
+        String key = arg.substring(0, equalsPosition).trim();
+        String value = arg.substring(equalsPosition + 1).trim();
+        if (key.length() == 0) {
+          throw new IllegalArgumentException("Invalid empty property key");
+        }
+        if (properties.containsKey(key)) {
+          throw new IllegalArgumentException("Invalid property, key '" + key + "' specified twice");
+        }
+        properties.put(key, value);
+      }
     }
     String configFile = args[0];
     
-    return run(configFile);
+    return run(configFile, properties);
   }
 
   //-------------------------------------------------------------------------
@@ -128,9 +147,10 @@ public class OpenGammaComponentServer {
    * Runs the server with config file.
    * 
    * @param configFile  the config file, not null
+   * @param properties  the properties read from the command line, not null
    * @return true if the server was started, false if there was a problem
    */
-  protected boolean run(String configFile) {
+  protected boolean run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
     _logger.logInfo("======== STARTING OPENGAMMA ========");
     _logger.logDebug(" Config file: " + configFile);
@@ -141,6 +161,7 @@ public class OpenGammaComponentServer {
     
     // create the manager
     ComponentManager manager = createManager(serverName);
+    manager.getProperties().putAll(properties);
     
     // start server
     try {
