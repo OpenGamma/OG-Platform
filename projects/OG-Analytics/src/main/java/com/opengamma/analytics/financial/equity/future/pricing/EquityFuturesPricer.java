@@ -9,7 +9,6 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 
 /**
- * FIXME CASE REMOVE THIS CLASS??
  * Common interface for all {@link EquityFuturePricingMethod}'s.
  */
 public interface EquityFuturesPricer {

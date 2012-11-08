@@ -39,6 +39,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -52,6 +53,8 @@ import com.opengamma.util.tuple.DoublesPair;
  *
  */
 public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuturesFunction {
+
+  private static final EquityFutureConverter CONVERTER = new EquityFutureConverter();
 
   public EquityFuturesYieldCurveNodeSensitivityFunction(String pricingMethodName) {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, pricingMethodName);
@@ -90,7 +93,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    final EquityFutureDefinition definition = getFinancialToAnalyticConverter().visitEquityFutureTrade(trade, lastMarginPrice);
+    final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 

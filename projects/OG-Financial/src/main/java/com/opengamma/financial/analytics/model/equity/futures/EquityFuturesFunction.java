@@ -57,12 +57,12 @@ import com.opengamma.util.money.Currency;
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
-  // TODO: Refactor - this is a field name, like PX_LAST - Maybe we should reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
+  // TODO: Refactor - this is a field name, like PX_LAST - We can't reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
+  private static final EquityFutureConverter CONVERTER = new EquityFutureConverter();
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
-  private EquityFutureConverter _financialToAnalyticConverter;
   private final EquityFuturesPricer _pricer;
   private final String _pricingMethodName;
 
@@ -95,22 +95,18 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-    _financialToAnalyticConverter = new EquityFutureConverter();
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties(target).get()));
   }
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final String calcMethod = getPricingMethodName();
     final ValueProperties.Builder properties = createValueProperties()
       .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+      .with(ValuePropertyNames.CALCULATION_METHOD, calcMethod)
       .withAny(ValuePropertyNames.CURVE)
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-      .withAny(ValuePropertyNames.CALCULATION_METHOD);
+      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     return properties;
   }
 
@@ -156,7 +152,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade, lastMarginPrice);
+    final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
     final EquityFuture derivative = definition.toDerivative(valuationTime);
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -375,14 +371,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    */
   protected final String getValueRequirementName() {
     return _valueRequirementName;
-  }
-
-  /**
-   * Gets the financialToAnalyticConverter.
-   * @return the financialToAnalyticConverter
-   */
-  protected final EquityFutureConverter getFinancialToAnalyticConverter() {
-    return _financialToAnalyticConverter;
   }
 
   /**
