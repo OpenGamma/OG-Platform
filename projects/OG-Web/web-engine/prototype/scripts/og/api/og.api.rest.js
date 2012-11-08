@@ -109,9 +109,13 @@ $.register_module({
         var register = function (req) {
             if (!req.config.meta.update) return true;
             if (!api.id) return false;
+            if (registrations.reduce(function (acc, val) { // do not add duplicates
+                return val === null ? false
+                    : acc || val.method.join('/') === req.method.join('/') && val.update === req.config.meta.update;
+            }, false)) return true;
             return !!registrations.push({
-                id: req.id, dependencies: req.config.meta.dependencies || [], config: req.config, method: req.method,
-                update: req.config.meta.update, url: req.url, current: req.current
+                id: req.promise.id, dependencies: req.config.meta.dependencies || [], config: req.config, url: req.url,
+                promise: req.promise, method: req.method, update: req.config.meta.update, current: req.current
             });
         };
         var request = function (method, config, promise) {
@@ -169,7 +173,7 @@ $.register_module({
                     complete: loading_end
                 });
             };
-            if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
+            if (is_get && !register({promise: promise, config: config, current: current, url: url, method: method}))
                 // if registration fails, it's because we don't have a client ID yet, so stall
                 return setTimeout(request.partial(method, config, promise), STALL), promise;
             if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
@@ -757,19 +761,15 @@ $.register_module({
                     .filter(function (reg) {return reg.update($.extend({reset: true}, reg)) && false;});
                 result.data.updates.forEach(function (update) {
                     var lcv, len = registrations.length, reg;
-                    for (lcv = 0; lcv < len; lcv += 1) if ((reg = registrations[lcv]).url === update)
-                        reg.update(reg), (registrations[lcv] = null);
+                    for (lcv = 0; lcv < len; lcv += 1)
+                        if ((reg = registrations[lcv]).url === update) (registrations[lcv] = null), reg.update(reg);
                     registrations = registrations.filter(Boolean);
                 });
             })(true, null); // there are no registrations when subscribe() is called unless the connection's been reset
             (listen = function () {
                 api.updates.get({handler: function (result) {
                     if (result.error) {
-                        if (!api.disconnected) {
-                            api.disconnected = true;
-                            api.fire('disconnect');
-                            api.id = null;
-                        }
+                        if (!api.disconnected) (api.disconnected = true), api.fire('disconnect'), (api.id = null);
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }
