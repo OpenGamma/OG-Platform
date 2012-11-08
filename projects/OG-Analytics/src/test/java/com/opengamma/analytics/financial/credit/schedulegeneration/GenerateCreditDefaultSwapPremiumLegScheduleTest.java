@@ -43,6 +43,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
+
+  // ----------------------------------------------------------------------------------
+
   // CDS contract parameters (don't need the curves in this case as we are just testing the construction of the cashflow schedule)
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
@@ -208,15 +213,13 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   @Test
   public void testCDSCashflowScheduleGeneration() {
 
-    final boolean outputSchedule = false;
-
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
     ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
-    if (outputSchedule) {
+    if (outputResults) {
       for (int i = 0; i < schedule.length; i++) {
         System.out.println(schedule[i]);
       }

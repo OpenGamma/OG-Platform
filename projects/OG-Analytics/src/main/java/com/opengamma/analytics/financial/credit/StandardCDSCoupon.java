@@ -10,23 +10,27 @@ package com.opengamma.analytics.financial.credit;
  */
 public enum StandardCDSCoupon {
   /**
-   * 25bps contract
+   * 25bps contract (Europe)
    */
   _25bps,
   /**
-   * 100bps contract
+   * 100bps contract (North America and Europe)
    */
   _100bps,
   /**
-   * 500bps contract
+   * 300bps contract (Europe)
+   */
+  _300bps,
+  /**
+   * 500bps contract (North America and Europe)
    */
   _500bps,
   /**
-   * 750bps contract
+   * 750bps contract (Europe)
    */
   _750bps,
   /**
-   * 1000bps contract
+   * 1000bps contract (Europe)
    */
   _1000bps;
 }

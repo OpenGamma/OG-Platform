@@ -10,19 +10,19 @@ package com.opengamma.analytics.financial.credit;
  */
 public enum CDSIndex {
   /**
-   * CDX.NA.IG North American Investment Grade index
+   * CDX.NA.IG North American Investment Grade index (trades on spread)
    */
   CDXNAIG,
   /**
-   * CDX.NA.HY North American High Yield index
+   * CDX.NA.HY North American High Yield index (trades on price)
    */
   CDXNAHY,
   /**
-   * CDX.NA.XO North American Crossover Credits index (A crossover credit is one which was previously IG but has since been downgraded)
+   * CDX.NA.XO North American Crossover Credits index (a crossover credit is one which was previously IG but has since been downgraded)
    */
   CDXNAXO,
   /**
-   * CDX.EM Emerging Market Sovereign Credits index
+   * CDX.EM Emerging Market Sovereign Credits index (trades on price)
    */
   CDXEM,
   /**
@@ -30,17 +30,17 @@ public enum CDSIndex {
    */
   CDXEMDIVERS,
   /**
-   * CDX High Vol index
+   * CDX High Vol index (trades on spread)
    */
-  CDXHiVol,
+  CDXHVOL,
   /**
-   * iTraxx Europe Investment Grade index
+   * iTraxx Europe Investment Grade index (trades on spread) 
    */
   iTraxx,
   /**
    * iTraxx Europe High Vol index
    */
-  iTraxxHiVol,
+  iTraxxHVOL,
   /**
    * iTraxx Europe Crossover Credits index
    */
@@ -50,17 +50,21 @@ public enum CDSIndex {
    */
   iTraxxSovX,
   /**
-   * iTraxx Japanese Investment Grade index
+   * iTraxx Japanese Investment Grade index (trades on spread)
    */
   iTraxxJapan,
   /**
-   * iTraxx Asian non-Japan Investment Grade index
+   * iTraxx Asian non-Japan Investment Grade index (trades on spread)
    */
   iTraxxAsiaExJapan,
   /**
-   * iTraxx Australian Investment Grade index
+   * iTraxx Australian Investment Grade index (trades on spread)
    */
-  iTraxxAustralia;
+  iTraxxAustralia,
+  /**
+   * iTraxx Central & Eastern European, Middle Eastern and African countries (corporate and quasi-sovereign)
+   */
+  iTraxxCEEMEA;
 
-  // TODO : Add the rest of the index names (need to work out how to include NA, IG etc)
+  // TODO : Add the rest of the index names (need to work out how to include NA, IG etc) and sort out which ones trade on spread/price
 }

@@ -18,7 +18,8 @@ public abstract class UnderlyingPool {
 
   // TODO : Work-in-Progress
 
-  // TODO : Will want to include calculations such as e.g. average T year spread of constituents and other descriptive statistics 
+  // TODO : Will want to include calculations such as e.g. average T year spread of constituents and other descriptive statistics
+  // TODO : The standard index pools will be classes that derive from this one
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

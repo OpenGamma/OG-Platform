@@ -351,8 +351,14 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
       }
 
-      // Append the timenode at the adjusted effective date at the beginning of the cashflow schedule vector
-      cashflowSchedule[0] = adjustedEffectiveDate;
+      if (stubType == StubType.FRONTSHORT) {
+        // Append the timenode at the adjusted effective date at the beginning of the cashflow schedule vector
+        cashflowSchedule[0] = adjustedEffectiveDate;
+      }
+
+      if (stubType == StubType.FRONTLONG) {
+        cashflowSchedule[0] = cashflowDate.minus(couponFrequency.getPeriod());
+      }
     }
 
     // -------------------------------------------------------------------------------
@@ -374,6 +380,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     }
 
     // -------------------------------------------------------------------------------
+
+    /*
+    for (int i = 0; i < cashflowSchedule.length; i++) {
+      System.out.println("i = " + i + "\t" + cashflowSchedule[i]);
+    }
+    */
 
     return cashflowSchedule;
   }
@@ -573,7 +585,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // -------------------------------------------------------------------------------
 
-    /*
     // The stub is at the end of the premium leg schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
@@ -590,7 +601,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         numberOfCashflows++;
       }
     }
-    */
 
     // -------------------------------------------------------------------------------
 

@@ -5,6 +5,15 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -339,6 +348,44 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitForexOptionDigital(ForexOptionDigital derivative, S data);
 
   T visitForexOptionDigital(ForexOptionDigital derivative);
+
+  //  -----     Commodity      -----
+
+  T visitMetalForward(MetalForward future, S data);
+
+  T visitMetalForward(MetalForward future);
+
+  T visitMetalFuture(MetalFuture future, S data);
+
+  T visitMetalFuture(MetalFuture future);
+
+  T visitMetalFutureOption(MetalFutureOption future, S data);
+
+  T visitMetalFutureOption(MetalFutureOption future);
+
+  T visitAgricultureForward(AgricultureForward future, S data);
+
+  T visitAgricultureForward(AgricultureForward future);
+
+  T visitAgricultureFuture(AgricultureFuture future, S data);
+
+  T visitAgricultureFuture(AgricultureFuture future);
+
+  T visitAgricultureFutureOption(AgricultureFutureOption future, S data);
+
+  T visitAgricultureFutureOption(AgricultureFutureOption future);
+
+  T visitEnergyForward(EnergyForward future, S data);
+
+  T visitEnergyForward(EnergyForward future);
+
+  T visitEnergyFuture(EnergyFuture future, S data);
+
+  T visitEnergyFuture(EnergyFuture future);
+
+  T visitEnergyFutureOption(EnergyFutureOption future, S data);
+
+  T visitEnergyFutureOption(EnergyFutureOption future);
 
   //  -----     Deprecated     -----
 

@@ -43,6 +43,11 @@ public class CalibrateHazardRateCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
+
+  // ----------------------------------------------------------------------------------
+
   // CDS contract parameters
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
@@ -357,8 +362,6 @@ public class CalibrateHazardRateCurveTest {
 
     // -----------------------------------------------------------------------------------------------
 
-    final boolean outputResults = false;
-
     if (outputResults) {
       System.out.println("Running CDS Calibration test  ...");
     }
@@ -398,10 +401,6 @@ public class CalibrateHazardRateCurveTest {
 
   //@Test
   public void testCalibrateHazardRateCurveFlatTermStructure() {
-
-    // -------------------------------------------------------------------------------------
-
-    final boolean outputResults = false;
 
     // -------------------------------------------------------------------------------------
 
@@ -479,8 +478,6 @@ public class CalibrateHazardRateCurveTest {
   public void testCalibrateHazardRateCurveAndRepriceCalibrationCDS() {
 
     // -----------------------------------------------------------------------------------------------
-
-    final boolean outputResults = false;
 
     if (outputResults) {
       System.out.println("Running CDS calibration and re-pricing test ...");

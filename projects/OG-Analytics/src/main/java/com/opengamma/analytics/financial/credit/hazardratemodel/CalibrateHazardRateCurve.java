@@ -131,7 +131,7 @@ public class CalibrateHazardRateCurve {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m] 
-      calibrationCDS = calibrationCDS.withMaturity(tenors[m]);
+      calibrationCDS = calibrationCDS.withMaturityDate(tenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
-import com.opengamma.analytics.financial.equity.variance.derivative.EquityVarianceSwap;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -43,7 +43,7 @@ public final class EquityVarianceSwapPricer {
   private final VolatilitySurfaceInterpolator _surfaceInterpolator;
 
   /**
-   * Builder class for this pricer. 
+   * Builder class for this pricer.
    * <p>
    * The following default values are supplied:
    * <ul>
@@ -136,13 +136,13 @@ public final class EquityVarianceSwapPricer {
   /**
    * Calculates the price of an equity variance swap from OTM option prices. The surface used is a pure implied volatility surface.
    * @param swap The details of the equity variance swap, not null
-   * @param spot Current level of the underlying 
+   * @param spot Current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
    * @param expiries The strips of option expiries, not null
    * @param strikes The strikes for each option strip, not null. Must have the same number of strips as expiries.
-   * @param otmPrices The <b>out-of-the-money</b> option prices, not null. Must have the same number of strips as expiries and values as strikes. 
-   * @return The <b>annualised</b> variance 
+   * @param otmPrices The <b>out-of-the-money</b> option prices, not null. Must have the same number of strips as expiries and values as strikes.
+   * @return The <b>annualised</b> variance
    */
   public double priceFromOTMPrices(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final double[] expiries, final double[][] strikes, final double[][] otmPrices) {
@@ -151,7 +151,7 @@ public final class EquityVarianceSwapPricer {
         otmPrices, _surfaceInterpolator);
 
     final double t = swap.getTimeToSettlement();
-    //price the variance swap by static replication of the log-payoff and dividend correction terms 
+    //price the variance swap by static replication of the log-payoff and dividend correction terms
     final double[] ev = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dividends, t, pureSurf);
     //TODO while calculating both with and without div correction is go for testing, don't want it for production
     final double res = (swap.correctForDividends() ? ev[0] : ev[1]) / t;
@@ -160,12 +160,12 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Calculates the price of an equity variance swap from implied volatilities. The surface used is a pure implied volatility surface.
-   * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param swap The details of the equity variance swap, not null
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
-   * @return The <b>annualised</b> variance 
+   * @param marketVols the market implied volatilities, not null
+   * @return The <b>annualised</b> variance
    */
   public double priceFromImpliedVols(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
@@ -174,7 +174,7 @@ public final class EquityVarianceSwapPricer {
     ArgumentChecker.notNull(dividends, "dividends");
     final PureImpliedVolatilitySurface pureSurf = getPureImpliedVolFromMarket(spot, discountCurve, dividends, marketVols);
     final double t = swap.getTimeToSettlement();
-    //price the variance swap by static replication of the log-payoff and dividend correction terms 
+    //price the variance swap by static replication of the log-payoff and dividend correction terms
     final double[] ev = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dividends, t, pureSurf);
     //TODO while calculating both with and without div correction is go for testing, don't want it for production
     final double res = (swap.correctForDividends() ? ev[0] : ev[1]) / t;
@@ -183,12 +183,12 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Calculates the price of an equity variance swap from implied volatilities. The surface used is a local volatility surface.
-   * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param swap The details of the equity variance swap, not null
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
-   * @return The <b>annualised</b> variance 
+   * @param marketVols the market implied volatilities, not null
+   * @return The <b>annualised</b> variance
    */
   public double priceFromImpliedVols2(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
@@ -209,12 +209,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the delta of a variance swap.
    * <p>
    * The market implied volatilities are treated as invariant to the spot (sticky-strike), and price the variance swap twice with the spot bumped up and down. The
-   * pricing itself involves finding pure implied volatilities, then interpolated implied volatility surface and finally the expected variance via static replication. 
+   * pricing itself involves finding pure implied volatilities, then interpolated implied volatility surface and finally the expected variance via static replication.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The delta of the variance swap under a sticky-strike assumption <b>scaled by spot</b>
    */
   public double deltaWithStickyStrike(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -223,7 +223,7 @@ public final class EquityVarianceSwapPricer {
     ArgumentChecker.notNull(discountCurve, "discount curve");
     ArgumentChecker.notNull(dividends, "dividends");
     ArgumentChecker.notNull(marketVols, "market volatilities");
-    //here we assume the market implied volatilities are invariant to a change of spot 
+    //here we assume the market implied volatilities are invariant to a change of spot
     final double eps = 1e-5;
     final double up = priceFromImpliedVols(swap, (1 + eps) * spot, discountCurve, dividends, marketVols);
     final double down = priceFromImpliedVols(swap, (1 - eps) * spot, discountCurve, dividends, marketVols);
@@ -234,13 +234,13 @@ public final class EquityVarianceSwapPricer {
   /**
    * Calculates the delta of a variance swap using a pure implied volatility surface.
    * <p>
-   * The (pure) implied volatilities are treated as invariant to the spot (sticky-pure strike which is similar to sticky delta), 
-   * The variance swap is priced twice with the spot bumped up and down. 
+   * The (pure) implied volatilities are treated as invariant to the spot (sticky-pure strike which is similar to sticky delta),
+   * The variance swap is priced twice with the spot bumped up and down.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The delta of the variance swap under a sticky-strike assumption <b>scaled by spot</b>
    */
   public double deltaWithStickyPureStrike(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -266,12 +266,12 @@ public final class EquityVarianceSwapPricer {
   /**
    * Calculates the delta of a variance swap using a local volatility surface.
    * <p>
-   * The local volatility surface is treated as as invariant to the spot. The variance swap is priced twice with the spot bumped up and down. 
+   * The local volatility surface is treated as as invariant to the spot. The variance swap is priced twice with the spot bumped up and down.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The delta of the variance swap under a sticky-strike assumption <b>scaled by spot</b>
    */
   public double deltaWithStickyLocalVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -289,12 +289,12 @@ public final class EquityVarianceSwapPricer {
     final int index = swap.correctForDividends() ? 0 : 1;
     final double t = swap.getTimeToSettlement();
 
-    //up - here we assume that the local vol surface is invariant to a change of spot and form a new pure local vol surface corresponding to the bumped spot 
+    //up - here we assume that the local vol surface is invariant to a change of spot and form a new pure local vol surface corresponding to the bumped spot
     final double sUp = spot * (1 + eps);
     final EquityDividendsCurvesBundle divCurvesUp = new EquityDividendsCurvesBundle(sUp, discountCurve, dividends);
     final PureLocalVolatilitySurface plvUp = VolatilitySurfaceConverter.convertLocalVolSurface(lv, divCurvesUp);
     final double up = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance(sUp, discountCurve, dividends, t, plvUp)[index];
-    //down 
+    //down
     final double sDown = spot * (1 - eps);
     final EquityDividendsCurvesBundle divCurvesDown = new EquityDividendsCurvesBundle(sDown, discountCurve, dividends);
     final PureLocalVolatilitySurface plvDown = VolatilitySurfaceConverter.convertLocalVolSurface(lv, divCurvesDown);
@@ -308,12 +308,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the gamma of a variance swap.
    * <p>
    * The market implied volatilities are treated as invariant to the spot (sticky-strike), and price the variance swap twice with the spot bumped up and down. The
-   * pricing itself involves finding pure implied volatilities, then an interpolated implied volatility surface and finally the expected variance via static replication. 
+   * pricing itself involves finding pure implied volatilities, then an interpolated implied volatility surface and finally the expected variance via static replication.
    * @param swap The details of the equality variance swap, not null
    * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The gamma of the variance swap under a sticky-strike assumption <b>scaled by spot^2</b>
    */
   public double gammaWithStickyStrike(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -322,7 +322,7 @@ public final class EquityVarianceSwapPricer {
     ArgumentChecker.notNull(discountCurve, "discount curve");
     ArgumentChecker.notNull(dividends, "dividends");
     ArgumentChecker.notNull(marketVols, "market volatilities");
-    //here we assume the market implied volatilities are invariant to a change of spot 
+    //here we assume the market implied volatilities are invariant to a change of spot
     final double eps = 1e-5;
     final double up = priceFromImpliedVols(swap, (1 + eps) * spot, discountCurve, dividends, marketVols);
     final double mid = priceFromImpliedVols(swap, spot, discountCurve, dividends, marketVols);
@@ -334,13 +334,13 @@ public final class EquityVarianceSwapPricer {
   /**
    * Calculates the gamma of a variance swap using a pure implied volatility surface.
    * <p>
-   * The (pure) implied volatilities as invariant to the spot (sticky-pure strike which is similar to sticky delta). 
-   * The variance swap is priced three times; spot bumped up, down and left unchanged. 
+   * The (pure) implied volatilities as invariant to the spot (sticky-pure strike which is similar to sticky delta).
+   * The variance swap is priced three times; spot bumped up, down and left unchanged.
    * @param swap The details of the equality variance swap
-   * @param spot current level of the underlying 
-   * @param discountCurve The discount curve 
+   * @param spot current level of the underlying
+   * @param discountCurve The discount curve
    * @param dividends The assumed dividends
-   * @param marketVols the market implied volatilities 
+   * @param marketVols the market implied volatilities
    * @return The delta of the variance swap under a sticky-strike assumption <b>scaled by spot</b>
    */
   public double gammaWithStickyPureStrike(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -367,12 +367,12 @@ public final class EquityVarianceSwapPricer {
   /**
    * Calculates the gamma of a variance swap using a local volatility surface.
    * <p>
-   * The local volatility surface is treated as invariant to the spot. The variance swap is priced three times; spot bumped up, down and left unchanged. 
+   * The local volatility surface is treated as invariant to the spot. The variance swap is priced three times; spot bumped up, down and left unchanged.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The delta of the variance swap under a sticky-strike assumption <b>scaled by spot</b>
    */
   public double gammaWithStickyLocalVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -391,12 +391,12 @@ public final class EquityVarianceSwapPricer {
     final double t = swap.getTimeToSettlement();
 
     final double mid = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance(spot, discountCurve, dividends, t, plv)[index];
-    //up - here we assume that the local vol surface is invariant to a change of spot and form a new pure local vol surface corresponding to the bumped spot 
+    //up - here we assume that the local vol surface is invariant to a change of spot and form a new pure local vol surface corresponding to the bumped spot
     final double sUp = spot * (1 + eps);
     final EquityDividendsCurvesBundle divCurvesUp = new EquityDividendsCurvesBundle(sUp, discountCurve, dividends);
     final PureLocalVolatilitySurface plvUp = VolatilitySurfaceConverter.convertLocalVolSurface(lv, divCurvesUp);
     final double up = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance(sUp, discountCurve, dividends, t, plvUp)[index];
-    //down 
+    //down
     final double sDown = spot * (1 - eps);
     final EquityDividendsCurvesBundle divCurvesDown = new EquityDividendsCurvesBundle(sDown, discountCurve, dividends);
     final PureLocalVolatilitySurface plvDown = VolatilitySurfaceConverter.convertLocalVolSurface(lv, divCurvesDown);
@@ -410,12 +410,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the vega of a variance swap to a pure implied volatility surface.
    * <p>
    * The vega is taken as the sensitivity to the <b>square-root</b> of the annualised expected variance (EV) (n.b. this is not the same as the expected volatility)
-   * to a parallel shift of the implied volatility surface.  
+   * to a parallel shift of the implied volatility surface.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The vega
    */
   public double vegaImpVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -447,12 +447,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the vega of a variance swap to a local volatility surface.
    * <p>
    * The vega is taken as the sensitivity of the <b>square-root</b> of the annualised expected variance (EV) (n.b. this is not the same as the expected volatility)
-   * to a parallel shift of the local volatility surface.  
+   * to a parallel shift of the local volatility surface.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
-   * @param discountCurve The discount curve, not null 
+   * @param spot current level of the underlying
+   * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The vega
    */
   public double vegaLocalVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -485,12 +485,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the vega of a variance swap to a pure implied volatility surface.
    * <p>
    * The vega is taken as the sensitivity of the <b>square-root</b> of the annualised expected variance (EV) (n.b. this is not the same as the expected volatility)
-   * to a parallel shift of the <b>pure</b> implied volatility surface.  
+   * to a parallel shift of the <b>pure</b> implied volatility surface.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The vega
    */
   public double vegaPureImpVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -520,12 +520,12 @@ public final class EquityVarianceSwapPricer {
    * Calculates the vega of a variance swap to a pure local volatility surface.
    * <p>
    * The vega is taken as the sensitivity of the <b>square-root</b> of the annualised expected variance (EV) (n.b. this is not the same as the expected volatility)
-   * to a parallel shift of the <b>pure</b> local volatility surface.  
+   * to a parallel shift of the <b>pure</b> local volatility surface.
    * @param swap The details of the equality variance swap, not null
-   * @param spot current level of the underlying 
+   * @param spot current level of the underlying
    * @param discountCurve The discount curve, not null
    * @param dividends The assumed dividends, not null
-   * @param marketVols the market implied volatilities, not null 
+   * @param marketVols the market implied volatilities, not null
    * @return The vega
    */
   public double vegaPureLocalVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
@@ -552,7 +552,7 @@ public final class EquityVarianceSwapPricer {
   }
 
   //shift a surface flooring the result at zero
-  private Surface<Double, Double, Double> flooredShiftSurface(final Surface<Double, Double, Double> from, final double amount) {
+  private static Surface<Double, Double, Double> flooredShiftSurface(final Surface<Double, Double, Double> from, final double amount) {
     final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... x) {
@@ -565,21 +565,21 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Compute a delta from the market implied volatilities by first computing a pure implied volatility surface, then treating this as an invariant while the spot is moved
-   * @param swap The Variance swap 
-   * @param spot The spot value of the underlying 
-   * @param discountCurve The discount curve 
-   * @param dividends The assumed dividends 
-   * @param marketVols The market option prices expressed as implied volatilities 
+   * @param swap The Variance swap
+   * @param spot The spot value of the underlying
+   * @param discountCurve The discount curve
+   * @param dividends The assumed dividends
+   * @param marketVols The market option prices expressed as implied volatilities
    * @return The delta
    */
   public double deltaFromImpliedVols(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
     final double eps = 1e-5;
 
-    //this surface is assumed invariant to change in the spot 
+    //this surface is assumed invariant to change in the spot
     final PureImpliedVolatilitySurface pureSurf = getPureImpliedVolFromMarket(spot, discountCurve, dividends, marketVols);
 
-    //price the variance swap by static replication of the log-payoff and dividend correction terms 
+    //price the variance swap by static replication of the log-payoff and dividend correction terms
     final double[] evUp = VAR_SWAP_CALCULATOR.expectedVariance((1 + eps) * spot, discountCurve, dividends, swap.getTimeToSettlement(), pureSurf);
     final double[] evDown = VAR_SWAP_CALCULATOR.expectedVariance((1 - eps) * spot, discountCurve, dividends, swap.getTimeToSettlement(), pureSurf);
 
@@ -602,10 +602,10 @@ public final class EquityVarianceSwapPricer {
       final SmileSurfaceDataBundle marketVols) {
     final double eps = 1e-5;
 
-    //this surface is assumed invariant to change in the spot 
+    //this surface is assumed invariant to change in the spot
     final PureLocalVolatilitySurface pureSurf = getPureLocalVolFromMarket(spot, discountCurve, dividends, marketVols);
 
-    //price the variance swap by static replication of the log-payoff and dividend correction terms 
+    //price the variance swap by static replication of the log-payoff and dividend correction terms
     final double[] evUp = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance((1 + eps) * spot, discountCurve, dividends, swap.getTimeToSettlement(), pureSurf);
     final double[] evDown = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance((1 - eps) * spot, discountCurve, dividends, swap.getTimeToSettlement(), pureSurf);
 
@@ -622,7 +622,7 @@ public final class EquityVarianceSwapPricer {
     //this surface is assumed invariant to change in the spot
     final LocalVolatilitySurfaceStrike lv = convertLV(pureSurf, div);
 
-    //price the variance swap by static replication of the log-payoff and dividend correction terms 
+    //price the variance swap by static replication of the log-payoff and dividend correction terms
     //up
     final EquityDividendsCurvesBundle divUp = new EquityDividendsCurvesBundle((1 + eps) * spot, discountCurve, dividends);
     final PureLocalVolatilitySurface plvUp = convertLV(lv, divUp);
@@ -636,12 +636,12 @@ public final class EquityVarianceSwapPricer {
   }
 
   /**
-   * Compute sensitivity of EV to the dividends. Here the "market" implied volatility surface is assumed to be invariant to a change of dividends 
-   * @param swap The equity swap 
-   * @param spot The spot value of the underlying 
-   * @param discountCurve The discount curve 
-   * @param dividends The assumed dividends 
-   * @param marketVols The market option prices expressed as implied volatilities 
+   * Compute sensitivity of EV to the dividends. Here the "market" implied volatility surface is assumed to be invariant to a change of dividends
+   * @param swap The equity swap
+   * @param spot The spot value of the underlying
+   * @param discountCurve The discount curve
+   * @param dividends The assumed dividends
+   * @param marketVols The market option prices expressed as implied volatilities
    * @return Array of arrays containing dividend sensitivity. For n dividends, there are n rows, each containing two elements: the sensitivity to alpha and beta
    */
   public double[][] dividendSensitivityWithStickyImpliedVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve,
@@ -675,7 +675,7 @@ public final class EquityVarianceSwapPricer {
         res[i][0] = spot * (aUp[index] - base) / eps;
       }
 
-      //bump beta    
+      //bump beta
       if (dividends.getBeta(i) > eps) {
         final AffineDividends dbUp = dividends.withBeta(dividends.getBeta(i) + eps, i);
         final PureImpliedVolatilitySurface pvUp = getPureImpliedVolFromMarket(spot, discountCurve, dbUp, marketVols);
@@ -685,7 +685,7 @@ public final class EquityVarianceSwapPricer {
         final double[] bDown = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dbDown, swap.getTimeToObsEnd(), pvDown);
         res[i][1] = (bUp[index] - bDown[index]) / 2 / eps;
       } else {
-        //forward difference for zero (or near zero) beta       
+        //forward difference for zero (or near zero) beta
         final AffineDividends dbUp = dividends.withBeta(dividends.getBeta(i) + eps, i);
         final PureImpliedVolatilitySurface pvUp = getPureImpliedVolFromMarket(spot, discountCurve, dbUp, marketVols);
         final double[] bUp = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dbUp, swap.getTimeToObsEnd(), pvUp);
@@ -696,12 +696,12 @@ public final class EquityVarianceSwapPricer {
   }
 
   /**
-   * Compute sensitivity of EV to the dividends. Here the pure volatility surface is assumed to be invariant to a change of dividends 
-   * @param swap The equity swap 
-   * @param spot The spot value of the underlying 
-   * @param discountCurve The discount curve 
-   * @param dividends The assumed dividends 
-   * @param marketVols The market option prices expressed as implied volatilities 
+   * Compute sensitivity of EV to the dividends. Here the pure volatility surface is assumed to be invariant to a change of dividends
+   * @param swap The equity swap
+   * @param spot The spot value of the underlying
+   * @param discountCurve The discount curve
+   * @param dividends The assumed dividends
+   * @param marketVols The market option prices expressed as implied volatilities
    * @return Array of arrays containing dividend sensitivity. For n dividends, there are n rows, each containing two elements: the sensitivity to alpha and beta
    */
   public double[][] dividendSensitivityWithStickyPureVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve,
@@ -732,7 +732,7 @@ public final class EquityVarianceSwapPricer {
         res[i][0] = spot * (aUp[index] - base) / eps;
       }
 
-      //bump beta    
+      //bump beta
       if (dividends.getBeta(i) > eps) {
         final AffineDividends dbUp = dividends.withBeta(dividends.getBeta(i) + eps, i);
         final double[] bUp = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dbUp, swap.getTimeToObsEnd(), pureSurf);
@@ -740,7 +740,7 @@ public final class EquityVarianceSwapPricer {
         final double[] bDown = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dbDown, swap.getTimeToObsEnd(), pureSurf);
         res[i][1] = (bUp[index] - bDown[index]) / 2 / eps;
       } else {
-        //forward difference for zero (or near zero) beta       
+        //forward difference for zero (or near zero) beta
         final AffineDividends dbUp = dividends.withBeta(dividends.getBeta(i) + eps, i);
         final double[] bUp = VAR_SWAP_CALCULATOR.expectedVariance(spot, discountCurve, dbUp, swap.getTimeToObsEnd(), pureSurf);
         res[i][1] = (bUp[index] - base) / eps;
@@ -750,7 +750,7 @@ public final class EquityVarianceSwapPricer {
     return res;
   }
 
-  private LocalVolatilitySurfaceStrike convertLV(final PureLocalVolatilitySurface from, final EquityDividendsCurvesBundle divs) {
+  private static LocalVolatilitySurfaceStrike convertLV(final PureLocalVolatilitySurface from, final EquityDividendsCurvesBundle divs) {
     final Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
@@ -768,7 +768,7 @@ public final class EquityVarianceSwapPricer {
     return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(func));
   }
 
-  private PureLocalVolatilitySurface convertLV(final LocalVolatilitySurfaceStrike from, final EquityDividendsCurvesBundle divs) {
+  private static PureLocalVolatilitySurface convertLV(final LocalVolatilitySurfaceStrike from, final EquityDividendsCurvesBundle divs) {
     final Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... tx) {
@@ -786,15 +786,15 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Compute the "bucked vega" of a equity variance swap - the sensitivity of the square-root of the expected variance (since this has the same scale as the implied volatilities)
-   *  to the market implied volatilities. This is done by bumping each market implied volatility in turn, and computing the sensitivity by finite difference 
-     * @param swap The details of the equality variance swap
-     * @param spot current level of the underlying 
-     * @param discountCurve The discount curve 
-     * @param dividends The assumed dividends
-     * @param marketVols the market implied volatilities 
+   *  to the market implied volatilities. This is done by bumping each market implied volatility in turn, and computing the sensitivity by finite difference
+   * @param swap The details of the equality variance swap
+   * @param spot current level of the underlying
+   * @param discountCurve The discount curve
+   * @param dividends The assumed dividends
+   * @param marketVols the market implied volatilities
    * @return bucked vega
    */
-  public double[][] buckedVega(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
+  public double[][] bucketedVega(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
     final double eps = 1e-5;
     final int nExp = marketVols.getNumExpiries();
@@ -822,12 +822,12 @@ public final class EquityVarianceSwapPricer {
 
   /**
    * Convert each market implied volatility to an implied volatility of an option on the 'pure' stock, the the VolatilitySurfaceInterpolator to construct a smooth
-   * pure implied volatility surface 
-   * @param spot The spot value of the underlying 
-   * @param discountCurve The discount curve 
-   * @param dividends The assumed dividends 
-   * @param marketVols The market option prices expressed as implied volatilities 
-   * @return pure implied volatility surface 
+   * pure implied volatility surface
+   * @param spot The spot value of the underlying
+   * @param discountCurve The discount curve
+   * @param dividends The assumed dividends
+   * @param marketVols The market option prices expressed as implied volatilities
+   * @return pure implied volatility surface
    */
   private PureImpliedVolatilitySurface getPureImpliedVolFromMarket(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
@@ -867,13 +867,14 @@ public final class EquityVarianceSwapPricer {
    * Convert the market out-the-money price to the implied volatility of an option on the 'pure' stock
     @param df The discount factor
    * @param k The Strike
-   * @param f The forward 
-   * @param d The discounted future cash dividends 
+   * @param f The forward
+   * @param d The discounted future cash dividends
    * @param t The time-to-expiry
    * @param p The market out-the-money price
    * @return The implied volatility of an option on the 'pure' stock
    */
-  private double priceToPureVol(final double df, final double k, final double f, final double d, final double t, final double p) {
+  @SuppressWarnings("unused")
+  private static double priceToPureVol(final double df, final double k, final double f, final double d, final double t, final double p) {
     final boolean isCall = k >= f;
     final double pp = p / (f - d) / df;
     final double x = (k - d) / (f - d);
@@ -883,14 +884,14 @@ public final class EquityVarianceSwapPricer {
   /**
    * Convert the market implied volatility to the implied volatility of an option on the 'pure' stock
    * @param k The Strike
-   * @param f The forward 
-   * @param d The discounted future cash dividends 
+   * @param f The forward
+   * @param d The discounted future cash dividends
    * @param t The time-to-expiry
    * @param vol The market implied volatility
    * @return The implied volatility of an option on the 'pure' stock
    */
-  private double volToPureVol(final double k, final double f, final double d, final double t, final double vol) {
-    //with no cash dividends both implied volatilities are the same 
+  private static double volToPureVol(final double k, final double f, final double d, final double t, final double vol) {
+    //with no cash dividends both implied volatilities are the same
     if (d == 0) {
       return vol;
     }

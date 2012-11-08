@@ -10,8 +10,8 @@ import java.util.Arrays;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Dividend payment (per share) at time $\tau_i$ of the form $\alpha_i + \beta_iS_{\tau_{i^-}}$  where $S_{\tau_{i^-}}$ is the stock price immediately before the 
- * dividend payment. 
+ * Dividend payment (per share) at time $\tau_i$ of the form $\alpha_i + \beta_iS_{\tau_{i^-}}$  where $S_{\tau_{i^-}}$ is the stock price immediately before the
+ * dividend payment.
  */
 public class AffineDividends {
 
@@ -21,7 +21,7 @@ public class AffineDividends {
   private final int _n;
 
   public static AffineDividends noDividends() {
-    double[] z = new double[0];
+    final double[] z = new double[0];
     return new AffineDividends(z, z, z);
   }
 
@@ -49,7 +49,7 @@ public class AffineDividends {
   }
 
   /**
-   * Gets the dividend times 
+   * Gets the dividend times
    * @return the tau
    */
   public double[] getTau() {
@@ -58,7 +58,7 @@ public class AffineDividends {
   }
 
   /**
-   * Gets the cash dividends .
+   * Gets the cash dividends.
    * @return the alpha
    */
   public double[] getAlpha() {
@@ -71,16 +71,16 @@ public class AffineDividends {
    * @return the beta
    */
   public double[] getBeta() {
-    double[] beta = Arrays.copyOf(_beta, _n);
+    final double[] beta = Arrays.copyOf(_beta, _n);
     return beta;
   }
 
   /**
-   * Gets the dividend times 
+   * Gets the dividend times
    * @param index the index of the dividend
    * @return the tau
    */
-  public double getTau(int index) {
+  public double getTau(final int index) {
     return _tau[index];
   }
 
@@ -89,7 +89,7 @@ public class AffineDividends {
    * @param index the index of the dividend
    * @return the alpha
    */
-  public double getAlpha(int index) {
+  public double getAlpha(final int index) {
     return _alpha[index];
   }
 
@@ -98,7 +98,7 @@ public class AffineDividends {
    * @param index the index of the dividend
    * @return the beta
    */
-  public double getBeta(int index) {
+  public double getBeta(final int index) {
     return _beta[index];
   }
 
@@ -111,7 +111,7 @@ public class AffineDividends {
   }
 
   /**
-   * Change one of the dividend times 
+   * Change one of the dividend times
    * @param value The new value of the dividend time, tau
    * @param index The index of the new dividend time
    * @return A new AffineDividends with the changed tau
@@ -119,13 +119,13 @@ public class AffineDividends {
   public AffineDividends withTau(final double value, final int index) {
     ArgumentChecker.isTrue(value >= 0.0, "negative tau");
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    double[] tau = Arrays.copyOf(_tau, _n);
+    final double[] tau = Arrays.copyOf(_tau, _n);
     tau[index] = value;
     return new AffineDividends(tau, _alpha, _beta);
   }
 
   /**
-   * Change one of the alpha values 
+   * Change one of the alpha values
    * @param value The new value of alpha
    * @param index The index of the new alpha
    * @return A new AffineDividends with the changed alpha
@@ -133,13 +133,13 @@ public class AffineDividends {
   public AffineDividends withAlpha(final double value, final int index) {
     ArgumentChecker.isTrue(value >= 0.0, "negative alpha");
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    double[] alpha = Arrays.copyOf(_alpha, _n);
+    final double[] alpha = Arrays.copyOf(_alpha, _n);
     alpha[index] = value;
     return new AffineDividends(_tau, alpha, _beta);
   }
 
   /**
-   * Change one of the beta values 
+   * Change one of the beta values
    * @param value The new value of beta
    * @param index The index of the new beta
    * @return A new AffineDividends with the changed beta
@@ -147,7 +147,7 @@ public class AffineDividends {
   public AffineDividends withBeta(final double value, final int index) {
     ArgumentChecker.isTrue(value >= 0.0, "negative beta");
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    double[] beta = Arrays.copyOf(_beta, _n);
+    final double[] beta = Arrays.copyOf(_beta, _n);
     beta[index] = value;
     return new AffineDividends(_tau, _alpha, beta);
   }
@@ -163,17 +163,14 @@ public class AffineDividends {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!(obj instanceof AffineDividends)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    AffineDividends other = (AffineDividends) obj;
+    final AffineDividends other = (AffineDividends) obj;
     if (!Arrays.equals(_alpha, other._alpha)) {
       return false;
     }
