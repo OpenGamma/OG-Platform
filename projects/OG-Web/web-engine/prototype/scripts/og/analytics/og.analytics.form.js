@@ -16,7 +16,7 @@ $.register_module({
         // Private
         var query = null, template = null, emitter = new EventEmitter(), initialized = false,
             ag_menu = null, ds_menu = null, ac_menu = null, status = null, selector, $dom = {}, vd_s = '.og-view',
-            fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
+            fcntrls_s = 'input, select, a, button', ac_s = 'input autocompletechange autocompleteselect',
             ds_template = null, ag_template = null, viewdefs = null, viewdefs_store = [], aggregators = null,
             ac_data = null, ag_data = null, ds_data = null,
             events = {
@@ -33,16 +33,16 @@ $.register_module({
             };
         var auto_combo_handler = function (event, ui) {
             if (!$dom || !('load_btn' in $dom) || !$dom.load_btn) return;
-            if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                $dom.load_btn.removeClass('og-disabled').on('click', function () {
-                    if (status) status.play();
-                });
-            } else $dom.load_btn.addClass('og-disabled');
+            if ((ui && ui.item && ui.item.value || $(this).val()) !== '') $dom.load_btn.removeClass('og-disabled');
+            else $dom.load_btn.addClass('og-disabled');
         };
         var close_dropmenu = function (menu) {
             if (!menu || !ds_menu || !ag_menu) return;
             if (menu === ds_menu) ag_menu.emitEvent(events.close);
             else ds_menu.emitEvent(events.close);
+        };
+        var start_status = function (event) {
+            if (status) status.play();
         };
         var constructor = function (conf) {
             if (!conf) return og.dev.warn('og.analytics.Form: Missing param [conf] to constructor');
@@ -116,9 +116,7 @@ $.register_module({
                     close_dropmenu(ds_menu);
                 });
             }
-            if ($dom.ag) $dom.ag_fcntrls = $dom.ag.find(fcntrls_s);
-            if ($dom.ds) $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
-            if ($dom.load_btn) $dom.load_btn.on('click', load_query);
+            if ($dom.load_btn) $dom.load_btn.on('click', load_query).on('click', start_status);
             //status = new og.analytics.Status(selector + ' .og-status');
         };
         var load_query = function () {
@@ -133,17 +131,19 @@ $.register_module({
         };
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
-            var $elem = $(this), shift_key = event.shiftKey,
-                active_pos = function (elms, pos) {
-                    return $elem.is(elms[pos]());
-                };
-            if (!$elem || !ac_menu || !ag_menu || !ds_menu) return;
-            if (!shift_key && ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
-            if (!shift_key && active_pos($dom.ag_fcntrls,'last')) ds_menu.emitEvent(events.open);
-            if (!shift_key && active_pos($dom.ds_fcntrls, 'last')) ds_menu.emitEvent(events.close);
-            if (shift_key && $elem.is($dom.load_btn)) ds_menu.emitEvent(events.open);
-            if (shift_key && active_pos($dom.ds_fcntrls, 'first')) ag_menu.emitEvent(events.open);
-            if (shift_key && active_pos($dom.ag_fcntrls, 'first')) ag_menu.emitEvent(events.close);
+            var $elem = $(this), shift_key = event.shiftKey;
+            if (!$elem || !ac_menu || !ag_menu || !ds_menu || !$dom.ag || !$dom.ds) return;
+            $dom.ag_fcntrls = $dom.ag.find(fcntrls_s);
+            $dom.ds_fcntrls = $dom.ds.find(fcntrls_s);
+            if (!shift_key) {
+                if (ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
+                if ($elem.is($dom.ag_fcntrls.eq(-1))) ds_menu.emitEvent(events.open);
+                if ($elem.is($dom.ds_fcntrls.eq(-1))) ds_menu.emitEvent(events.close);
+            } else if (shift_key) {
+                if ($elem.is($dom.load_btn)) ds_menu.emitEvent(events.open);
+                if ($elem.is($dom.ds_fcntrls.eq(0))) ag_menu.emitEvent(events.open);
+                if ($elem.is($dom.ag_fcntrls.eq(0))) ag_menu.emitEvent(events.close);
+            }
         };
         var query_cancelled = function (menu) {
             emitter.emitEvent(events.closeall);
