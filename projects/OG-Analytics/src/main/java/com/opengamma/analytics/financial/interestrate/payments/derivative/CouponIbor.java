@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -53,18 +53,18 @@ public class CouponIbor extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIbor(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
-    Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
-    Validate.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
     _fixingPeriodEndTime = fixingPeriodEndTime;
-    Validate.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
     _fixingAccrualFactor = fixingYearFraction;
-    Validate.notNull(forwardCurveName);
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     _forwardCurveName = forwardCurveName;
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
     _index = index;
   }
 
@@ -109,7 +109,7 @@ public class CouponIbor extends CouponFloating {
   }
 
   @Override
-  public CouponIbor withNotional(double notional) {
+  public CouponIbor withNotional(final double notional) {
     return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
         getFixingAccrualFactor(), getForwardCurveName());
   }

@@ -85,12 +85,25 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> The return type of the calculation
  */
 public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements InstrumentDerivativeVisitor<S, T> {
+  private final T _defaultReturnType;
+
+  public AbstractInstrumentDerivativeVisitor(final T defaultReturnType) {
+    _defaultReturnType = defaultReturnType;
+  }
+
+  public AbstractInstrumentDerivativeVisitor() {
+    _defaultReturnType = null;
+  }
 
   @Override
   public T visit(final InstrumentDerivative derivative, final S data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return derivative.accept(this, data);
+    if (_defaultReturnType != null) {
+      return _defaultReturnType;
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support instruments of type " + derivative.getClass().getSimpleName()
+        + " with data of type " + data.getClass().getSimpleName());
   }
 
   @Override
@@ -101,7 +114,10 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visit(final InstrumentDerivative derivative) {
     ArgumentChecker.notNull(derivative, "derivative");
-    return derivative.accept(this);
+    if (_defaultReturnType != null) {
+      return _defaultReturnType;
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support instruments of type " + derivative.getClass().getSimpleName());
   }
 
   @Override
@@ -111,448 +127,448 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitBondFixedSecurity(final BondFixedSecurity bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedSecurity()");
+    return visit(bond, data);
   }
 
   @Override
   public T visitBondFixedTransaction(final BondFixedTransaction bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedTransaction()");
+    return visit(bond, data);
   }
 
   @Override
   public T visitBondIborSecurity(final BondIborSecurity bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborSecurity()");
+    return visit(bond, data);
   }
 
   @Override
   public T visitBondIborTransaction(final BondIborTransaction bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+    return visit(bond, data);
   }
 
   @Override
   public T visitBillSecurity(final BillSecurity bill, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillSecurity()");
+    return visit(bill, data);
   }
 
   @Override
   public T visitBillTransaction(final BillTransaction bill, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillTransaction()");
+    return visit(bill, data);
   }
 
   @Override
   public T visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponAnnuity()");
+    return visit(fixedCouponAnnuity, data);
   }
 
   @Override
   public T visitCapFloorIbor(final CapFloorIbor payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCapFloorCMS(final CapFloorCMS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMS()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpread()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitForwardRateAgreement(final ForwardRateAgreement fra, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardRateAgreement()");
+    return visit(fra, data);
   }
 
   @Override
   public T visitGenericAnnuity(final Annuity<? extends Payment> genericAnnuity, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitGenericAnnuity()");
+    return visit(genericAnnuity, data);
   }
 
   @Override
   public T visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborRatchet()");
+    return visit(annuity, data);
   }
 
   @Override
   public T visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponSwap()");
+    return visit(swap, data);
   }
 
   @Override
   public T visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionCashFixedIbor()");
+    return visit(swaption, data);
   }
 
   @Override
   public T visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionPhysicalFixedIbor()");
+    return visit(swaption, data);
   }
 
   @Override
   public T visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionBermudaFixedIbor()");
+    return visit(swaption, data);
   }
 
   @Override
   public T visitFixedPayment(final PaymentFixed payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+    return visit(payment, data);
   }
-  
+
   @Override
   public T visitCDSDerivative(final ISDACDSDerivative cds, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+    return visit(cds, data);
   }
 
   @Override
   public T visitBondFixedSecurity(final BondFixedSecurity bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedSecurity()");
+    return visit(bond);
   }
 
   @Override
   public T visitBondFixedTransaction(final BondFixedTransaction bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedTransaction()");
+    return visit(bond);
   }
 
   @Override
   public T visitBondIborSecurity(final BondIborSecurity bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborSecurity()");
+    return visit(bond);
   }
 
   @Override
   public T visitBondIborTransaction(final BondIborTransaction bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+    return visit(bond);
   }
 
   @Override
   public T visitBillSecurity(final BillSecurity bill) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillSecurity()");
+    return visit(bill);
   }
 
   @Override
   public T visitBillTransaction(final BillTransaction bill) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillTransaction()");
+    return visit(bill);
   }
 
   @Override
   public T visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponAnnuity()");
+    return visit(fixedCouponAnnuity);
   }
 
   @Override
   public T visitCash(final Cash cash, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
+    return visit(cash, data);
   }
 
   @Override
   public T visitCash(final Cash cash) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
+    return visit(cash);
   }
 
   @Override
   public T visitCapFloorIbor(final CapFloorIbor payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+    return visit(payment);
   }
 
   @Override
   public T visitCapFloorCMS(final CapFloorCMS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMS()");
+    return visit(payment);
   }
 
   @Override
   public T visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpread()");
+    return visit(payment);
   }
 
   @Override
   public T visitForwardRateAgreement(final ForwardRateAgreement fra) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardRateAgreement()");
+    return visit(fra);
   }
 
   @Override
   public T visitGenericAnnuity(final Annuity<? extends Payment> genericAnnuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitGenericAnnuity()");
+    return visit(genericAnnuity);
   }
 
   @Override
   public T visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborRatchet()");
+    return visit(annuity);
   }
 
   @Override
   public T visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionCashFixedIbor()");
+    return visit(swaption);
   }
 
   @Override
   public T visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionPhysicalFixedIbor()");
+    return visit(swaption);
   }
 
   @Override
   public T visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwaptionBermudaFixedIbor()");
+    return visit(swaption);
   }
 
   @Override
   public T visitFixedCouponSwap(final SwapFixedCoupon<?> swap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponSwap()");
+    return visit(swap);
   }
 
   @Override
   public T visitFixedPayment(final PaymentFixed payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+    return visit(payment);
   }
-  
+
   @Override
   public T visitCDSDerivative(final ISDACDSDerivative cds) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+    return visit(cds);
   }
 
   // -----     Payment and coupon     -----
 
   @Override
   public T visitCouponFixed(final CouponFixed payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponFixed(final CouponFixed payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponIbor(final CouponIbor payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponIbor(final CouponIbor payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponIborSpread(final CouponIborSpread payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponIborSpread(final CouponIborSpread payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponIborGearing(final CouponIborGearing payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponIborGearing(final CouponIborGearing payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponIborCompounded(final CouponIborCompounded payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompounded()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponIborCompounded(final CouponIborCompounded payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompounded()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponOIS(final CouponOIS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
+    return visit(payment, data);
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+    return visitCouponCMS(payment, data);
   }
 
   @Override
   public T visitCouponOIS(final CouponOIS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
+    return visit(payment);
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+    return visit(payment);
   }
 
   // -----     Inflation     -----
 
   @Override
   public T visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthly()");
+    return visit(coupon);
   }
 
   @Override
   public T visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthly()");
+    return visit(coupon, data);
   }
 
   @Override
   public T visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthlyGearing()");
+    return visit(coupon);
   }
 
   @Override
   public T visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthlyGearing()");
+    return visit(coupon, data);
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolation()");
+    return visit(coupon);
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolation()");
+    return visit(coupon, data);
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolationGearing()");
+    return visit(coupon);
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolationGearing()");
+    return visit(coupon, data);
   }
 
   @Override
   public T visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
+    return visit(bond);
   }
 
   @Override
   public T visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
+    return visit(bond, data);
   }
 
   @Override
   public T visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
+    return visit(bond);
   }
 
   @Override
   public T visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
+    return visit(bond, data);
   }
 
   // -----     Futures     -----
 
   @Override
   public T visitBondFuture(final BondFuture bondFuture, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+    return visit(bondFuture, data);
   }
 
   @Override
   public T visitBondFuture(final BondFuture bondFuture) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+    return visit(bondFuture);
   }
 
   @Override
   public T visitInterestRateFuture(final InterestRateFuture future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+    return visit(future, data);
   }
 
   @Override
   public T visitInterestRateFuture(final InterestRateFuture future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+    return visit(future);
   }
 
   @Override
   public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+    return visit(future, data);
   }
 
   @Override
   public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+    return visit(future);
   }
 
   @Override
   public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureTransaction()");
+    return visit(future, data);
   }
 
   @Override
   public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+    return visit(future);
   }
 
   @Override
   public T visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDeliverableSwapFuturesSecurity()");
+    return visit(futures, data);
   }
 
   @Override
   public T visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDeliverableSwapFuturesSecurity()");
+    return visit(futures);
   }
 
   @Override
   public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
+    return visit(option, data);
   }
 
   @Override
   public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
+    return visit(option);
   }
 
   @Override
   public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
+    return visit(option, data);
   }
 
   @Override
   public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
+    return visit(option);
   }
 
   @Override
   public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+    return visit(option, data);
   }
 
   @Override
   public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+    return visit(option);
   }
 
   @Override
   public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+    return visit(option, data);
   }
 
   @Override
   public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+    return visit(option);
   }
 
   @Override
   public T visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+    return visit(option, data);
   }
 
   @Override
   public T visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+    return visit(option);
   }
 
   @Override
   public T visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+    return visit(option, data);
   }
 
   @Override
   public T visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+    return visit(option);
   }
 
   // -----     Annuity     -----
@@ -561,280 +577,280 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitSwap(final Swap<?, ?> swap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+    return visitSwap(swap, data);
   }
 
   @Override
   public T visitSwap(final Swap<?, ?> swap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+    return visitSwap(swap);
   }
 
   // -----     Deposit     -----
 
   @Override
   public T visitDepositIbor(final DepositIbor deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+    return visit(deposit, data);
   }
 
   @Override
   public T visitDepositIbor(final DepositIbor deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+    return visit(deposit);
   }
 
   @Override
   public T visitDepositCounterpart(final DepositCounterpart deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
+    return visit(deposit, data);
   }
 
   @Override
   public T visitDepositCounterpart(final DepositCounterpart deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
+    return visit(deposit);
   }
 
   @Override
   public T visitDepositZero(final DepositZero deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
+    return visit(deposit, data);
   }
 
   @Override
   public T visitDepositZero(final DepositZero deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
+    return visit(deposit);
   }
 
   // -----     Forex     -----
 
   @Override
   public T visitForex(final Forex derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForex()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForex(final Forex derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForex()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexSwap(final ForexSwap derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexSwap(final ForexSwap derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexOptionVanilla(final ForexOptionVanilla derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexOptionVanilla(final ForexOptionVanilla derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionSingleBarrier()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionSingleBarrier()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableForward()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableForward()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
+    return visit(derivative);
   }
 
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
+    return visit(derivative);
   }
 
   //-----     Commodity     -----
 
   @Override
-  public T visitMetalForward(MetalForward future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalForward()");
+  public T visitMetalForward(final MetalForward forward, final S data) {
+    return visit(forward, data);
   }
 
   @Override
-  public T visitMetalForward(MetalForward future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalForward()");
+  public T visitMetalForward(final MetalForward forward) {
+    return visit(forward);
   }
 
   @Override
-  public T visitMetalFuture(MetalFuture future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFuture()");
+  public T visitMetalFuture(final MetalFuture future, final S data) {
+    return visit(future, data);
   }
 
   @Override
-  public T visitMetalFuture(MetalFuture future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFuture()");
+  public T visitMetalFuture(final MetalFuture future) {
+    return visit(future);
   }
 
   @Override
-  public T visitMetalFutureOption(MetalFutureOption future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFutureOption()");
+  public T visitMetalFutureOption(final MetalFutureOption option, final S data) {
+    return visit(option, data);
   }
 
   @Override
-  public T visitMetalFutureOption(MetalFutureOption future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFutureOption()");
+  public T visitMetalFutureOption(final MetalFutureOption option) {
+    return visit(option);
   }
 
   @Override
-  public T visitAgricultureForward(AgricultureForward future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureForward()");
+  public T visitAgricultureForward(final AgricultureForward forward, final S data) {
+    return visit(forward, data);
   }
 
   @Override
-  public T visitAgricultureForward(AgricultureForward future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureForward()");
+  public T visitAgricultureForward(final AgricultureForward forward) {
+    return visit(forward);
   }
 
   @Override
-  public T visitAgricultureFuture(AgricultureFuture future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFuture()");
+  public T visitAgricultureFuture(final AgricultureFuture future, final S data) {
+    return visit(future, data);
   }
 
   @Override
-  public T visitAgricultureFuture(AgricultureFuture future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFuture()");
+  public T visitAgricultureFuture(final AgricultureFuture future) {
+    return visit(future);
   }
 
   @Override
-  public T visitAgricultureFutureOption(AgricultureFutureOption future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFutureOption()");
+  public T visitAgricultureFutureOption(final AgricultureFutureOption option, final S data) {
+    return visit(option, data);
   }
 
   @Override
-  public T visitAgricultureFutureOption(AgricultureFutureOption future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFutureOption()");
+  public T visitAgricultureFutureOption(final AgricultureFutureOption option) {
+    return visit(option);
   }
 
   @Override
-  public T visitEnergyForward(EnergyForward future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyForward()");
+  public T visitEnergyForward(final EnergyForward forward, final S data) {
+    return visit(forward, data);
   }
 
   @Override
-  public T visitEnergyForward(EnergyForward future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyForward()");
+  public T visitEnergyForward(final EnergyForward future) {
+    return visit(future);
   }
 
   @Override
-  public T visitEnergyFuture(EnergyFuture future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFuture()");
+  public T visitEnergyFuture(final EnergyFuture future, final S data) {
+    return visit(future, data);
   }
 
   @Override
-  public T visitEnergyFuture(EnergyFuture future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFuture()");
+  public T visitEnergyFuture(final EnergyFuture future) {
+    return visit(future);
   }
 
   @Override
-  public T visitEnergyFutureOption(EnergyFutureOption future, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFutureOption()");
+  public T visitEnergyFutureOption(final EnergyFutureOption option, final S data) {
+    return visit(option, data);
   }
 
   @Override
-  public T visitEnergyFutureOption(EnergyFutureOption future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFutureOption()");
+  public T visitEnergyFutureOption(final EnergyFutureOption option) {
+    return visit(option);
   }
 
   //  -----     Deprecated     -----
 
   @Override
   public T visitForexForward(final ForexForward fx, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
+    return visit(fx, data);
   }
 
   @Override
   public T visitForexForward(final ForexForward fx) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
+    return visit(fx);
   }
 
   @Override
   public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
+    return visit(annuity, data);
   }
 
   @Override
   public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
+    return visit(annuity);
   }
 
   @Override
   public T visitFloatingRateNote(final FloatingRateNote derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote");
+    return visit(derivative, data);
   }
 
   @Override
   public T visitFloatingRateNote(final FloatingRateNote derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
+    return visit(derivative);
   }
 
   @Override
   public T visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitTenorSwap()");
+    return visit(tenorSwap);
   }
 
   @Override
   public T visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
+    return visit(forwardLiborAnnuity);
   }
 
   @Override
   public T visitFixedFloatSwap(final FixedFloatSwap swap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedFloatSwap()");
+    return visit(swap);
   }
 
   @Override
   public T visitCrossCurrencySwap(final CrossCurrencySwap ccs) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
+    return visit(ccs);
   }
 
   @Override
   public T visitForwardLiborAnnuity(final AnnuityCouponIbor annuityCouponIbor, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
+    return visit(annuityCouponIbor, data);
   }
 
   @Override
   public T visitFixedFloatSwap(final FixedFloatSwap swap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedFloatSwap()");
+    return visit(swap, data);
   }
 
   @Override
   public T visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitTenorSwap()");
+    return visit(tenorSwap, data);
   }
 
   @Override
   public T visitCrossCurrencySwap(final CrossCurrencySwap ccs, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
+    return visit(ccs, data);
   }
 
 }
