@@ -44,7 +44,7 @@ public class CalibrateHazardRateCurveTest {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ public class CalibrateHazardRateCurveTest {
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
@@ -127,7 +127,7 @@ public class CalibrateHazardRateCurveTest {
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
-  private static final PriceType priceType = PriceType.CLEAN;
+  private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
@@ -373,7 +373,7 @@ public class CalibrateHazardRateCurveTest {
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    final double flatSpread = 550.0;
+    final double flatSpread = 550;
     final double calibrationRecoveryRate = 0.40;
 
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
@@ -397,7 +397,7 @@ public class CalibrateHazardRateCurveTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data
+  // Test to demonstrate calibration of a hazard rate curve to a term structure of market data
 
   //@Test
   public void testCalibrateHazardRateCurveFlatTermStructure() {
@@ -441,6 +441,33 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[6] = flatSpread;
     marketSpreads[7] = flatSpread;
 
+    marketSpreads[0] = 500.0;
+    marketSpreads[1] = 600.0;
+    marketSpreads[2] = 500.0;
+    marketSpreads[3] = 600.0;
+    marketSpreads[4] = 500.0;
+    marketSpreads[5] = 400.0;
+    marketSpreads[6] = 500.0;
+    marketSpreads[7] = 600.0;
+
+    marketSpreads[0] = 3865.0;
+    marketSpreads[1] = 3072.0;
+    marketSpreads[2] = 2559.0;
+    marketSpreads[3] = 2243.0;
+    marketSpreads[4] = 2141.0;
+    marketSpreads[5] = 2045.0;
+    marketSpreads[6] = 1944.0;
+    marketSpreads[7] = 1856.0;
+
+    marketSpreads[0] = 780.0;
+    marketSpreads[1] = 812.0;
+    marketSpreads[2] = 803.0;
+    marketSpreads[3] = 826.0;
+    marketSpreads[4] = 874.0;
+    marketSpreads[5] = 896.0;
+    marketSpreads[6] = 868.0;
+    marketSpreads[7] = 838.0;
+
     // The recovery rate assumption used in the PV calculations when calibrating
     final double calibrationRecoveryRate = 0.40;
 
@@ -474,7 +501,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data and recompute calibration CDS PV's
 
-  @Test
+  //@Test
   public void testCalibrateHazardRateCurveAndRepriceCalibrationCDS() {
 
     // -----------------------------------------------------------------------------------------------
