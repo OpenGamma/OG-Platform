@@ -185,6 +185,7 @@ $.register_module({
              */
             container.add = function (data, index) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
+                //console.log(data);
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
@@ -285,11 +286,14 @@ $.register_module({
                                 data = ui.draggable.data(),
                                 gadget = data.gadget.config.options,
                                 re = new RegExp(selector_prefix + '(.*?)\\s');
+                                
                             if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
+                                
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
+                                //console.log(container.fire('drop', data.gadget.config));
                                 if (false !== container.fire('drop', data.gadget.config))
                                     container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends

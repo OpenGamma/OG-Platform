@@ -85,12 +85,14 @@ $.register_module({
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
-            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, 
+            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
                 offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
+            fingerprint = JSON.stringify(options);
+            options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
             if((offset.top + inner.height())> $(window).height())
                 inner.css({marginTop: -inner.height()});
