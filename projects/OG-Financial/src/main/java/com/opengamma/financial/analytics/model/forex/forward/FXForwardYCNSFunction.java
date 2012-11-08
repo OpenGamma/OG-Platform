@@ -149,7 +149,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final ValueRequirement receiveFundingCurve = getPayCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
-      s_logger.error("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
+      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
       return null;
     }
     if (currency.equals(payCurrency.getCode())) {

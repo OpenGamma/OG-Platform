@@ -644,7 +644,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
-    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
+//    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "FUNDING"));
@@ -652,20 +652,20 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
-    addDeprecatedSABRCalculators(functionConfigs);
+//    addDeprecatedSABRCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
-    addDeprecatedForexOptionCalculators(functionConfigs);
-    addDeprecatedForexForwardCalculators(functionConfigs);
+//    addDeprecatedForexOptionCalculators(functionConfigs);
+//    addDeprecatedForexForwardCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
-    addDeprecatedInterestRateFutureCalculators(functionConfigs);
+//    addDeprecatedInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
     addSimpleFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addBondFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
-    addDeprecatedBlackCalculators(functionConfigs);
+//    addDeprecatedBlackCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addEquityVolatilitySurfaceCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
@@ -947,7 +947,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
         "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
         "MXN", "DefaultCashCurveMXNConfig", "Cash",
-        "FOO", "DefaultTwoCurveUSDConfig", "Discounting",
         "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
         "GBP", "DefaultTwoCurveGBPConfig", "Discounting",
         "NZD", "DefaultTwoCurveNZDConfig", "Discounting",
@@ -1084,7 +1083,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "KRW", "TULLETT",
         "USD", "BRL", "TULLETT",
         "EUR", "CHF", "TULLETT",
-        "USD", "HKD", "TULLETT"));
+        "USD", "HKD", "TULLETT",
+        "EUR", "JPY", "TULLETT"));
   }
 
   private static void addFXBarrierOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1121,7 +1121,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
         "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
-        "RUB", "DefaultCashCurveRUBConfig", "Cash"));
+        "RUB", "DefaultCashCurveRUBConfig", "Cash",
+        "CAD", "DefaultTwoCurveCADConfig", "Discounting"));
   }
 
   private static void addDeprecatedForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1542,59 +1543,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
             "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
             "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
             "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-  }
-
-  private static void addDeprecatedSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationVegaFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationYCNSFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationVegaFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadRightExtrapolationYCNSFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationYCNSFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationYCNSFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaultsDeprecated.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue",
-        "USD"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaultsDeprecated.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "0.07", "10.0", "USD"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaultsDeprecated.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaultsDeprecated.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaultsDeprecated.class, "FORWARD_6M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue",
-        "EUR", "GBP"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaultsDeprecated.class, "FORWARD_6M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "0.07", "10.0", "EUR", "GBP"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaultsDeprecated.class, "FORWARD_6M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "EUR", "GBP"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaultsDeprecated.class, "FORWARD_6M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares",
-        "PresentValue", "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "EUR", "GBP"));
   }
 
   private static void addDeprecatedBlackCalculators(final List<FunctionConfiguration> functionConfigs) {

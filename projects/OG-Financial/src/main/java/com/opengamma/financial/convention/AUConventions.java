@@ -161,6 +161,9 @@ public class AUConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au, act365,
         modified, annual, 0, simpleNameSecurityId("RBA OVERNIGHT CASH RATE"), au, true, overnightPublicationLag);
 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("ADSWC Curncy"), simpleNameSecurityId(IndexType.Swap + "_AUD_P3M")),
+        "AUD SWAP 3m", act365, modified, Period.ofMonths(3), 0, true, au); // "AUD Bank Bill 3m"
+
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BBSW3M Index"), ricSecurityId("AUBABSL3M=AFMA"), simpleNameSecurityId(IndexType.BBSW + "_AUD_P3M")),
         "AUD Bank Bill 3m", act365, modified, Period.ofMonths(3), 0, true, au); // "AUD Bank Bill 3m"
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BBSW6M Index"), ricSecurityId("AUBABSL6M=AFMA"), simpleNameSecurityId(IndexType.BBSW + "_AUD_P6M")),

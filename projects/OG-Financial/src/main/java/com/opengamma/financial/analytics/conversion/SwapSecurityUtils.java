@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -16,7 +16,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * 
+ *
  */
 public class SwapSecurityUtils {
 
@@ -31,7 +31,7 @@ public class SwapSecurityUtils {
       }
     }
     if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
-      throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
+      throw new OpenGammaRuntimeException("Pay and receive legs must be from same region; have " + payLeg.getRegionId() + " and " + receiveLeg.getRegionId());
     }
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
 
