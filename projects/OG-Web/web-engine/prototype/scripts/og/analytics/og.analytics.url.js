@@ -58,6 +58,7 @@ $.register_module({
                         if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
                         if (!last_object[panel]) last_object[panel] = [];
                         last_fingerprint[panel] = gadgets.map(function (gadget, index) {
+                            delete gadget.fingerprint;
                             var fingerprint = JSON.stringify(gadget);
                             last_object[panel][index] = JSON.parse(fingerprint);
                             if (last_fingerprint[panel][index] === fingerprint) return fingerprint;
