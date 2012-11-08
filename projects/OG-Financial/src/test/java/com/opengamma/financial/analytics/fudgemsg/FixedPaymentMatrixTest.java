@@ -30,9 +30,6 @@ public class FixedPaymentMatrixTest extends AnalyticsTestBase {
     map.put(LocalDate.of(2000, 2, 5), MultipleCurrencyAmount.of(CurrencyAmount.of(Currency.USD, 2000), CurrencyAmount.of(Currency.EUR, 4000)));
     map.put(LocalDate.of(2010, 1, 1), MultipleCurrencyAmount.of(CurrencyAmount.of(Currency.USD, -3000), CurrencyAmount.of(Currency.GBP, 700)));
     final FixedPaymentMatrix matrix = new FixedPaymentMatrix(map);
-    final FixedPaymentMatrix temp = cycleObject(FixedPaymentMatrix.class, matrix);
-    int i = 0;
-    i = i + 1;
     assertEquals(matrix, cycleObject(FixedPaymentMatrix.class, matrix));
   }
 }
