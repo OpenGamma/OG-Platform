@@ -63,7 +63,7 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
   private static final YieldCurveWithBlackCubeBundle DATA = TestsDataSetsBlack.createCubesBondFutureOption();
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");

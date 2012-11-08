@@ -6,7 +6,9 @@
 package com.opengamma.analytics.financial.provider.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -22,11 +24,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponOISDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -61,6 +65,7 @@ public final class PresentValueDiscountingProviderCalculator extends AbstractIns
    * The methods used by the different instruments.
    */
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
+  private static final PaymentFixedDiscountingProviderMethod METHOD_PAY_FIXED = PaymentFixedDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingProviderMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingProviderMethod.getInstance();
   private static final CouponFixedDiscountingProviderMethod METHOD_CPN_FIXED = CouponFixedDiscountingProviderMethod.getInstance();
   private static final CouponIborDiscountingProviderMethod METHOD_CPN_IBOR = CouponIborDiscountingProviderMethod.getInstance();
@@ -69,6 +74,7 @@ public final class PresentValueDiscountingProviderCalculator extends AbstractIns
   private static final CouponOISDiscountingProviderMethod METHOD_CPN_ON = CouponOISDiscountingProviderMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -83,6 +89,11 @@ public final class PresentValueDiscountingProviderCalculator extends AbstractIns
   }
 
   // -----     Payment/Coupon     ------
+
+  @Override
+  public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurve) {
+    return METHOD_PAY_FIXED.presentValue(payment, multicurve);
+  }
 
   @Override
   public MultipleCurrencyAmount visitCouponFixed(final CouponFixed payment, final MulticurveProviderInterface multicurve) {
@@ -153,11 +164,11 @@ public final class PresentValueDiscountingProviderCalculator extends AbstractIns
     return METHOD_FOREX.presentValue(derivative, multicurves);
   }
 
-  //  @Override
-  //  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final MulticurveProviderInterface multicurves) {
-  //    return METHOD_FXSWAP.presentValue(derivative, multicurves);
-  //  }
-  //
+  @Override
+  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX_SWAP.presentValue(derivative, multicurves);
+  }
+
   //  @Override
   //  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
   //    return METHOD_NDF.presentValue(derivative, multicurves);

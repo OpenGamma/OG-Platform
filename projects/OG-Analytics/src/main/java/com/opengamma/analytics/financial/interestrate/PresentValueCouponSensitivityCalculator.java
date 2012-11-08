@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
@@ -17,9 +16,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -85,18 +82,6 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
     return PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
 
-  /**
-   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
-   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
-   * @param swap 
-   * @param curves 
-   * @return  The spread on the receive leg of a basis swap 
-   */
-  @Override
-  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    return PVC.visit(((AnnuityCouponIborSpread) swap.getSecondLeg()).withUnitCoupons(), curves);
-  }
-
   @Override
   public Double visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle data) {
     return 0.0;
@@ -111,8 +96,4 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
     return sum;
   }
 
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
-    return visitFixedCouponSwap(swap, data);
-  }
 }

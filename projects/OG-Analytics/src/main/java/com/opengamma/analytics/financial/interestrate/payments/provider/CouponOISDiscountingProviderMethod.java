@@ -10,15 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.method.PricingProviderMethod;
 import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -26,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and its sensitivities for OIS coupons.
  */
-public final class CouponOISDiscountingProviderMethod implements PricingProviderMethod {
+public final class CouponOISDiscountingProviderMethod {
 
   /**
    * The method unique instance.
@@ -63,19 +59,13 @@ public final class CouponOISDiscountingProviderMethod implements PricingProvider
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
-  @Override
-  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurve) {
-    Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
-    return presentValue((CouponOIS) instrument, multicurve);
-  }
-
   /**
    * Compute the present value sensitivity to rates of a OIS coupon by discounting.
    * @param coupon The coupon.
    * @param multicurve The multi-curve provider.
    * @return The present value curve sensitivities.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curves");
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -94,7 +84,7 @@ public final class CouponOISDiscountingProviderMethod implements PricingProvider
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
   }
 
@@ -116,7 +106,7 @@ public final class CouponOISDiscountingProviderMethod implements PricingProvider
    * @param multicurve The multi-curve provider.
    * @return The sensitivities.
    */
-  public MultipleCurrencyCurveSensitivityMarket parRateCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity parRateCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curves");
     // Backward sweep.
@@ -125,7 +115,7 @@ public final class CouponOISDiscountingProviderMethod implements PricingProvider
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofForward(mapFwd));
+    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.ofForward(mapFwd));
     return result;
   }
 

@@ -31,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CapFloorIborTest {
 
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

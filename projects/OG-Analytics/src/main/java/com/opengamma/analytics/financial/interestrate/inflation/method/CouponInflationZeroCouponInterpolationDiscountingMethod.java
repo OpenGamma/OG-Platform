@@ -13,8 +13,8 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.InflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -44,7 +44,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The present value sensitivity.
    */
-  public CurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
+  public InflationSensitivity presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
@@ -66,7 +66,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
-    final CurveSensitivityMarket result = CurveSensitivityMarket.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
+    final InflationSensitivity result = InflationSensitivity.ofYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
     return result;
   }
 

@@ -44,7 +44,7 @@ public class CouponOISTest {
   private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
   // USD OIS
   private static final String US_OIS_NAME = "US OIS";
-  private static final Currency US_CUR = Currency.USD;
+  private static final Currency US_CUR = Currency.EUR;
   private static final DayCount US_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int US_PUBLICATION_LAG = 1;
   private static final Calendar US_CALENDAR = new MondayToFridayCalendar("A");

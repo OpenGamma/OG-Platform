@@ -24,9 +24,9 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -113,7 +113,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative1Coupon() {
-    final DoubleTimeSeries<ZonedDateTime> ukRpi = ProviderDiscountDataSets.ukRpiFrom2010();
+    final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> bondFromDefinition = BondCapitalIndexedSecurityDefinition.fromMonthly(PRICE_INDEX_UKRPI,
         MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1, NOTIONAL_GILT_1, REAL_RATE_GILT_1, BUSINESS_DAY_GBP,
@@ -157,7 +157,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative2Coupon() {
-    final DoubleTimeSeries<ZonedDateTime> ukRpi = ProviderDiscountDataSets.ukRpiFrom2010();
+    final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 15); // Two coupons fixed
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> bondFromDefinition = BondCapitalIndexedSecurityDefinition.fromMonthly(PRICE_INDEX_UKRPI,
         MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1, NOTIONAL_GILT_1, REAL_RATE_GILT_1, BUSINESS_DAY_GBP,
@@ -179,7 +179,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final String NAME_INDEX_US = "US CPI-U";
   private static final Period LAG_INDEX_US = Period.ofDays(14);
-  private static final IndexPrice PRICE_INDEX_USCPI = new IndexPrice(NAME_INDEX_US, Currency.USD, Currency.USD, LAG_INDEX_US);
+  private static final IndexPrice PRICE_INDEX_USCPI = new IndexPrice(NAME_INDEX_US, Currency.EUR, Currency.EUR, LAG_INDEX_US);
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_TIPS_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

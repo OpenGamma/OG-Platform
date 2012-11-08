@@ -7,26 +7,24 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TreeSet;
-
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityDiscountInterpolatedFDProviderCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityProviderCalculator;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveProviderCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -41,11 +39,11 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  */
 public class CouponOISDiscountingMarketMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = ProviderDiscountDataSets.createProvider3();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final GeneratorSwapFixedON GENERATOR_SWAP_EONIA = GeneratorSwapFixedONMaster.getInstance().getGenerator("EUR1YEONIA", TARGET);
-  private static final IndexON EONIA = ProviderDiscountDataSets.getIndexesON()[0];
+  private static final IndexON EONIA = MulticurveProviderDiscountDataSets.getIndexesON()[0];
   private static final Currency EUR = EONIA.getCurrency();
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final Period TENOR = Period.ofMonths(3);
@@ -60,9 +58,9 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final CouponOISDiscountingProviderMethod METHOD_CPN_OIS = CouponOISDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final ParameterSensitivityProviderCalculator PSC = new ParameterSensitivityProviderCalculator(PVCSDC);
+  private static final ParameterSensitivityMulticurveProviderCalculator PSC = new ParameterSensitivityMulticurveProviderCalculator(PVCSDC);
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityDiscountInterpolatedFDProviderCalculator PSC_DSC_FD = new ParameterSensitivityDiscountInterpolatedFDProviderCalculator(PVDC, SHIFT);
+  private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
   private static final double TOLERANCE_PV_DELTA = 1.0E+2; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
 
@@ -105,15 +103,15 @@ public class CouponOISDiscountingMarketMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    ParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(CPN_OIS, new TreeSet<String>(), PROVIDER);
-    ParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(CPN_OIS, PROVIDER);
+    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(CPN_OIS, PROVIDER, PROVIDER.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(CPN_OIS, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_OIS.presentValueCurveSensitivity(CPN_OIS, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSDC.visit(CPN_OIS, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_OIS.presentValueCurveSensitivity(CPN_OIS, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_OIS, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

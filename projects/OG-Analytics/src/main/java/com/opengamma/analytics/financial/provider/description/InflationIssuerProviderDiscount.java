@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.provider.description;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,10 +16,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -194,16 +191,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   }
 
   @Override
-  public double[] parameterSensitivity(final Currency ccy, final List<DoublesPair> pointSensitivity) {
-    return _inflationProvider.parameterSensitivity(ccy, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final Currency ccy) {
-    return _inflationProvider.getNumberOfParameters(ccy);
-  }
-
-  @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     return _inflationProvider.getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -219,16 +206,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   }
 
   @Override
-  public double[] parameterSensitivity(final IborIndex index, final List<ForwardSensitivity> pointSensitivity) {
-    return _inflationProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IborIndex index) {
-    return _inflationProvider.getNumberOfParameters(index);
-  }
-
-  @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     return _inflationProvider.getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -241,16 +218,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   @Override
   public Set<IndexON> getIndexesON() {
     return _inflationProvider.getIndexesON();
-  }
-
-  @Override
-  public double[] parameterSensitivity(final IndexON index, final List<ForwardSensitivity> pointSensitivity) {
-    return _inflationProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IndexON index) {
-    return _inflationProvider.getNumberOfParameters(index);
   }
 
   /**

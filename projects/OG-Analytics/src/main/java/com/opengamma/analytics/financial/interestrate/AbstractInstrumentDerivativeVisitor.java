@@ -15,9 +15,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -46,7 +44,6 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
-import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -59,12 +56,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -662,78 +655,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
-  }
-
-  //  -----     Deprecated     -----
-
-  @Override
-  public T visitForexForward(final ForexForward fx, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
-  }
-
-  @Override
-  public T visitForexForward(final ForexForward fx) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
-  }
-
-  @Override
-  public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
-  }
-
-  @Override
-  public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
-  }
-
-  @Override
-  public T visitFloatingRateNote(final FloatingRateNote derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote");
-  }
-
-  @Override
-  public T visitFloatingRateNote(final FloatingRateNote derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
-  }
-
-  @Override
-  public T visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitTenorSwap()");
-  }
-
-  @Override
-  public T visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
-  }
-
-  @Override
-  public T visitFixedFloatSwap(final FixedFloatSwap swap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedFloatSwap()");
-  }
-
-  @Override
-  public T visitCrossCurrencySwap(final CrossCurrencySwap ccs) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
-  }
-
-  @Override
-  public T visitForwardLiborAnnuity(final AnnuityCouponIbor annuityCouponIbor, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
-  }
-
-  @Override
-  public T visitFixedFloatSwap(final FixedFloatSwap swap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedFloatSwap()");
-  }
-
-  @Override
-  public T visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitTenorSwap()");
-  }
-
-  @Override
-  public T visitCrossCurrencySwap(final CrossCurrencySwap ccs, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
   }
 
 }

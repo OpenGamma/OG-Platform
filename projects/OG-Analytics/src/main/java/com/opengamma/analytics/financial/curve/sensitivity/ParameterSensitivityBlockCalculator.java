@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRa
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -42,7 +43,7 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
    * @return The sensitivity.
    */
   @Override
-  public ParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
     ArgumentChecker.notNull(bundle, "Curve bundle");
@@ -56,7 +57,7 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
         }
       }
     }
-    return new ParameterSensitivity(result);
+    return new MultipleCurrencyParameterSensitivity(result);
   }
 
 }

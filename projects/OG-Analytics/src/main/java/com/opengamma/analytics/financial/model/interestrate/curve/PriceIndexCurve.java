@@ -15,6 +15,7 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 /**
  * A curve containing the (estimated) price index at different maturities. The maturities can be (slightly) negative as the price index are known only with a certain lag.
  * The price index for a given month is on the first of the month point.
+ * TODO: Improve the object to have something similar to the YieldAndDiscountCurve.
  */
 public class PriceIndexCurve {
 

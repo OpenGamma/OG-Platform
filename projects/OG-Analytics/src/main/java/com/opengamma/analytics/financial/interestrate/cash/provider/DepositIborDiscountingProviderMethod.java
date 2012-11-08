@@ -10,22 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.method.PricingProviderMethod;
 import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * The methods associated to the pricing of Ibor fixing.
  */
-public final class DepositIborDiscountingProviderMethod implements PricingProviderMethod {
+public final class DepositIborDiscountingProviderMethod {
 
   /**
    * The method unique instance.
@@ -60,12 +55,6 @@ public final class DepositIborDiscountingProviderMethod implements PricingProvid
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
-  @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, MulticurveProviderInterface multicurve) {
-    Validate.isTrue(instrument instanceof Cash, "Cash");
-    return presentValue((DepositIbor) instrument, multicurve);
-  }
-
   /**
    * Computes the spread to be added to the Ibor rate to have a zero present value.
    * When deposit has already start the number may not be meaning full as only the final payment remains (no initial payment).
@@ -84,14 +73,14 @@ public final class DepositIborDiscountingProviderMethod implements PricingProvid
    * @param multicurve The curves.
    * @return The spread curve sensitivity.
    */
-  public CurveSensitivityMarket parSpreadCurveSensitivity(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity parSpreadCurveSensitivity(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurve, "Multicurves");
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), 1.0));
     mapFwd.put(multicurve.getName(deposit.getIndex()), listForward);
-    return CurveSensitivityMarket.ofForward(mapFwd);
+    return MulticurveSensitivity.ofForward(mapFwd);
   }
 
 }

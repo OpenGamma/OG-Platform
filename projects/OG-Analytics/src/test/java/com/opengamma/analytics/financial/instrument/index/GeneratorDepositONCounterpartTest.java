@@ -29,7 +29,7 @@ public class GeneratorDepositONCounterpartTest {
   private static final String NAME_GENERATOR = "US Govt Deposit ON";
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final String NAME_COUNTERPART = "US GOVT";
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositONCounterpart(NAME_GENERATOR, CUR, CALENDAR, DAY_COUNT, NAME_COUNTERPART);
 

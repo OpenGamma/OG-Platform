@@ -20,8 +20,8 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -68,7 +68,7 @@ public class BondCapitalIndexedSecurityTest {
       MONTH_LAG, START_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, NOTIONAL_GILT_1, REAL_RATE, BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_GILT_1, YIELD_CONVENTION,
       IS_EOM_GILT_1, ISSUER_UK);
   private static final double SETTLEMENT_TIME = TimeCalculator.getTimeBetween(PRICING_DATE, SPOT_DATE);
-  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = ProviderDiscountDataSets.ukRpiFrom2010();
+  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
   private static final Annuity<Coupon> NOMINAL = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getNominal().toDerivative(PRICING_DATE, "Not used");
   private static final Annuity<Coupon> COUPON = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupons().toDerivative(PRICING_DATE, UK_RPI, "Not used");
   private static final double ACCRUED_INTEREST = BOND_SECURITY_DEFINITION.accruedInterest(SPOT_DATE);

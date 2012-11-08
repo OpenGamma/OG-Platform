@@ -23,9 +23,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -54,7 +52,6 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
-import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -67,12 +64,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -294,11 +287,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity, T data) {
-      return null;
-    }
-
-    @Override
     public String visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, T data) {
       return null;
     }
@@ -314,11 +302,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitFixedFloatSwap(FixedFloatSwap swap, T data) {
-      return null;
-    }
-
-    @Override
     public String visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, T data) {
       return null;
     }
@@ -330,26 +313,6 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitFloatingRateNote(FloatingRateNote frn, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitCrossCurrencySwap(CrossCurrencySwap ccs, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitForexForward(ForexForward fx, T data) {
       return null;
     }
 
@@ -499,11 +462,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity) {
-      return null;
-    }
-
-    @Override
     public String visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity) {
       return null;
     }
@@ -519,11 +477,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitFixedFloatSwap(FixedFloatSwap swap) {
-      return null;
-    }
-
-    @Override
     public String visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption) {
       return null;
     }
@@ -535,26 +488,6 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption) {
-      return null;
-    }
-
-    @Override
-    public String visitFloatingRateNote(FloatingRateNote frn) {
-      return null;
-    }
-
-    @Override
-    public String visitCrossCurrencySwap(CrossCurrencySwap ccs) {
-      return null;
-    }
-
-    @Override
-    public String visitForexForward(ForexForward fx) {
-      return null;
-    }
-
-    @Override
-    public String visitTenorSwap(TenorSwap<? extends Payment> tenorSwap) {
       return null;
     }
 
@@ -786,16 +719,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
-      return null;
-    }
-
-    @Override
     public String visitCouponIborCompounded(CouponIborCompounded payment) {
       // TODO Auto-generated method stub
       return null;
@@ -826,7 +749,6 @@ public class ForexDerivativeVisitorTest {
     public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
       return null;
     }
-
 
   }
 

@@ -39,7 +39,7 @@ import com.opengamma.util.time.DateUtils;
 public class BondFixedSecurityDefinitionTest {
 
   //Semi-annual 2Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

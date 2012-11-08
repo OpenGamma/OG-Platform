@@ -25,7 +25,6 @@ import com.opengamma.analytics.financial.calculator.PresentValueConvertedCalcula
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityConvertedCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
-import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldExisiting;
@@ -37,7 +36,6 @@ import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInte
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldNelsonSiegel;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldPeriodicInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterUnderlyingSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
@@ -66,6 +64,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.DoublesCurveNelsonSiegel;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -414,8 +414,8 @@ public class CurveConstructionSpreadTest {
     final MarketQuoteSensitivityBlockCalculator mqsc = new MarketQuoteSensitivityBlockCalculator(pusbc);
     MultipleCurrencyInterestRateCurveSensitivity[] pvcs = new MultipleCurrencyInterestRateCurveSensitivity[NB_BLOCKS];
     MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[NB_BLOCKS];
-    ParameterSensitivity[] ps = new ParameterSensitivity[NB_BLOCKS];
-    ParameterSensitivity[] mqs = new ParameterSensitivity[NB_BLOCKS];
+    MultipleCurrencyParameterSensitivity[] ps = new MultipleCurrencyParameterSensitivity[NB_BLOCKS];
+    MultipleCurrencyParameterSensitivity[] mqs = new MultipleCurrencyParameterSensitivity[NB_BLOCKS];
     Set<String> fixedCurves = new java.util.HashSet<String>();
     for (int loopblock = 1; loopblock < NB_BLOCKS - 2; loopblock++) {
       pv[loopblock] = PV_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
@@ -430,7 +430,7 @@ public class CurveConstructionSpreadTest {
     t++;
   }
 
-  public void testPnLNodeSensitivity(ParameterSensitivity mqSensitivities, int block) {
+  public void testPnLNodeSensitivity(MultipleCurrencyParameterSensitivity mqSensitivities, int block) {
     double bp1 = 1.0E-4; // 1 bp
     final double eps = 0.1 * bp1;
     double pv = PV_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(block).getFirst()).getAmount(CCY_USD);
@@ -606,8 +606,8 @@ public class CurveConstructionSpreadTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
-      YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators,
+      String[][] curveNames, YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
     int nbUnits = curveGenerators.length;
     double[][] parametersGuess = new double[nbUnits][];

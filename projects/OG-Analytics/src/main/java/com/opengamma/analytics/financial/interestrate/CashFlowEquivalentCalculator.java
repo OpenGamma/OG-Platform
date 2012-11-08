@@ -11,7 +11,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -20,7 +19,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -153,11 +151,6 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
   }
 
   @Override
-  public AnnuityPaymentFixed visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
-    return visitGenericAnnuity(annuity, curves);
-  }
-
-  @Override
   public AnnuityPaymentFixed visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
@@ -182,11 +175,6 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
 
   @Override
   public AnnuityPaymentFixed visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public AnnuityPaymentFixed visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 

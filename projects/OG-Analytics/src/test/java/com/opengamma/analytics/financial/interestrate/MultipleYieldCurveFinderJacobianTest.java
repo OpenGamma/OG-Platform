@@ -59,7 +59,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1D> FRA_INTERPOLATORS;
   private static final LinkedHashMap<String, Interpolator1D> MIXED_INTERPOLATORS;
   private static final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
-  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.EUR);
 
   private static final int N = 10;
   private static final int M = 5;

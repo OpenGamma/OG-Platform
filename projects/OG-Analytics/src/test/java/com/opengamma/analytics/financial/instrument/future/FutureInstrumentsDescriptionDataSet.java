@@ -64,7 +64,7 @@ public class FutureInstrumentsDescriptionDataSet {
   }
 
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final Currency BNDFUT_CUR = Currency.USD;
+  private static final Currency BNDFUT_CUR = Currency.EUR;
   private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
   private static final DayCount BNDFUT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BNDFUT_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");

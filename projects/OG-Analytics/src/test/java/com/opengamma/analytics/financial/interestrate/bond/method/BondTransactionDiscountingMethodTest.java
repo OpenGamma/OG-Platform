@@ -44,7 +44,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 
 public class BondTransactionDiscountingMethodTest {
 
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   // to derivatives: common
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

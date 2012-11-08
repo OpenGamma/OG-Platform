@@ -17,7 +17,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
@@ -25,21 +24,15 @@ import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDis
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -168,101 +161,10 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
     final double pvSecond = PV_CALCULATOR.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, curves);
     final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, dayCount, curves);
-    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(PV_SENSITIVITY_CALCULATOR.visit(swap.getSecondLeg(), curves)).multipliedBy(Math
-        .signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
+    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(PV_SENSITIVITY_CALCULATOR.visit(swap.getSecondLeg(), curves)).multipliedBy(Math.signum(swap.getSecondLeg()
+        .getNthPayment(0).getNotional()));
     final InterestRateCurveSensitivity result = pvSecondDr.multipliedBy(1.0 / pvbp).plus(pvbpDr.multipliedBy(-pvSecond / (pvbp * pvbp)));
     return result.getSensitivities();
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-    //wipe any spreads from either FRN
-    final FloatingRateNote dFRN = REPLACE_RATE.visitFloatingRateNote(ccs.getDomesticLeg(), 0.0);
-    final FloatingRateNote fFRN = REPLACE_RATE.visitFloatingRateNote(ccs.getForeignLeg(), 0.0);
-
-    final AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
-
-    final double dPV = PV_CALCULATOR.visit(dFRN, curves);
-    final double fPV = PV_CALCULATOR.visit(fFRN, curves); //this is in foreign currency
-    final double fAnnuityPV = PV_CALCULATOR.visit(fAnnuity, curves); //this is in foreign currency
-
-    final Map<String, List<DoublesPair>> dPVSense = PV_SENSITIVITY_CALCULATOR.visit(dFRN, curves);
-    final Map<String, List<DoublesPair>> fPVSense = PV_SENSITIVITY_CALCULATOR.visit(fFRN, curves);
-    final Map<String, List<DoublesPair>> fAnnuitySense = PV_SENSITIVITY_CALCULATOR.visit(fAnnuity, curves);
-
-    final double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 
-
-    final double temp = -(dPV - fx * fPV) / fx / fAnnuityPV / fAnnuityPV;
-    return addSensitivity(multiplySensitivity(dPVSense, 1. / fx / fAnnuityPV), multiplySensitivity(fPVSense, -1. / fAnnuityPV), multiplySensitivity(fAnnuitySense, temp));
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
-
-    final double fwdFX = PRC_CALCULATOR.visit(fx, curves);
-    final double t = fx.getPaymentTime();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(new DoublesPair(t, t * fwdFX));
-    final Map<String, List<DoublesPair>> senseD = new HashMap<String, List<DoublesPair>>();
-    senseD.put(fx.getPaymentCurrency1().getFundingCurveName(), temp);
-    temp = new ArrayList<DoublesPair>();
-    temp.add(new DoublesPair(t, -t * fwdFX));
-    final Map<String, List<DoublesPair>> senseF = new HashMap<String, List<DoublesPair>>();
-    senseF.put(fx.getPaymentCurrency2().getFundingCurveName(), temp);
-
-    return addSensitivity(senseD, senseF);
-  }
-
-  /**
-   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
-   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
-   * @param swap 
-   * @param curves 
-   * @return  The spread on the receive leg of a Tenor swap 
-   */
-  @Override
-  public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIborSpread payLeg = ((AnnuityCouponIborSpread) swap.getFirstLeg()).withZeroSpread();
-    final AnnuityCouponIborSpread receiveLeg = ((AnnuityCouponIborSpread) swap.getSecondLeg()).withZeroSpread();
-    final AnnuityCouponFixed spreadLeg = receiveLeg.withUnitCoupons();
-
-    final double a = PV_CALCULATOR.visit(receiveLeg, curves);
-    final double b = PV_CALCULATOR.visit(payLeg, curves);
-    final double c = PV_CALCULATOR.visit(spreadLeg, curves);
-
-    final Map<String, List<DoublesPair>> senseA = PV_SENSITIVITY_CALCULATOR.visit(receiveLeg, curves);
-    final Map<String, List<DoublesPair>> senseB = PV_SENSITIVITY_CALCULATOR.visit(payLeg, curves);
-    final Map<String, List<DoublesPair>> senseC = PV_SENSITIVITY_CALCULATOR.visit(spreadLeg, curves);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-
-    final double factor = (b + a) / c / c;
-
-    for (final String name : curves.getAllNames()) {
-      boolean flag = false;
-      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      if (senseA.containsKey(name)) {
-        flag = true;
-        for (final DoublesPair pair : senseA.get(name)) {
-          temp.add(new DoublesPair(pair.getFirst(), -pair.getSecond() / c));
-        }
-      }
-      if (senseB.containsKey(name)) {
-        flag = true;
-        for (final DoublesPair pair : senseB.get(name)) {
-          temp.add(new DoublesPair(pair.getFirst(), -pair.getSecond() / c));
-        }
-      }
-      if (senseC.containsKey(name)) {
-        flag = true;
-        for (final DoublesPair pair : senseC.get(name)) {
-          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
-        }
-      }
-      if (flag) {
-        result.put(name, temp);
-      }
-    }
-    return result;
   }
 
   @Override
@@ -297,11 +199,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   @Override
   public Map<String, List<DoublesPair>> visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIborSpread(payment.toCoupon(), data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
-    return visitFixedCouponSwap(swap, data);
   }
 
   @Override

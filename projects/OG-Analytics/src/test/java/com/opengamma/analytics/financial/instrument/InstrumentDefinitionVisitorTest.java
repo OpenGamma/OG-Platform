@@ -98,7 +98,7 @@ import com.opengamma.util.time.DateUtils;
  * Class testing the Fixed income instrument definition visitor.
  */
 public class InstrumentDefinitionVisitorTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final Calendar C = new MondayToFridayCalendar("F");
   private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 2), DateUtils.getUTCDate(2012, 1, 2), 1.0, 0.04, 1.0);

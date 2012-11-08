@@ -16,7 +16,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -96,43 +95,43 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final ParameterSensitivityProviderCalculator PSC = new ParameterSensitivityProviderCalculator(PVCSC);
+  private static final ParameterSensitivityMulticurveProviderCalculator PSC = new ParameterSensitivityMulticurveProviderCalculator(PVCSC);
   // private static final ParameterSensitivityMatrixMarketCalculator PSC_MAT = new ParameterSensitivityMatrixMarketCalculator(PVCSC);
   private static final double SHIFT = 5.0E-7;
-  private static final ParameterSensitivityDiscountInterpolatedFDProviderCalculator PSC_DSC_FD = new ParameterSensitivityDiscountInterpolatedFDProviderCalculator(PVC, SHIFT);
-  private static final ParameterSensitivityForwardInterpolatedFDMarketCalculator PSC_FWD_FD = new ParameterSensitivityForwardInterpolatedFDMarketCalculator(PVC, SHIFT);
+  private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVC, SHIFT);
+  private static final ParameterSensitivityMulticurveForwardInterpolatedFDCalculator PSC_FWD_FD = new ParameterSensitivityMulticurveForwardInterpolatedFDCalculator(PVC, SHIFT);
 
   private static final double TOLERANCE_DELTA = 1.0E+2; // 0.01 currency unit for 1bp on 100m
 
   @Test
   public void parameterSensitivityBlock() {
-    ParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(ANNUITY, new TreeSet<String>(), MARKET_DSC);
-    ParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(ANNUITY, MARKET_DSC);
+    MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_DSC, MARKET_DSC.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(ANNUITY, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_DELTA);
 
-    ParameterSensitivity pvps2AnnuityExact = PSC.calculateSensitivity(ANNUITY, new TreeSet<String>(), MARKET_FWD);
-    ParameterSensitivity pvps2AnnuityFD = PSC_FWD_FD.calculateSensitivity(ANNUITY, MARKET_FWD);
+    MultipleCurrencyParameterSensitivity pvps2AnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_FWD, MARKET_FWD.getAllNames());
+    MultipleCurrencyParameterSensitivity pvps2AnnuityFD = PSC_FWD_FD.calculateSensitivity(ANNUITY, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvps2AnnuityExact, pvps2AnnuityFD, TOLERANCE_DELTA);
 
-    ParameterSensitivity pvpsSwapExact = PSC.calculateSensitivity(SWAP, new TreeSet<String>(), MARKET_DSC);
-    ParameterSensitivity pvpsSwapFD = PSC_DSC_FD.calculateSensitivity(SWAP, MARKET_DSC);
+    MultipleCurrencyParameterSensitivity pvpsSwapExact = PSC.calculateSensitivity(SWAP, MARKET_DSC, MARKET_DSC.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsSwapFD = PSC_DSC_FD.calculateSensitivity(SWAP, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap ", pvpsSwapExact, pvpsSwapFD, TOLERANCE_DELTA);
 
-    ParameterSensitivity pvps2SwapExact = PSC.calculateSensitivity(SWAP, new TreeSet<String>(), MARKET_FWD);
-    ParameterSensitivity pvps2SwapFD = PSC_FWD_FD.calculateSensitivity(SWAP, MARKET_FWD);
+    MultipleCurrencyParameterSensitivity pvps2SwapExact = PSC.calculateSensitivity(SWAP, MARKET_FWD, MARKET_FWD.getAllNames());
+    MultipleCurrencyParameterSensitivity pvps2SwapFD = PSC_FWD_FD.calculateSensitivity(SWAP, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap", pvps2SwapExact, pvps2SwapFD, TOLERANCE_DELTA);
 
-    ParameterSensitivity pvpsOisExact = PSC.calculateSensitivity(OIS, new TreeSet<String>(), MARKET_DSC);
-    ParameterSensitivity pvpsOisFD = PSC_DSC_FD.calculateSensitivity(OIS, MARKET_DSC);
+    MultipleCurrencyParameterSensitivity pvpsOisExact = PSC.calculateSensitivity(OIS, MARKET_DSC, MARKET_DSC.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsOisFD = PSC_DSC_FD.calculateSensitivity(OIS, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvpsOisExact, pvpsOisFD, TOLERANCE_DELTA);
 
-    ParameterSensitivity pvps2OisExact = PSC.calculateSensitivity(OIS, new TreeSet<String>(), MARKET_FWD);
-    ParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
+    MultipleCurrencyParameterSensitivity pvps2OisExact = PSC.calculateSensitivity(OIS, MARKET_FWD, MARKET_FWD.getAllNames());
+    MultipleCurrencyParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvps2OisExact, pvps2OisFD, TOLERANCE_DELTA);
 
-    Set<String> fixed = new TreeSet<String>();
-    fixed.add(FWD3_NAME);
-    ParameterSensitivity pvpsSwapNoFwd = PSC.calculateSensitivity(SWAP, fixed, MARKET_DSC);
+    Set<String> required = new TreeSet<String>();
+    required.add(DSC_NAME);
+    MultipleCurrencyParameterSensitivity pvpsSwapNoFwd = PSC.calculateSensitivity(SWAP, MARKET_DSC, required);
     assertTrue("ParameterSensitivityMarketBlockCalculator: fixed curve ", pvpsSwapNoFwd.getAllNamesCurrency().size() == 1);
     assertArrayEquals("ParameterSensitivityMarketBlockCalculator: fixed curve ", pvpsSwapNoFwd.getSensitivity(DSC_NAME, USD).getData(), pvpsSwapExact.getSensitivity(DSC_NAME, USD).getData(),
         TOLERANCE_DELTA);

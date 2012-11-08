@@ -59,7 +59,7 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
 
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, premiumFrequency, convention, stubType);
   }
@@ -157,7 +157,7 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
     
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
@@ -176,7 +176,7 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
     
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }

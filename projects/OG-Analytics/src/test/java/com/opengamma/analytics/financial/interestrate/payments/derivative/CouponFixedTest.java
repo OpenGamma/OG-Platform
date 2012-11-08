@@ -20,7 +20,7 @@ public class CouponFixedTest {
   private static final double YEAR_FRACTION = 0.253;
   private static final double COUPON = 0.05;
   private static final String CURVE_NAME = "vfsmngsdjkflsadfk";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final CouponFixed PAYMENT = new CouponFixed(CUR, PAYMENT_TIME, CURVE_NAME, YEAR_FRACTION, COUPON);
 
   //TODO: test constructor with notional.

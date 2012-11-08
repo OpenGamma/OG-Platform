@@ -26,8 +26,6 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -54,7 +52,7 @@ public class PV01CalculatorTest {
   private static final String FUNDING_CURVE_NAME = "funding curve";
   private static final String LIBOR_CURVE_NAME = "libor";
   private static YieldCurveBundle CURVES;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
@@ -173,24 +171,6 @@ public class PV01CalculatorTest {
     doTest(bond, CURVES);
     final BondFixedTransaction trade = new BondFixedTransaction(bond, 100, 100, bond, 90);
     doTest(trade, CURVES);
-  }
-
-  @Test
-  public void testFixedFloatSwap() {
-    final int n = 20;
-    final double[] fixedPaymentTimes = new double[n];
-    final double[] floatPaymentTimes = new double[2 * n];
-
-    for (int i = 0; i < n * 2; i++) {
-      if (i % 2 == 0) {
-        fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
-      }
-      floatPaymentTimes[i] = (i + 1) * 0.25;
-    }
-    final double swapRate = 0.04;
-
-    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, false);
-    doTest(swap, CURVES);
   }
 
   //  @Test

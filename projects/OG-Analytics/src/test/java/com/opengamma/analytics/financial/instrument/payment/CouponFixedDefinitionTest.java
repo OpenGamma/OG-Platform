@@ -31,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests the constructors and equal/hash for CouponFixedDefinition.
  */
 public class CouponFixedDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);

@@ -5,12 +5,10 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -44,23 +42,20 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   private final FXMatrix _fxMatrix;
   /**
-   * The set of all curves names.
+   * Map of all curves used in the provider. The order 
    */
-  private TreeSet<String> _allNames;
-  /**
-   * The map with the number of parameters for each curve name.
-   */
-  private Map<String, Integer> _parametersByCurve;
+  private Map<String, YieldAndDiscountCurve> _allCurves;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
    */
   public MulticurveProviderDiscount() {
+    // TODO: Do we need a LinkedHashMap or a more efficient Map could be used?
     _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
     _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
     _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
     _fxMatrix = new FXMatrix();
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -72,7 +67,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
     _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
     _fxMatrix = fxMatrix;
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -88,7 +83,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _forwardIborCurves = forwardIborCurves;
     _forwardONCurves = forwardONCurves;
     _fxMatrix = fxMatrix;
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -100,7 +95,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _forwardIborCurves = market._forwardIborCurves;
     _forwardONCurves = market._forwardONCurves;
     _fxMatrix = market._fxMatrix;
-    setAllNames();
+    setAllCurves();
   }
 
   @Override
@@ -112,32 +107,71 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   * @return The names.
-   */
-  private void setAllNames() {
-    final TreeSet<String> names = new TreeSet<String>();
-    _parametersByCurve = new HashMap<String, Integer>();
+  private void setAllCurves() {
+    _allCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     final Set<Currency> ccySet = _discountingCurves.keySet();
     for (final Currency ccy : ccySet) {
       String name = _discountingCurves.get(ccy).getName();
-      names.add(name);
-      _parametersByCurve.put(name, _discountingCurves.get(ccy).getNumberOfParameters());
+      _allCurves.put(name, _discountingCurves.get(ccy));
     }
     final Set<IborIndex> indexSet = _forwardIborCurves.keySet();
     for (final IborIndex index : indexSet) {
       String name = _forwardIborCurves.get(index).getName();
-      names.add(name);
-      _parametersByCurve.put(name, _forwardIborCurves.get(index).getNumberOfParameters());
+      _allCurves.put(name, _forwardIborCurves.get(index));
     }
     final Set<IndexON> indexONSet = _forwardONCurves.keySet();
     for (final IndexON index : indexONSet) {
       String name = _forwardONCurves.get(index).getName();
-      names.add(name);
-      _parametersByCurve.put(name, _forwardONCurves.get(index).getNumberOfParameters());
+      _allCurves.put(name, _forwardONCurves.get(index));
     }
-    _allNames = names;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _allCurves.get(name);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _allCurves.get(name);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final ForwardSensitivity timeAndS : pointSensitivity) {
+        final double startTime = timeAndS.getStartTime();
+        final double endTime = timeAndS.getEndTime();
+        final double accrualFactor = timeAndS.getAccrualFactor();
+        final double forwardBar = timeAndS.getValue();
+        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
+        final double dfForwardStart = curve.getDiscountFactor(startTime);
+        final double dfForwardEnd = curve.getDiscountFactor(endTime);
+        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
+        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
+        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
+          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
+        }
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public Integer getNumberOfParameters(String name) {
+    return _allCurves.get(name).getNumberOfParameters();
   }
 
   @Override
@@ -162,27 +196,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   @Override
-  public double[] parameterSensitivity(final Currency ccy, final List<DoublesPair> pointSensitivity) {
-    final YieldAndDiscountCurve curve = _discountingCurves.get(ccy);
-    final int nbParameters = curve.getNumberOfParameters();
-    final double[] result = new double[nbParameters];
-    if (pointSensitivity != null && pointSensitivity.size() > 0) {
-      for (final DoublesPair timeAndS : pointSensitivity) {
-        final double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
-        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
-          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
-        }
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public int getNumberOfParameters(final Currency ccy) {
-    return _discountingCurves.get(ccy).getNumberOfParameters();
-  }
-
-  @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardIborCurves.containsKey(index)) {
       return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
@@ -204,38 +217,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   @Override
-  public double[] parameterSensitivity(final IborIndex index, final List<ForwardSensitivity> pointSensitivity) {
-    final YieldAndDiscountCurve curve = _forwardIborCurves.get(index);
-    final int nbParameters = curve.getNumberOfParameters();
-    final double[] result = new double[nbParameters];
-    if (pointSensitivity != null && pointSensitivity.size() > 0) {
-      for (final ForwardSensitivity timeAndS : pointSensitivity) {
-        final double startTime = timeAndS.getStartTime();
-        final double endTime = timeAndS.getEndTime();
-        final double accrualFactor = timeAndS.getAccrualFactor();
-        final double forwardBar = timeAndS.getValue();
-        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
-        final double dfForwardStart = curve.getDiscountFactor(startTime);
-        final double dfForwardEnd = curve.getDiscountFactor(endTime);
-        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
-        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
-        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
-        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
-        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
-          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
-          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
-        }
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public int getNumberOfParameters(final IborIndex index) {
-    return _forwardIborCurves.get(index).getNumberOfParameters();
-  }
-
-  @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     if (_forwardONCurves.containsKey(index)) {
       return (_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
@@ -254,38 +235,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public Set<IndexON> getIndexesON() {
     return _forwardONCurves.keySet();
-  }
-
-  @Override
-  public double[] parameterSensitivity(final IndexON index, final List<ForwardSensitivity> pointSensitivity) {
-    final YieldAndDiscountCurve curve = _forwardONCurves.get(index);
-    final int nbParameters = curve.getNumberOfParameters();
-    final double[] result = new double[nbParameters];
-    if (pointSensitivity != null && pointSensitivity.size() > 0) {
-      for (final ForwardSensitivity timeAndS : pointSensitivity) {
-        final double startTime = timeAndS.getStartTime();
-        final double endTime = timeAndS.getEndTime();
-        final double accrualFactor = timeAndS.getAccrualFactor();
-        final double forwardBar = timeAndS.getValue();
-        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
-        final double dfForwardStart = curve.getDiscountFactor(startTime);
-        final double dfForwardEnd = curve.getDiscountFactor(endTime);
-        final double dFwddyStart = -startTime * dfForwardStart / (dfForwardEnd * accrualFactor);
-        final double dFwddyEnd = endTime * dfForwardStart / (dfForwardEnd * accrualFactor);
-        final double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
-        final double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
-        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
-          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
-          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
-        }
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public int getNumberOfParameters(final IndexON index) {
-    return _forwardONCurves.get(index).getNumberOfParameters();
   }
 
   /**
@@ -330,12 +279,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   @Override
   public Set<String> getAllNames() {
-    return _allNames;
-  }
-
-  @Override
-  public Integer getNumberOfParameters(String name) {
-    return _parametersByCurve.get(name);
+    return _allCurves.keySet();
   }
 
   /**
@@ -350,7 +294,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
     }
     _discountingCurves.put(ccy, curve);
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -365,7 +309,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       throw new IllegalArgumentException("Ibor index forward curve already set: " + index.toString());
     }
     _forwardIborCurves.put(index, curve);
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -380,7 +324,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       throw new IllegalArgumentException("ON index forward curve already set: " + index.toString());
     }
     _forwardONCurves.put(index, curve);
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -393,7 +337,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _discountingCurves.putAll(other._discountingCurves);
     _forwardIborCurves.putAll(other._forwardIborCurves);
     _forwardONCurves.putAll(other._forwardONCurves);
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -409,7 +353,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       throw new IllegalArgumentException("Currency discounting curve not in set: " + ccy);
     }
     _discountingCurves.put(ccy, curve);
-    setAllNames();
+    setAllCurves();
   }
 
   /**
@@ -425,7 +369,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       throw new IllegalArgumentException("Forward curve not in set: " + index);
     }
     _forwardIborCurves.put(index, curve);
-    setAllNames();
+    setAllCurves();
   }
 
   @Override

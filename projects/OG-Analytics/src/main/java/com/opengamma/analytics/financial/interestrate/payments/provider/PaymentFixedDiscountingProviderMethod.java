@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -62,15 +62,14 @@ public final class PaymentFixedDiscountingProviderMethod {
    * @param multicurves The multi-curve provider.
    * @return The sensitivity.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
-    final String curveName = payment.getFundingCurveName();
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     final double time = payment.getPaymentTime();
     final DoublesPair s = new DoublesPair(time, -time * payment.getAmount() * multicurves.getDiscountFactor(payment.getCurrency(), time));
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(s);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(curveName, list);
-    return MultipleCurrencyCurveSensitivityMarket.of(payment.getCurrency(), CurveSensitivityMarket.ofYieldDiscounting(result));
+    result.put(multicurves.getName(payment.getCurrency()), list);
+    return MultipleCurrencyMulticurveSensitivity.of(payment.getCurrency(), MulticurveSensitivity.ofYieldDiscounting(result));
   }
 
   /**

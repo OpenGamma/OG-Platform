@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -52,6 +54,7 @@ public final class ParSpreadMarketQuoteDiscountingProviderCalculator extends Abs
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingProviderMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingProviderMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurve) {
@@ -86,18 +89,32 @@ public final class ParSpreadMarketQuoteDiscountingProviderCalculator extends Abs
    * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
    * of the first leg (as computed by the PresentValueBasisPointCalculator).
    * @param swap The swap.
-   * @param multicurve The multi-curve provider.
+   * @param multicurves The multi-curves provider.
    * @return The par spread.
    */
   @Override
-  public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(multicurve, "Market");
+  public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
+    ArgumentChecker.notNull(multicurves, "Market");
     ArgumentChecker.notNull(swap, "Swap");
-    return -multicurve.getFxRates().convert(PVMC.visit(swap, multicurve), swap.getFirstLeg().getCurrency()).getAmount() / PVMQSC.visit(swap.getFirstLeg(), multicurve);
+    return -multicurves.getFxRates().convert(PVMC.visit(swap, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / PVMQSC.visit(swap.getFirstLeg(), multicurves);
   }
 
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
   }
+
+  //     -----     Forex     -----
+
+  /**
+   * The par spread is the spread that should be added to the forex forward points to have a zero value.
+   * @param fx The forex swap.
+   * @param multicurves The multi-curves provider.
+   * @return The spread.
+   */
+  @Override
+  public Double visitForexSwap(final ForexSwap fx, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX_SWAP.parSpread(fx, multicurves);
+  }
+
 }

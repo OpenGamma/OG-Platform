@@ -9,8 +9,8 @@ import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -42,13 +42,13 @@ public class PortfolioHedgingCalculator {
    * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
    * Note that the output is the optimal hedge quantity and not the portoflio equivalent. The hedge has the opposite sign of wrt the equivalent.
    */
-  public static double[] hedgeQuantity(final ParameterSensitivity ps, final ParameterSensitivity[] rs, final DoubleMatrix2D w, final LinkedHashSet<Pair<String, Integer>> order, 
+  public static double[] hedgeQuantity(final MultipleCurrencyParameterSensitivity ps, final MultipleCurrencyParameterSensitivity[] rs, final DoubleMatrix2D w, final LinkedHashSet<Pair<String, Integer>> order, 
       final FXMatrix fxMatrix) {
     final Currency ccy = ps.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: currency used for the conversion in a common currency. Any currency is fine.
     final int nbReference = rs.length;
-    final ParameterSensitivity psConverted = ps.converted(fxMatrix, ccy);
-    final ParameterSensitivity[] rsConverted = new ParameterSensitivity[nbReference];
+    final MultipleCurrencyParameterSensitivity psConverted = ps.converted(fxMatrix, ccy);
+    final MultipleCurrencyParameterSensitivity[] rsConverted = new MultipleCurrencyParameterSensitivity[nbReference];
     for (int loopref = 0; loopref < nbReference; loopref++) {
       rsConverted[loopref] = rs[loopref].converted(fxMatrix, ccy);
     }
@@ -76,7 +76,7 @@ public class PortfolioHedgingCalculator {
    * @param order The ordered set of name.
    * @return The sensitivity matrix.
    */
-  public static DoubleMatrix1D toMatrix(final ParameterSensitivity sensi, final LinkedHashSet<Pair<String, Integer>> order) {
+  public static DoubleMatrix1D toMatrix(final MultipleCurrencyParameterSensitivity sensi, final LinkedHashSet<Pair<String, Integer>> order) {
     double[] psArray = new double[0];
     Currency ccy = Currency.AUD;
     if (sensi.getSensitivities() != null) {

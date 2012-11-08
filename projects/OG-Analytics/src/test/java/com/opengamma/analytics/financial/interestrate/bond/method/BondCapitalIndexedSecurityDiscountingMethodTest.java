@@ -22,12 +22,12 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.InflationProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -48,11 +48,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class BondCapitalIndexedSecurityDiscountingMethodTest {
 
-  private static final InflationIssuerProviderDiscount MARKET = ProviderDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = ProviderDiscountDataSets.getPriceIndexes();
+  private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_UKRPI = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
-  private static final String[] ISSUER_NAMES = ProviderDiscountDataSets.getIssuerNames();
+  private static final String[] ISSUER_NAMES = MulticurveProviderDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];
 
@@ -82,7 +82,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_GILT_1_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
       PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1, NOTIONAL_GILT_1, REAL_RATE_GILT_1,
       BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = ProviderDiscountDataSets.ukRpiFrom2010();
+  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_GILT_1 = BOND_SECURITY_GILT_1_DEFINITION.toDerivative(PRICING_DATE, UK_RPI, "Not used");
 
   @Test
@@ -131,7 +131,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
       .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = ProviderDiscountDataSets.usCpiFrom2009();
+  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MulticurveProviderDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   @Test
@@ -236,7 +236,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues1() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    InflationIssuerProviderDiscount market = ProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -266,7 +266,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues2() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    InflationIssuerProviderDiscount market = ProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.13 + 0.01 / 32;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -296,7 +296,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues3() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 18); // Spot 19-Aug-2011
-    InflationIssuerProviderDiscount market = ProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.82348;

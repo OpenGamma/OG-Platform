@@ -16,9 +16,9 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -30,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests the present value and its sensitivities for zero-coupon with reference index on the first of the month.
  */
 public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
-  private static final InflationIssuerProviderDiscount MARKET = ProviderDiscountDataSets.createMarket1();
+  private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final IborIndex[] IBOR_INDEXES = MARKET.getIndexesIbor().toArray(new IborIndex[0]);

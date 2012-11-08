@@ -10,14 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.method.PricingProviderMethod;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -25,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * The methods associated to the pricing of cash deposit by discounting.
  */
-public final class CashDiscountingProviderMethod implements PricingProviderMethod {
+public final class CashDiscountingProviderMethod {
 
   /**
    * The method unique instance.
@@ -61,19 +57,13 @@ public final class CashDiscountingProviderMethod implements PricingProviderMetho
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
-  @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, MulticurveProviderInterface curves) {
-    Validate.isTrue(instrument instanceof Cash, "Cash");
-    return presentValue((Cash) instrument, curves);
-  }
-
   /**
    * Compute the present value by discounting the final cash flow (nominal + interest) and the initial payment (initial amount).
    * @param deposit The deposit.
    * @param curves The curves.
    * @return The present value.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(final Cash deposit, final MulticurveProviderInterface curves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Cash deposit, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
     double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
@@ -87,8 +77,8 @@ public final class CashDiscountingProviderMethod implements PricingProviderMetho
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(curves.getName(deposit.getCurrency()), listDiscounting);
-    MultipleCurrencyCurveSensitivityMarket result = new MultipleCurrencyCurveSensitivityMarket();
-    result = result.plus(deposit.getCurrency(), CurveSensitivityMarket.ofYieldDiscounting(mapDsc));
+    MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
+    result = result.plus(deposit.getCurrency(), MulticurveSensitivity.ofYieldDiscounting(mapDsc));
     return result;
   }
 
@@ -127,7 +117,7 @@ public final class CashDiscountingProviderMethod implements PricingProviderMetho
    * @param curves The curves.
    * @return The spread curve sensitivity.
    */
-  public CurveSensitivityMarket parSpreadCurveSensitivity(final Cash deposit, final MulticurveProviderInterface curves) {
+  public MulticurveSensitivity parSpreadCurveSensitivity(final Cash deposit, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
     ArgumentChecker.isTrue(deposit.getNotional() != 0.0, "Notional is 0");
@@ -142,7 +132,7 @@ public final class CashDiscountingProviderMethod implements PricingProviderMetho
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(curves.getName(deposit.getCurrency()), listDiscounting);
-    return CurveSensitivityMarket.ofYieldDiscounting(mapDsc);
+    return MulticurveSensitivity.ofYieldDiscounting(mapDsc);
   }
 
 }

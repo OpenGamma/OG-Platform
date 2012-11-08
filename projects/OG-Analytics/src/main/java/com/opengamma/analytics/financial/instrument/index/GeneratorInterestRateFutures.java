@@ -52,7 +52,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument {
 
   @Override
   /**
-   * The future is the first futures after the date+tenor.
+   * The future is the n-th futures after the date+tenor where n is given in the objects
    */
   public InterestRateFutureDefinition generateInstrument(ZonedDateTime date, Period tenor, double marketQuote, double notional, Object... objects) {
     //TODO: Add monthly futures

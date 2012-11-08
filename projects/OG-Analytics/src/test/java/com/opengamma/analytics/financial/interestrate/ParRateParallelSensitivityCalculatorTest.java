@@ -53,7 +53,7 @@ public class ParRateParallelSensitivityCalculatorTest {
   private static final String FUNDING_CURVE_NAME = "funding curve";
   private static final String LIBOR_CURVE_NAME = "libor";
   private static YieldCurveBundle CURVES;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;

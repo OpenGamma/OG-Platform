@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -12,11 +14,11 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscount
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -25,7 +27,7 @@ import com.opengamma.util.money.Currency;
  * The notion of "spread" will depend of each instrument.
  * @author marc
  */
-public final class ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, CurveSensitivityMarket> {
+public final class ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -56,36 +58,37 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalcul
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingProviderMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingProviderMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   //     -----     Deposit     -----
 
   @Override
-  public CurveSensitivityMarket visitCash(final Cash deposit, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCash(final Cash deposit, final MulticurveProviderInterface multicurve) {
     return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, multicurve);
   }
 
   @Override
-  public CurveSensitivityMarket visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
     return METHOD_DEPOSIT_IBOR.parSpreadCurveSensitivity(deposit, multicurve);
   }
 
   // -----     Payment/Coupon     ------
 
   @Override
-  public CurveSensitivityMarket visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     return METHOD_FRA.parSpreadCurveSensitivity(fra, multicurve);
   }
 
   //     -----     Swaps     -----
 
   @Override
-  public CurveSensitivityMarket visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(multicurve, "multicurve");
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    final MultipleCurrencyCurveSensitivityMarket pvcs = PVCSMC.visit(swap, multicurve);
-    final CurveSensitivityMarket pvcs1 = pvcs.converted(ccy1, multicurve.getFxRates()).getSensitivity(ccy1);
-    final CurveSensitivityMarket pvmqscs = PVMQSCSMC.visit(swap.getFirstLeg(), multicurve);
+    final MultipleCurrencyMulticurveSensitivity pvcs = PVCSMC.visit(swap, multicurve);
+    final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, multicurve.getFxRates()).getSensitivity(ccy1);
+    final MulticurveSensitivity pvmqscs = PVMQSCSMC.visit(swap.getFirstLeg(), multicurve);
     final double pvmqs = PVMQSMC.visit(swap.getFirstLeg(), multicurve);
     final double pv = multicurve.getFxRates().convert(PVMC.visit(swap, multicurve), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
@@ -93,7 +96,21 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalcul
   }
 
   @Override
-  public CurveSensitivityMarket visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
   }
+
+  //     -----     Forex     -----
+
+  /**
+   * The par spread is the spread that should be added to the forex forward points to have a zero value.
+   * @param fx The forex swap.
+   * @param multicurves The multi-curves provider.
+   * @return The spread.
+   */
+  @Override
+  public MulticurveSensitivity visitForexSwap(final ForexSwap fx, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX_SWAP.parSpreadCurveSensitivity(fx, multicurves);
+  }
+
 }

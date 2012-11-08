@@ -13,7 +13,6 @@ import java.util.Map;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -22,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Computes the sensitivity to the curves (in the Market description of curve bundle) of the market quote sensitivity.
  * @author marc
  */
-public final class PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, CurveSensitivityMarket> {
+public final class PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -53,11 +53,11 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalcu
   // -----     Payment/Coupon     ------
 
   @Override
-  public CurveSensitivityMarket visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurve) {
-    return new CurveSensitivityMarket();
+  public MulticurveSensitivity visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurve) {
+    return new MulticurveSensitivity();
   }
 
-  public CurveSensitivityMarket visitCoupon(final Coupon coupon, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCoupon(final Coupon coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(multicurve, "Market");
     ArgumentChecker.notNull(coupon, "Coupon");
     double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -68,36 +68,36 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalcu
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
-    return CurveSensitivityMarket.ofYieldDiscounting(resultMapDsc);
+    return MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);
   }
 
   @Override
-  public CurveSensitivityMarket visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 
   @Override
-  public CurveSensitivityMarket visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 
   @Override
-  public CurveSensitivityMarket visitCouponIborSpread(final CouponIborSpread coupon, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCouponIborSpread(final CouponIborSpread coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 
   @Override
-  public CurveSensitivityMarket visitCouponIborCompounded(final CouponIborCompounded coupon, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitCouponIborCompounded(final CouponIborCompounded coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 
   // -----     Annuity     ------
 
   @Override
-  public CurveSensitivityMarket visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(multicurve, "multicurve");
     ArgumentChecker.notNull(annuity, "Annuity");
-    CurveSensitivityMarket pvbpSensi = new CurveSensitivityMarket();
+    MulticurveSensitivity pvbpSensi = new MulticurveSensitivity();
     for (final Payment p : annuity.getPayments()) {
       pvbpSensi = pvbpSensi.plus(visit(p, multicurve));
     }
@@ -105,7 +105,7 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalcu
   }
 
   @Override
-  public CurveSensitivityMarket visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface multicurve) {
     return visitGenericAnnuity(annuity, multicurve);
   }
 

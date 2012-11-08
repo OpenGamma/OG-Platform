@@ -41,7 +41,7 @@ public class CouponIborSpreadDefinitionTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
@@ -126,7 +126,7 @@ public class CouponIborSpreadDefinitionTest {
         IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE.plusDays(1), INDEX, SPREAD);
     assertFalse(IBOR_COUPON_SPREAD_DEFINITION.equals(other));
     other = new CouponIborSpreadDefinition(CUR, IBOR_COUPON_SPREAD_DEFINITION.getPaymentDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualStartDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualEndDate(),
-        IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, new IborIndex(Currency.USD, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM), SPREAD);
+        IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, new IborIndex(Currency.EUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM), SPREAD);
     assertFalse(IBOR_COUPON_SPREAD_DEFINITION.equals(other));
     other = new CouponIborSpreadDefinition(CUR, IBOR_COUPON_SPREAD_DEFINITION.getPaymentDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualStartDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualEndDate(),
         IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, INDEX, SPREAD + 0.01);

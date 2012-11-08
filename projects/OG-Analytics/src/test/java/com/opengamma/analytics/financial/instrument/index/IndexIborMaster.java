@@ -76,7 +76,7 @@ public final class IndexIborMaster {
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR12M"));
     _ibor.put(
         "USDLIBOR1M",
-        new IborIndex(Currency.EUR, Period.ofMonths(1), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new IborIndex(Currency.USD, Period.ofMonths(1), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "USDLIBOR1M"));
     _ibor.put(
         "USDLIBOR3M",

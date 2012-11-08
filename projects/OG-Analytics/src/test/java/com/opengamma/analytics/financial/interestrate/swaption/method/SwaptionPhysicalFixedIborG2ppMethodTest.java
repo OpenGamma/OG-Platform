@@ -54,7 +54,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwaptionPhysicalFixedIborG2ppMethodTest {
   // Swaption 5Yx5Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

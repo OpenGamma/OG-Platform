@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.provider.description;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,10 +16,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -155,16 +152,6 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  public double[] parameterSensitivity(final Currency ccy, final List<DoublesPair> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(ccy, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final Currency ccy) {
-    return _multicurveProvider.getNumberOfParameters(ccy);
-  }
-
-  @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -180,16 +167,6 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  public double[] parameterSensitivity(final IborIndex index, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IborIndex index) {
-    return _multicurveProvider.getNumberOfParameters(index);
-  }
-
-  @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -202,16 +179,6 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public Set<IndexON> getIndexesON() {
     return _multicurveProvider.getIndexesON();
-  }
-
-  @Override
-  public double[] parameterSensitivity(final IndexON index, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IndexON index) {
-    return _multicurveProvider.getNumberOfParameters(index);
   }
 
   /**

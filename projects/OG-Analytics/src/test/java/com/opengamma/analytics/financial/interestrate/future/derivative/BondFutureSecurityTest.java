@@ -33,7 +33,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class BondFutureSecurityTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

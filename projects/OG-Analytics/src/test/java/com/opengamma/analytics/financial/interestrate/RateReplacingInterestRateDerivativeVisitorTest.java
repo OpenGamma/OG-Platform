@@ -39,7 +39,7 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
   private static final String N1 = "A";
   private static final String N2 = "B";
   private static final RateReplacingInterestRateDerivativeVisitor VISITOR = RateReplacingInterestRateDerivativeVisitor.getInstance();
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;

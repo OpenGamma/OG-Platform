@@ -18,6 +18,8 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;

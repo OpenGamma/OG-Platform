@@ -83,6 +83,16 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   }
 
   @Override
+  public double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
   public String getName(final Currency ccy) {
     return _multicurveProvider.getName(ccy);
   }
@@ -90,16 +100,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   @Override
   public Set<Currency> getCurrencies() {
     return _multicurveProvider.getCurrencies();
-  }
-
-  @Override
-  public double[] parameterSensitivity(final Currency ccy, final List<DoublesPair> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(ccy, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final Currency ccy) {
-    return _multicurveProvider.getNumberOfParameters(ccy);
   }
 
   @Override
@@ -118,16 +118,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   }
 
   @Override
-  public double[] parameterSensitivity(final IborIndex index, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IborIndex index) {
-    return _multicurveProvider.getNumberOfParameters(index);
-  }
-
-  @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
   }
@@ -140,16 +130,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   @Override
   public Set<IndexON> getIndexesON() {
     return _multicurveProvider.getIndexesON();
-  }
-
-  @Override
-  public double[] parameterSensitivity(final IndexON index, final List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(index, pointSensitivity);
-  }
-
-  @Override
-  public int getNumberOfParameters(final IndexON index) {
-    return _multicurveProvider.getNumberOfParameters(index);
   }
 
   /**
@@ -256,6 +236,21 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   @Override
   public FXMatrix getFxRates() {
     return _multicurveProvider.getFxRates();
+  }
+
+  public HullWhiteOneFactorProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
+  }
+
+  public HullWhiteOneFactorProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
+  }
+
+  public HullWhiteOneFactorProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
   }
 
 }

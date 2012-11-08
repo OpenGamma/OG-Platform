@@ -19,7 +19,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
-import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
@@ -43,6 +42,7 @@ import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -245,8 +245,8 @@ public class CurveConstructionBillBondTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
-      YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators,
+      String[][] curveNames, YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday) {
     int nbUnits = curveGenerators.length;
     double[][] parametersGuess = new double[nbUnits][];

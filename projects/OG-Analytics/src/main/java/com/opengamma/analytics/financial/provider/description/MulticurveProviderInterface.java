@@ -65,7 +65,19 @@ public interface MulticurveProviderInterface {
    */
   double getFxRate(final Currency ccy1, final Currency ccy2);
 
-  // TODO: Probably the methods below should be in an implementation class.
+  // TODO: Maybe some of the methods below should be in an implementation class.
+
+  double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
+
+  double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
+
+  /**
+   * Gets the number of parameters for a curve described by its name.
+   * @param name The curve name.
+   * @return The number of parameters.
+   */
+  Integer getNumberOfParameters(String name);
+
   //     =====     Related methods for the discounting curves     =====
 
   /**
@@ -75,26 +87,14 @@ public interface MulticurveProviderInterface {
    */
   String getName(Currency ccy);
 
+  // TODO: Replace the curve names by some curve ID, maybe some UniqueIdentifiable objects
+  // TODO: Some method could be available from curve ID and not only from financial description (like parameterSensitivity(CurveID id, List<DoublesPair> pointSensitivity))
+
   /**
    * Returns a set of all the currencies available for discounting.
    * @return The currency set.
    */
   Set<Currency> getCurrencies();
-
-  /**
-   * Computes the sensitivity to the parameters of the given currency discounting curve from the sensitivity to yield (continuously compounded) at intermediary points.
-   * @param ccy The currency.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to a currency.
-   * @param ccy The currency.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(Currency ccy);
 
   //     =====     Related methods for the forward curves Ibor    =====
 
@@ -111,21 +111,6 @@ public interface MulticurveProviderInterface {
    */
   Set<IborIndex> getIndexesIbor();
 
-  /**
-   * Computes the sensitivity to the parameters of the given index forward curve from the sensitivity to forward rate at intermediary points.
-   * @param index The index.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(IborIndex index, List<ForwardSensitivity> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to an index.
-   * @param index The index.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(IborIndex index);
-
   //     =====     Related methods for the forward ON curves     =====
 
   /**
@@ -141,21 +126,6 @@ public interface MulticurveProviderInterface {
    */
   Set<IndexON> getIndexesON();
 
-  /**
-   * Computes the sensitivity to the parameters of the given index forward curve from the sensitivity to forward rate at intermediary points.
-   * @param index The index.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(IndexON index, List<ForwardSensitivity> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to an index.
-   * @param index The index.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(IndexON index);
-
   //     =====     Related methods FX     =====
 
   /**
@@ -169,13 +139,6 @@ public interface MulticurveProviderInterface {
    * @return The names.
    */
   Set<String> getAllNames();
-
-  /**
-   * Gets the number of parameters for a curve described by its name.
-   * @param name The curve name.
-   * @return The number of parameters.
-   */
-  Integer getNumberOfParameters(String name);
 
   //     =====     Convenience methods     =====
 

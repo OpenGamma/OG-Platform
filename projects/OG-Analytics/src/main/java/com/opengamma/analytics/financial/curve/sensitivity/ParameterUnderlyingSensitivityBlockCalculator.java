@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -48,18 +49,18 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
    * @return The sensitivity.
    */
   @Override
-  public ParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
     ArgumentChecker.notNull(bundle, "Curve bundle");
-    ParameterSensitivity result = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     for (final Currency ccy : sensitivity.getCurrencies()) {
       result = result.plus(pointToParameterSensitivity(ccy, sensitivity.getSensitivity(ccy), fixedCurves, bundle));
     }
     return result;
   }
 
-  public ParameterSensitivity pointToParameterSensitivity(final Currency ccy, final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final Currency ccy, final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     Set<String> curveNamesSet = bundle.getAllNames();
     int nbCurve = curveNamesSet.size();
     String[] curveNamesArray = new String[nbCurve];
@@ -159,7 +160,7 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
     for (int loopcurve = 0; loopcurve < nbSensitivityCurve; loopcurve++) {
       result.put(new ObjectsPair<String, Currency>(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
     }
-    return new ParameterSensitivity(result);
+    return new MultipleCurrencyParameterSensitivity(result);
   }
 
 }

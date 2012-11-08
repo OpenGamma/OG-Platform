@@ -16,14 +16,14 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
@@ -36,8 +36,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponIborSpreadDiscountingProviderMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = ProviderDiscountDataSets.createProvider3();
-  private static final IborIndex[] IBOR_INDEXES = ProviderDiscountDataSets.getIndexesIbor();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
+  private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
@@ -97,18 +97,18 @@ public class CouponIborSpreadDiscountingProviderMethodTest {
 
   @Test
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyCurveSensitivityMarket pvcsComputed = METHOD_CPN_IBOR_SPREAD.presentValueCurveSensitivity(CPN_IBOR_SPREAD, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_CPN_IBOR_SPREAD.presentValueCurveSensitivity(CPN_IBOR_SPREAD, PROVIDER);
     pvcsComputed = pvcsComputed.cleaned();
-    MultipleCurrencyCurveSensitivityMarket pvcsIbor = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsFixed = METHOD_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsExpected = pvcsIbor.plus(pvcsFixed).cleaned();
+    MultipleCurrencyMulticurveSensitivity pvcsIbor = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsFixed = METHOD_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsIbor.plus(pvcsFixed).cleaned();
     AssertSensivityObjects.assertEquals("CouponIborSpreadDiscountingMethod: present value curve sensitivity", pvcsExpected, pvcsComputed, TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_IBOR_SPREAD.presentValueCurveSensitivity(CPN_IBOR_SPREAD, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSDC.visit(CPN_IBOR_SPREAD, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR_SPREAD.presentValueCurveSensitivity(CPN_IBOR_SPREAD, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_IBOR_SPREAD, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

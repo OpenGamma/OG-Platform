@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -79,7 +79,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
    * @param multicurve The multi-curve provider.
    * @return The present value sensitivity.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
     final double df = multicurve.getDiscountFactor(fra.getCurrency(), fra.getPaymentTime());
@@ -97,7 +97,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), forwardBar));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(fra.getCurrency(), CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(fra.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
   }
 
@@ -132,14 +132,14 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
    * @param multicurve The multi-curve provider.
    * @return The par spread sensitivity.
    */
-  public CurveSensitivityMarket parSpreadCurveSensitivity(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
+  public MulticurveSensitivity parSpreadCurveSensitivity(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), 1.0));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
-    return CurveSensitivityMarket.ofForward(mapFwd);
+    return MulticurveSensitivity.ofForward(mapFwd);
   }
 
 }

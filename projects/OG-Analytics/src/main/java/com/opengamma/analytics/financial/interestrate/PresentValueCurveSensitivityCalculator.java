@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
-import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -37,7 +35,6 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -55,12 +52,8 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponIbor
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -271,32 +264,6 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    return visitSwap(frn, curves);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> senseD = visit(ccs.getDomesticLeg(), curves);
-    final Map<String, List<DoublesPair>> senseF = visit(ccs.getForeignLeg(), curves);
-    //Note the sensitivities subtract rather than add here because the CCS is set up as domestic FRN minus a foreign FRN
-    return addSensitivity(senseD, multiplySensitivity(senseF, -ccs.getSpotFX()));
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
-    final Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
-    //Note the sensitivities add rather than subtract here because the FX Forward is set up as a notional in one currency PLUS a notional in another  with the  opposite sign
-    return InterestRateCurveSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
-  }
-
-  @Override
   public Map<String, List<DoublesPair>> visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
     final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
     for (final Payment p : annuity.getPayments()) {
@@ -318,16 +285,6 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle data) {
     return visitGenericAnnuity(annuity, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle data) {
-    return visitGenericAnnuity(annuity, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
-    return visitFixedCouponSwap(swap, data);
   }
 
   @Override

@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -43,7 +42,7 @@ public class PresentValueCouponSensitivityCalculatorTest {
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
   private static final double DELTA = 1e-5;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
@@ -148,31 +147,6 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double pvDown = PVC.visit(bondDown, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
     assertEquals(temp, PVCSC.visit(bond, CURVES), 1e-10);
-  }
-
-  @Test
-  public void testFixedFloatSwap() {
-    final int n = 20;
-    final double[] fixedPaymentTimes = new double[n];
-    final double[] floatPaymentTimes = new double[2 * n];
-
-    for (int i = 0; i < n * 2; i++) {
-      if (i % 2 == 0) {
-        fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
-      }
-      floatPaymentTimes[i] = (i + 1) * 0.25;
-    }
-    final double swapRate = 0.04;
-
-    final FixedFloatSwap swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final FixedFloatSwap swapUp = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final FixedFloatSwap swapDown = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-
-    final double pvUp = PVC.visit(swapUp, CURVES);
-    final double pvDown = PVC.visit(swapDown, CURVES);
-    final double temp = (pvUp - pvDown) / 2 / DELTA;
-
-    assertEquals(temp, PVCSC.visit(swap, CURVES), 1e-10);
   }
 
   //  @Test

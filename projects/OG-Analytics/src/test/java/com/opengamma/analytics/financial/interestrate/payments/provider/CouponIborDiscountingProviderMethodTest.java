@@ -13,12 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -31,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponIborDiscountingProviderMethodTest {
 
-  private static final IborIndex[] IBOR_INDEXES = ProviderDiscountDataSets.getIndexesIbor();
+  private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
@@ -50,7 +50,7 @@ public class CouponIborDiscountingProviderMethodTest {
   private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
 
-  private static final MulticurveProviderDiscount PROVIDER = ProviderDiscountDataSets.createProvider3();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
@@ -75,8 +75,8 @@ public class CouponIborDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSDC.visit(CPN_IBOR, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_IBOR, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

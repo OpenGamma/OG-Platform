@@ -8,12 +8,12 @@ package com.opengamma.analytics.financial.calculator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.building.CurveBuildingBlock;
-import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityBlockCalculator;
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
@@ -53,10 +53,10 @@ public final class MarketQuoteSensitivityBlockCalculator {
    * @param units The curve building units data.
    * @return The market quote sensitivity.
    */
-  public ParameterSensitivity fromParameterSensitivity(final ParameterSensitivity parameterSensitivity, final CurveBuildingBlockBundle units) {
+  public MultipleCurrencyParameterSensitivity fromParameterSensitivity(final MultipleCurrencyParameterSensitivity parameterSensitivity, final CurveBuildingBlockBundle units) {
     ArgumentChecker.notNull(parameterSensitivity, "Sensitivity");
     ArgumentChecker.notNull(units, "Units");
-    ParameterSensitivity result = new ParameterSensitivity();
+    MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     for (final Pair<String, Currency> nameCcy : parameterSensitivity.getAllNamesCurrency()) {
       LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
       Pair<CurveBuildingBlock, DoubleMatrix2D> unitPair = units.getBlock(nameCcy.getFirst());
@@ -68,7 +68,7 @@ public final class MarketQuoteSensitivityBlockCalculator {
         System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
         oneCurveSensiMap.put(new ObjectsPair<String, Currency>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
       }
-      ParameterSensitivity sensiName = new ParameterSensitivity(oneCurveSensiMap);
+      MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
       result = result.plus(sensiName);
     }
     return result;
@@ -83,8 +83,8 @@ public final class MarketQuoteSensitivityBlockCalculator {
    * @param units The curve building units data.
    * @return The market quote sensitivity.
    */
-  public ParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle, final CurveBuildingBlockBundle units) {
-    final ParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, fixedCurves, bundle);
+  public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle, final CurveBuildingBlockBundle units) {
+    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, fixedCurves, bundle);
     return fromParameterSensitivity(parameterSensitivity, units);
   }
 

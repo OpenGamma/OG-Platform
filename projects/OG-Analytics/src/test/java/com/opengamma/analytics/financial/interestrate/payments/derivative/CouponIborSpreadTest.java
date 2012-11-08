@@ -35,7 +35,7 @@ public class CouponIborSpreadTest {
   private static final double NOTIONAL = 10000.0;
   private static final String FUNDING_CURVE_NAME = "funding";
   private static final String LIBOR_CURVE_NAME = "libor";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
-import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -13,9 +12,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface specific to inflation curves.
@@ -118,21 +115,6 @@ public interface InflationProviderInterface {
   Set<Currency> getCurrencies();
 
   /**
-   * Computes the sensitivity to the parameters of the given currency discounting curve from the sensitivity to yield (continuously compounded) at intermediary points.
-   * @param ccy The currency.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to a currency.
-   * @param ccy The currency.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(Currency ccy);
-
-  /**
    * Returns the curve name associated to an index.
    * @param index The index.
    * @return The name.
@@ -146,21 +128,6 @@ public interface InflationProviderInterface {
   Set<IborIndex> getIndexesIbor();
 
   /**
-   * Computes the sensitivity to the parameters of the given index forward curve from the sensitivity to forward rate at intermediary points.
-   * @param index The index.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(IborIndex index, List<ForwardSensitivity> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to an index.
-   * @param index The index.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(IborIndex index);
-
-  /**
    * Returns the curve name associated to an index.
    * @param index The index.
    * @return The name.
@@ -172,21 +139,6 @@ public interface InflationProviderInterface {
    * @return The index set.
    */
   Set<IndexON> getIndexesON();
-
-  /**
-   * Computes the sensitivity to the parameters of the given index forward curve from the sensitivity to forward rate at intermediary points.
-   * @param index The index.
-   * @param pointSensitivity The point yield sensitivity.
-   * @return The parameters sensitivity.
-   */
-  double[] parameterSensitivity(IndexON index, List<ForwardSensitivity> pointSensitivity);
-
-  /**
-   * Returns the number of parameters associated to an index.
-   * @param index The index.
-   * @return The number of parameters.
-   */
-  int getNumberOfParameters(IndexON index);
 
   /**
    * Gets the underlying FXMatrix containing the exchange rates.

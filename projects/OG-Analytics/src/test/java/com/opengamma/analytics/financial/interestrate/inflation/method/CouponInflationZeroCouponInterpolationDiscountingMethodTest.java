@@ -16,9 +16,9 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -31,12 +31,12 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
 
-  private static final InflationIssuerProviderDiscount MARKET = ProviderDiscountDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = ProviderDiscountDataSets.getPriceIndexes();
+  private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
-  private static final IborIndex[] IBOR_INDEXES = ProviderDiscountDataSets.getIndexesIbor();
+  private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
   private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
@@ -118,7 +118,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
    * Tests the present value for curves with seasonal adjustment.
    */
   public void presentValueSeasonality() {
-    InflationIssuerProviderDiscount marketSeason = ProviderDiscountDataSets.createMarket2(PRICING_DATE);
+    InflationIssuerProviderDiscount marketSeason = MulticurveProviderDiscountDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);

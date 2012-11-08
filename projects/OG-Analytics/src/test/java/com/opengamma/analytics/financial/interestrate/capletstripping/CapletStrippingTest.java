@@ -59,7 +59,7 @@ public class CapletStrippingTest {
 
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<String, Function1D<Double, Double>>();
 
-  protected static final Currency CUR = Currency.USD;
+  protected static final Currency CUR = Currency.EUR;
   private static final Period TENOR = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -315,7 +315,7 @@ public class CapletStrippingTest {
     for (int i = 0; i < n; i++) {
       double fixingStart = (i + 1) * tau;
       double fixingEnd = (i + 2) * tau;
-      caplets[i] = new CapFloorIbor(Currency.USD, fixingEnd, discountCurve, tau, 1.0, fixingStart, INDEX, fixingStart, fixingEnd, tau, indexCurve, strike, true);
+      caplets[i] = new CapFloorIbor(Currency.EUR, fixingEnd, discountCurve, tau, 1.0, fixingStart, INDEX, fixingStart, fixingEnd, tau, indexCurve, strike, true);
     }
     return new CapFloor(caplets);
   }

@@ -33,7 +33,7 @@ public class ZSpreadCalculatorTest {
   private static final YieldCurveBundle CURVES;
   private static final String CURVE_NAME = "A";
   private static final double YIELD = 0.04;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   static {
     final int n = 5;

@@ -7,24 +7,27 @@ package com.opengamma.analytics.financial.interestrate.fra.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TreeSet;
-
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityDiscountInterpolatedFDProviderCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityProviderCalculator;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.SimpleParameterSensitivityMulticurveProviderCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -36,14 +39,12 @@ import com.opengamma.util.time.DateUtils;
  * Tests the ForwardRateAgreement discounting method.
  */
 public class ForwardRateAgreementDiscountingMethodTest {
-  // Index
 
-  private static final MulticurveProviderDiscount PROVIDER = ProviderDiscountDataSets.createProvider3();
-  private static final IborIndex[] INDEX_LIST = ProviderDiscountDataSets.getIndexesIbor();
-
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
+  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex INDEX = INDEX_LIST[2];
   private static final Currency CUR = INDEX.getCurrency();
-  // Dates : The above dates are not standard but selected for insure correct testing.
+  // Dates : The dates are not standard but selected for insure correct testing.
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 4);
@@ -63,15 +64,18 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final ForwardRateAgreementDiscountingProviderMethod FRA_METHOD = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final ParameterSensitivityProviderCalculator PSC = new ParameterSensitivityProviderCalculator(PVCSDC);
+  private static final ParameterSensitivityMulticurveProviderCalculator PSC = new ParameterSensitivityMulticurveProviderCalculator(PVCSDC);
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityDiscountInterpolatedFDProviderCalculator PSC_DSC_FD = new ParameterSensitivityDiscountInterpolatedFDProviderCalculator(PVDC, SHIFT);
+  private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
   private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQDC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
-  //  private static final ParSpreadMarketQuoteCurveSensitivityCalculator PSCSC = ParSpreadMarketQuoteCurveSensitivityCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final SimpleParameterSensitivityMulticurveProviderCalculator PSPSC = new SimpleParameterSensitivityMulticurveProviderCalculator(PSMQCSDC);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSMQCS_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
+  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-8;
 
   @Test
   public void parRate() {
@@ -111,15 +115,15 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    ParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, new TreeSet<String>(), PROVIDER);
-    ParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, PROVIDER);
+    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSDC.visit(FRA, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(FRA, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
@@ -140,6 +144,24 @@ public class ForwardRateAgreementDiscountingMethodTest {
     assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 
-  // TODO: parSpreadCurveSensitivity() {
+  @Test
+  /**
+   * Tests the par spread curve sensitivity versus a finite difference computation.
+   */
+  public void parSpreadCurveSensitivity() {
+    SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
+    SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FRA, PROVIDER);
+    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_SPREAD_DELTA);
+  }
+
+  @Test
+  /**
+   * Tests the par spread curve sensitivity through the method and through the calculator.
+   */
+  public void parSpreadCurveSensitivityMethodVsCalculator() {
+    final MulticurveSensitivity pvcsMethod = FRA_METHOD.parSpreadCurveSensitivity(FRA, PROVIDER);
+    final MulticurveSensitivity pvcsCalculator = PSMQCSDC.visit(FRA, PROVIDER);
+    assertEquals("Forex swap present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
+  }
 
 }

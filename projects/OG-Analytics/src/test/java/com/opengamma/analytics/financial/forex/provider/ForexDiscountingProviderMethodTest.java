@@ -15,12 +15,13 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MulticurveProviderDiscountForexDataSets;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
+import com.opengamma.analytics.financial.provider.calculator.CurrencyExposureDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -53,8 +54,7 @@ public class ForexDiscountingProviderMethodTest {
   private static final PaymentFixedDiscountingProviderMethod METHOD_PAY = PaymentFixedDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVSCDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
-
-  //  private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
+  private static final CurrencyExposureDiscountingCalculator CEDC = CurrencyExposureDiscountingCalculator.getInstance();
   //  private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
   //  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   //  private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
@@ -89,9 +89,9 @@ public class ForexDiscountingProviderMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyCurveSensitivityMarket pvcs = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyCurveSensitivityMarket pvs1 = PVSCDC.visit(PAY_1, PROVIDER);
-    final MultipleCurrencyCurveSensitivityMarket pvs2 = PVSCDC.visit(PAY_2, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcs = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvs1 = PVSCDC.visit(PAY_1, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvs2 = PVSCDC.visit(PAY_2, PROVIDER);
     AssertSensivityObjects.assertEquals("ForexDiscountingMethod: presentValueCurveSensitivity", pvs1.plus(pvs2).cleaned(), pvcs.cleaned(), TOLERANCE_PV_DELTA);
   }
 
@@ -100,8 +100,8 @@ public class ForexDiscountingProviderMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVSCDC.visit(FX, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVSCDC.visit(FX, PROVIDER);
     AssertSensivityObjects.assertEquals("", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
@@ -126,8 +126,8 @@ public class ForexDiscountingProviderMethodTest {
     final MultipleCurrencyAmount exposureMethod = METHOD_FX.currencyExposure(FX, PROVIDER);
     final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, PROVIDER);
     assertEquals("Currency exposure", pv, exposureMethod);
-    //    final MultipleCurrencyAmount exposureCalculator = CEC_FX.visit(FX, PROVIDER); // TODO
-    //    assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
+    final MultipleCurrencyAmount exposureCalculator = CEDC.visit(FX, PROVIDER);
+    assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 
   //  @Test

@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -67,7 +67,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
 
   @Test
   public void toDerivative() {
-    DoubleTimeSeries<ZonedDateTime> ukRpi = ProviderDiscountDataSets.ukRpiFrom2010();
+    DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
     BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
     BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);

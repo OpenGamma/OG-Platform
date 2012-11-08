@@ -334,7 +334,7 @@ public class TestsDataSetsSABR {
    * @return The bundle.
    */
   public static YieldCurveBundle createCurves2() {
-    return createCurves2(Currency.USD);
+    return createCurves2(Currency.EUR);
   }
 
   /**

@@ -30,7 +30,7 @@ public class GenericAnnuityTest {
   private static final List<CouponFixed> LIST_PAYMENTS;
   private static final Payment[] MIXED_PAYMENTS;
   private static final List<Payment> LIST_MIXED_PAYMENTS;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   static {
     final int n = 5;

@@ -8,12 +8,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.ProviderDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -23,7 +23,7 @@ import com.opengamma.util.time.DateUtils;
 
 public class CouponFixedDiscountingProviderMethodTest {
 
-  private static final IborIndex[] IBOR_INDEXES = ProviderDiscountDataSets.getIndexesIbor();
+  private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
@@ -39,7 +39,7 @@ public class CouponFixedDiscountingProviderMethodTest {
   private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
   private static final CouponFixed CPN_FIXED = CPN_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
-  private static final MulticurveProviderDiscount PROVIDER = ProviderDiscountDataSets.createProvider3();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
 
   private static final CouponFixedDiscountingProviderMethod METHOD_CPN_FIXED = CouponFixedDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
@@ -67,8 +67,8 @@ public class CouponFixedDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSC.visit(CPN_FIXED, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
+    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSC.visit(CPN_FIXED, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

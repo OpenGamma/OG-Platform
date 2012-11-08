@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.forex.provider;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -43,7 +43,7 @@ public final class ForexDiscountingProviderMethod {
   /**
    * Compute the present value by discounting in payment in its own currency.
    * @param fx The Forex derivative.
-   * @param multicurves The multi-curve provider.
+   * @param multicurves The multi-curves provider.
    * @return The multi-currency present value.
    */
   public MultipleCurrencyAmount presentValue(final Forex fx, final MulticurveProviderInterface multicurves) {
@@ -75,9 +75,9 @@ public final class ForexDiscountingProviderMethod {
    * @param multicurves The multi-curve provider.
    * @return The sensitivity.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(final Forex fx, final MulticurveProviderInterface multicurves) {
-    MultipleCurrencyCurveSensitivityMarket pvcs1 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency1(), multicurves);
-    MultipleCurrencyCurveSensitivityMarket pvcs2 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency2(), multicurves);
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Forex fx, final MulticurveProviderInterface multicurves) {
+    MultipleCurrencyMulticurveSensitivity pvcs1 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency1(), multicurves);
+    MultipleCurrencyMulticurveSensitivity pvcs2 = METHOD_PAY.presentValueCurveSensitivity(fx.getPaymentCurrency2(), multicurves);
     return pvcs1.plus(pvcs2);
   }
 

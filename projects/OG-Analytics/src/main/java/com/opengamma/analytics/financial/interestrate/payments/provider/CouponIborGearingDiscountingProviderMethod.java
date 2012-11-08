@@ -10,15 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
-import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.method.PricingProviderMethod;
 import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -26,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
  */
-public final class CouponIborGearingDiscountingProviderMethod implements PricingProviderMethod {
+public final class CouponIborGearingDiscountingProviderMethod {
 
   /**
    * The method unique instance.
@@ -62,19 +58,13 @@ public final class CouponIborGearingDiscountingProviderMethod implements Pricing
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
   }
 
-  @Override
-  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurve) {
-    Validate.isTrue(instrument instanceof CouponIborGearing, "Coupon Ibor Gearing");
-    return presentValue((CouponIborGearing) instrument, multicurve);
-  }
-
   /**
    * Compute the present value sensitivity to rates of a Ibor coupon with gearing and spread by discounting.
    * @param coupon The coupon.
    * @param multicurves The multi-curve provider.
    * @return The present value sensitivity.
    */
-  public MultipleCurrencyCurveSensitivityMarket presentValueCurveSensitivity(final CouponIborGearing coupon, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponIborGearing coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Curves");
     final double forward = multicurves.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
@@ -91,7 +81,7 @@ public final class CouponIborGearingDiscountingProviderMethod implements Pricing
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyCurveSensitivityMarket result = MultipleCurrencyCurveSensitivityMarket.of(coupon.getCurrency(), CurveSensitivityMarket.ofYieldDiscountingAndForward(mapDsc, mapFwd));
+    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
   }
 

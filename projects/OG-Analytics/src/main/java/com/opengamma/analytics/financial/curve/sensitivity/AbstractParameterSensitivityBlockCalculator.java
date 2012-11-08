@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -50,7 +51,7 @@ public abstract class AbstractParameterSensitivityBlockCalculator {
    * The sensitivity with respect to the curves in the fixedCurves list will not be part of the output total sensitivity. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public ParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(fixedCurves, "null set of fixed curves.");
     Validate.notNull(bundle, "null bundle");
@@ -66,7 +67,7 @@ public abstract class AbstractParameterSensitivityBlockCalculator {
    * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public abstract ParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
+  public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.

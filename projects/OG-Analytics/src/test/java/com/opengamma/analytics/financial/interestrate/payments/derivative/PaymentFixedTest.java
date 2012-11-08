@@ -20,7 +20,7 @@ public class PaymentFixedTest {
   private static final double PAYMENT_TIME = 0.67;
   private static final double AMOUNT = 45.6;
   private static final String CURVE_NAME = "vfsmngsdjkflsadfk";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final PaymentFixed PAYMENT = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT, CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

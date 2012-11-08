@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
@@ -18,21 +16,15 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -159,58 +151,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
     return -pvSecond / pvbp;
   }
 
-  /**
-   * The assumption is that spread is on the second leg.
-   * @param swap The tenor swap.
-   * @param curves The valuation curves.
-   * @return The spread on the second leg of a basis swap 
-   */
-  @Override
-  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIborSpread firstLeg = (AnnuityCouponIborSpread) swap.getFirstLeg();
-    final AnnuityCouponIborSpread secondLeg = (AnnuityCouponIborSpread) swap.getSecondLeg();
-    final double pvFirst = PVC.visit(firstLeg.withZeroSpread(), curves);
-    final double pvSecond = PVC.visit(secondLeg.withZeroSpread(), curves);
-    final double pvSpread = PVC.visit(secondLeg.withUnitCoupons(), curves);
-    if (pvSpread == 0.0) {
-      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
-    }
-    return (-pvFirst - pvSecond) / pvSpread;
-  }
-
-  /**
-   * This assumes that the spread is pay on the foreign leg (i.e. foreign ibor + spread against domestic ibor)
-   * @param ccs The Cross Currency Swap.
-   * @param curves The valuation curves.
-   * @return The spread on the foreign leg of a CCS
-   */
-  @Override
-  public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-    FloatingRateNote dFRN = ccs.getDomesticLeg();
-    FloatingRateNote fFRN = ccs.getForeignLeg();
-    AnnuityCouponIborSpread dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
-    AnnuityCouponIborSpread fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
-    AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
-
-    double dPV = PVC.visit(dFloatLeg, curves) + PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
-    double fPV = PVC.visit(fFloatLeg, curves) + PVC.visit(fFRN.getFirstLeg(), curves); //this is in foreign currency
-    double fAnnuityPV = PVC.visit(fAnnuity, curves); //this is in foreign currency
-
-    double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 
-
-    return (dPV - fx * fPV) / fx / fAnnuityPV;
-  }
-
-  // TODO: review
-  @Override
-  public Double visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
-    //TODO this is not a par rate, it is a forward FX rate
-    final YieldAndDiscountCurve curve1 = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName());
-    final YieldAndDiscountCurve curve2 = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName());
-    final double t = fx.getPaymentTime();
-    return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
-  }
-
   // TODO: review
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
@@ -258,11 +198,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIborSpread(payment.toCoupon(), data);
-  }
-
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
-    return visitFixedCouponSwap(swap, data);
   }
 
 }
