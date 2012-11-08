@@ -61,7 +61,7 @@ public class ComponentManager {
   /**
    * The server name property.
    */
-  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
+  private static final String OPENGAMMA_SERVER_NAME = "og.server.name";
   /**
    * The key identifying the next config file in a properties file.
    */

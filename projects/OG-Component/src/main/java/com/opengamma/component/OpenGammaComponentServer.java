@@ -38,7 +38,7 @@ public class OpenGammaComponentServer {
    * DO NOT deduplicate with the same value in ComponentManager.
    * This constant is used to set a system property before ComponentManager is class loaded.
    */
-  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
+  private static final String OPENGAMMA_SERVER_NAME = "og.server.name";
   /**
    * Help command line option.
    */
