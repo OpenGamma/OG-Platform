@@ -23,7 +23,7 @@ IF "%JAVA_HOME%" == "" (
   ECHO Warning: JAVA_HOME is not set
   SET JAVACMD=java.exe
 ) ELSE (
-  SET JAVACMD=%JAVA_HOME%\bin\java.exe
+  SET JAVACMD=!JAVA_HOME!\bin\java.exe
 )
 
 IF "%1"=="start" goto :start
