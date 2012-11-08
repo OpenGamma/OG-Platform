@@ -64,7 +64,7 @@ public class FloatingPaymentMatrixBuilder implements FudgeBuilder<FloatingPaymen
       final List<Pair<CurrencyAmount, String>> list = Lists.newArrayListWithCapacity(caMessage.size());
       for (int j = 0; j < caMessage.size(); j++) {
         final CurrencyAmount ca = deserializer.fieldValueToObject(CurrencyAmount.class, caMessage.get(j));
-        final String resetIndex = (String) resetIndexMessage.get(j).getValue();
+        final String resetIndex = (String) deserializer.fieldValueToObject(String.class, resetIndexMessage.get(j));
         list.add(Pair.of(ca, resetIndex));
       }
       values.put(date, list);
