@@ -187,12 +187,12 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, U
   }
 
   @Override
-  public void itemUpdated(String callbackId) {
+  public void itemUpdated(Object callbackId) {
     _listener.itemUpdated(callbackId);
   }
 
   @Override
-  public void itemsUpdated(Collection<String> callbackIds) {
+  public void itemsUpdated(Collection<?> callbackIds) {
     _listener.itemsUpdated(callbackIds);
   }
 

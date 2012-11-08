@@ -6,7 +6,6 @@
 package com.opengamma.web.analytics.push;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jetty.continuation.Continuation;
@@ -15,6 +14,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
   static final String UPDATES = "updates";
 
   private final Object _lock = new Object();
-  private final Set<String> _updates = new HashSet<String>();
+  private final Set<Object> _updates = Sets.newHashSet();
   private final String _userId;
   private final ConnectionTimeoutTask _timeoutTask;
   private final String _clientId;
@@ -60,7 +60,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param callbackId REST URL of the item that has been updated
    */
   @Override
-  public void itemUpdated(String callbackId) {
+  public void itemUpdated(Object callbackId) {
     ArgumentChecker.notNull(callbackId, "url");
     synchronized (_lock) {
       if (_continuation != null) {
@@ -83,7 +83,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param callbackIds REST URLs of the items that have been updated
    */
   @Override
-  public void itemsUpdated(Collection<String> callbackIds) {
+  public void itemsUpdated(Collection<?> callbackIds) {
     ArgumentChecker.notNull(callbackIds, "urls");
     if (callbackIds.isEmpty()) {
       return;
@@ -150,7 +150,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return {@code {updates: [url]}}
    * @throws JSONException Never
    */
-  private String formatUpdate(String url) throws JSONException {
+  private String formatUpdate(Object url) throws JSONException {
     return new JSONObject().put(UPDATES, new Object[]{url}).toString();
   }
 
@@ -160,7 +160,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return {@code {updates: [url1, url2, ...]}}
    * @throws JSONException Never
    */
-  private String formatUpdate(Collection<String> urls) throws JSONException {
+  private String formatUpdate(Collection<?> urls) throws JSONException {
     return new JSONObject().put(UPDATES, urls).toString();
   }
 
