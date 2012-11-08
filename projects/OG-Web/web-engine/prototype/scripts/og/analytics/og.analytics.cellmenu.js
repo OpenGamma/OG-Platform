@@ -17,7 +17,7 @@ $.register_module({
             $selector; 
             type_map = mapping.data_type_map,
             onlydepgraphs = Object.keys(type_map) // a list of datatypes that only support depgraph gadgets
-                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0});
+                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0;});
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent,
                 inplace_config; cellmenu.frozen = false; cellmenu.grid = grid;
@@ -64,16 +64,19 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    
                     var unique = cellmenu.grid.id.slice(1);
-                    console.log(unique);
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle_click())
+                        if(cellmenu.inplace.toggle_handler()){
                             cellmenu.create_inplace();
+                            cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
+                        }
                         else cellmenu.destroy_frozen();
+                    });
+                     cellmenu.container.on('del', function(){
+                        cellmenu.destroy_frozen();
                     });
                 });
             });
@@ -82,15 +85,19 @@ $.register_module({
             $('.OG-cell-options.og-frozen').remove();
         };
         constructor.prototype.create_inplace = function () {
-            var cellmenu = this, cell, panel = 'inplace', options;
-            cell = cellmenu.current;
+            var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, 
+                offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
             options = mapping.options(cell, cellmenu.grid, panel);
             cellmenu.container.add([options]);
-            
+            if((offset.top + inner.height())> $(window).height())
+                inner.css({marginTop: -inner.height()});
+            if((offset.left + inner.width())> $(window).width())
+                inner.css({marginLeft: -inner.width() + width} );
             cellmenu.grid.new_menu(cellmenu);
+            
         };
         constructor.prototype.hide = function () {
            var cellmenu = this;

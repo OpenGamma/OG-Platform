@@ -14,6 +14,7 @@
 
 .OG-g-loading {
     position: absolute;
+    top: 0;
     bottom: 0;
     left: 0;
     right: 0;
@@ -34,7 +35,7 @@
     white-space: nowrap;
 }
 
-.OG-g-cell + .og-error {color: gray;}
+.OG-g-cell.og-error {color: gray;}
 
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {

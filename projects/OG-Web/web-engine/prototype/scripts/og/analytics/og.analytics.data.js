@@ -14,7 +14,7 @@ $.register_module({
             var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
                 viewport = null, view_id, graph_id, viewport_id, viewport_cache, prefix,
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
-                grid_type = null, depgraph = !!config.depgraph, types_emitted = false, loading_viewport_id = false,
+                grid_type = null, depgraph = !!config.depgraph, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             label = label ? label + '-' : '';
             var data_handler = (function () {
@@ -110,26 +110,22 @@ $.register_module({
                     })
                     : api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: initialize});
             };
-            var type_setup = function () {
-                var port_request, prim_request, initial_load = !!config.type && (grid_type === null);
-                if (!grid_type) grid_type = config.type;
-                port_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'portfolio'});
-                prim_request = api.grid.structure.get({view_id: view_id, update: type_setup, grid_type: 'primitives'});
+            var type_setup = function (update) {
+                var port_request, prim_request, initial = grid_type === null;
+                grid_type = config.type;
+                port_request = api.grid.structure
+                    .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
+                if (initial) return /* just register interest and bail*/; else prim_request = api.grid.structure
+                    .get({view_id: view_id, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
                     var portfolio = port_struct.data &&
                             !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
                         primitives = prim_struct.data &&
                             !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
-                    if (grid_type) {
-                        if (initial_load) initialize();
-                        if (types_emitted || !(portfolio || primitives)) return;
-                        types_emitted = true;
-                        return fire('types', {portfolio: portfolio, primitives: primitives});
-                    }
-                    grid_type = config.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
-                    if (portfolio && primitives && !types_emitted) // if both come back immediately, fire types event
-                        (types_emitted = true), fire('types', {portfolio: portfolio, primitives: primitives});
-                    if (portfolio || primitives) initialize();
+                    if (!grid_type)
+                        grid_type = config.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
+                    fire('types', {portfolio: portfolio, primitives: primitives});
                 });
             };
             var view_handler = function (result) {
