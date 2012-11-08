@@ -5,16 +5,12 @@
  */
 package com.opengamma.component;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
@@ -25,30 +21,53 @@ import com.opengamma.OpenGammaRuntimeException;
  * <p>
  * The format is line-based as follows:<br>
  *  <code>#</code> or <code>;</code> for comment lines (at the start of the line)<br>
- *  </code>${key} = value</code> declares a replacement for use later in the file<br>
- *  </code>${key}</code> is replaced by an earlier replacement declaration<br>
- *  </code>[group]</code> defines the start of a named group of configs<br>
- *  </code>key = value</code> defines a single config element within a group<br>
+ *  <code>${key}</code> is replaced by an earlier replacement declaration<br>
+ *  <code>[group]</code> defines the start of a named group of configs<br>
+ *  <code>key = value</code> defines a single config element within a group<br>
+ *  the "global" group is used to add keys to the set of properties used for replacement<br>
  *  Everything is trimmed as necessary.
  */
-public class ComponentConfigIniLoader {
+public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
 
+  /**
+   * Creates an instance.
+   * 
+   * @param logger  the logger, not null
+   * @param properties  the properties in use, not null
+   */
+  public ComponentConfigIniLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
+    super(logger, properties);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Loads the configuration defining components from the specified resource.
    * <p>
    * The specified properties are simple key=value pairs and must not be surrounded with ${}.
    * 
    * @param resource  the config resource to load, not null
-   * @param properties  the default set of replacements, not null
    * @return the config, not null
    */
-  public ComponentConfig load(Resource resource, ConcurrentMap<String, String> properties) {
-    Map<String, String> iniProperties = extractIniProperties(properties);
-    properties = adjustProperties(properties);
+  public ComponentConfig load(Resource resource) {
+    try {
+      return doLoad(resource);
+    } catch (RuntimeException ex) {
+      throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
+    }
+  }
+
+  /**
+   * Loads the INI file.
+   * 
+   * @param resource  the config resource to load, not null
+   * @return the config, not null
+   */
+  protected ComponentConfig doLoad(Resource resource) {
+    Map<String, String> iniProperties = extractIniProperties();
     
     List<String> lines = readLines(resource);
     ComponentConfig config = new ComponentConfig();
-    String group = "global";
+    String group = null;
     int lineNum = 0;
     for (String line : lines) {
       lineNum++;
@@ -56,23 +75,33 @@ public class ComponentConfigIniLoader {
       if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
         continue;
       }
-      if (line.startsWith("${") && line.substring(2).contains("=") &&
-          StringUtils.substringBefore(line, "=").trim().endsWith("}")) {
-        parseReplacement(line, properties);
+      if (line.startsWith("[") && line.endsWith("]")) {
+        group = line.substring(1, line.length() - 1);
+        
+      } else if (group == null) {
+        throw new OpenGammaRuntimeException("Invalid format, properties must be specified within a [group], line " + lineNum);
         
       } else {
-        line = applyReplacements(line, properties);
+        int equalsPosition = line.indexOf('=');
+        if (equalsPosition < 0) {
+          throw new OpenGammaRuntimeException("Invalid format, line " + lineNum);
+        }
+        String key = line.substring(0, equalsPosition).trim();
+        String value = line.substring(equalsPosition + 1).trim();
+        if (key.length() == 0) {
+          throw new IllegalArgumentException("Invalid empty key, line " + lineNum);
+        }
+        if (config.contains(group, key)) {
+          throw new IllegalArgumentException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
+        }
         
-        if (line.startsWith("[") && line.endsWith("]")) {
-          group = line.substring(1, line.length() - 1);
+        // resolve ${} references
+        value = resolveProperty(value, lineNum);
         
-        } else {
-          String key = StringUtils.substringBefore(line, "=").trim();
-          String value = StringUtils.substringAfter(line, "=").trim();
-          if (key.length() == 0) {
-            throw new IllegalArgumentException("Invalid key, line " + lineNum);
-          }
-          config.add(group, key, value);
+        // store group property
+        config.add(group, key, value);
+        if (group.equals("global")) {
+          getProperties().put(key, value);
         }
       }
     }
@@ -91,71 +120,16 @@ public class ComponentConfigIniLoader {
    * <p>
    * These directly override any INI file settings.
    * 
-   * @param properties  the properties, not null
    * @return the extracted set of INI properties, not null
    */
-  private Map<String, String> extractIniProperties(ConcurrentMap<String, String> properties) {
+  private Map<String, String> extractIniProperties() {
     Map<String, String> extracted = new HashMap<String, String>();
-    for (String key : properties.keySet()) {
+    for (String key : getProperties().keySet()) {
       if (key.startsWith("INI.") && key.substring(4).contains(".")) {
-        extracted.put(key.substring(4), properties.get(key));
+        extracted.put(key.substring(4), getProperties().get(key));
       }
     }
     return extracted;
-  }
-
-  //-------------------------------------------------------------------------
-  private ConcurrentMap<String, String> adjustProperties(ConcurrentMap<String, String> input) {
-    ConcurrentMap<String, String> map = new ConcurrentHashMap<String, String>();
-    for (String key : input.keySet()) {
-      map.put("${" + key + "}", input.get(key));
-    }
-    for (String key : new HashSet<String>(map.keySet())) {
-      String value = map.get(key);
-      boolean hasChanged;
-      do {
-        hasChanged = false;
-        for (Map.Entry<String, String> replacementEntry : map.entrySet()) {
-          if (value.contains(replacementEntry.getKey())) {
-            if (replacementEntry.getKey().equals(key)) {
-              throw new OpenGammaRuntimeException("Property " + key + " references itself");
-            }
-            hasChanged = true;
-            value = value.replace(replacementEntry.getKey(), replacementEntry.getValue());
-          }
-        }
-      } while (hasChanged);
-      map.put(key, value);
-    }
-    return map;
-  }
-
-  private void parseReplacement(String line, ConcurrentMap<String, String> properties) {
-    String key = StringUtils.substringBefore(line, "=").trim();
-    String value = StringUtils.substringAfter(line, "=").trim();
-    // do not overwrite properties that were passed in
-    properties.putIfAbsent(key, value);
-  }
-
-  private String applyReplacements(String line, ConcurrentMap<String, String> properties) {
-    for (Entry<String, String> entry : properties.entrySet()) {
-      line = StringUtils.replace(line, entry.getKey(), entry.getValue());
-    }
-    return line;
-  }
-
-  /**
-   * Reads lines from the resource.
-   * 
-   * @param resource  the resource to read, not null
-   * @return the lines, not null
-   */
-  private List<String> readLines(Resource resource) {
-    try {
-      return IOUtils.readLines(resource.getInputStream(), "UTF8");
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Unable to read resource: " + resource, ex);
-    }
   }
 
 }

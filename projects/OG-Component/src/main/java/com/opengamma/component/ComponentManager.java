@@ -247,8 +247,8 @@ public class ComponentManager {
   protected void loadIni(Resource resource) {
     logProperties();
     
-    ComponentConfigIniLoader loader = new ComponentConfigIniLoader();
-    ComponentConfig config = loader.load(resource, getProperties());
+    ComponentConfigIniLoader loader = new ComponentConfigIniLoader(_logger, getProperties());
+    ComponentConfig config = loader.load(resource);
     getRepository().pushThreadLocal();
     initGlobal(config);
     init(config);

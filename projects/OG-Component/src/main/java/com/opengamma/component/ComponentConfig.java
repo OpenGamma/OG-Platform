@@ -67,6 +67,20 @@ public class ComponentConfig {
     config.put(innerKey, value);
   }
 
+  /**
+   * Checks if the config contains the specified key.
+   * 
+   * @param groupKey  the group key, not null
+   * @param innerKey  the inner key, not null
+   * @return whether the config contains the key
+   */
+  public boolean contains(String groupKey, String innerKey) {
+    ArgumentChecker.notNull(groupKey, "groupKey");
+    ArgumentChecker.notNull(innerKey, "innerKey");
+    LinkedHashMap<String, String> config = _config.get(groupKey);
+    return (config != null && config.containsKey(innerKey));
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {

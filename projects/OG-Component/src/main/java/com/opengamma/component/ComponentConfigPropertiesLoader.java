@@ -5,14 +5,12 @@
  */
 package com.opengamma.component;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
@@ -29,16 +27,7 @@ import com.opengamma.OpenGammaRuntimeException;
  *  <p>
  *  The {@link Properties} class is not used for parsing as it does not preserver order.
  */
-public class ComponentConfigPropertiesLoader {
-
-  /**
-   * The logger.
-   */
-  private final ComponentLogger _logger;
-  /**
-   * The set of properties being built up.
-   */
-  private final ConcurrentMap<String, String> _properties;
+public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoader {
 
   /**
    * Creates an instance.
@@ -47,8 +36,7 @@ public class ComponentConfigPropertiesLoader {
    * @param properties  the properties being built up, not null
    */
   public ComponentConfigPropertiesLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
-    _logger = logger;
-    _properties = properties;
+    super(logger, properties);
   }
 
   //-------------------------------------------------------------------------
@@ -62,6 +50,21 @@ public class ComponentConfigPropertiesLoader {
    * @return the combined set of properties, not null
    */
   public String load(final Resource resource, final int depth) {
+    try {
+      return doLoad(resource, depth);
+    } catch (RuntimeException ex) {
+      throw new OpenGammaRuntimeException("Unable to load properties file: " + resource, ex);
+    }
+  }
+
+  /**
+   * Loads the properties file.
+   * 
+   * @param resource  the config resource to load, not null
+   * @param depth  the depth of the properties file, used for logging
+   * @return the combined set of properties, not null
+   */
+  protected String doLoad(final Resource resource, final int depth) {
     final Map<String, String> fileProperties = new HashMap<String, String>();
     final List<String> lines = readLines(resource);
     int lineNum = 0;
@@ -85,37 +88,20 @@ public class ComponentConfigPropertiesLoader {
       }
       
       // resolve ${} references
-      value = resolveProperty(value);
+      value = resolveProperty(value, lineNum);
       
       // handle includes
       if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
         handleInclude(resource, value, depth);
       } else {
+        // store property
         fileProperties.put(key, value);
         if (key.equals(ComponentManager.MANAGER_NEXT_FILE) == false) {
-          _properties.putIfAbsent(key, value);  // first definition wins
+          getProperties().putIfAbsent(key, value);  // first definition wins
         }
       }
     }
     return fileProperties.get(ComponentManager.MANAGER_NEXT_FILE);
-  }
-
-  /**
-   * Resolves any ${property} references in the value.
-   * 
-   * @param value  the value to resolve, not null
-   * @return the resolved value, not null
-   */
-  protected String resolveProperty(String value) {
-    String variable = StringUtils.substringBetween(value, "${", "}");
-    while (variable != null) {
-      if (_properties.containsKey(variable) == false) {
-        throw new OpenGammaRuntimeException("Variable expansion not found: ${" + variable + "}");
-      }
-      value = StringUtils.replaceOnce(value, "${" + variable + "}", _properties.get(variable));
-      variable = StringUtils.substringBetween(value, "${", "}");
-    }
-    return value;
   }
 
   /**
@@ -139,22 +125,8 @@ public class ComponentConfigPropertiesLoader {
     }
     
     // load and merge
-    _logger.logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
+    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
     load(include, depth + 1);
-  }
-
-  /**
-   * Reads lines from the resource.
-   * 
-   * @param resource  the resource to read, not null
-   * @return the lines, not null
-   */
-  protected List<String> readLines(Resource resource) {
-    try {
-      return IOUtils.readLines(resource.getInputStream(), "UTF8");
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Unable to read resource: " + resource, ex);
-    }
   }
 
 }
