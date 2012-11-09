@@ -78,3 +78,8 @@
 .OG-masthead .OG-icon.og-icon-divider:after {
     position: relative;
 }
+
+.OG-masthead .OG-icon.og-icon-speech:after {
+    position: relative;
+    left: -4px;
+}

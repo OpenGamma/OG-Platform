@@ -59,6 +59,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-play.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-pause.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tick.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-speech.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-divider.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
