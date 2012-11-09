@@ -64,10 +64,10 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 });
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    var unique = cellmenu.grid.id.slice(1);
+                    var unique = 'inplace-' + cellmenu.grid.id.slice(1);
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-analytics-inplace-', unique);
+                    cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
                         if(cellmenu.inplace.toggle_handler()){
                             cellmenu.create_inplace();

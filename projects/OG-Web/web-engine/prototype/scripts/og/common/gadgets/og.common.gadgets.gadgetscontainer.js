@@ -127,7 +127,7 @@ $.register_module({
                             revert: new_window.partial(i),
                             stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
                             helper: function() {return dropbox_template({label: $(this).text().trim()});}
-                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
+                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}, source: pane});
                     });
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
@@ -185,7 +185,6 @@ $.register_module({
              */
             container.add = function (data, index) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
-                //console.log(data);
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
@@ -286,15 +285,13 @@ $.register_module({
                                 data = ui.draggable.data(),
                                 gadget = data.gadget.config.options,
                                 re = new RegExp(selector_prefix + '(.*?)\\s');
-                                
                             if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                //console.log(container.fire('drop', data.gadget.config));
-                                if (false !== container.fire('drop', data.gadget.config))
+
+                                if (false !== container.fire('drop', data.gadget.config, data.source))
                                     container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
