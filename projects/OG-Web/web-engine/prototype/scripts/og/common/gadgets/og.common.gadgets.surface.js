@@ -21,12 +21,12 @@ $.register_module({
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'surface')
                 .on('data', function (data) {
                     data = data.v || data;
-                    if (!data.x_values || !data.y_values)
+                    if (!data.xValues || !data.yValues)
                         return !surface && $selector.html('bad data: ' + JSON.stringify(data));
                     surface_options.data = {
                         vol: data.vol,
-                        xs: data.x_values, xs_labels: data.x_labels, xs_label: data.x_title,
-                        zs: data.y_values, zs_labels: data.y_labels, zs_label: data.y_title
+                        xs: data.xValues, xs_labels: data.xLabels, xs_label: data.xTitle,
+                        zs: data.yValues, zs_labels: data.yLabels, zs_label: data.yTitle
                     };
                     if (!surface) surface = new JSurface3D(surface_options);
                     else surface.update('surface', surface_options.data);
