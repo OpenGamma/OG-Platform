@@ -5,8 +5,22 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_EUR;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.FX_PAY_GBP;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.IBOR_FIXING_SERIES;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.LONG_NDF;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_FRA;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAYER_SWAP_WITH_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_CASH;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.PAY_FIXED_PAYMENT;
 import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVER_SWAP_WITH_SPREAD;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_CASH;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_COUPON;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.RECEIVE_FIXED_PAYMENT;
+import static com.opengamma.analytics.financial.instrument.InstrumentTestHelper.SHORT_NDF;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -18,14 +32,17 @@ import java.util.TreeMap;
 
 import javax.time.calendar.LocalDate;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
 public class NettedFixedCashFlowVisitorTest {
-  private static final NettedFixedCashFlowVisitor VISITOR = NettedFixedCashFlowVisitor.getInstance();
+  private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> VISITOR = NettedFixedCashFlowVisitor.getVisitor();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_RECEIVE_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_MULTIPLE_CASHFLOWS = new HashSet<InstrumentDefinition<?>>();
@@ -33,35 +50,25 @@ public class NettedFixedCashFlowVisitorTest {
   private static final FixedReceiveCashFlowVisitor RECEIVE_CASH_FLOWS = FixedReceiveCashFlowVisitor.getInstance();
 
   static {
-    //    NO_NETTING_PAY_INSTRUMENTS.add(PAY_CASH);
-    //    NO_NETTING_PAY_INSTRUMENTS.add(PAY_FIXED_COUPON);
-    //    NO_NETTING_PAY_INSTRUMENTS.add(SHORT_NDF);
-    //    NO_NETTING_PAY_INSTRUMENTS.add(PAY_FIXED_PAYMENT);
-    //    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_CASH);
-    //    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_FIXED_COUPON);
-    //    NO_NETTING_RECEIVE_INSTRUMENTS.add(LONG_NDF);
-    //    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_FIXED_PAYMENT);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_EUR);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_GBP);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_FRA);
+    NO_NETTING_PAY_INSTRUMENTS.add(PAY_CASH);
+    NO_NETTING_PAY_INSTRUMENTS.add(PAY_FIXED_COUPON);
+    NO_NETTING_PAY_INSTRUMENTS.add(SHORT_NDF);
+    NO_NETTING_PAY_INSTRUMENTS.add(PAY_FIXED_PAYMENT);
+    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_CASH);
+    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_FIXED_COUPON);
+    NO_NETTING_RECEIVE_INSTRUMENTS.add(LONG_NDF);
+    NO_NETTING_RECEIVE_INSTRUMENTS.add(RECEIVE_FIXED_PAYMENT);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_EUR);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(FX_PAY_GBP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_FRA);
     NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP_WITH_SPREAD);
-    //    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP_WITH_SPREAD);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP_WITH_SPREAD);
+    NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP_WITH_SPREAD);
   }
 
-  // @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testNullInstrument1() {
-  //    VISITOR.visit(null);
-  //  }
-  //
-  //  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testNullInstrument2() {
-  //    VISITOR.visit(null, IBOR_FIXING_SERIES);
-  //  }
-
-  //  @Test
+  @Test
   public void testPayCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_PAY_INSTRUMENTS) {
       final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(PAY_CASH_FLOWS));
@@ -83,7 +90,7 @@ public class NettedFixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testReceiveCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_RECEIVE_INSTRUMENTS) {
       final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(RECEIVE_CASH_FLOWS));
@@ -105,7 +112,7 @@ public class NettedFixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testMultipleCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_MULTIPLE_CASHFLOWS) {
       final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(PAY_CASH_FLOWS, IBOR_FIXING_SERIES));

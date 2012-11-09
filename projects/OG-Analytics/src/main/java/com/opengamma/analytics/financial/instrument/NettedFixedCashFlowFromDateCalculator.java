@@ -38,7 +38,7 @@ public final class NettedFixedCashFlowFromDateCalculator {
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(date, "date");
     final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(
-        instrument.accept(NettedFixedCashFlowVisitor.getInstance()));
+        instrument.accept(NettedFixedCashFlowVisitor.getVisitor()));
     return allFlows.tailMap(date, true);
   }
 
@@ -55,7 +55,7 @@ public final class NettedFixedCashFlowFromDateCalculator {
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(date, "date");
     final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(instrument.accept(
-        NettedFixedCashFlowVisitor.getInstance(), fixingSeries));
+        NettedFixedCashFlowVisitor.getVisitor(), fixingSeries));
     return allFlows.tailMap(date, true);
   }
 

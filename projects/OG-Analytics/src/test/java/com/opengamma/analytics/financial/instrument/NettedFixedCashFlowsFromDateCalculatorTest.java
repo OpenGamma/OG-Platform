@@ -37,13 +37,14 @@ import javax.time.calendar.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public class NettingFixedCashFlowsFromDateCalculator {
+public class NettedFixedCashFlowsFromDateCalculatorTest {
   private static final NettedFixedCashFlowFromDateCalculator CALCULATOR = NettedFixedCashFlowFromDateCalculator.getInstance();
-  private static final NettedFixedCashFlowVisitor ALL_CASH_FLOWS = NettedFixedCashFlowVisitor.getInstance();
+  private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> ALL_CASH_FLOWS = NettedFixedCashFlowVisitor.getVisitor();
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NON_FIXING_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
 

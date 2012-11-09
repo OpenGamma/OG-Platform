@@ -29,16 +29,16 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public final class NettingProjectedCashFlowFromDateCalculator {
-  private static final NettingProjectedCashFlowFromDateCalculator INSTANCE = new NettingProjectedCashFlowFromDateCalculator();
+public final class NettedProjectedCashFlowFromDateCalculator {
+  private static final NettedProjectedCashFlowFromDateCalculator INSTANCE = new NettedProjectedCashFlowFromDateCalculator();
   private static final PaymentsVisitor PAY_DATES = new PaymentsVisitor(true);
   private static final PaymentsVisitor RECEIVE_DATES = new PaymentsVisitor(false);
 
-  public static NettingProjectedCashFlowFromDateCalculator getInstance() {
+  public static NettedProjectedCashFlowFromDateCalculator getInstance() {
     return INSTANCE;
   }
 
-  private NettingProjectedCashFlowFromDateCalculator() {
+  private NettedProjectedCashFlowFromDateCalculator() {
   }
 
   public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames, final ZonedDateTime date, final YieldCurveBundle data) {
