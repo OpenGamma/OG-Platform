@@ -30,7 +30,7 @@
     // nodal points tooltip
     css.tooltip = {
         opacity: '0.5', position: 'absolute', background: '#000',
-        padding: '2px', display: 'none', border: '1px solid #fff'
+        padding: '2px', display: 'none', border: '1px solid #fff', zIndex: 5
     };
     html.tooltip = '<div><table>\
                         <tr><td>X:&nbsp;&nbsp;</td><td>{x}</td></tr><tr><td>Y:&nbsp;&nbsp;</td><td>{y}</td></tr>\
