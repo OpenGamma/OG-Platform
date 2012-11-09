@@ -43,19 +43,21 @@ public class ComponentConfig {
   public LinkedHashMap<String, String> getGroup(String groupKey) {
     LinkedHashMap<String, String> config = _config.get(groupKey);
     if (config == null) {
-      throw new IllegalArgumentException("Config key not found: " + groupKey);
+      throw new IllegalArgumentException("Config group not found: [" + groupKey + "]");
     }
     return new LinkedHashMap<String, String>(config);
   }
 
   /**
-   * Adds to the config.
+   * Puts a mapping into the config.
+   * <p>
+   * This creates the group if necessary, and replaces any existing key.
    * 
    * @param groupKey  the group key, not null
    * @param innerKey  the inner key, not null
    * @param value  the value, not null
    */
-  public void add(String groupKey, String innerKey, String value) {
+  public void put(String groupKey, String innerKey, String value) {
     ArgumentChecker.notNull(groupKey, "groupKey");
     ArgumentChecker.notNull(innerKey, "innerKey");
     ArgumentChecker.notNull(value, "value");
