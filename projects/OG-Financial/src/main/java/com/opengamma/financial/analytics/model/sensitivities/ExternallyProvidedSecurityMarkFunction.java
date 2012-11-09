@@ -76,8 +76,8 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
       final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE,
-              ComputationTargetType.POSITION,
-              target.getPosition().getUniqueId(),
+              ComputationTargetType.SECURITY,
+              target.getSecurity().getUniqueId(),
               ValueProperties.with(ValuePropertyNames.CURRENCY,
                   securityEntryData.getCurrency().getCode()).get()),
                   getUniqueId()));
