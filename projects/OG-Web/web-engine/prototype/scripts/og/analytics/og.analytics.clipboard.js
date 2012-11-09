@@ -41,8 +41,8 @@ $.register_module({
                 if (!single || !value) return '** SURFACE DATA **';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
                 value = value.v || value;
-                col_len = (cols = value.x_labels).length;
-                row_len = (rows = value.y_labels).length;
+                col_len = (cols = value.xLabels).length;
+                row_len = (rows = value.yLabels).length;
                 data = value.vol;
                 result = [tab + cols.join(tab)];
                 for (i = 0; i < row_len; i += 1) {
