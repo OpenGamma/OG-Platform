@@ -12,13 +12,25 @@
     position: relative;
 }
 
-.OG-g-loading {
+.OG-g-loading-overlay {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 3;
+    background-color: #fff;
+    opacity: .5;
+}
+
+.OG-g-loading {
+    font: 10px arial;
+    text-transform: uppercase;
+    display: block;
+}
+.OG-g-loading .OG-loader {
+    display: block;
+    margin-top: 2px;
 }
 
 .OG-g-cell {
