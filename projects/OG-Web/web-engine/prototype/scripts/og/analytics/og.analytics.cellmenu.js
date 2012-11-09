@@ -22,6 +22,9 @@ $.register_module({
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent,
                 inplace_config; cellmenu.frozen = false; cellmenu.grid = grid;
             if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
+            cellmenu.busy = (function (busy) {
+                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
+            })(false);
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
                 (cellmenu.menu = $(template)).hide()
                 .on('mouseleave', function () {
@@ -30,9 +33,7 @@ $.register_module({
                 .on('mouseenter', open_icon, function () {
                     clearTimeout(timer), timer = setTimeout(function () {cellmenu.menu.addClass(expand_class);}, 500);
                 })
-                .on('mouseenter', function () {
-                    $.data(cellmenu, 'hover', true);
-                })
+                .on('mouseenter', function () {$.data(cellmenu, 'hover', true);})
                 .on('click', open_icon, function () {
                     cellmenu.destroy_frozen();
                     cellmenu.menu.addClass(expand_class);
@@ -52,7 +53,7 @@ $.register_module({
                     if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
-                    if(cellmenu.frozen) return;
+                    if (cellmenu.frozen || cellmenu.busy()) return;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
                     var type = cell.type, hide = !(cellmenu.current = cell).value
@@ -65,17 +66,17 @@ $.register_module({
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
                 })
                 .on('scrollstart', function () {
-                    if(cellmenu.frozen) cellmenu.destroy_frozen();
-                    else cellmenu.hide();
-                });
-
+                    cellmenu.busy(true);
+                    if (cellmenu.frozen) cellmenu.destroy_frozen(); else cellmenu.hide();
+                })
+                .on('scrollend', function () {cellmenu.busy(false);});
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
                     var unique = 'inplace-' + cellmenu.grid.id.slice(1);
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function() {
-                        if(cellmenu.inplace.toggle_handler()){
+                        if (cellmenu.inplace.toggle_handler()) {
                             cellmenu.create_inplace();
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
@@ -100,9 +101,9 @@ $.register_module({
             fingerprint = JSON.stringify(options);
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
-            if((offset.top + inner.height())> $(window).height())
+            if ((offset.top + inner.height())> $(window).height())
                 inner.css({marginTop: -inner.height()});
-            if((offset.left + inner.width())> $(window).width())
+            if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width} );
             cellmenu.grid.new_menu(cellmenu);
             
