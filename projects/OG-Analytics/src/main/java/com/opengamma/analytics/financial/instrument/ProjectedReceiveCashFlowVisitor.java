@@ -24,7 +24,7 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Returns all of the projected recieve floating cash-flows of an instrument.
+ * Returns all of the projected receive floating cash-flows of an instrument.
  */
 public final class ProjectedReceiveCashFlowVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, List<MultipleCurrencyAmount>> {
   private static final ProjectedReceiveCashFlowVisitor INSTANCE = new ProjectedReceiveCashFlowVisitor();
