@@ -187,6 +187,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_configSource, "configSource");
     JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(_providerIdName, "providerIdName");
+    JodaBeanUtils.notNull(_user, "user");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
     super.validate();
   }
@@ -440,7 +441,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the user.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public UserPrincipal getUser() {
     return _user;
@@ -448,9 +449,10 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
 
   /**
    * Sets the user.
-   * @param user  the new value of the property
+   * @param user  the new value of the property, not null
    */
   public void setUser(UserPrincipal user) {
+    JodaBeanUtils.notNull(user, "user");
     this._user = user;
   }
 
