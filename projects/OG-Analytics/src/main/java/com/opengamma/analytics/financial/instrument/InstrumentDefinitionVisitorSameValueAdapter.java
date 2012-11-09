@@ -78,7 +78,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 /**
  * 
  */
-public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+public abstract class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   private final RESULT_TYPE _value;
 
   public InstrumentDefinitionVisitorSameValueAdapter(final RESULT_TYPE value) {

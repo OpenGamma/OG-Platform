@@ -117,7 +117,7 @@ public class FixedReceiveCashFlowVisitorTest {
       try {
         definition.accept(VISITOR);
         fail();
-      } catch (final UnsupportedOperationException e) {
+      } catch (final IllegalArgumentException e) {
       }
     }
   }
