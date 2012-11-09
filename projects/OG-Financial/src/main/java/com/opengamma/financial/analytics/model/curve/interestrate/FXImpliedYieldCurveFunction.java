@@ -307,10 +307,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       s_logger.error("Can only handle curves with one foreign curve config");
       return null;
     }
-    final Map.Entry<String, String[]> entry = exogenousConfigs.entrySet().iterator().next();
-    final MultiCurveCalculationConfig foreignConfig = curveCalculationConfigSource.getConfig(entry.getKey());
+    final Map.Entry<String, String[]> foreignCurveConfigNames = exogenousConfigs.entrySet().iterator().next();
+    final MultiCurveCalculationConfig foreignConfig = curveCalculationConfigSource.getConfig(foreignCurveConfigNames.getKey());
     if (foreignConfig == null) {
-      s_logger.error("Foreign config was null; tried {}", entry.getKey());
+      s_logger.error("Foreign config was null; tried {}", foreignCurveConfigNames.getKey());
       return null;
     }
     final UniqueIdentifiable foreignId = foreignConfig.getUniqueId();
@@ -331,7 +331,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     final ValueProperties fxForwardCurveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, domesticCurveName).get();
-    final String foreignCurveName = foreignConfig.getYieldCurveNames()[0];
+    final String foreignCurveName = foreignCurveConfigNames.getValue()[0];
     final ValueProperties foreignCurveProperties = getForeignCurveProperties(foreignConfig, foreignCurveName);
     final FXForwardCurveInstrumentProvider provider = fxForwardCurveSpec.getCurveInstrumentProvider();
     requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));

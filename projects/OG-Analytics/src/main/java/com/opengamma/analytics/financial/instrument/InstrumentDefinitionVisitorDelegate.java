@@ -81,699 +81,689 @@ import com.opengamma.util.ArgumentChecker;
  */
 class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   private final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
-  
+
   public InstrumentDefinitionVisitorDelegate(final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }
-  
-  @Override
-  public RESULT_TYPE visit(InstrumentDefinition<?> definition, DATA_TYPE data) {
-    return _delegate.visit(definition, data);
-  }
 
   @Override
-  public RESULT_TYPE visit(InstrumentDefinition<?> definition) {
-    return _delegate.visit(definition);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFixedSecurityDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond) {
+  public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond) {
     return _delegate.visitBondFixedSecurityDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFixedTransactionDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond) {
+  public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond) {
     return _delegate.visitBondFixedTransactionDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFutureSecurityDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFutureOptionPremiumSecurityDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondIborTransactionDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondIborTransactionDefinition(BondIborTransactionDefinition bond) {
+  public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond) {
     return _delegate.visitBondIborTransactionDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond, final DATA_TYPE data) {
     return _delegate.visitBondIborSecurityDefinition(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondIborSecurityDefinition(BondIborSecurityDefinition bond) {
+  public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond) {
     return _delegate.visitBondIborSecurityDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBillSecurityDefinition(BillSecurityDefinition bill, DATA_TYPE data) {
+  public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill, final DATA_TYPE data) {
     return _delegate.visitBillSecurityDefinition(bill, data);
   }
 
   @Override
-  public RESULT_TYPE visitBillSecurityDefinition(BillSecurityDefinition bill) {
+  public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill) {
     return _delegate.visitBillSecurityDefinition(bill);
   }
 
   @Override
-  public RESULT_TYPE visitBillTransactionDefinition(BillTransactionDefinition bill, DATA_TYPE data) {
+  public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill, final DATA_TYPE data) {
     return _delegate.visitBillTransactionDefinition(bill, data);
   }
 
   @Override
-  public RESULT_TYPE visitBillTransactionDefinition(BillTransactionDefinition bill) {
+  public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill) {
     return _delegate.visitBillTransactionDefinition(bill);
   }
 
   @Override
-  public RESULT_TYPE visitCashDefinition(CashDefinition cash, DATA_TYPE data) {
+  public RESULT_TYPE visitCashDefinition(final CashDefinition cash, final DATA_TYPE data) {
     return _delegate.visitCashDefinition(cash, data);
   }
 
   @Override
-  public RESULT_TYPE visitCashDefinition(CashDefinition cash) {
+  public RESULT_TYPE visitCashDefinition(final CashDefinition cash) {
     return _delegate.visitCashDefinition(cash);
   }
 
   @Override
-  public RESULT_TYPE visitDepositIborDefinition(DepositIborDefinition deposit, DATA_TYPE data) {
+  public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit, final DATA_TYPE data) {
     return _delegate.visitDepositIborDefinition(deposit, data);
   }
 
   @Override
-  public RESULT_TYPE visitDepositIborDefinition(DepositIborDefinition deposit) {
+  public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit) {
     return _delegate.visitDepositIborDefinition(deposit);
   }
 
   @Override
-  public RESULT_TYPE visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, DATA_TYPE data) {
+  public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit, final DATA_TYPE data) {
     return _delegate.visitDepositCounterpartDefinition(deposit, data);
   }
 
   @Override
-  public RESULT_TYPE visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
+  public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit) {
     return _delegate.visitDepositCounterpartDefinition(deposit);
   }
 
   @Override
-  public RESULT_TYPE visitDepositZeroDefinition(DepositZeroDefinition deposit, DATA_TYPE data) {
+  public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit, final DATA_TYPE data) {
     return _delegate.visitDepositZeroDefinition(deposit, data);
   }
 
   @Override
-  public RESULT_TYPE visitDepositZeroDefinition(DepositZeroDefinition deposit) {
+  public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit) {
     return _delegate.visitDepositZeroDefinition(deposit);
   }
 
   @Override
-  public RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, DATA_TYPE data) {
+  public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra, final DATA_TYPE data) {
     return _delegate.visitForwardRateAgreementDefinition(fra, data);
   }
 
   @Override
-  public RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra) {
+  public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra) {
     return _delegate.visitForwardRateAgreementDefinition(fra);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitInterestRateFutureSecurityDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future) {
+  public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future) {
     return _delegate.visitInterestRateFutureSecurityDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future, final DATA_TYPE data) {
     return _delegate.visitFederalFundsFutureSecurityDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future) {
+  public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future) {
     return _delegate.visitFederalFundsFutureSecurityDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future, final DATA_TYPE data) {
     return _delegate.visitFederalFundsFutureTransactionDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future) {
+  public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future) {
     return _delegate.visitFederalFundsFutureTransactionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond) {
+  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
     return _delegate.visitBondFutureSecurityDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, DATA_TYPE data) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final DATA_TYPE data) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures, data);
   }
 
   @Override
-  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures) {
+  public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
     return _delegate.visitDeliverableSwapFuturesSecurityDefinition(futures);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future, final DATA_TYPE data) {
     return _delegate.visitInterestRateFutureOptionPremiumSecurityDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future) {
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future) {
     return _delegate.visitInterestRateFutureOptionPremiumSecurityDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future, final DATA_TYPE data) {
     return _delegate.visitInterestRateFutureOptionPremiumTransactionDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future) {
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future) {
     return _delegate.visitInterestRateFutureOptionPremiumTransactionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final DATA_TYPE data) {
     return _delegate.visitInterestRateFutureOptionMarginSecurityDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future) {
+  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
     return _delegate.visitInterestRateFutureOptionMarginSecurityDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final DATA_TYPE data) {
     return _delegate.visitInterestRateFutureOptionMarginTransactionDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future) {
+  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
     return _delegate.visitInterestRateFutureOptionMarginTransactionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
     return _delegate.visitBondFutureOptionPremiumSecurityDefinition(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
     return _delegate.visitBondFutureOptionPremiumTransactionDefinition(bond, null);
   }
 
   @Override
-  public RESULT_TYPE visitPaymentFixedDefinition(PaymentFixedDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitPaymentFixedDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitPaymentFixedDefinition(PaymentFixedDefinition payment) {
+  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
     return _delegate.visitPaymentFixedDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponFixedDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment) {
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment) {
     return _delegate.visitCouponFixedDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment) {
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment) {
     return _delegate.visitCouponIborDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborSpreadDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment) {
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
     return _delegate.visitCouponIborSpreadDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborGearingDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment) {
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
     return _delegate.visitCouponIborGearingDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborCompoundedDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment) {
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
     return _delegate.visitCouponIborCompoundedDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborRatchetDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment) {
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
     return _delegate.visitCouponIborRatchetDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCapFloorIborDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment) {
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
     return _delegate.visitCapFloorIborDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponOISSimplifiedDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
     return _delegate.visitCouponOISSimplifiedDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponOISDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment) {
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
     return _delegate.visitCouponOISDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponCMSDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment) {
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment) {
     return _delegate.visitCouponCMSDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCapFloorCMSDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment) {
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
     return _delegate.visitCapFloorCMSDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCapFloorCMSSpreadDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment) {
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
     return _delegate.visitCapFloorCMSSpreadDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, DATA_TYPE data) {
+  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
     return _delegate.visitAnnuityDefinition(annuity, data);
   }
 
   @Override
-  public RESULT_TYPE visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity) {
+  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
     return _delegate.visitAnnuityDefinition(annuity);
   }
 
   @Override
-  public RESULT_TYPE visitSwapDefinition(SwapDefinition swap, DATA_TYPE data) {
+  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap, final DATA_TYPE data) {
     return _delegate.visitSwapDefinition(swap, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapDefinition(SwapDefinition swap) {
+  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap) {
     return _delegate.visitSwapDefinition(swap);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final DATA_TYPE data) {
     return _delegate.visitSwapFixedIborDefinition(swap, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFixedIborDefinition(SwapFixedIborDefinition swap) {
+  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap) {
     return _delegate.visitSwapFixedIborDefinition(swap);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap, DATA_TYPE data) {
+  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final DATA_TYPE data) {
     return _delegate.visitSwapFixedIborSpreadDefinition(swap, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap) {
+  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap) {
     return _delegate.visitSwapFixedIborSpreadDefinition(swap);
   }
 
   @Override
-  public RESULT_TYPE visitSwapIborIborDefinition(SwapIborIborDefinition swap, DATA_TYPE data) {
+  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap, final DATA_TYPE data) {
     return _delegate.visitSwapIborIborDefinition(swap, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapIborIborDefinition(SwapIborIborDefinition swap) {
+  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
     return _delegate.visitSwapIborIborDefinition(swap);
   }
 
   @Override
-  public RESULT_TYPE visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, DATA_TYPE data) {
+  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap, final DATA_TYPE data) {
     return _delegate.visitSwapXCcyIborIborDefinition(swap, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap) {
+  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap) {
     return _delegate.visitSwapXCcyIborIborDefinition(swap);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, DATA_TYPE data) {
+  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final DATA_TYPE data) {
     return _delegate.visitSwaptionCashFixedIborDefinition(swaption, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption) {
+  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
     return _delegate.visitSwaptionCashFixedIborDefinition(swaption);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, DATA_TYPE data) {
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final DATA_TYPE data) {
     return _delegate.visitSwaptionPhysicalFixedIborDefinition(swaption, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption) {
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
     return _delegate.visitSwaptionPhysicalFixedIborDefinition(swaption);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption, DATA_TYPE data) {
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption, final DATA_TYPE data) {
     return _delegate.visitSwaptionPhysicalFixedIborSpreadDefinition(swaption, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption) {
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption) {
     return _delegate.visitSwaptionPhysicalFixedIborSpreadDefinition(swaption);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, DATA_TYPE data) {
+  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption, final DATA_TYPE data) {
     return _delegate.visitSwaptionBermudaFixedIborDefinition(swaption, data);
   }
 
   @Override
-  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption) {
+  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
     return _delegate.visitSwaptionBermudaFixedIborDefinition(swaption);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon, final DATA_TYPE data) {
     return _delegate.visitCouponInflationZeroCouponFirstOfMonth(coupon, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon) {
+  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon) {
     return _delegate.visitCouponInflationZeroCouponFirstOfMonth(coupon);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
     return _delegate.visitCouponInflationZeroCouponInterpolation(coupon, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon) {
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon) {
     return _delegate.visitCouponInflationZeroCouponInterpolation(coupon);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon, final DATA_TYPE data) {
     return _delegate.visitCouponInflationZeroCouponMonthlyGearing(coupon, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
+  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
     return _delegate.visitCouponInflationZeroCouponMonthlyGearing(coupon);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon, final DATA_TYPE data) {
     return _delegate.visitCouponInflationZeroCouponInterpolationGearing(coupon, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
     return _delegate.visitCouponInflationZeroCouponInterpolationGearing(coupon);
   }
 
   @Override
-  public RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond, final DATA_TYPE data) {
     return _delegate.visitBondCapitalIndexedSecurity(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond) {
+  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
     return _delegate.visitBondCapitalIndexedSecurity(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, DATA_TYPE data) {
+  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond, final DATA_TYPE data) {
     return _delegate.visitBondCapitalIndexedTransaction(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond) {
+  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
     return _delegate.visitBondCapitalIndexedTransaction(bond);
   }
 
   @Override
-  public RESULT_TYPE visitCDSDefinition(ISDACDSDefinition cds, DATA_TYPE data) {
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds, final DATA_TYPE data) {
     return _delegate.visitCDSDefinition(cds, data);
   }
 
   @Override
-  public RESULT_TYPE visitCDSDefinition(ISDACDSDefinition cds) {
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds) {
     return _delegate.visitCDSDefinition(cds);
   }
 
   @Override
-  public RESULT_TYPE visitForexDefinition(ForexDefinition fx, DATA_TYPE data) {
+  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx, final DATA_TYPE data) {
     return _delegate.visitForexDefinition(fx, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexDefinition(ForexDefinition fx) {
+  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx) {
     return _delegate.visitForexDefinition(fx);
   }
 
   @Override
-  public RESULT_TYPE visitForexSwapDefinition(ForexSwapDefinition fx, DATA_TYPE data) {
+  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx, final DATA_TYPE data) {
     return _delegate.visitForexSwapDefinition(fx, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexSwapDefinition(ForexSwapDefinition fx) {
+  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx) {
     return _delegate.visitForexSwapDefinition(fx);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, DATA_TYPE data) {
+  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx, final DATA_TYPE data) {
     return _delegate.visitForexOptionVanillaDefinition(fx, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx) {
+  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx) {
     return _delegate.visitForexOptionVanillaDefinition(fx);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, DATA_TYPE data) {
+  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx, final DATA_TYPE data) {
     return _delegate.visitForexOptionSingleBarrierDefiniton(fx, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx) {
+  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
     return _delegate.visitForexOptionSingleBarrierDefiniton(fx);
   }
 
   @Override
-  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, DATA_TYPE data) {
+  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final DATA_TYPE data) {
     return _delegate.visitForexNonDeliverableForwardDefinition(ndf, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf) {
+  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf) {
     return _delegate.visitForexNonDeliverableForwardDefinition(ndf);
   }
 
   @Override
-  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, DATA_TYPE data) {
+  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo, final DATA_TYPE data) {
     return _delegate.visitForexNonDeliverableOptionDefinition(ndo, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
+  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo) {
     return _delegate.visitForexNonDeliverableOptionDefinition(ndo);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, DATA_TYPE data) {
+  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx, final DATA_TYPE data) {
     return _delegate.visitForexOptionDigitalDefinition(fx, data);
   }
 
   @Override
-  public RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
+  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx) {
     return _delegate.visitForexOptionDigitalDefinition(fx);
   }
 
   @Override
-  public RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future, final DATA_TYPE data) {
     return _delegate.visitMetalForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition future) {
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future) {
     return _delegate.visitMetalForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitMetalFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future) {
+  public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future) {
     return _delegate.visitMetalFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final DATA_TYPE data) {
     return _delegate.visitMetalFutureOptionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition future) {
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future) {
     return _delegate.visitMetalFutureOptionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final DATA_TYPE data) {
     return _delegate.visitAgricultureForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition future) {
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future) {
     return _delegate.visitAgricultureForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitAgricultureFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future) {
+  public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future) {
     return _delegate.visitAgricultureFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final DATA_TYPE data) {
     return _delegate.visitAgricultureFutureOptionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition future) {
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future) {
     return _delegate.visitAgricultureFutureOptionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, final DATA_TYPE data) {
     return _delegate.visitEnergyForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition future) {
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future) {
     return _delegate.visitEnergyForwardDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitEnergyFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future) {
+  public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future) {
     return _delegate.visitEnergyFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final DATA_TYPE data) {
     return _delegate.visitEnergyFutureOptionDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition future) {
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
     return _delegate.visitEnergyFutureOptionDefinition(future);
   }
 

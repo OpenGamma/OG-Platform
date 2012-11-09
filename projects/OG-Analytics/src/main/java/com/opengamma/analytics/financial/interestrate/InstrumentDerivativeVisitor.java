@@ -142,7 +142,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data);
-  
+
   T visitCDSDerivative(ISDACDSDerivative cds, S data);
 
   // One argument
@@ -202,7 +202,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
-  
+
   T visitCDSDerivative(ISDACDSDerivative cds);
 
   // -----     Coupons     -----

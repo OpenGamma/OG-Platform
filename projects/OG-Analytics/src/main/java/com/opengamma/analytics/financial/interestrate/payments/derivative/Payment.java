@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -36,9 +36,9 @@ public abstract class Payment implements InstrumentDerivative {
    * @param fundingCurveName Name of the funding curve.
    */
   public Payment(final Currency currency, final double paymentTime, final String fundingCurveName) {
-    Validate.notNull(currency, "currency");
-    Validate.notNull(fundingCurveName, "funding curve name");
-    Validate.isTrue(paymentTime >= 0.0, "payment time < 0");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(fundingCurveName, "funding curve name");
+    ArgumentChecker.isTrue(paymentTime >= 0.0, "payment time < 0");
     _currency = currency;
     _paymentTime = paymentTime;
     _fundingCurveName = fundingCurveName;
@@ -76,7 +76,7 @@ public abstract class Payment implements InstrumentDerivative {
 
   /**
    * Check if the payment is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
-   * @return  True if IborCoupon or FixedCoupon 
+   * @return  True if IborCoupon or FixedCoupon
    */
   public boolean isIborOrFixed() {
     return (this instanceof CouponFixed) || (this instanceof CouponIbor);

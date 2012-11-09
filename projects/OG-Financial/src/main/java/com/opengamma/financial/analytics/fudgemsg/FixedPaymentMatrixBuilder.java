@@ -13,7 +13,6 @@ import javax.time.calendar.LocalDate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -26,21 +25,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  *
  */
 @FudgeBuilderFor(FixedPaymentMatrix.class)
-public class FixedPaymentMatrixBuilder implements FudgeBuilder<FixedPaymentMatrix> {
+public class FixedPaymentMatrixBuilder extends AbstractFudgeBuilder<FixedPaymentMatrix> {
   private static final String DATES_FIELD = "dates";
   private static final String MCA_FIELD = "mca";
   private static final String MAX_AMOUNTS_FIELD = "maxAmounts";
-
-  @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedPaymentMatrix object) {
-    final MutableFudgeMsg message = serializer.newMessage();
-    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : object.getValues().entrySet()) {
-      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
-      serializer.addToMessageWithClassHeaders(message, MCA_FIELD, null, entry.getValue());
-    }
-    message.add(MAX_AMOUNTS_FIELD, object.getMaxCurrencyAmounts());
-    return message;
-  }
 
   @Override
   public FixedPaymentMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -54,6 +42,15 @@ public class FixedPaymentMatrixBuilder implements FudgeBuilder<FixedPaymentMatri
     }
     final int maxAmounts = message.getInt(MAX_AMOUNTS_FIELD);
     return new FixedPaymentMatrix(values, maxAmounts);
+  }
+
+  @Override
+  protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FixedPaymentMatrix object) {
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : object.getValues().entrySet()) {
+      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
+      serializer.addToMessageWithClassHeaders(message, MCA_FIELD, null, entry.getValue());
+    }
+    message.add(MAX_AMOUNTS_FIELD, object.getMaxCurrencyAmounts());
   }
 
 }
