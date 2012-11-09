@@ -35,7 +35,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final RawSecurity security = (RawSecurity) target.getSecurity();
     final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
     final Object latestDataPointObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST);
     if (latestDataPointObject == null) {
@@ -46,7 +46,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.POSITION, target.getPosition().getUniqueId(),
+                new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId(),
                     ValueProperties.with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
                     getUniqueId()),
                     price));
@@ -54,12 +54,12 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return RawSecurityUtils.isExternallyProvidedSensitivitiesSecurity(target.getPosition().getSecurity());
+    return RawSecurityUtils.isExternallyProvidedSensitivitiesSecurity(target.getSecurity());
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final RawSecurity security = (RawSecurity) target.getSecurity();
     final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(securityEntryData.getId().toBundle(), null, "LITHIUM", null, "PX_LAST", null);
@@ -72,7 +72,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+      final RawSecurity security = (RawSecurity) target.getSecurity();
       final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE,
@@ -92,7 +92,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.SECURITY;
   }
 
 }
