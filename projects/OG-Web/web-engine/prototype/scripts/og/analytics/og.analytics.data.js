@@ -49,7 +49,7 @@ $.register_module({
                             (view_id = graph_id = viewport_id = subscribed = null), result; // goes to data_setup
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports.get({
-                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: true,
+                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: false, // TODO change this
                             viewport_id: viewport_id, update: data_setup
                         });
                     })
