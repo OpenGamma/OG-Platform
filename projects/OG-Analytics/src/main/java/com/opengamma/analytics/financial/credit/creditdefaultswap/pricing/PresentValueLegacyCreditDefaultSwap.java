@@ -49,10 +49,12 @@ public class PresentValueLegacyCreditDefaultSwap {
   // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
   // TODO : Fix the bug when val date is very close to mat date
   // TODO : Need to add the code for when the settlement date > 0 business days (just a discount factor)
+  // TODO : Replace the while with a binary search function
   // TODO : Should build the cashflow schedules outside of the leg valuation routines to avoid repitition of calculations
   // TODO : Eventually replace the ISDACurve with a YieldCurve object (currently using ISDACurve built by RiskCare as this allows exact comparison with the ISDA model)
   // TODO : Replace the accrued schedule double with a ZonedDateTime object to make it consistent with other calculations
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault, calculateAccruedInterest and methods
+  // TODO : Settlement and stepin discount factors
 
   // -------------------------------------------------------------------------------------------------
 
@@ -168,10 +170,10 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Construct a schedule object for the accrued leg (this is not a cashflow schedule per se, but a set of time nodes for evaluating the accrued payment integral)
     GenerateCreditDefaultSwapIntegrationSchedule accruedSchedule = new GenerateCreditDefaultSwapIntegrationSchedule();
 
-    double offsetStepinTime = accruedSchedule.calculateCreditDefaultSwapOffsetStepinTime(cds, ACT_365);
-
     // Build the integration schedule for the calculation of the accrued leg 
     double[] accruedLegIntegrationSchedule = accruedSchedule.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, yieldCurve, hazardRateCurve);
+
+    double offsetStepinTime = accruedSchedule.calculateCreditDefaultSwapOffsetStepinTime(cds, ACT_365);
 
     // -------------------------------------------------------------
 
@@ -248,6 +250,8 @@ public class PresentValueLegacyCreditDefaultSwap {
       presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
       // -------------------------------------------------------------
+
+      // Now calculate the accrued leg component if required
 
       if (cds.getIncludeAccruedPremium()) {
 

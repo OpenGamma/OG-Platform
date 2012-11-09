@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -131,7 +133,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
+  private static final boolean includeAccruedPremium = false;
   private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
 
@@ -390,7 +392,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testPresentValueLegacyCreditDefaultSwapAdHoc() {
 
     // -----------------------------------------------------------------------------------------------
@@ -404,7 +406,13 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
+    ZonedDateTime rollingDate = DateUtils.getUTCDate(2008, 11, 24);
+
+    LegacyCreditDefaultSwapDefinition test = cds;
+
+    test = test.withValuationDate(rollingDate);
+
+    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(test, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
       System.out.println("CDS PV = " + "\t" + presentValue);

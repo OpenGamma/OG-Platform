@@ -43,7 +43,6 @@ public abstract class CreditDefaultSwapDefinition {
 
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Check that buyer is not equal to the seller etc
-  // TODO : Add methods to calc e.g. time to maturity as a double?
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
 

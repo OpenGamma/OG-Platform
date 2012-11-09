@@ -32,14 +32,20 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // TODO : The integration schedules are returned as doubles. Should we return ZonedDateTime's instead?
+  // TODO : The integration schedules are returned as doubles. Should we return ZonedDateTime's instead (and then convert back to doubles internally)?
+  // TODO : Add check that startTime < endTime in schedule generation routine
 
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation 
   public double[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(LegacyCreditDefaultSwapDefinition cds, ISDACurve yieldCurve, HazardRateCurve hazardRateCurve) {
 
-    // Do we want to include the CDS premium leg cashflow schedules as points
+    // Check input objects are not null
+    ArgumentChecker.notNull(cds, "CDS");
+    ArgumentChecker.notNull(yieldCurve, "Yield Curve");
+    ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
+
+    // Do we want to include the CDS premium leg cashflow schedule as points
     boolean includeSchedule = true;
 
     // Get the start time of the CDS with respect to the current valuation date (can obviously be negative)
@@ -59,7 +65,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
   public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(LegacyCreditDefaultSwapDefinition cds, ISDACurve yieldCurve, HazardRateCurve hazardRateCurve) {
 
-    // Do we want to include the CDS premium leg cashflow schedules as points
+    // Check input objects are not null
+    ArgumentChecker.notNull(cds, "CDS");
+    ArgumentChecker.notNull(yieldCurve, "Yield Curve");
+    ArgumentChecker.notNull(hazardRateCurve, "Hazard Rate Curve");
+
+    // Do we want to include the CDS premium leg cashflow schedule as points
     boolean includeSchedule = false;
 
     // Calculate the time at which protection starts
@@ -178,7 +189,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Calculate the step in time for the CDS (the point at which protection coverage starts) - note ACT/365 daycount convention
+  // Calculate the step in time for the CDS (the point at which protection coverage starts)
   public double calculateCreditDefaultSwapStepinTime(LegacyCreditDefaultSwapDefinition cds, DayCount dayCount) {
 
     double stepInTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getValuationDate().plusDays(1), dayCount);
@@ -205,7 +216,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Calculate the start time of the CDS contract with respect to the valuation date (can be negative obviously) - note ACT/365 daycount convention
+  // Calculate the start time of the CDS contract with respect to the valuation date (can be negative obviously)
   public double calculateProtectionStartTime(LegacyCreditDefaultSwapDefinition cds, DayCount dayCount) {
 
     double startTime = calculateCreditDefaultSwapStartTime(cds, dayCount);
@@ -221,7 +232,7 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Calculate the maturity of the CDS with respect to the valuation date - note ACT/365 daycount convention
+  // Calculate the maturity of the CDS with respect to the valuation date
   public double calculateCreditDefaultSwapMaturity(LegacyCreditDefaultSwapDefinition cds, DayCount dayCount) {
 
     double maturity = TimeCalculator.getTimeBetween(cds.getValuationDate(), cds.getMaturityDate(), dayCount);
