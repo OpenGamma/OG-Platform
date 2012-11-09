@@ -76,7 +76,7 @@ $.register_module({
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             og.common.events.register.call(grid,
                 'cellhoverin', 'cellhoverout', 'cellselect', 'fatal', 'mousedown',
-                'rangeselect', 'render', 'scroll', 'select', 'viewchange');
+                'rangeselect', 'render', 'scrollstart', 'scrollend', 'select', 'viewchange');
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;
@@ -165,11 +165,13 @@ $.register_module({
             elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
             (function () {
-                var started, pause = 200,
-                    jump = function () {viewport.call(grid, function () {grid.busy(false);}), started = null;};
+                var started, pause = 200, jump = function () {
+                    grid.fire('scrollend'), viewport.call(grid, function () {grid.busy(false);}), started = null;
+                };
                 elements.fixed_body.on('scroll', (function (timeout) {
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
-                        if (!started && $(event.target).is(elements.fixed_body)) started = 'fixed';
+                        if (!started && $(event.target).is(elements.fixed_body))
+                            grid.fire('scrollstart'), started = 'fixed';
                         if (started !== 'fixed') return clearTimeout(timeout);
                         grid.busy(true);
                         if (cellmenu) cellmenu.hide();
@@ -179,7 +181,8 @@ $.register_module({
                 })(null));
                 elements.scroll_body.on('scroll', (function (timeout) {
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
-                        if (!started && $(event.target).is(elements.scroll_body)) started = 'scroll';
+                        if (!started && $(event.target).is(elements.scroll_body))
+                            grid.fire('scrollstart'), started = 'scroll';
                         if (started !== 'scroll') return clearTimeout(timeout);
                         grid.busy(true);
                         if (cellmenu) cellmenu.hide();
