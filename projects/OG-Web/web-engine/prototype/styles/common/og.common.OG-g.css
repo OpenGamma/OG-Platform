@@ -27,7 +27,14 @@
     font: 10px arial;
     text-transform: uppercase;
     display: block;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    margin-left: -75px;
+    margin-top: -40px;
+    z-index: 4;
 }
+
 .OG-g-loading .OG-loader {
     display: block;
     margin-top: 2px;
