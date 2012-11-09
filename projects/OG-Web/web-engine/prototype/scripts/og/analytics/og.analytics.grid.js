@@ -362,11 +362,10 @@ $.register_module({
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
-                scroll_position = left_position + inner.width, col_buffer = 3,
-                lcv = Math.max(0, row_start - meta.visible_rows),
-                row_end = Math.min(row_start + Math.floor(1.5 * meta.visible_rows), meta.available.length),
+                scroll_position = left_position + inner.width, col_buffer = 3, lcv,
+                row_end = Math.min(row_start + (meta.visible_rows * 2), meta.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            viewport.rows = [];
+            lcv = Math.max(0, row_start - meta.visible_rows); viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);
@@ -379,7 +378,7 @@ $.register_module({
                     acc.cols.push(idx + fixed_len);
                 }
                 if (acc.scan > scroll_position) {
-                    for (lcv = idx; lcv < Math.min(idx + col_buffer, scroll_cols.length); lcv += 1)
+                    for (lcv = idx + 1; lcv < Math.min(idx + col_buffer, scroll_cols.length); lcv += 1)
                         acc.cols.push(lcv + fixed_len);
                     delete acc.scan;
                 }
