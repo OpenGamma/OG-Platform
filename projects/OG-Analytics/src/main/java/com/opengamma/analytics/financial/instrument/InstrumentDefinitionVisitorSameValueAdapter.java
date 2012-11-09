@@ -74,718 +74,695 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * A convenience class that means that classes implementing InstrumentDefinitionVisitor do not have to implement every method.
- * @param <DATA_TYPE> Type of the data
- * @param <RESULT_TYPE> Type of the result
+ * 
  */
-public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
-  private final RESULT_TYPE _defaultReturnType;
+public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+  private final RESULT_TYPE _value;
 
-  public InstrumentDefinitionVisitorAdapter() {
-    _defaultReturnType = null;
-  }
-
-  public InstrumentDefinitionVisitorAdapter(final RESULT_TYPE defaultReturnType) {
-    ArgumentChecker.notNull(defaultReturnType, "default return type");
-    _defaultReturnType = defaultReturnType;
+  public InstrumentDefinitionVisitorSameValueAdapter(final RESULT_TYPE value) {
+    _value = value;
   }
 
   @Override
   public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill, final DATA_TYPE data) {
-    return getDefaultValue(bill, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill) {
-    return getDefaultValue(bill);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill, final DATA_TYPE data) {
-    return getDefaultValue(bill, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill) {
-    return getDefaultValue(bill);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitCashDefinition(final CashDefinition cash, final DATA_TYPE data) {
-    return getDefaultValue(cash, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitCashDefinition(final CashDefinition cash) {
-    return getDefaultValue(cash);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit) {
-    return getDefaultValue(deposit);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit) {
-    return getDefaultValue(deposit);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit) {
-    return getDefaultValue(deposit);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra, final DATA_TYPE data) {
-    return getDefaultValue(fra, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra) {
-    return getDefaultValue(fra);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future) {
-    return getDefaultValue(future);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future) {
-    return getDefaultValue(future);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
-    return getDefaultValue(future);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
-    return getDefaultValue(future);
-  }
-
-  @Override
-  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor) {
-    return getDefaultValue(capFloor);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment) {
-    return getDefaultValue(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor) {
-    return getDefaultValue(capFloor);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloorCMSSpread) {
-    return getDefaultValue(capFloorCMSSpread);
-  }
-
-  @Override
-  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
-    return getDefaultValue(annuity, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
-    return getDefaultValue(annuity);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap) {
-    return getDefaultValue(swap);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap) {
-    return getDefaultValue(swap);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap) {
-    return getDefaultValue(swap);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
-    return getDefaultValue(swap);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap) {
-    return getDefaultValue(swap);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption) {
-    return getDefaultValue(swaption);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon) {
-    return getDefaultValue(coupon);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon) {
-    return getDefaultValue(coupon);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
-    return getDefaultValue(coupon);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
-    return getDefaultValue(coupon);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
-    return getDefaultValue(bond);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
-    return getDefaultValue(bond);
-  }
-
-  @Override
-  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds, final DATA_TYPE data) {
-    return getDefaultValue(cds, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds) {
-    return getDefaultValue(cds);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx) {
-    return getDefaultValue(fx);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx) {
-    return getDefaultValue(fx);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx) {
-    return getDefaultValue(fx);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
-    return getDefaultValue(fx);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final DATA_TYPE data) {
-    return getDefaultValue(ndf, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf) {
-    return getDefaultValue(ndf);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo, final DATA_TYPE data) {
-    return getDefaultValue(ndo, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo) {
-    return getDefaultValue(ndo);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
-  }
-
-  @Override
-  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx) {
-    return getDefaultValue(fx);
+  public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final DATA_TYPE data) {
-    return getDefaultValue(futures, data);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
-    return getDefaultValue(futures);
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexDefinition(final ForexDefinition fx) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition forward, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition forward) {
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition option, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition option) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition forward, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition forward) {
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition option, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition option) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition forward, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition forward) {
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future) {
-    return getDefaultValue(future);
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition option, final DATA_TYPE data) {
+    return _value;
   }
 
   @Override
-  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
-    return getDefaultValue(future);
-  }
-
-  private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
-    if (_defaultReturnType != null) {
-      return _defaultReturnType;
-    }
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
-        + " with data of type " + data.getClass().getSimpleName());
-  }
-
-  private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition) {
-    if (_defaultReturnType != null) {
-      return _defaultReturnType;
-    }
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
+  public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition option) {
+    return _value;
   }
 
 }

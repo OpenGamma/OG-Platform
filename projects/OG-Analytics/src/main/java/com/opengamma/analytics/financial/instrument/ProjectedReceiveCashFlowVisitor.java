@@ -34,7 +34,7 @@ public final class ProjectedReceiveCashFlowVisitor extends AbstractInstrumentDer
   }
 
   private ProjectedReceiveCashFlowVisitor() {
-    super(Collections.<MultipleCurrencyAmount>emptyList());
+    //    super(Collections.<MultipleCurrencyAmount>emptyList());
   }
 
   /**
