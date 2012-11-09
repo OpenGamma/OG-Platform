@@ -13,12 +13,12 @@
 }
 
 .OG-multiselect:hover {
-    border: 1px solid #ccc;
+    /*border: 1px solid #ccc;*/
     background-color: #fff;
 }
 
 .OG-multiselect:after {
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+    /*background: url(/prototype/images/common/sprites/main-sprite-sheet.png);*/
     content: '';
     display: inline-block;
     background-position: -5px -4px;
