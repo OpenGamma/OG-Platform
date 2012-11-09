@@ -148,7 +148,7 @@ $.register_module({
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
-                        /*menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
+                        menu.$dom.toggle.on('click', null/*menu.toggle_handler.bind(menu)*/);
                         radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
@@ -167,7 +167,7 @@ $.register_module({
                                 menu.$dom.toggle.html(val.gadget_name);
                             }
                         }
-                        if(radios.length === 1) radios[0].disabled=true;*/
+                        if(radios.length === 1) radios[0].disabled=true;
                     });
                     reflow();
                     show_gadget(id);
