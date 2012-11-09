@@ -59,10 +59,16 @@ $.register_module({
                         || (cell.col < (depgraph ? 1 : 2)) || (cell.right > parent.width())
                         || (depgraph && $.inArray(type, onlydepgraphs) > -1);
                     if (hide) cellmenu.hide(); else cellmenu.show();
-                }).on('cellhoverout', function () {
+                })
+                .on('cellhoverout', function () {
                     clearTimeout(timer);
                     setTimeout(function () {if (!cellmenu.menu.is(':hover')) {cellmenu.hide();}});
+                })
+                .on('scrollstart', function () {
+                    if(cellmenu.frozen) cellmenu.destroy_frozen();
+                    else cellmenu.hide();
                 });
+
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
                     var unique = 'inplace-' + cellmenu.grid.id.slice(1);
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
