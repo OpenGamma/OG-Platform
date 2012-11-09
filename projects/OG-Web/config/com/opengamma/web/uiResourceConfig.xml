@@ -87,6 +87,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-multiselect.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-loader.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
