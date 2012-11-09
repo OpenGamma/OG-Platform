@@ -23,5 +23,15 @@
       <li><a href="admin.ftl#/configs/" class="og-configs">Configurations</a></li>
     </ul>
   </li>
+  <li>
+    <ul>
+      <li>
+        <span class="OG-icon og-icon-divider"></span>
+        <a href="https://www.surveymonkey.com/s/opengamma-community-survey" target="_blank" class="og-analytics-feedback">
+          <span class="OG-icon og-icon-speech"></span>Feedback
+        </a>
+      </li>
+    </ul>
+  </li>
 </ul>
 </section>
