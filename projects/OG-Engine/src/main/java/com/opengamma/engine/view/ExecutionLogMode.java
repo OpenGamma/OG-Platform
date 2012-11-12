@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calcnode;
+package com.opengamma.engine.view;
 
 /**
  * Enumerates the execution log modes.
