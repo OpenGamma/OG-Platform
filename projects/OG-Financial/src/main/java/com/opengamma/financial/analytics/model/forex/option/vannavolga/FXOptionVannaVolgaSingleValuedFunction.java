@@ -3,8 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.black;
+package com.opengamma.financial.analytics.model.forex.option.vannavolga;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.CALL_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.PUT_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG;
 import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
 
 import java.util.Collections;
@@ -33,16 +37,16 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFunction {
+public abstract class FXOptionVannaVolgaSingleValuedFunction extends FXOptionVannaVolgaFunction {
 
-  public FXOptionBlackSingleValuedFunction(final String valueRequirementName) {
+  public FXOptionVannaVolgaSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair));
     return Collections.singleton(resultSpec);
   }
 
@@ -69,11 +73,10 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
     return baseQuotePair;
   }
 
-
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+  protected ValueProperties getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, VANNA_VOLGA_METHOD)
         .withAny(PUT_CURVE)
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE)
@@ -82,12 +85,13 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(ValuePropertyNames.CURRENCY);
+        .withAny(ValuePropertyNames.CURRENCY)
+        .withAny(PROPERTY_OTM_DELTA).get();
   }
 
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+  protected ValueProperties getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, VANNA_VOLGA_METHOD)
         .withAny(PUT_CURVE)
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE)
@@ -96,11 +100,12 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair))
+        .withAny(PROPERTY_OTM_DELTA).get();
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+  protected ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
@@ -109,8 +114,9 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String delta = desiredValue.getConstraint(PROPERTY_OTM_DELTA);
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, VANNA_VOLGA_METHOD)
         .with(PUT_CURVE, putCurveName)
         .with(PUT_CURVE_CALC_CONFIG, putCurveConfig)
         .with(CALL_CURVE, callCurveName)
@@ -119,7 +125,8 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair))
+        .with(PROPERTY_OTM_DELTA, delta).get();
   }
 
 }

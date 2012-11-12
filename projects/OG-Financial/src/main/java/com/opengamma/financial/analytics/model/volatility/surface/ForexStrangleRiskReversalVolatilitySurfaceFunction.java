@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface;
@@ -42,10 +42,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends ForexVolatilitySurfaceFunction {
-  private static final SmileDeltaParameters[] EMPTY_ARRAY = new SmileDeltaParameters[0];
   private static final Logger s_logger = LoggerFactory.getLogger(ForexStrangleRiskReversalVolatilitySurfaceFunction.class);
 
   @Override
@@ -113,7 +112,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends ForexVol
       throw new OpenGammaRuntimeException("Could not get any data for surface " + surfaceName + " with target " + target);
     }
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = new SmileDeltaTermStructureParametersStrikeInterpolation(smile.toArray(EMPTY_ARRAY), interpolator);
+    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = new SmileDeltaTermStructureParametersStrikeInterpolation(smile.toArray(new SmileDeltaParameters[smile.size()]), interpolator);
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)

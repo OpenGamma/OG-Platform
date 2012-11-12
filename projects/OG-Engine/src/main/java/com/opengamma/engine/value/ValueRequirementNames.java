@@ -231,6 +231,10 @@ public final class ValueRequirementNames {
    */
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   /**
+   * Surface containing (x, y, volatility) triples for the vanna-volga FX volatility model
+   */
+  public static final String VANNA_VOLGA_VOLATILITY_SURFACE_DATA = "VannaVolgaVolatilitySurfaceData";
+  /**
    * Surface containing (x, y, volatility) triples (where (x, y) can be (expiry, strike) (equity options) or (expiry, tenor) (swaptions).
    */
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
