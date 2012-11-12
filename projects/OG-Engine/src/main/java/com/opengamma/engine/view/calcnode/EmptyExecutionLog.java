@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.List;
 
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.util.log.LogEvent;
 
 /**

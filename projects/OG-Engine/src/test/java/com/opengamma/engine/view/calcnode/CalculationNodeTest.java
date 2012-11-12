@@ -26,6 +26,7 @@ import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.async.AsynchronousExecution;

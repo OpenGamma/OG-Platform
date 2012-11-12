@@ -53,8 +53,10 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionData
    * @return The volatility.
    */
   public SmileDeltaParameters getSmile(final Currency ccy1, final Currency ccy2, final double time) {
+    ArgumentChecker.notNull(ccy1, "first currency");
+    ArgumentChecker.notNull(ccy2, "second currency");
     final SmileDeltaParameters smile = getVolatilityModel().getSmileForTime(time);
-    if ((ccy1 == getCurrencyPair().getFirst()) && (ccy2 == getCurrencyPair().getSecond())) {
+    if (ccy1.equals(getCurrencyPair().getFirst()) && ccy2.equals(getCurrencyPair().getSecond())) {
       return smile;
     }
     throw new NotImplementedException("Currency pair is not in expected order " + getCurrencyPair().toString());
