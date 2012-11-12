@@ -36,7 +36,7 @@ public abstract class CommodityForwardDefinition {
   /**
    * Constructor for forwards with delivery dates (i.e. physical settlement)
    *
-   * @param expiryDate is the time and the day that a particular delivery month of a forward contract stops trading, as well as the final settlement price for that contract.
+   * @param expiryDate is the time and the day that a particular delivery month of a forward contract stops trading, as well as the final settlement price for that contract
    * @param underlying Identifier of the underlying commodity
    * @param unitAmount Size of a unit
    * @param firstDeliveryDate Date of first delivery - PHYSICAL settlement
@@ -72,11 +72,11 @@ public abstract class CommodityForwardDefinition {
   /**
    * Constructor for forward without delivery dates (e.g. cash settlement)
    *
-   * @param expiryDate “is the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract.”
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param amount Number of units
-   * @param unitName Description of unit size
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param amount  number of units
+   * @param unitName  description of unit size
    */
   public CommodityForwardDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount,
       final double amount, final String unitName) {
