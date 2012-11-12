@@ -89,7 +89,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1354573786:  // coupon
         return getCoupon();
@@ -100,7 +100,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1354573786:  // coupon
         setCoupon((Double) newValue);
@@ -120,12 +120,12 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final StandardVanillaCDSSecurity other = (StandardVanillaCDSSecurity) obj;
+      StandardVanillaCDSSecurity other = (StandardVanillaCDSSecurity) obj;
       return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
           JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
           super.equals(obj);
@@ -154,7 +154,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
    * Sets the premium leg coupon in basis points.
    * @param coupon  the new value of the property, not null
    */
-  public void setCoupon(final double coupon) {
+  public void setCoupon(double coupon) {
     JodaBeanUtils.notNull(coupon, "coupon");
     this._coupon = coupon;
   }
@@ -180,7 +180,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
    * Sets the settlement date.
    * @param settlementDate  the new value of the property, not null
    */
-  public void setSettlementDate(final ZonedDateTime settlementDate) {
+  public void setSettlementDate(ZonedDateTime settlementDate) {
     JodaBeanUtils.notNull(settlementDate, "settlementDate");
     this._settlementDate = settlementDate;
   }
@@ -228,7 +228,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1354573786:  // coupon
           return _coupon;
