@@ -3,10 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calcnode;
+package com.opengamma.engine.view;
 
 import java.util.List;
 
+import com.opengamma.engine.view.calcnode.EmptyExecutionLog;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.log.LogEvent;
 

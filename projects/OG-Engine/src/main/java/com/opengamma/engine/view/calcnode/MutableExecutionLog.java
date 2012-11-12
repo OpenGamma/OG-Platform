@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogEvent;

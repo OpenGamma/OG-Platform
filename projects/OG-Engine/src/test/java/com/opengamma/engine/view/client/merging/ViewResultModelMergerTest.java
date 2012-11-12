@@ -19,11 +19,11 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.ExecutionLog;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 

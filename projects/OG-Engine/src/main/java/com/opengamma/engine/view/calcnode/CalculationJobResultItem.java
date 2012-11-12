@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;

@@ -17,7 +17,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**

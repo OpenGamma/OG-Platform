@@ -19,8 +19,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.calcnode.ExecutionLog;
 import com.opengamma.id.UniqueId;
 
 public class ResultsCacheTest {

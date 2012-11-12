@@ -18,7 +18,7 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.engine.view.calcnode.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.util.log.LogEvent;
 
 /**

@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.view.calcnode.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
