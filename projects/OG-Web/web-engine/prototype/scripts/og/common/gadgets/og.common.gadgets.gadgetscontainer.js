@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, 
+        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template,
         counter = 1, header = ' .ui-layout-header';
         var constructor = function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, highlight_timer,
@@ -132,7 +132,7 @@ $.register_module({
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
-                    if (id === void 0) id = live_id;                  
+                    if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, i) {
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
@@ -191,7 +191,7 @@ $.register_module({
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
-                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, 
+                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
@@ -200,12 +200,11 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
+                    gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                
                 if(!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
