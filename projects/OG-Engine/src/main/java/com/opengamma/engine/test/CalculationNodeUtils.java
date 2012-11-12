@@ -13,11 +13,11 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.id.UniqueId;
 
 /**

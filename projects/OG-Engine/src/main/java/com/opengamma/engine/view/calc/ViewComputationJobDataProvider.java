@@ -104,7 +104,7 @@ import com.opengamma.util.ArgumentChecker;
    */
   private List<Set<ValueRequirement>> partitionRequirementsByProvider(Set<ValueRequirement> requirements) {
     List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayListWithCapacity(_providers.size());
-    for (MarketDataProvider ignored : _providers) {
+    for (@SuppressWarnings("unused") MarketDataProvider ignored : _providers) {
       Set<ValueRequirement> reqs = Sets.newHashSet();
       reqsByProvider.add(reqs);
     }

@@ -29,6 +29,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Cancel;

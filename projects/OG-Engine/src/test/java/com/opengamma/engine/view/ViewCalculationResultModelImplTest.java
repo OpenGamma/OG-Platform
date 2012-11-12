@@ -24,7 +24,6 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.MutableExecutionLog;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;

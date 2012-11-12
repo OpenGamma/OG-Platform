@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -35,7 +36,7 @@ import com.opengamma.util.async.Cancelable;
  * the {@link JobResultReceiver} interface to coordinate responses and try to support
  * cancellation of an executing graph.
  */
-/* package */class GraphFragmentContext implements JobResultReceiver {
+/*package*/ class GraphFragmentContext implements JobResultReceiver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
 
@@ -52,16 +53,19 @@ import com.opengamma.util.async.Cancelable;
   private Map<CalculationJobSpecification, GraphFragment<?>> _job2fragment;
   private volatile boolean _cancelled;
   private final Queue<ExecutionResult> _executionResultQueue;
+  private final ExecutionLogModeSource _logModeSource;
 
   protected static <K, V> ConcurrentMap<K, V> createMap(int numElements) {
     return new ConcurrentHashMap<K, V>((numElements << 2) / 3);
   }
 
-  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue) {
+  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph,
+      final Queue<ExecutionResult> executionResultQueue, final ExecutionLogModeSource logModeSource) {
     _executor = executor;
     _graph = graph;
     _functionInitializationTimestamp = executor.getFunctionInitId();
     _executionResultQueue = executionResultQueue;
+    _logModeSource = logModeSource;
   }
 
   public MultipleNodeExecutor getExecutor() {
@@ -76,6 +80,10 @@ import com.opengamma.util.async.Cancelable;
     return _executionResultQueue;
   }
 
+  public ExecutionLogModeSource getLogModeSource() {
+    return _logModeSource;
+  }
+  
   public int nextIdentifier() {
     return _graphFragmentIdentifiers.incrementAndGet();
   }

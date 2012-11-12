@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -56,6 +59,8 @@ import com.opengamma.engine.test.MockConfigSource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -128,6 +133,7 @@ public class CancelExecutionTest {
     }
   };
 
+  @SuppressWarnings("unchecked")
   private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
@@ -184,9 +190,11 @@ public class CancelExecutionTest {
     graphs.put(graph.getCalculationConfigurationName(), graph);
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new SimplePortfolio("Test Portfolio"), 0);
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(Instant.ofEpochMillis(1), new MarketDataSpecification());
+    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
-        cycleOptions, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer());
+        cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);
   }
 
   private boolean jobFinished() {

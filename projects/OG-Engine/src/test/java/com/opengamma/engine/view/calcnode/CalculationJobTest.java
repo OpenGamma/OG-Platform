@@ -25,6 +25,7 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;

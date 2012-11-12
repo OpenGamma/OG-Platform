@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.util.test.Timeout;
 
 /**
