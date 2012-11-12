@@ -51,7 +51,7 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
     final RepositoryConfigurationSource cubeFunctionSource = cubeFunctionConfig.constructRepositoryConfigurationSource();
     sources.add(cubeFunctionSource);
 
-    //sources.add(new TutorialRepositoryConfiguration().getObjectCreating());
+    //sources.add(TutorialFunctions.DEFAULT);
 
     return sources;
   }
