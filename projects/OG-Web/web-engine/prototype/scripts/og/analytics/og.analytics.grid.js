@@ -74,9 +74,6 @@ $.register_module({
             var grid = this;
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
-            og.common.events.register.call(grid,
-                'cellhoverin', 'cellhoverout', 'cellselect', 'fatal', 'mousedown',
-                'rangeselect', 'render', 'scrollstart', 'scrollend', 'select', 'viewchange');
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;

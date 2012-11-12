@@ -102,7 +102,6 @@ $.register_module({
             })(false);
             selector.grid = grid;
             selector.rectangle = selector.regions = null;
-            og.common.events.register.call(selector, 'select');
             grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {

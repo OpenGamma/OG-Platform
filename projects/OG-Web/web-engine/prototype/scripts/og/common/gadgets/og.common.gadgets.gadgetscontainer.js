@@ -320,7 +320,6 @@ $.register_module({
                 gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
                 return container;
             };
-            og.common.events.register.call(container, 'del', 'drop', 'launch');
         };
         constructor.prototype.fire = og.common.events.fire;
         constructor.prototype.off = og.common.events.off;
