@@ -100,6 +100,9 @@
         background-color: #fff;
     }
 
+    /**
+     * Add shadows to the left and right of the active tab
+     */
     .OG-gadget-tabs li.og-active:before {
         background-color: transparent;
         background-image:
