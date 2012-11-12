@@ -91,8 +91,11 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
+            grid.clipboard = new og.analytics.Clipboard(grid);
             grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('connect', function (connection) {grid.fire('connect', connection);})
+                .on('disconnect', function () {grid.selector.clear(); grid.clipboard.clear();})
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
@@ -194,7 +197,7 @@ $.register_module({
                 else
                     grid.fire('rangeselect', selection);
                 grid.fire('select', selection); // fire for single and multiple selections
-            });
+            }).on('deselect', function () {grid.fire('deselect');});
             if (config.cellmenu) try {new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
@@ -225,10 +228,7 @@ $.register_module({
                 });
             });
             unravel_structure.call(grid);
-            if (grid.elements.empty) {
-                grid.clipboard = new og.analytics.Clipboard(grid);
-                init_elements.call(grid);
-            }
+            if (grid.elements.empty) init_elements.call(grid);
             grid.resize();
             render_rows.call(grid, null, true);
         };

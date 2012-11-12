@@ -48,7 +48,7 @@ $.register_module({
                     y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
                 selector.clear();
                 clean_up();
-                if (!is_cell || $target.is(overlay)) return;
+                if (!is_cell || $target.is(overlay)) return selector.fire('deselect');
                 selector.busy(true);
                 setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
                     if (!selector.registered) selector.registered = !!grid.elements.parent
@@ -105,7 +105,7 @@ $.register_module({
             grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
-            var selector = this;
+            var selector = this, grid = selector.grid;
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };
