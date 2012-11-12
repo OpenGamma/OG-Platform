@@ -22,14 +22,14 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
   /**
    * Constructor for futures
    *
-   * @param expiryDate “is the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract.”
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param firstDeliveryDate Date of first delivery - PHYSICAL settlement
-   * @param lastDeliveryDate Date of last delivery - PHYSICAL settlement
-   * @param amount Number of units
-   * @param unitName Description of unit size
-   * @param settlementType Settlement type - PHYSICAL or CASH
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
+   * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @param settlementType  settlement type - PHYSICAL or CASH
    */
   public AgricultureFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
       double amount, String unitName, SettlementType settlementType) {
@@ -39,12 +39,12 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
   /**
    * Constructor for futures without delivery dates (e.g. cash settlement)
    *
-   * @param expiryDate “is the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract.”
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param amount Number of units
-   * @param unitName Description of unit size
-   * @param settlementType Settlement type - CASH
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @param settlementType  settlement type - CASH
    */
   public AgricultureFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, SettlementType settlementType) {
     this(expiryDate, underlying, unitAmount, null, null, amount, unitName, settlementType);
@@ -52,12 +52,13 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
 
   /**
    * Static constructor method for cash settled futures
-   * @param expiryDate “is the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract.”
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param amount Number of units
-   * @param unitName Description of unit size
-   * @return The forward
+   * 
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @return the forward
    */
   public static AgricultureFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
     return new AgricultureFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
@@ -65,14 +66,15 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
 
   /**
    * Static constructor method for physical settlement futures
-   * @param expiryDate “is the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract.”
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param firstDeliveryDate Date of first delivery - PHYSICAL settlement
-   * @param lastDeliveryDate Date of last delivery - PHYSICAL settlement
-   * @param amount Number of units
-   * @param unitName Description of unit size
-   * @return The forward
+   * 
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
+   * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @return the forward
    */
   public static AgricultureFutureDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
       double amount, String unitName) {
@@ -81,7 +83,9 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
 
   /**
    * Get the derivative at a given fix time from the definition
-   * @param date fixing time
+   * 
+   * @param date  fixing time
+   * @param yieldCurveNames  
    * @return the fixed derivative
    */
   @Override
