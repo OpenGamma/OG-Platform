@@ -50,7 +50,7 @@ public class ViewportResultsJsonWriterTest {
     List<ViewportResults.Cell> results = createResults("val", null);
     ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(String.class), 0, DURATION);
     String json = _writer.getJson(viewportResults);
-    String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[\"val\"]}";
+    String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"val\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
 

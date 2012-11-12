@@ -260,12 +260,7 @@ import com.opengamma.util.tuple.Pair;
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
       if (_history != null) {
-        // store a null history value if the value is null or indicates an error
-        if (latestValue == null || latestValue instanceof MissingInput) {
-          _history.add(null);
-        } else {
-          _history.add(latestValue);
-        }
+        _history.add(latestValue);
       }
     }
 
