@@ -15,7 +15,7 @@
     -webkit-box-shadow: 3px 3px 3px #ebebeb;
     height:275px;
 }
-
+.OG-analytics-inplace .ui-layout-header:after,
 .OG-analytics-inplace .ui-layout-header {
     background: none;
 }
