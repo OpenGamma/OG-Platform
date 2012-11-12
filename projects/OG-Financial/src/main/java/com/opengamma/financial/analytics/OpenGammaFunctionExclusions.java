@@ -24,6 +24,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String EXTERNALLY_PROVIDED_SENSITIVITIES_DEFAULTS = "EXTERNALLY PROVIDED SENSITIVITIES DEFAULTS";
   public static final String EQUITY_VARIANCE_SWAP_DEFAULTS = "EQUITY VARIANCE SWAP DEFAULTS";
   public static final String EQUITY_FUTURE_DEFAULTS = "EQUITY FUTURE DEFAULTS";
+  public static final String EQUITY_OPTION_DEFAULTS = "EQUITY OPTION DEFAULTS";
   public static final String SABR_FITTING_DEFAULTS = "SABR_FITTING_DEFAULTS";
   public static final String FX_FORWARD_DEFAULTS = "FX_FORWARD_DEFAULTS";
   public static final String FX_FORWARD_THETA_DEFAULTS = "FX_FORWARD_THETA_DEFAULTS";

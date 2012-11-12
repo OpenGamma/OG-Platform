@@ -22,7 +22,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaults;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -132,5 +131,5 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
     return OpenGammaFunctionExclusions.EQUITY_FUTURE_DEFAULTS;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityFuturesDefaultPropertiesFunction.class);
 }
