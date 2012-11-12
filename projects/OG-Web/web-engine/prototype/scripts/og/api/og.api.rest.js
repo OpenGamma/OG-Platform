@@ -752,7 +752,6 @@ $.register_module({
                 }
             }
         };
-        og.common.events.register.call(api, 'disconnect', 'reconnect');
         common.cache_clear(module.name); // empty the cache from another session or window if it still exists
         api.subscribe = subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;

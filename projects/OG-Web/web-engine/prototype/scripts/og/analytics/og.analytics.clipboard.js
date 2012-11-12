@@ -74,9 +74,17 @@ $.register_module({
         var constructor = function (grid) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
-            clipboard.dataman = new og.analytics.Data(grid.source, true, 'clipboard')
-                .on('data', data_handler, clipboard);
-            clipboard.grid = grid.on('select', function (selection) {clipboard.viewport(selection);});
+            clipboard.dataman = null;
+            clipboard.grid = grid
+                .on('select', function (selection) {clipboard.viewport(selection);})
+                .on('deselect', function () {clipboard.clear();})
+                .on('connect', function (connection) {
+                    if (clipboard.dataman) return clipboard.dataman.reconnect(connection);
+                    clipboard.dataman = new og.analytics.Data(grid.source, {
+                        bypass: true, label: 'clipboard', autoconnect: false,
+                        view_id: connection.view_id, graph_id: connection.graph_id
+                    }).on('data', data_handler, clipboard);
+                });
         };
         var data_handler = function (data) {
             var clipboard = this, grid = clipboard.grid, lcv, index = 0, selection = clipboard.selection,
@@ -118,7 +126,7 @@ $.register_module({
         };
         constructor.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
-                expanded = selection.rows.length === 1 && selection.cols.length === 1,
+                expanded = selection && selection.rows.length === 1 && selection.cols.length === 1,
                 format = expanded ? 'EXPANDED' : 'CELL';
             if (selection === null) return clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
             grid_data = grid.range(selection, expanded);

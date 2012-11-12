@@ -86,8 +86,13 @@
         util.column_width = function (cols, max, matrix) {
             var cols = cols.length + (matrix ? 1 : 0),
                 potential_width = grid_width / cols,
-                scrollbar_width = 18; // TODO: get shared scroll width
-            return potential_width > max ? max : potential_width - (scrollbar_width / cols);
+                scrollbar_width = 21; // TODO: get shared scroll width
+            return potential_width > max ? max : potential_width - (util.scrollbar_width() / cols);
+        };
+        util.scrollbar_width = function () {
+            var html = '<div style="width: 100px; height: 100px; position: absolute; \
+                visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
+            return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
         };
         gadget.load(input);
         return gadget;

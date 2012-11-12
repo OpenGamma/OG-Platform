@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, cellmenu, counter = 1, row_height = 21, title_height = 31, set_height = 24,
+        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24,
             templates = null, default_col_width = 175, scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -74,9 +74,6 @@ $.register_module({
             var grid = this;
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
-            og.common.events.register.call(grid,
-                'cellhoverin', 'cellhoverout', 'cellselect', 'fatal', 'mousedown',
-                'rangeselect', 'render', 'scrollstart', 'scrollend', 'select', 'viewchange');
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;
@@ -94,8 +91,11 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
-            grid.dataman = new og.analytics.Data(grid.source, false, 'grid')
+            grid.clipboard = new og.analytics.Clipboard(grid);
+            grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('connect', function (connection) {grid.fire('connect', connection);})
+                .on('disconnect', function () {grid.selector.clear(); grid.clipboard.clear();})
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
@@ -110,7 +110,7 @@ $.register_module({
                 });
         };
         var init_elements = function () {
-            var grid = this, config = grid.config, elements, cellmenu, in_timeout, out_timeout, stall = 15,
+            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for hover events;
             var hoverin_handler = function (event) {
                 (page_x = event.pageX), (page_y = event.pageY);
@@ -174,7 +174,6 @@ $.register_module({
                             grid.fire('scrollstart'), started = 'fixed';
                         if (started !== 'fixed') return clearTimeout(timeout);
                         grid.busy(true);
-                        if (cellmenu) cellmenu.hide();
                         elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
                     };
@@ -185,7 +184,6 @@ $.register_module({
                             grid.fire('scrollstart'), started = 'scroll';
                         if (started !== 'scroll') return clearTimeout(timeout);
                         grid.busy(true);
-                        if (cellmenu) cellmenu.hide();
                         elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
                         elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
@@ -199,8 +197,8 @@ $.register_module({
                 else
                     grid.fire('rangeselect', selection);
                 grid.fire('select', selection); // fire for single and multiple selections
-            });
-            if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
+            }).on('deselect', function () {grid.fire('deselect');});
+            if (config.cellmenu) try {new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
@@ -230,10 +228,7 @@ $.register_module({
                 });
             });
             unravel_structure.call(grid);
-            if (grid.elements.empty) {
-                grid.clipboard = new og.analytics.Clipboard(grid);
-                init_elements.call(grid);
-            }
+            if (grid.elements.empty) init_elements.call(grid);
             grid.resize();
             render_rows.call(grid, null, true);
         };
@@ -251,7 +246,7 @@ $.register_module({
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
-                            views: !col_offset && grid.events.viewchange.length ? grid.views : null,
+                            views: !col_offset && !depgraph ? grid.views : null,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
@@ -281,8 +276,7 @@ $.register_module({
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (data_row = rows[i]; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
-                        value = (formatter[type = types[column]] ? formatter[type](data[index])
-                            : (data[index] && data[index].v) || data[index]) || '';
+                        value = formatter[type = types[column]] ? formatter[type](data[index]) : data[index].v || '';
                         cells.push({
                             column: column, error: data[index] && data[index].error,
                             value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
@@ -401,11 +395,8 @@ $.register_module({
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return typeof cell === 'undefined' ? null : {
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
-                row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
+                row_name: grid.data[data_index - col_index].v, col_name: meta.columns.headers[col]
             };
-        };
-        constructor.prototype.new_menu = function(frozen) {
-            cellmenu = new og.analytics.CellMenu(this);
         };
         constructor.prototype.col_widths = function () {
             var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,
