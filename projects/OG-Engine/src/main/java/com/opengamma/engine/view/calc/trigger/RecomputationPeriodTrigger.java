@@ -80,8 +80,9 @@ public class RecomputationPeriodTrigger implements ViewCycleTrigger {
     if (computationPeriod == null) {
       return nullEquivalent;
     }
-
-    return currentNanos + NANOS_PER_MILLISECOND * computationPeriod;
+    long result = currentNanos + NANOS_PER_MILLISECOND * computationPeriod;
+    // Check for overflow
+    return result < currentNanos ? Long.MAX_VALUE : result;
   }
   
 }
