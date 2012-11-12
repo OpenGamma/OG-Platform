@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -97,6 +98,10 @@ import com.opengamma.util.tuple.Pair;
     ResultKey key = new ResultKey(calcConfigName, spec);
     CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
+      // don't create an item for an error value
+      if (value instanceof MissingInput) {
+        return;
+      }
       CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
       _results.put(key, newResult);
     } else {
@@ -230,7 +235,7 @@ import com.opengamma.util.tuple.Pair;
 
     @SuppressWarnings("unchecked")
     private static CacheItem forValue(Object value, long lastUpdateId) {
-      ArgumentChecker.notNull(value, "latestValue");
+      ArgumentChecker.notNull(value, "value");
       CircularFifoBuffer history;
       if (s_historyTypes.contains(value.getClass())) {
         history = new CircularFifoBuffer(MAX_HISTORY_SIZE);
@@ -255,7 +260,12 @@ import com.opengamma.util.tuple.Pair;
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
       if (_history != null) {
-        _history.add(latestValue);
+        // store a null history value if the value is null or indicates an error
+        if (latestValue == null || latestValue instanceof MissingInput) {
+          _history.add(null);
+        } else {
+          _history.add(latestValue);
+        }
       }
     }
 
