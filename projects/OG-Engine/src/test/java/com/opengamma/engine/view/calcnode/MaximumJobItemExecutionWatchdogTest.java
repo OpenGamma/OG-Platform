@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -31,7 +32,7 @@ import com.opengamma.util.test.Timeout;
 public class MaximumJobItemExecutionWatchdogTest {
 
   private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNoAlert() throws Exception {
     final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -51,7 +52,7 @@ public class MaximumJobItemExecutionWatchdogTest {
             barrier.await(Timeout.standardTimeoutMillis() * 2, TimeUnit.MILLISECONDS);
             watchdog.jobExecutionStarted(JOB);
             watchdog.jobExecutionStopped();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             throw new OpenGammaRuntimeException("exception", e);
           }
         }
@@ -84,9 +85,9 @@ public class MaximumJobItemExecutionWatchdogTest {
             watchdog.jobExecutionStarted(JOB);
             barrier.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
             Thread.sleep(Timeout.standardTimeoutMillis() * 3);
-          } catch (InterruptedException e) {
+          } catch (final InterruptedException e) {
             caught.set(e);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             throw new OpenGammaRuntimeException("exception", e);
           }
         }

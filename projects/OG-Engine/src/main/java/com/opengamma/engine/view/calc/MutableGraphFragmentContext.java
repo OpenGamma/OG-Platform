@@ -12,6 +12,7 @@ import java.util.Set;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsPerConfiguration;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
@@ -23,8 +24,9 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   private final FunctionCostsPerConfiguration _functionCost;
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
 
-  public MutableGraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue) {
-    super(executor, graph, executionResultQueue);
+  public MutableGraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph,
+      final Queue<ExecutionResult> executionResultQueue, final ExecutionLogModeSource logModeSource) {
+    super(executor, graph, executionResultQueue, logModeSource);
     final Set<ValueSpecification> terminalOutputs = graph.getTerminalOutputSpecifications();
     _sharedCacheValues = createMap(terminalOutputs.size());
     for (ValueSpecification specification : terminalOutputs) {

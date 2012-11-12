@@ -10,8 +10,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
+import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -28,6 +29,7 @@ public class DataViewCycleResource extends AbstractDataResource {
   public static final String PATH_COMPILED_VIEW_DEFINITION = "compiledViewDefinition";
   public static final String PATH_RESULT = "result";
   public static final String PATH_QUERY_CACHES = "queryCaches";
+  public static final String PATH_QUERY_RESULTS = "queryResults";
   //CSON: just constants
 
   private final ViewCycle _cycle;
@@ -73,9 +75,16 @@ public class DataViewCycleResource extends AbstractDataResource {
 
   @POST
   @Path(PATH_QUERY_CACHES)
-  public Response queryComputationCaches(ComputationCacheQuery query) {
-    ComputationCacheResponse result = _cycle.queryComputationCaches(query);
-    return responseOkFudge(result);
+  public Response queryComputationCaches(ComputationCycleQuery query) {
+    ComputationCacheResponse response = _cycle.queryComputationCaches(query);
+    return responseOkFudge(response);
+  }
+  
+  @POST
+  @Path(PATH_QUERY_RESULTS)
+  public Response queryResults(ComputationCycleQuery query) {
+    ComputationResultsResponse response = _cycle.queryResults(query);
+    return responseOkFudge(response);
   }
 
 }

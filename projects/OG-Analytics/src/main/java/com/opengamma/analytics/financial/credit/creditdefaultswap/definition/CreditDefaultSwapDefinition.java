@@ -29,7 +29,7 @@ public abstract class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite)
+  // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite for credit default swaps)
 
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
   // This convention is chosen to avoid confusion about whether a negative notional means a long/short position etc
@@ -43,7 +43,6 @@ public abstract class CreditDefaultSwapDefinition {
 
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Check that buyer is not equal to the seller etc
-  // TODO : Add methods to calc e.g. time to maturity as a double?
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
 
@@ -116,7 +115,7 @@ public abstract class CreditDefaultSwapDefinition {
   // Calculate clean or dirty price (clean price includes the accrued interest from valuation date to the previous coupon date)
   private final PriceType _priceType;
 
-  // Flag to determine if survival probabilities are calculated at the beginning or end of the day
+  // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
   private final boolean _protectionStart;
 
   // The credit key to uniquely identify a reference entities par spread CDS curve

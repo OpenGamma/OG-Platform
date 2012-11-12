@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +41,7 @@ import com.opengamma.util.PlatformConfigUtils;
  * The end result is a populated {@link ComponentRepository}.
  * <p>
  * Two types of config file format are recognized - properties and INI.
- * The INI file is the primary file for loading the components, see {@link ComponentConfigLoader}.
+ * The INI file is the primary file for loading the components, see {@link ComponentConfigIniLoader}.
  * The behavior of an INI file can be controlled using properties.
  * <p>
  * The properties can either be specified manually before {@link #start(Resource))}
@@ -62,15 +61,19 @@ public class ComponentManager {
   /**
    * The server name property.
    */
-  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
+  private static final String OPENGAMMA_SERVER_NAME = "og.server.name";
   /**
    * The key identifying the next config file in a properties file.
    */
-  private static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
+  static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
   /**
    * The key identifying the entire combined set of active properties.
    */
-  private static final String MANAGER_PROPERTIES = "MANAGER.PROPERTIES";
+  static final String MANAGER_PROPERTIES = "MANAGER.PROPERTIES";
+  /**
+   * The key identifying the the inclusion of another file.
+   */
+  static final String MANAGER_INCLUDE = "MANAGER.INCLUDE";
 
   /**
    * The component repository.
@@ -209,7 +212,7 @@ public class ComponentManager {
     if (resource.getFilename().endsWith(".properties")) {
       String nextConfig = loadProperties(resource);
       if (nextConfig == null) {
-        throw new IllegalArgumentException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
+        throw new OpenGammaRuntimeException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
       }
       return start(nextConfig);
     }
@@ -218,7 +221,7 @@ public class ComponentManager {
       start();
       return getRepository();
     }
-    throw new IllegalArgumentException("Unknown file format: " + resource);
+    throw new OpenGammaRuntimeException("Unknown file format: " + resource);
   }
 
   //-------------------------------------------------------------------------
@@ -229,28 +232,11 @@ public class ComponentManager {
    * The file must contain a key "component.ini"
    * 
    * @param resource  the properties resource location, not null
-   * @return the next configuration file to load, not null
+   * @return the next configuration file to load, null if not specified
    */
   protected String loadProperties(Resource resource) {
-    Properties properties = new Properties();
-    try {
-      properties.load(resource.getInputStream());
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
-    }
-    String nextConfig = null;
-    for (Entry<Object, Object> entry : properties.entrySet()) {
-      String key = entry.getKey().toString();
-      String value = entry.getValue().toString();
-      if (key.equals(MANAGER_NEXT_FILE)) {
-        // the next config file to load
-        nextConfig = value;
-      } else {
-        // putIfAbsent allows values from an override file to be loaded and not overwritten
-        getProperties().putIfAbsent(key, value);
-      }
-    }
-    return nextConfig;
+    ComponentConfigPropertiesLoader loader = new ComponentConfigPropertiesLoader(_logger, getProperties());
+    return loader.load(resource, 0);
   }
 
   /**
@@ -261,8 +247,8 @@ public class ComponentManager {
   protected void loadIni(Resource resource) {
     logProperties();
     
-    ComponentConfigLoader loader = new ComponentConfigLoader();
-    ComponentConfig config = loader.load(resource, getProperties());
+    ComponentConfigIniLoader loader = new ComponentConfigIniLoader(_logger, getProperties());
+    ComponentConfig config = loader.load(resource);
     getRepository().pushThreadLocal();
     initGlobal(config);
     init(config);
@@ -371,11 +357,11 @@ public class ComponentManager {
       Class<? extends ComponentFactory> cls = getClass().getClassLoader().loadClass(typeStr).asSubclass(ComponentFactory.class);
       factory = cls.newInstance();
     } catch (ClassNotFoundException ex) {
-      throw new IllegalArgumentException("Unknown component factory: " + typeStr, ex);
+      throw new OpenGammaRuntimeException("Unknown component factory: " + typeStr, ex);
     } catch (InstantiationException ex) {
-      throw new IllegalArgumentException("Unable to create component factory: " + typeStr, ex);
+      throw new OpenGammaRuntimeException("Unable to create component factory: " + typeStr, ex);
     } catch (IllegalAccessException ex) {
-      throw new IllegalArgumentException("Unable to access component factory: " + typeStr, ex);
+      throw new OpenGammaRuntimeException("Unable to access component factory: " + typeStr, ex);
     }
     return factory;
   }
@@ -494,12 +480,12 @@ public class ComponentManager {
         mp.set(bean, getRepository().getInstance(propertyType, classifier));
         return;
       } catch (RuntimeException ex) {
-        throw new IllegalArgumentException("Unable to set property " + mp + " of type " + propertyType.getName(), ex);
+        throw new OpenGammaRuntimeException("Unable to set property " + mp + " of type " + propertyType.getName(), ex);
       }
     }
     ComponentInfo info = getRepository().findInfo(type, classifier);
     if (info == null) {
-      throw new IllegalArgumentException("Unable to find component reference '" + value + "' while setting property " + mp);
+      throw new OpenGammaRuntimeException("Unable to find component reference '" + value + "' while setting property " + mp);
     }
     if (ComponentInfo.class.isAssignableFrom(propertyType)) {
       mp.set(bean, info);
@@ -528,7 +514,7 @@ public class ComponentManager {
         mp.setString(bean, value);
         
       } catch (RuntimeException ex) {
-        throw new IllegalArgumentException("Unable to set property " + mp, ex);
+        throw new OpenGammaRuntimeException("Unable to set property " + mp, ex);
       }
     }
   }

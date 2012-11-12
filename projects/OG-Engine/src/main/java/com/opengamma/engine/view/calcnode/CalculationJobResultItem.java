@@ -14,105 +14,84 @@ import java.util.Set;
 
 import org.springframework.util.ObjectUtils;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Contains details about the result of executing a {@link CalculationJobItem}.
  */
 public final class CalculationJobResultItem implements IdentifierEncodedValueSpecifications {
 
-  private static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.view.calcnode.MissingInputException";
-  private static final String EXECUTION_SUPPRESSED_CLASS = "com.opengamma.engine.view.calcnode.ExecutionSuppressedException";
-
-  private static final CalculationJobResultItem SUCCESS = new CalculationJobResultItem(null, null, null, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-  private static final CalculationJobResultItem SUPPRESSED = new CalculationJobResultItem(EXECUTION_SUPPRESSED_CLASS, "Unable to execute because of function blacklisting entry", null,
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-
-  private final String _exceptionClass;
-  private final String _exceptionMsg;
-  private final String _stackTrace;
+  /*package*/ static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.view.calcnode.MissingInputException";
+  
+  /*package*/ static final String EXECUTION_SUPPRESSED_CLASS = "com.opengamma.engine.view.calcnode.ExecutionSuppressedException";
+  /*package*/ static final String EXECUTION_SUPPRESSED_MESSAGE = "Unable to execute because of function blacklisting entry";
 
   private Set<ValueSpecification> _missingOutputs;
   private long[] _missingOutputIdentifiers;
   private Set<ValueSpecification> _missingInputs;
   private long[] _missingInputIdentifiers;
+  
+  private final ExecutionLog _executionLog;
 
-  private CalculationJobResultItem(final Throwable exception, final Set<ValueSpecification> missingInputs, final Set<ValueSpecification> missingOutputs) {
-    _exceptionClass = exception.getClass().getName();
-    _exceptionMsg = exception.getMessage();
-    final StringBuffer buffer = new StringBuffer();
-    for (StackTraceElement element : exception.getStackTrace()) {
-      buffer.append(element.toString() + "\n");
+  public CalculationJobResultItem(Set<ValueSpecification> missingInputs, Set<ValueSpecification> missingOutputs, final ExecutionLog executionLog) {
+    if (missingInputs == null) {
+      missingInputs = ImmutableSet.<ValueSpecification>of();
     }
-    _stackTrace = buffer.toString();
+    if (missingOutputs == null) {
+      missingOutputs = ImmutableSet.<ValueSpecification>of();
+    }
     _missingInputs = missingInputs;
     _missingOutputs = missingOutputs;
+    _executionLog = executionLog;
   }
-
-  public static CalculationJobResultItem success() {
-    return SUCCESS;
-  }
-
-  public static CalculationJobResultItem failure(final String errorClass, final String errorMessage) {
-    return new CalculationJobResultItem(errorClass, errorMessage, null, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-  }
-
-  public static CalculationJobResultItem failure(final Throwable exception) {
-    return new CalculationJobResultItem(exception, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-  }
-
-  public static CalculationJobResultItem missingInputs(final Set<ValueSpecification> missingInputs) {
-    return new CalculationJobResultItem(MISSING_INPUTS_FAILURE_CLASS, "Unable to execute because of " + missingInputs.size() + " missing input(s)", null, missingInputs,
-        Collections.<ValueSpecification>emptySet());
-  }
-
-  public static CalculationJobResultItem suppressed() {
-    return SUPPRESSED;
-  }
-
-  public static CalculationJobResultItem partialInputs(final Set<ValueSpecification> missingInputs) {
-    return new CalculationJobResultItem(null, null, null, missingInputs, Collections.<ValueSpecification>emptySet());
-  }
-
-  public CalculationJobResultItem withMissingOutputs(final Set<ValueSpecification> missingOutputs) {
-    return new CalculationJobResultItem(null, null, null, _missingInputs, missingOutputs);
-  }
-
-  public CalculationJobResultItem withFailure(final String errorClass, final String errorMessage) {
-    return new CalculationJobResultItem(errorClass, errorMessage, null, _missingInputs, _missingOutputs);
-  }
-
-  public CalculationJobResultItem withFailure(final Throwable exception) {
-    return new CalculationJobResultItem(exception, _missingInputs, _missingOutputs);
-  }
-
-  public CalculationJobResultItem(String exceptionClass, String exceptionMsg, String stackTrace, Set<ValueSpecification> missingInputs, Set<ValueSpecification> missingOutputs) {
-    _exceptionClass = exceptionClass;
-    _exceptionMsg = exceptionMsg;
-    _stackTrace = stackTrace;
-    _missingInputs = missingInputs;
-    _missingOutputs = missingOutputs;
-  }
-
-  public CalculationJobResultItem(String exceptionClass, String exceptionMsg, String stackTrace, long[] missingInputIdentifiers, long[] missingOutputIdentifiers) {
-    _exceptionClass = exceptionClass;
-    _exceptionMsg = exceptionMsg;
-    _stackTrace = stackTrace;
+  
+  public CalculationJobResultItem(long[] missingInputIdentifiers, long[] missingOutputIdentifiers, ExecutionLog executionLog) {
     _missingInputIdentifiers = missingInputIdentifiers;
     _missingOutputIdentifiers = missingOutputIdentifiers;
+    _executionLog = executionLog;
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an immutable result item representing success, containing no additional data.
+   * 
+   * @return a result item representing success, not null
+   */
+  public static CalculationJobResultItem success() {
+    return new CalculationJobResultItem(ImmutableSet.<ValueSpecification>of(), ImmutableSet.<ValueSpecification>of(), ExecutionLog.EMPTY);
+  }
+  
+  /**
+   * Returns an immutable result item representing a simple failure.
+   * 
+   * @param exceptionClass  the exception class, not null
+   * @param exceptionMessage  the exception message
+   * @return a result item representing a simple failure, not null
+   */
+  public static CalculationJobResultItem failure(String exceptionClass, String exceptionMessage) {
+    ArgumentChecker.notNull(exceptionClass, "exceptionClass");
+    return CalculationJobResultItemBuilder
+        .of(new MutableExecutionLog(ExecutionLogMode.INDICATORS))
+        .withException(exceptionClass, exceptionMessage)
+        .toResultItem();
   }
 
+  //-------------------------------------------------------------------------
   public boolean isFailed() {
-    return _exceptionClass != null;
+    return getExecutionLog().hasException();
   }
 
   public InvocationResult getResult() {
-    if (_exceptionClass != null) {
-      if (MISSING_INPUTS_FAILURE_CLASS.equals(_exceptionClass)) {
+    if (getExecutionLog().hasException()) {
+      if (MISSING_INPUTS_FAILURE_CLASS.equals(getExecutionLog().getExceptionClass())) {
         return InvocationResult.MISSING_INPUTS;
-      } else if (EXECUTION_SUPPRESSED_CLASS.equals(_exceptionClass)) {
+      } else if (EXECUTION_SUPPRESSED_CLASS.equals(getExecutionLog().getExceptionClass())) {
         return InvocationResult.SUPPRESSED;
       } else {
         return InvocationResult.FUNCTION_THREW_EXCEPTION;
@@ -124,18 +103,6 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
         return InvocationResult.PARTIAL_SUCCESS;
       }
     }
-  }
-
-  public String getExceptionClass() {
-    return _exceptionClass;
-  }
-
-  public String getExceptionMsg() {
-    return _exceptionMsg;
-  }
-
-  public String getStackTrace() {
-    return _stackTrace;
   }
 
   public Set<ValueSpecification> getMissingInputs() {
@@ -154,6 +121,10 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     return _missingOutputIdentifiers;
   }
 
+  public ExecutionLog getExecutionLog() {
+    return _executionLog;
+  }
+  
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_missingInputs == null) {
@@ -226,9 +197,6 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
   @Override
   public int hashCode() {
     int hc = 1;
-    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_exceptionClass);
-    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_exceptionMsg);
-    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_stackTrace);
     hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_missingOutputs);
     hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_missingInputs);
     return hc;
@@ -243,10 +211,7 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
       return false;
     }
     final CalculationJobResultItem other = (CalculationJobResultItem) o;
-    return ObjectUtils.nullSafeEquals(other._exceptionClass, _exceptionClass)
-        && ObjectUtils.nullSafeEquals(other._exceptionMsg, _exceptionMsg)
-        && ObjectUtils.nullSafeEquals(other._stackTrace, _stackTrace)
-        && ObjectUtils.nullSafeEquals(other._missingOutputs, _missingOutputs)
+    return ObjectUtils.nullSafeEquals(other._missingOutputs, _missingOutputs)
         && ObjectUtils.nullSafeEquals(other._missingInputs, _missingInputs);
   }
 

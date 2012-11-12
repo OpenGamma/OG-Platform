@@ -6,7 +6,9 @@
 package com.opengamma.engine.view;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -24,6 +26,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -45,7 +48,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link ViewProcess}.
  */
-public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
+public class ViewProcessImpl implements ViewProcessInternal, ExecutionLogModeSource, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
 
@@ -71,14 +74,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
+  
+  private final Map<ValueSpecification, Integer> _elevatedResultSpecs = new ConcurrentHashMap<ValueSpecification, Integer>();
 
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
-  private ExecutorService _calcJobResultExecutorService = Executors.newSingleThreadExecutor();
-
-
+  private ExecutorService _calcJobResultExecutor = Executors.newSingleThreadExecutor();
 
   /**
    * Constructs an instance.
@@ -91,8 +94,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param cycleObjectId  the object identifier of cycles, not null
    */
   public ViewProcessImpl(UniqueId viewProcessId, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-                         ViewProcessContext viewProcessContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
-                         ObjectId cycleObjectId) {
+                         ViewProcessContext viewProcessContext,
+                         EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -211,6 +214,66 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return "ViewProcess[" + getUniqueId() + " on " + getDefinitionId() + "]";
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Ensures at least a minimum level of logging output is present in the results for the given value specifications.
+   * Changes will take effect from the next computation cycle.
+   * <p>
+   * Each call to elevate the minimum level of logging output for a result must be paired with exactly one call to
+   * reduce the level of logging output, if required.
+   * 
+   * @param minimumLogMode  the minimum log mode to ensure, not null
+   * @param resultSpecifications  the result specifications affected, not null or empty
+   */
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+    // Synchronization ensures only one writer, while getExecutionLogMode is allowed to read from the ConcurrentHashMap
+    // without further locking.
+    switch (minimumLogMode) {
+      case INDICATORS:
+        for (ValueSpecification valueSpec : resultSpecifications) {
+          synchronized (_elevatedResultSpecs) {
+            Integer value = _elevatedResultSpecs.get(valueSpec);
+            if (value == null) {
+              continue;
+            }
+            if (value == 1) {
+              _elevatedResultSpecs.remove(valueSpec);
+            } else {
+              _elevatedResultSpecs.put(valueSpec, value - 1);
+            }
+          }
+        }
+        break;
+      case FULL:
+        for (ValueSpecification valueSpec : resultSpecifications) {
+          synchronized (_elevatedResultSpecs) {
+            Integer value = _elevatedResultSpecs.get(valueSpec);
+            if (value == null) {
+              _elevatedResultSpecs.put(valueSpec, 1);
+            } else {
+              _elevatedResultSpecs.put(valueSpec, value + 1);
+            }
+          }
+        }
+        break;
+    }
+  }
+  
+  @Override
+  public ExecutionLogMode getLogMode(ValueSpecification valueSpec) {
+    return _elevatedResultSpecs.containsKey(valueSpec) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
+  }
+  
+  @Override
+  public ExecutionLogMode getLogMode(Set<ValueSpecification> valueSpecs) {
+    for (ValueSpecification valueSpec : valueSpecs) {
+      if (getLogMode(valueSpec) == ExecutionLogMode.FULL) {
+        return ExecutionLogMode.FULL;
+      }
+    }
+    return ExecutionLogMode.INDICATORS;
+  }
+  
   //-------------------------------------------------------------------------
   public UniqueId generateCycleId() {
     String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
@@ -449,6 +512,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
     return _cycleManager;
   }
+  
+  public ExecutorService getCalcJobResultExecutor() {
+    return _calcJobResultExecutor;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -561,6 +628,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         break;
       case RUNNING:
         throw new IllegalStateException("Already running.");
+      case FINISHED:
+        throw new IllegalStateException("The computation job has already been run.");
       case TERMINATED:
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
@@ -571,7 +640,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   /**
    * Instructs the background computation job to finish. The background job might actually terminate asynchronously,
-   * but any outstanding result will be discarded. A replacement background computation job job may be started immediately.
+   * but any outstanding result will be discarded. A replacement background computation job may be started immediately.
    */
   private void stopComputationJob() {
     // Caller MUST hold the semaphore
@@ -633,7 +702,4 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     setComputationThread(null);
   }
 
-  public ExecutorService getCalcJobResultExecutorService() {
-    return _calcJobResultExecutorService;
-  }
 }

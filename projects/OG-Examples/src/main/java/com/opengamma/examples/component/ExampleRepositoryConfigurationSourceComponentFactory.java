@@ -31,26 +31,28 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
 
   @Override
   protected List<RepositoryConfigurationSource> initSources() {
-    List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
-    
-    RepositoryConfigurationSource standardFunctionSource = ExampleStandardFunctionConfiguration.constructRepositoryConfigurationSource();
+    final List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
+
+    final RepositoryConfigurationSource standardFunctionSource = ExampleStandardFunctionConfiguration.constructRepositoryConfigurationSource();
     sources.add(standardFunctionSource);
-    
-    ExampleCurveFunctionConfiguration curveFunctionConfig = new ExampleCurveFunctionConfiguration();
+
+    final ExampleCurveFunctionConfiguration curveFunctionConfig = new ExampleCurveFunctionConfiguration();
     curveFunctionConfig.setConfigMaster(getConfigMaster());
     curveFunctionConfig.setConventionBundleSource(getConventionBundleSource());
-    RepositoryConfigurationSource curveFunctionSource = curveFunctionConfig.constructRepositoryConfigurationSource();
+    final RepositoryConfigurationSource curveFunctionSource = curveFunctionConfig.constructRepositoryConfigurationSource();
     sources.add(curveFunctionSource);
-    
-    ExampleSurfaceFunctionConfiguration surfaceFunctionConfig = new ExampleSurfaceFunctionConfiguration();
+
+    final ExampleSurfaceFunctionConfiguration surfaceFunctionConfig = new ExampleSurfaceFunctionConfiguration();
     surfaceFunctionConfig.setConfigMaster(getConfigMaster());
-    RepositoryConfigurationSource surfaceFunctionSource = surfaceFunctionConfig.constructRepositoryConfigurationSource();
+    final RepositoryConfigurationSource surfaceFunctionSource = surfaceFunctionConfig.constructRepositoryConfigurationSource();
     sources.add(surfaceFunctionSource);
-    
-    ExampleCubeFunctionConfiguration cubeFunctionConfig = new ExampleCubeFunctionConfiguration();
-    RepositoryConfigurationSource cubeFunctionSource = cubeFunctionConfig.constructRepositoryConfigurationSource();
+
+    final ExampleCubeFunctionConfiguration cubeFunctionConfig = new ExampleCubeFunctionConfiguration();
+    final RepositoryConfigurationSource cubeFunctionSource = cubeFunctionConfig.constructRepositoryConfigurationSource();
     sources.add(cubeFunctionSource);
-    
+
+    //sources.add(new TutorialRepositoryConfiguration().getObjectCreating());
+
     return sources;
   }
 
@@ -73,17 +75,17 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -95,7 +97,7 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    final int hash = 7;
     return hash ^ super.hashCode();
   }
 

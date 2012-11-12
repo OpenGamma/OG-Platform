@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -17,6 +17,8 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.log.LogBridge;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 /**
  * Creates more-or-less identical nodes.
@@ -36,6 +38,12 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private FunctionBlacklistQuery _blacklistQuery;
   private FunctionBlacklistMaintainer _blacklistUpdate;
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
+  private final ThreadLocalLogEventListener _threadLocalLogListener;
+
+  public SimpleCalculationNodeFactory() {
+    _threadLocalLogListener = new ThreadLocalLogEventListener();
+    LogBridge.getInstance().addListener(_threadLocalLogListener);
+  }
 
   private int _uid;
 
@@ -43,7 +51,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _viewComputationCache;
   }
 
-  public void setViewComputationCache(ViewComputationCacheSource viewComputationCache) {
+  public void setViewComputationCache(final ViewComputationCacheSource viewComputationCache) {
     ArgumentChecker.notNull(viewComputationCache, "viewComputationCache");
     _viewComputationCache = viewComputationCache;
   }
@@ -52,7 +60,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _functionCompilationService;
   }
 
-  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
+  public void setFunctionCompilationService(final CompiledFunctionService functionCompilationService) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     _functionCompilationService = functionCompilationService;
   }
@@ -61,7 +69,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _functionExecutionContext;
   }
 
-  public void setFunctionExecutionContext(FunctionExecutionContext functionExecutionContext) {
+  public void setFunctionExecutionContext(final FunctionExecutionContext functionExecutionContext) {
     ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
     _functionExecutionContext = functionExecutionContext;
   }
@@ -70,7 +78,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _viewProcessorQuery;
   }
 
-  public void setViewProcessorQuery(ViewProcessorQuerySender viewProcessorQuery) {
+  public void setViewProcessorQuery(final ViewProcessorQuerySender viewProcessorQuery) {
     ArgumentChecker.notNull(viewProcessorQuery, "viewProcessorQuery");
     _viewProcessorQuery = viewProcessorQuery;
   }
@@ -79,7 +87,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _executorService;
   }
 
-  public void setExecutorService(ExecutorService executorService) {
+  public void setExecutorService(final ExecutorService executorService) {
     _executorService = executorService;
   }
 
@@ -155,8 +163,9 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     } else {
       identifier = SimpleCalculationNode.createNodeId();
     }
+    final CalculationNodeLogEventListener logListener = new CalculationNodeLogEventListener(_threadLocalLogListener);
     final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getViewProcessorQuery(), identifier,
-        getExecutorService(), getStatisticsGatherer());
+        getExecutorService(), getStatisticsGatherer(), logListener);
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());

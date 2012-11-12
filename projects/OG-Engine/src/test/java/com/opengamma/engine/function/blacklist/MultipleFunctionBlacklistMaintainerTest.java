@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.blacklist;
@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
@@ -23,9 +24,9 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
 public class MultipleFunctionBlacklistMaintainerTest {
 
   private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
   private final CalculationJobItem _item2 = new CalculationJobItem("F2", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNone() {
     final MultipleFunctionBlacklistMaintainer m = new MultipleFunctionBlacklistMaintainer(Collections.<FunctionBlacklistMaintainer>emptySet());

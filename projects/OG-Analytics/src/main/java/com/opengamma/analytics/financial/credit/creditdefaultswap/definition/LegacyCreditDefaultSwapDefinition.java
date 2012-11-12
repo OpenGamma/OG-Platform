@@ -117,9 +117,9 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
 
   // -----------------------------------------------------------------------------------------------
 
-  //Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
+  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
-  public LegacyCreditDefaultSwapDefinition withMaturity(ZonedDateTime maturityDate) {
+  public LegacyCreditDefaultSwapDefinition withMaturityDate(ZonedDateTime maturityDate) {
 
     LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(),
         getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getValuationDate(), getStubType(), getCouponFrequency(),

@@ -24,6 +24,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -53,23 +54,24 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BatchExecutor.class);
 
-  private DependencyGraphExecutor<?> _delegate;
+  private final DependencyGraphExecutor<?> _delegate;
 
-  public BatchExecutor(DependencyGraphExecutor<?> delegate) {
+  public BatchExecutor(final DependencyGraphExecutor<?> delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor");
     _delegate = delegate;
   }
 
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<Object> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue,
+      final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueId, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes =
         new ArrayList<Map<UniqueId, Collection<DependencyNode>>>();
     final Collection<DependencyNode> portfolioNodes = new HashSet<DependencyNode>();
-    for (DependencyNode node : graph.getDependencyNodes()) {
+    for (final DependencyNode node : graph.getDependencyNodes()) {
       if (node.getComputationTarget().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
-        for (DependencyNode input : node.getInputNodes()) {
+        for (final DependencyNode input : node.getInputNodes()) {
           if (input.getComputationTarget().getType() != ComputationTargetType.PRIMITIVE) {
             throw new IllegalStateException("A primitive node can only depend on another primitive node. " +
                   node + " depended on " + node.getInputNodes());
@@ -78,19 +80,19 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
         primitiveNodes.add(node);
       } else if (node.getComputationTarget().getType().isTargetType(ComputationTargetType.SECURITY)
               || node.getComputationTarget().getType().isTargetType(ComputationTargetType.POSITION)) {
-        int passNumber = determinePassNumber(node);
+        final int passNumber = determinePassNumber(node);
         if (passNumber > passNumber2Target2SecurityAndPositionNodes.size() - 1) {
           for (int i = passNumber2Target2SecurityAndPositionNodes.size(); i <= passNumber; i++) {
             passNumber2Target2SecurityAndPositionNodes.add(new HashMap<UniqueId, Collection<DependencyNode>>());
           }
         }
-        Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes = passNumber2Target2SecurityAndPositionNodes.get(passNumber);
+        final Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes = passNumber2Target2SecurityAndPositionNodes.get(passNumber);
         UniqueId uniqueId;
         if (node.getComputationTarget().getType() == ComputationTargetType.SECURITY) {
           uniqueId = node.getComputationTarget().getUniqueId();
         } else if (node.getComputationTarget().getType() == ComputationTargetType.POSITION) {
           // execute positions with underlying securities
-          DependencyNode securityNode = getSecurityNode(node);
+          final DependencyNode securityNode = getSecurityNode(node);
           uniqueId = securityNode.getComputationTarget().getUniqueId();
         } else {
           throw new RuntimeException("Should not get here");
@@ -109,38 +111,38 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     }
     // Execute primitives and wait for completion
     s_logger.info("Executing {} PRIMITIVE nodes", primitiveNodes.size());
-    DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
+    final DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
     try {
-      Future<?> future = _delegate.execute(primitiveGraph, executionResultQueue, statistics);
+      final Future<?> future = _delegate.execute(primitiveGraph, executionResultQueue, statistics, logModeSource);
       future.get();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.interrupted();
       throw new RuntimeException("Should not have been interrupted");
-    } catch (ExecutionException e) {
+    } catch (final ExecutionException e) {
       throw new RuntimeException("Execution of primitives failed", e);
     }
     // Execute securities and positions, pass by pass, one by one and wait for completion
     s_logger.info("Executing {} passes of SECURITY and POSITION nodes", passNumber2Target2SecurityAndPositionNodes.size());
     int passNumber = 0;
-    for (Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes : passNumber2Target2SecurityAndPositionNodes) {
+    for (final Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes : passNumber2Target2SecurityAndPositionNodes) {
       s_logger.info("Executing pass number {}", passNumber, target2SecurityAndPositionNodes.size());
-      LinkedList<Future<?>> secAndPositionFutures = new LinkedList<Future<?>>();
+      final LinkedList<Future<?>> secAndPositionFutures = new LinkedList<Future<?>>();
       int nodeCount = 0;
-      for (Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
-        DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
+      for (final Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
+        final DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
         nodeCount += nodesRelatedToSingleTarget.size();
-        Future<?> future = _delegate.execute(secAndPositionGraph, executionResultQueue, statistics);
+        final Future<?> future = _delegate.execute(secAndPositionGraph, executionResultQueue, statistics, logModeSource);
         secAndPositionFutures.add(future);
       }
       s_logger.info("Pass number {} has {} different computation targets, and a total of {} nodes",
           new Object[] {passNumber, target2SecurityAndPositionNodes.size(), nodeCount });
-      for (Future<?> secAndPositionFuture : secAndPositionFutures) {
+      for (final Future<?> secAndPositionFuture : secAndPositionFutures) {
         try {
           secAndPositionFuture.get();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           Thread.interrupted();
           throw new RuntimeException("Should not have been interrupted");
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
           throw new RuntimeException("Execution of securities failed", e);
         }
       }
@@ -148,17 +150,17 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     }
     // Execute portfolios and wait for completion
     s_logger.info("Executing {} PORTFOLIO_NODE nodes", portfolioNodes.size());
-    DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
+    final DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
     try {
-      Future<?> future = _delegate.execute(portfolioGraph, executionResultQueue, statistics);
+      final Future<?> future = _delegate.execute(portfolioGraph, executionResultQueue, statistics, logModeSource);
       future.get();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.interrupted();
       throw new RuntimeException("Should not have been interrupted");
-    } catch (ExecutionException e) {
+    } catch (final ExecutionException e) {
       throw new RuntimeException("Execution of positions failed", e);
     }
-    BatchExecutorFuture future = new BatchExecutorFuture(graph);
+    final BatchExecutorFuture future = new BatchExecutorFuture(graph);
     future.run();
     return future;
   }
@@ -167,10 +169,10 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
    * @param node SECURITY or POSITION node
    * @return First pass = 0, second pass = 1, etc.
    */
-  private int determinePassNumber(DependencyNode node) {
+  private int determinePassNumber(final DependencyNode node) {
     if (node.getComputationTarget().getType().isTargetType(ComputationTargetType.SECURITY)) {
       int maxPass = 0;
-      for (DependencyNode input : node.getInputNodes()) {
+      for (final DependencyNode input : node.getInputNodes()) {
         int pass;
         if (input.getComputationTarget().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
           pass = 0;
@@ -193,21 +195,21 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
       }
       return maxPass;
     } else if (node.getComputationTarget().getType().isTargetType(ComputationTargetType.POSITION)) {
-      DependencyNode securityNode = getSecurityNode(node);
+      final DependencyNode securityNode = getSecurityNode(node);
       return determinePassNumber(securityNode);
     } else {
       throw new IllegalArgumentException("Unexpected node type " + node);
     }
   }
 
-  private DependencyNode getSecurityNode(DependencyNode positionNode) {
+  private DependencyNode getSecurityNode(final DependencyNode positionNode) {
     if (positionNode.getComputationTarget().getType().isTargetType(ComputationTargetType.POSITION)) {
       throw new IllegalArgumentException("Please pass in a POSITION node");
     }
     if (positionNode.getInputNodes().size() != 1) {
       throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
     }
-    DependencyNode securityNode = positionNode.getInputNodes().iterator().next();
+    final DependencyNode securityNode = positionNode.getInputNodes().iterator().next();
     if (!securityNode.getComputationTarget().getType().isTargetType(ComputationTargetType.SECURITY)) {
       throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
     }
@@ -216,9 +218,9 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
 
   private class BatchExecutorFuture extends FutureTask<Object> {
 
-    private DependencyGraph _graph;
+    private final DependencyGraph _graph;
 
-    public BatchExecutorFuture(DependencyGraph graph) {
+    public BatchExecutorFuture(final DependencyGraph graph) {
       super(new Runnable() {
         @Override
         public void run() {

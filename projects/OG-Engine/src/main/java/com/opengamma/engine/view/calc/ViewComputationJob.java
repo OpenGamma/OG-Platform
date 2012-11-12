@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -90,6 +91,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
+  private final ExecutorService _calcJobResultExecutor = Executors.newSingleThreadExecutor();
 
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
@@ -317,7 +319,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
             singleComputationCycle.getAllCalculationConfigurationNames(),
             configToComputationTargets,
             configToTerminalOutputs));
-        executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
+        executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
       } catch (final InterruptedException e) {
         // Execution interrupted - don't propagate as failure
         s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
@@ -461,8 +463,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void executeViewCycle(final ViewCycleType cycleType,
                                 final EngineResourceReference<SingleComputationCycle> cycleReference,
-                                final MarketDataSnapshot marketDataSnapshot,
-                                final ExecutorService calcJobResultExecutorService) throws Exception {
+                                final MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -477,7 +478,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
 
     try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot, calcJobResultExecutorService);
+      cycleReference.get().execute(deltaCycle, marketDataSnapshot, _calcJobResultExecutor);
     } catch (final InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
@@ -586,7 +587,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       }
     };
     final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess(), versionCorrection);
     return getCycleManager().manage(cycle);
   }
 

@@ -25,8 +25,8 @@ public class InterestRateFuturesUtils {
    * Adjuster to the third Wednesday of a given month (most used reference date for interest rate futures).
    */
   private static final DateAdjuster THIRD_WED = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  /** 
-   * The IMM Expiry months  
+  /**
+   * The IMM Expiry months
    */
   private static final Set<MonthOfYear> FUTURES_QUARTERS = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
 
@@ -35,7 +35,7 @@ public class InterestRateFuturesUtils {
    * @param date The reference date (as a ZonedDateTime).
    * @return The date in the next quarterly month.
    */
-  public static ZonedDateTime nextQuarter(ZonedDateTime date) {
+  public static ZonedDateTime nextQuarter(final ZonedDateTime date) {
     ZonedDateTime result = date;
     do {
       result = result.plusMonths(1);
@@ -48,12 +48,11 @@ public class InterestRateFuturesUtils {
    * @param date The reference date.
    * @return The next quarterly date.
    */
-  public static ZonedDateTime nextQuarterlyDate(ZonedDateTime date) {
+  public static ZonedDateTime nextQuarterlyDate(final ZonedDateTime date) {
     if (FUTURES_QUARTERS.contains(date.getMonthOfYear()) && date.with(THIRD_WED).isAfter(date)) { // in a quarter
       return date.with(THIRD_WED);
-    } else {
-      return nextQuarter(date).with(THIRD_WED);
     }
+    return nextQuarter(date).with(THIRD_WED);
   }
 
   /**
@@ -62,7 +61,7 @@ public class InterestRateFuturesUtils {
    * @param date The reference date.
    * @return The next quarterly date.
    */
-  public static ZonedDateTime nextQuarterlyDate(final int nthFuture, ZonedDateTime date) {
+  public static ZonedDateTime nextQuarterlyDate(final int nthFuture, final ZonedDateTime date) {
     ArgumentChecker.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     ZonedDateTime result = nextQuarterlyDate(date);
     for (int loopfut = 1; loopfut < nthFuture; loopfut++) {

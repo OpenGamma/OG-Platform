@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
@@ -33,17 +34,18 @@ public interface ViewCalculationResultModel {
    * @param target the target to search for, not null
    * @return the computed values for this configuration, or null if the target does not exist in the view results
    */
-  Map<Pair<String, ValueProperties>, ComputedValue> getValues(ComputationTargetSpecification target);
 
   // TODO: note that getValues should be querying on the target's unique identifier (and any context identifiers) and not the target type as the caller
   // may be passing in a more (or less) descriptive type component that will not be an exact match
 
+  Map<Pair<String, ValueProperties>, ComputedValueResult> getValues(ComputationTargetSpecification target);
+  
   /**
    * Returns all computed values for a given target.
    * 
    * @param target the target to search for, not null
    * @return the computed values for this configuration, or null if the target does not exist in the view results
    */
-  Collection<ComputedValue> getAllValues(ComputationTargetSpecification target);
+  Collection<ComputedValueResult> getAllValues(ComputationTargetSpecification target);
 
 }

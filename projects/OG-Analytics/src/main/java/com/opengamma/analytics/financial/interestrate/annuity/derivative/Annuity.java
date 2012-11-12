@@ -11,17 +11,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * A generic annuity is a set of payments (cash flows) at known future times. All payments have the same currency.
  * There payments can be known in advance, or depend on the future value of some (possibly several) indices, e.g. the Libor.
- * @param <P> The payment type 
+ * @param <P> The payment type
  */
 public class Annuity<P extends Payment> implements InstrumentDerivative {
 
@@ -30,29 +30,28 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   private final P[] _payments;
   /**
-   * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount; 
+   * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount;
    * if all amounts don't have the same sign, the flag may be incorrect.
    */
   private final boolean _isPayer;
 
   public Annuity(final P[] payments) {
-    Validate.noNullElements(payments);
-    Validate.isTrue(payments.length > 0, "Have no payments in annuity");
+    ArgumentChecker.noNulls(payments, "payments");
+    ArgumentChecker.isTrue(payments.length > 0, "Have no payments in annuity");
     final Currency currency0 = payments[0].getCurrency();
     double amount = payments[0].getReferenceAmount();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
-      Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
+      ArgumentChecker.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
       amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount;
     }
     _payments = payments;
     _isPayer = (amount < 0);
   }
 
-  @SuppressWarnings("unchecked")
   public Annuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
-    Validate.noNullElements(payments);
-    Validate.notNull(pType);
-    Validate.isTrue(payments.size() > 0);
+    ArgumentChecker.noNulls(payments, "payments");
+    ArgumentChecker.notNull(pType, "type");
+    ArgumentChecker.isTrue(payments.size() > 0, "Payments size must be greater than zero");
     _payments = payments.toArray((P[]) Array.newInstance(pType, 0));
     _isPayer = isPayer;
   }
@@ -66,7 +65,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
   }
 
   /**
-   * Return the currency of the annuity. 
+   * Return the currency of the annuity.
    * @return The currency.
    */
   public Currency getCurrency() {
@@ -75,7 +74,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
 
   /**
    * Check if the payments of an annuity is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
-   * @return  True if IborCoupon or FixedCoupon 
+   * @return  True if IborCoupon or FixedCoupon
    */
   public boolean isIborOrFixed() {
     boolean result = true;

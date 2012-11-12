@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.test;
@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
@@ -26,6 +27,7 @@ import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 public class TestCalculationNode extends SimpleCalculationNode {
 
@@ -43,6 +45,10 @@ public class TestCalculationNode extends SimpleCalculationNode {
   }
 
   public TestCalculationNode() {
+    this(new ThreadLocalLogEventListener());
+  }
+
+  public TestCalculationNode(final ThreadLocalLogEventListener logEventListener) {
     super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new ViewProcessorQuerySender(
         new FudgeRequestSender() {
 
@@ -52,10 +58,11 @@ public class TestCalculationNode extends SimpleCalculationNode {
           }
 
           @Override
-          public void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver) {
+          public void sendRequest(final FudgeMsg request, final FudgeMessageReceiver responseReceiver) {
             // No-op
           }
 
-        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
+        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(logEventListener));
   }
+
 }

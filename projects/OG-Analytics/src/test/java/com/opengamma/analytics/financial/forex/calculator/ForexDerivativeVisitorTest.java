@@ -10,6 +10,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -827,6 +836,95 @@ public class ForexDerivativeVisitorTest {
       return null;
     }
 
+    @Override
+    public String visitMetalForward(MetalForward future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalForward(MetalForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFuture(MetalFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFuture(MetalFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOption(MetalFutureOption future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOption(MetalFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForward(AgricultureForward future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForward(AgricultureForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFuture(AgricultureFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFuture(AgricultureFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOption(AgricultureFutureOption future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOption(AgricultureFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForward(EnergyForward future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForward(EnergyForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFuture(EnergyFuture future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFuture(EnergyFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOption(EnergyFutureOption future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOption(EnergyFutureOption future) {
+      return null;
+    }
 
   }
 

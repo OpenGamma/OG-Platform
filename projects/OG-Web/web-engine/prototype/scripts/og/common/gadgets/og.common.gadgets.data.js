@@ -16,13 +16,14 @@ $.register_module({
                 gadget.dataman = new og.analytics
                     .Cell({source: config.source, col: config.col, row: config.row, format: 'EXPANDED'}, 'data')
                     .on('data', function (data) {
-                        data = data.v || data;
-                        if (data && typeof data === 'object') {
+                        var error = data.error, data = data.v || data;
+                        if (!error && data && typeof data === 'object') {
                             if (!instantiated)
                                 $data_grid = (instantiated = true) && $(config.selector).ogdata({data: data});
                             else gadget.update({data: data});
                         } else {
                             if (!instantiated) $(config.selector).html('loading...');
+                            if (error) $(config.selector).html('Error: ' + data);
                             og.dev.warn(module.name + ': bad data, ', data);
                         }
                     });

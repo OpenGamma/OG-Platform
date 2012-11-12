@@ -1,0 +1,9 @@
+.OG-icon.og-icon-speech:after {
+    background-position: -57px -35px;
+    background-color: transparent;
+    height: 10px;
+    width: 10px;
+    z-index: 2;
+    top: 0;
+    position: absolute;
+}

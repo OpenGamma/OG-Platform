@@ -15,7 +15,6 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
@@ -235,10 +234,6 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource equityFunctionConfiguration() {
-    return EquityFunctions.DEFAULT;
-  }
-
   protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
     // TODO:
     return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
@@ -254,7 +249,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), cashFlowFunctionConfiguration(), equityFunctionConfiguration(), irCurveFunctionConfiguration(),
+    return new CombiningRepositoryConfigurationSource(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
         modelFunctionConfiguration(), timeSeriesFunctionConfiguration());
   }
 

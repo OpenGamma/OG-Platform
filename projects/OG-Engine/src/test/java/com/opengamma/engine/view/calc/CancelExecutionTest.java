@@ -1,10 +1,13 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -56,6 +59,8 @@ import com.opengamma.engine.test.MockConfigSource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -64,6 +69,7 @@ import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
+import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
@@ -80,6 +86,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
 
 public class CancelExecutionTest {
@@ -114,28 +121,29 @@ public class CancelExecutionTest {
   private void sleep() {
     try {
       Thread.sleep(SLEEP_TIME);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
     }
   }
 
-  private ComputationResultListener computationCycleResultListener = new ComputationResultListener() {
+  private final ComputationResultListener computationCycleResultListener = new ComputationResultListener() {
     @Override
-    public void resultAvailable(ViewComputationResultModel result) {
+    public void resultAvailable(final ViewComputationResultModel result) {
       //ignore
     }
   };
 
-  private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
+  @SuppressWarnings("unchecked")
+  private Future<?> executeTestJob(final DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
     _functionCount.set(0);
     final MockFunction mockFunction = new MockFunction(ComputationTarget.NULL) {
       @Override
-      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         try {
           Thread.sleep(JOB_FINISH_TIME / (JOB_SIZE * 2));
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           throw new OpenGammaRuntimeException("Function interrupted", e);
         }
         _functionCount.incrementAndGet();
@@ -156,19 +164,19 @@ public class CancelExecutionTest {
     final ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
     final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new SimpleCalculationNode(computationCacheSource, compilationService, executionContext, viewProcessorQuerySender,
-        "node", Executors.newCachedThreadPool(), functionInvocationStatistics)));
+        "node", Executors.newCachedThreadPool(), functionInvocationStatistics, new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()))));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
-    ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
+    final ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
-    MockConfigSource configSource = new MockConfigSource();
+    final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, computationCacheSource,
         jobDispatcher, viewProcessorQueryReceiver, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
-      DependencyNode node = new DependencyNode(ComputationTarget.NULL);
+      final DependencyNode node = new DependencyNode(ComputationTarget.NULL);
       node.setFunction(mockFunction);
       if (previous != null) {
         node.addInputNode(previous);
@@ -178,12 +186,14 @@ public class CancelExecutionTest {
     }
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
-    CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
+    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(),
         new SimplePortfolio("Test Portfolio"), 0);
-    ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMillis(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMillis(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
+    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
-        cycleOptions, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer());
+        cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);
   }
 
   private boolean jobFinished() {
@@ -194,9 +204,9 @@ public class CancelExecutionTest {
    * Allow the job to finish, then call {@link Future#cancel}.
    */
   @Test(dataProvider = "executors")
-  public void testJobFinish(DependencyGraphExecutorFactory<?> factory) throws Exception {
+  public void testJobFinish(final DependencyGraphExecutorFactory<?> factory) throws Exception {
     s_logger.info("testJobFinish");
-    Future<?> job = executeTestJob(factory);
+    final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
       if (jobFinished()) {
@@ -215,9 +225,9 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with interrupt enabled.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithInterrupt(DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithInterrupt(final DependencyGraphExecutorFactory<?> factory) {
     s_logger.info("testJobCancelWithInterrupt");
-    Future<?> job = executeTestJob(factory);
+    final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     job.cancel(true);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
@@ -236,9 +246,9 @@ public class CancelExecutionTest {
    * Call {@link Future#cancel} before the job finishes, with no interrupt.
    */
   @Test(dataProvider = "executors")
-  public void testJobCancelWithoutInterrupt(DependencyGraphExecutorFactory<?> factory) {
+  public void testJobCancelWithoutInterrupt(final DependencyGraphExecutorFactory<?> factory) {
     s_logger.info("testJobCancelWithoutInterrupt");
-    Future<?> job = executeTestJob(factory);
+    final Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     job.cancel(false);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {

@@ -27,7 +27,7 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite)
+  // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite for index credit default swaps)
   // Note that the long/short credit convention is opposite to that for single name CDS's
 
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
@@ -47,8 +47,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // TODO : Add index coupon and index spread fields
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Do we need the flag to adjust the maturity date to an IMM date - standard CDS index positions always mature on an IMM date anyway
-  // TODO : Accrued calculations are going to be quite problematic - will need to sort out
+  // TODO : Accrued calculations could be quite problematic - will need to sort out
   // TODO : Generalise the model so that if the underlying pool has only a single name, the code knows we are modelling the index as a single name CDS
+  // TODO : Include the standard indices which inherit from this super class (include a bespoke index that allows the user to create their own index)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

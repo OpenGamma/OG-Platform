@@ -5,6 +5,15 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -189,7 +198,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   public T visitFixedPayment(final PaymentFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
-  
+
   @Override
   public T visitCDSDerivative(final ISDACDSDerivative cds, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
@@ -294,7 +303,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   public T visitFixedPayment(final PaymentFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
-  
+
   @Override
   public T visitCDSDerivative(final ISDACDSDerivative cds) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
@@ -662,6 +671,98 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
+  }
+
+  //-----     Commodity     -----
+
+  @Override
+  public T visitMetalForward(final MetalForward future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalForward()");
+  }
+
+  @Override
+  public T visitMetalForward(final MetalForward future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalForward()");
+  }
+
+  @Override
+  public T visitMetalFuture(final MetalFuture future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFuture()");
+  }
+
+  @Override
+  public T visitMetalFuture(final MetalFuture future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFuture()");
+  }
+
+  @Override
+  public T visitMetalFutureOption(final MetalFutureOption future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFutureOption()");
+  }
+
+  @Override
+  public T visitMetalFutureOption(final MetalFutureOption future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitMetalFutureOption()");
+  }
+
+  @Override
+  public T visitAgricultureForward(final AgricultureForward future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureForward()");
+  }
+
+  @Override
+  public T visitAgricultureForward(final AgricultureForward future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureForward()");
+  }
+
+  @Override
+  public T visitAgricultureFuture(final AgricultureFuture future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFuture()");
+  }
+
+  @Override
+  public T visitAgricultureFuture(final AgricultureFuture future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFuture()");
+  }
+
+  @Override
+  public T visitAgricultureFutureOption(final AgricultureFutureOption future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFutureOption()");
+  }
+
+  @Override
+  public T visitAgricultureFutureOption(final AgricultureFutureOption future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAgricultureFutureOption()");
+  }
+
+  @Override
+  public T visitEnergyForward(final EnergyForward future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyForward()");
+  }
+
+  @Override
+  public T visitEnergyForward(final EnergyForward future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyForward()");
+  }
+
+  @Override
+  public T visitEnergyFuture(final EnergyFuture future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFuture()");
+  }
+
+  @Override
+  public T visitEnergyFuture(final EnergyFuture future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFuture()");
+  }
+
+  @Override
+  public T visitEnergyFutureOption(final EnergyFutureOption future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFutureOption()");
+  }
+
+  @Override
+  public T visitEnergyFutureOption(final EnergyFutureOption future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEnergyFutureOption()");
   }
 
   //  -----     Deprecated     -----

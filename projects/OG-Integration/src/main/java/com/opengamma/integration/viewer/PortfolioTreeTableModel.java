@@ -22,7 +22,7 @@ import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -159,13 +159,13 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
     }
 
     ViewCalculationResultModel calcResultModel = _resultModel.getCalculationResult(calcConfigName);
-    Map<Pair<String, ValueProperties>, ComputedValue> values = calcResultModel.getValues(targetSpec);
+    Map<Pair<String, ValueProperties>, ComputedValueResult> values = calcResultModel.getValues(targetSpec);
     if (values == null) {
       s_logger.debug("No values available for {}", targetSpec);
       return UNAVAILABLE_VALUE;
     }
     // TODO 2011-06-15 -- support value name AND value properties so that the required value can be looked up directly
-    for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> valueEntry : values.entrySet()) {
+    for (Map.Entry<Pair<String, ValueProperties>, ComputedValueResult> valueEntry : values.entrySet()) {
       if (valueEntry.getKey().getFirst().equals(requirementName)) {
         return valueEntry.getValue().toString();
       }

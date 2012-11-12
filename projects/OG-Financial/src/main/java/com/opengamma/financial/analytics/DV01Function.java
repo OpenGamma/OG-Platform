@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.Position;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -28,7 +27,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.sensitivities.SecurityEntryData;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
@@ -44,12 +42,6 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = target.getPosition().getSecurity();
-    return (security != null) && (security.getSecurityType() != SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);
   }
 
   @Override
@@ -85,12 +77,12 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
     ComputedValue scaledValue = null;
     if (value instanceof Double) {
       Double doubleValue = (Double) value;
-      String shiftStr = desiredValue.getConstraint(ValuePropertyNames.SHIFT);
+      final String shiftStr = desiredValue.getConstraint(ValuePropertyNames.SHIFT);
       double shift;
       if (shiftStr != null) {
         try {
           shift = Double.parseDouble(shiftStr);
-        } catch (NumberFormatException nfe) {
+        } catch (final NumberFormatException nfe) {
           s_logger.error("Constraint Shift on DV01 not a value double, defaulting to 1d");
           shift = 1d;
         }

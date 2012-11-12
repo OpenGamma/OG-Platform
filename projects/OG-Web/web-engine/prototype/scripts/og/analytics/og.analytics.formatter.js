@@ -11,6 +11,7 @@ $.register_module({
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
+                if (typeof value === 'string') return value; // TODO remove this
                 var curr, last, indicator = !value || !value.h || !value.h.length ? null
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
                         : curr > last ? 'up' : 'static';
@@ -20,7 +21,8 @@ $.register_module({
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
-                var type = value.t;
+                var type = value && value.t;
+                if (!type) return '';
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             formatter.CURVE = function (value) {

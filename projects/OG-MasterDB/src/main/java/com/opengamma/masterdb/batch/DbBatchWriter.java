@@ -14,7 +14,6 @@ import static com.opengamma.util.functional.Functional.any;
 import static com.opengamma.util.functional.Functional.map;
 import static com.opengamma.util.functional.Functional.newArray;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.Instant;
 
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -69,7 +67,7 @@ import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -870,29 +868,34 @@ public class DbBatchWriter extends AbstractDbMaster {
 
       for (ComputationTargetSpecification targetSpecification : viewCalculationResultModel.getAllTargets()) {
 
-        Collection<ComputedValue> values = viewCalculationResultModel.getAllValues(targetSpecification);
+        Collection<ComputedValueResult> values = viewCalculationResultModel.getAllValues(targetSpecification);
 
-        if (failedTargets.contains(targetSpecification) || any(values, new Function1<ComputedValue, Boolean>() {
+        if (failedTargets.contains(targetSpecification) || any(values, new Function1<ComputedValueResult, Boolean>() {
           @Override
           /**
-           * Predcate checking for failed computation values or values for which there is no converter
+           * Predicate checking for failed computation values or values for which there is no converter
            */
-          public Boolean execute(ComputedValue cv) {
-            if (cv.getInvocationResult() != InvocationResult.SUCCESS) {
-              s_logger.error("The calculation of {} has failed, {}:{} ", newArray(cv.getSpecification(), cv.getInvocationResult(), cv.getExceptionMsg()));
+          public Boolean execute(ComputedValueResult result) {
+            if (result.getInvocationResult() != InvocationResult.SUCCESS) {
+              s_logger.error("The calculation of {} has failed, {}:{} ", newArray(result.getSpecification(), result.getInvocationResult(), result.getExecutionLog().getExceptionMessage()));
               return true;
             } else {
-              Object value = cv.getValue();
+              Object value = result.getValue();
               try {
                 _resultConverterCache.getConverter(value);
               } catch (IllegalArgumentException e) {
-                s_logger.error("Cannot insert value of type " + value.getClass() + " for " + cv.getSpecification(), e);
-                cv.setInvocationResult(InvocationResult.FUNCTION_THREW_EXCEPTION);
-                cv.setExceptionClass("IllegalArgumentException");
-                cv.setExceptionMsg(e.getMessage());
+                s_logger.error("Cannot insert value of type " + value.getClass() + " for " + result.getSpecification(), e);
+                // REVIEW jonathan 2012-11-06 -- this is not part of the calculation result and may be replacing
+                // details of a genuine exception that occurred during execution. There should be another mechanism to
+                // return this information if it is needed.
+                /*
+                result.setInvocationResult(InvocationResult.FUNCTION_THREW_EXCEPTION);
+                result.setExceptionClass("IllegalArgumentException");
+                result.setExceptionMsg(e.getMessage());
                 StringBuilderWriter sbw = new StringBuilderWriter();
                 e.printStackTrace(new PrintWriter(sbw));
-                cv.setStackTrace(sbw.toString());
+                result.setStackTrace(sbw.toString());
+                */
                 return true;
               }
               return false;
@@ -927,7 +930,7 @@ public class DbBatchWriter extends AbstractDbMaster {
             continue;
           }
 
-          for (final ComputedValue computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
+          for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
 
             @SuppressWarnings("unchecked")
             ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
@@ -989,7 +992,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
           Long computationTargetId = _computationTargets.get(compTargetSpec);
 
-          for (ComputedValue computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
+          for (ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
             ValueSpecification specification = computedValue.getSpecification();
 
             Long valueSpecificationId = _riskValueSpecifications.get(specification);
@@ -1259,9 +1262,9 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     ComputeFailureKey computeFailureKey = new ComputeFailureKey(
       item.getComputedValue().getSpecification().getFunctionUniqueId(),
-      item.getComputedValue().getExceptionClass(),
-      item.getComputedValue().getExceptionMsg(),
-      item.getComputedValue().getStackTrace());
+      item.getComputedValue().getExecutionLog().getExceptionClass(),
+      item.getComputedValue().getExecutionLog().getExceptionMessage(),
+      item.getComputedValue().getExecutionLog().getExceptionStackTrace());
     return getComputeFailureFromDb(computeFailureCache, computeFailureKey);
   }
 

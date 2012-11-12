@@ -8,7 +8,7 @@ package com.opengamma.engine.view.client.merging;
 import java.util.Collection;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -36,11 +36,11 @@ public class ViewResultModelMergeUtils {
     for (ComputationTargetSpecification targetSpec : source.getAllTargets()) {
       for (String calcConfigName : source.getCalculationConfigurationNames()) {
         ViewCalculationResultModel resultCalcModel = source.getCalculationResult(calcConfigName);
-        Collection<ComputedValue> resultValues = resultCalcModel.getAllValues(targetSpec);
+        Collection<ComputedValueResult> resultValues = resultCalcModel.getAllValues(targetSpec);
         if (resultValues == null) {
           continue;
         }
-        for (ComputedValue result : resultValues) {
+        for (ComputedValueResult result : resultValues) {
           destination.addValue(calcConfigName, result);
         }
       }

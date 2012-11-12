@@ -17,6 +17,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -176,15 +185,15 @@ public class InstrumentDefinitionVisitorTest {
 
   private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
 
-    @Override
-    public String visit(final InstrumentDefinition<?> definition, final T data) {
-      return definition.accept(this, data);
-    }
-
-    @Override
-    public String visit(final InstrumentDefinition<?> definition) {
-      return definition.accept(this);
-    }
+    //    @Override
+    //    public String visit(final InstrumentDefinition<?> definition, final T data) {
+    //      return definition.accept(this, data);
+    //    }
+    //
+    //    @Override
+    //    public String visit(final InstrumentDefinition<?> definition) {
+    //      return definition.accept(this);
+    //    }
 
     @Override
     public String visitCashDefinition(final CashDefinition cash, final T data) {
@@ -782,12 +791,102 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCDSDefinition(ISDACDSDefinition cds, T data) {
+    public String visitCDSDefinition(final ISDACDSDefinition cds, final T data) {
       return null;
     }
 
     @Override
-    public String visitCDSDefinition(ISDACDSDefinition cds) {
+    public String visitCDSDefinition(final ISDACDSDefinition cds) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalForwardDefinition(final MetalForwardDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalForwardDefinition(final MetalForwardDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureDefinition(final MetalFutureDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureDefinition(final MetalFutureDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForwardDefinition(final AgricultureForwardDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureDefinition(final AgricultureFutureDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForwardDefinition(final EnergyForwardDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForwardDefinition(final EnergyForwardDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureDefinition(final EnergyFutureDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureDefinition(final EnergyFutureDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
       return null;
     }
 

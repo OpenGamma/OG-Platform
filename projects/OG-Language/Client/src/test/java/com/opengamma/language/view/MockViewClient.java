@@ -8,7 +8,11 @@ package com.opengamma.language.view;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
+import java.util.Set;
+
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -197,6 +201,11 @@ import com.opengamma.livedata.UserPrincipal;
   public void setViewCycleAccessSupported(final boolean isViewCycleAccessSupported) {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public void shutdown() {
@@ -213,4 +222,5 @@ import com.opengamma.livedata.UserPrincipal;
   public void waitForCompletion() throws InterruptedException {
     throw new UnsupportedOperationException();
   }
+
 }

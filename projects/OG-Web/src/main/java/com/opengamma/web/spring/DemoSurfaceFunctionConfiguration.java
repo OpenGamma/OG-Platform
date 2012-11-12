@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.ForexCallDelta
 import com.opengamma.financial.analytics.model.volatility.surface.ForexFlatWithTermStructureVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleRiskReversalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.InterpolatedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.VolatilitySurfaceSpecificationFunction;
 import com.opengamma.financial.analytics.volatility.surface.BondFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
@@ -84,8 +85,6 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, InterpolatedVolatilitySurfaceFunction.class.getName());
     configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
         Arrays.asList("FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
-//    configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
-//        Arrays.asList("LinearExtrapolator", "LinearExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
     return new RepositoryConfiguration(configs);
   }
 

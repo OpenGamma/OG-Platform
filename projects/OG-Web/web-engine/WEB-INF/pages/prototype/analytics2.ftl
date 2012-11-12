@@ -9,7 +9,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="og-form"></div>
   </div>
   <div class="ui-layout-center">
-    <div class="OG-layout-analytics-center">main grid</div>
+    <div class="OG-layout-analytics-center"></div>
     <div class="OG-layout-analytics-south">
       <#include "modules/common/og.common.gadget_container.ftl">
     </div>

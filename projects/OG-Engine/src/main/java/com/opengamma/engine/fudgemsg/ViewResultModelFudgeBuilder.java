@@ -21,7 +21,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -90,7 +90,7 @@ public abstract class ViewResultModelFudgeBuilder {
     InMemoryViewResultModel resultModel = constructImpl();
     for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
       for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
-        for (ComputedValue value : configurationEntry.getValue().getAllValues(targetSpec)) {
+        for (ComputedValueResult value : configurationEntry.getValue().getAllValues(targetSpec)) {
           resultModel.addValue(configurationEntry.getKey(), value);
         }
       }

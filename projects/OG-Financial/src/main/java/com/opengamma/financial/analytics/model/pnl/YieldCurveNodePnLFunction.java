@@ -328,8 +328,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final double[] values = curveSensitivities.getValues();
     final Set<FixedIncomeStripWithSecurity> strips = spec.getStrips();
     final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
+    int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      final int index = labelsList.indexOf(strip.getSecurityIdentifier());
+      final int index = stripCount++; //labelsList.indexOf(strip.getSecurityIdentifier());
       if (index < 0) {
         throw new OpenGammaRuntimeException("Could not get index for " + strip);
       }

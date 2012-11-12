@@ -42,7 +42,7 @@ public class ISDAModelTest {
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
 
     final int settlementDays = 0;
-    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
+    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 1.0;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
@@ -75,7 +75,7 @@ public class ISDAModelTest {
     // -----------------------------------------------------------------------------------------------------------
 
     // The valuation date (today)
-    final ZonedDateTime valuationDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime valuationDate = ZonedDateTime.of(2008, 9, 19, 0, 0, 0, 0, TimeZone.UTC);
 
     // The baseline date for calculating hazard rates 
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
@@ -243,7 +243,7 @@ public class ISDAModelTest {
 
     // ----------------------------------------------------------------------------------------------------------
 
-    // The shift to apply to the rates timenodes (if sopt days is non-zero)
+    // The shift to apply to the rates timenodes (if spot days is non-zero)
     final double offset = s_act365.getDayCountFraction(valuationDate, baseDate2);
 
     // Build the yield curve
@@ -257,11 +257,11 @@ public class ISDAModelTest {
     final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
     // Calculate the clean and dirty prices
-    final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
+    //final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
     final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
 
-    System.out.println(valuationDate + "\t" + "Dirty Price = " + dirtyPrice);
-    System.out.println(valuationDate + "\t" + "clean Price = " + cleanPrice);
+    //System.out.println(valuationDate + "\t" + "Dirty Price = " + dirtyPrice);
+    //System.out.println(valuationDate + "\t" + "clean Price = " + cleanPrice);
   }
 
   // -----------------------------------------------------------------------------------------------------------

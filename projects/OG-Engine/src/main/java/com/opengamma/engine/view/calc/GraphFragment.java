@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -109,8 +111,10 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
     for (DependencyNode node : nodes) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputValues());
+      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node.getOutputValues());
+      CalculationJobItem jobItem = new CalculationJobItem(
+          node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
+          node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
       items.add(jobItem);
     }
     context.getExecutor().addJobToViewProcessorQuery(jobSpec, context.getGraph());

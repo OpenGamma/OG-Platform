@@ -46,7 +46,7 @@ $.register_module({
                 type_handler(idx, {post_handler: replay_post_handler(idx, {src:{idx:1}})});
             };
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]), latest = $(latest_s, menu.opts[entry]),
                     idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
                 if (custom) custom.addClass(active_s+ ' ' +date_selected_s);
@@ -57,7 +57,7 @@ $.register_module({
                 else query[idx].date = custom.val();
             };
             var delete_handler = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 if (menu.opts.length === 1 && query.length) return remove_ext_opts(entry), reset_query(entry);
                 var idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos')),
                     sel_pos = menu.opts[entry].data('pos');
@@ -68,7 +68,7 @@ $.register_module({
                 }
             };
             var display_datepicker = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 $(custom_s, menu.opts[entry])
                     .datepicker({onSelect: function() {date_handler(entry);}, dateFormat:'yy-mm-dd'})
                     .datepicker('show');
@@ -86,7 +86,7 @@ $.register_module({
                 } else $query.text(default_sel_txt);
             };
             var enable_extra_options = function (entry, val) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var inputs = $(extra_opts_s, menu.opts[entry]).find('input');
                 if (!inputs) return;
                 if (val) inputs.removeAttr('disabled').filter(latest_s).addClass(active_s);
@@ -137,7 +137,7 @@ $.register_module({
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(menu.opts.length);
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -146,7 +146,7 @@ $.register_module({
                 if (elem.is('button')) return menu.button_handler(elem.text());
             };
             var populate_historical = function (entry, config) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]);
                 if (resolver_keys.length && source_select) {
                     if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
@@ -156,7 +156,7 @@ $.register_module({
                 }
             };
             var populate_livedatasources = function (entry, config) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 og.api.rest.livedatasources.get().pipe(function (resp) {
                     if (resp.error) return;
                     if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
@@ -166,7 +166,7 @@ $.register_module({
                 });
             };
             var populate_marketdatasnapshots = function (entry, config) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                     if (resp.error) return;
                     if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
@@ -177,7 +177,7 @@ $.register_module({
                 });
             };
             var populate_src_options = function (entry, data) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
                 if (!source_select) return;
@@ -190,7 +190,7 @@ $.register_module({
                 source_select.show();
             };
             var remove_date = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]).removeClass(active_s+ ' ' +date_selected_s).val(custom_val),
                     latest = $(latest_s, menu.opts[entry]).addClass(active_s);
                 if (custom.parent().is(versions_s)) delete query[entry].version_date;
@@ -202,12 +202,12 @@ $.register_module({
                 if (~entry) query.splice(entry, 1);
             };
             var remove_ext_opts = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var parent = menu.opts[entry];
                 return reset_source_select(entry), parent.removeClass(parent.data('type')).find(extra_opts_s).remove();
             };
             var remove_orphans = function () {
-                for (var i = menu.opts.length - 1; 0 < i; i-=1){
+                for (var i = menu.opts.length-1; i >= 0; i-=1){
                     if (menu.opts.length === 1) break;
                     var option = menu.opts[i];
                     if ($(type_s, option).val() === default_type_txt || $(source_s, option).val() === default_sel_txt)
@@ -215,18 +215,18 @@ $.register_module({
                 }
             };
             var reset_query = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var type_select = $(type_s, menu.opts[entry]);
                 return $query.text(default_sel_txt), type_select.val(default_sel_txt).focus(), remove_entry();
             };
             var replay_post_handler = function (entry, src) {
-                if (!~entry || !src || !menu.opts[entry]) return;
+                if (!menu.opts[entry] || !src) return;
                 return function () {
                     source_handler(entry, src);
                 };
             };
             var reset_source_select = function (entry) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]).hide(), options = $('option', source_select), i;
                 if (!source_select || !options.length) return;
                 options.each(function(idx){ // IE
@@ -235,7 +235,7 @@ $.register_module({
                 source_select.show();
             };
             var set_type_select = function (entry, d) {
-                if (!~entry || !d || !$.isPlainObject(d) || !menu.opts[entry]) return;
+                if (!menu.opts[entry] || !d || !$.isPlainObject(d)) return;
                 if (!('type' in d) || !d.type || typeof d.type !== 'string') return;
                 var type_select = $(type_s, menu.opts[entry]);
                 switch (d.type) {
@@ -246,7 +246,7 @@ $.register_module({
                 }
             };
             var source_handler = function (entry, preload) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
@@ -273,7 +273,7 @@ $.register_module({
                 // emitEvent; dataselected
             };
             var type_handler = function (entry, conf) {
-                if (!~entry || !menu.opts[entry]) return;
+                if (!menu.opts[entry]) return;
                 var parent = menu.opts[entry], type_select = $(type_s, parent),
                     type_val = type_select.val().toLowerCase(), idx = query.pluck('pos').indexOf(parent.data('pos'));
                 if (type_val === default_type_txt.toLowerCase()){
@@ -330,7 +330,7 @@ $.register_module({
             };
             menu.reset_query = function () {
                 var type_select, source_select;
-                for (var i = menu.opts.length - 1; i >= 0; i-=1) {
+                for (var i = menu.opts.length-1; i >= 0; i-=1) {
                     if (menu.opts.length === 1 && menu.opts[i]) {
                         type_select = $(type_s, menu.opts[i]),
                         source_select = $(source_s, menu.opts[i]);

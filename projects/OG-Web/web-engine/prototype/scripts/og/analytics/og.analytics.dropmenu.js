@@ -28,10 +28,11 @@ $.register_module({
             };
         DropMenu.prototype = og.common.util.ui.DropMenu.prototype;
         DropMenu.prototype.toggle_menu = function (event){
-            this.opts[this.opts.length-1].find('select').first().focus();
+            this.opts[this.opts.length-1].find('select').first().focus(0);
             this.toggle_handler();
         };
         DropMenu.prototype.add_handler = function () {
+            var len, opt;
             return len = this.opts.length, opt = this.$dom.opt_cp.clone(true).data("pos", this.opts.length),
                 this.opts.push(opt), this.$dom.add.focus(), this.opts[len].find('.number span').text(this.opts.length), 
                 this.$dom.menu_actions.before(this.opts[len]);

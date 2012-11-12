@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -30,7 +29,7 @@ public abstract class CouponFloating extends Coupon {
    */
   public CouponFloating(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
-    Validate.isTrue(fixingTime >= 0.0, "fixing time < 0");
+    ArgumentChecker.isTrue(fixingTime >= 0.0, "fixing time < 0");
     _fixingTime = fixingTime;
   }
 

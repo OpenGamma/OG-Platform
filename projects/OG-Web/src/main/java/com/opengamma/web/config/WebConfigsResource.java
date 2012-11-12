@@ -42,10 +42,10 @@ import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.analytics.rest.MasterType;
+import com.opengamma.web.analytics.rest.Subscribe;
+import com.opengamma.web.analytics.rest.SubscribeMaster;
 import com.opengamma.web.json.JSONBuilder;
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

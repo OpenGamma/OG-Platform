@@ -37,7 +37,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from the settlement date and a generator. The legs have different notionals. 
+   * Builder from the settlement date and a generator. The legs have different notionals.
    * The notionals are paid on the settlement date and final payment date of each leg.
    * @param settlementDate The settlement date.
    * @param tenor The swap tenor.
@@ -92,9 +92,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);
   }
@@ -106,9 +104,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);
   }

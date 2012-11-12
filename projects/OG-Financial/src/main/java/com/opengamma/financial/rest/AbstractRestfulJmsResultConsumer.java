@@ -218,6 +218,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
       URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_STOP_JMS_RESULT_STREAM);
       getClient().accessFudge(uri).post();
       closeJms();
+      onEndResultStream();
     } else if (_listenerDemand == 1) {
       String destination = startJms();
       MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
@@ -235,6 +236,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
         closeJms();
         throw e;
       }
+      onStartResultStream();
     }
   }
   

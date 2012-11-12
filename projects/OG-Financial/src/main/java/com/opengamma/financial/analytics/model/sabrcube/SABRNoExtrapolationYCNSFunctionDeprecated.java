@@ -49,8 +49,12 @@ public class SABRNoExtrapolationYCNSFunctionDeprecated extends SABRYCNSFunctionD
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
     if (security instanceof SwapSecurity) {
-      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
-      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+      try {
+        final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
+        if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+          return false;
+        }
+      } catch (final OpenGammaRuntimeException e) {
         return false;
       }
     }

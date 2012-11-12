@@ -56,6 +56,7 @@ public class CalibrateHazardRateCurve {
   // TODO : Add a method to convert the hazard rates to survival probabilities
   // TODO : Currently only implementing piecewise constant hazard rate term structure assumption (market standard approach). Need to add further choices in due course.
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
+  // TODO : There is a problem with the accrued payment when calibrating a term structure - need to fix 
 
   // ------------------------------------------------------------------------
 
@@ -131,7 +132,7 @@ public class CalibrateHazardRateCurve {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m] 
-      calibrationCDS = calibrationCDS.withMaturity(tenors[m]);
+      calibrationCDS = calibrationCDS.withMaturityDate(tenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);

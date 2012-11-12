@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
@@ -105,7 +106,8 @@ public class SingleComputationCycleTest {
     }
     
     @Override
-    public Future<ExecutionResult> execute(DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue, GraphExecutorStatisticsGatherer statistics) {
+    public Future<ExecutionResult> execute(DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue,
+        GraphExecutorStatisticsGatherer statistics, ExecutionLogModeSource logModeSource) {
       FutureTask<ExecutionResult> future = new FutureTask<ExecutionResult>(new Runnable() {
         @Override
         public void run() {

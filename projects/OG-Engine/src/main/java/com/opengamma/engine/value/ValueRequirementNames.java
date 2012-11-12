@@ -129,8 +129,8 @@ public final class ValueRequirementNames {
    * The projected cash-flows of a security or portfolio
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
-  
-  ///// Curves  
+
+  ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
    */
@@ -1211,6 +1211,11 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
+
+  /**
+   * The affine dividends of an index or equity
+   */
+  public static final String AFFINE_DIVIDENDS = "Affine Dividends";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

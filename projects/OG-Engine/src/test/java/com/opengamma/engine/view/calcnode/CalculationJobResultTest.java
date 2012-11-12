@@ -6,8 +6,8 @@
 package com.opengamma.engine.view.calcnode;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
@@ -20,6 +20,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
@@ -38,7 +39,9 @@ public class CalculationJobResultTest {
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     
     CalculationJobResultItem item1 = CalculationJobResultItem.success();
-    CalculationJobResultItem item2 = CalculationJobResultItem.failure(new RuntimeException("failure!"));
+    
+    MutableExecutionLog executionLog = new MutableExecutionLog(ExecutionLogMode.INDICATORS);
+    CalculationJobResultItem item2 = CalculationJobResultItemBuilder.of(executionLog).withException(new RuntimeException("failure!")).toResultItem();
     
     CalculationJobResult result = new CalculationJobResult(spec, 
         500, 
@@ -62,17 +65,15 @@ public class CalculationJobResultTest {
     CalculationJobResultItem outputItem1 = outputJob.getResultItems().get(0);
     assertNotNull(outputItem1);
     assertEquals(InvocationResult.SUCCESS, outputItem1.getResult());
-    assertNull(outputItem1.getExceptionClass());
-    assertNull(outputItem1.getExceptionMsg());
-    assertNull(outputItem1.getStackTrace());
+    assertFalse(outputItem1.getExecutionLog().hasError());
     assertTrue(outputItem1.getMissingInputs().isEmpty());
     
     CalculationJobResultItem outputItem2 = outputJob.getResultItems().get(1);
     assertNotNull(outputItem2);
     assertEquals(InvocationResult.FUNCTION_THREW_EXCEPTION, outputItem2.getResult());
-    assertEquals("java.lang.RuntimeException", outputItem2.getExceptionClass());
-    assertEquals("failure!", outputItem2.getExceptionMsg());
-    assertNotNull(outputItem2.getStackTrace());
+    assertEquals("java.lang.RuntimeException", outputItem2.getExecutionLog().getExceptionClass());
+    assertEquals("failure!", outputItem2.getExecutionLog().getExceptionMessage());
+    assertNotNull(outputItem2.getExecutionLog().getExceptionStackTrace());
     assertTrue(outputItem2.getMissingInputs().isEmpty());
   }
   

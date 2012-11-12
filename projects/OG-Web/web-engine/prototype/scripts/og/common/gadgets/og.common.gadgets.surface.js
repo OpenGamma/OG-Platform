@@ -13,20 +13,22 @@ $.register_module({
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (!live && surface) surface.die(), gadget.dataman.kill();
-                return live;
+                if (live) return true;
+                try {if (surface) surface.die();} catch (error) {}
+                try {gadget.dataman.kill();} catch (error) {}
+                return false;
             };
             gadget.resize = function () {try {surface.resize();} catch (error) {}};
             gadget.dataman = new og.analytics
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'surface')
                 .on('data', function (data) {
                     data = data.v || data;
-                    if (!data.x_values || !data.y_values)
+                    if (!data.xValues || !data.yValues)
                         return !surface && $selector.html('bad data: ' + JSON.stringify(data));
                     surface_options.data = {
                         vol: data.vol,
-                        xs: data.x_values, xs_labels: data.x_labels, xs_label: data.x_title,
-                        zs: data.y_values, zs_labels: data.y_labels, zs_label: data.y_title
+                        xs: data.xValues, xs_labels: data.xLabels, xs_label: data.xTitle,
+                        zs: data.yValues, zs_labels: data.yLabels, zs_label: data.yTitle
                     };
                     if (!surface) surface = new JSurface3D(surface_options);
                     else surface.update('surface', surface_options.data);
