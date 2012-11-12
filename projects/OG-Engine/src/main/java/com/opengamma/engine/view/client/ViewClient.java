@@ -5,7 +5,11 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.Set;
+
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -311,6 +315,24 @@ public interface ViewClient extends UniqueIdentifiable {
    * @return a reference to the view cycle, or null if not found
    */
   EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId);
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Ensures at least a minimum level of logging output is present in the results for the given value specifications.
+   * Changes will take effect from the next computation cycle.
+   * <p>
+   * If another view client connected to the same view process has already changed the level of logging for one or more
+   * results then all view clients will see the maximum level requested.
+   * <p>
+   * Results which are not terminal outputs - that is, results which were not directly requested in the view definition
+   * and are not present in the result model - may be referenced, but these can only be accessed using 
+   * {@link ViewCycle#queryResults(com.opengamma.engine.view.calc.ComputationCycleQuery)}.
+   * 
+   * @param minimumLogMode  the minimum log mode to ensure, not null
+   * @param resultSpecifications  the result specifications affected, not null or empty
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications);
 
   //-------------------------------------------------------------------------
   /**

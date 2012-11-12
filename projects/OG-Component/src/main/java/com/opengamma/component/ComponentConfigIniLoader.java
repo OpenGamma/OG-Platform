@@ -5,13 +5,12 @@
  */
 package com.opengamma.component;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,6 +27,11 @@ import com.opengamma.OpenGammaRuntimeException;
  *  Everything is trimmed as necessary.
  */
 public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
+
+  /**
+   * The pattern to match [group].key
+   */
+  private static final Pattern GROUP_OVERRIDE = Pattern.compile("\\[" + "([^\\]]+)" + "\\]" + "[.]" + "(.+)");
 
   /**
    * Creates an instance.
@@ -63,8 +67,6 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @return the config, not null
    */
   protected ComponentConfig doLoad(Resource resource) {
-    Map<String, String> iniProperties = extractIniProperties();
-    
     List<String> lines = readLines(resource);
     ComponentConfig config = new ComponentConfig();
     String group = null;
@@ -99,7 +101,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         value = resolveProperty(value, lineNum);
         
         // store group property
-        config.add(group, key, value);
+        config.put(group, key, value);
         if (group.equals("global")) {
           getProperties().put(key, value);
         }
@@ -107,26 +109,31 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
     }
     
     // override config with properties prefixed by INI
-    for (Entry<String, String> entry : iniProperties.entrySet()) {
-      String iniGroup = StringUtils.substringBefore(entry.getKey(), ".");
-      String iniKey = StringUtils.substringAfter(entry.getKey(), ".");
-      config.getGroup(iniGroup).put(iniKey, entry.getValue());  // throws exception if iniGroup not found
+    List<String[]> iniProperties = extractIniOverrideProperties();
+    for (String[] array : iniProperties) {
+      config.getGroup(array[0]);  // validate group (but returns a copy of the inner map)
+      config.put(array[0], array[1], array[2]);
+      getLogger().logDebug("  Replacing group property: [" + array[0] + "]." + array[1] + "=" + array[2]);
     }
     return config;
   }
 
   /**
-   * Extracts any properties that start with "INI.".
+   * Extracts any properties that match the group name style "[group].key".
    * <p>
    * These directly override any INI file settings.
    * 
    * @return the extracted set of INI properties, not null
    */
-  private Map<String, String> extractIniProperties() {
-    Map<String, String> extracted = new HashMap<String, String>();
+  private List<String[]> extractIniOverrideProperties() {
+    List<String[]> extracted = new ArrayList<String[]>();
     for (String key : getProperties().keySet()) {
-      if (key.startsWith("INI.") && key.substring(4).contains(".")) {
-        extracted.put(key.substring(4), getProperties().get(key));
+      Matcher matcher = GROUP_OVERRIDE.matcher(key);
+      if (matcher.matches()) {
+        String group = matcher.group(1);
+        String propertyKey = matcher.group(2);
+        String[] array = {group, propertyKey, getProperties().get(key)};
+        extracted.add(array);
       }
     }
     return extracted;

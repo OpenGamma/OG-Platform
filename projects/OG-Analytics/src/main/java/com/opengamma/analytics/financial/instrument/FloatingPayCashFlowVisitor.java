@@ -36,10 +36,6 @@ public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisito
     return INSTANCE;
   }
 
-  private FloatingPayCashFlowVisitor() {
-    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
-  }
-
   /**
    * If the notional is positive (i.e. the amount is to be received) returns
    * an empty map. Otherwise, returns a map containing a single payment date and the notional amount

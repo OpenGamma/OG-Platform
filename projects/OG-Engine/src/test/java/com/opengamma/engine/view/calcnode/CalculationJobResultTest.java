@@ -20,6 +20,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;

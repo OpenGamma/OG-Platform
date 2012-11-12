@@ -74,7 +74,6 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A convenience class that means that classes implementing InstrumentDefinitionVisitor do not have to implement every method.
@@ -82,16 +81,6 @@ import com.opengamma.util.ArgumentChecker;
  * @param <RESULT_TYPE> Type of the result
  */
 public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
-  private final RESULT_TYPE _defaultReturnType;
-
-  public InstrumentDefinitionVisitorAdapter() {
-    _defaultReturnType = null;
-  }
-
-  public InstrumentDefinitionVisitorAdapter(final RESULT_TYPE defaultReturnType) {
-    ArgumentChecker.notNull(defaultReturnType, "default return type");
-    _defaultReturnType = defaultReturnType;
-  }
 
   @Override
   public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final DATA_TYPE data) {
@@ -774,17 +763,11 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
   }
 
   private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
-    if (_defaultReturnType != null) {
-      return _defaultReturnType;
-    }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
         + " with data of type " + data.getClass().getSimpleName());
   }
 
   private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition) {
-    if (_defaultReturnType != null) {
-      return _defaultReturnType;
-    }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
   }
 

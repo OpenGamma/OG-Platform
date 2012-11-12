@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -25,7 +26,10 @@ import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousHandleExecution;
 import com.opengamma.util.log.LogBridge;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
@@ -79,14 +83,56 @@ public class CalculationNodeTest {
     assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
   }
   
-  public void testLogCollection() throws Exception {
+  //-------------------------------------------------------------------------
+  public void testLogIndicators() throws Exception {
     MockFunction mockFunction = getMockLoggingFunction();
-    
     ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
     TestCalculationNode calcNode = new TestCalculationNode(logEventListener); 
     CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
-    CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
+    CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.INDICATORS);
+    CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
     
+    ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
+    assertNotNull(executionLog);
+    assertTrue(executionLog.hasWarn());
+    assertFalse(executionLog.hasError());
+    assertFalse(executionLog.hasInfo());
+    
+    assertNull(executionLog.getEvents());
+    
+    assertNull(executionLog.getExceptionClass());
+    assertNull(executionLog.getExceptionMessage());
+    assertNull(executionLog.getExceptionStackTrace());
+  }
+  
+  public void testLogFull() throws Exception {
+    MockFunction mockFunction = getMockLoggingFunction();
+    ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
+    TestCalculationNode calcNode = new TestCalculationNode(logEventListener); 
+    CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
+    CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.FULL);
+    CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
+    
+    ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
+    assertNotNull(executionLog);
+    assertTrue(executionLog.hasWarn());
+    assertFalse(executionLog.hasError());
+    assertFalse(executionLog.hasInfo());
+    
+    assertNotNull(executionLog.getEvents());
+    assertEquals(1, executionLog.getEvents().size());
+    LogEvent event = Iterables.getOnlyElement(executionLog.getEvents());
+    assertNotNull(event);
+    assertEquals(LogLevel.WARN, event.getLevel());
+    assertEquals("Warning during execution", event.getMessage());
+    
+    assertNull(executionLog.getExceptionClass());
+    assertNull(executionLog.getExceptionMessage());
+    assertNull(executionLog.getExceptionStackTrace());
+  }
+
+  private CalculationJobResultItem getResultWithLogging(MockFunction mockFunction, ThreadLocalLogEventListener logEventListener, TestCalculationNode calcNode, CalculationJob calcJob)
+      throws AsynchronousHandleExecution, AsynchronousExecution {
     LogBridge.getInstance().addListener(logEventListener);
     CalculationJobResult jobResult;
     try {
@@ -101,16 +147,7 @@ public class CalculationNodeTest {
     assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
     ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
     assertEquals("Result", cache.getValue(mockFunction.getResultSpec()));
-    
-    ExecutionLog executionLog = resultItem.getExecutionLog();
-    assertNotNull(executionLog);
-    assertTrue(executionLog.hasWarn());
-    assertFalse(executionLog.hasError());
-    assertFalse(executionLog.hasInfo());
-    
-    assertNull(executionLog.getExceptionClass());
-    assertNull(executionLog.getExceptionMessage());
-    assertNull(executionLog.getExceptionStackTrace());
+    return resultItem;
   }
   
   private MockFunction getMockLoggingFunction() {

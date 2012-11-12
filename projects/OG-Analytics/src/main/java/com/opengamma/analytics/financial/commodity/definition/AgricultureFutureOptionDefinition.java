@@ -22,11 +22,11 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
   /**
    * Constructor for option
    *
-   * @param expiryDate is the time and the day that a particular delivery month of a futures contract stops trading, as well as the final settlement price for that contract.
-   * @param underlying Underlying future
-   * @param strike Strike price
-   * @param exerciseType Exercise type - European or American
-   * @param isCall Call if true, Put if false
+   * @param expiryDate  the time and the day that a particular delivery month of a futures contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  underlying future
+   * @param strike  strike price
+   * @param exerciseType  exercise type - European or American
+   * @param isCall  call if true, put if false
    */
   public AgricultureFutureOptionDefinition(final ZonedDateTime expiryDate, final CommodityFutureDefinition underlying, final double strike,
       final ExerciseDecisionType exerciseType, final boolean isCall) {
@@ -36,6 +36,7 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
   /**
    * Get the derivative at a given fix time from the definition
    * @param date fixing time
+   * @param yieldCurveNames  
    * @return the fixed derivative
    */
   @Override

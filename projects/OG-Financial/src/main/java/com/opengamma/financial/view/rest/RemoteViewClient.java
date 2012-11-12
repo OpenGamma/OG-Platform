@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -381,6 +384,16 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     }
     URI referenceUri = response.getLocation();
     return new RemoteViewCycleReference(referenceUri, _scheduler);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+    SetMinimumLogModeRequest request = new SetMinimumLogModeRequest();
+    request.setMinimumLogMode(minimumLogMode);
+    request.setResultSpecifications(resultSpecifications);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_SET_MINIMUM_LOG_MODE);
+    getClient().accessFudge(uri).post(request);
   }
 
   //-------------------------------------------------------------------------

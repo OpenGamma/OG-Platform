@@ -19,6 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;
 

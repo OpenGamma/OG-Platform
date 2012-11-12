@@ -50,6 +50,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -61,9 +63,7 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.view.calcnode.EmptyExecutionLog;
 import com.opengamma.engine.view.calcnode.ExecutionLog;
-import com.opengamma.engine.view.calcnode.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.engine.view.calcnode.MutableExecutionLog;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -111,6 +111,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
+  private final ExecutionLogModeSource _logModeSource;
   private final VersionCorrection _versionCorrection;
 
   private final ComputationResultListener _cycleFragmentResultListener;
@@ -132,13 +133,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId,
       ComputationResultListener cycleFragmentResultListener, ViewProcessContext viewProcessContext,
       CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions,
-      VersionCorrection versionCorrection) {
+      ExecutionLogModeSource logModeSource, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(cycleFragmentResultListener, "cycleFragmentResultListener");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
+    ArgumentChecker.notNull(logModeSource, "logModeSource");
     ArgumentChecker.isFalse(versionCorrection.containsLatest(), "versionCorrection must be fully-resolved");
     _cycleId = cycleId;
     _viewProcessId = viewProcessId;
@@ -146,6 +148,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _compiledViewDefinition = compiledViewDefinition;
     _cycleFragmentResultListener = cycleFragmentResultListener;
     _executionOptions = executionOptions;
+    _logModeSource = logModeSource;
     _versionCorrection = versionCorrection;
     _resultModel = constructTemplateResultModel();
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
@@ -230,6 +233,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private ViewCycleExecutionOptions getExecutionOptions() {
     return _executionOptions;
+  }
+  
+  private ExecutionLogModeSource getLogModeSource() {
+    return _logModeSource;
   }
 
   //-------------------------------------------------------------------------
@@ -342,7 +349,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         final DependencyGraph depGraph = createExecutableDependencyGraph(calcConfigurationName);
         s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-        final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
+        final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer, getLogModeSource());
         futures.add(future);
       }
 
@@ -419,29 +426,31 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void prepareInputs(MarketDataSnapshot snapshot) {
     Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
-    Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
-    s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
+    Map<ValueRequirement, ValueSpecification> marketDataEntries = getCompiledViewDefinition().getMarketDataRequirements();
+    s_logger.debug("Populating {} market data items using snapshot {}", marketDataEntries.size(), snapshot);
     Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    final Map<ValueRequirement, ComputedValue> marketDataValues = snapshot.query(marketDataRequirements.keySet());
-    for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
-      ComputedValue computedValue = marketDataValues.get(marketDataRequirement.getKey());
+    final Map<ValueRequirement, ComputedValue> marketDataValues = snapshot.query(marketDataEntries.keySet());
+    for (Map.Entry<ValueRequirement, ValueSpecification> marketDataEntry : marketDataEntries.entrySet()) {
+      final ValueRequirement marketDataRequirement = marketDataEntry.getKey();
+      final ValueSpecification marketDataSpec = marketDataEntry.getValue();
+      ComputedValue computedValue = marketDataValues.get(marketDataRequirement);
       ComputedValueResult computedValueResult;
       if (computedValue == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
-        missingMarketData.add(marketDataRequirement.getValue());
-        // TODO jonathan 2012-11-07 -- allow log mode to be upgraded in same way as any other output; message is lost here
-        ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, "Market data missing from snapshot " + getValuationTime()), ExecutionLogMode.INDICATORS);
-        computedValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
+        missingMarketData.add(marketDataSpec);
+        ExecutionLogMode logMode = getLogModeSource().getLogMode(marketDataSpec);
+        ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, "Market data missing from snapshot " + getValuationTime()), logMode);
+        computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
         computedValueResult = new ComputedValueResult(computedValue, executionLog);
       } else {
         computedValueResult = new ComputedValueResult(computedValue, ExecutionLog.EMPTY);
         fragmentResultModel.addMarketData(computedValueResult);
         fullResultModel.addMarketData(computedValueResult);
       }
-      addMarketDataToResults(marketDataRequirement.getValue(), computedValueResult, fragmentResultModel, getResultModel());
-      addToAllCaches(marketDataRequirement.getKey(), computedValue, cacheMarketDataOperation);
+      addMarketDataToResults(marketDataSpec, computedValueResult, fragmentResultModel, getResultModel());
+      addToAllCaches(marketDataRequirement, computedValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this

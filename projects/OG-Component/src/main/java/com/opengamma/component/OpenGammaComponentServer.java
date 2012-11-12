@@ -27,7 +27,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * A {@link OpenGammaComponentServerMonitor monitor} thread will also be started.
  * <p>
  * Two types of config file format are recognized - properties and INI.
- * A properties file must be in the standard Java format and contain a key "component.ini"
+ * A properties file must be in the standard Java format and contain a key "MANAGER.NEXT.FILE"
  * which is the resource location of the main INI file.
  * The INI file is described in {@link ComponentConfigIniLoader}.
  */

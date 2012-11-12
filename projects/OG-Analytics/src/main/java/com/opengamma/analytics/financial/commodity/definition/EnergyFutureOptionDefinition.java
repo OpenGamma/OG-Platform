@@ -35,6 +35,7 @@ public class EnergyFutureOptionDefinition extends CommodityFutureOptionDefinitio
   /**
    * Get the derivative at a given fix time from the definition
    * @param date fixing time
+   * @param yieldCurveNames  
    * @return the fixed derivative
    */
   @Override

@@ -32,6 +32,7 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistRule;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklist;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklistProvider;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistMaintainerProvider;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistMaintainerProviderBean;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistQueryProvider;
