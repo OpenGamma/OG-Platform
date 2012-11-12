@@ -91,7 +91,7 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
-            grid.dataman = new og.analytics.Data(grid.source, false, 'grid')
+            grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
@@ -248,7 +248,7 @@ $.register_module({
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
-                            views: !col_offset && grid.events.viewchange.length ? grid.views : null,
+                            views: !col_offset && !depgraph ? grid.views : null,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
@@ -397,7 +397,7 @@ $.register_module({
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return typeof cell === 'undefined' ? null : {
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
-                row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
+                row_name: grid.data[data_index - col_index].v, col_name: meta.columns.headers[col]
             };
         };
         constructor.prototype.new_menu = function(frozen) {

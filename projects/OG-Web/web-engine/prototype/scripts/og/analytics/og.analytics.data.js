@@ -10,13 +10,14 @@ $.register_module({
         $(window).on('unload', function () {
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
-        var constructor = function (config, bypass_types, label) {
+        var constructor = function (source, config, label) {
             var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
                 viewport = null, view_id, graph_id, viewport_id, viewport_cache, prefix,
                 viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
-                grid_type = null, depgraph = !!config.depgraph, loading_viewport_id = false,
-                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
-            label = label ? label + '-' : '';
+                grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'},
+                autoconnect = typeof config.autoconnect !== 'undefined' ? config.autoconnect : true,
+                label = config.label ? config.label + '-' : '';
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta, handler = function (result) {
                     if (!result || result.error) // do not kill connection even if there is an error, just warn
@@ -68,8 +69,8 @@ $.register_module({
             })();
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
-                    .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
-                if (depgraph || bypass_types) grid_type = config.type; // don't bother with type_setup
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                if (depgraph || config.bypass) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup().pipe(structure_handler);
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
@@ -99,7 +100,7 @@ $.register_module({
                         if (graph_id) return api.grid.depgraphs.structure
                             .get({view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: initialize});
                         return api.grid.depgraphs.put({
-                            view_id: view_id, grid_type: grid_type, row: config.row, col: config.col
+                            view_id: view_id, grid_type: grid_type, row: source.row, col: source.col
                         }).pipe(function (result) {
                             if (result.error) return fire('fatal', data.prefix + result.message);
                             return api.grid.depgraphs.structure.get({
@@ -112,7 +113,7 @@ $.register_module({
             };
             var type_setup = function (update) {
                 var port_request, prim_request, initial = grid_type === null;
-                grid_type = config.type;
+                grid_type = source.type;
                 port_request = api.grid.structure
                     .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
                 if (initial) return /* just register interest and bail*/; else prim_request = api.grid.structure
@@ -123,7 +124,7 @@ $.register_module({
                         primitives = prim_struct.data &&
                             !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
                     if (!grid_type)
-                        grid_type = config.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                        grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
                     fire('types', {portfolio: portfolio, primitives: primitives});
                 });
@@ -143,7 +144,7 @@ $.register_module({
             data.kill = function () {
                 data.disconnect.apply(data, Array.prototype.slice.call(arguments));
                 delete connections[data.id];
-                og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+                if (autoconnect) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
             };
             data.meta = meta = {columns: {}};
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
@@ -170,7 +171,7 @@ $.register_module({
                 return data;
             };
             connections[data.id] = data;
-            og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
+            if (autoconnect) og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
             data.on('fatal', function (message) {data.kill(message);});
             setTimeout(initialize); // allow events to be attached
         };
