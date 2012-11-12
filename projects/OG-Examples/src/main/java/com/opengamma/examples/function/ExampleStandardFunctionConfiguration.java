@@ -244,8 +244,8 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesNonYieldCurveFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.var.NormalPortfolioHistoricalVaRDefaultPropertiesFunction;
@@ -426,11 +426,11 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
     addUnitScalingFunction(functionConfigs, requirementName);
     functionConfigs.add(functionConfiguration(LastHistoricalValueFunction.class, requirementName));
-//    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
-//    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
+    //    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
+    //    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
+    //    functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
+    //    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
+    //    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
   }
 
   protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -723,12 +723,12 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));    
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class, USD, SECONDARY, SECONDARY));
-    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class, USD, SECONDARY, SECONDARY));
+    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
   }
 
   private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1242,7 +1242,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurvePV01Function.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),         
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig",
         "GBP", "DefaultTwoCurveGBPConfig",
         "EUR", "DefaultTwoCurveEURConfig",

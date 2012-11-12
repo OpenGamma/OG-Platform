@@ -1001,8 +1001,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
+    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
   }
 
   private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
