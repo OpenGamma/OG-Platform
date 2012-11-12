@@ -82,6 +82,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private RedisConnector _redisConnector;
   
+  @PropertyDefinition
+  private String _baseDir;
+  
   @PropertyDefinition(validate = "notNull")
   private Scheduler _scheduler;
 
@@ -105,6 +108,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     }
     jobDataAsMap.put("htsMaster", getHtsMaster());
     jobDataAsMap.put("redisConnector", getRedisConnector());
+    if (getBaseDir() != null) {
+      jobDataAsMap.put("baseDir", getBaseDir());
+    }
         
     CronTriggerBean cronTriggerBean = new CronTriggerBean();
     cronTriggerBean.setBeanName(getName());
@@ -177,6 +183,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         return getHtsMaster();
       case -745461486:  // redisConnector
         return getRedisConnector();
+      case -332642308:  // baseDir
+        return getBaseDir();
       case -160710469:  // scheduler
         return getScheduler();
     }
@@ -225,6 +233,9 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
       case -745461486:  // redisConnector
         setRedisConnector((RedisConnector) newValue);
         return;
+      case -332642308:  // baseDir
+        setBaseDir((String) newValue);
+        return;
       case -160710469:  // scheduler
         setScheduler((Scheduler) newValue);
         return;
@@ -267,6 +278,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getGlobalPrefix(), other.getGlobalPrefix()) &&
           JodaBeanUtils.equal(getHtsMaster(), other.getHtsMaster()) &&
           JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           super.equals(obj);
     }
@@ -289,6 +301,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     return hash ^ super.hashCode();
   }
@@ -629,6 +642,31 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the baseDir.
+   * @return the value of the property
+   */
+  public String getBaseDir() {
+    return _baseDir;
+  }
+
+  /**
+   * Sets the baseDir.
+   * @param baseDir  the new value of the property
+   */
+  public void setBaseDir(String baseDir) {
+    this._baseDir = baseDir;
+  }
+
+  /**
+   * Gets the the {@code baseDir} property.
+   * @return the property, not null
+   */
+  public final Property<String> baseDir() {
+    return metaBean().baseDir().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the scheduler.
    * @return the value of the property, not null
    */
@@ -729,6 +767,11 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<RedisConnector> _redisConnector = DirectMetaProperty.ofReadWrite(
         this, "redisConnector", CronTriggerComponentFactory.class, RedisConnector.class);
     /**
+     * The meta-property for the {@code baseDir} property.
+     */
+    private final MetaProperty<String> _baseDir = DirectMetaProperty.ofReadWrite(
+        this, "baseDir", CronTriggerComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code scheduler} property.
      */
     private final MetaProperty<Scheduler> _scheduler = DirectMetaProperty.ofReadWrite(
@@ -751,6 +794,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
         "globalPrefix",
         "htsMaster",
         "redisConnector",
+        "baseDir",
         "scheduler");
 
     /**
@@ -788,6 +832,8 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
           return _htsMaster;
         case -745461486:  // redisConnector
           return _redisConnector;
+        case -332642308:  // baseDir
+          return _baseDir;
         case -160710469:  // scheduler
           return _scheduler;
       }
@@ -912,6 +958,14 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<RedisConnector> redisConnector() {
       return _redisConnector;
+    }
+
+    /**
+     * The meta-property for the {@code baseDir} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> baseDir() {
+      return _baseDir;
     }
 
     /**

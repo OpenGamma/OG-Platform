@@ -17,17 +17,13 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.JobDetailBean;
-import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.util.redis.RedisConnector;
 
 /**
  * Component factory to setup a Redis Hts snapshotter job detail for quartz scheduler
@@ -43,6 +39,9 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   
   @PropertyDefinition(validate = "notNull")
   private String _name;
+  
+  @PropertyDefinition(validate = "notNull")
+  private String _baseDir;
   
   @PropertyDefinition
   private String _group;
@@ -61,6 +60,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
     if (getGroup() != null) {
       jobDetailBean.setGroup(getGroup());
     }    
+    jobDetailBean.getJobDataMap().put("baseDir", getBaseDir());
     jobDetailBean.afterPropertiesSet();
         
     Scheduler scheduler = getScheduler();
@@ -95,6 +95,8 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
         return getClassifier();
       case 3373707:  // name
         return getName();
+      case -332642308:  // baseDir
+        return getBaseDir();
       case 98629247:  // group
         return getGroup();
       case -160710469:  // scheduler
@@ -112,6 +114,9 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
       case 3373707:  // name
         setName((String) newValue);
         return;
+      case -332642308:  // baseDir
+        setBaseDir((String) newValue);
+        return;
       case 98629247:  // group
         setGroup((String) newValue);
         return;
@@ -126,6 +131,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_name, "name");
+    JodaBeanUtils.notNull(_baseDir, "baseDir");
     super.validate();
   }
 
@@ -138,6 +144,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
       RedisHtsSnapshotJobDetailComponentFactory other = (RedisHtsSnapshotJobDetailComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
           JodaBeanUtils.equal(getGroup(), other.getGroup()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           super.equals(obj);
@@ -150,6 +157,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGroup());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     return hash ^ super.hashCode();
@@ -205,6 +213,32 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the baseDir.
+   * @return the value of the property, not null
+   */
+  public String getBaseDir() {
+    return _baseDir;
+  }
+
+  /**
+   * Sets the baseDir.
+   * @param baseDir  the new value of the property, not null
+   */
+  public void setBaseDir(String baseDir) {
+    JodaBeanUtils.notNull(baseDir, "baseDir");
+    this._baseDir = baseDir;
+  }
+
+  /**
+   * Gets the the {@code baseDir} property.
+   * @return the property, not null
+   */
+  public final Property<String> baseDir() {
+    return metaBean().baseDir().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -278,6 +312,11 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", RedisHtsSnapshotJobDetailComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code baseDir} property.
+     */
+    private final MetaProperty<String> _baseDir = DirectMetaProperty.ofReadWrite(
+        this, "baseDir", RedisHtsSnapshotJobDetailComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code group} property.
      */
     private final MetaProperty<String> _group = DirectMetaProperty.ofReadWrite(
@@ -294,6 +333,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "name",
+        "baseDir",
         "group",
         "scheduler");
 
@@ -310,6 +350,8 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
           return _classifier;
         case 3373707:  // name
           return _name;
+        case -332642308:  // baseDir
+          return _baseDir;
         case 98629247:  // group
           return _group;
         case -160710469:  // scheduler
@@ -348,6 +390,14 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code baseDir} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> baseDir() {
+      return _baseDir;
     }
 
     /**
