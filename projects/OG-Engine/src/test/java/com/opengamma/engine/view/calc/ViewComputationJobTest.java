@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.calc;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Collection;
 import java.util.EnumSet;

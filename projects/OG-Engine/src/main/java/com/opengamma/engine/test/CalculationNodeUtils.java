@@ -52,12 +52,15 @@ public class CalculationNodeUtils {
   }
 
   public static CalculationJob getCalculationJob(MockFunction function) {
-
+    return getCalculationJob(function, ExecutionLogMode.INDICATORS);
+  }
+  
+  public static CalculationJob getCalculationJob(MockFunction function, ExecutionLogMode logMode) {
     Instant valuationTime = Instant.now();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), CALC_CONF_NAME, valuationTime, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
-        function.getResultSpecs(), ExecutionLogMode.INDICATORS);
+        function.getResultSpecs(), logMode);
     CalculationJob calcJob = new CalculationJob(jobSpec, 0L, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;
   }
