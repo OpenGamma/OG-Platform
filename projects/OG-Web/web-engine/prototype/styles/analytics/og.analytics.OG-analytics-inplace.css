@@ -38,3 +38,8 @@
 .OG-analytics-inplace .OG-gadget-tabs ul:before {
     height: 0;
 }
+
+/* Remove left shadow on tabs to coincide with rest of inplace gadget */
+.OG-analytics-inplace .OG-gadget-tabs li.og-active:before {
+    background-size: 0 100%, 6px 100%;
+}
