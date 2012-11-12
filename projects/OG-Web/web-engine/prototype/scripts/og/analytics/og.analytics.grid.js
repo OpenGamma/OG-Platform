@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, cellmenu, counter = 1, row_height = 21, title_height = 31, set_height = 24,
+        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24,
             templates = null, default_col_width = 175, scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -107,7 +107,7 @@ $.register_module({
                 });
         };
         var init_elements = function () {
-            var grid = this, config = grid.config, elements, cellmenu, in_timeout, out_timeout, stall = 15,
+            var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for hover events;
             var hoverin_handler = function (event) {
                 (page_x = event.pageX), (page_y = event.pageY);
@@ -171,7 +171,6 @@ $.register_module({
                             grid.fire('scrollstart'), started = 'fixed';
                         if (started !== 'fixed') return clearTimeout(timeout);
                         grid.busy(true);
-                        if (cellmenu) cellmenu.hide();
                         elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
                     };
@@ -182,7 +181,6 @@ $.register_module({
                             grid.fire('scrollstart'), started = 'scroll';
                         if (started !== 'scroll') return clearTimeout(timeout);
                         grid.busy(true);
-                        if (cellmenu) cellmenu.hide();
                         elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
                         elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
@@ -197,7 +195,7 @@ $.register_module({
                     grid.fire('rangeselect', selection);
                 grid.fire('select', selection); // fire for single and multiple selections
             });
-            if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
+            if (config.cellmenu) try {new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
@@ -399,9 +397,6 @@ $.register_module({
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
                 row_name: grid.data[data_index - col_index].v, col_name: meta.columns.headers[col]
             };
-        };
-        constructor.prototype.new_menu = function(frozen) {
-            cellmenu = new og.analytics.CellMenu(this);
         };
         constructor.prototype.col_widths = function () {
             var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,

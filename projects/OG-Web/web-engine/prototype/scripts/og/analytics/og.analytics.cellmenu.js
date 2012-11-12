@@ -105,7 +105,7 @@ $.register_module({
                 inner.css({marginTop: -inner.height()});
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width} );
-            cellmenu.grid.new_menu(cellmenu);
+            new constructor(cellmenu.grid);
         };
         constructor.prototype.hide = function () {
            var cellmenu = this;
