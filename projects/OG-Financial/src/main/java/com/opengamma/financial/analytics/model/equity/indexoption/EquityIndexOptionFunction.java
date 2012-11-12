@@ -110,7 +110,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return Collections.singleton(new ComputedValue(spec, results));
   }
 
-  // This is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
+  // buildMarketBundle is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
   protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, final FunctionExecutionContext executionContext,
       final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
@@ -124,8 +124,9 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final double spot = (Double) spotObject;
 
     // b. The Funding Curve
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
+    final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
     if (fundingObject == null) {
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }
@@ -180,23 +181,54 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.SURFACE)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String fundingCurveName = getFundingCurveName(desiredValue);
+    final String curveConfigName = getCurveConfigName(desiredValue);
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
     ValueProperties.Builder builder = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return builder;
+  }
+
+  protected String getFundingCurveName(ValueRequirement desiredValue) {
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE);
+      return null;
+    }
+    final String fundingCurveName = fundingCurves.iterator().next();
+    return fundingCurveName;
+  }
+
+  protected String getCurveConfigName(ValueRequirement desiredValue) {
+    final Set<String> curveConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveConfigNames == null || curveConfigNames.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      return null;
+    }
+    final String curveConfigName = curveConfigNames.iterator().next();
+    return curveConfigName;
+  }
+
+  protected ValueRequirement getDiscountCurveRequirement(String fundingCurveName, String curveCalculationConfigName, Security security) {
+    ValueProperties properties = ValueProperties.builder()
+      .with(ValuePropertyNames.CURVE, fundingCurveName)
+      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+      .get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
   }
 
   @Override
@@ -218,17 +250,23 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       throw new OpenGammaRuntimeException("EquityIndexOptionFunction does not handle this security type: " + security.getSecurityType());
     }
 
-    // Spot Index Requirement
+    // 1. Spot Index Requirement
     final ValueRequirement spotReq = getSpotRequirement(underlyingId);
-    // Funding Curve Requirement
-    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    if (fundingCurves == null || fundingCurves.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+
+    // 2. Funding Curve Requirement
+    // Funding curve
+    final String fundingCurveName = getFundingCurveName(desiredValue);
+    if (fundingCurveName == null) {
       return null;
     }
-    final String fundingCurveName = fundingCurves.iterator().next();
-    final ValueRequirement fundingReq = getDiscountCurveRequirement(security, fundingCurveName);
-    // Volatility Surface Requirement
+    // Curve configuration
+    final String curveConfigName = getCurveConfigName(desiredValue);
+    if (curveConfigName == null) {
+      return null;
+    }
+    final ValueRequirement fundingReq = getDiscountCurveRequirement(fundingCurveName, curveConfigName, security);
+
+    // 3. Volatility Surface Requirement
     // Surface Name
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
@@ -242,12 +280,12 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       return null;
     }
     final String smileInterpolator = interpolators.iterator().next();
-    // TimeSeriesSource, used to get Ticker, the Vol ComputationTarget, from ExternalIdBundle
+    // TODO: REVIEW THIS - TimeSeriesSource, used to get Ticker, the Vol ComputationTarget, from ExternalIdBundle
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), security, volSurfaceName, smileInterpolator, fundingCurveName,
         underlyingId);
 
     // Return the set
-    return Sets.newHashSet(volReq, fundingReq, spotReq);
+    return Sets.newHashSet(spotReq, fundingReq);//volReq,,
   }
 
   protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
@@ -289,11 +327,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
 
   protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
-  }
-
-  protected ValueRequirement getDiscountCurveRequirement(final Security security, final String fundingCurveName) {
-    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
+    // Alternatively, as in EquityFuturesFunction: ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
   }
 
   protected final String getValueRequirementName() {
