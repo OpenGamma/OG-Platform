@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.future;
@@ -20,20 +20,15 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class BondFutureGrossBasisFromCurvesFunction extends BondFutureFromCurvesFunction {
   private static final BondFutureGrossBasisFromCurvesCalculator CALCULATOR = BondFutureGrossBasisFromCurvesCalculator.getInstance();
 
-  public BondFutureGrossBasisFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.GROSS_BASIS, BondFunction.FROM_CURVES_METHOD);
-  }
-
-  public BondFutureGrossBasisFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.GROSS_BASIS, BondFunction.FROM_CURVES_METHOD);
+  public BondFutureGrossBasisFromCurvesFunction() {
+    super(ValueRequirementNames.GROSS_BASIS, BondFunction.FROM_CURVES_METHOD);
   }
 
   @Override

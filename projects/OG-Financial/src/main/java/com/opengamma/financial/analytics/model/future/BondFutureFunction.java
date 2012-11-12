@@ -9,8 +9,7 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.core.holiday.HolidaySource;
@@ -35,16 +34,7 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 * @param <T> The type of data that the calculator needs
 */
 public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiledInvoker {
-  private final String _creditCurveName;
-  private final String _riskFreeCurveName;
   private BondFutureSecurityConverter _visitor;
-
-  public BondFutureFunction(final String creditCurveName, final String riskFreeCurveName) {
-    Validate.notNull(creditCurveName, "credit curve name");
-    Validate.notNull(creditCurveName, "risk-free curve name");
-    _creditCurveName = creditCurveName;
-    _riskFreeCurveName = riskFreeCurveName;
-  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -59,24 +49,20 @@ public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiled
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final BondFutureSecurity security = (BondFutureSecurity) target.getSecurity();
     final BondFutureDefinition definition = (BondFutureDefinition) security.accept(_visitor);
     final Double referencePrice = 0.0; // TODO Futures Refactor
-    final BondFuture bondFuture = definition.toDerivative(date, referencePrice, _creditCurveName, _riskFreeCurveName);
-    return calculate(security, bondFuture, getData(inputs, target), target);
+    final String[] curveNames = getCurveNames(desiredValue);
+    final BondFuture bondFuture = definition.toDerivative(date, referencePrice, curveNames);
+    return calculate(security, bondFuture, getData(desiredValue, inputs, target), target);
   }
 
   protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security, BondFuture bondFuture, T data, ComputationTarget target);
 
-  protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
+  protected abstract T getData(ValueRequirement desiredValue, FunctionInputs inputs, ComputationTarget target);
 
-  protected String getCreditCurveName() {
-    return _creditCurveName;
-  }
-
-  protected String getRiskFreeCurveName() {
-    return _riskFreeCurveName;
-  }
+  protected abstract String[] getCurveNames(ValueRequirement desiredValue);
 
   @Override
   public ComputationTargetType getTargetType() {
