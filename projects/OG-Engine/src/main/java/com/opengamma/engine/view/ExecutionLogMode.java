@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * Enumerates the execution log modes.
  */
+@PublicAPI
 public enum ExecutionLogMode {
 
   /**
