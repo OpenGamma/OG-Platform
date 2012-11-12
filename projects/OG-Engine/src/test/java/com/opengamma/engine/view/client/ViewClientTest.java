@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.view.client;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
@@ -60,7 +60,6 @@ import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calcnode.ExecutionLog;
