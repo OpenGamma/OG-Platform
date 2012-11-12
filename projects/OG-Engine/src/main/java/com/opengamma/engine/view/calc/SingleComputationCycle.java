@@ -124,8 +124,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private volatile Instant _endTime;
 
   private final Map<DependencyNode, NodeStateFlag> _nodeStates = new ConcurrentHashMap<DependencyNode, NodeStateFlag>();
+  private final Map<String, DependencyNodeJobExecutionResultCache> _jobResultCachesByCalculationConfiguration = new ConcurrentHashMap<String, DependencyNodeJobExecutionResultCache>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
-  private final Map<ValueSpecification, DependencyNodeJobExecutionResult> _resultMap = new ConcurrentHashMap<ValueSpecification, DependencyNodeJobExecutionResult>();
 
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
@@ -293,13 +293,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   
   @Override
   public ComputationResultsResponse queryResults(ComputationCycleQuery query) {
+    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(query.getCalculationConfigurationName());
+    if (jobExecutionResultCache == null) {
+      return null;
+    }
     ComputationCacheResponse cacheResponse = queryComputationCaches(query);
     Map<ValueSpecification, ComputedValueResult> resultMap = new HashMap<ValueSpecification, ComputedValueResult>();
     for (Pair<ValueSpecification, Object> cacheEntry : cacheResponse.getResults()) {
       ValueSpecification valueSpec = cacheEntry.getFirst();
       Object cachedValue = cacheEntry.getSecond();
       Object value = cachedValue != null ? cachedValue : NotCalculatedSentinel.EVALUATION_ERROR;
-      DependencyNodeJobExecutionResult jobExecutionResult = getResultMetadata(valueSpec);
+      DependencyNodeJobExecutionResult jobExecutionResult = jobExecutionResultCache.get(valueSpec);
       if (jobExecutionResult == null) {
         continue;
       }
@@ -492,6 +496,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       ViewComputationCache cache = getViewProcessContext().getComputationCacheSource()
           .getCache(getUniqueId(), calcConfigurationName);
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
+      _jobResultCachesByCalculationConfiguration.put(calcConfigurationName, new DependencyNodeJobExecutionResultCache());
     }
   }
 
@@ -530,18 +535,27 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle.getState() != ViewCycleState.EXECUTED) {
       throw new IllegalArgumentException("State of previous cycle must be " + ViewCycleState.EXECUTED);
     }
-    InMemoryViewComputationResultModel reusedResultsFragment = constructTemplateResultModel();
+    final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
+    final InMemoryViewComputationResultModel fullResultModel = getResultModel();
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-      ViewComputationCache cache = getComputationCache(calcConfigurationName);
-      ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
-      LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
+      final ViewComputationCache cache = getComputationCache(calcConfigurationName);
+      final ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
+      final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
+      final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(calcConfigurationName);
+      final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
           new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
-      Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
-      Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
+      final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
+      final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
+        final DependencyNodeJobExecutionResult previousExecutionResult = previousJobExecutionResultCache.find(unchangedNode.getOutputValues());
+        if (getLogModeSource().getLogMode(unchangedNode.getOutputValues()) == ExecutionLogMode.FULL
+            && (previousExecutionResult == null || previousExecutionResult.getJobResultItem().getExecutionLog().getEvents() == null)) {
+          // Need to rerun calculation to collect logs, so cannot reuse
+          continue;
+        }
         final NodeStateFlag nodeState = previousCycle.getNodeState(unchangedNode);
         if (nodeState != null) {
           setNodeState(unchangedNode, nodeState);
@@ -561,13 +575,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         ComputationResultsResponse reusableResultsQueryResponse = previousCycle.queryResults(reusableResultsQuery);
         Map<ValueSpecification, ComputedValueResult> resultsToReuse = reusableResultsQueryResponse.getResults();
         Collection<ComputedValue> newValues = new ArrayList<ComputedValue>(resultsToReuse.size());
-        for (ComputedValueResult result : resultsToReuse.values()) {
-          if (depGraph.getTerminalOutputSpecifications().contains(result.getSpecification())) {
-            reusedResultsFragment.addValue(calcConfigurationName, result);
+        for (ComputedValueResult computedValueResult : resultsToReuse.values()) {
+          final ValueSpecification valueSpec = computedValueResult.getSpecification();
+          if (depGraph.getTerminalOutputSpecifications().contains(valueSpec)
+              && getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
+            fragmentResultModel.addValue(calcConfigurationName, computedValueResult);
+            fullResultModel.addValue(calcConfigurationName, computedValueResult);
           }
-          ValueSpecification valueSpec = result.getSpecification();
-          Object previousValue = result.getValue() != null ? result.getValue() : NotCalculatedSentinel.EVALUATION_ERROR;
+          Object previousValue = computedValueResult.getValue() != null ? computedValueResult.getValue() : NotCalculatedSentinel.EVALUATION_ERROR;
           newValues.add(new ComputedValue(valueSpec, previousValue));
+          jobExecutionResultCache.put(valueSpec, previousJobExecutionResultCache.get(valueSpec));
         }
         cache.putSharedValues(newValues);
       }
@@ -575,8 +592,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         cache.putSharedValues(errors);
       }
     }
-    if (!reusedResultsFragment.getAllResults().isEmpty()) {
-      notifyFragmentCompleted(reusedResultsFragment);
+    if (!fragmentResultModel.getAllResults().isEmpty()) {
+      notifyFragmentCompleted(fragmentResultModel);
     }
   }
 
@@ -625,6 +642,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     final String calcConfigurationName = executionResult.getResult().getSpecification().getCalcConfigName();
     final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
     final ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+    final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfigurationName);
     final Iterator<CalculationJobResultItem> itrResultItem = executionResult.getResult().getResultItems().iterator();
     final Iterator<DependencyNode> itrNode = executionResult.getNodes().iterator();
     while (itrResultItem.hasNext()) {
@@ -633,13 +651,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       DependencyNode node = itrNode.next();
       String computeNodeId = executionResult.getResult().getComputeNodeId();
       DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem);
-      processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel);
+      processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel, jobExecutionResultCache);
     }
   }
 
   private void processDependencyNodeResult(DependencyNodeJobExecutionResult jobExecutionResult, DependencyGraph depGraph,
       DependencyNode node, ViewComputationCache computationCache,
-      InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel) {
+      InMemoryViewComputationResultModel fragmentResultModel, InMemoryViewComputationResultModel fullResultModel,
+      DependencyNodeJobExecutionResultCache jobExecutionResultCache) {
     Set<ValueSpecification> specifications = node.getOutputValues();
     Map<ValueSpecification, Set<ValueRequirement>> specToRequirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
     fragmentResultModel.addRequirements(specToRequirements);
@@ -647,7 +666,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
       final ValueSpecification valueSpec = value.getFirst();
       final Object calculatedValue = value.getSecond();
-      storeResultMetadata(valueSpec, jobExecutionResult);
+      jobExecutionResultCache.put(valueSpec, jobExecutionResult);
       if (calculatedValue != null && specToRequirements.containsKey(valueSpec) &&
           getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpec, depGraph)) {
         ComputedValueResult computedValueResult = createComputedValueResult(valueSpec, calculatedValue, jobExecutionResult);
@@ -773,12 +792,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     setNodeState(node, NodeStateFlag.SUPPRESSED);
   }
   
-  private void storeResultMetadata(ValueSpecification valueSpec, DependencyNodeJobExecutionResult jobExecutionResult) {
-    _resultMap.put(valueSpec, jobExecutionResult);
+  private DependencyNodeJobExecutionResultCache getJobExecutionResultCache(String calcConfigName) {
+    return _jobResultCachesByCalculationConfiguration.get(calcConfigName);
   }
   
-  private DependencyNodeJobExecutionResult getResultMetadata(ValueSpecification valueSpec) {
-    return _resultMap.get(valueSpec);
-  }
-
 }

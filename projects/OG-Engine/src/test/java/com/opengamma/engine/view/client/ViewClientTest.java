@@ -553,6 +553,8 @@ public class ViewClientTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(vd, "Default");
     calcConfig.addSpecificRequirement(requirement);
     vd.addViewCalculationConfiguration(calcConfig);
+    vd.setMinFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
+    vd.setMaxFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
     env.setViewDefinition(vd);
     
     env.init();
@@ -627,7 +629,24 @@ public class ViewClientTest {
     
     ExecutionLog log3 = result3Value.getExecutionLog();
     assertNotNull(log3);
-    assertNull(log3.getEvents());
+    // Delta cycle - should reuse the previous result which *does* include logs. 
+    assertNotNull(log3.getEvents());
+    
+    // Force a full cycle - should *not* reuse any previous result, so back to indicators only
+    recalcJob.dirtyViewDefinition();
+    recalcJob.triggerCycle();
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    ViewComputationResultModel result4 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertEquals(0, resultListener.getQueueSize());
+    
+    assertEquals(1, result4.getAllResults().size());
+    ComputedValueResult result4Value = Iterables.getOnlyElement(result4.getAllResults()).getComputedValue();
+    assertEquals("Result", result4Value.getValue());
+    
+    ExecutionLog log4 = result4Value.getExecutionLog();
+    assertNotNull(log4); 
+    assertNull(log4.getEvents());
   }
 
   //-------------------------------------------------------------------------
