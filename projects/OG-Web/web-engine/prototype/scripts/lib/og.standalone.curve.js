@@ -7,8 +7,8 @@
             grid: {
                 borderWidth: 0, color: '#999', minBorderMargin: 0, labelMargin: 4, hoverable: true,
                 markings: [
-                    {xaxis: {from: Number.NEGATIVE_INFINITY, to: Number.POSITIVE_INFINITY}, yaxis: {from: 0, to: 0}},
-                    {xaxis: {from: 0, to: 0}, yaxis: {from: Number.NEGATIVE_INFINITY, to: Number.POSITIVE_INFINITY}}
+                    {xaxis: {from: -Number.MAX_VALUE, to: Number.MAX_VALUE}, yaxis: {from: 0, to: 0}},
+                    {xaxis: {from: 0, to: 0}, yaxis: {from: -Number.MAX_VALUE, to: Number.MAX_VALUE}}
                 ],
                 markingsLineWidth: 1, markingsColor: '#aaa'
             },
