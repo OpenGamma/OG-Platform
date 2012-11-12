@@ -77,9 +77,11 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Delegates functionality to the visitor provided in the constructor
+ * @param <DATA_TYPE> The type of the data
+ * @param <RESULT_TYPE> The type of the results
  */
-class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   private final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
 
   public InstrumentDefinitionVisitorDelegate(final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> delegate) {

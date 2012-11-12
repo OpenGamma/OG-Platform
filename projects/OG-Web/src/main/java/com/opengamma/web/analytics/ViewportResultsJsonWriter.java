@@ -55,24 +55,20 @@ public class ViewportResultsJsonWriter {
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
       DataType columnFormat = _formatter.getDataType(columnType);
-      // if there is history, an error or we need to send type info then we need to send an object, not just the value
-      if (columnFormat == UNKNOWN || history != null || cell.isError()) {
-        Map<String, Object> valueMap = Maps.newHashMap();
-        valueMap.put(VALUE, formattedValue);
-        if (columnFormat == UNKNOWN) {
-          // if the the column type isn't known then send the type with the value
-          valueMap.put(TYPE, _formatter.getDataTypeForValue(cellValue, cellValueSpec).name());
-        }
-        if (history != null) {
-          valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
-        }
-        if (cell.isError()) {
-          valueMap.put(ERROR, true);
-        }
-        results.add(valueMap);
-      } else {
-        results.add(formattedValue);
+      Map<String, Object> valueMap = Maps.newHashMap();
+      valueMap.put(VALUE, formattedValue);
+      if (columnFormat == UNKNOWN) {
+        // if the the column type isn't known then send the type with the value
+        valueMap.put(TYPE, _formatter.getDataTypeForValue(cellValue, cellValueSpec).name());
       }
+      if (history != null) {
+        valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
+      }
+      if (cell.isError()) {
+        valueMap.put(ERROR, true);
+      }
+      // TODO add logging metadata to results
+      results.add(valueMap);
     }
     String duration = _durationFormatter.format(new BigDecimal(viewportResults.getCalculationDuration().toMillisLong()));
     ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(),

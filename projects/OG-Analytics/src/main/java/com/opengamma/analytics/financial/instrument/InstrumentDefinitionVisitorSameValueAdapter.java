@@ -76,7 +76,9 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
- * 
+ * Adapter that returns the same value regardless of the type of the instrument definition.
+ * @param <DATA_TYPE> The type of the data
+ * @param <RESULT_TYPE> The type of the results
  */
 public abstract class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   private final RESULT_TYPE _value;
