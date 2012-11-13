@@ -321,6 +321,9 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       if (gen != null) {
         gen.delete();
       }
+      for (final File file : _dir.listFiles()) {
+        file.delete();
+      }
       _dir.delete();
       _environment = null;
     }
