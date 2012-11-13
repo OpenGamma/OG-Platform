@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -29,15 +28,9 @@ import com.opengamma.util.tuple.Pair;
  * TODO label and quantity columns are hard-coded here and in {@link MainGridViewport}. there has to be a better way
  * TODO quantity is only needed for the portfolio view, this class is effectively portfolio grid structure
  * TODO factor out the view column structure (shared between the 2 grids) and the rows / fixed cols (which differs)
+ * TODO type parameter for Row subclass? or just have a null quantity for primitives rows?
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
-
-  /* package */ static final int LABEL_COLUMN = 0;
-  /* package */ static final int QUANTITY_COLUMN = 1;
-
-  private static final AnalyticsColumnGroup s_fixedColumnGroup =
-      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
-                                                         new AnalyticsColumn("Quantity", "", BigDecimal.class)));
 
   private final List<Row> _rows;
   private final AnalyticsColumnGroups _columnGroups;
@@ -45,8 +38,8 @@ import com.opengamma.util.tuple.Pair;
   private final List<ColumnKey> _columnKeys = Lists.newArrayList();
   /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
   private final Map<ColumnKey, Integer> _colIndexByRequirement;
-  /** Mappings of specification to requirements, keyed by calculation config name. */
-  private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
+
+  // TODO these are shared between portfolio and primitives
   /** Mappings of requirements to specifications. */
   private final Map<ValueRequirementKey, ValueSpecification> _reqsToSpecs;
 
@@ -54,28 +47,29 @@ import com.opengamma.util.tuple.Pair;
     _columnGroups = AnalyticsColumnGroups.empty();
     _rows = Collections.emptyList();
     _colIndexByRequirement = Collections.emptyMap();
-    _specsToReqs = Collections.emptyMap();
     _reqsToSpecs = Collections.emptyMap();
   }
 
   // TODO is there structure in here that could be shared between the portfolio and primitives grids?
   // if so is it expensive enough to worry about sharing?
-  /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
+  /* package */ MainGridStructure(AnalyticsColumnGroup fixedColumns, CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
     // column group for the label and quantity columns which don't come from the calculation results
-    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(s_fixedColumnGroup);
-    _specsToReqs = Maps.newHashMap();
+    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
     _reqsToSpecs = Maps.newHashMap();
-    int colIndex = 2; // col 0 is the node name, col 1 is the quantity
-    _columnKeys.add(null); // there is no key for the row label column, stick null in there to get the indices right
-    _columnKeys.add(null); // as above, but for the quantity column
+    int fixedColCount = fixedColumns.getColumns().size();
+    // insert null keys for fixed columns because they aren't referenced by key
+    for (int i = 0; i < fixedColCount; i++) {
+      _columnKeys.add(null);
+    }
+    // start the column index after the fixed columns
+    int colIndex = fixedColCount;
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
       // store the mappings from outputs to requirements for each calc config
       Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledConfig.getTerminalOutputSpecifications();
-      _specsToReqs.put(configName, terminalOutputs);
       for (Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
         for (ValueRequirement valueRequirement : entry.getValue()) {
           _reqsToSpecs.put(new ValueRequirementKey(valueRequirement, configName), entry.getKey());
@@ -153,12 +147,15 @@ import com.opengamma.util.tuple.Pair;
     return _columnGroups.getColumn(colIndex).getType();
   }
 
+  /* package */ boolean isColumnFixed(int colIndex) {
+    return colIndex < _columnGroups.getGroups().get(0).getColumns().size();
+  }
+
   @Override
   public String toString() {
     return "MainGridStructure [_rows=" + _rows + ", _columnGroups=" + _columnGroups + "]";
   }
 
-  // TODO add quantity for position rows?
   /* package */ static class Row {
 
     private final ComputationTargetSpecification _target;
@@ -185,6 +182,7 @@ import com.opengamma.util.tuple.Pair;
       return _name;
     }
 
+    // TODO this is specific to the portfolio grid
     /* package */ BigDecimal getQuantity() {
       return _quantity;
     }

@@ -65,10 +65,12 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          sendUpdate(formatUpdate(callbackId));
+          String update = formatUpdate(callbackId);
+          sendUpdate(update);
+          s_logger.debug("Sent update to client {}: {}", _clientId, update);
         } catch (JSONException e) {
           // this shouldn't ever happen
-          s_logger.warn("Unable to format URL as JSON: " + callbackId, e);
+          s_logger.warn("Unable to format callback ID as JSON: " + callbackId, e);
         }
       } else {
         _updates.add(callbackId);
@@ -84,16 +86,16 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public void itemsUpdated(Collection<?> callbackIds) {
-    ArgumentChecker.notNull(callbackIds, "urls");
+    ArgumentChecker.notNull(callbackIds, "callbackIds");
     if (callbackIds.isEmpty()) {
       return;
     }
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          String urls = formatUpdate(callbackIds);
-          sendUpdate(urls);
-          s_logger.debug("Sent update to client {}: {}", _clientId, urls);
+          String update = formatUpdate(callbackIds);
+          sendUpdate(update);
+          s_logger.debug("Sent update to client {}: {}", _clientId, update);
         } catch (JSONException e) {
           // this shouldn't ever happen, the updates are all URLs
           s_logger.warn("Unable to format URLs as JSON. URLs: " + callbackIds, e);
