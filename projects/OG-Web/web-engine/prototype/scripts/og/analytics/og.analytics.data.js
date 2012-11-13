@@ -19,10 +19,11 @@ $.register_module({
                 autoconnect = typeof config.autoconnect !== 'undefined' ? config.autoconnect : true,
                 label = config.label ? config.label + '-' : '';
             var data_handler = (function () {
-                var timeout = null, rate = 500, last = +new Date, current, delta, handler = function (result) {
-                    if (!result || result.error) // do not kill connection even if there is an error, just warn
-                        return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
-                    if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
+                var timeout = null, rate = 500, last = +new Date, current, delta;
+                var handler = function (result) {
+                    if (!result || result.error)
+                        return fire('fatal', data.prefix + (result && result.message || 'reset connection'))
+                    if (!result.data) return;
                     if (viewport && viewport.empty !== true && result.data.version === viewport_version)
                         fire('data', result.data.data);
                 };
