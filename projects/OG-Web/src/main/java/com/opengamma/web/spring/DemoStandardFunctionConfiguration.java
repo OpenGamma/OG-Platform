@@ -947,7 +947,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "BBG"));
     functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityForwardCurveDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
+        "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY"));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));
