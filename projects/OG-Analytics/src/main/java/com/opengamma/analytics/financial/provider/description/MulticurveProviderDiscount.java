@@ -179,6 +179,10 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _allCurves.get(name).getUnderlyingCurvesNames();
   }
 
+  public YieldAndDiscountCurve getCurve(String name) {
+    return _allCurves.get(name);
+  }
+
   @Override
   public double getDiscountFactor(final Currency ccy, final Double time) {
     if (_discountingCurves.containsKey(ccy)) {

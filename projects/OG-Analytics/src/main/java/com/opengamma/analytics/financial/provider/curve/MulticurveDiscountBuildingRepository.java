@@ -95,9 +95,9 @@ public class MulticurveDiscountBuildingRepository {
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
-        data);
+                data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
-    //        new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
+    //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<MulticurveProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
@@ -126,9 +126,9 @@ public class MulticurveDiscountBuildingRepository {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
-        data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = 
-    //        new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
+                data);
+    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
+    //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     double[][] matrixTotal = inverseJacobian.getData();
@@ -150,7 +150,6 @@ public class MulticurveDiscountBuildingRepository {
    * @param instruments The instruments used for the block calibration.
    * @param curveGenerators The curve generators (final version). As an array of arrays, representing the units and the curves within the units.
    * @param curveNames The names of the different curves. As an array of arrays, representing the units and the curves within the units.
-   * TODO: Curve names need to be in alphabetical order: to be changed!
    * @param parametersGuess The initial guess for the parameters. As an array of arrays, representing the units and the parameters for one unit (all the curves of the unit concatenated).
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
    * @param discountingMap The discounting curves names map.

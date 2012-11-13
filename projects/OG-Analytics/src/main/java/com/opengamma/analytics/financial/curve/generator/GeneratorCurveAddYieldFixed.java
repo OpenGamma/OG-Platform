@@ -64,7 +64,8 @@ public class GeneratorCurveAddYieldFixed extends GeneratorYDCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
-    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveAddYieldFixed");
+    YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", multicurve, parameters);
+    return new YieldAndDiscountAddZeroFixedCurve(name, _substract, newCurve, _fixedCurve);
   }
 
   @Override

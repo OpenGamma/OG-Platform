@@ -36,7 +36,7 @@ public class ParameterSensitivityMatrixMulticurveCalculator extends AbstractPara
    * @param sensitivity The point sensitivity.
    * @param multicurves The multi-curve provider. Not null.
    * @param curvesSet The set of curves for which the sensitivity will be computed. Not null.
-   * @return The sensitivity (as a Matrix). The order of the sensitivity is by curve as provided by the getAllNames method of the MulticurveProviderInterface.
+   * @return The sensitivity (as a Matrix). The order of the sensitivity is by curve as provided by the curvesSet.
    */
   @Override
   public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final MulticurveProviderInterface multicurves, final Set<String> curvesSet) {
