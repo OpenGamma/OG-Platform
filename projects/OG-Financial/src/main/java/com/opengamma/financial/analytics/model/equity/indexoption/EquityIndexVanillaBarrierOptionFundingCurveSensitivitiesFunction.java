@@ -110,8 +110,9 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // Unpack the curve we're bumping
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(barrierSec, fundingCurveName));
+    final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(fundingCurveName, curveConfigName, barrierSec));
     if (fundingObject == null) {
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }

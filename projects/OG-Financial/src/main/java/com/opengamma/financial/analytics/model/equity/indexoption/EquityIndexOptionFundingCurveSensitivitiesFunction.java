@@ -90,8 +90,9 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
 
     // Unpack the curve we're bumping
     ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
+    final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
     if (fundingObject == null) {
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }
