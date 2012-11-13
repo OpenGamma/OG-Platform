@@ -658,7 +658,7 @@ $.register_module({
                                 method[2] = config.grid_type;
                                 method[4] = config.graph_id;
                                 method.push(config.viewport_id);
-                                return request(method, {data: data, meta: meta}, promise);
+                                return request(method, {data: data, meta: meta});
                             },
                             put: function (config) {
                                 config = config || {};
