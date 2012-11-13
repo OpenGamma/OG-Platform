@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
@@ -34,7 +35,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final ComputationTargetSpecificationResolver.AtVersionCorrection _resolver;
-  private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
+  private final Set<ComputedValue> _values;
   private final Map<String, ComputedValue> _valuesByRequirementName = new HashMap<String, ComputedValue>();
   private final Map<Pair<String, Object>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, Object>, ComputedValue[]>();
   private final Collection<ValueSpecification> _missingValues;
@@ -42,6 +43,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   public FunctionInputsImpl(final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ComputedValue value) {
     _resolver = resolver;
     _missingValues = Collections.emptySet();
+    _values = new HashSet<ComputedValue>();
     addValue(value);
   }
 
@@ -53,7 +55,8 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
       final Collection<ValueSpecification> missingValues) {
     _resolver = resolver;
     _missingValues = missingValues;
-    for (ComputedValue value : values) {
+    _values = Sets.newHashSetWithExpectedSize(values.size());
+    for (final ComputedValue value : values) {
       addValue(value);
     }
   }
@@ -76,7 +79,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
     }
   }
 
-  private void addValue(ComputedValue value) {
+  private void addValue(final ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed Value");
     if (value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
@@ -101,8 +104,8 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   }
 
   @Override
-  public Object getValue(ValueRequirement requirement) {
-    ComputedValue cv = getComputedValue(requirement);
+  public Object getValue(final ValueRequirement requirement) {
+    final ComputedValue cv = getComputedValue(requirement);
     if (cv != null) {
       return cv.getValue();
     }
@@ -110,12 +113,12 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   }
 
   @Override
-  public ComputedValue getComputedValue(ValueRequirement requirement) {
+  public ComputedValue getComputedValue(final ValueRequirement requirement) {
     final Pair<String, Object> key = Pair.of(requirement.getValueName(), targetSpecKey(_resolver.getTargetSpecification(requirement.getTargetReference())));
     final ComputedValue[] values = _valuesByRequirement.get(key);
     if (values != null) {
-      for (ComputedValue value : values) {
-        // Shortcut to check the properties as we already know the name and target match  
+      for (final ComputedValue value : values) {
+        // Shortcut to check the properties as we already know the name and target match
         if (requirement.getConstraints().isSatisfiedBy(value.getSpecification().getProperties())) {
           return value;
         }
@@ -125,13 +128,13 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   }
 
   @Override
-  public Object getValue(String requirementName) {
-    ComputedValue computedValue = getComputedValue(requirementName);
+  public Object getValue(final String requirementName) {
+    final ComputedValue computedValue = getComputedValue(requirementName);
     return computedValue != null ? computedValue.getValue() : null;
   }
-  
+
   @Override
-  public ComputedValue getComputedValue(String requirementName) {
+  public ComputedValue getComputedValue(final String requirementName) {
     return _valuesByRequirementName.get(requirementName);
   }
 
