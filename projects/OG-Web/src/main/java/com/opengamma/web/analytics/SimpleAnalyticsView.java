@@ -55,16 +55,16 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioCallbackId);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesCallbackId);
+    _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
+    _primitivesGrid = PrimitivesAnalyticsGrid.empty(primitivesCallbackId);
   }
 
   @Override
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver);
+    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver);
+    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());

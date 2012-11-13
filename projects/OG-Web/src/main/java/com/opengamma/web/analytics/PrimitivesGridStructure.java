@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -24,8 +25,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 public class PrimitivesGridStructure extends MainGridStructure {
 
+  private static final AnalyticsColumnGroup s_fixedColumnGroup =
+      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class)));
+
   /* package */ PrimitivesGridStructure(CompiledViewDefinition compiledViewDef) {
-    super(compiledViewDef, rows(compiledViewDef));
+    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef));
   }
 
   private PrimitivesGridStructure() {
@@ -58,7 +62,6 @@ public class PrimitivesGridStructure extends MainGridStructure {
         }
       }
     }
-    // TODO is the row name right?
     List<Row> rows = Lists.newArrayList();
     for (ComputationTargetSpecification spec : specs) {
       rows.add(new Row(spec, spec.getIdentifier().toString()));
