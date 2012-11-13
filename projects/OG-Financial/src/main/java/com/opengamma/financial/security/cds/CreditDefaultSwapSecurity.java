@@ -18,7 +18,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -101,6 +101,12 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   private ZonedDateTime _maturityDate;
 
   /**
+   * The stub type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private StubType _stubType;
+
+  /**
    * The coupon frequency.
    */
   @PropertyDefinition(validate = "notNull")
@@ -165,7 +171,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
 
   public CreditDefaultSwapSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
       final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency couponFrequency, final DayCount dayCount,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart) {
@@ -180,6 +186,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     setStartDate(startDate);
     setEffectiveDate(effectiveDate);
     setMaturityDate(maturityDate);
+    setStubType(stubType);
     setCouponFrequency(couponFrequency);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
@@ -233,6 +240,8 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
         return getEffectiveDate();
       case -414641441:  // maturityDate
         return getMaturityDate();
+      case 1873675528:  // stubType
+        return getStubType();
       case 144480214:  // couponFrequency
         return getCouponFrequency();
       case 1905311443:  // dayCount
@@ -290,6 +299,9 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
       case -414641441:  // maturityDate
         setMaturityDate((ZonedDateTime) newValue);
         return;
+      case 1873675528:  // stubType
+        setStubType((StubType) newValue);
+        return;
       case 144480214:  // couponFrequency
         setCouponFrequency((Frequency) newValue);
         return;
@@ -336,6 +348,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_effectiveDate, "effectiveDate");
     JodaBeanUtils.notNull(_maturityDate, "maturityDate");
+    JodaBeanUtils.notNull(_stubType, "stubType");
     JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
@@ -366,6 +379,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
           JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
@@ -394,6 +408,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
@@ -665,6 +680,32 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    */
   public final Property<ZonedDateTime> maturityDate() {
     return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the stub type.
+   * @return the value of the property, not null
+   */
+  public StubType getStubType() {
+    return _stubType;
+  }
+
+  /**
+   * Sets the stub type.
+   * @param stubType  the new value of the property, not null
+   */
+  public void setStubType(StubType stubType) {
+    JodaBeanUtils.notNull(stubType, "stubType");
+    this._stubType = stubType;
+  }
+
+  /**
+   * Gets the the {@code stubType} property.
+   * @return the property, not null
+   */
+  public final Property<StubType> stubType() {
+    return metaBean().stubType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -988,6 +1029,11 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     private final MetaProperty<ZonedDateTime> _maturityDate = DirectMetaProperty.ofReadWrite(
         this, "maturityDate", CreditDefaultSwapSecurity.class, ZonedDateTime.class);
     /**
+     * The meta-property for the {@code stubType} property.
+     */
+    private final MetaProperty<StubType> _stubType = DirectMetaProperty.ofReadWrite(
+        this, "stubType", CreditDefaultSwapSecurity.class, StubType.class);
+    /**
      * The meta-property for the {@code couponFrequency} property.
      */
     private final MetaProperty<Frequency> _couponFrequency = DirectMetaProperty.ofReadWrite(
@@ -1052,6 +1098,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
         "startDate",
         "effectiveDate",
         "maturityDate",
+        "stubType",
         "couponFrequency",
         "dayCount",
         "businessDayConvention",
@@ -1092,6 +1139,8 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
           return _effectiveDate;
         case -414641441:  // maturityDate
           return _maturityDate;
+        case 1873675528:  // stubType
+          return _stubType;
         case 144480214:  // couponFrequency
           return _couponFrequency;
         case 1905311443:  // dayCount
@@ -1210,6 +1259,14 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ZonedDateTime> maturityDate() {
       return _maturityDate;
+    }
+
+    /**
+     * The meta-property for the {@code stubType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<StubType> stubType() {
+      return _stubType;
     }
 
     /**
