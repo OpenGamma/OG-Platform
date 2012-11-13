@@ -30,7 +30,6 @@ $.register_module({
                 og.analytics.url.process(args, function () {
                     form.replay_query(og.analytics.url.last.main);
                 });
-                og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
