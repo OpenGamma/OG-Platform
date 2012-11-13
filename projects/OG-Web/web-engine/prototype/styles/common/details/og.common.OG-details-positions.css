@@ -1,24 +1,24 @@
-.OG-details-positions .OG-table {
+.OG-gadgets-positions .OG-table {
   margin-bottom: 2px;
 }
 
-.OG-details-positions > div {
+.OG-gadgets-positions > div {
   background-color: #ecf5fa;
   padding: 10px;
   min-height: 102px;
   position: relative;
 }
 
-.OG-details-positions .og-securities td {
+.OG-gadgets-positions .og-securities td {
   padding: 4px 0;
 }
 
-.OG-details-positions .og-securities tr td:first-child {
+.OG-gadgets-positions .og-securities tr td:first-child {
   color: #999;
   padding-right: 30px;
 }
 
-.OG-details-positions .og-timeseries-container {
+.OG-gadgets-positions .og-timeseries-container {
   width: 350px;
   min-height: 120px;
   border: 1px solid #d0e4f1;
@@ -28,12 +28,12 @@
   right: 0;
 }
 
-.OG-details-positions .og-timeseries {
+.OG-gadgets-positions .og-timeseries {
   width: 350px;
   height: 120px;
 }
 
-.OG-details-positions .og-timeseries-extra {
+.OG-gadgets-positions .og-timeseries-extra {
   width: 348px;
   position: absolute;
   right: 0;
@@ -43,7 +43,7 @@
   font-size: 10px;
 }
 
-.OG-details-positions .og-timeseries-hover {
+.OG-gadgets-positions .og-timeseries-hover {
   position: absolute;
   top: 0;
   left: 0;
@@ -60,7 +60,7 @@
   display: none;
 }
 
-.OG-details-positions .og-timeseries-hover a {
+.OG-gadgets-positions .og-timeseries-hover a {
   position: relative;
   top: 45%;
 }
