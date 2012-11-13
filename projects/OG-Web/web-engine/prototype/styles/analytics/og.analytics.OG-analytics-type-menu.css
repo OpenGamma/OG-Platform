@@ -16,3 +16,33 @@
 .OG-analytics-typemenu input {
 	margin-bottom: 3px;
 }
+
+.OG-analytics-typemenu {
+    border: 1px solid transparent;
+    text-transform: uppercase;
+    display: inline-block;
+    padding: 0 15px 0 3px;
+    height: 18px;
+    margin: 0 1px 0 0;
+    position: relative;
+    cursor: pointer;
+}
+
+.OG-analytics-typemenu:hover {
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.OG-analytics-typemenu:after{
+    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+    content: '';
+    display: inline-block;
+    background-position: -5px -4px;
+    background-color: transparent;
+    height: 4px;
+    width: 7px;
+    z-index: 6;
+    position: absolute;
+    top: 7px;
+    right: 4px;
+}
