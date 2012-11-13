@@ -12,10 +12,17 @@ $.register_module({
             'Depgraph': 'Dependency Graph',
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
+<<<<<<< HEAD
             'ExpandedPositions': 'Position'
         };
         return mapping = {
             gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions'],
+=======
+            'Histogram' : 'Histogram'
+        };
+        return mapping = {
+            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'Histogram'],
+>>>>>>> added histrogram to mapping
             panel_preference: {
                 'south'      : [0, 2, 4, 3, 1, 5],
                 'dock-north' : [2, 4, 3, 1, 0, 5],
@@ -79,7 +86,8 @@ $.register_module({
                 TENOR                   : [0],
                 TIME_SERIES             : [4, 1],
                 UNKNOWN                 : [0],
-                VECTOR                  : [0, 1]
+                VECTOR                  : [0, 1],
+                HISTOGRAM               : [5, 1]
             }
         };
     }
