@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.schedulegeneration;
 
 import javax.time.calendar.ZonedDateTime;
 

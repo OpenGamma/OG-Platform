@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.credit.schedulegeneration;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;

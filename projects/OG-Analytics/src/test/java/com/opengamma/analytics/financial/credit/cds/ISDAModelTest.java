@@ -42,17 +42,23 @@ public class ISDAModelTest {
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
 
     final int settlementDays = 0;
-    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 1.0;
+
+    final double notional = 10000000;
+    final double spread = 0.01; /* 100bp */
+    final double recoveryRate = 0.40;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
+
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+
     final DayCount dayCount = new ActualThreeSixty();
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+
     final StubType stubType = StubType.SHORT_START;
 
     // Include the accrued coupon (for a default that occurs between coupon dates)
-    final boolean accrualOnDefault = false;
+    final boolean accrualOnDefault = true;
 
     // Pay contingent leg on default or at maturity?
     final boolean payOnDefault = true;
@@ -73,9 +79,6 @@ public class ISDAModelTest {
     final DayCount s_act365 = new ActualThreeSixtyFive();
 
     // -----------------------------------------------------------------------------------------------------------
-
-    // The valuation date (today)
-    final ZonedDateTime valuationDate = ZonedDateTime.of(2008, 9, 19, 0, 0, 0, 0, TimeZone.UTC);
 
     // The baseline date for calculating hazard rates 
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
@@ -156,7 +159,7 @@ public class ISDAModelTest {
     };
 
     // The rates at each timenode ...
-    double[] rates = {
+    double[] interestRates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
@@ -243,25 +246,44 @@ public class ISDAModelTest {
 
     // ----------------------------------------------------------------------------------------------------------
 
+    // The valuation date (today)
+    final ZonedDateTime valuationDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+
+    // ----------------------------------------------------------------------------------------------------------
+
     // The shift to apply to the rates timenodes (if spot days is non-zero)
-    final double offset = s_act365.getDayCountFraction(valuationDate, baseDate2);
+    final double offsetInterestRateCurve = s_act365.getDayCountFraction(valuationDate, baseDate2);
 
-    // Build the yield curve
-    ISDACurve discountCurve = new ISDACurve("IR_CURVE", timeNodesRates, rates, offset);
+    final double offsetHazardRateCurve = 0.0;
 
-    // Build the hazard rate curve (note the zero offset)
-    ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timeNodesHazardRate, hazardRates, 0.0);
+    // Build the yield and hazard rate curves
+    ISDACurve discountCurve = new ISDACurve("IR_CURVE", timeNodesRates, interestRates, offsetInterestRateCurve);
+    ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timeNodesHazardRate, hazardRates, offsetHazardRateCurve);
 
-    // Build the CDS and pricing objects
-    final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor2().toDerivative(valuationDate, "IR_CURVE", "HAZARD_RATE_CURVE");
-    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
+    // ----------------------------------------------------------------------------------------------------------
 
-    // Calculate the clean and dirty prices
-    //final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
-    final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
+    // start at the initial valuation date
+    ZonedDateTime rollingDate = valuationDate.minusDays(1);
 
-    //System.out.println(valuationDate + "\t" + "Dirty Price = " + dirtyPrice);
-    //System.out.println(valuationDate + "\t" + "clean Price = " + cleanPrice);
+    // Specify the end date
+    ZonedDateTime endDate = valuationDate.plusDays(1647);
+
+    while (rollingDate.isBefore(endDate)) {
+
+      // Roll the current valuation date
+      rollingDate = rollingDate.plusDays(1);
+
+      // Build the CDS and pricing objects
+      final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor2().toDerivative(rollingDate, "IR_CURVE", "HAZARD_RATE_CURVE");
+      final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
+
+      // Calculate the clean and dirty prices
+      final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
+      final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
+
+      //System.out.println(rollingDate + "\t" + "Dirty Price = " + "\t" + dirtyPrice);
+      System.out.println(rollingDate + "\t" + "clean Price = " + "\t" + cleanPrice);
+    }
   }
 
   // -----------------------------------------------------------------------------------------------------------

@@ -5,9 +5,13 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
+import javax.time.calendar.ZonedDateTime;
+
 /**
  * 
  */
 public class LegacyForwardStartingCreditDefaultSwapDefinition {
+
+  ZonedDateTime _forwardStartDate;
 
 }

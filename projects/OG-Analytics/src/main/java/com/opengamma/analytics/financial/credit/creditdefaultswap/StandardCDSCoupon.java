@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 /**
  * Enumerate the coupon rates that can be applied to Standard CDS contracts (European and North American)

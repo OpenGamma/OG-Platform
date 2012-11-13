@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;

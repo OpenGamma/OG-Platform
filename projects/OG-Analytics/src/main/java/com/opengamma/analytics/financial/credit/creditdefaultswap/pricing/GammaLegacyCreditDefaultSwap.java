@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
 /**
- * Enumerate the different series for CDS indices
+ * 
  */
-public enum CDSIndexSeries {
+public class GammaLegacyCreditDefaultSwap {
 
 }

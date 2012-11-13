@@ -8,11 +8,10 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CDSIndex;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
-import com.opengamma.analytics.financial.credit.underlyingpool.UnderlyingPool;
+import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -44,10 +43,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   // TODO : Add the hashCode and equals methods
   // TODO : Replace _series, _version with enums
-  // TODO : Add index coupon and index spread fields
+  // TODO : Add the argument checkers to verify the input dates are in the right temporal order
   // TODO : Need to sort out the quoting conventions for the different indices
   // TODO : Do we need the flag to adjust the maturity date to an IMM date - standard CDS index positions always mature on an IMM date anyway
-  // TODO : Accrued calculations could be quite problematic - will need to sort out
   // TODO : Generalise the model so that if the underlying pool has only a single name, the code knows we are modelling the index as a single name CDS
   // TODO : Include the standard indices which inherit from this super class (include a bespoke index that allows the user to create their own index)
 
@@ -119,8 +117,14 @@ public abstract class IndexCreditDefaultSwapDefinition {
   //The trade notional (in the trade currency)
   private final double _notional;
 
-  // The spread to apply to the premium leg
-  private final double _premuiumLegCoupon;
+  // The amount of upfront exchanged (usually on T + 3bd)
+  private final double _upfrontPayment;
+
+  // The fixed index coupon (fixed at the issuance of the index)
+  private final double _indexCoupon;
+
+  // The current market observed index spread (can differ from the fixed coupon)
+  private final double _indexSpread;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -148,7 +152,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
       boolean adjustEffectiveDate,
       boolean adjustMaturityDate,
       double notional,
-      double premiumLegCoupon) {
+      double upfrontPayment,
+      double indexCoupon,
+      double indexSpread) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -179,7 +185,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business dat adjustment convention");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
-    ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
+    ArgumentChecker.notNegative(upfrontPayment, "Upfront payment");
+    ArgumentChecker.notNegative(indexCoupon, "Index coupon");
+    ArgumentChecker.notNegative(indexSpread, "Index spread");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -214,7 +222,9 @@ public abstract class IndexCreditDefaultSwapDefinition {
     _adjustMaturityDate = adjustMaturityDate;
 
     _notional = notional;
-    _premuiumLegCoupon = premiumLegCoupon;
+    _upfrontPayment = upfrontPayment;
+    _indexCoupon = indexCoupon;
+    _indexSpread = indexSpread;
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
@@ -313,8 +323,16 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _notional;
   }
 
-  public double getPremiumLegCoupon() {
-    return _premuiumLegCoupon;
+  public double getUpfrontPayment() {
+    return _upfrontPayment;
+  }
+
+  public double getIndexCoupon() {
+    return _indexCoupon;
+  }
+
+  public double getIndexSpread() {
+    return _indexSpread;
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------

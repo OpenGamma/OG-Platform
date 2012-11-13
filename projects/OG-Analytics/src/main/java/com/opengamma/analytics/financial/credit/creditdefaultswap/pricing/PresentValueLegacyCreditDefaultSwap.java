@@ -53,8 +53,8 @@ public class PresentValueLegacyCreditDefaultSwap {
   // TODO : Should build the cashflow schedules outside of the leg valuation routines to avoid repitition of calculations
   // TODO : Eventually replace the ISDACurve with a YieldCurve object (currently using ISDACurve built by RiskCare as this allows exact comparison with the ISDA model)
   // TODO : Replace the accrued schedule double with a ZonedDateTime object to make it consistent with other calculations
-  // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault, calculateAccruedInterest and methods
-  // TODO : Settlement and stepin discount factors
+  // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault and methods
+  // TODO : Add the calculation for the settlement and stepin discount factors
 
   // -------------------------------------------------------------------------------------------------
 
@@ -151,8 +151,6 @@ public class PresentValueLegacyCreditDefaultSwap {
     // -------------------------------------------------------------
 
     // Local variable definitions
-
-    int counter = 1;
     int startIndex = 0;
     int endIndex = 0;
 
@@ -173,6 +171,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Build the integration schedule for the calculation of the accrued leg 
     double[] accruedLegIntegrationSchedule = accruedSchedule.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, yieldCurve, hazardRateCurve);
 
+    // Calculate the stepin time with the appropriate offset
     double offsetStepinTime = accruedSchedule.calculateCreditDefaultSwapOffsetStepinTime(cds, ACT_365);
 
     // -------------------------------------------------------------
@@ -196,14 +195,12 @@ public class PresentValueLegacyCreditDefaultSwap {
     // -------------------------------------------------------------
 
     // Determine where in the cashflow schedule the valuationDate is
-    while (!valuationDate.isBefore(premiumLegSchedule[counter].minusDays(1))) {
-      counter++;
-    }
+    int startCashflowIndex = getCashflowIndex(cds, premiumLegSchedule, 1, 1);
 
     // -------------------------------------------------------------
 
     // Calculate the value of the remaining premium and accrual payments (due after valuationDate) 
-    for (int i = counter; i < premiumLegSchedule.length; i++) {
+    for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
 
       // Get the beginning and end dates of the current coupon
       ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
@@ -251,9 +248,11 @@ public class PresentValueLegacyCreditDefaultSwap {
 
       // -------------------------------------------------------------
 
-      // Now calculate the accrued leg component if required
+      // Now calculate the accrued leg component if required (need to re-write this code)
 
       if (cds.getIncludeAccruedPremium()) {
+
+        double stepinDiscountFactor = 1.0;
 
         startIndex = endIndex;
 
@@ -261,8 +260,8 @@ public class PresentValueLegacyCreditDefaultSwap {
           ++endIndex;
         }
 
-        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule/*accrualTimeline*/, yieldCurve, hazardRateCurve, startIndex, endIndex,
-            offsetStepinTime, 1.0 /*stepinDiscountFactor*/);
+        presentValueAccruedInterest += valueFeeLegAccrualOnDefault(dcf, accruedLegIntegrationSchedule, yieldCurve, hazardRateCurve, startIndex, endIndex,
+            offsetStepinTime, stepinDiscountFactor);
       }
 
       // -------------------------------------------------------------
@@ -277,7 +276,7 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   //-------------------------------------------------------------------------------------------------
 
-  // Need to re-write this code completely
+  // Need to re-write this code completely!!
   private double valueFeeLegAccrualOnDefault(final double amount, final double[] timeline, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve, final int startIndex,
       final int endIndex, final double stepinTime, final double stepinDiscountFactor) {
 
@@ -339,22 +338,37 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Build the premium leg cashflow schedule from the contract specification
     ZonedDateTime[] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
-    ZonedDateTime stepInDate = cds.getValuationDate().plusDays(1);
+    // Assume the stepin date is the valuation date + 1 day (this is not business day adjusted)
+    ZonedDateTime stepinDate = cds.getValuationDate().plusDays(1);
 
-    int counter = 0;
+    // Determine where in the premium leg cashflow schedule the current valuation date is
+    int startCashflowIndex = getCashflowIndex(cds, premiumLegSchedule, 0, 1);
 
-    // Determine where in the cashflow schedule the valuationDate is
-    while (!cds.getValuationDate().isBefore(premiumLegSchedule[counter].minusDays(1))) {
-      counter++;
-    }
+    // Get the date of the last coupon before the current valuation date
+    ZonedDateTime previousPeriod = premiumLegSchedule[startCashflowIndex - 1];
 
-    ZonedDateTime previousPeriod = premiumLegSchedule[counter - 1];
+    // Compute the amount of time between previousPeriod and stepinDate
+    double dcf = cds.getDayCountFractionConvention().getDayCountFraction(previousPeriod, stepinDate);
 
-    double dcf = cds.getDayCountFractionConvention().getDayCountFraction(previousPeriod, stepInDate);
-
+    // Calculate the accrued interest gained in this period of time
     double accruedInterest = (cds.getParSpread() / 10000.0) * dcf * cds.getNotional();
 
     return accruedInterest;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
+  // Method to determine where in the premium leg cashflow schedule the valuation date is
+  private int getCashflowIndex(LegacyCreditDefaultSwapDefinition cds, ZonedDateTime[] premiumLegSchedule, final int startIndex, final int deltaDays) {
+
+    int counter = startIndex;
+
+    // Determine where in the cashflow schedule the valuationDate is
+    while (!cds.getValuationDate().isBefore(premiumLegSchedule[counter].minusDays(deltaDays))) {
+      counter++;
+    }
+
+    return counter;
   }
 
   // -------------------------------------------------------------------------------------------------
