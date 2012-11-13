@@ -81,7 +81,7 @@ public abstract class TempTarget implements UniqueIdentifiable, Serializable {
     if (o == this) {
       return true;
     }
-    if (o.getClass() != getClass()) {
+    if ((o == null) || (o.getClass() != getClass())) {
       return false;
     }
     return equalsImpl(o);

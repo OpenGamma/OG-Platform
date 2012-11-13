@@ -15,7 +15,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
@@ -33,7 +32,7 @@ public class DataTempTargetRepositoryResource extends DataTempTargetSourceResour
 
   /**
    * Creates the resource, exposing the underlying source over REST.
-   * 
+   *
    * @param underlying the underlying source, not null
    */
   public DataTempTargetRepositoryResource(final TempTargetRepository underlying) {
@@ -56,7 +55,7 @@ public class DataTempTargetRepositoryResource extends DataTempTargetSourceResour
     final FudgeContext context = OpenGammaFudgeContext.getInstance();
     final TempTarget target = new FudgeDeserializer(context).fudgeMsgToObject(TempTarget.class, request);
     final UniqueId uid = getUnderlying().locateOrStore(target);
-    return responseOk(new FudgeMsgEnvelope(new FudgeSerializer(context).objectToFudgeMsg(uid)));
+    return responseOk(new FudgeSerializer(context).objectToFudgeMsg(uid));
   }
 
 }

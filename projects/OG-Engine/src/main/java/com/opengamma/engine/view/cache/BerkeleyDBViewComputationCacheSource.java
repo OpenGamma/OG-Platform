@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -27,7 +27,7 @@ public class BerkeleyDBViewComputationCacheSource extends DefaultViewComputation
     if (!dbDir.exists()) {
       dbDir.mkdirs();
     }
-    EnvironmentConfig envConfig = new EnvironmentConfig();
+    final EnvironmentConfig envConfig = new EnvironmentConfig();
     envConfig.setAllowCreate(true);
     envConfig.setTransactional(transactional);
     return new Environment(dbDir, envConfig);
@@ -35,24 +35,24 @@ public class BerkeleyDBViewComputationCacheSource extends DefaultViewComputation
 
   private static void deleteFile(final File file) {
     if (file.isDirectory()) {
-      for (File subfile : file.listFiles()) {
+      for (final File subfile : file.listFiles()) {
         deleteFile(subfile);
       }
     }
     file.delete();
   }
 
-  public static Environment constructDatabaseEnvironment(File dbDir, boolean transactional) {
+  public static Environment constructDatabaseEnvironment(final File dbDir, final boolean transactional) {
     try {
       return constructDatabaseEnvironmentImpl(dbDir, transactional);
-    } catch (RuntimeException e) {
+    } catch (final RuntimeException e) {
       s_logger.warn("Error creating DB environment, deleting {} and trying again", dbDir);
       deleteFile(dbDir);
       return constructDatabaseEnvironmentImpl(dbDir, transactional);
     }
   }
 
-  public BerkeleyDBViewComputationCacheSource(IdentifierMap identifierMap, Environment dbEnvironment, FudgeContext fudgeContext) {
+  public BerkeleyDBViewComputationCacheSource(final IdentifierMap identifierMap, final Environment dbEnvironment, final FudgeContext fudgeContext) {
     super(identifierMap, fudgeContext, new DefaultFudgeMessageStoreFactory(new BerkeleyDBBinaryDataStoreFactory(
         dbEnvironment), fudgeContext));
   }

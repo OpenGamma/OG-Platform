@@ -14,7 +14,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.temptarget.TempTarget;
@@ -52,13 +51,13 @@ public class DataTempTargetSourceResource extends AbstractDataResource {
 
   @GET
   @Path("target/{uid}")
-  public Response get(@PathParam("uid") final UniqueId uid) {
-    final TempTarget target = getUnderlying().get(uid);
+  public Response get(@PathParam("uid") final String uid) {
+    final TempTarget target = getUnderlying().get(UniqueId.parse(uid));
     if (target == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
-    return responseOk(new FudgeMsgEnvelope(FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(target), target.getClass(), TempTarget.class)));
+    return responseOk(FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(target), target.getClass(), TempTarget.class));
   }
 
 }

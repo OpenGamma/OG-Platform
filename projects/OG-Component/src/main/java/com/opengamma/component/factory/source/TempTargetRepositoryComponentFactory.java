@@ -5,6 +5,7 @@
  */
 package com.opengamma.component.factory.source;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,11 +19,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.io.Files;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.temptarget.InMemoryTempTargetRepository;
+import com.opengamma.financial.temptarget.BerkeleyDBTempTargetRepository;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.financial.temptarget.TempTargetSource;
 import com.opengamma.financial.temptarget.rest.DataTempTargetRepositoryResource;
@@ -68,9 +70,14 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     }
   }
 
+  protected TempTargetRepository createRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final File tmp = Files.createTempDir();
+    return new BerkeleyDBTempTargetRepository(tmp);
+  }
+
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final TempTargetRepository tempTargets = new InMemoryTempTargetRepository();
+    final TempTargetRepository tempTargets = createRepository(repo, configuration);
     registerSource(repo, tempTargets);
     registerRepository(repo, tempTargets);
   }
