@@ -226,10 +226,10 @@ public class RedisLKVFileWriter implements Runnable {
   public File getOutputFile() {
     LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     String dateStr = today.toString(DateTimeFormatters.isoLocalDate());
-    String[] dateTokens = StringUtils.split(dateStr, "-");
-    String year = dateTokens[0];
-    String month = dateTokens[1];
-    String day = dateTokens[2];
+    String[] dateParts = StringUtils.split(dateStr, "-");
+    String year = dateParts[0];
+    String month = dateParts[1];
+    String day = dateParts[2];
     String filename = getObservationTime() + ".dump";
     return FileUtils.getFile(getBaseDir(), year, month, day, filename);
   }
