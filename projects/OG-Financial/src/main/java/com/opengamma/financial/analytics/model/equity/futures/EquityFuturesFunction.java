@@ -63,7 +63,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
-  private final EquityFuturesPricer _pricer;
   private final String _pricingMethodName;
 
   /**
@@ -91,7 +90,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     _pricingMethod = EquityFuturesPricingMethod.valueOf(pricingMethodName);
     _pricingMethodName = pricingMethodName;
-    _pricer = EquityFuturePricerFactory.getMethod(pricingMethodName); // TODO: THIS FACTORY IS HOW ONE TAKES PRICER OUT OF THE CLASS. SEE YCNS
   }
 
   @Override
@@ -170,18 +168,19 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    */
   private double getComputedValue(EquityFuture derivative, SimpleFutureDataBundle bundle, Trade trade) {
     final double value;
+    EquityFuturesPricer pricer = EquityFuturePricerFactory.getMethod(getPricingMethodName());
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
-      value = _pricer.presentValue(derivative, bundle);
+      value = pricer.presentValue(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_DELTA)) {
-      value = _pricer.spotDelta(derivative, bundle);
+      value = pricer.spotDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)) {
-      value = _pricer.ratesDelta(derivative, bundle);
+      value = pricer.ratesDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.PV01)) {
-      value = _pricer.pv01(derivative, bundle);
+      value = pricer.pv01(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.SPOT)) {
-      value = _pricer.spotPrice(derivative, bundle);
+      value = pricer.spotPrice(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.FORWARD)) {
-      value = _pricer.forwardPrice(derivative, bundle);
+      value = pricer.forwardPrice(derivative, bundle);
     } else {
       throw new OpenGammaRuntimeException("_valueRequirementName," + _valueRequirementName + ", unexpected. Should have been recognized in the constructor.");
     }
