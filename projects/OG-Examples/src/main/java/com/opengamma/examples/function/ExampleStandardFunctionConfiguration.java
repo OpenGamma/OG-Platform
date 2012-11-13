@@ -84,8 +84,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrume
 import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
@@ -702,8 +700,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
@@ -719,7 +715,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(functionConfiguration(EquityFuturesYieldCurveNodeSensitivityFunction.class, EquityFuturePricerFactory.MARK_TO_MARKET));
-    functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));

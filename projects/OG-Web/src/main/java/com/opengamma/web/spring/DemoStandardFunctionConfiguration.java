@@ -106,8 +106,6 @@ import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunctio
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFundingCurveSensitivitiesFunction;
@@ -933,10 +931,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "KRW", "DefaultCashCurveKRWConfig", "Cash",
         "BRL", "DefaultCashCurveBRLConfig", "Cash",
         "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityForwardCalculationDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig"));
@@ -977,7 +971,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "KRW", "DefaultCashCurveKRWConfig", "Cash",
         "BRL", "DefaultCashCurveBRLConfig", "Cash",
         "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
@@ -990,7 +983,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaultPropertiesFunction.class, "0.0", "0.001"));
-
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
