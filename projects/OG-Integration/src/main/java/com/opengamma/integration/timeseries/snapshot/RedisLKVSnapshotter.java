@@ -83,6 +83,8 @@ public class RedisLKVSnapshotter {
   }
 
   public Map<ExternalId, Map<String, String>> getLastKnownValues() {
+    s_logger.debug("Reading Redis LKV values for normalizationRuleSetId:{} globalPrefix:{} dataFieldBlackList:{} schemeBlackList:{}", 
+        new Object[] {getNormalizationRuleSetId(), getGlobalPrefix(), _dataFieldBlackList.keySet(), _schemeBlackList.keySet()});
     List<ExternalId> allSecurities = getAllSecurities();
     OperationTimer timer = new OperationTimer(s_logger, "Reading LKV for {} securities", allSecurities.size());
     Map<ExternalId, Map<String, String>> result = getLastKnownValues(allSecurities);
@@ -173,6 +175,7 @@ public class RedisLKVSnapshotter {
       sb.append(getGlobalPrefix());
     }
     sb.append("-<ALL_SCHEMES>");
+    s_logger.debug("AllSchemeKey: {}", sb.toString());
     return sb.toString();
   }
   
@@ -184,6 +187,7 @@ public class RedisLKVSnapshotter {
     sb.append(scheme);
     sb.append("-");
     sb.append("<ALL_IDENTIFIERS>");
+    s_logger.debug("PerSchemeKey: {}", sb.toString());
     return sb.toString();
   }
   
