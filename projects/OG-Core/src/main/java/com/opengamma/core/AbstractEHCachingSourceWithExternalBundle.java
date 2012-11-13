@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
- * 
+ *
  * @param <V> the type returned by the source
  * @param <S> the source
  */
@@ -44,7 +44,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
-   * 
+   *
    * @param underlying the underlying security source, not null
    * @param cacheManager the cache manager, not null
    */
@@ -56,7 +56,9 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   @Override
   public Collection<V> get(final ExternalIdBundle bundle) {
-    return getUnderlying().get(bundle);
+    final Collection<V> result = getUnderlying().get(bundle);
+    cacheItems(result);
+    return result;
   }
 
   @SuppressWarnings("unchecked")
@@ -79,12 +81,12 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
         }
       }
     }
-    Collection<V> result = getUnderlying().get(bundle, versionCorrection);
+    final Collection<V> result = getUnderlying().get(bundle, versionCorrection);
     if (result.isEmpty()) {
       cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
     } else {
-      List<UniqueId> uids = new ArrayList<UniqueId>(result.size());
-      for (V item : result) {
+      final List<UniqueId> uids = new ArrayList<UniqueId>(result.size());
+      for (final V item : result) {
         uids.add(item.getUniqueId());
       }
       Collections.sort(uids);
@@ -96,7 +98,11 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
 
   @Override
   public V getSingle(final ExternalIdBundle bundle) {
-    return getUnderlying().getSingle(bundle);
+    final V result = getUnderlying().getSingle(bundle);
+    if (result != null) {
+      cacheItem(result);
+    }
+    return result;
   }
 
   @SuppressWarnings("unchecked")
@@ -108,11 +114,11 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       return getUnderlying().getSingle(bundle, versionCorrection);
     }
     final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
-    Element e = _eidToUidCache.get(key);
+    final Element e = _eidToUidCache.get(key);
     if (e != null) {
       if (e.getObjectValue() instanceof List) {
         final List<UniqueId> identifiers = (List<UniqueId>) e.getObjectValue();
-        for (UniqueId uid : identifiers) {
+        for (final UniqueId uid : identifiers) {
           final V result = get(uid);
           if (result != null) {
             return result;
@@ -128,13 +134,14 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
     } else {
       cacheIdentifiers(result.getUniqueId(), key);
+      cacheItem(result);
     }
     return result;
   }
 
   protected void cacheIdentifiers(final UniqueId uniqueId, final Pair<ExternalIdBundle, VersionCorrection> key) {
     synchronized (_eidToUidCache) {
-      Element e = _eidToUidCache.get(key);
+      final Element e = _eidToUidCache.get(key);
       if (e == null) {
         _eidToUidCache.put(new Element(key, uniqueId));
       }

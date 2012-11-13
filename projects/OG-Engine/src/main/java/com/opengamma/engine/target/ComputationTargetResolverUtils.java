@@ -33,7 +33,7 @@ public class ComputationTargetResolverUtils {
 
     @Override
     public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final UniqueIdentifiable resolved) {
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         final ComputationTargetType newType = type.accept(this, resolved);
         if (newType == ComputationTargetType.NULL) {
           // Use the original type
@@ -160,7 +160,6 @@ public class ComputationTargetResolverUtils {
     return simplifyType(reference, reference.getType(), resolver.simplifyType(reference.getType()));
   }
 
-  @SuppressWarnings("unchecked")
   public static <T extends ComputationTargetReference> T simplifyType(final T reference, final ComputationTargetResolver.AtVersionCorrection resolver) {
     return simplifyType(reference, reference.getType(), resolver.simplifyType(reference.getType()));
   }

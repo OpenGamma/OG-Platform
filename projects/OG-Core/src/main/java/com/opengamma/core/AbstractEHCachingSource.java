@@ -41,7 +41,7 @@ import com.opengamma.util.map.WeakValueHashMap2;
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
- * 
+ *
  * @param <V> the type returned by the source
  * @param <S> the source
  */
@@ -111,7 +111,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     _changeManager = new BasicChangeManager();
     _changeListener = new ChangeListener() {
       @Override
-      public void entityChanged(ChangeEvent event) {
+      public void entityChanged(final ChangeEvent event) {
         final ObjectId oid = event.getObjectId();
         final Instant versionFrom = event.getVersionFrom();
         final Instant versionTo = event.getVersionTo();
@@ -143,13 +143,13 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
 
   @SuppressWarnings("unchecked")
   @Override
-  public V get(UniqueId uid) {
+  public V get(final UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     V result = _frontCacheByUID.get(uid);
     if (result != null) {
       return result;
     }
-    Element e = _uidCache.get(uid);
+    final Element e = _uidCache.get(uid);
     if (e != null) {
       result = (V) e.getValue();
       s_logger.debug("retrieved object: {} from uid-cache", result);
@@ -239,13 +239,13 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   }
 
   @Override
-  public Map<UniqueId, V> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, V> result = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
+  public Map<UniqueId, V> get(final Collection<UniqueId> uniqueIds) {
+    final Map<UniqueId, V> result = newHashMap();
+    for (final UniqueId uniqueId : uniqueIds) {
       try {
-        V object = get(uniqueId);
+        final V object = get(uniqueId);
         result.put(uniqueId, object);
-      } catch (DataNotFoundException ex) {
+      } catch (final DataNotFoundException ex) {
         // do nothing
       }
     }
@@ -267,7 +267,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   }
 
   //-------------------------------------------------------------------------
-  protected void cleanCaches(ObjectId oid, Instant versionFrom, Instant versionTo) {
+  protected void cleanCaches(final ObjectId oid, final Instant versionFrom, final Instant versionTo) {
     // The only UID we need to flush out is the "latest" one since this might now be valid
     final UniqueId uid = oid.atLatestVersion();
     _frontCacheByUID.remove(uid);
@@ -277,11 +277,15 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     _oidCache.remove(oid);
   }
 
-  protected void cacheItems(Collection<V> items) {
-    for (V item : items) {
-      if (_frontCacheByUID.putIfAbsent(item.getUniqueId(), item) == null) {
-        _uidCache.put(new Element(item.getUniqueId(), item));
-      }
+  protected void cacheItem(final V item) {
+    if (_frontCacheByUID.putIfAbsent(item.getUniqueId(), item) == null) {
+      _uidCache.put(new Element(item.getUniqueId(), item));
+    }
+  }
+
+  protected void cacheItems(final Collection<V> items) {
+    for (final V item : items) {
+      cacheItem(item);
     }
   }
 
