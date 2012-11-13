@@ -95,7 +95,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   @Override
   public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
-    _listener.itemUpdated(callbackId);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
+    _listener.itemUpdated(callbackMap);
   }
 
   @Override
