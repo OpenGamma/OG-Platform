@@ -35,22 +35,22 @@ $.register_module({
             })();
             var data_setup = function () {
                 if (!view_id || !viewport) return;
-                var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
+                var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
                 (viewport_id ? viewports.get({
                     view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                     viewport_id: viewport_id, update: data_setup
-                }) : viewports.put({
+                }) : (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
                         rows: viewport.rows, columns: viewport.cols, format: viewport.format
-                    }).pipe(function (result) {
+                    })).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
                             (view_id = graph_id = viewport_id = subscribed = null), result; // goes to data_setup
-                        (viewport_id = result.meta.id), (viewport_version = result.data.version);
+                        viewport_id = result.meta.id; viewport_version = promise.id;
                         return viewports.get({
-                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: false, // TODO change this
+                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: true,
                             viewport_id: viewport_id, update: data_setup
                         });
                     })
@@ -159,7 +159,7 @@ $.register_module({
                 initialize();
             };
             data.viewport = function (new_viewport) {
-                var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
+                var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {
                     if (viewport_id) viewports
                         .del({view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id});
@@ -173,10 +173,10 @@ $.register_module({
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
                 if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
                 try { // viewport definitions come from outside, so try/catch
-                    viewports.put({
+                    (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, columns: viewport.cols, format: viewport.format
-                    }).pipe(function (result) {if (result.error) return; else viewport_version = result.data.version;});
+                    })).pipe(function (result) {if (result.error) return; else viewport_version = promise.id;});
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
             };

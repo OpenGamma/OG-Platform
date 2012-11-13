@@ -631,17 +631,19 @@ $.register_module({
                             del: not_available.partial('del')
                         },
                         put: function (config) {
-                            var root = this.root, method = root.split('/'), data = {}, meta,
+                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
                                 fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                             });
                             meta.type = 'POST';
+                            promise.ignore = true; // this request will be answered in fire_updates NOT in ajax handler
+                            data['requestId'] = promise.id;
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
                             fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
-                            return request(method, {data: data, meta: meta});
+                            return request(method, {data: data, meta: meta}, promise);
                         },
                         viewports: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports',
@@ -656,11 +658,11 @@ $.register_module({
                                 method[2] = config.grid_type;
                                 method[4] = config.graph_id;
                                 method.push(config.viewport_id);
-                                return request(method, {data: data, meta: meta});
+                                return request(method, {data: data, meta: meta}, promise);
                             },
                             put: function (config) {
                                 config = config || {};
-                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
                                     required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns', 'format']}]
@@ -668,11 +670,15 @@ $.register_module({
                                 meta.type = 'POST';
                                 ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                                 data['clientId'] = api.id;
+                                data.version = promise.id;
                                 method[1] = config.view_id;
                                 method[2] = config.grid_type;
                                 method[4] = config.graph_id;
-                                if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
-                                return request(method, {data: data, meta: meta});
+                                if (config.viewport_id) // use the promise id as viewport_version
+                                    (meta.type = 'PUT'), method.push(config.viewport_id);
+                                else // the response will come back in fire_updates
+                                    (promise.ignore = true), (data['requestId'] = promise.id);
+                                return request(method, {data: data, meta: meta}, promise);
                             },
                             del: function (config) {
                                 config = config || {};
@@ -722,7 +728,7 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
                                 required: [{all_of: ['view_id', 'rows', 'columns', 'format']}]
@@ -730,10 +736,14 @@ $.register_module({
                             meta.type = 'POST';
                             ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                             data['clientId'] = api.id;
+                            data.version = promise.id;
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
-                            if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
-                            return request(method, {data: data, meta: meta});
+                            if (config.viewport_id) // use the promise id as viewport_version
+                                (meta.type = 'PUT'), method.push(config.viewport_id);
+                            else // the response will come back in fire_updates
+                                (promise.ignore = true), (data['requestId'] = promise.id);
+                            return request(method, {data: data, meta: meta}, promise);
                         },
                         del: function (config) {
                             config = config || {};
