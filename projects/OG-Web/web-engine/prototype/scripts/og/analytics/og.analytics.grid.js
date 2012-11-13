@@ -60,7 +60,7 @@ $.register_module({
             var grid = this, css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
                 container = og.api.text({module: 'og.analytics.grid.container_tash'}),
-                loading = og.api.text({module: 'og.analytics.grid.loading_tash'}),
+                loading = og.api.text({module: 'og.analytics.loading_tash'}),
                 row = og.api.text({module: 'og.analytics.grid.row_tash'}), compile = Handlebars.compile;
             $.when(css, header, container, loading, row).then(function (css, header, container, loading, row) {
                 templates = {
@@ -90,7 +90,7 @@ $.register_module({
             grid.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            grid.elements.parent.html('<blink>&nbsp;initializing data connection...</blink>');
+            grid.elements.parent.html(templates.loading({text: 'initializing connection...'}));
             grid.clipboard = new og.analytics.Clipboard(grid);
             grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
@@ -293,7 +293,8 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false, loading)));
                 grid.updated(+new Date);
                 if (loading) {
-                    if (!notified) grid.elements.main.append(notified = $(templates.loading()));
+                    if (!notified) grid.elements.main
+                        .append(notified = $(templates.loading({text: 'waiting for data...'})));
                 } else {
                     if (notified) notified = (notified.remove(), null);
                     grid.elements.main.find('.node').each(function (idx, val) {
