@@ -35,6 +35,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleStartedCall;
+import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.Timeout;
 
@@ -171,7 +172,7 @@ public class ViewProcessTest {
     vp.stop();
   }
 
-  public void testGraphRebuildWithStreamingModeOn() throws InterruptedException {
+  public void testStreamingMode() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     final ViewProcessorImpl vp = env.getViewProcessor();
@@ -185,7 +186,7 @@ public class ViewProcessTest {
 
     final Instant time0 = Instant.now();
     final ViewCycleExecutionOptions defaultCycleOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create();
-    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
+    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0), ExecutionFlags.none().get(), defaultCycleOptions);
 
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
@@ -193,47 +194,11 @@ public class ViewProcessTest {
     final ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
     final Thread computationThread = env.getCurrentComputationThread(viewProcess);
 
-    final CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
-
+    resultListener.expectNextCall(ViewDefinitionCompiledCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Full calculation
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
-
-    computationJob.requestCycle();
-    resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Unchanged data fragment
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Delta calculation
-    assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
-    resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
-
-    // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(),
-        compilationModel1.getDependencyGraphsByConfiguration(), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
-      @Override
-      public Instant getValidTo() {
-        return time0.plusMillis(20);
-      }
-    };
-    computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
-
-    // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    computationJob.requestCycle();
-    resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Unchanged data fragment
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Delta calculation
-    assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
-    resultListener.assertNoCalls();
-
-    // time0 + 30 requires a rebuild
-    computationJob.requestCycle();
-    final CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
-    assertNotSame(compilationModel1, compilationModel2);
-    assertNotSame(compiledViewDefinition, compilationModel2);
-    resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
-    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis()); // Full calculation
-    assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
-
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     assertTrue(executionOptions.getExecutionSequence().isEmpty());
