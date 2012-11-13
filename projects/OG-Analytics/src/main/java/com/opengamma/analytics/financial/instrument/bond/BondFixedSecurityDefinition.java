@@ -263,14 +263,22 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     }
     final ZonedDateTime previousAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualEndDate();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
-        getCoupons().getNthPayment(couponIndex).getRate(), getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
-    if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
-      result = accruedInterest - getCoupons().getNthPayment(couponIndex).getAmount();
-    } else {
-      result = accruedInterest;
+    try {
+      final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
+          getCoupons().getNthPayment(couponIndex).getRate(), getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
+      if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
+        result = accruedInterest - getCoupons().getNthPayment(couponIndex).getAmount();
+      } else {
+        result = accruedInterest;
+      }
+      return result;
+    } catch (final IllegalArgumentException e) {
+      if (date.isBefore(previousAccrualDate) && couponIndex == 0) {
+        //FIXME
+        return 0;
+      }
+      throw e;
     }
-    return result;
   }
 
   /**
@@ -348,8 +356,13 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     final AnnuityCouponFixedDefinition couponDefinitionExPeriod = new AnnuityCouponFixedDefinition(couponExPeriodArray);
     final AnnuityCouponFixed couponStandard = couponDefinitionExPeriod.toDerivative(date, yieldCurveNames);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(settleTime);
-    final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate,
-        couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+    double factorSpot = 0;
+    try {
+      factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate,
+          couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+    } catch (final IllegalArgumentException e) {
+      //FIXME
+    }
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
