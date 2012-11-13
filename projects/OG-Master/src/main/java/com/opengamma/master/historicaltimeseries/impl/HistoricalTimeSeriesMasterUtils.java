@@ -162,7 +162,7 @@ public class HistoricalTimeSeriesMasterUtils {
       
       HistoricalTimeSeriesInfoDocument addedInfoDoc = _htsMaster.add(htsInfoDoc);
       s_logger.debug("Adding time series " + externalIdBundle + " from " + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime());
-      return _htsMaster.updateTimeSeriesDataPoints(addedInfoDoc.getObjectId(), timeSeries);
+      return _htsMaster.updateTimeSeriesDataPoints(addedInfoDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
     }
   }
   
