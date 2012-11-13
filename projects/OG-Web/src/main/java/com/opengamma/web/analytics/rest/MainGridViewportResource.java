@@ -20,8 +20,8 @@ public class MainGridViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public long update(ViewportDefinition viewportSpec) {
-    return _view.updateViewport(_gridType, _viewportId, viewportSpec).getFirst();
+  public void update(ViewportDefinition viewportSpec) {
+    _view.updateViewport(_gridType, _viewportId, viewportSpec);
   }
 
   @Override

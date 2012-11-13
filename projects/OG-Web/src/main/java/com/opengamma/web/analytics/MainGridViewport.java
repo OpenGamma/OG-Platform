@@ -72,7 +72,6 @@ public class MainGridViewport extends AnalyticsViewport {
     _latestResults = new ViewportResults(results,
                                          _viewportDefinition,
                                          _gridStructure.getColumnStructure(),
-                                         _version,
                                          cache.getLastCalculationDuration());
     if (updated) {
       return _callbackId;
@@ -88,7 +87,7 @@ public class MainGridViewport extends AnalyticsViewport {
    * @return The version number of the viewport, this allows clients to ensure the data they receive for a viewport
    * was built for the current version of the viewport
    */
-  public long update(ViewportDefinition viewportDefinition, ResultsCache cache) {
+  public String update(ViewportDefinition viewportDefinition, ResultsCache cache) {
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(cache, "cache");
     if (!viewportDefinition.isValidFor(_gridStructure)) {
@@ -96,8 +95,7 @@ public class MainGridViewport extends AnalyticsViewport {
                                              viewportDefinition + ", grid: " + _gridStructure);
     }
     _viewportDefinition = viewportDefinition;
-    _version++;
     updateResults(cache);
-    return _version;
+    return _callbackId;
   }
 }

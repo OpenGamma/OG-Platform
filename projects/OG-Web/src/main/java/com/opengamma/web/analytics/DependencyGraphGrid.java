@@ -88,7 +88,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  /* package */ long updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
     return getViewport(viewportId).update(viewportDefinition, cycle, cache);
   }
 }

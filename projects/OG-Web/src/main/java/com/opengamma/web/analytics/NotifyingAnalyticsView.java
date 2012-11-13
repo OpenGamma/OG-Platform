@@ -7,11 +7,11 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.push.UpdateListener;
 
 /**
@@ -52,17 +52,17 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    Pair<Long, String> pair = _delegate.createViewport(gridType, viewportId, callbackId, viewportDefinition);
-    _listener.itemUpdated(pair.getSecond());
-    return pair;
+  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
+    _listener.itemUpdated(callbackMap);
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
-    Pair<Long, String> pair = _delegate.updateViewport(gridType, viewportId, viewportDefinition);
-    _listener.itemUpdated(pair.getSecond());
-    return pair;
+  public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
+    String callbackId = _delegate.updateViewport(gridType, viewportId, viewportDefinition);
+    _listener.itemUpdated(callbackId);
+    return callbackId;
   }
 
   @Override
@@ -76,10 +76,10 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public String openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
-    String id = _delegate.openDependencyGraph(gridType, graphId, callbackId, row, col);
-    _listener.itemUpdated(id);
-    return id;
+  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
+    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, row, col);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
+    _listener.itemUpdated(callbackMap);
   }
 
   @Override
@@ -93,24 +93,16 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           String callbackId,
-                                           ViewportDefinition viewportDefinition) {
-    Pair<Long, String> pair = _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportDefinition);
-    _listener.itemUpdated(pair.getSecond());
-    return pair;
+  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+    _listener.itemUpdated(callbackId);
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           ViewportDefinition viewportDefinition) {
-    Pair<Long, String> pair = _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
-    _listener.itemUpdated(pair.getSecond());
-    return pair;
+  public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
+    String callbackId = _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
+    _listener.itemUpdated(callbackId);
+    return callbackId;
   }
 
   @Override

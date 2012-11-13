@@ -60,13 +60,12 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @return The version number of the new viewport
    */
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  /* package */ void createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
     V viewport = createViewport(viewportDefinition, callbackId);
     _viewports.put(viewportId, viewport);
-    return viewport.getVersion();
   }
 
   /**

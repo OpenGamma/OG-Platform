@@ -131,7 +131,7 @@ import com.opengamma.util.tuple.Pair;
    * to the current state of the viewport
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ long updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
     return getViewport(viewportId).update(viewportDefinition, _cache);
   }
 
@@ -212,8 +212,8 @@ import com.opengamma.util.tuple.Pair;
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    */
-  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
+  /* package */ void createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
   /**
@@ -226,7 +226,7 @@ import com.opengamma.util.tuple.Pair;
    * the current viewport state
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ long updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
+  /* package */ String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle, _cache);
   }
 
@@ -249,17 +249,6 @@ import com.opengamma.util.tuple.Pair;
    */
   /* package */ ViewportResults getData(int graphId, int viewportId) {
     return getDependencyGraph(graphId).getData(viewportId);
-  }
-
-  /**
-   * Returns the ID sent to listeners when the data changes in a dependency graph grid viewport.
-   * @param graphId ID of the dependency graph
-   * @param viewportId ID of the viewport
-   * @return The ID
-   * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
-   */
-  /* package */ String getCallbackId(int graphId, int viewportId) {
-    return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
   }
 
   /**

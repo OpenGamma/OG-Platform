@@ -22,7 +22,7 @@ public class RectangularViewportDefinitionTest {
 
   @Test
   public void iterator() {
-    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(ImmutableList.of(3, 4, 6),
+    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0, ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10, 11),
                                                                                     TypeFormatter.Format.EXPANDED);
     ImmutableList<GridCell> gridCells = ImmutableList.copyOf(viewportCells.iterator());
@@ -41,7 +41,7 @@ public class RectangularViewportDefinitionTest {
 
   @Test
   public void isValidForGrid() {
-    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(ImmutableList.of(3, 4, 6),
+    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0, ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10),
                                                                                     TypeFormatter.Format.EXPANDED);
     GridStructure validStructure = mock(GridStructure.class);

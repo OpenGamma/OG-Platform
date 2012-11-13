@@ -13,7 +13,6 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Wraps another {@link AnalyticsView} and protects it from concurrent access. The methods that can mutate the state of
@@ -64,17 +63,17 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, viewportId, callbackId, viewportDefinition);
+      _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
       return _delegate.updateViewport(gridType, viewportId, viewportDefinition);
@@ -104,10 +103,10 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public String openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
+  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     try {
       _lock.writeLock().lock();
-      return _delegate.openDependencyGraph(gridType, graphId, callbackId, row, col);
+      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, row, col);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -134,17 +133,17 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportDefinition);
+      _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
       return _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);

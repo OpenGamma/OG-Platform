@@ -18,8 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.http.HttpHeaders;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.AnalyticsView;
@@ -70,20 +68,21 @@ public abstract class AbstractGridResource {
    */
   @POST
   @Path("viewports")
+  // TODO need requestId for initial callback
   public Response createViewport(@Context UriInfo uriInfo,
+                                 @FormParam("requestId") int requestId,
+                                 @FormParam("version") int version,
                                  @FormParam("rows") List<Integer> rows,
                                  @FormParam("columns") List<Integer> columns,
                                  @FormParam("cells") List<GridCell> cells,
                                  @FormParam("format") TypeFormatter.Format format) {
-    ViewportDefinition viewportDefinition = ViewportDefinition.create(rows, columns, cells, format);
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
     String callbackId = viewportUri.getPath();
-    long version = createViewport(viewportId, callbackId, viewportDefinition);
-    ViewportVersion viewportVersion = new ViewportVersion(version);
-    return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION,
-                                                                                   viewportUri).build();
+    createViewport(requestId, viewportId, callbackId, viewportDefinition);
+    return Response.status(Response.Status.CREATED).build();
   }
 
   /**
@@ -94,7 +93,7 @@ public abstract class AbstractGridResource {
    * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
    * its current state
    */
-  /* package */ abstract long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  /* package */ abstract void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Returns a resource for a viewport. If the ID is unknown a resource will be returned but a

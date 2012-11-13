@@ -17,7 +17,6 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -102,23 +101,17 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType,
-                                           int viewportId,
-                                           String callbackId,
-                                           ViewportDefinition viewportDefinition) {
-    long version = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
+  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
-    return Pair.of(version, callbackId);
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport {} for {} grid to {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
-    long version = getGrid(gridType).updateViewport(viewportId, viewportDefinition);
-    String callbackId = getGrid(gridType).getViewport(viewportId).getCallbackId();
-    return Pair.of(version, callbackId);
+    return getGrid(gridType).updateViewport(viewportId, viewportDefinition);
   }
 
   @Override
@@ -134,11 +127,10 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public String openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
+  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     s_logger.debug("View {} opening dependency graph for cell ({}, {}) of the {} grid",
                    new Object[]{_viewId, row, col, gridType});
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition);
-    return callbackId;
   }
 
   @Override
@@ -156,27 +148,17 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           String callbackId,
-                                           ViewportDefinition viewportDefinition) {
-    long version = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
+  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, viewportId, graphId, gridType, viewportDefinition});
-    return Pair.of(version, callbackId);
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, graphId, gridType, viewportDefinition});
-    long version = getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition);
-    String callbackId = getGrid(gridType).getCallbackId(graphId, viewportId);
-    return Pair.of(version, callbackId);
+    return getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition);
   }
 
   @Override

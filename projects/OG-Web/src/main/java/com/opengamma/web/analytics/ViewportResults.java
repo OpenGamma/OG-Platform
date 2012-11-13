@@ -26,8 +26,6 @@ public class ViewportResults {
   private final AnalyticsColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
-  /** Version of the viewport used when building these results. */
-  private final long _version;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
 
@@ -36,12 +34,10 @@ public class ViewportResults {
    * list contains the data by rows and the inner lists contain the data for each row
    * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
-   * @param version The version of the viewport used when creating the results
    */
   /* package */ ViewportResults(List<Cell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
-                                long version,
                                 Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
@@ -50,7 +46,6 @@ public class ViewportResults {
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
-    _version = version;
     _calculationDuration = calculationDuration;
   }
 
@@ -76,7 +71,7 @@ public class ViewportResults {
    * correspond to the current viewport state.
    */
   /* package */ long getVersion() {
-    return _version;
+    return _viewportDefinition.getVersion();
   }
 
   /**
@@ -136,9 +131,6 @@ public class ViewportResults {
     }
     ViewportResults that = (ViewportResults) o;
 
-    if (_version != that._version) {
-      return false;
-    }
     if (!_columns.equals(that._columns)) {
       return false;
     }
@@ -156,7 +148,6 @@ public class ViewportResults {
     int result = _allResults.hashCode();
     result = 31 * result + _columns.hashCode();
     result = 31 * result + _viewportDefinition.hashCode();
-    result = 31 * result + (int) (_version ^ (_version >>> 32));
     return result;
   }
 
@@ -166,7 +157,6 @@ public class ViewportResults {
         "_allResults=" + _allResults +
         ", _columns=" + _columns +
         ", _viewportDefinition=" + _viewportDefinition +
-        ", _version=" + _version +
         "]";
   }
 

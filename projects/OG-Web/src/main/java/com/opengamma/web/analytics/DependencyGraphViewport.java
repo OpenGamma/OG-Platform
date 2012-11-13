@@ -7,8 +7,8 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -49,7 +49,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
    * @return Version number of the viewport, allows the client to confirm a set of results corresponds to the
    * current state of the viewport
    */
-  /* package */ long update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
+  /* package */ String update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
     ArgumentChecker.notNull(viewportDefinition, "viewportSpec");
     ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(cache, "cache");
@@ -58,9 +58,8 @@ public class DependencyGraphViewport extends AnalyticsViewport {
                                              viewportDefinition + ", grid: " + _gridStructure);
     }
     _viewportDefinition = viewportDefinition;
-    ++_version;
     updateResults(cycle, cache);
-    return _version;
+    return _callbackId;
   }
 
   /**
@@ -79,7 +78,6 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     ViewportResults newResults = new ViewportResults(gridResults,
                                                      _viewportDefinition,
                                                      _gridStructure.getColumnStructure(),
-                                                     _version,
                                                      cache.getLastCalculationDuration());
     String callbackId;
     if (newResults.equals(_latestResults)) {

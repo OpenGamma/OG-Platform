@@ -55,7 +55,6 @@ import com.opengamma.web.analytics.json.DependencyGraphGridStructureMessageBodyW
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.ViewportResultsMessageBodyWriter;
-import com.opengamma.web.analytics.json.ViewportVersionMessageBodyWriter;
 import com.opengamma.web.analytics.push.ConnectionManagerImpl;
 import com.opengamma.web.analytics.push.LongPollingConnectionManager;
 import com.opengamma.web.analytics.push.MasterChangeManager;
@@ -197,7 +196,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
-    repo.getRestComponents().publishHelper(new ViewportVersionMessageBodyWriter());
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));

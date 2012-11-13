@@ -29,12 +29,16 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   private final List<Integer> _columns;
 
   /**
+   * @param version
    * @param rows Indices of rows in the viewport, not empty
    * @param columns Indices of columns in the viewport, not empty
    * @param format
    */
-  /* package */ RectangularViewportDefinition(List<Integer> rows, List<Integer> columns, TypeFormatter.Format format) {
-    super(format);
+  /* package */ RectangularViewportDefinition(int version,
+                                              List<Integer> rows,
+                                              List<Integer> columns,
+                                              TypeFormatter.Format format) {
+    super(version, format);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
     List<Integer> sortedColumns = Lists.newArrayList(columns);

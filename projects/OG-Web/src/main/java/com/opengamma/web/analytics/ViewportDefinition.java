@@ -18,9 +18,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 public abstract class ViewportDefinition implements Iterable<GridCell> {
   
   private final TypeFormatter.Format _format;
+  private final int _version;
 
-  protected ViewportDefinition(TypeFormatter.Format format) {
+  protected ViewportDefinition(int version, TypeFormatter.Format format) {
     ArgumentChecker.notNull(format, "format");
+    _version = version;
     _format = format;
   }
 
@@ -50,7 +52,8 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
    * @param expanded Whether the cell data should show all the data (true) or be formatted to fit in a single cell (false)
    * @return A new viewport definition
    */
-  public static ViewportDefinition create(List<Integer> rows,
+  public static ViewportDefinition create(int version,
+                                          List<Integer> rows,
                                           List<Integer> columns,
                                           List<GridCell> cells,
                                           TypeFormatter.Format format) {
@@ -61,19 +64,23 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
       if (rows.size() != 0 || columns.size() != 0) {
         throw new IllegalArgumentException("rows and columns must be empty if cells are specified");
       }
-      return new ArbitraryViewportDefinition(cells, format);
+      return new ArbitraryViewportDefinition(version, cells, format);
     } else {
       if (rows.size() == 0 || columns.size() == 0) {
         throw new IllegalArgumentException("rows and columns must not be empty if no cells are specified");
       }
-      return new RectangularViewportDefinition(rows, columns, format);
+      return new RectangularViewportDefinition(version, rows, columns, format);
     }
   }
 
   /**
    * @return
    */
-  public TypeFormatter.Format getFormat() {
+  /* package */ TypeFormatter.Format getFormat() {
     return _format;
+  }
+
+  /* package */ int getVersion() {
+    return _version;
   }
 }

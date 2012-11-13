@@ -21,6 +21,7 @@ public interface DependencyGraphOwnerResource {
   @POST
   @Path("depgraphs")
   public abstract Response openDependencyGraph(@Context UriInfo uriInfo,
+                                               @FormParam("requestId") int requestId,
                                                @FormParam("row") int row,
                                                @FormParam("col") int col);
 
