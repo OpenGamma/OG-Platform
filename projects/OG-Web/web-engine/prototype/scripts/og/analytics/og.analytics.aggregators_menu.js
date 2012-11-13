@@ -29,7 +29,7 @@ $.register_module({
                     tmpl: config.tmpl
                 }),
                 $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
-                default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
+                default_sel_txt = 'select aggregation...', default_query_text = 'Default', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
 
             var add_handler = function () {
@@ -44,7 +44,7 @@ $.register_module({
             var delete_handler = function (entry) {
                 if (menu.opts.length === 1) {
                     if ($checkbox) $checkbox[0].disabled = true;
-                    $query.text(default_sel_txt);
+                    $query.text(default_query_text);
                     $select.val(default_sel_txt).focus();
                     return remove_entry();
                 }
@@ -64,7 +64,7 @@ $.register_module({
                     });
                     query_val = arr.reduce(function (a, v) {return a += v.val ? v.val : v;}, '');
                     $query.html(query_val);
-                } else $query.text(default_sel_txt);
+                } else $query.text(default_query_text);
             };
             var init = function (conf) {
                 $dom = menu.$dom;
@@ -94,7 +94,7 @@ $.register_module({
                     entry = query.pluck('pos').indexOf(sel_pos);
                 if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
-                if ($elem.is($checkbox)) return checkbox_handler(entry); 
+                if ($elem.is($checkbox)) return checkbox_handler(entry);
                 if ($elem.is($select)) return select_handler(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());
             };
@@ -110,13 +110,13 @@ $.register_module({
                 }
             };
             var reset_query = function () {
-                return $query.text(default_sel_txt), $select.val(default_sel_txt).focus(), remove_entry();
+                return $query.text(default_query_text), $select.val(default_sel_txt).focus(), remove_entry();
             };
             var select_handler = function (entry) {
                     if (sel_val === default_sel_txt) {
                         remove_entry(entry);
                         if ($checkbox) $checkbox[0].disabled = true;
-                        if (query.length === 0) return $query.html(default_sel_txt);
+                        if (query.length === 0) return $query.html(default_query_text);
                     } else if (~entry) query[entry].val = sel_val;
                     else {
                         query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
@@ -155,7 +155,7 @@ $.register_module({
                     }
                     init_menu_elems(i);
                     delete_handler(i);
-                } 
+                }
                 return init_menu_elems(0), reset_query();
             };
             return init(config), menu;
