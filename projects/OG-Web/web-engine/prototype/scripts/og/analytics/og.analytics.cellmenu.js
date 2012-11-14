@@ -50,6 +50,7 @@ $.register_module({
                     if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
+                    console.log(cell.value);
                     if (cellmenu.frozen || cellmenu.busy()) return;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
@@ -58,6 +59,7 @@ $.register_module({
                         !(cellmenu.current = cell).value                    // There is no cell Value
                         || (cell.col === ((!primitives && !depgraph) && 1)) // Second column of portfolio
                         || ((depgraph || primitives) && cell.col < 1)       // First column of depgraph or primitives
+                        || (cell.value.nodeId)                              // Is node
                         || (cell.right > parent.width())                             // End of the cell not visible
                         || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));  // Unsupported type on a depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
