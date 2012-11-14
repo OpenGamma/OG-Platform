@@ -8,6 +8,7 @@ package com.opengamma.integration.timeseries.snapshot;
 import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.calendar.LocalDate;
 
@@ -194,11 +195,14 @@ public class RedisHtsSnapshotJob implements Runnable {
     RedisLKVFileReader redisLKVFileReader = new RedisLKVFileReader(snapshotFileWriter.getOutputFile(), getSchemeBlackList(), getDataFieldBlackList());
         
     Map<ExternalId, Map<String, Double>> redisLKV = redisLKVFileReader.getLastKnownValues();
-    OperationTimer timer = new OperationTimer(s_logger, "Writing/Updating {} timeseries", redisLKV.size());
+    
+    AtomicLong tsCounter = new AtomicLong();
+    long startTime = System.nanoTime();
     for (Entry<ExternalId, Map<String, Double>> lkvEntry : redisLKV.entrySet()) {
-      updateTimeSeries(lkvEntry.getKey(), lkvEntry.getValue());
+      updateTimeSeries(lkvEntry.getKey(), lkvEntry.getValue(), tsCounter);
     }
-    timer.finished();
+    long stopTime = System.nanoTime();
+    s_logger.info("{}ms-Writing/Updating {} timeseries", (stopTime - startTime) / 1000000, tsCounter.get());
   }
 
   private void validateState() {
@@ -209,7 +213,7 @@ public class RedisHtsSnapshotJob implements Runnable {
     ArgumentChecker.notNull(getRedisConnector(), "redis connector");
   }
 
-  private void updateTimeSeries(ExternalId externalId, Map<String, Double> lkv) {
+  private void updateTimeSeries(ExternalId externalId, Map<String, Double> lkv, AtomicLong tsCounter) {
     HistoricalTimeSeriesMasterUtils htsMaster = new HistoricalTimeSeriesMasterUtils(getHtsMaster());
     LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     for (Entry<String, Double> lkvEntry : lkv.entrySet()) {
@@ -229,6 +233,7 @@ public class RedisHtsSnapshotJob implements Runnable {
             new Object[] {externalId, getDataSource(), dataProvider, dataField, getObservationTime(), today, value});
         htsMaster.writeTimeSeriesPoint(makeDescription(externalId, dataField), getDataSource(), dataProvider, 
             dataField, getObservationTime(), ExternalIdBundle.of(externalId), today, value);
+        tsCounter.getAndAdd(1);
       }
     }
   }
