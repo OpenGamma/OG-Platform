@@ -190,7 +190,7 @@ public abstract class CreditDefaultSwapDefinition {
     ArgumentChecker.notNegative(notional, "Notional amount");
 
     ArgumentChecker.notNegative(recoveryRate, "Recovery Rate");
-    ArgumentChecker.isTrue(Double.doubleToLongBits(recoveryRate) <= 1.0, "Recovery rate should be less than or equal to 100%");
+    ArgumentChecker.isTrue(recoveryRate <= 1.0, "Recovery rate should be less than or equal to 100%");
 
     ArgumentChecker.notNull(priceType, "Price type");
 

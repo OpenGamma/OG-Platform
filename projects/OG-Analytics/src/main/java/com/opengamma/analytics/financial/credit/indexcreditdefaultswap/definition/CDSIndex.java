@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswap;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition;
 
 /**
  * Enumerate the different CDS indices
@@ -64,7 +64,11 @@ public enum CDSIndex {
   /**
    * iTraxx Central & Eastern European, Middle Eastern and African countries (corporate and quasi-sovereign)
    */
-  iTraxxCEEMEA;
+  iTraxxCEEMEA,
+  /**
+   * General purpose bespoke index (constituents chosen by the user)
+   */
+  BESPOKE;
 
   // TODO : Add the rest of the index names (need to work out how to include NA, IG etc) and sort out which ones trade on spread/price
 }

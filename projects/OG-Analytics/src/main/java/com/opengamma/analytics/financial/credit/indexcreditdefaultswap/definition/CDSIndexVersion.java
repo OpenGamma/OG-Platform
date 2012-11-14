@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswap;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition;
 
 /**
  * Enumerate the different versions of a given series of CDS indices

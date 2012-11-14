@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswapoption;
+package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition;
 
 /**
  * Enumerate the knockout types of Credit Default Swap Options
