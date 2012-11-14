@@ -55,21 +55,23 @@ $.register_module({
                         };
                     if (!id) return $timeseries_extra.html('no timeseries found');
                     $timeseries.css(height_obj), $hover_msg.css(height_obj);
-                    api.rest.timeseries.get({dependencies: dependencies, id: id, cache_for: 500}).pipe(function (result) {
-                        var template_data = result.data.template_data;
-                        if (result.error) {
-                            if (view) view.error({type: 'error', message: result.message});
-                            return $timeseries_extra.html('error loading timeseries data');
-                        }
-                        timeseries_options.yaxis = get_values(result.data.timeseries.data);
-                        $.plot($timeseries, [result.data.timeseries.data], timeseries_options);
-                        $timeseries_extra.html(template_data.data_field.lang() + ': ' + template_data.data_source.lang());
-                        if (!external_links) $(selector + ' .og-timeseries-container')
-                            .hover(function () {$hover_msg.show();}, function () {$hover_msg.hide();})
-                            .click(function (e) {
-                                e.preventDefault();
-                                routes.go(routes.hash(og.views.timeseries.rules.load_item, {id: id}));
-                            });
+                    api.rest.timeseries.get({dependencies: dependencies, id: id, cache_for: 500})
+                        .pipe(function (result) {
+                            var template_data = result.data.template_data;
+                            if (result.error) {
+                                if (view) view.error({type: 'error', message: result.message});
+                                return $timeseries_extra.html('error loading timeseries data');
+                            }
+                            timeseries_options.yaxis = get_values(result.data.timeseries.data);
+                            $.plot($timeseries, [result.data.timeseries.data], timeseries_options);
+                            $timeseries_extra
+                                .html(template_data.data_field.lang() + ': ' + template_data.data_source.lang());
+                            if (!external_links) $(selector + ' .og-timeseries-container')
+                                .hover(function () {$hover_msg.show();}, function () {$hover_msg.hide();})
+                                .click(function (e) {
+                                    e.preventDefault();
+                                    routes.go(routes.hash(og.views.timeseries.rules.load_item, {id: id}));
+                                });
                     });
                 };
                 $.when(

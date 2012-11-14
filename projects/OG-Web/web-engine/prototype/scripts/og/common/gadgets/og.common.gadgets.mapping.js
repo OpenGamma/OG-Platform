@@ -12,10 +12,10 @@ $.register_module({
             'Depgraph': 'Dependency Graph',
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
-            'positions': 'positions'
+            'ExpandedPositions': 'Position'
         };
         return mapping = {
-            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'positions'],
+            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions'],
             panel_preference: {
                 'south'      : [0, 2, 4, 3, 1, 5],
                 'dock-north' : [2, 4, 3, 1, 0, 5],
@@ -39,10 +39,10 @@ $.register_module({
                 };
                 if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
-                if (gadget_type === 'positions') {
+                if (gadget_type === 'ExpandedPositions') {
                     $.extend(gadget_options.options, {
                         col: cell.col, row: cell.row,
-                        id: 'DbPos~1000', editable: false, external_links: true, child: true
+                        id: 'DbPos~17263', editable: false, external_links: true, child: true
                     });
                 }
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});

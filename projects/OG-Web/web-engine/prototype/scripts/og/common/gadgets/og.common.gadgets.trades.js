@@ -181,7 +181,7 @@ $.register_module({
           <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th colspan="6"><span><em>Trades</em></span></th>\
+                <th colspan="6"><span><em>{TITLE}</em></span></th>\
               </tr>\
               <tr>\
                 <th><div><em>ID<em/></div></th>\
@@ -336,7 +336,7 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody));
+                $(selector).html(html.og_table.replace('{TBODY}', tbody).replace('{TITLE}', config.child ? '' : 'Trades'));
                 /*
                  * Remove expand links when no trade attributes are available
                  */
@@ -353,7 +353,7 @@ $.register_module({
                 if (!version && editable) attach_trades_link(selector);
                 $(selector + ' .OG-table').tablesorter({
                     headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                }).awesometable({height: height, resize: function (resize) {
+                }).awesometable({height: config.child ? 'auto' : height, resize: function (resize) {
                     og.common.gadgets.manager.register({
                         alive: function () {return !!$(selector).length;}, resize: resize
                     });
