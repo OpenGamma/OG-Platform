@@ -351,13 +351,17 @@ $.register_module({
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
                 if (!version && editable) attach_trades_link(selector);
-                $(selector + ' .OG-table').tablesorter({
-                    headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                }).awesometable({height: config.child ? 'auto' : height, resize: function (resize) {
-                    og.common.gadgets.manager.register({
-                        alive: function () {return !!$(selector).length;}, resize: resize
-                    });
-                }});
+                (function () {
+                    var options = {resize: function (resize) {
+                        og.common.gadgets.manager.register({
+                            alive: function () {return !!$(selector).length;}, resize: resize
+                        });
+                    }};
+                    if (!config.child) options.height = height;
+                    $(selector + ' .OG-table').tablesorter({
+                        headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
+                    }).awesometable(options);
+                })();
                 /*
                  * Enable edit/delete trade
                  */
