@@ -121,11 +121,12 @@ $.register_module({
         };
         var load_query = function () {
             if (!ac_menu || !ds_menu) return;
-            var id = get_view_index(ac_menu.$input.val(), 'name');
+            var id = get_view_index(ac_menu.$input.val(), 'name'), providers = ds_menu.get_query();
             if (!id) return;
+            if (!providers) return;
             og.analytics.url.main(query = {
                 aggregators: ag_menu ? ag_menu.get_query() : [],
-                providers: ds_menu.get_query(),
+                providers: providers,
                 viewdefinition: id
             });
         };
