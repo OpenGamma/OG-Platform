@@ -50,7 +50,6 @@ $.register_module({
                     if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
-                    console.log(cell.value);
                     if (cellmenu.frozen || cellmenu.busy()) return;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
