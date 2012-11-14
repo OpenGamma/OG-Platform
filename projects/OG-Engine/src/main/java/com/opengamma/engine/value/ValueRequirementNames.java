@@ -148,6 +148,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Hazard rate curve for credit instruments.
+   */
+  public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
+  /**
    * The bundle of historical time series objects for instruments on a curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";

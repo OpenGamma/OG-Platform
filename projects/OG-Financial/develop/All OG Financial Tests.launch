@@ -24,6 +24,7 @@
 <listEntry value="com.opengamma.financial.comparison"/>
 <listEntry value="com.opengamma.financial.convention"/>
 <listEntry value="com.opengamma.financial.conversion"/>
+<listEntry value="com.opengamma.financial.credit"/>
 <listEntry value="com.opengamma.financial.currency"/>
 <listEntry value="com.opengamma.financial.depgraph.rest"/>
 <listEntry value="com.opengamma.financial.expression"/>
