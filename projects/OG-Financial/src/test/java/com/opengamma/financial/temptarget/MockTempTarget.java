@@ -17,8 +17,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class MockTempTarget extends TempTarget {
 
-  private static final long serialVersionUID = 1L;
-
   private final String _value;
 
   public MockTempTarget(final String value) {

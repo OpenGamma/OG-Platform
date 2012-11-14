@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.temptarget;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -20,6 +19,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sleepycat.bind.tuple.LongBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
@@ -35,6 +35,8 @@ import com.sleepycat.je.OperationStatus;
 public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBTempTargetRepository.class);
+
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   private static final class Generation {
 
@@ -54,13 +56,16 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
     }
 
     private byte[] toByteArray(final TempTarget target) {
-      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      try {
-        (new ObjectOutputStream(baos)).writeObject(target);
-      } catch (final IOException e) {
-        throw new OpenGammaRuntimeException("Couldn't serialize", e);
-      }
-      return baos.toByteArray();
+      final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+      final MutableFudgeMsg msg = serializer.newMessage();
+      target.toFudgeMsg(serializer, msg);
+      FudgeSerializer.addClassHeader(msg, target.getClass(), TempTarget.class);
+      return s_fudgeContext.toByteArray(msg);
+    }
+
+    private TempTarget fromByteArray(final byte[] data) {
+      final FudgeDeserializer deserializer = new FudgeDeserializer(s_fudgeContext);
+      return deserializer.fudgeMsgToObject(TempTarget.class, s_fudgeContext.deserialize(data).getMessage());
     }
 
     public TempTarget get(final long uid) {
@@ -68,13 +73,7 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       LongBinding.longToEntry(uid, key);
       final DatabaseEntry value = new DatabaseEntry();
       if (_id2Target.get(null, key, value, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
-        final TempTarget target;
-        try {
-          target = (TempTarget) (new ObjectInputStream(new ByteArrayInputStream(value.getData()))).readObject();
-        } catch (final Exception e) {
-          s_logger.warn("Couldn't deserialize record {} from {}", uid, _id2Target.getDatabaseName());
-          return null;
-        }
+        final TempTarget target = fromByteArray(value.getData());
         LongBinding.longToEntry(System.nanoTime(), value);
         _id2LastAccessed.put(null, key, value);
         return target;

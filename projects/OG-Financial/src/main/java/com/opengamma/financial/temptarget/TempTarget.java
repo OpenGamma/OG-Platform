@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.temptarget;
 
-import java.io.Serializable;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -20,9 +18,7 @@ import com.opengamma.id.UniqueIdentifiable;
 /**
  * Base class for temporary target objects.
  */
-public abstract class TempTarget implements UniqueIdentifiable, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public abstract class TempTarget implements UniqueIdentifiable {
 
   /**
    * The computation target type corresponding to a temporary target.

@@ -28,8 +28,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewEvaluationTarget extends TempTarget {
 
-  private static final long serialVersionUID = 1L;
-
   private final ViewDefinition _viewDefinition;
   private String _firstValuationDate = "";
   private boolean _includeFirstValuationDate = true;
