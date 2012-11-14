@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -529,7 +528,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     // assemble inputs
     final Collection<ValueSpecification> inputValueSpecs = jobItem.getInputs();
     final Collection<ComputedValue> inputs = new ArrayList<ComputedValue>(inputValueSpecs.size());
-    final Set<ValueSpecification> missing = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> missing = Sets.newHashSetWithExpectedSize(inputValueSpecs.size());
     int inputBytes = 0;
     int inputSamples = 0;
     final DeferredViewComputationCache cache = getCache();
@@ -575,10 +574,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         target = targetFuture.get();
       } catch (final Throwable t) {
         s_logger.warn("Error resolving target", t);
+        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
         resultItemBuilder.withException(t);
         return;
       }
       if (target == null) {
+        postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
         resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
         return;
       }
