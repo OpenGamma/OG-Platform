@@ -167,6 +167,34 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
 
+      private void reportException(final RuntimeException e) {
+        final ResultCallback<?> callback = asyncResult.getAndSet(null);
+        if (callback != null) {
+          try {
+            callback.setException(e);
+          } finally {
+            s_logger.info("Shutting down view client {}", viewClientId);
+            viewClient.shutdown();
+          }
+        } else {
+          s_logger.warn("Callback already made before exception for {}", viewClientId);
+        }
+      }
+
+      private void reportResult(final Set<ComputedValue> values) {
+        final ResultCallback<Set<ComputedValue>> callback = asyncResult.getAndSet(null);
+        if (callback != null) {
+          try {
+            callback.setResult(values);
+          } finally {
+            s_logger.info("Shutting down view client {}", viewClientId);
+            viewClient.shutdown();
+          }
+        } else {
+          s_logger.warn("Callback already made before results for {}", viewClientId);
+        }
+      }
+
       @Override
       public UserPrincipal getUser() {
         return viewEvaluation.getViewDefinition().getMarketDataUser();
@@ -181,17 +209,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       @Override
       public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
         s_logger.error("View compilation failure for {} - {}", viewClientId, exception);
-        final ResultCallback<?> callback = asyncResult.getAndSet(null);
-        if (callback != null) {
-          try {
-            callback.setException(new OpenGammaRuntimeException("View definition compilation failed for " + valuationTime, exception));
-          } finally {
-            s_logger.info("Shutting down view client {}", viewClientId);
-            viewClient.shutdown();
-          }
-        } else {
-          s_logger.warn("Callback already made at view compilation failure for {}", viewClientId);
-        }
+        reportException(new OpenGammaRuntimeException("View definition compilation failed for " + valuationTime, exception));
       }
 
       @Override
@@ -204,7 +222,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
         // This shouldn't happen. We've asked for full results only
         s_logger.error("Cycle fragment completed for {}", viewClientId);
-        viewClient.shutdown();
+        reportException(new OpenGammaRuntimeException("Assertion error"));
         assert false;
       }
 
@@ -214,41 +232,31 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       @Override
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("Cycle completed for {}", viewClientId);
-        viewClient.triggerCycle();
-        // TODO: extract the data
-        throw new UnsupportedOperationException("TODO");
+        try {
+          viewClient.triggerCycle();
+          // TODO: extract the data
+          throw new UnsupportedOperationException("TODO");
+        } catch (final RuntimeException e) {
+          s_logger.error("Caught exception during cycle completed callback", e);
+          reportException(e);
+        }
       }
 
       @Override
       public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
         s_logger.error("Cycle execution failed for {}", viewClientId);
-        final ResultCallback<?> callback = asyncResult.getAndSet(null);
-        if (callback != null) {
-          try {
-            callback.setException(new OpenGammaRuntimeException("View cycle execution failed for " + executionOptions, exception));
-          } finally {
-            s_logger.info("Shutting down view client {}", viewClientId);
-            viewClient.shutdown();
-          }
-        } else {
-          s_logger.warn("Callback already made at cycle execution failure for {}", viewClientId);
-        }
+        reportException(new OpenGammaRuntimeException("View cycle execution failed for " + executionOptions, exception));
       }
 
       @Override
       public void processCompleted() {
         s_logger.info("View process completed for {}", viewClientId);
-        final ResultCallback<Set<ComputedValue>> callback = asyncResult.getAndSet(null);
-        if (callback != null) {
-          try {
-            // TODO: bundle up the results we've been collecting and report it to the callback
-            throw new UnsupportedOperationException("TODO");
-          } finally {
-            s_logger.info("Shutting down view client {}", viewClientId);
-            viewClient.shutdown();
-          }
-        } else {
-          s_logger.warn("Callback already made at process completion of {}", viewClientId);
+        try {
+          // TODO: bundle up the results we've been collecting and report it to the callback
+          throw new UnsupportedOperationException("TODO");
+        } catch (final RuntimeException e) {
+          s_logger.error("Caught exception during process completed callback", e);
+          reportException(e);
         }
       }
 
@@ -257,13 +265,8 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
         // Normally we would have expected one of the other notifications, so if the callback exists we report an error
         final ResultCallback<?> callback = asyncResult.getAndSet(null);
         if (callback != null) {
-          try {
-            s_logger.error("View process terminated for {}", viewClientId);
-            callback.setException(new OpenGammaRuntimeException(executionInterrupted ? "Execution interrupted" : "View process terminated"));
-          } finally {
-            s_logger.info("Shutting down view client {}", viewClientId);
-            viewClient.shutdown();
-          }
+          s_logger.error("View process terminated for {}", viewClientId);
+          reportException(new OpenGammaRuntimeException(executionInterrupted ? "Execution interrupted" : "View process terminated"));
         } else {
           s_logger.debug("View process terminated for {}", viewClientId);
         }
@@ -275,7 +278,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
         final ResultCallback<?> callback = asyncResult.getAndSet(null);
         if (callback != null) {
           s_logger.error("View client shutdown for {}", viewClientId);
-          callback.setException(new OpenGammaRuntimeException("View client shutdown", e));
+          reportException(new OpenGammaRuntimeException("View client shutdown", e));
         } else {
           s_logger.debug("View client shutdown for {}", viewClientId);
         }

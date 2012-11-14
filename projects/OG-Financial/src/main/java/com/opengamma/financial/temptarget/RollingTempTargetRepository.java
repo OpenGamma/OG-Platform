@@ -32,9 +32,9 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
 
   private static final Logger s_logger = LoggerFactory.getLogger(RollingTempTargetRepository.class);
 
-  private static final long MIN_TTL_PERIOD = 3600000L; // 1 Hour
+  private static final long TTL_PERIOD = 3600000L; // 1 Hour
 
-  private static final long HOUSEKEEP_PERIOD = 1200000L; // 20 mins
+  private static final long HOUSEKEEP_PERIOD = TTL_PERIOD / 3;
 
   // Note that the temp targets can be a bottleneck during graph construction if used heavily. If there are multiple nodes involved
   // in graph construction (e.g. multiple view processors) then it might make sense to have a repository on each one which gets used
@@ -75,7 +75,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     final ReadWriteLock rw = new ReentrantReadWriteLock();
     _shared = rw.readLock();
     _exclusive = rw.writeLock();
-    _cleaner.schedule(new HousekeepTask(this), MIN_TTL_PERIOD, HOUSEKEEP_PERIOD);
+    _cleaner.schedule(new HousekeepTask(this), TTL_PERIOD, HOUSEKEEP_PERIOD);
   }
 
   private static final class HousekeepTask extends TimerTask {
@@ -165,7 +165,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     _shared.lock();
     try {
       s_logger.info("Copying live objects to new generation");
-      if (!copyOldToNewGeneration(System.nanoTime() - MIN_TTL_PERIOD * 1000000L, deletes)) {
+      if (!copyOldToNewGeneration(System.nanoTime() - TTL_PERIOD * 1000000L, deletes)) {
         s_logger.info("Skipping housekeep operation");
         assert deletes.isEmpty();
         return;
