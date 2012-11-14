@@ -34,17 +34,19 @@ $.register_module({
         };
         return function (config) {
             var gadget = this, alive = prefix + counter++, current_page = routes.current().page.substring(1);
-            gadget.alive = function () {return $(alive).length ? true : false;};
+            gadget.alive = function () {return $('.' + alive).length ? true : false;};
+            gadget.resize = function () {gadget.load();};
             gadget.load = function () {
                 var selector = config.selector, view = config.view,  editable = config.editable && !og.app.READ_ONLY,
                     external_links = 'external_links' in config ? config.external_links : false,
                     template_options = {editable: editable, external_links: external_links, child: config.child};
-                var timeseries = function (obj, height) {
-                    var $timeseries = $(selector + ' .og-timeseries'),
+                var timeseries = function (obj) {
+                    var $container = $(selector + ' .og-timeseries-container'),
+                        $timeseries = $(selector + ' .og-timeseries'),
                         $hover_msg = $(selector + ' .og-timeseries-hover'),
                         $timeseries_extra = $(selector + ' .og-timeseries-extra'),
                         id = obj.data.template_data.hts_id,
-                        height_obj = {height: height < 120 ? 120 : height + 'px'},
+                        height_obj = {height: '50px', width: $container.width()},
                         timeseries_options = {
                             colors: ['#42669a'],
                             series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
@@ -66,7 +68,7 @@ $.register_module({
                             $.plot($timeseries, [result.data.timeseries.data], timeseries_options);
                             $timeseries_extra
                                 .html(template_data.data_field.lang() + ': ' + template_data.data_source.lang());
-                            if (!external_links) $(selector + ' .og-timeseries-container')
+                            if (!external_links) $container
                                 .hover(function () {$hover_msg.show();}, function () {$hover_msg.hide();})
                                 .click(function (e) {
                                     e.preventDefault();
@@ -85,7 +87,7 @@ $.register_module({
                     var $html = $.tmpl(template, $.extend(result.data, template_options));
                     if (current_page !==  'positions') $html.find('thead span').html(link(external_links, result));
                     $(selector).addClass(alive).html($html);
-                    timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
+                    timeseries(result);
                     if (editable) common.util.ui.content_editable({
                         pre_dispatch: function (rest_options, handler) {
                             og.api.rest.positions.get({id: config.id}).pipe(function (result) {
@@ -94,6 +96,7 @@ $.register_module({
                         },
                         handler: function () {if (view) view.search(routes.current().args);}
                     });
+                    if (!config.child) og.common.gadgets.manager.register(gadget);
                 });
             };
             gadget.load();
