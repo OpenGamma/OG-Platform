@@ -6,6 +6,8 @@
 package com.opengamma.component.factory.source;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.io.Files;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -50,6 +53,23 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   @PropertyDefinition
   private boolean _publishRest = true;
 
+  /**
+   * The path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
+   * will be created with {@link Files#createTempDir}.
+   * <p>
+   * Ignored if {@link #_remoteURL} is specified.
+   */
+  @PropertyDefinition
+  private String _path;
+
+  /**
+   * The URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * <p>
+   * If omitted, a local repository will be created.
+   */
+  @PropertyDefinition
+  private String _remote;
+
   protected void registerSource(final ComponentRepository repo, final TempTargetSource instance) {
     final ComponentInfo info = new ComponentInfo(TempTargetSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -70,9 +90,30 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     }
   }
 
+  protected TempTargetRepository createRemoteRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    try {
+      return new RemoteTempTargetRepository(new URI(getRemote()));
+    } catch (final URISyntaxException ex) {
+      throw new OpenGammaRuntimeException("Bad configuration", ex);
+    }
+  }
+
+  protected TempTargetRepository createLocalRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final File path;
+    if (getPath() != null) {
+      path = new File(getPath());
+    } else {
+      path = Files.createTempDir();
+    }
+    return new BerkeleyDBTempTargetRepository(path);
+  }
+
   protected TempTargetRepository createRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final File tmp = Files.createTempDir();
-    return new BerkeleyDBTempTargetRepository(tmp);
+    if (getRemote() != null) {
+      return createRemoteRepository(repo, configuration);
+    } else {
+      return createLocalRepository(repo, configuration);
+    }
   }
 
   @Override
@@ -107,6 +148,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
+      case 3433509:  // path
+        return getPath();
+      case -934610874:  // remote
+        return getRemote();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -119,6 +164,12 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
         return;
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
+        return;
+      case 3433509:  // path
+        setPath((String) newValue);
+        return;
+      case -934610874:  // remote
+        setRemote((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -139,6 +190,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
       final TempTargetRepositoryComponentFactory other = (TempTargetRepositoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
+          JodaBeanUtils.equal(getPath(), other.getPath()) &&
+          JodaBeanUtils.equal(getRemote(), other.getRemote()) &&
           super.equals(obj);
     }
     return false;
@@ -149,6 +202,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRemote());
     return hash ^ super.hashCode();
   }
 
@@ -205,6 +260,65 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
+   * will be created with {@link Files#createTempDir}.
+   * <p>
+   * Ignored if {@link #_remoteURL} is specified.
+   * @return the value of the property
+   */
+  public String getPath() {
+    return _path;
+  }
+
+  /**
+   * Sets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
+   * will be created with {@link Files#createTempDir}.
+   * <p>
+   * Ignored if {@link #_remoteURL} is specified.
+   * @param path  the new value of the property
+   */
+  public void setPath(final String path) {
+    this._path = path;
+  }
+
+  /**
+   * Gets the the {@code path} property.
+   * will be created with {@link Files#createTempDir}.
+   * <p>
+   * Ignored if {@link #_remoteURL} is specified.
+   * @return the property, not null
+   */
+  public final Property<String> path() {
+    return metaBean().path().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the remote URL of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * @return the value of the property
+   */
+  public String getRemote() {
+    return _remote;
+  }
+
+  /**
+   * Sets the remote URL of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * @param remote  the new value of the property
+   */
+  public void setRemote(final String remote) {
+    this._remote = remote;
+  }
+
+  /**
+   * Gets the the {@code remote} property.
+   * @return the property, not null
+   */
+  public final Property<String> remote() {
+    return metaBean().remote().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code TempTargetRepositoryComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -224,12 +338,24 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", TempTargetRepositoryComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code path} property.
+     */
+    private final MetaProperty<String> _path = DirectMetaProperty.ofReadWrite(
+        this, "path", TempTargetRepositoryComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code remote} property.
+     */
+    private final MetaProperty<String> _remote = DirectMetaProperty.ofReadWrite(
+        this, "remote", TempTargetRepositoryComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest");
+        "publishRest",
+        "path",
+        "remote");
 
     /**
      * Restricted constructor.
@@ -244,6 +370,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case 3433509:  // path
+          return _path;
+        case -934610874:  // remote
+          return _remote;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -278,6 +408,22 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code path} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> path() {
+      return _path;
+    }
+
+    /**
+     * The meta-property for the {@code remote} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> remote() {
+      return _remote;
     }
 
   }
