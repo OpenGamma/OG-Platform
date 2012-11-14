@@ -42,7 +42,7 @@ $.register_module({
                 if (gadget_type === 'ExpandedPositions') {
                     $.extend(gadget_options.options, {
                         col: cell.col, row: cell.row,
-                        id: 'DbPos~17263', editable: false, external_links: true, child: true
+                        id: cell.value.positionId, editable: false, external_links: true, child: true
                     });
                 }
                 if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
