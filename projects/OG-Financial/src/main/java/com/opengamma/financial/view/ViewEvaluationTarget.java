@@ -172,7 +172,7 @@ public class ViewEvaluationTarget extends TempTarget {
     }
     // Create a new view definition that is the union of all calc configs
     final ViewDefinition newView = myView.copyWith(myView.getName(), myView.getPortfolioId(), myView.getMarketDataUser());
-    for (final ViewCalculationConfiguration otherConfig : myView.getAllCalculationConfigurations()) {
+    for (final ViewCalculationConfiguration otherConfig : otherView.getAllCalculationConfigurations()) {
       final ViewCalculationConfiguration newConfig = newView.getCalculationConfiguration(otherConfig.getName());
       if (newConfig == null) {
         myView.addViewCalculationConfiguration(newConfig);

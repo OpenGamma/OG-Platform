@@ -246,7 +246,13 @@ public class DependencyNode {
     }
     // Rewrite the original outputs to use the target of the new node
     for (final ValueSpecification outputValue : _outputValues) {
-      newNode._outputValues.add(MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties())));
+      final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
+      newNode._outputValues.add(newOutputValue);
+      for (final DependencyNode output : _dependentNodes) {
+        if (output._inputValues.remove(outputValue)) {
+          output._inputValues.add(newOutputValue);
+        }
+      }
     }
   }
 

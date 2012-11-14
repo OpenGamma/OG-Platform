@@ -310,10 +310,10 @@ import com.opengamma.util.tuple.Pair;
     Set<ValueSpecification> downstreamCopy = null;
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
       DependencyNode inputNode;
-      node.addInputValue(input);
       inputNode = _spec2Node.get(input);
       if (inputNode != null) {
         s_logger.debug("Found node {} for input {}", inputNode, input);
+        node.addInputValue(input);
         node.addInputNode(inputNode);
       } else {
         s_logger.debug("Finding node production for {}", input);
@@ -327,6 +327,14 @@ import com.opengamma.util.tuple.Pair;
           inputNode = getOrCreateNode(inputValue, downstreamCopy);
           if (inputNode != null) {
             node.addInputNode(inputNode);
+            if (input.getTargetSpecification().equals(inputNode.getComputationTarget())) {
+              node.addInputValue(input);
+            } else {
+              // The node we connected to is a substitute following a target collapse; the original input value is now incorrect
+              final ValueSpecification substituteInput = new ValueSpecification(input.getValueName(), inputNode.getComputationTarget(), input.getProperties());
+              assert inputNode.getOutputValues().contains(substituteInput);
+              node.addInputValue(substituteInput);
+            }
           } else {
             s_logger.warn("No node production for {}", inputValue);
             return null;

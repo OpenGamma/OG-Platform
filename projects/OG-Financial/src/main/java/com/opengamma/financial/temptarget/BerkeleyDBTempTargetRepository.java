@@ -8,6 +8,7 @@ package com.opengamma.financial.temptarget;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -196,6 +197,14 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       return "{ " + _id2Target.getDatabaseName() + ", " + _target2Id.getDatabaseName() + ", " + _id2LastAccessed.getDatabaseName() + " }";
     }
 
+    public String getStatistics() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("target:").append(StringEscapeUtils.escapeJava(_id2Target.getStats(null).toString()));
+      sb.append(", identifier:").append(StringEscapeUtils.escapeJava(_target2Id.getStats(null).toString()));
+      sb.append(", access:").append(StringEscapeUtils.escapeJava(_id2LastAccessed.getStats(null).toString()));
+      return sb.toString();
+    }
+
   }
 
   private static Database openTruncated(final Environment environment, final DatabaseConfig config, final String name) {
@@ -331,6 +340,23 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
     }
     _old = _new;
     _new = null;
+  }
+
+  private void reportStatistics() {
+    if (s_logger.isInfoEnabled()) {
+      Generation gen = _old;
+      final String oldGenStats = (gen != null) ? gen.getStatistics() : "<none>";
+      gen = _new;
+      final String newGenStats = (gen != null) ? gen.getStatistics() : "<none>";
+      s_logger.info("Database statistics - old:({}), new:({})", oldGenStats, newGenStats);
+    }
+  }
+
+  @Override
+  protected void housekeep() {
+    reportStatistics();
+    super.housekeep();
+    reportStatistics();
   }
 
   // Lifecycle
