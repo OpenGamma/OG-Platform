@@ -8,7 +8,6 @@ $.register_module({
     obj: function () {
         var prefix = 'og_expanded_positions_gadget_', counter = 1;
         return function (config) {
-            console.log('config', config);
             var gadget = this, alive = prefix + counter++;
             gadget.alive = function () {return $(alive).length ? true : false;};
             gadget.load = function () {
