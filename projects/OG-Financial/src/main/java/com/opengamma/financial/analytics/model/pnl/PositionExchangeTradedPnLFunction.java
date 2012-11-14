@@ -9,25 +9,18 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 
 /**
- * 
+ *
  */
 public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFunction {
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    Security security = target.getPositionOrTrade().getSecurity();
-    if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
-      return false;
-    }
-    return FinancialSecurityUtils.isExchangeTraded(security);
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security security = target.getPositionOrTrade().getSecurity();
+    return FinancialSecurityUtils.isExchangeTraded(security) && super.canApplyTo(context, target);
   }
-  
+
   @Override
   public String getShortName() {
     return "PositionDailyEquityPnL";

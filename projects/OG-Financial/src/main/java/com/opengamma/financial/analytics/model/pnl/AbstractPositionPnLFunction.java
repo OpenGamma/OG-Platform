@@ -32,66 +32,66 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtils;
 
 /**
- * 
+ *
  */
 public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Position position = target.getPosition();
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final Position position = target.getPosition();
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Trade trade : position.getTrades()) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.TRADE, trade.getUniqueId()));
       currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
-    final ValueSpecification valueSpecification;
-    if (ccy == null) {
-      valueSpecification = new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties().get());
-    } else {
-      valueSpecification = new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties().get());
-    }
-    final ComputedValue result = new ComputedValue(valueSpecification, currentSum.doubleValue());
-    return Sets.newHashSet(result);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(position).get()), currentSum.doubleValue()));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
-  
-  private ValueProperties extractCurrencyProperty(ValueRequirement desiredValue) {
-    String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
-    if (currency == null) {
-      return ValueProperties.none();
-    } else {
-      return ValueProperties.with(ValuePropertyNames.CURRENCY, currency).get();
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security security = target.getPosition().getSecurity();
+    if (FXUtils.isFXSecurity(security)) {
+      // Can't do FX securities with this because they don't have a single currency we can use
+      return false;
     }
+    return true;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
+    final ValueProperties constraint;
+    final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
+    if (ccy != null) {
+      constraint = ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    } else {
+      constraint = ValueProperties.none();
+    }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (Trade trade : position.getTrades()) {
-      requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), extractCurrencyProperty(desiredValue)));
+    for (final Trade trade : position.getTrades()) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), constraint));
     }
     return requirements;
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    final Security security = target.getPosition().getSecurity();
-    if (FXUtils.isFXSecurity(security)) {
-      return null;
-    }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
-    final ValueProperties.Builder properties = createValueProperties();
+  protected ValueProperties.Builder createValueProperties(final Position position) {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
     if (ccy != null) {
       properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     }
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), properties.get()));
+    return properties;
   }
-  
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(target.getPosition()).get()));
+  }
+
 }
