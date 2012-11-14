@@ -38,17 +38,14 @@ $.register_module({
                 combo.$input.val(val);
             };
             combo.state = 'blurred';
+            combo.init_blurkill = false;
             combo.open = function () {
                 if ('$input' in combo && combo.$input) combo.$input.autocomplete('search', '').select();
             };
             combo.placeholder = placeholder || '';
             combo.autocomplete_obj = { // TODO AG: move into og.analytics.form
                 minLength: 0, delay: 0,
-                open: function(event) {
-                    $(this).autocomplete('widget').blurkill(function () {
-                        if ('$input' in combo && combo.$input) combo.$input.autocomplete('close');
-                    });
-                },
+                open: function(event) {},
                 source: function (req, res) {
                     var escaped = $.ui.autocomplete.escapeRegex(req.term),
                         matcher = new RegExp(escaped, 'i'),
@@ -78,6 +75,18 @@ $.register_module({
                     .autocomplete(combo.autocomplete_obj)
                     .attr('placeholder', placeholder)
                     .on('mouseup', combo.open)
+                    .on('mousedown', function (event) {
+                        var ac = this;
+                        setTimeout(function () {
+                            if (!combo.init_blurkill) {
+                                combo.init_blurkill = true;
+                                $(ac).autocomplete('widget').blurkill(function () {
+                                    combo.init_blurkill = false;
+                                     if ('$input' in combo && combo.$input) combo.$input.autocomplete('close');
+                                });
+                            }
+                        });
+                    })
                     .on('blur', function () {
                         combo.state = 'blurred';
                         if (combo.$input && combo.$input.val() === placeholder) combo.$input.val('');
