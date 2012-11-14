@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswapoption;
+package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition;
 
 import javax.time.calendar.ZonedDateTime;
 

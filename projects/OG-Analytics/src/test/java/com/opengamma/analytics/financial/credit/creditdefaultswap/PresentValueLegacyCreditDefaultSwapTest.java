@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -51,7 +49,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // ----------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = true;
+  private static final boolean outputResults = false;
 
   // ----------------------------------------------------------------------------------
 
@@ -424,7 +422,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   //@Test
-  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivit() {
+  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivity() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -501,7 +499,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testPresentValueLegacyCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------

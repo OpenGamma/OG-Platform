@@ -83,8 +83,7 @@ import com.opengamma.util.tuple.Pair;
    *
    * @param viewportId ID of the viewport
    * @param viewportDefinition Definition of the updated viewport
-   * @return Version number of the updated viewport, allows the client to check that any data it receives corresponds
-   * to the current state of the viewport
+   * @return The viewport's callback ID if it was updated or {@code null} if not
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
   /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
@@ -165,9 +164,10 @@ import com.opengamma.util.tuple.Pair;
    * @param viewportId ID of the viewport, can be any unique value
    * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
    * @param viewportDefinition Definition of the viewport
+   * @return {@code true} if there is data available for the new viewport
    */
-  /* package */ void createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
+  /* package */ boolean createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
   /**

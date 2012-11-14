@@ -25,13 +25,9 @@ import com.opengamma.id.UniqueId;
   /**
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
-   * @param cache Cache of calculation results used to populate the viewport's data
    */
-  /* package */ PortfolioGridViewport(ViewportDefinition viewportDefinition,
-                                      MainGridStructure gridStructure,
-                                      String callbackId,
-                                      ResultsCache cache) {
-    super(viewportDefinition, gridStructure, callbackId, cache);
+  /* package */ PortfolioGridViewport(MainGridStructure gridStructure, String callbackId) {
+    super(gridStructure, callbackId);
   }
 
   @Override

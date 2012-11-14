@@ -102,10 +102,11 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
+    return hasData;
   }
 
   @Override
@@ -148,11 +149,13 @@ import com.opengamma.util.ArgumentChecker;
     return gridStructure;
   }
 
+  // TODO return a boolean indicating whether there's data available
   @Override
-  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, viewportId, graphId, gridType, viewportDefinition});
+    return hasData;
   }
 
   @Override
