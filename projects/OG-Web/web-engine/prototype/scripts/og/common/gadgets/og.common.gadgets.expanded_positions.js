@@ -9,14 +9,16 @@ $.register_module({
         var prefix = 'og_expanded_positions_gadget_', counter = 1;
         return function (config) {
             var gadget = this, alive = prefix + counter++;
-            gadget.alive = function () {return $(alive).length ? true : false;};
+            gadget.alive = function () {return $('.' + alive).length ? true : false;};
+            gadget.resize = function () {gadget.load();};
             gadget.load = function () {
                 var selector_position = config.selector + ' .og-js-gadgets-positions',
                     selector_trades = config.selector + ' .og-js-trades-table';
                 $.when(og.api.text({module: 'og.views.gadgets.expanded_positions'})).pipe(function (template) {
-                    $(config.selector).html(template);
+                    $(config.selector).addClass(alive).html(template);
                     og.common.gadgets.positions($.extend({}, config, {selector: selector_position}));
                     og.common.gadgets.trades($.extend({}, config, {selector: selector_trades}));
+                    if (!config.child) og.common.gadgets.manager.register(gadget);
                 });
             };
             gadget.load();
