@@ -79,16 +79,17 @@ public class SummingFunction extends MissingInputsFunction {
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       // Requirement has all constraints asked of us
       final ValueProperties.Builder resultConstraintsBuilder = desiredValue.getConstraints().copy();
-      for (String homogenousProperty : _homogenousProperties) {
+      for (final String homogenousProperty : _homogenousProperties) {
         // TODO: this should probably only be optional if absent from the desired constraints
         resultConstraintsBuilder.withOptional(homogenousProperty);
       }
       final ValueProperties resultConstraints = resultConstraintsBuilder.get();
       final PortfolioNode node = target.getPortfolioNode();
+      // TODO: We don't need the accumulated positions - the object identifiers only would suffice (don't need to go to both databases!)
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final Position position : allPositions) {
-        requirements.add(new ValueRequirement(getRequirementName(), ComputationTargetType.POSITION, position.getUniqueId(), resultConstraints));
+        requirements.add(new ValueRequirement(getRequirementName(), ComputationTargetType.POSITION, position.getUniqueId().toLatest(), resultConstraints));
       }
       return requirements;
     }
@@ -106,7 +107,7 @@ public class SummingFunction extends MissingInputsFunction {
       // Result properties are anything that was common to the input requirements
       ValueProperties common = null;
       final boolean[] homogenousProperties = new boolean[_homogenousProperties.length];
-      for (ValueSpecification input : inputs.keySet()) {
+      for (final ValueSpecification input : inputs.keySet()) {
         final ValueProperties properties = input.getProperties();
         if (common == null) {
           common = properties;
@@ -141,7 +142,7 @@ public class SummingFunction extends MissingInputsFunction {
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       Object value = null;
       ValueProperties properties = null;
-      for (ComputedValue input : inputs.getAllValues()) {
+      for (final ComputedValue input : inputs.getAllValues()) {
         value = addValue(value, input.getValue());
         properties = SumUtils.addProperties(properties, input.getSpecification().getProperties());
       }
@@ -149,7 +150,7 @@ public class SummingFunction extends MissingInputsFunction {
         // Can't have been any inputs ... ?
         return null;
       }
-      for (ValueSpecification input : inputs.getMissingValues()) {
+      for (final ValueSpecification input : inputs.getMissingValues()) {
         properties = SumUtils.addProperties(properties, input.getProperties());
       }
       return Collections.singleton(new ComputedValue(new ValueSpecification(getRequirementName(), target.toSpecification(), createValueProperties(properties).get()), value));
