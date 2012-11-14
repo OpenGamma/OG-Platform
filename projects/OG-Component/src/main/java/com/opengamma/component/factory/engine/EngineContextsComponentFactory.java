@@ -36,6 +36,7 @@ import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklist;
 import com.opengamma.engine.marketdata.ExternalIdLookup;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
@@ -156,6 +157,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private TempTargetRepository _tempTargetRepository;
+  /**
+   * The slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   */
+  @PropertyDefinition
+  private ViewProcessor _viewProcessor;
 
   //-------------------------------------------------------------------------
   @Override
@@ -217,6 +223,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     context.setSecuritySource(getSecuritySource());
     context.setExternalIdLookup(new ExternalIdLookup(null, getSecuritySource()));
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
+    if (getViewProcessor() != null) {
+      OpenGammaExecutionContext.setViewProcessor(context, getViewProcessor());
+    }
     final ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
@@ -280,6 +289,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getCompilationBlacklist();
       case 491227055:  // tempTargetRepository
         return getTempTargetRepository();
+      case -1697555603:  // viewProcessor
+        return getViewProcessor();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -344,6 +355,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case 491227055:  // tempTargetRepository
         setTempTargetRepository((TempTargetRepository) newValue);
         return;
+      case -1697555603:  // viewProcessor
+        setViewProcessor((ViewProcessor) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -394,6 +408,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
           JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
           JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           super.equals(obj);
     }
     return false;
@@ -421,6 +436,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     return hash ^ super.hashCode();
   }
 
@@ -937,6 +953,31 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   * @return the value of the property
+   */
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
+  /**
+   * Sets the slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   * @param viewProcessor  the new value of the property
+   */
+  public void setViewProcessor(final ViewProcessor viewProcessor) {
+    this._viewProcessor = viewProcessor;
+  }
+
+  /**
+   * Gets the the {@code viewProcessor} property.
+   * @return the property, not null
+   */
+  public final Property<ViewProcessor> viewProcessor() {
+    return metaBean().viewProcessor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EngineContextsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -1041,6 +1082,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<TempTargetRepository> _tempTargetRepository = DirectMetaProperty.ofReadWrite(
         this, "tempTargetRepository", EngineContextsComponentFactory.class, TempTargetRepository.class);
     /**
+     * The meta-property for the {@code viewProcessor} property.
+     */
+    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
+        this, "viewProcessor", EngineContextsComponentFactory.class, ViewProcessor.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1063,7 +1109,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesResolver",
         "executionBlacklist",
         "compilationBlacklist",
-        "tempTargetRepository");
+        "tempTargetRepository",
+        "viewProcessor");
 
     /**
      * Restricted constructor.
@@ -1112,6 +1159,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _compilationBlacklist;
         case 491227055:  // tempTargetRepository
           return _tempTargetRepository;
+        case -1697555603:  // viewProcessor
+          return _viewProcessor;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1282,6 +1331,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<TempTargetRepository> tempTargetRepository() {
       return _tempTargetRepository;
+    }
+
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ViewProcessor> viewProcessor() {
+      return _viewProcessor;
     }
 
   }

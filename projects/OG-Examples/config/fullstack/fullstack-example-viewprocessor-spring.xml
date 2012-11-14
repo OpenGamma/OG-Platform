@@ -39,7 +39,7 @@
     <property name="compilationContext" ref="mainFunctionCompilationContext" />
   </bean>
   
-  <!-- Calculation nodes -->
+  <!-- Calculation node management -->
   <bean id="mainComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
   </bean>
@@ -47,29 +47,11 @@
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
-  <bean id="localNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
-    <property name="viewComputationCache" ref="mainComputationCacheSource" />
-    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
-    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-    <property name="nodeIdentifier" value="local" />
-    <property name="statisticsGatherer" ref="functionCosts" />
-  </bean>
-  <bean id="localNodeInvoker" class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
-        <property name="nodeFactory" ref="localNodeFactory" />
-        <property name="nodesPerCore" value="1" />
-      </bean>
-    </constructor-arg>
-  </bean>
-  <bean id="mainComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
-    <constructor-arg ref="localNodeInvoker" />
+  <bean id="mainJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
     <!-- Maximum execution time (5 minutes) useful to keep going, but not if you're testing large/long running jobs --> 
     <property name="maxJobExecutionTime" value="300000" />
     <property name="statisticsGatherer" ref="jobDispatchStatistics" />
   </bean>
-  
-  <!-- External interfaces to connect the view processor to the calc nodes -->
   <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg>
       <bean class="com.opengamma.engine.view.cache.ViewComputationCacheServer">
@@ -82,7 +64,7 @@
     <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">
-        <constructor-arg ref="mainComputationJobDispatcher" />
+        <constructor-arg ref="mainJobDispatcher" />
         <constructor-arg>
           <bean factory-bean="mainComputationCacheSource" factory-method="getIdentifierMap" />
         </constructor-arg>
@@ -107,7 +89,7 @@
   </bean>
   <bean id="graphExecutorTuner" class="com.opengamma.engine.view.calc.MultipleNodeExecutorTuner">
     <constructor-arg ref="graphExecutor" />
-    <property name="jobDispatcher" ref="mainComputationJobDispatcher" />
+    <property name="jobDispatcher" ref="mainJobDispatcher" />
     <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
@@ -128,7 +110,7 @@
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
     <property name="computationCacheSource" ref="mainComputationCacheSource" />
-    <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
+    <property name="computationJobDispatcher" ref="mainJobDispatcher" />
     <property name="dependencyGraphBuilderFactory">
       <bean class="com.opengamma.engine.depgraph.DependencyGraphBuilderFactory">
         <property name="runQueueFactory">
@@ -145,6 +127,16 @@
     </property>
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
     <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
+  </bean>
+  <bean id="setViewProcessorIntoContext" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass" value="com.opengamma.financial.OpenGammaExecutionContext" />
+    <property name="targetMethod" value="setViewProcessor" />
+    <property name="arguments">
+      <list>
+        <ref bean="mainFunctionExecutionContext" />
+        <ref bean="mainViewProcessor" />
+      </list>
+    </property>
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
@@ -168,6 +160,24 @@
         </bean>
       </set>
     </property>
+  </bean>
+
+  <!-- Local calculation nodes -->  
+  <bean id="localNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
+    <property name="viewComputationCache" ref="mainComputationCacheSource" />
+    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
+    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
+    <property name="nodeIdentifier" value="local" />
+    <property name="statisticsGatherer" ref="functionCosts" />
+  </bean>
+  <bean id="localNodeInvoker" class="com.opengamma.engine.view.calcnode.LocalNodeJobInvokerFactoryBean">
+    <property name="nodes">
+      <bean class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+        <property name="nodeFactory" ref="localNodeFactory" />
+        <property name="nodesPerCore" value="1" />
+      </bean>
+    </property>
+    <property name="jobDispatcher" ref="mainJobDispatcher" />
   </bean>
   
   <!-- ============================================================================== -->
