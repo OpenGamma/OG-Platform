@@ -90,7 +90,7 @@ $.register_module({
         };
         constructor.prototype.destroy_frozen = function () {
            $('.OG-cell-options.og-frozen').remove();
-           setTimeout(og.common.gadgets.manager.clean);
+           og.common.gadgets.manager.clean();
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
