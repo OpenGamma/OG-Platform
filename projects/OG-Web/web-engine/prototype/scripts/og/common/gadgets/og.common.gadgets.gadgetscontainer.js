@@ -126,7 +126,7 @@ $.register_module({
                             iframeFix: true, appendTo: 'body', distance: 20,
                             revert: new_window.partial(i),
                             stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
-                            helper: function() {return dropbox_template({label: $(this).text().trim()});}
+                            helper: function () {return dropbox_template({label: $(this).text().trim()});}
                         }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}, source: pane});
                     });
                 };
@@ -149,7 +149,7 @@ $.register_module({
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('click', null/*menu.toggle_handler.bind(menu)*/);
-                        radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
+                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
                                 gadget: "og.common.gadgets." + $(this).attr('value'),
@@ -160,14 +160,14 @@ $.register_module({
                             container.add([swap_config], val.gadget_index);
                             menu.close();
                         });
-                        for(var i = 0; i < radios.length; i++) {
+                        for (var i = 0; i < radios.length; i++) {
                             radios[i].checked = false;
-                            if(radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
+                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
                                 radios[i].checked = true;
                                 menu.$dom.toggle.html(val.gadget_name);
                             }
                         }
-                        if(radios.length === 1) radios[0].disabled=true;
+                        if (radios.length === 1) radios[0].disabled=true;
                     });
                     reflow();
                     show_gadget(id);
@@ -205,12 +205,12 @@ $.register_module({
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                if(!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
                 gadgets.forEach(function (obj) {obj.gadget.alive();});
-                return !!$selector.length;
+                return $(selector).length ? true : !$('.og-js-overflow-' + pane).remove(); // clean up overflow panel
             };
             container.del = function (obj, silent) {
                 var id, index = gadgets.indexOf(obj);
@@ -277,7 +277,7 @@ $.register_module({
                         tolerance: 'pointer',
                         over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
-                        drop: function(e, ui) {
+                        drop: function (e, ui) {
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,

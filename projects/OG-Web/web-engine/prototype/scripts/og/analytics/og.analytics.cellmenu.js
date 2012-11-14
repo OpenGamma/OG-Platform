@@ -71,30 +71,26 @@ $.register_module({
                 })
                 .on('scrollend', function () {cellmenu.busy(false);});
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    var unique = 'inplace-' + cellmenu.grid.id.slice(1);
+                    var unique = 'inplace-' + +new Date;
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
-                    cellmenu.inplace.$dom.toggle.on('click', function() {
+                    cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
                             cellmenu.create_inplace();
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
                         else cellmenu.destroy_frozen();
                     });
-                     cellmenu.container.on('del', function(){
+                     cellmenu.container.on('del', function () {
                         cellmenu.destroy_frozen();
                     });
                 });
             });
         };
         constructor.prototype.destroy_frozen = function () {
-           var cellmenu = this, $ele;          
-            $ele = $('.OG-cell-options.og-frozen');
-            if($ele.length){
-                $ele.remove();
-                og.common.gadgets.manager.clean();
-            }
+           $('.OG-cell-options.og-frozen').remove();
+           setTimeout(og.common.gadgets.manager.clean);
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
@@ -120,10 +116,8 @@ $.register_module({
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
-            if (cellmenu.menu && cellmenu.menu.length){
-                (cellmenu.menu).appendTo($('body')).css(
-                    {top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
-            }
+            if (cellmenu.menu && cellmenu.menu.length) cellmenu.menu.appendTo($('body'))
+                .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
         };
         return constructor;
     }
