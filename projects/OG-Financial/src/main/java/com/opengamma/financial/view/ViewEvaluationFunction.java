@@ -109,7 +109,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       }
     }
     final ConfigItem<ViewDefinition> item = ConfigItem.of(viewDefinition);
-    item.setName(viewDefinition.getUniqueId().toString());
+    item.setName(name);
     final UniqueId uid = master.add(new ConfigDocument(item)).getUniqueId();
     s_logger.info("Created new view definition {} for {}", uid, name);
     return uid;

@@ -23,7 +23,6 @@ import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -43,7 +42,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private MarketDataProviderResolver _marketDataProviderResolver;
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
-  private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory = new DependencyGraphBuilderFactory();
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
@@ -56,7 +54,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     _name = name;
   }
   
@@ -64,7 +62,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _namedMarketDataSpecificationRepository;
   }
 
-  public void setNamedMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository) {
+  public void setNamedMarketDataSpecificationRepository(final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository) {
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
   }
 
@@ -72,7 +70,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _configSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     this._configSource = configSource;
   }
 
@@ -80,7 +78,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _functionCompilationService;
   }
 
-  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
+  public void setFunctionCompilationService(final CompiledFunctionService functionCompilationService) {
     _functionCompilationService = functionCompilationService;
   }
 
@@ -88,7 +86,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _functionResolver;
   }
 
-  public void setFunctionResolver(FunctionResolver functionResolver) {
+  public void setFunctionResolver(final FunctionResolver functionResolver) {
     _functionResolver = functionResolver;
   }
 
@@ -104,7 +102,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _marketDataProviderResolver;
   }
 
-  public void setMarketDataProviderResolver(MarketDataProviderResolver marketDataProviderResolver) {
+  public void setMarketDataProviderResolver(final MarketDataProviderResolver marketDataProviderResolver) {
     _marketDataProviderResolver = marketDataProviderResolver;
   }
 
@@ -112,7 +110,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _computationCacheSource;
   }
 
-  public void setComputationCacheSource(ViewComputationCacheSource computationCacheSource) {
+  public void setComputationCacheSource(final ViewComputationCacheSource computationCacheSource) {
     _computationCacheSource = computationCacheSource;
   }
 
@@ -120,23 +118,15 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _computationJobDispatcher;
   }
 
-  public void setComputationJobDispatcher(JobDispatcher computationJobDispatcher) {
+  public void setComputationJobDispatcher(final JobDispatcher computationJobDispatcher) {
     _computationJobDispatcher = computationJobDispatcher;
-  }
-
-  public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
-    return _viewProcessorQueryReceiver;
-  }
-
-  public void setViewProcessorQueryReceiver(ViewProcessorQueryReceiver viewProcessorQueryReceiver) {
-    _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
   }
 
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 
-  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory) {
+  public void setDependencyGraphExecutorFactory(final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
 
@@ -144,7 +134,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _graphExecutionStatistics;
   }
 
-  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
+  public void setGraphExecutionStatistics(final GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
     _graphExecutionStatistics = graphExecutionStatistics;
   }
   
@@ -152,7 +142,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _viewPermissionProvider;
   }
   
-  public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
+  public void setViewPermissionProvider(final ViewPermissionProvider viewPermissionProvider) {
     _viewPermissionProvider = viewPermissionProvider;
   }
 
@@ -191,7 +181,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getMarketDataProviderResolver(),
         getComputationCacheSource(),
         getComputationJobDispatcher(),
-        getViewProcessorQueryReceiver(),
         getDependencyGraphBuilderFactory(),
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
@@ -200,7 +189,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewResultListenerFactory());
   }
 
-  public void setViewResultListenerFactory(ViewResultListenerFactory viewResultListenerFactory) {
+  public void setViewResultListenerFactory(final ViewResultListenerFactory viewResultListenerFactory) {
     _batchViewClientFactory = viewResultListenerFactory;
   }
 

@@ -45,6 +45,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -60,9 +61,21 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   private String _classifier;
   /**
    * The config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigSource _configSource;
+  /**
+   * The config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   */
+  @PropertyDefinition
+  private ConfigMaster _configMaster;
   /**
    * The security source.
    */
@@ -197,6 +210,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    if (getConfigMaster() != null) {
+      OpenGammaExecutionContext.setConfigMaster(context, getConfigMaster());
+    }
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
     context.setExternalIdLookup(new ExternalIdLookup(null, getSecuritySource()));
@@ -224,12 +240,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
       case 195157501:  // configSource
         return getConfigSource();
+      case 10395716:  // configMaster
+        return getConfigMaster();
       case -702456965:  // securitySource
         return getSecuritySource();
       case -1655657820:  // positionSource
@@ -267,13 +285,16 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
+        return;
+      case 10395716:  // configMaster
+        setConfigMaster((ConfigMaster) newValue);
         return;
       case -702456965:  // securitySource
         setSecuritySource((SecuritySource) newValue);
@@ -348,14 +369,15 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
+      final EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
@@ -382,6 +404,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
@@ -414,7 +437,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -430,6 +453,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @return the value of the property, not null
    */
   public ConfigSource getConfigSource() {
@@ -438,19 +464,62 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @param configSource  the new value of the property, not null
    */
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     JodaBeanUtils.notNull(configSource, "configSource");
     this._configSource = configSource;
   }
 
   /**
    * Gets the the {@code configSource} property.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
     return metaBean().configSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @return the value of the property
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  /**
+   * Sets the config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @param configMaster  the new value of the property
+   */
+  public void setConfigMaster(final ConfigMaster configMaster) {
+    this._configMaster = configMaster;
+  }
+
+  /**
+   * Gets the the {@code configMaster} property.
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @return the property, not null
+   */
+  public final Property<ConfigMaster> configMaster() {
+    return metaBean().configMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -466,7 +535,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the security source.
    * @param securitySource  the new value of the property, not null
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
     this._securitySource = securitySource;
   }
@@ -492,7 +561,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the position source.
    * @param positionSource  the new value of the property, not null
    */
-  public void setPositionSource(PositionSource positionSource) {
+  public void setPositionSource(final PositionSource positionSource) {
     JodaBeanUtils.notNull(positionSource, "positionSource");
     this._positionSource = positionSource;
   }
@@ -518,7 +587,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the target resolver.
    * @param targetResolver  the new value of the property, not null
    */
-  public void setTargetResolver(ComputationTargetResolver targetResolver) {
+  public void setTargetResolver(final ComputationTargetResolver targetResolver) {
     JodaBeanUtils.notNull(targetResolver, "targetResolver");
     this._targetResolver = targetResolver;
   }
@@ -544,7 +613,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the region source.
    * @param regionSource  the new value of the property, not null
    */
-  public void setRegionSource(RegionSource regionSource) {
+  public void setRegionSource(final RegionSource regionSource) {
     JodaBeanUtils.notNull(regionSource, "regionSource");
     this._regionSource = regionSource;
   }
@@ -570,7 +639,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the convention bundle source.
    * @param conventionBundleSource  the new value of the property, not null
    */
-  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
     JodaBeanUtils.notNull(conventionBundleSource, "conventionBundleSource");
     this._conventionBundleSource = conventionBundleSource;
   }
@@ -596,7 +665,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the yield curve definition source.
    * @param interpolatedYieldCurveDefinitionSource  the new value of the property, not null
    */
-  public void setInterpolatedYieldCurveDefinitionSource(InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
+  public void setInterpolatedYieldCurveDefinitionSource(final InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
     JodaBeanUtils.notNull(interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
     this._interpolatedYieldCurveDefinitionSource = interpolatedYieldCurveDefinitionSource;
   }
@@ -622,7 +691,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the yield curve specification source.
    * @param interpolatedYieldCurveSpecificationBuilder  the new value of the property, not null
    */
-  public void setInterpolatedYieldCurveSpecificationBuilder(InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
+  public void setInterpolatedYieldCurveSpecificationBuilder(final InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
     JodaBeanUtils.notNull(interpolatedYieldCurveSpecificationBuilder, "interpolatedYieldCurveSpecificationBuilder");
     this._interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
@@ -648,7 +717,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the volitility cube source.
    * @param volatilityCubeDefinitionSource  the new value of the property, not null
    */
-  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+  public void setVolatilityCubeDefinitionSource(final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
     JodaBeanUtils.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
@@ -674,7 +743,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the currency matrix source.
    * @param currencyMatrixSource  the new value of the property, not null
    */
-  public void setCurrencyMatrixSource(CurrencyMatrixSource currencyMatrixSource) {
+  public void setCurrencyMatrixSource(final CurrencyMatrixSource currencyMatrixSource) {
     JodaBeanUtils.notNull(currencyMatrixSource, "currencyMatrixSource");
     this._currencyMatrixSource = currencyMatrixSource;
   }
@@ -700,7 +769,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the holiday source.
    * @param holidaySource  the new value of the property, not null
    */
-  public void setHolidaySource(HolidaySource holidaySource) {
+  public void setHolidaySource(final HolidaySource holidaySource) {
     JodaBeanUtils.notNull(holidaySource, "holidaySource");
     this._holidaySource = holidaySource;
   }
@@ -726,7 +795,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the exchange source.
    * @param exchangeSource  the new value of the property, not null
    */
-  public void setExchangeSource(ExchangeSource exchangeSource) {
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
     JodaBeanUtils.notNull(exchangeSource, "exchangeSource");
     this._exchangeSource = exchangeSource;
   }
@@ -752,7 +821,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the time-series source.
    * @param historicalTimeSeriesSource  the new value of the property, not null
    */
-  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     this._historicalTimeSeriesSource = historicalTimeSeriesSource;
   }
@@ -778,7 +847,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the time-series resolver.
    * @param historicalTimeSeriesResolver  the new value of the property, not null
    */
-  public void setHistoricalTimeSeriesResolver(HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+  public void setHistoricalTimeSeriesResolver(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
     JodaBeanUtils.notNull(historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
     this._historicalTimeSeriesResolver = historicalTimeSeriesResolver;
   }
@@ -804,7 +873,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the execution blacklist. View processors will not submit nodes matched by this blacklist for execution.
    * @param executionBlacklist  the new value of the property
    */
-  public void setExecutionBlacklist(FunctionBlacklist executionBlacklist) {
+  public void setExecutionBlacklist(final FunctionBlacklist executionBlacklist) {
     this._executionBlacklist = executionBlacklist;
   }
 
@@ -829,7 +898,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the compilation blacklist. Dependency graph builders will not produce graphs which contain nodes matched by this blacklist.
    * @param compilationBlacklist  the new value of the property
    */
-  public void setCompilationBlacklist(FunctionBlacklist compilationBlacklist) {
+  public void setCompilationBlacklist(final FunctionBlacklist compilationBlacklist) {
     this._compilationBlacklist = compilationBlacklist;
   }
 
@@ -854,7 +923,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the temporary target repository.
    * @param tempTargetRepository  the new value of the property
    */
-  public void setTempTargetRepository(TempTargetRepository tempTargetRepository) {
+  public void setTempTargetRepository(final TempTargetRepository tempTargetRepository) {
     this._tempTargetRepository = tempTargetRepository;
   }
 
@@ -886,6 +955,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", EngineContextsComponentFactory.class, ConfigSource.class);
+    /**
+     * The meta-property for the {@code configMaster} property.
+     */
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
+        this, "configMaster", EngineContextsComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code securitySource} property.
      */
@@ -973,6 +1047,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "configSource",
+        "configMaster",
         "securitySource",
         "positionSource",
         "targetResolver",
@@ -997,12 +1072,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
         case 195157501:  // configSource
           return _configSource;
+        case 10395716:  // configMaster
+          return _configMaster;
         case -702456965:  // securitySource
           return _securitySource;
         case -1655657820:  // positionSource
@@ -1069,6 +1146,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConfigSource> configSource() {
       return _configSource;
+    }
+
+    /**
+     * The meta-property for the {@code configMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigMaster> configMaster() {
+      return _configMaster;
     }
 
     /**

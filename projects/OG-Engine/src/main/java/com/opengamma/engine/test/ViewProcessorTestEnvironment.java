@@ -49,8 +49,6 @@ import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
@@ -59,9 +57,6 @@ import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.transport.ByteArrayFudgeRequestSender;
-import com.opengamma.transport.FudgeRequestDispatcher;
-import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.LogBridge;
@@ -129,19 +124,12 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setNamedMarketDataSpecificationRepository(new InMemoryNamedMarketDataSpecificationRepository());
     _configSource = configSource;
 
-    final ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();
-    final FudgeRequestDispatcher calcNodeQueryRequestDispatcher = new FudgeRequestDispatcher(calcNodeQueryReceiver);
-    final InMemoryByteArrayRequestConduit calcNodeQueryRequestConduit = new InMemoryByteArrayRequestConduit(calcNodeQueryRequestDispatcher);
-    final ByteArrayFudgeRequestSender calcNodeQueryRequestSender = new ByteArrayFudgeRequestSender(calcNodeQueryRequestConduit);
-    final ViewProcessorQuerySender calcNodeQuerySender = new ViewProcessorQuerySender(calcNodeQueryRequestSender);
-    vpFactBean.setViewProcessorQueryReceiver(calcNodeQueryReceiver);
-
     final FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext() != null ? getFunctionExecutionContext() : generateFunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
     final ThreadLocalLogEventListener threadLocalLogListener = new ThreadLocalLogEventListener();
     LogBridge.getInstance().addListener(threadLocalLogListener);
-    final SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, calcNodeQuerySender, "node", Executors.newCachedThreadPool(),
+    final SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, "node", Executors.newCachedThreadPool(),
         new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(threadLocalLogListener));
     final LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));

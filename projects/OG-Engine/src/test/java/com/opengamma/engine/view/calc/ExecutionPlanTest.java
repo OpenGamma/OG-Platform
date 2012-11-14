@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -73,11 +73,6 @@ public class ExecutionPlanTest {
       }
 
       @Override
-      protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
-        // Nothing
-      }
-
-      @Override
       protected void markExecuted(final DependencyNode node) {
         s_logger.info("Node {} executed", node);
       }
@@ -86,14 +81,14 @@ public class ExecutionPlanTest {
       protected Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         s_logger.info("Dispatch job {}", job);
         final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
-        for (CalculationJobItem jobItem : job.getJobItems()) {
+        for (final CalculationJobItem jobItem : job.getJobItems()) {
           s_logger.debug("Job item {}", jobItem);
           resultItems.add(CalculationJobResultItem.success());
         }
         final CalculationJobResult result = new CalculationJobResult(job.getSpecification(), 0, resultItems, "");
         jobResultReceiver.resultReceived(result);
         if (job.getTail() != null) {
-          for (CalculationJob tail : job.getTail()) {
+          for (final CalculationJob tail : job.getTail()) {
             dispatchJob(tail, jobResultReceiver);
           }
         }
@@ -141,7 +136,7 @@ public class ExecutionPlanTest {
 
   @SuppressWarnings("unchecked")
   private ExecutionLogModeSource createLogModeSource() {
-    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
     when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
     when(logModeSource.getLogMode(any(ValueSpecification.class))).thenReturn(ExecutionLogMode.INDICATORS);
     return logModeSource;
@@ -175,7 +170,7 @@ public class ExecutionPlanTest {
     final MutableGraphFragmentContext mContext = createMutableGraphFragmentContext();
     final MutableGraphFragment.Root root = new MutableGraphFragment.Root(mContext, createStatisticsGatherer());
     final MutableGraphFragment[] fragment = new MutableGraphFragment[4];
-    for (DependencyNode node : mContext.getGraph().getDependencyNodes()) {
+    for (final DependencyNode node : mContext.getGraph().getDependencyNodes()) {
       final MutableGraphFragment f = new MutableGraphFragment(mContext, node);
       fragment[Integer.parseInt(node.getComputationTarget().getUniqueId().getValue()) - 1] = f;
       f.setCacheSelectHint(CacheSelectHint.allShared());

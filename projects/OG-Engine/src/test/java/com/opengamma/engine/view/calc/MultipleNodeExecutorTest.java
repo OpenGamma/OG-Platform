@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
@@ -110,7 +110,7 @@ public class MultipleNodeExecutorTest {
     _testNode[4].addInputValue(_testValue24);
     _testNode[4].addInputNode(_testNode[3]);
     _testNode[4].addInputValue(_testValue34);
-    for (DependencyNode a_testNode : _testNode) {
+    for (final DependencyNode a_testNode : _testNode) {
       _testGraph.addDependencyNode(a_testNode);
     }
     _testGraph.addTerminalOutput(_testRequirement0x, _testValue0x);
@@ -137,11 +137,6 @@ public class MultipleNodeExecutorTest {
       }
 
       @Override
-      protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
-        // Nothing
-      }
-
-      @Override
       protected Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         // No action - we're just testing graph construction
         return new Cancelable() {
@@ -157,7 +152,7 @@ public class MultipleNodeExecutorTest {
 
   @SuppressWarnings("unchecked")
   private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
-    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
     when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE, logModeSource);
     return (RootGraphFragmentFuture) future;
@@ -206,7 +201,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       if (singletonFragment(fragment, _testNode[0])) {
         mask |= 1;
         assertEquals(1, fragment.getInputFragments().size());
@@ -232,7 +227,7 @@ public class MultipleNodeExecutorTest {
       } else if (singletonFragment(fragment, _testNode[4])) {
         mask |= 4;
         assertEquals(2, fragment.getInputFragments().size());
-        for (GraphFragment<?> fragment2 : fragment.getInputFragments()) {
+        for (final GraphFragment<?> fragment2 : fragment.getInputFragments()) {
           if (singletonFragment(fragment2, _testNode[2])) {
             mask |= 8;
           } else if (singletonFragment(fragment2, _testNode[3])) {
@@ -267,7 +262,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(2, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(2, fragment.getNodes().size());
       if (fragment.getNodes().contains(_testNode[0]) && fragment.getNodes().contains(_testNode[1])) {
         mask |= 1;
@@ -356,7 +351,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
       final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
@@ -386,9 +381,9 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
+      final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(2, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -416,9 +411,9 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
+      final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(3, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -445,7 +440,7 @@ public class MultipleNodeExecutorTest {
       }
       nodes.addAll(fragment.getNodes());
     }
-    for (GraphFragment<?> input : fragment.getInputFragments()) {
+    for (final GraphFragment<?> input : fragment.getInputFragments()) {
       extractColours(input, colours);
     }
   }
@@ -486,7 +481,7 @@ public class MultipleNodeExecutorTest {
     }
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
     RootGraphFragmentFuture root = execute(executor, _testGraph);
-    Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
+    final Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
     extractColours(root.getFragment(), colours);
     if (PRINT_GRAPHS) {
       System.out.println(colours);
@@ -515,7 +510,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, colours.size());
     int mask = 0;
-    for (Map.Entry<Integer, Collection<DependencyNode>> colour : colours.entrySet()) {
+    for (final Map.Entry<Integer, Collection<DependencyNode>> colour : colours.entrySet()) {
       if (colour.getValue().contains(n6)) {
         assertEquals(1, colour.getValue().size());
         mask |= 1;

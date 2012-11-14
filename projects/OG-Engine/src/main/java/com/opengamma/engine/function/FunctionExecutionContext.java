@@ -10,7 +10,6 @@ import javax.time.calendar.Clock;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.ExternalIdLookup;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -27,10 +26,6 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * Resolver for mapping the resolved computation targets to the preferred external identifiers.
    */
   public static final String EXTERNAL_IDENTIFIER_LOOKUP = "externalIdLookup";
-  /**
-   * The name under which an instance of {@link ViewProcessorQuery} should be bound.
-   */
-  public static final String VIEW_PROCESSOR_QUERY_NAME = "viewProcessorQuery";
   /**
    * The name under which the valuation instant will be bound.
    */
@@ -86,24 +81,6 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   }
 
   /**
-   * Gets the view processor query.
-   * 
-   * @return the view processor query, null if not in the context
-   */
-  public ViewProcessorQuery getViewProcessorQuery() {
-    return (ViewProcessorQuery) get(VIEW_PROCESSOR_QUERY_NAME);
-  }
-
-  /**
-   * Sets the view processor query.
-   * 
-   * @param viewProcessorQuery  the view processor query to bind
-   */
-  public void setViewProcessorQuery(ViewProcessorQuery viewProcessorQuery) {
-    put(VIEW_PROCESSOR_QUERY_NAME, viewProcessorQuery);
-  }
-
-  /**
    * Gets the valuation time.
    * 
    * @return the valuation time, null if not in the context
@@ -117,7 +94,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * 
    * @param valuationTime the valuation time to bind
    */
-  public void setValuationTime(Instant valuationTime) {
+  public void setValuationTime(final Instant valuationTime) {
     put(VALUATION_INSTANT_NAME, valuationTime);
   }
 
@@ -135,7 +112,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * 
    * @param snapshotClock the clock instance
    */
-  public void setValuationClock(Clock snapshotClock) {
+  public void setValuationClock(final Clock snapshotClock) {
     put(VALUATION_CLOCK_NAME, snapshotClock);
   }
 
@@ -153,7 +130,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * 
    * @param securitySource  the source of securities to bind
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
   }
   
@@ -171,7 +148,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * 
    * @param functionParameters  the function parameters to bind
    */
-  public void setFunctionParameters(FunctionParameters functionParameters) {
+  public void setFunctionParameters(final FunctionParameters functionParameters) {
     put(FUNCTION_PARAMETERS_NAME, functionParameters);
   }
 
@@ -201,7 +178,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * @return the security source
    * @throws ClassCastException if the security source is of a different type
    */
-  public <T extends SecuritySource> T getSecuritySource(Class<T> clazz) {
+  public <T extends SecuritySource> T getSecuritySource(final Class<T> clazz) {
     return clazz.cast(get(SECURITY_SOURCE_NAME));
   }
 

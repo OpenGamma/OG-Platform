@@ -28,6 +28,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    */
   public static final String CONFIG_SOURCE_NAME = "configSource";
   /**

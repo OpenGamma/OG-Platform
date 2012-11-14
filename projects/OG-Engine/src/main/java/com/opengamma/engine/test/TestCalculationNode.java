@@ -7,9 +7,6 @@ package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -21,10 +18,7 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
-import com.opengamma.transport.FudgeMessageReceiver;
-import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
@@ -49,20 +43,8 @@ public class TestCalculationNode extends SimpleCalculationNode {
   }
 
   public TestCalculationNode(final ThreadLocalLogEventListener logEventListener) {
-    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new ViewProcessorQuerySender(
-        new FudgeRequestSender() {
-
-          @Override
-          public FudgeContext getFudgeContext() {
-            return FudgeContext.GLOBAL_DEFAULT;
-          }
-
-          @Override
-          public void sendRequest(final FudgeMsg request, final FudgeMessageReceiver responseReceiver) {
-            // No-op
-          }
-
-        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(logEventListener));
+    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), InetAddressUtils.getLocalHostName(), Executors
+        .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(logEventListener));
   }
 
 }

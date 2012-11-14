@@ -82,7 +82,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private final ViewComputationCacheSource _cacheSource;
   private final CompiledFunctionService _functionCompilationService;
-  private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private final String _nodeId;
   private final ExecutorService _executorService;
@@ -95,19 +94,17 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution = new MaximumJobItemExecutionWatchdog();
 
   public SimpleCalculationNode(final ViewComputationCacheSource cacheSource, final CompiledFunctionService functionCompilationService,
-      final FunctionExecutionContext functionExecutionContext, final ViewProcessorQuerySender calcNodeQuerySender, final String nodeId,
-      final ExecutorService executorService, final FunctionInvocationStatisticsGatherer functionInvocationStatistics, final CalculationNodeLogEventListener logListener) {
+      final FunctionExecutionContext functionExecutionContext, final String nodeId, final ExecutorService executorService, final FunctionInvocationStatisticsGatherer functionInvocationStatistics,
+      final CalculationNodeLogEventListener logListener) {
     super(functionExecutionContext);
     ArgumentChecker.notNull(cacheSource, "cacheSource");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
-    ArgumentChecker.notNull(calcNodeQuerySender, "calcNodeQuerySender");
     ArgumentChecker.notNull(nodeId, "nodeId");
     ArgumentChecker.notNull(functionInvocationStatistics, "functionInvocationStatistics");
     ArgumentChecker.notNull(logListener, "logListener");
     _cacheSource = cacheSource;
     _functionCompilationService = functionCompilationService;
-    _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
     _executorService = executorService;
     _functionInvocationStatistics = functionInvocationStatistics;
@@ -125,10 +122,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   public ComputationTargetResolver getTargetResolver() {
     return getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
-  }
-
-  public ViewProcessorQuerySender getViewProcessorQuerySender() {
-    return _viewProcessorQuerySender;
   }
 
   public boolean isUseWriteBehindSharedCache() {
@@ -293,7 +286,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     s_logger.info("Executing {} on {}", job, _nodeId);
     setJob(job);
     final CalculationJobSpecification spec = job.getSpecification();
-    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
     getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
     getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
     setFunctions(getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime()));

@@ -142,7 +142,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -157,7 +157,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -182,12 +182,12 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final TempTargetRepositoryComponentFactory other = (TempTargetRepositoryComponentFactory) obj;
+      TempTargetRepositoryComponentFactory other = (TempTargetRepositoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getPath(), other.getPath()) &&
@@ -220,7 +220,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -246,7 +246,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(final boolean publishRest) {
+  public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -277,7 +277,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
    * Ignored if {@link #_remoteURL} is specified.
    * @param path  the new value of the property
    */
-  public void setPath(final String path) {
+  public void setPath(String path) {
     this._path = path;
   }
 
@@ -294,7 +294,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the remote URL of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Gets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * <p>
+   * If omitted, a local repository will be created.
    * @return the value of the property
    */
   public String getRemote() {
@@ -302,15 +304,19 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Sets the remote URL of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Sets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * <p>
+   * If omitted, a local repository will be created.
    * @param remote  the new value of the property
    */
-  public void setRemote(final String remote) {
+  public void setRemote(String remote) {
     this._remote = remote;
   }
 
   /**
    * Gets the the {@code remote} property.
+   * <p>
+   * If omitted, a local repository will be created.
    * @return the property, not null
    */
   public final Property<String> remote() {
@@ -364,7 +370,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

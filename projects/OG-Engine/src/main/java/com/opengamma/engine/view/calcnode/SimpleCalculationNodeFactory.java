@@ -28,7 +28,6 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private ViewComputationCacheSource _viewComputationCache;
   private CompiledFunctionService _functionCompilationService;
   private FunctionExecutionContext _functionExecutionContext;
-  private ViewProcessorQuerySender _viewProcessorQuery;
   private ExecutorService _executorService;
   private FunctionInvocationStatisticsGatherer _statisticsGatherer = new DiscardingInvocationStatisticsGatherer();
   private String _nodeIdentifier;
@@ -72,15 +71,6 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   public void setFunctionExecutionContext(final FunctionExecutionContext functionExecutionContext) {
     ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
     _functionExecutionContext = functionExecutionContext;
-  }
-
-  public ViewProcessorQuerySender getViewProcessorQuery() {
-    return _viewProcessorQuery;
-  }
-
-  public void setViewProcessorQuery(final ViewProcessorQuerySender viewProcessorQuery) {
-    ArgumentChecker.notNull(viewProcessorQuery, "viewProcessorQuery");
-    _viewProcessorQuery = viewProcessorQuery;
   }
 
   public ExecutorService getExecutorService() {
@@ -164,8 +154,8 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
       identifier = SimpleCalculationNode.createNodeId();
     }
     final CalculationNodeLogEventListener logListener = new CalculationNodeLogEventListener(_threadLocalLogListener);
-    final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getViewProcessorQuery(), identifier,
-        getExecutorService(), getStatisticsGatherer(), logListener);
+    final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), identifier, getExecutorService(),
+        getStatisticsGatherer(), logListener);
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
@@ -186,7 +176,6 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     ArgumentChecker.notNull(getViewComputationCache(), "viewComputationCache");
     ArgumentChecker.notNull(getFunctionCompilationService(), "functionCompilationService");
     ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
-    ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
   }
 
 }

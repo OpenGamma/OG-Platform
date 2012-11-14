@@ -46,11 +46,20 @@ public final class OpenGammaExecutionContext {
 
   /**
    * The name under which an instance of {@link ConfigMaster} should be bound. The config source must return elements from this master, but may return additional elements other sources/masters too.
+   * <p>
+   * This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This allows the flexibility
+   * to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
    */
   public static final String CONFIG_MASTER_NAME = "configMaster";
 
   /**
    * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    */
   public static final String CONFIG_SOURCE_NAME = "configSource";
 

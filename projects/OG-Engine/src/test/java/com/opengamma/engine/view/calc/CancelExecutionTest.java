@@ -73,8 +73,6 @@ import com.opengamma.engine.view.calcnode.CalculationNodeLogEventListener;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -85,7 +83,6 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
 
@@ -160,11 +157,9 @@ public class CancelExecutionTest {
     compilationContext.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
     final ViewComputationCacheSource computationCacheSource = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     final FunctionInvocationStatisticsGatherer functionInvocationStatistics = new DiscardingInvocationStatisticsGatherer();
-    final ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
-    final ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
-    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new SimpleCalculationNode(computationCacheSource, compilationService, executionContext, viewProcessorQuerySender,
-        "node", Executors.newCachedThreadPool(), functionInvocationStatistics, new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()))));
+    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new SimpleCalculationNode(computationCacheSource, compilationService, executionContext, "node",
+        Executors.newCachedThreadPool(), functionInvocationStatistics, new CalculationNodeLogEventListener(new ThreadLocalLogEventListener()))));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     final ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
@@ -172,7 +167,7 @@ public class CancelExecutionTest {
     final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(configSource, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, computationCacheSource,
-        jobDispatcher, viewProcessorQueryReceiver, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
+        jobDispatcher, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
