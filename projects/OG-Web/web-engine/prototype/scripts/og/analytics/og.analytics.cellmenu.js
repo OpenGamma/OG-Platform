@@ -14,8 +14,10 @@ $.register_module({
             width = 34,
             mapping = og.common.gadgets.mapping;
         var constructor = function (grid) {
-            var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent,
-                inplace_config; cellmenu.frozen = false; cellmenu.grid = grid;
+            var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
+                parent = grid.elements.parent, inplace_config, timer;
+            cellmenu.frozen = false;
+            cellmenu.grid = grid;
             if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
@@ -51,11 +53,13 @@ $.register_module({
                     if (cellmenu.frozen || cellmenu.busy()) return;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
-                    var type = cell.type, hide = !(cellmenu.current = cell).value
-                        || (cell.col === (!depgraph && 1))
-                        || (depgraph && cell.col < 1)
-                        || (cell.right > parent.width())
-                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));
+                    var type = cell.type, hide =
+                        // Hide the cell menu if...
+                        !(cellmenu.current = cell).value                    // There is no cell Value
+                        || (cell.col === ((!primitives && !depgraph) && 1)) // Second column of portfolio
+                        || ((depgraph || primitives) && cell.col < 1)       // First column of depgraph or primitives
+                        || (cell.right > parent.width())                             // End of the cell not visible
+                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));  // Unsupported type on a depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
