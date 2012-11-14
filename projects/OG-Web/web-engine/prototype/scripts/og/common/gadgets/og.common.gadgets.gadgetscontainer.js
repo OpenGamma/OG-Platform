@@ -184,7 +184,7 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index) {
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = (index >= 0) ? 1 : 0;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
@@ -199,12 +199,18 @@ $.register_module({
                         .css({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
-                        });
+                        });  
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
-                    gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
+                    if(swap) {
+                        $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
+                        gadgets[index].gadget.alive();
+                        gadgets.splice(index ,1, gadget);
+                    }
+                    else gadgets.push(gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
+                console.log(index, swap, gadgets);
                 if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
