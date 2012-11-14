@@ -127,6 +127,10 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
     return _nextNewIdentifier.getAndIncrement();
   }
 
+  protected UniqueId createIdentifier(final long uid) {
+    return UniqueId.of(_scheme, Long.toString(uid));
+  }
+
   /**
    * Searches for a record in the "new" generation store or adds one if none is present.
    * <p>
@@ -212,8 +216,7 @@ public abstract class RollingTempTargetRepository implements TempTargetRepositor
       if (uidObject != null) {
         return UniqueId.of(_scheme, uidObject.toString());
       }
-      final long uidValue = findOrAddNewGeneration(target);
-      return UniqueId.of(_scheme, Long.toString(uidValue));
+      return createIdentifier(findOrAddNewGeneration(target));
     } finally {
       _shared.unlock();
     }

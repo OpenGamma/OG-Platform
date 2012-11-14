@@ -34,8 +34,8 @@ public final class MockTempTarget extends TempTarget {
   }
 
   @Override
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
-    super.toFudgeMsg(serializer, message);
+  protected void toFudgeMsgImpl(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+    super.toFudgeMsgImpl(serializer, message);
     serializer.addToMessage(message, "value", null, _value);
   }
 

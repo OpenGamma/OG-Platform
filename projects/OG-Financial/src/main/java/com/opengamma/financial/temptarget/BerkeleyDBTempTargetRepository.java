@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -55,11 +56,19 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       _id2LastAccessed = openTruncated(environment, config, "access" + generation);
     }
 
-    private byte[] toByteArray(final TempTarget target) {
+    private MutableFudgeMsg toFudgeMsg(final TempTarget target, final boolean includeUid) {
       final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
       final MutableFudgeMsg msg = serializer.newMessage();
-      target.toFudgeMsg(serializer, msg);
+      if (includeUid) {
+        target.toFudgeMsg(serializer, msg);
+      } else {
+        target.toFudgeMsgImpl(serializer, msg);
+      }
       FudgeSerializer.addClassHeader(msg, target.getClass(), TempTarget.class);
+      return msg;
+    }
+
+    private byte[] toByteArray(final FudgeMsg msg) {
       return s_fudgeContext.toByteArray(msg);
     }
 
@@ -76,6 +85,9 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
         final TempTarget target = fromByteArray(value.getData());
         LongBinding.longToEntry(System.nanoTime(), value);
         _id2LastAccessed.put(null, key, value);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Found record {} for {} in {}", new Object[] {target, uid, _id2Target.getDatabaseName() });
+        }
         return target;
       } else {
         if (s_logger.isDebugEnabled()) {
@@ -87,12 +99,15 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
 
     public Long find(final TempTarget target) {
       final DatabaseEntry key = new DatabaseEntry();
-      key.setData(toByteArray(target));
+      key.setData(toByteArray(toFudgeMsg(target, false)));
       final DatabaseEntry value = new DatabaseEntry();
       if (_target2Id.get(null, key, value, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
         final long result = LongBinding.entryToLong(value);
         LongBinding.longToEntry(System.nanoTime(), value);
         _id2LastAccessed.put(null, key, value);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Found record {} for {} in {}", new Object[] {result, target, _target2Id.getDatabaseName() });
+        }
         return result;
       } else {
         if (s_logger.isDebugEnabled()) {
@@ -106,42 +121,57 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
       final DatabaseEntry idEntry = new DatabaseEntry();
       LongBinding.longToEntry(newId, idEntry);
       final DatabaseEntry targetEntry = new DatabaseEntry();
-      targetEntry.setData(toByteArray(target));
+      final MutableFudgeMsg msg = toFudgeMsg(target, true);
+      targetEntry.setData(toByteArray(msg));
       // Write the new identifier marker first in case the target2Id write is successful
-      if (_id2Target.putNoOverwrite(null, idEntry, targetEntry) != OperationStatus.SUCCESS) {
-        // Shouldn't happen - the new identifier must be unique at this point
+      if (_id2Target.put(null, idEntry, targetEntry) != OperationStatus.SUCCESS) {
+        s_logger.error("Error writing {}/{} to {}", new Object[] {newId, target, _id2Target.getDatabaseName() });
         throw new OpenGammaRuntimeException("Internal error writing new record marker");
       }
+      msg.remove("uid");
+      targetEntry.setData(toByteArray(msg));
       final OperationStatus status = _target2Id.putNoOverwrite(null, targetEntry, idEntry);
       if (status == OperationStatus.SUCCESS) {
         LongBinding.longToEntry(System.nanoTime(), targetEntry);
         _id2LastAccessed.put(null, idEntry, targetEntry);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("{} stored as {} in {}", new Object[] {target, newId, this });
+        }
         return newId;
       }
       // Write was unsuccessful; won't be using the new identifier so remove the marker
       _id2Target.delete(null, idEntry);
       if (status != OperationStatus.KEYEXIST) {
-        throw new OpenGammaRuntimeException("Couldn't write to database");
+        s_logger.error("Error removing {} from {}", newId, _id2Target.getDatabaseName());
+        throw new OpenGammaRuntimeException("Couldn't update to database");
       }
       if (_target2Id.get(null, targetEntry, idEntry, LockMode.READ_UNCOMMITTED) != OperationStatus.SUCCESS) {
         // Shouldn't happen - the identifier must be there since the previous put failed
+        s_logger.error("Error fetching {} from {}", target, _target2Id.getDatabaseName());
         throw new OpenGammaRuntimeException("Internal error fetching existing record");
       }
-      return LongBinding.entryToLong(idEntry);
+      final long result = LongBinding.entryToLong(idEntry);
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug("{} stored as {} (after collision) in {}", new Object[] {target, result, this });
+      }
+      return result;
     }
 
     public void delete() {
       // These are temporary databases; the close operation should delete them
+      s_logger.info("Deleting {}", this);
       _id2Target.close();
       _target2Id.close();
       _id2LastAccessed.close();
     }
 
     public void copyLiveObjects(final long deadTime, final Generation next, final List<Long> deletes) {
+      s_logger.debug("Copying objects from {} to {}", this, next);
       final DatabaseEntry identifier = new DatabaseEntry();
       final DatabaseEntry target = new DatabaseEntry();
       final DatabaseEntry accessed = new DatabaseEntry();
       final Cursor cursor = _id2LastAccessed.openCursor(null, null);
+      int count = 0;
       while (cursor.getNext(identifier, accessed, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
         final long lastAccess = LongBinding.entryToLong(accessed);
         if (lastAccess - deadTime > 0) {
@@ -149,6 +179,7 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
             next._id2Target.put(null, identifier, target);
             next._target2Id.put(null, target, identifier);
             next._id2LastAccessed.put(null, identifier, accessed);
+            count++;
           } else {
             deletes.add(LongBinding.entryToLong(identifier));
           }
@@ -157,6 +188,12 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
         }
       }
       cursor.close();
+      s_logger.info("Copied {} objects from {} to {}", new Object[] {count, this, next });
+    }
+
+    @Override
+    public String toString() {
+      return "{ " + _id2Target.getDatabaseName() + ", " + _target2Id.getDatabaseName() + ", " + _id2LastAccessed.getDatabaseName() + " }";
     }
 
   }
@@ -263,12 +300,11 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
     final Generation gen = getOrCreateNewGeneration();
     final Long uidObject = gen.find(target);
     if (uidObject != null) {
-      s_logger.debug("New generation hit for {}", target);
       return uidObject.longValue();
-    } else {
-      s_logger.debug("New generation miss for {}", target);
     }
-    return gen.store(allocIdentifier(), target);
+    final long identifier = allocIdentifier();
+    target.setUniqueId(createIdentifier(identifier));
+    return gen.store(identifier, target);
   }
 
   @Override
@@ -291,10 +327,7 @@ public class BerkeleyDBTempTargetRepository extends RollingTempTargetRepository 
   protected void nextGeneration() {
     final Generation gen = _old;
     if (gen != null) {
-      s_logger.debug("Deleting old generation");
       gen.delete();
-    } else {
-      s_logger.debug("No old generation to delete");
     }
     _old = _new;
     _new = null;

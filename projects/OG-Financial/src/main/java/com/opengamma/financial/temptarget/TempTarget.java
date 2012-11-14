@@ -93,8 +93,13 @@ public abstract class TempTarget implements UniqueIdentifiable {
     return getClass().hashCode() + hashCodeImpl();
   }
 
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+  protected void toFudgeMsgImpl(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+    // No-op
+  }
+
+  public final void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
     serializer.addToMessage(message, "uid", null, getUniqueId());
+    toFudgeMsgImpl(serializer, message);
   }
 
 }

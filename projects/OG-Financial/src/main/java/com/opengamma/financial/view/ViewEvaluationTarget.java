@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.secondary.JSR310InstantFieldType;
+import org.fudgemsg.types.secondary.JSR310LocalTimeFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -179,10 +180,18 @@ public class ViewEvaluationTarget extends TempTarget {
         newConfig.addSpecificRequirements(otherConfig.getSpecificRequirements());
       }
     }
-    return new ViewEvaluationTarget(newView);
+    final ViewEvaluationTarget union = new ViewEvaluationTarget(newView);
+    union.setCorrection(getCorrection());
+    union.setFirstValuationDate(getFirstValuationDate());
+    union.setIncludeFirstValuationDate(isIncludeFirstValuationDate());
+    union.setIncludeLastValuationDate(isIncludeLastValuationDate());
+    union.setLastValuationDate(getLastValuationDate());
+    union.setTimeZone(getTimeZone());
+    union.setValuationTime(getValuationTime());
+    return union;
   }
 
-  // ViewEvaluationTarget
+  // TempTarget
 
   @Override
   protected boolean equalsImpl(final Object o) {
@@ -212,15 +221,18 @@ public class ViewEvaluationTarget extends TempTarget {
   }
 
   @Override
-  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+  protected void toFudgeMsgImpl(final FudgeSerializer serializer, final MutableFudgeMsg message) {
+    super.toFudgeMsgImpl(serializer, message);
     serializer.addToMessageWithClassHeaders(message, "viewDefinition", null, getViewDefinition(), ViewDefinition.class);
     message.add("firstValuationDate", null, FudgeWireType.STRING, getFirstValuationDate());
     message.add("includeFirstValuationDate", null, FudgeWireType.BOOLEAN, isIncludeFirstValuationDate());
     message.add("lastValuationDate", null, FudgeWireType.STRING, getLastValuationDate());
     message.add("includeLastValuationDate", null, FudgeWireType.BOOLEAN, isIncludeLastValuationDate());
     message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getID());
-    message.add("valuationTime", null, FudgeWireType.TIME, getValuationTime());
-    message.add("correction", null, JSR310InstantFieldType.INSTANCE, getCorrection());
+    message.add("valuationTime", null, JSR310LocalTimeFieldType.INSTANCE, getValuationTime());
+    if (getCorrection() != null) {
+      message.add("correction", null, JSR310InstantFieldType.INSTANCE, getCorrection());
+    }
   }
 
   public static ViewEvaluationTarget fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {

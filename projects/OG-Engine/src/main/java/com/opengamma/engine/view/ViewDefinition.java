@@ -532,6 +532,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     result = prime * result + ObjectUtils.hashCode(getName());
     result = prime * result + ObjectUtils.hashCode(getPortfolioId());
     result = prime * result + ObjectUtils.hashCode(getMarketDataUser());
+    result = prime * result + _calculationConfigurationsByName.hashCode();
     return result;
   }
 
