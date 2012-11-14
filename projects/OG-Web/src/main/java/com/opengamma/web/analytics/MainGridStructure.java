@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,16 +18,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * TODO label and quantity columns are hard-coded here and in {@link MainGridViewport}. there has to be a better way
- * TODO quantity is only needed for the portfolio view, this class is effectively portfolio grid structure
- * TODO factor out the view column structure (shared between the 2 grids) and the rows / fixed cols (which differs)
- * TODO type parameter for Row subclass? or just have a null quantity for primitives rows?
+ *
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
@@ -38,26 +33,29 @@ import com.opengamma.util.tuple.Pair;
   private final List<ColumnKey> _columnKeys = Lists.newArrayList();
   /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
   private final Map<ColumnKey, Integer> _colIndexByRequirement;
-
-  // TODO these are shared between portfolio and primitives
   /** Mappings of requirements to specifications. */
-  private final Map<ValueRequirementKey, ValueSpecification> _reqsToSpecs;
+  private final ValueMappings _valueMappings;
 
   /* package */ MainGridStructure() {
     _columnGroups = AnalyticsColumnGroups.empty();
     _rows = Collections.emptyList();
     _colIndexByRequirement = Collections.emptyMap();
-    _reqsToSpecs = Collections.emptyMap();
+    _valueMappings = new ValueMappings();
   }
 
-  // TODO is there structure in here that could be shared between the portfolio and primitives grids?
-  // if so is it expensive enough to worry about sharing?
-  /* package */ MainGridStructure(AnalyticsColumnGroup fixedColumns, CompiledViewDefinition compiledViewDef, List<Row> rows) {
+  /* package */ MainGridStructure(AnalyticsColumnGroup fixedColumns,
+                                  CompiledViewDefinition compiledViewDef,
+                                  List<Row> rows,
+                                  ValueMappings valueMappings) {
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
+    ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+    ArgumentChecker.notNull(rows, "rows");
+    _valueMappings = valueMappings;
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
     // column group for the label and quantity columns which don't come from the calculation results
     List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
-    _reqsToSpecs = Maps.newHashMap();
     int fixedColCount = fixedColumns.getColumns().size();
     // insert null keys for fixed columns because they aren't referenced by key
     for (int i = 0; i < fixedColCount; i++) {
@@ -67,16 +65,7 @@ import com.opengamma.util.tuple.Pair;
     int colIndex = fixedColCount;
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
-      CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
-      // store the mappings from outputs to requirements for each calc config
-      Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledConfig.getTerminalOutputSpecifications();
-      for (Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
-        for (ValueRequirement valueRequirement : entry.getValue()) {
-          _reqsToSpecs.put(new ValueRequirementKey(valueRequirement, configName), entry.getKey());
-        }
-      }
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
-
       List<ColumnKey> columnKeys = buildColumns(calcConfig);
       for (ColumnKey columnKey : columnKeys) {
         if (!_colIndexByRequirement.containsKey(columnKey)) {
@@ -119,8 +108,7 @@ import com.opengamma.util.tuple.Pair;
     Row row = _rows.get(rowIndex);
     ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
     String calcConfigName = colKey.getCalcConfigName();
-    ValueRequirementKey requirementKey = new ValueRequirementKey(valueReq, calcConfigName);
-    ValueSpecification valueSpec = _reqsToSpecs.get(requirementKey);
+    ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
     if (valueSpec != null) {
       return Pair.of(calcConfigName, valueSpec);
     } else {
@@ -190,53 +178,6 @@ import com.opengamma.util.tuple.Pair;
     @Override
     public String toString() {
       return "Row [_target=" + _target + ", _name='" + _name + '\'' + ", _quantity=" + _quantity + "]";
-    }
-  }
-
-  /**
-   * Map key that consists of a {@link ValueRequirement} and corresponding calculation configuration name.
-   */
-  private static class ValueRequirementKey {
-
-    private final ValueRequirement _valueRequirement;
-    private final String _calcConfigName;
-
-    private ValueRequirementKey(ValueRequirement valueRequirement, String calcConfigName) {
-      ArgumentChecker.notNull(valueRequirement, "valueRequirement");
-      ArgumentChecker.notNull(calcConfigName, "calcConfigName");
-      _valueRequirement = valueRequirement;
-      _calcConfigName = calcConfigName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      ValueRequirementKey that = (ValueRequirementKey) o;
-
-      if (!_calcConfigName.equals(that._calcConfigName)) {
-        return false;
-      }
-      return _valueRequirement.equals(that._valueRequirement);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = _valueRequirement.hashCode();
-      result = 31 * result + _calcConfigName.hashCode();
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return "ValueRequirementKey [" +
-          "_valueRequirement=" + _valueRequirement +
-          ", _calcConfigName='" + _calcConfigName + '\'' +
-          "]";
     }
   }
 }

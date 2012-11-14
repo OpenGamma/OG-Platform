@@ -16,8 +16,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
-                                        ComputationTargetResolver targetResolver) {
-    this(new PrimitivesGridStructure(compiledViewDef), gridId, targetResolver);
+                                        ComputationTargetResolver targetResolver,
+                                        ValueMappings valueMappings) {
+    this(new PrimitivesGridStructure(compiledViewDef, valueMappings), gridId, targetResolver);
   }
 
   /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,

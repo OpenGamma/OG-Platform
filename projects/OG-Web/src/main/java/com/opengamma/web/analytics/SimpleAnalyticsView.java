@@ -63,8 +63,9 @@ import com.opengamma.util.ArgumentChecker;
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver);
-    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver);
+    ValueMappings valueMappings = new ValueMappings(_compiledViewDefinition);
+    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver, valueMappings);
+    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver, valueMappings);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());

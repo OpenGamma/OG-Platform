@@ -17,11 +17,13 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @param compiledViewDef The view definition whose results the grid will display
    * @param gridId The grid ID, sent to listeners when the grid structure changes
    * @param targetResolver For looking up calculation targets using their specification
+   * @param valueMappings Mappings between the requirements and outputs of the view
    */
   /* package */ PortfolioAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                        String gridId,
-                                       ComputationTargetResolver targetResolver) {
-    this(new PortfolioGridStructure(compiledViewDef), gridId, targetResolver);
+                                       ComputationTargetResolver targetResolver,
+                                       ValueMappings valueMappings) {
+    this(new PortfolioGridStructure(compiledViewDef, valueMappings), gridId, targetResolver);
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,

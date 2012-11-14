@@ -34,8 +34,8 @@ public class PortfolioGridStructure extends MainGridStructure {
                                                          new AnalyticsColumn("Quantity", "", BigDecimal.class)));
   private final AnalyticsNode _root;
 
-  /* package */ PortfolioGridStructure(CompiledViewDefinition compiledViewDef) {
-    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef));
+  /* package */ PortfolioGridStructure(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
+    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef), valueMappings);
     ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
   }

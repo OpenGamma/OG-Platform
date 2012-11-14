@@ -28,8 +28,8 @@ public class PrimitivesGridStructure extends MainGridStructure {
   private static final AnalyticsColumnGroup s_fixedColumnGroup =
       new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class)));
 
-  /* package */ PrimitivesGridStructure(CompiledViewDefinition compiledViewDef) {
-    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef));
+  /* package */ PrimitivesGridStructure(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
+    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef), valueMappings);
   }
 
   private PrimitivesGridStructure() {
