@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Grid for displaying the dependency graph for a cell. This graph contains all the calculation steps used
@@ -75,8 +76,11 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   }
 
   @Override
-  protected DependencyGraphViewport createViewport(ViewportDefinition viewportSpec, String callbackId) {
-    return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _cache, callbackId);
+  protected Pair<DependencyGraphViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    DependencyGraphViewport viewport = new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId);
+    String updatedCallbackId = viewport.update(viewportDefinition, _latestCycle, _cache);
+    boolean hasData = (updatedCallbackId != null);
+    return Pair.of(viewport, hasData);
   }
 
   /* package */ List<String> updateResults(ViewCycle cycle) {
@@ -88,6 +92,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
+  // TODO why is this using the main grid's cache rather than its own? is that a mistake?
   /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
     return getViewport(viewportId).update(viewportDefinition, cycle, cache);
   }

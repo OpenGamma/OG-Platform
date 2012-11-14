@@ -21,10 +21,9 @@ $.register_module({
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
                 var handler = function (result) {
-                    if (!result || result.error)
-                        return fire('fatal', data.prefix + (result && result.message || 'reset connection'))
-                    if (!result.data) return;
-                    if (viewport && viewport.empty !== true && result.data.version === viewport_version)
+                    if (!result || result.error) // do not kill connection even if there is an error, just warn
+                        return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
+                    if (result.data && viewport && viewport.empty !== true && result.data.version === viewport_version)
                         fire('data', result.data.data);
                 };
                 return function (result) {
@@ -51,7 +50,7 @@ $.register_module({
                             (view_id = graph_id = viewport_id = subscribed = null), result; // goes to data_setup
                         viewport_id = result.meta.id; viewport_version = promise.id;
                         return viewports.get({
-                            view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: true,
                             viewport_id: viewport_id, update: data_setup
                         });
                     })

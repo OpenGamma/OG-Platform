@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.credit.cds;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
@@ -30,6 +28,11 @@ import com.opengamma.util.money.Currency;
  * Tests of the RiskCare implementation of the ISDA CDS model
  */
 public class ISDAModelTest {
+
+  // -----------------------------------------------------------------------------------------------------------
+
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
 
   // -----------------------------------------------------------------------------------------------------------
 
@@ -73,7 +76,7 @@ public class ISDAModelTest {
 
   // -----------------------------------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testISDAModel() {
 
     final DayCount s_act365 = new ActualThreeSixtyFive();
@@ -281,8 +284,10 @@ public class ISDAModelTest {
       final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
       final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
 
-      //System.out.println(rollingDate + "\t" + "Dirty Price = " + "\t" + dirtyPrice);
-      System.out.println(rollingDate + "\t" + "clean Price = " + "\t" + cleanPrice);
+      if (outputResults) {
+        //System.out.println(rollingDate + "\t" + "Dirty Price = " + "\t" + dirtyPrice);
+        System.out.println(rollingDate + "\t" + "clean Price = " + "\t" + cleanPrice);
+      }
     }
   }
 

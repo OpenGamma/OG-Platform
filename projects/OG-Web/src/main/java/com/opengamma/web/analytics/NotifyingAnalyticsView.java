@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -52,16 +53,23 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
-    _listener.itemUpdated(callbackMap);
+    if (hasData) {
+      _listener.itemsUpdated(ImmutableList.of(callbackMap, callbackId));
+    } else {
+      _listener.itemUpdated(callbackMap);
+    }
+    return hasData;
   }
 
   @Override
   public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     String callbackId = _delegate.updateViewport(gridType, viewportId, viewportDefinition);
-    _listener.itemUpdated(callbackId);
+    if (callbackId != null) {
+      _listener.itemUpdated(callbackId);
+    }
     return callbackId;
   }
 
@@ -93,16 +101,23 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
-    _listener.itemUpdated(callbackMap);
+    if (hasData) {
+      _listener.itemsUpdated(ImmutableList.of(callbackMap, callbackId));
+    } else {
+      _listener.itemUpdated(callbackMap);
+    }
+    return hasData;
   }
 
   @Override
   public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     String callbackId = _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
-    _listener.itemUpdated(callbackId);
+    if (callbackId != null) {
+      _listener.itemUpdated(callbackId);
+    }
     return callbackId;
   }
 

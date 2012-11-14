@@ -13,13 +13,9 @@ package com.opengamma.web.analytics;
   /**
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
-   * @param cache Cache of calculation results used to populate the viewport's data
    */
-  /* package */ PrimitivesGridViewport(ViewportDefinition viewportDefinition,
-                                       MainGridStructure gridStructure,
-                                       String callbackId,
-                                       ResultsCache cache) {
-    super(viewportDefinition, gridStructure, callbackId, cache);
+  /* package */ PrimitivesGridViewport(MainGridStructure gridStructure, String callbackId) {
+    super(gridStructure, callbackId);
   }
 
   @Override

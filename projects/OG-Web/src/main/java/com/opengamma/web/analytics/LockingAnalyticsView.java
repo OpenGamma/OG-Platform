@@ -63,10 +63,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -133,10 +133,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }

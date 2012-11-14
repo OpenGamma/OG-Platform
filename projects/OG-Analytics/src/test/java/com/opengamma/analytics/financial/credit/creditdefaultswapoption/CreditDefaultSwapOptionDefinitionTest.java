@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -15,6 +17,10 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionExerciseType;
+import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionKnockoutType;
+import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionType;
+import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CreditDefaultSwapOptionDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -94,8 +100,8 @@ public class CreditDefaultSwapOptionDefinitionTest {
   private static final ZonedDateTime cdsSwaptionStartDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime cdsSwaptionEffectiveDate = DateUtils.getUTCDate(2008, 3, 21);
   private static final ZonedDateTime cdsSwaptionExerciseDate = DateUtils.getUTCDate(2008, 3, 21);
-  private static final ZonedDateTime cdsSwaptionMaturityDate = DateUtils.getUTCDate(2008, 3, 21);
-  private static final ZonedDateTime cdsSwaptionValuationDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime cdsSwaptionMaturityDate = DateUtils.getUTCDate(2013, 3, 20);
+  private static final ZonedDateTime cdsSwaptionValuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final double cdsSwaptionNotional = 10000000.0;
   private static final double cdsSwaptionStrike = 100.0;
@@ -493,5 +499,10 @@ public class CreditDefaultSwapOptionDefinitionTest {
       underlyingCDS);
 
   // -----------------------------------------------------------------------------------------------
+
+  @Test
+  public void testCreditDefaultSwapOption() {
+
+  }
 
 }

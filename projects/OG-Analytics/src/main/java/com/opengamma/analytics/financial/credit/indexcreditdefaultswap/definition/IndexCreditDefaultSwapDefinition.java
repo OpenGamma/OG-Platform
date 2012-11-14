@@ -3,13 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswap;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -20,9 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a generic Index Credit Default Swap contract (different types of Index CDS will inherit from this)
+ * Definition of a generic Index Credit Default Swap contract
  */
-public abstract class IndexCreditDefaultSwapDefinition {
+public class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,6 +50,18 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // TODO : Generalise the model so that if the underlying pool has only a single name, the code knows we are modelling the index as a single name CDS
   // TODO : Include the standard indices which inherit from this super class (include a bespoke index that allows the user to create their own index)
 
+  // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyinPool class
+
+  // NOTE : The stub type, coupon frequency, daycount fraction and business day convention fields are part of the CDS index definition.
+  // NOTE : This is because we need to specify at the index level what the schedule of cashflow payments is (not at the individual
+  // NOTE : index constituent level). These fields are input to the CDS index definition and then used to construct the underlying CDS's
+
+  // NOTE : The price type, include accrued and protection start fields are also defined at the level of the index and applied to 
+  // NOTE : all the underlying CDS's in the index
+
+  // NOTE : In the index ctor we only construct the CDS objects for the obligors in the underlying pool. The calibration of these CDS's
+  // NOTE : to the user input CDS par spread term structures
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables (all private and final) of the CDS index swap contract (defines what a CDS index swap is)
@@ -65,8 +78,13 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // The pool of obligors which constitute the index e.g. the names in the CDX.NA.IG index for a particular series
   private final UnderlyingPool _underlyingPool;
 
+  // The name of the index (e.g. CDXNAIG)
   private final CDSIndex _index;
+
+  // The series of the above index (e.g. 18)
   private final int _series;
+
+  // The version of the above series
   private final String _version;
 
   //The currency the trade is executed in e.g. USD
@@ -75,23 +93,20 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
 
-  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt (CDX is NORE, but iTraxx can have restructuring as a default trigger)
-  private final RestructuringClause _restructuringClause;
-
   // The date of the contract inception
   private final ZonedDateTime _startDate;
 
   // The effective date for protection to begin (usually T + 1bd)
   private final ZonedDateTime _effectiveDate;
 
+  //The date on which the upfront payment is exchanged (usually T + 3bd)
+  private final ZonedDateTime _settlementDate;
+
   // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
   // The date on which we want to calculate the CDS index MtM
   private final ZonedDateTime _valuationDate;
-
-  // The date on which the upfront payment is exchanged (usually T + 3bd)
-  private final ZonedDateTime _settlementDate;
 
   // The method for generating the schedule of premium payments
   private final StubType _stubType;
@@ -108,11 +123,23 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // Flag to determine if we adjust the maturity date to fall on the next IMM date (not a standard feature of index CDS positions)
   private final boolean _immAdjustMaturityDate;
 
-  //Flag to determine if we business day adjust the user input effective date (not a standard feature of index CDS positions)
+  // Flag to determine if we business day adjust the user input effective date (not a standard feature of index CDS positions)
   private final boolean _adjustEffectiveDate;
+
+  // Flag to determine if we business day adjust the user input settlement date (not a standard feature of index CDS positions)
+  private final boolean _adjustSettlementDate;
 
   // Flag to determine if we business day adjust the final maturity date (not a standard feature of index CDS positions)
   private final boolean _adjustMaturityDate;
+
+  // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
+  private final boolean _includeAccruedPremium;
+
+  // Calculate clean or dirty price (clean price includes the accrued interest from valuation date to the previous coupon date)
+  private final PriceType _priceType;
+
+  // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
+  private final boolean _protectionStart;
 
   //The trade notional (in the trade currency)
   private final double _notional;
@@ -126,6 +153,8 @@ public abstract class IndexCreditDefaultSwapDefinition {
   // The current market observed index spread (can differ from the fixed coupon)
   private final double _indexSpread;
 
+  private final LegacyCreditDefaultSwapDefinition[] _underlyingCDS;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   //Constructor for a CDS index swap definition object (all fields are user specified)
@@ -138,19 +167,22 @@ public abstract class IndexCreditDefaultSwapDefinition {
       String version,
       Currency currency,
       Calendar calendar,
-      RestructuringClause restructuringClause,
       ZonedDateTime startDate,
       ZonedDateTime effectiveDate,
+      ZonedDateTime settlementDate,
       ZonedDateTime maturityDate,
       ZonedDateTime valuationDate,
-      ZonedDateTime settlementDate,
       StubType stubType,
       PeriodFrequency couponFrequency,
       DayCount daycountFractionConvention,
       BusinessDayConvention businessdayAdjustmentConvention,
       boolean immAdjustMaturityDate,
       boolean adjustEffectiveDate,
+      boolean adjustSettlementDate,
       boolean adjustMaturityDate,
+      boolean includeAccruedPremium,
+      PriceType priceType,
+      boolean protectionStart,
       double notional,
       double upfrontPayment,
       double indexCoupon,
@@ -171,18 +203,18 @@ public abstract class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(calendar, "Calendar");
 
-    ArgumentChecker.notNull(restructuringClause, "Restructuring clause");
-
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(effectiveDate, "Effective date");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(settlementDate, "Settlement date");
 
     ArgumentChecker.notNull(stubType, "Stub type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount fraction convention");
-    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business dat adjustment convention");
+    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
+
+    ArgumentChecker.notNull(priceType, "Price type");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(upfrontPayment, "Upfront payment");
@@ -190,6 +222,8 @@ public abstract class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNegative(indexSpread, "Index spread");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Initialise the member variables for the CDS index object
 
     _buySellProtection = buySellProtection;
 
@@ -204,13 +238,11 @@ public abstract class IndexCreditDefaultSwapDefinition {
     _currency = currency;
     _calendar = calendar;
 
-    _restructuringClause = restructuringClause;
-
     _startDate = startDate;
     _effectiveDate = effectiveDate;
+    _settlementDate = settlementDate;
     _maturityDate = maturityDate;
     _valuationDate = valuationDate;
-    _settlementDate = settlementDate;
 
     _stubType = stubType;
     _couponFrequency = couponFrequency;
@@ -219,12 +251,66 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
     _immAdjustMaturityDate = immAdjustMaturityDate;
     _adjustEffectiveDate = adjustEffectiveDate;
+    _adjustSettlementDate = adjustSettlementDate;
     _adjustMaturityDate = adjustMaturityDate;
+
+    _includeAccruedPremium = includeAccruedPremium;
+
+    _priceType = priceType;
+
+    _protectionStart = protectionStart;
 
     _notional = notional;
     _upfrontPayment = upfrontPayment;
     _indexCoupon = indexCoupon;
     _indexSpread = indexSpread;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Now build the individual CDS objects for the pool constituents
+
+    // Determine how many obligors are in the underlying pool
+    final int numberOfObligors = _underlyingPool.getNumberOfObligors();
+
+    // Construct a vector of CDS objects
+    _underlyingCDS = new LegacyCreditDefaultSwapDefinition[numberOfObligors];
+
+    // For each obligor in the underlying pool ...
+    for (int i = 0; i < numberOfObligors; i++) {
+
+      // ... build a CDS object for obligor i
+      LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+          _buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
+          _protectionBuyer,                               // Specified in the CDS index contract
+          _protectionSeller,                              // Specified in the CDS index contract
+          _underlyingPool.getObligors()[i],               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getCurrency()[i],               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getDebtSeniority()[i],          // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getRestructuringClause()[i],    // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _calendar,                                      // Specified in the CDS index contract - applies to all underlying CDS's
+          _startDate,                                     // Specified in the CDS index contract - applies to all underlying CDS's
+          _effectiveDate,                                 // Specified in the CDS index contract - applies to all underlying CDS's
+          _maturityDate,                                  // Specified in the CDS index contract - applies to all underlying CDS's       
+          _valuationDate,                                 // Specified in the CDS index contract - applies to all underlying CDS's
+          _stubType,                                      // Specified in the CDS index contract - applies to all underlying CDS's
+          _couponFrequency,                               // Specified in the CDS index contract - applies to all underlying CDS's
+          _daycountFractionConvention,                    // Specified in the CDS index contract - applies to all underlying CDS's
+          _businessdayAdjustmentConvention,               // Specified in the CDS index contract - applies to all underlying CDS's
+          _immAdjustMaturityDate,                         // Specified in the CDS index contract - applies to all underlying CDS's
+          _adjustEffectiveDate,                           // Specified in the CDS index contract - applies to all underlying CDS's
+          _adjustMaturityDate,                            // Specified in the CDS index contract - applies to all underlying CDS's
+          _underlyingPool.getObligorNotionals()[i],       // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getRecoveryRates()[i],          // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _includeAccruedPremium,                         // Specified in the CDS index contract - applies to all underlying CDS's
+          _priceType,                                     // Specified in the CDS index contract - applies to all underlying CDS's
+          _protectionStart,                               // Specified in the CDS index contract - applies to all underlying CDS's
+          _underlyingPool.getCoupons()[i]);               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+
+      // Assign the CDS just created to obligor i in the underlying pool
+      _underlyingCDS[i] = cds;
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
@@ -267,10 +353,6 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _calendar;
   }
 
-  public RestructuringClause getRestructuringClause() {
-    return _restructuringClause;
-  }
-
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
@@ -279,16 +361,16 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _effectiveDate;
   }
 
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
+  }
+
   public ZonedDateTime getMaturityDate() {
     return _maturityDate;
   }
 
   public ZonedDateTime getValuationDate() {
     return _valuationDate;
-  }
-
-  public ZonedDateTime getSettlementDate() {
-    return _settlementDate;
   }
 
   public StubType getStubType() {
@@ -315,8 +397,24 @@ public abstract class IndexCreditDefaultSwapDefinition {
     return _adjustEffectiveDate;
   }
 
+  public boolean getAdjustSettlementDate() {
+    return _adjustSettlementDate;
+  }
+
   public boolean getAdjustMaturityDate() {
     return _adjustMaturityDate;
+  }
+
+  public boolean getIncludeAccruedPremium() {
+    return _includeAccruedPremium;
+  }
+
+  public PriceType getPriceType() {
+    return _priceType;
+  }
+
+  public boolean getProtectionStart() {
+    return _protectionStart;
   }
 
   public double getNotional() {
@@ -333,6 +431,10 @@ public abstract class IndexCreditDefaultSwapDefinition {
 
   public double getIndexSpread() {
     return _indexSpread;
+  }
+
+  public LegacyCreditDefaultSwapDefinition[] getUnderlyingCDS() {
+    return _underlyingCDS;
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
