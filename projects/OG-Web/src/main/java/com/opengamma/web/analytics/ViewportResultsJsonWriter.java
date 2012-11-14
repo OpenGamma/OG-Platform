@@ -35,6 +35,8 @@ public class ViewportResultsJsonWriter {
   private static final String TYPE = "t";
   private static final String DATA = "data";
   private static final String ERROR = "error";
+  private static final String POSITION_ID = "positionId";
+  private static final String NODE_ID = "nodeId";
   private static final String CALCULATION_DURATION = "calculationDuration";
 
   private final ResultsFormatter _formatter;
@@ -66,6 +68,12 @@ public class ViewportResultsJsonWriter {
       }
       if (cell.isError()) {
         valueMap.put(ERROR, true);
+      }
+      if (cell.getPositionId() != null) {
+        valueMap.put(POSITION_ID, cell.getPositionId());
+      }
+      if (cell.getNodeId() != null) {
+        valueMap.put(NODE_ID, cell.getNodeId());
       }
       // TODO add logging metadata to results
       results.add(valueMap);
