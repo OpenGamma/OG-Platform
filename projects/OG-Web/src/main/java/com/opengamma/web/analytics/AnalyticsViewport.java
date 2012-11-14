@@ -38,11 +38,4 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ ViewportResults getData() {
     return _latestResults;
   }
-
-  /**
-   * @return The ID that is sent to the client to notify it that the viewport's data has been updated.
-   */
-  /* package */ String getCallbackId() {
-    return _callbackId;
-  }
 }

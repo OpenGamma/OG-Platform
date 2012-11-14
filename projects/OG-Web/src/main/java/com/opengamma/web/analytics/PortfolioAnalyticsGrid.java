@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A grid for displaying portfolio analytics data.
@@ -39,8 +40,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @return The viewport
    */
   @Override
-  protected PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new PortfolioGridViewport(viewportDefinition, _gridStructure, callbackId, _cache);
+  protected Pair<PortfolioGridViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    PortfolioGridViewport viewport = new PortfolioGridViewport(_gridStructure, callbackId);
+    String updatedCallbackId = viewport.update(viewportDefinition, _cache);
+    boolean hasData = (updatedCallbackId != null);
+    return Pair.of(viewport, hasData);
   }
 
   /**
