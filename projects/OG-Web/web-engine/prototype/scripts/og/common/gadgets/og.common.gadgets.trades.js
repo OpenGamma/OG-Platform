@@ -336,7 +336,8 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody).replace('{TITLE}', config.child ? '' : 'Trades'));
+                $(selector).html(html.og_table.replace('{TBODY}', tbody)
+                    .replace('{TITLE}', config.child ? '' : 'Trades'));
                 /*
                  * Remove expand links when no trade attributes are available
                  */
@@ -352,15 +353,13 @@ $.register_module({
                 });
                 if (!version && editable) attach_trades_link(selector);
                 (function () {
-                    var options = {resize: function (resize) {
+                    var $table = $(selector + ' .OG-table');
+                    $table.tablesorter({headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}});
+                    if (!config.child) $table.awesometable({resize: function (resize) {
                         og.common.gadgets.manager.register({
                             alive: function () {return !!$(selector).length;}, resize: resize
                         });
-                    }};
-                    if (!config.child) options.height = height;
-                    $(selector + ' .OG-table').tablesorter({
-                        headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                    }).awesometable(options);
+                    }, height: height});
                 })();
                 /*
                  * Enable edit/delete trade
