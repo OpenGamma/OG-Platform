@@ -26,7 +26,6 @@ import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -172,7 +171,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       final ConfigMaster configMaster = toolContext.getConfigMaster();
       final ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultVolatilityCubeDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
       ConfigMasterUtils.storeByName(configMaster, item);
-      VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
