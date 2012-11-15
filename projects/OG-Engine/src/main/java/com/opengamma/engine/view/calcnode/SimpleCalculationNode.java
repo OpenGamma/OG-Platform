@@ -256,6 +256,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     try {
       getCache().flush();
     } catch (final AsynchronousExecution e) {
+      s_logger.info("Starting cache flush at {}", _nodeId);
       final AsynchronousOperation<CalculationJobResult> async = new AsynchronousOperation<CalculationJobResult>();
       e.setResultListener(new ResultListener<Void>() {
         @Override
@@ -266,6 +267,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
           } catch (final RuntimeException e) {
             async.getCallback().setException(e);
           }
+          s_logger.info("Finished cache flush at {}", _nodeId);
         }
       });
       return async.getResult();
@@ -296,6 +298,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     try {
       jobItems = executeJobItems();
     } catch (final AsynchronousHandleExecution ex) {
+      s_logger.info("Initial asynchronous job execution at {}", _nodeId);
       return executeJobAsyncResult(ex);
     }
     return executeJobResult(jobItems);
@@ -312,10 +315,14 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
             @Override
             public CalculationJobResult get() throws AsynchronousHandleExecution {
               try {
-                return executeJobResult(resultHandle.get());
+                final CalculationJobResult result = executeJobResult(resultHandle.get());
+                s_logger.info("Finished job execution at {}", _nodeId);
+                return result;
               } catch (final AsynchronousHandleExecution e) {
+                s_logger.info("Resuming asynchronous job execution at {}", _nodeId);
                 return executeJobAsyncResult(e);
               } catch (final AsynchronousExecution e) {
+                s_logger.info("Waiting for asynchronous job execution at {}", _nodeId);
                 return AsynchronousOperation.getResult(e);
               }
             }
@@ -384,16 +391,19 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
             detachLog();
           }
         } catch (final AsynchronousExecution e) {
+          s_logger.info("Asynchronous job item execution at {}", _nodeId);
           final AsynchronousHandleOperation<List<CalculationJobResultItem>> async = new AsynchronousHandleOperation<List<CalculationJobResultItem>>();
           final AsynchronousHandle<List<CalculationJobResultItem>> continueExecution = new AsynchronousHandle<List<CalculationJobResultItem>>() {
             @Override
             public List<CalculationJobResultItem> get() throws AsynchronousHandleExecution {
+              s_logger.info("Resuming job item execution at {}", _nodeId);
               return executeJobItems(jobItemItr, resultItems);
             }
           };
           e.setResultListener(new ResultListener<Void>() {
             @Override
             public void operationComplete(final AsynchronousResult<Void> result) {
+              s_logger.info("Got asynchronous job item result at {}", _nodeId);
               try {
                 result.getResult();
               } catch (final Throwable t) {
@@ -581,10 +591,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     try {
       invokeResult(invoker, statistics, missing, outputs, invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs)), resultItemBuilder);
     } catch (final AsynchronousExecution e) {
+      s_logger.info("Starting asynchronous invocation at {}", _nodeId);
       final AsynchronousOperation<Void> async = new AsynchronousOperation<Void>();
       e.setResultListener(new ResultListener<Set<ComputedValue>>() {
         @Override
         public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
+          s_logger.info("Finished asynchronous invocation at {}", _nodeId);
           try {
             invokeResult(invoker, statistics, missing, outputs, result.getResult(), resultItemBuilder);
           } catch (final FunctionBlacklistedException e) {
