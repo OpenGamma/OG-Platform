@@ -16,9 +16,9 @@ import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 @Test(groups = "integration", enabled = false, description = "Properties file refers to absolute paths which won't work")
 public class BloombergTicksCollectorSpringTest extends AbstractSpringContextValidationTestNG {
 
-  @Test(enabled = false, dataProvider = "runModes", dataProviderClass = AbstractSpringContextValidationTestNG.class)
-  public void testSpringContext(final String opengammaPlatformRunmode) {
-    loadClassPathResource(opengammaPlatformRunmode, BloombergTicksCollectorLauncher.CONFIG_XML_CLASSPATH);
+  @Test(enabled = false)
+  public void testSpringContext() {
+    loadClassPathResource(BloombergTicksCollectorLauncher.CONFIG_XML_CLASSPATH);
     assertContextLoaded();
   }
 
