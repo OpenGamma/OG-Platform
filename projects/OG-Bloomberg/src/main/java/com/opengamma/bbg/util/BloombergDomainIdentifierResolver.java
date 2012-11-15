@@ -60,7 +60,7 @@ public final class BloombergDomainIdentifierResolver {
     ExternalScheme scheme = externalId.getScheme();
     if (SCHEME_MAP.containsKey(scheme)) {
       String prefix = SCHEME_MAP.get(scheme);
-      String id  = externalId.getValue().toUpperCase(Locale.US);
+      String id  = externalId.getValue();
       return prefix != null ? prefix + id : id;
     }
     s_logger.warn("Unknown ExternalScheme {}", externalId);
