@@ -10,9 +10,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  *
  */
-public class CDSCleanPriceFunction extends CDSPresentValueFunction {
+public class LegacyVanillaCDSCleanPriceFunction extends LegacyVanillaCDSFunction {
 
-  public CDSCleanPriceFunction() {
+  public LegacyVanillaCDSCleanPriceFunction() {
     super(ValueRequirementNames.CLEAN_PRICE);
   }
 
