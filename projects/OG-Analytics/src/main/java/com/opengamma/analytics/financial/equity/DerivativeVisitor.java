@@ -36,13 +36,4 @@ public interface DerivativeVisitor<S, T> {
   T visitEquityIndexOption(EquityIndexOption equityIndexOption, S data);
 
   T visitEquityIndexOption(EquityIndexOption equityIndexOption);
-
-  /*
-   * TODO:  
-   *  a) Include here the initial list of equity derivatives that we wish to handle
-   *  b) Build the functionality for them
-   *  T visitEquitySingleStockDividendFuture(EquitySingleStockDividendFuture equitySingleStockDividendFuture, S data);
-   *  (DONE) T visitVarianceSwap(VarianceSwap derivative, S data);
-   */
-
 }
