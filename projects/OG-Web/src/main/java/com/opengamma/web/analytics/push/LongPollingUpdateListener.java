@@ -65,9 +65,7 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          String update = formatUpdate(callbackId);
-          sendUpdate(update);
-          s_logger.debug("Sent update to client {}: {}", _clientId, update);
+          sendUpdate(formatUpdate(callbackId));
         } catch (JSONException e) {
           // this shouldn't ever happen
           s_logger.warn("Unable to format callback ID as JSON: " + callbackId, e);
@@ -93,9 +91,7 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          String update = formatUpdate(callbackIds);
-          sendUpdate(update);
-          s_logger.debug("Sent update to client {}: {}", _clientId, update);
+          sendUpdate(formatUpdate(callbackIds));
         } catch (JSONException e) {
           // this shouldn't ever happen, the updates are all URLs
           s_logger.warn("Unable to format URLs as JSON. URLs: " + callbackIds, e);
@@ -131,12 +127,13 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Adds {@code urls} to the connection's continuation and resumes it so the response is sent to the client.
-   * @param urls URLs of the changed items
+   * @param update URLs of the changed items
    */
-  private void sendUpdate(String urls) {
-    _continuation.setAttribute(LongPollingServlet.RESULTS, urls);
+  private void sendUpdate(String update) {
+    _continuation.setAttribute(LongPollingServlet.RESULTS, update);
     _continuation.resume();
     _continuation = null;
+    s_logger.debug("Sent update to client {}: {}", _clientId, update);
   }
 
   // for testing

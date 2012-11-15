@@ -130,8 +130,8 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
-    s_logger.debug("View {} opening dependency graph for cell ({}, {}) of the {} grid",
-                   new Object[]{_viewId, row, col, gridType});
+    s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
+                   new Object[]{_viewId, graphId, row, col, gridType});
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition);
   }
 
@@ -174,7 +174,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
-    s_logger.debug("View {} getting data for the viewport {} of the dependency graph {} of the {} grid",
+    s_logger.debug("View {} getting data for viewport {} of dependency graph {} of the {} grid",
                    new Object[]{_viewId, viewportId, graphId, gridType});
     return getGrid(gridType).getData(graphId, viewportId);
   }
