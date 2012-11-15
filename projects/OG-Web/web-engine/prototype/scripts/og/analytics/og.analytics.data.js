@@ -23,8 +23,7 @@ $.register_module({
                 var handler = function (result) {
                     if (!result || result.error) // do not kill connection even if there is an error, just warn
                         return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
-                    if (result.data && viewport && viewport.empty !== true && result.data.version === viewport_version)
-                        fire('data', result.data.data);
+                    if (result.data && result.data.version === viewport_version) fire('data', result.data.data);
                 };
                 return function (result) {
                     clearTimeout(timeout);

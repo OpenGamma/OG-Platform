@@ -776,10 +776,10 @@ $.register_module({
                 if (reset) return registrations = registrations // fire all updates if connection is reset (and clear)
                     .filter(function (reg) {return reg.update($.extend({reset: true}, reg)) && false;});
                 result.data.updates.filter(function (update) {
-                    var simple = typeof update === 'string', promise, request;
+                    var simple = typeof update === 'string', promise, request, resource;
                     if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)){
-                        promise.deferred
-                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        resource = update.message.split('/').pop();
+                        promise.deferred.resolve({error: false, data: null, meta: {id: resource}});
                         delete outstanding_requests[promise.id];
                     }
                     return simple;
