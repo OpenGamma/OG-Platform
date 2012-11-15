@@ -261,7 +261,7 @@ $.register_module({
             };
         })();
         var render_rows = (function () {
-            var notified = null, row_data = function (grid, data, fixed, loading) {
+            var row_data = function (grid, data, fixed, loading) {
                 var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
@@ -293,10 +293,10 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false, loading)));
                 grid.updated(+new Date);
                 if (loading) {
-                    if (!notified) grid.elements.main
-                        .append(notified = $(templates.loading({text: 'waiting for data...'})));
+                    if (!grid.elements.notified) grid.elements.main
+                        .append(grid.elements.notified = $(templates.loading({text: 'waiting for data...'})));
                 } else {
-                    if (notified) notified = (notified.remove(), null);
+                    if (grid.elements.notified) grid.elements.notified = (grid.elements.notified.remove(), null);
                     grid.elements.main.find('.node').each(function (idx, val) {
                         var $node = $(this);
                         $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
