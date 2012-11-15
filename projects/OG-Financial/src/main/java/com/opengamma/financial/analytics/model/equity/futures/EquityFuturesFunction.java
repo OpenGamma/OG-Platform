@@ -61,8 +61,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   // TODO: Refactor - this is a field name, like PX_LAST - We can't reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  // private static final EquityFutureConverter CONVERTER = new EquityFutureConverter();
-  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
+  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();  // TODO: Had been EquityFutureConverter();
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
@@ -155,13 +154,13 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final FutureSecurity security = (FutureSecurity) trade.getSecurity();
     // Get reference price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    //final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    final Double lastMarginPrice = 0.0; // !!!!!*************************************
+    final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    // final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
+    // final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice); // TODO: Clean this up
     final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
-    final EquityFutureDefinition defn = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(), simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
+    final EquityFutureDefinition defn = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(),
+        simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
     final EquityFuture derivative = defn.toDerivative(valuationTime, lastMarginPrice);
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -216,26 +215,21 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     // Spot
-    /* ***********************************************PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK *****************************
-    final ValueRequirement marketValueReq = getReferencePriceRequirement(context, security);
-    if (marketValueReq == null) {
+    final ValueRequirement refPriceReq = getReferencePriceRequirement(context, security);
+    if (refPriceReq == null) {
       return null;
     }
-    requirements.add(marketValueReq);
-    // ***********************************************PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK ** PUT ME BACK *****************************
-    */
+    requirements.add(refPriceReq);
     // Funding curve
     final String fundingCurveName = getFundingCurveName(desiredValue);
     if (fundingCurveName == null) {
       return null;
     }
-
     // Curve configuration
     final String curveConfigName = getCurveConfigName(desiredValue);
     if (curveConfigName == null) {
       return null;
     }
-
     switch (getPricingMethodEnum()) {
       case MARK_TO_MARKET:
         requirements.add(getMarketPriceRequirement(security));

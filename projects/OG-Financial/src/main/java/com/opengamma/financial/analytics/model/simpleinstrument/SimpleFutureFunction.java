@@ -44,6 +44,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -72,15 +73,11 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
 
     // Get reference price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-
-    // HACK CODE FOR TESTING UNTIL TIME SERIES IS AVAILABLE
-    final Double lastMarginPrice = 0.0;
-    /*
     final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     if (lastMarginPrice == null) {
       throw new OpenGammaRuntimeException("Could not find latest value in time series.");
     }
-    */
+
     final SimpleFutureDefinition defn = (SimpleFutureDefinition) security.accept(CONVERTER);
     final SimpleFuture derivative = defn.toDerivative(now, lastMarginPrice);
     if (derivative.getSettlement() < 0.0) { // Check to see whether it has already settled
@@ -109,7 +106,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     }
     final Security security = target.getTrade().getSecurity();
     return security instanceof EnergyFutureSecurity
-        //|| security instanceof MetalFutureSecurity
+        || security instanceof MetalFutureSecurity
         || security instanceof IndexFutureSecurity
         || security instanceof EquityFutureSecurity;
   }
@@ -137,13 +134,11 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     // Live market price
     requirements.add(getMarketPriceRequirement(security));
     // Last day's closing price
-    /*
     final ValueRequirement refPriceReq = getReferencePriceRequirement(context, security);
     if (refPriceReq == null) {
       return null;
     }
     requirements.add(refPriceReq);
-    */
     return requirements;
   }
 
