@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,10 +35,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -44,7 +48,6 @@ import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -115,8 +118,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     return uid;
   }
 
-  protected ViewExecutionOptions getExecutionOptions(final FunctionExecutionContext executionContext, final ViewEvaluationTarget target) {
-    final EnumSet<ViewExecutionFlags> flags = EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+  protected Collection<ViewCycleExecutionOptions> getExecutionCycleOptions(final FunctionExecutionContext executionContext, final ViewEvaluationTarget target) {
     LocalDate startDate = DateConstraint.getLocalDate(executionContext, target.getFirstValuationDate());
     if (startDate == null) {
       startDate = executionContext.getValuationClock().today();
@@ -141,11 +143,127 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation).setMarketDataSpecification(MarketData.historical(startDate, null))
           .setResolverVersionCorrection(VersionCorrection.of(valuation, target.getCorrection())).create());
       if (date.toLocalDate().equals(finishDate)) {
-        break;
+        return cycles;
       }
       date = date.plusDays(1);
     } while (true);
-    return ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), flags);
+  }
+
+  private static class AbstractTimeSeriesBuilder {
+
+    private final long[] _dates;
+    private int _next;
+
+    protected AbstractTimeSeriesBuilder(final long[] dates, final int next) {
+      _dates = dates;
+      _next = next;
+    }
+
+    protected AbstractTimeSeriesBuilder(final AbstractTimeSeriesBuilder copyFrom) {
+      _dates = copyFrom._dates;
+      _next = copyFrom._next;
+    }
+
+    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
+      if (value instanceof Number) {
+        return new DoubleTimeSeriesBuilder(_dates, date, ((Number) value).doubleValue());
+      } else {
+        return new ObjectTimeSeriesBuilder(_dates, date, value);
+      }
+    }
+
+    protected int index(final long date) {
+      final int i = _next++;
+      _dates[i] = date;
+      return i;
+    }
+
+  }
+
+  // TODO: If the duration of the time series is high, or there are simply a large quantity then we could modify these builders to
+  // write directly to the time series database instead (or batch up the points in internal arrays) and the result bundle will be
+  // the identifiers of the time series that were written to the database
+
+  private static class DoubleTimeSeriesBuilder extends AbstractTimeSeriesBuilder {
+
+    private final double[] _values;
+
+    public DoubleTimeSeriesBuilder(final long[] dates, final long date, final double initial) {
+      super(dates, 0);
+      _values = new double[dates.length];
+      _values[index(date)] = initial;
+    }
+
+    @Override
+    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
+      if (value instanceof Number) {
+        _values[index(date)] = ((Number) value).doubleValue();
+        return this;
+      } else {
+        return new ObjectTimeSeriesBuilder(this, date, value);
+      }
+    }
+
+  }
+
+  private static class ObjectTimeSeriesBuilder extends AbstractTimeSeriesBuilder {
+
+    private final Object[] _values;
+
+    public ObjectTimeSeriesBuilder(final long[] dates, final long date, final Object initial) {
+      super(dates, 0);
+      _values = new Object[dates.length];
+      _values[index(date)] = initial;
+    }
+
+    public ObjectTimeSeriesBuilder(final DoubleTimeSeriesBuilder copyFrom, final long date, final Object next) {
+      super(copyFrom);
+      _values = new Object[copyFrom._values.length];
+      final int count = index(date);
+      _values[count] = next;
+      for (int i = 0; i < count; i++) {
+        _values[i] = copyFrom._values[i];
+      }
+    }
+
+    @Override
+    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
+      _values[index(date)] = value;
+      return this;
+    }
+
+  }
+
+  private static class ResultBuilder {
+
+    private final Map<String, Map<ValueRequirement, AbstractTimeSeriesBuilder>> _results = new HashMap<String, Map<ValueRequirement, AbstractTimeSeriesBuilder>>();
+
+    public ResultBuilder(final int cycles, final ViewDefinition viewDefinition) {
+      for (final ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
+        final Map<ValueRequirement, AbstractTimeSeriesBuilder> configResults = new HashMap<ValueRequirement, AbstractTimeSeriesBuilder>();
+        _results.put(calcConfig.getName(), configResults);
+        for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
+          configResults.put(requirement, new AbstractTimeSeriesBuilder(new long[cycles], 0));
+        }
+      }
+    }
+
+    // TODO: need to store the calculation configuration to get the vspec/vreq mapping
+
+    public void store(final ViewComputationResultModel results) {
+      for (final ViewResultEntry viewResult : results.getAllResults()) {
+        final Map<ValueRequirement, AbstractTimeSeriesBuilder> configResults = _results.get(viewResult.getCalculationConfiguration());
+        final ValueSpecification spec = viewResult.getComputedValue().getSpecification();
+        final Object value = viewResult.getComputedValue().getValue();
+        // TODO: lookup the original value requirement(s) from the compiled view definition and get the builder to apply the value to
+      }
+    }
+
+    public Object getResult() {
+      // TODO: get the time series from all of the builders and package it up into a result object
+      throw new UnsupportedOperationException("TODO");
+    }
+
   }
 
   // FunctionInvoker
@@ -162,7 +280,9 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     final ViewClient viewClient = viewProcessor.createViewClient(viewEvaluation.getViewDefinition().getMarketDataUser());
     final UniqueId viewClientId = viewClient.getUniqueId();
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
-    viewClient.attachToViewProcess(viewId, getExecutionOptions(executionContext, viewEvaluation), true);
+    final Collection<ViewCycleExecutionOptions> cycles = getExecutionCycleOptions(executionContext, viewEvaluation);
+    viewClient.attachToViewProcess(viewId, ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
+    final ResultBuilder resultBuilder = new ResultBuilder(cycles.size(), viewEvaluation.getViewDefinition());
     final AsynchronousOperation<Set<ComputedValue>> async = new AsynchronousOperation<Set<ComputedValue>>();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
@@ -226,16 +346,12 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
         assert false;
       }
 
-      // TODO: are the listener methods guaranteed to be sequential; can cycleCompleted happen concurrently? can processComplete be called
-      // before cycleCompleted returns?
-
       @Override
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.debug("Cycle completed for {}", viewClientId);
         try {
           viewClient.triggerCycle();
-          // TODO: extract the data
-          throw new UnsupportedOperationException("TODO");
+          resultBuilder.store(fullResult);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during cycle completed callback", e);
           reportException(e);
@@ -252,8 +368,8 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       public void processCompleted() {
         s_logger.info("View process completed for {}", viewClientId);
         try {
-          // TODO: bundle up the results we've been collecting and report it to the callback
-          throw new UnsupportedOperationException("TODO");
+          reportResult(Collections.singleton(new ComputedValue(
+              new ValueSpecification(ValueRequirementNames.VALUE, target.toSpecification(), createValueProperties().get()), resultBuilder.getResult())));
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during process completed callback", e);
           reportException(e);
