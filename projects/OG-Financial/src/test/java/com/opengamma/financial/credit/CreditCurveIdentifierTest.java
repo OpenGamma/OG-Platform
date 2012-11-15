@@ -19,13 +19,13 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  *
  */
 public class CreditCurveIdentifierTest {
-  private static final ExternalId ISSUER_ID = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "ABC");
+  private static final String ISSUER_ID = "ABC";
   private static final String SENIORITY = "SENIOR";
   private static final String RESTRUCTURING_CLAUSE = "NONE";
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIssuer() {
-    CreditCurveIdentifier.of(null, SENIORITY, RESTRUCTURING_CLAUSE);
+    CreditCurveIdentifier.of((String) null, SENIORITY, RESTRUCTURING_CLAUSE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
