@@ -41,6 +41,10 @@ public final class Interpolator1DFactory {
   public static final String LINEAR_EXTRAPOLATOR = "LinearExtrapolator";
   /** Linear extrapolator */
   public static final String EXPONENTIAL_EXTRAPOLATOR = "ExponentialExtrapolator";
+  /** ISDA interpolator */
+  public static final String ISDA_INTERPOLATOR = "ISDAInterpolator";
+  /** ISDA extrapolator */
+  public static final String ISDA_EXTRAPOLATOR = "ISDAExtrapolator";
   /** Linear instance */
   public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
   /** Exponential instance */
@@ -55,10 +59,13 @@ public final class Interpolator1DFactory {
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
-  
-  public static final String ISDA_INTERPOLATOR = "ISDAInterpolator";
-  public static final String ISDA_EXTRAPOLATOR = "ISDAExtrapolator";
+  /** Flat extrapolator instance */
+  public static final FlatExtrapolator1D FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1D();
+  /** Exponential extrapolator instance */
+  public static final ExponentialExtrapolator1D EXPONENTIAL_EXTRAPOLATOR_INSTANCE = new ExponentialExtrapolator1D();
+  /** ISDA interpolator instance */
   public static final ISDAInterpolator1D ISDA_INTERPOLATOR_INSTANCE = new ISDAInterpolator1D();
+  /** ISDA extrapolator instance */
   public static final ISDAExtrapolator1D ISDA_EXTRAPOLATOR_INSTANCE = new ISDAExtrapolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
@@ -81,13 +88,15 @@ public final class Interpolator1DFactory {
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
+    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
-    
+    staticInstances.put(EXPONENTIAL_EXTRAPOLATOR, EXPONENTIAL_EXTRAPOLATOR_INSTANCE);
+    instanceNames.put(ExponentialExtrapolator1D.class, EXPONENTIAL_EXTRAPOLATOR);
     staticInstances.put(ISDA_INTERPOLATOR, ISDA_INTERPOLATOR_INSTANCE);
-    staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ISDAInterpolator1D.class, ISDA_INTERPOLATOR);
+    staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
-    
+
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
@@ -114,12 +123,6 @@ public final class Interpolator1DFactory {
     // Barycentric, Polynomial, and RationalFunction.
     if (interpolator instanceof LinearExtrapolator1D) {
       return LINEAR_EXTRAPOLATOR;
-    }
-    if (interpolator instanceof FlatExtrapolator1D) {
-      return FLAT_EXTRAPOLATOR;
-    }
-    if (interpolator instanceof ExponentialExtrapolator1D) {
-      return EXPONENTIAL_EXTRAPOLATOR;
     }
     return interpolatorName;
   }
