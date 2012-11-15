@@ -7,6 +7,8 @@ package com.opengamma.core.config.impl;
 
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -55,13 +57,28 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Obtains an item that wraps the underlying object.
+   * <p>
+   * The name will be extracted if the target object has a {@code getName} method.
    * 
    * @param <T>  the type of the item
    * @param object  the underlying object, not null
    * @return the item, not null
    */
   public static <T> ConfigItem<T> of(T object) {
-    return new ConfigItem<T>(object);
+    ConfigItem<T> item = new ConfigItem<T>(object);
+    if (object instanceof Bean) {
+      Bean bean = (Bean) object;
+      if (bean.metaBean().metaPropertyExists("name")) {
+        item.setName(ObjectUtils.toString(bean.property("name").get(), null));
+      }
+    } else if (object != null) {
+      try {
+        item.setName((String) object.getClass().getMethod("getName").invoke(object));
+      } catch (Exception ex) {
+        // ignore
+      }
+    }
+    return item;
   }
 
   /**
