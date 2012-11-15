@@ -30,7 +30,7 @@ public class BloombergDomainIdentifierResolverTest {
     
     bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(ExternalSchemes.bloombergTickerSecurityId("DJX Index"), "CMPL");
     assertNotNull(bbgKey);
-    assertEquals("DJX@CMPL INDEX", bbgKey);
+    assertEquals("DJX CMPL INDEX", bbgKey);
     
     bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(ExternalSchemes.bloombergBuidSecurityId("EO10169520130101C8800001"), "CMPL");
     assertNotNull(bbgKey);
