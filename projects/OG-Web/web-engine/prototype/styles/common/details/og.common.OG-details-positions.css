@@ -22,6 +22,7 @@
   background-color: #fff;
   border: 1px solid #d0e4f1;
   position: relative;
+  min-height: 50px;
 }
 
 .OG-gadgets-positions .og-timeseries-extra {
