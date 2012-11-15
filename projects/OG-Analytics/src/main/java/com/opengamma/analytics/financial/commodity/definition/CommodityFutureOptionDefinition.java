@@ -10,16 +10,21 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Abstract commodity future option definition.
+ *
+ * @param <T> concrete underlying derivative definition
+ * @param <U> concrete underlying derivative
  */
-public abstract class CommodityFutureOptionDefinition {
+public abstract class CommodityFutureOptionDefinition<T extends CommodityFutureDefinition<?>, U extends InstrumentDerivative> implements InstrumentDefinition<U> {
   /** Expiry date */
   private final ZonedDateTime _expiryDate;
   /** Identifier of the underlying commodity */
-  private final CommodityFutureDefinition _underlying;
+  private final T _underlying;
   /** Strike price */
   private final double _strike;
   /** Exercise type - European or American */
@@ -31,16 +36,15 @@ public abstract class CommodityFutureOptionDefinition {
    * Constructor for future options
    *
    * @param expiryDate is the time and the day that a particular delivery month of a futures contract stops trading, as well as the final settlement price for that contract.
-   * @param underlying Underlying future
+   * @param underlying underlying
    * @param strike Strike price
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public CommodityFutureOptionDefinition(final ZonedDateTime expiryDate, final CommodityFutureDefinition underlying, final double strike,
+  public CommodityFutureOptionDefinition(final ZonedDateTime expiryDate, final T underlying, final double strike,
       final ExerciseDecisionType exerciseType, final boolean isCall) {
     ArgumentChecker.notNull(expiryDate, "expiry time");
-    ArgumentChecker.notNull(underlying, "underlying");
-    ArgumentChecker.notNull(exerciseType, "underlying");
+    ArgumentChecker.notNull(exerciseType, "exercise Type");
 
     _expiryDate = expiryDate;
     _underlying = underlying;
@@ -61,7 +65,7 @@ public abstract class CommodityFutureOptionDefinition {
    * Gets the underlying.
    * @return the underlying
    */
-  public CommodityFutureDefinition getUnderlying() {
+  public T getUnderlying() {
     return _underlying;
   }
 
@@ -92,8 +96,8 @@ public abstract class CommodityFutureOptionDefinition {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _underlying.hashCode();
     result = prime * result + _expiryDate.hashCode();
+    result = prime * result + _underlying.hashCode();
     result = prime * result + _exerciseType.hashCode();
     result = prime * result + (_isCall ? 1231 : 1237);
     long temp;
@@ -110,7 +114,7 @@ public abstract class CommodityFutureOptionDefinition {
     if (!(obj instanceof CommodityFutureOptionDefinition)) {
       return false;
     }
-    final CommodityFutureOptionDefinition other = (CommodityFutureOptionDefinition) obj;
+    final CommodityFutureOptionDefinition<?, ?> other = (CommodityFutureOptionDefinition<?, ?>) obj;
     if (!ObjectUtils.equals(_expiryDate, other._expiryDate)) {
       return false;
     }

@@ -8,16 +8,16 @@ package com.opengamma.analytics.financial.commodity.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Metal forward definition
  */
-public class MetalForwardDefinition extends CommodityForwardDefinition implements InstrumentDefinition<MetalForward> {
+public class MetalForwardDefinition extends CommodityForwardDefinition<MetalForward> {
 
   /**
    * Constructor for forwards with delivery dates (i.e. physical settlement)
@@ -30,10 +30,13 @@ public class MetalForwardDefinition extends CommodityForwardDefinition implement
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - PHYSICAL or CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public MetalForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, double amount, String unitName,
-      SettlementType settlementType) {
-    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -44,9 +47,13 @@ public class MetalForwardDefinition extends CommodityForwardDefinition implement
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
-  public MetalForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public MetalForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, final double referencePrice,
+      final Currency currency, final ZonedDateTime settlementDate) {
+    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -57,27 +64,34 @@ public class MetalForwardDefinition extends CommodityForwardDefinition implement
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    * @return the forward
    */
-  public static MetalForwardDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    return new MetalForwardDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public static MetalForwardDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new MetalForwardDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
-  * Static constructor method for physical settlement futures
-  * 
-  * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
-  * @param underlying  identifier of the underlying commodity
-  * @param unitAmount  size of a unit
-  * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
-  * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
-  * @param amount  number of units
-  * @param unitName  description of unit size
-  * @return the forward
-  */
+   * Static constructor method for physical settlement futures
+   *
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
+   * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
+   * @return the forward
+   */
   public static MetalForwardDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName) {
-    return new MetalForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL);
+      double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new MetalForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -90,7 +104,24 @@ public class MetalForwardDefinition extends CommodityForwardDefinition implement
   public MetalForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    return new MetalForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new MetalForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(),
+        timeToSettlement, getReferencePrice(), getCurrency());
+  }
+
+  /**
+   * Get the derivative at a given fix time from the definition
+   *
+   * @param date  fixing time
+   * @param referencePrice reference price
+   * @return the fixed derivative
+   */
+  public MetalForward toDerivative(final ZonedDateTime date, final double referencePrice) {
+    ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
+    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new MetalForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
+        referencePrice, getCurrency());
   }
 
   @Override

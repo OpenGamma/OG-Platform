@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -26,8 +27,10 @@ public class EnergyFutureOptionDefinitionTest {
   private final static ZonedDateTime FIRST_DELIVERY_DATE = DateUtils.getUTCDate(2011, 9, 21);
   private final static ZonedDateTime LAST_DELIVERY_DATE = DateUtils.getUTCDate(2012, 9, 21);
   private final static ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 9, 21);
+  private final static ZonedDateTime SETTLEMENT_DATE = LAST_DELIVERY_DATE;
   private final static ZonedDateTime A_DATE = DateUtils.getUTCDate(2011, 9, 20);
-  private final static EnergyFutureDefinition AN_UNDERLYING = new EnergyFutureDefinition(EXPIRY_DATE, AN_ID, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL);
+  private final static EnergyFutureDefinition AN_UNDERLYING = new EnergyFutureDefinition(EXPIRY_DATE, AN_ID, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL, 0,
+      Currency.GBP, SETTLEMENT_DATE);
 
   /**
    * Test hashCode and equals methods.

@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 
 /**
  * Metal  commodity derivative
@@ -17,19 +18,21 @@ import com.opengamma.id.ExternalId;
 public class AgricultureForward extends CommodityForward {
 
   /**
-   * @param expiry Time (in years as a double) until the date-time at which the forward expires
-   * @param underlying Identifier of the underlying commodity
-   * @param unitAmount Size of a unit
-   * @param firstDeliveryDate Date of first delivery - PHYSICAL settlement
-   * @param lastDeliveryDate Date of last delivery - PHYSICAL settlement
-   * @param amount Number of units
-   * @param unitName Description of unit size
-   * @param settlementType Settlement type - PHYISCAL or CASH
+   * @param expiry time (in years as a double) until the date-time at which the forward expires
+   * @param underlying identifier of the underlying commodity
+   * @param unitAmount size of a unit
+   * @param firstDeliveryDate date of first delivery - PHYSICAL settlement
+   * @param lastDeliveryDate date of last delivery - PHYSICAL settlement
+   * @param amount number of units
+   * @param unitName description of unit size
+   * @param settlementType settlement type - PHYISCAL or CASH
+   * @param settlement time (in years as a double) until the date-time at which the future is settled
+   * @param referencePrice reference price
+   * @param currency currency
    */
   public AgricultureForward(final double expiry, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
-      final double amount, final String unitName,
-      final SettlementType settlementType) {
-    super(expiry, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      final double amount, final String unitName, final SettlementType settlementType, final double settlement, final double referencePrice, final Currency currency) {
+    super(expiry, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, settlement, referencePrice, currency);
   }
 
   @Override

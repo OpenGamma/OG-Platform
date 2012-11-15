@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -17,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Metal future option definition
  */
-public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition implements InstrumentDefinition<MetalFutureOption> {
+public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition<MetalFutureDefinition, MetalFutureOption> {
 
   /**
    * Constructor for future options
@@ -28,7 +27,8 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
    * @param exerciseType  exercise type - European or American
    * @param isCall  call if true, put if false
    */
-  public MetalFutureOptionDefinition(final ZonedDateTime expiryDate, final CommodityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public MetalFutureOptionDefinition(final ZonedDateTime expiryDate, final MetalFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType,
+      final boolean isCall) {
     super(expiryDate, underlying, strike, exerciseType, isCall);
   }
 
@@ -42,6 +42,7 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
   public MetalFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    //timeToSettlement
     return new MetalFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
   }
 

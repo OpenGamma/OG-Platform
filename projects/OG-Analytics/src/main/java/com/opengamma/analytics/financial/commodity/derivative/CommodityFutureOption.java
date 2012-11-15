@@ -14,12 +14,14 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Abstract commodity future derivative.
+ *
+ * @param <T>
  */
-public abstract class CommodityFutureOption implements InstrumentDerivative {
+public abstract class CommodityFutureOption<T extends CommodityFutureDefinition<?>> implements InstrumentDerivative {
   /** Time (in years as a double) until the date-time at which the future expires */
   private final double _expiry;
   /** Identifier of the underlying commodity */
-  private final CommodityFutureDefinition _underlying;
+  private final T _underlying;
   /** Strike price */
   private final double _strike;
   /** Exercise type - European or American */
@@ -34,7 +36,7 @@ public abstract class CommodityFutureOption implements InstrumentDerivative {
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public CommodityFutureOption(final double expiry, final CommodityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public CommodityFutureOption(final double expiry, final T underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     ArgumentChecker.isTrue(expiry > 0, "time to expiry must be positive");
 
     _expiry = expiry;
@@ -56,7 +58,7 @@ public abstract class CommodityFutureOption implements InstrumentDerivative {
    * Gets the underlying.
    * @return the underlying
    */
-  public CommodityFutureDefinition getUnderlying() {
+  public T getUnderlying() {
     return _underlying;
   }
 
@@ -109,7 +111,7 @@ public abstract class CommodityFutureOption implements InstrumentDerivative {
     if (!(obj instanceof CommodityFutureOption)) {
       return false;
     }
-    final CommodityFutureOption other = (CommodityFutureOption) obj;
+    final CommodityFutureOption<?> other = (CommodityFutureOption<?>) obj;
     if (!ObjectUtils.equals(_underlying, other._underlying)) {
       return false;
     }
