@@ -23,9 +23,9 @@ public class BloombergDomainIdentifierResolverTest {
   @DataProvider(name = "resolver")
   Object[][] data_resolver() {
     return new Object[][] {
-        {ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity"), "CMPL", "AAPL US EQUITY"},
-        {ExternalSchemes.bloombergTickerSecurityId("ADSW5Q Curncy"), "CMPL", "ADSW5Q CURNCY"},
-        {ExternalSchemes.bloombergTickerSecurityId("DJX Index"), "CMPL", "DJX INDEX"},
+        {ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity"), "CMPL", "AAPL US Equity"},
+        {ExternalSchemes.bloombergTickerSecurityId("ADSW5Q Curncy"), "CMPL", "ADSW5Q Curncy"},
+        {ExternalSchemes.bloombergTickerSecurityId("DJX Index"), "CMPL", "DJX Index"},
         {ExternalSchemes.bloombergBuidSecurityId("EO10169520130101C8800001"), "CMPL", "/buid/EO10169520130101C8800001"},
         {ExternalSchemes.isinSecurityId("US0378331005"), "CMPL", "/isin/US0378331005"},
         {ExternalSchemes.cusipSecurityId("037833100"), "CMPL", "/cusip/037833100"},
