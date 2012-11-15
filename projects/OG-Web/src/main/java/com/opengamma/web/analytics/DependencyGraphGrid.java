@@ -92,8 +92,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  // TODO why is this using the main grid's cache rather than its own? is that a mistake?
-  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
-    return getViewport(viewportId).update(viewportDefinition, cycle, cache);
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle) {
+    return getViewport(viewportId).update(viewportDefinition, cycle, _cache);
   }
 }

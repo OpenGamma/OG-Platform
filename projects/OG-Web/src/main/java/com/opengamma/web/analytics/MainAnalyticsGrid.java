@@ -181,7 +181,7 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */ String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle, _cache);
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle);
   }
 
   /**

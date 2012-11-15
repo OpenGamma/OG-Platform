@@ -16,9 +16,9 @@ import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 @Test(groups = "integration")
 public class SecurityLoaderSpringContextTest extends AbstractSpringContextValidationTestNG {
 
-  @Test(enabled=false, dataProvider = "runModes", dataProviderClass = AbstractSpringContextValidationTestNG.class)
+  @Test(enabled=false)
   public void testSecurityLoaderBean(final String opengammaPlatformRunmode) {
-    loadClassPathResource(opengammaPlatformRunmode, BloombergSecurityFileLoader.CONTEXT_CONFIGURATION_PATH);
+    loadClassPathResource(BloombergSecurityFileLoader.CONTEXT_CONFIGURATION_PATH);
     assertContextLoaded();
     assertBeanExists(BloombergSecurityFileLoader.class, "securityLoader");
   }
