@@ -39,8 +39,7 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
     if (formatter != null) {
       return formatter.format(value, valueSpec);
     } else {
-      return new MissingFormatter("Unable to format value " + value + " of type " + value.getClass().getSimpleName() +
-                                      " with format " + format);
+      return new MissingFormatter(format + " format not supported for " + value.getClass().getSimpleName());
     }
   }
 
