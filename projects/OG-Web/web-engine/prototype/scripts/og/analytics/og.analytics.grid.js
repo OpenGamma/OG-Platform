@@ -90,7 +90,7 @@ $.register_module({
             grid.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            grid.elements.parent.html(templates.loading({text: 'initializing connection...'}));
+            grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
             grid.clipboard = new og.analytics.Clipboard(grid);
             grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
