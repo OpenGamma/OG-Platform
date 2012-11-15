@@ -33,8 +33,11 @@ $.register_module({
             };
         var auto_combo_handler = function (event, ui) {
             if (!$dom || !('load_btn' in $dom) || !$dom.load_btn) return;
-            if ((ui && ui.item && ui.item.value || $(this).val()) !== '') $dom.load_btn.removeClass('og-disabled');
-            else $dom.load_btn.addClass('og-disabled');
+            /*
+                TODO AG: reactivate the load button when a query is replayed
+                if ((ui && ui.item && ui.item.value || $(this).val()) !== '') $dom.load_btn.removeClass('og-disabled');
+                else $dom.load_btn.addClass('og-disabled');
+            */
         };
         var close_dropmenu = function (menu) {
             if (!menu || !ds_menu || !ag_menu) return;
@@ -62,7 +65,7 @@ $.register_module({
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                 og.api.text({module: 'og.analytics.form_datasources_tash'}),
-                og.api.rest.viewdefinitions.get(),
+                og.api.rest.viewdefinitions.get({page: '*'}),
                 og.api.rest.aggregators.get()
             ).pipe(function (tmpl, ag_tmpl, ds_tmpl, vds, ag_data) {
                 if (!tmpl.error) template = tmpl;
