@@ -73,7 +73,7 @@ $.register_module({
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
                 if (depgraph || config.bypass) grid_type = source.type; // don't bother with type_setup
-                if (view_id && grid_type) return structure_setup().pipe(structure_handler);
+                if (view_id && grid_type) return structure_setup();
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
                 catch (error) {fire('fatal', data.prefix + error.message);}
@@ -96,23 +96,20 @@ $.register_module({
                 return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
                     one.format === two.format;
             };
-            var structure_setup = function () {
-                if (!view_id) return null; // goes to structure_handler
-                if (!depgraph)
-                    return api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: initialize});
-                return api.grid.structure
-                    .get({view_id: view_id, grid_type: grid_type, update: initialize}).pipe(function (result) {
-                        if (result.error || !result.data[SETS].length) return result; // goes to structure_handler
-                        if (graph_id) return api.grid.depgraphs.structure
-                            .get({view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: initialize});
-                        return api.grid.depgraphs.put({
+            var structure_setup = function (update) {
+                var initial = !update;
+                if (initial) return api.grid.structure
+                    .get({view_id: view_id, grid_type: grid_type, update: structure_setup, initial: initial});
+                api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_handler})
+                    .pipe(function (result) {
+                        if (result.error) return fire('fatal', data.prefix + result.message);
+                        return !depgraph ? structure_handler(result) : api.grid.depgraphs.put({
                             view_id: view_id, grid_type: grid_type, row: source.row, col: source.col
                         }).pipe(function (result) {
                             if (result.error) return fire('fatal', data.prefix + result.message);
-                            return api.grid.depgraphs.structure.get({
-                                view_id: view_id, grid_type: grid_type,
-                                graph_id: (graph_id = result.meta.id), update: initialize
-                            });
+                            return api.grid.depgraphs.structure
+                                .get({view_id: view_id, grid_type: grid_type, graph_id: (graph_id = result.meta.id)})
+                                .pipe(structure_handler);
                         })
                     });
             };
