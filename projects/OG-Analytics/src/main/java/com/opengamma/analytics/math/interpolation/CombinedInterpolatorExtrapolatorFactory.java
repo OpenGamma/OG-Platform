@@ -48,13 +48,9 @@ public final class CombinedInterpolatorExtrapolatorFactory {
   }
 
   public static Interpolator1D getExtrapolator(final String extrapolatorName, final Interpolator1D interpolator) {
-    if (extrapolatorName.equals(Interpolator1DFactory.FLAT_EXTRAPOLATOR)) {
-      return new FlatExtrapolator1D();
-    } else if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
+    if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
       return new LinearExtrapolator1D(interpolator);
-    } else if (extrapolatorName.equals(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR)) {
-      return new ExponentialExtrapolator1D();
     }
-    throw new IllegalArgumentException("Cannot get extrapolator " + extrapolatorName);
+    return Interpolator1DFactory.getInterpolator(extrapolatorName);
   }
 }

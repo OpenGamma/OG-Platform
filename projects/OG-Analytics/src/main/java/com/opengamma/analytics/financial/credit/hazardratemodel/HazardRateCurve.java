@@ -5,14 +5,16 @@
  */
 package com.opengamma.analytics.financial.credit.hazardratemodel;
 
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.ISDA_INTERPOLATOR;
+
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
-import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,8 +22,13 @@ import com.opengamma.util.ArgumentChecker;
  * Partially adopted from the RiskCare implementation of the ISDA model
  */
 public class HazardRateCurve {
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(ISDA_INTERPOLATOR, FLAT_EXTRAPOLATOR, ISDA_EXTRAPOLATOR);
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * 
+   */
 
   private final double _offset;
 
@@ -39,11 +46,7 @@ public class HazardRateCurve {
 
     // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
     if (xData.length > 1) {
-      _curve = InterpolatedDoublesCurve.fromSorted(xData, yData,
-          new CombinedInterpolatorExtrapolator(
-              new ISDAInterpolator1D(),    // ISDA style interpolation
-              new FlatExtrapolator1D(),    // Flat rate extrapolated to the left
-              new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right
+      _curve = InterpolatedDoublesCurve.fromSorted(xData, yData, INTERPOLATOR);
     } else if (xData.length == 1) {
       _curve = ConstantDoublesCurve.from(yData[0]);  // Unless the curve is flat, in which case use a constant curve
     } else {
@@ -63,12 +66,12 @@ public class HazardRateCurve {
 
   // Builder method to build a new SurvivalCurve object given the tenor and hazard rate inputs
 
-  public HazardRateCurve bootstrapHelperHazardRateCurve(double[] tenorsAsDoubles, double[] hazardRates) {
+  public HazardRateCurve bootstrapHelperHazardRateCurve(final double[] tenorsAsDoubles, final double[] hazardRates) {
 
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
     ArgumentChecker.notNull(hazardRates, "Hazard rates field");
 
-    HazardRateCurve modifiedHazardRateCurve = new HazardRateCurve(tenorsAsDoubles, hazardRates, 0.0);
+    final HazardRateCurve modifiedHazardRateCurve = new HazardRateCurve(tenorsAsDoubles, hazardRates, 0.0);
 
     return modifiedHazardRateCurve;
   }

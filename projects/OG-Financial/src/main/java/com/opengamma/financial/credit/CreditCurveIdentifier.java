@@ -18,7 +18,8 @@ import com.opengamma.util.ArgumentChecker;
 public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectIdentifiable {
   /** The scheme to use in object identifiers */
   public static final String OBJECT_SCHEME = "CreditCurveIdentifier";
-  private final ExternalId _issuer;
+  private static final String SEPARATOR = "_";
+  private final String _issuer;
   private final String _seniority;
   private final String _restructuringClause;
   private final String _idValue;
@@ -31,7 +32,40 @@ public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectId
    * @return the credit curve identifier, not null
    */
   public static CreditCurveIdentifier of(final ExternalId issuer, final String seniority, final String restructuringClause) {
+    ArgumentChecker.notNull(issuer, "issuer");
+    ArgumentChecker.notNull(seniority, "seniority");
+    ArgumentChecker.notNull(restructuringClause, "restructuring clause");
+    return new CreditCurveIdentifier(issuer.getValue(), seniority, restructuringClause);
+  }
+
+  /**
+   * Creates an {@code CreditCurveIdentifier} from issuer, seniority and restructuring clause data
+   * @param issuer  the issuer, not null
+   * @param seniority  the seniority, not null
+   * @param restructuringClause  the restructuring clause, not null
+   * @return the credit curve identifier, not null
+   */
+  public static CreditCurveIdentifier of(final String issuer, final String seniority, final String restructuringClause) {
+    ArgumentChecker.notNull(issuer, "issuer");
+    ArgumentChecker.notNull(seniority, "seniority");
+    ArgumentChecker.notNull(restructuringClause, "restructuring clause");
     return new CreditCurveIdentifier(issuer, seniority, restructuringClause);
+  }
+
+  /**
+   * Creates an {@code CreditCurveIdentifier} from a unique id.
+   * @param uniqueId  the unique id, not null
+   * @return the credit curve identifier, not null
+   */
+  public static CreditCurveIdentifier of(final UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "unique id");
+    if (uniqueId.getScheme().equals(OBJECT_SCHEME)) {
+      final String[] sections = uniqueId.getValue().split(SEPARATOR);
+      if (sections.length == 3) {
+        return new CreditCurveIdentifier(sections[0], sections[1], sections[2]);
+      }
+    }
+    throw new UnsupportedOperationException("Cannot create a CreditCurveIdentifier from this UniqueId; need an ObjectScheme of CreditCurveIdentifier, have " + uniqueId.getScheme());
   }
 
   /**
@@ -40,21 +74,18 @@ public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectId
    * @param seniority  the seniority, not null
    * @param restructuringClause  the restructuring clause, not null
    */
-  private CreditCurveIdentifier(final ExternalId issuer, final String seniority, final String restructuringClause) {
-    ArgumentChecker.notNull(issuer, "issuer");
-    ArgumentChecker.notNull(seniority, "seniority");
-    ArgumentChecker.notNull(restructuringClause, "restructuring clause");
+  private CreditCurveIdentifier(final String issuer, final String seniority, final String restructuringClause) {
     _issuer = issuer;
     _seniority = seniority;
     _restructuringClause = restructuringClause;
-    _idValue = _issuer.getValue() + "_" + _seniority + "_" + _restructuringClause;
+    _idValue = _issuer + SEPARATOR + _seniority + SEPARATOR + _restructuringClause;
   }
 
   /**
    * Gets the issuer.
    * @return the issuer
    */
-  public ExternalId getIssuer() {
+  public String getIssuer() {
     return _issuer;
   }
 
