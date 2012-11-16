@@ -190,6 +190,7 @@ $.register_module({
             BYT: 'byte',
             DBL: 'double',
             IND: 'indicator',
+            LNG: 'long',
             SHR: 'short',
             STR: 'string'
         };
