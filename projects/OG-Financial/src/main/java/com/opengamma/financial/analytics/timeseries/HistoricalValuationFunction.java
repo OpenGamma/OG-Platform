@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeZone;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,36 +62,46 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    * Property naming the value produced on the target to generate the time series. For example {@code Historical Series[Value=FairValue]} will produce a time series based on evaluating
    * {@code FairValue[]}.
    */
-  public static final String VALUE = "Value";
+  public static final String VALUE_PROPERTY = "Value";
 
   /**
    * Prefix on properties corresponding the the underlying production on the target. For example {@code Historical Series[Value=FairValue, Value_Foo=Bar]} will produce a time series based on
    * evaluating {@code FairValue[Foo=Bar]}.
    */
-  public static final String PASSTHROUGH_PREFIX = VALUE + "_";
+  public static final String PASSTHROUGH_PREFIX = VALUE_PROPERTY + "_";
 
   /**
    * Property naming how the target is specified, for example by unique identifier, object identifier or external identifier.
    */
-  public static final String TARGET_SPECIFICATION = "Target";
+  public static final String TARGET_SPECIFICATION_PROPERTY = "Target";
 
   /**
-   * Value of the {@link #TARGET_SPECIFICATION} property indicating the target is specified by its unique identifier and is independent of the resolver version/correction time on the spawned view
-   * cycles.
+   * Value of the {@link #TARGET_SPECIFICATION_PROPERTY} property indicating the target is specified by its unique identifier and is independent of the resolver version/correction time on the spawned
+   * view cycles.
    */
   public static final String TARGET_SPECIFICATION_UNIQUE = "Unique";
 
   /**
-   * Value of the {@link #TARGET_SPECIFICATION} property indicating the target is specified by its object identifier and is dependent of the resolver version/correction time on the spawned view
-   * cycles.
+   * Value of the {@link #TARGET_SPECIFICATION_PROPERTY} property indicating the target is specified by its object identifier and is dependent of the resolver version/correction time on the spawned
+   * view cycles.
    */
   public static final String TARGET_SPECIFICATION_OBJECT = "Object";
 
   /**
-   * Value of the {@link #TARGET_SPECIFICATION} property indicating the target is specified by its external identifier bundle and is dependent of the resolver version/correction time on the spawned
-   * view cycles.
+   * Value of the {@link #TARGET_SPECIFICATION_PROPERTY} property indicating the target is specified by its external identifier bundle and is dependent of the resolver version/correction time on the
+   * spawned view cycles.
    */
   public static final String TARGET_SPECIFICATION_EXTERNAL = "External";
+
+  /**
+   * Property naming the time-zone the valuation time is specified in.
+   */
+  public static final String TIMEZONE_PROPERTY = "TZ";
+
+  /**
+   * Property naming the valuation time of day to use.
+   */
+  public static final String VALUATION_TIME_PROPERTY = "Time";
 
   protected ValueRequirement getNestedRequirement(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTarget target, final ValueProperties constraints,
       final ViewEvaluationTarget updateTempTarget) {
@@ -98,7 +111,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     if (constraints.getProperties() != null) {
       for (final String constraintName : constraints.getProperties()) {
         final Set<String> constraintValues = constraints.getValues(constraintName);
-        if (VALUE.equals(constraintName)) {
+        if (VALUE_PROPERTY.equals(constraintName)) {
           if (constraintValues.isEmpty()) {
             valueName = ValueRequirementNames.VALUE;
           } else if (constraintValues.size() > 1) {
@@ -106,7 +119,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
           } else {
             valueName = constraintValues.iterator().next();
           }
-        } else if (TARGET_SPECIFICATION.equals(constraintName)) {
+        } else if (TARGET_SPECIFICATION_PROPERTY.equals(constraintName)) {
           if (constraintValues.isEmpty() || constraintValues.contains(TARGET_SPECIFICATION_UNIQUE)) {
             requirementTarget = target.toSpecification();
           } else if (constraintValues.contains(TARGET_SPECIFICATION_OBJECT)) {
@@ -181,6 +194,14 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
             } else {
               return null;
             }
+          } else if (TIMEZONE_PROPERTY.equals(constraintName)) {
+            if (constraintValues.size() > 0) {
+              updateTempTarget.setTimeZone(TimeZone.of(constraintValues.iterator().next()));
+            }
+          } else if (VALUATION_TIME_PROPERTY.equals(constraintName)) {
+            if (constraintValues.size() > 0) {
+              updateTempTarget.setValuationTime(LocalTime.parse(constraintValues.iterator().next()));
+            }
           } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
             return null;
           }
@@ -217,8 +238,6 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ViewEvaluationTarget tempTarget = new ViewEvaluationTarget(context.getViewCalculationConfiguration().getViewDefinition().getMarketDataUser());
-    // TODO: get a suitable time zone for the target -- use constraint injection
-    // TODO: get a suitable valuation time for the target -- use constraint injection
     tempTarget.setCorrection(context.getComputationTargetResolver().getVersionCorrection().getCorrectedTo());
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(tempTarget.getViewDefinition(), context.getViewCalculationConfiguration().getName());
     calcConfig.addSpecificRequirement(getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints(), tempTarget));
@@ -330,7 +349,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
           // ignore the forms where we should know the outcomes to avoid complicating matters. A higher priority function should be
           // used to enforce any necessary constraints based on the target's properties.
           final ValueProperties.Builder properties = createValueProperties(tempTarget);
-          properties.with(VALUE, nestedRequirement.getValueName());
+          properties.with(VALUE_PROPERTY, nestedRequirement.getValueName());
           final ValueProperties nestedConstraints = nestedRequirement.getConstraints();
           if (nestedConstraints.getProperties() != null) {
             for (final String propertyName : nestedConstraints.getProperties()) {
@@ -365,6 +384,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     for (final ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement requirement = getNestedRequirement(executionContext.getComputationTargetResolver(), target, desiredValue.getConstraints(), null);
       if (requirement != null) {
+        @SuppressWarnings("rawtypes")
         final TimeSeries ts = evaluationResult.getTimeSeries(requirement);
         if (ts != null) {
           results.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()), ts));
