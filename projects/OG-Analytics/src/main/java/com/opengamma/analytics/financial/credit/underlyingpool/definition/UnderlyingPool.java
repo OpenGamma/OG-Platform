@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleFisherKurtosisCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
@@ -31,7 +33,7 @@ public class UnderlyingPool {
   // TODO : Add the arg checker for a null YieldCurve object (taken out for the purposes of testing)
   // TODO : Add an arg checker to ensure no two obligors are the same
   // TODO : Need to check the validity of the creditSpreadTenors and spreadTermStructures arguments
-  // TODO : Will want to include calculations such as e.g. average T year spread of constituents and other descriptive statistics (std dev, var, skew, kurt, percentile)
+  // TODO : Work out a better way of looking up the correct element in the creditSpreadTenors vector
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm
@@ -267,28 +269,26 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // fix
-  // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
+  // Calculate the excess kurtosis of the spread of the obligors in the underlying pool for a given tenor
   public double calculateCreditSpreadKurtosis(CreditSpreadTenors creditSpreadTenor) {
 
-    SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
+    SampleFisherKurtosisCalculator excessKurtosis = new SampleFisherKurtosisCalculator();
 
     double[] spreads = getSpreads(creditSpreadTenor);
 
-    return skewness.evaluate(spreads);
+    return excessKurtosis.evaluate(spreads);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Fix
-  // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadPercentile(CreditSpreadTenors creditSpreadTenor, double q) {
+  // Calculate the q'th percentile of the spread distribution of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadPercentile(CreditSpreadTenors creditSpreadTenor, final double q) {
 
-    SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
+    PercentileCalculator percentile = new PercentileCalculator(q);
 
     double[] spreads = getSpreads(creditSpreadTenor);
 
-    return skewness.evaluate(spreads);
+    return percentile.evaluate(spreads);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -64,6 +64,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // -------------------------------------------------------------
 
     // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
