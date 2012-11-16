@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,9 +21,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -32,15 +33,14 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -65,9 +65,15 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Iterates a view client over historical data to produce historical valuations of one or more targets. The targets required and the parameters for the valuation are encoded into a
- * {@link ViewEvaluationTarget}. The results of the valuation are written to the value cache and dependent nodes in the graph will extract time series appropriate to their specific targets.
+ * {@link ViewEvaluationTarget}. The results of the valuation are written to the value cache as a {@link ViewEvaluationResult} for each configuration and dependent nodes in the graph will extract time
+ * series appropriate to their specific targets.
  */
 public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker {
+
+  /**
+   * Name of the property used to distinguish the outputs when the view definition has multiple calculation configurations.
+   */
+  public static final String PROPERTY_CALC_CONFIG = "config";
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewEvaluationFunction.class);
 
@@ -80,7 +86,15 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE, target.toSpecification(), createValueProperties().get()));
+    final ViewEvaluationTarget viewEvaluation = (ViewEvaluationTarget) target.getValue();
+    final Collection<String> calcConfigs = viewEvaluation.getViewDefinition().getAllCalculationConfigurationNames();
+    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(calcConfigs.size());
+    final ValueProperties.Builder properties = createValueProperties();
+    for (final String calcConfig : calcConfigs) {
+      properties.withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, calcConfig);
+      results.add(new ValueSpecification(ValueRequirementNames.VALUE, target.toSpecification(), properties.get()));
+    }
+    return results;
   }
 
   @Override
@@ -140,130 +154,13 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(DateUtils.getDaysBetween(startDate, true, finishDate, true));
     do {
       final ZonedDateTime valuation = ZonedDateTime.of(date, target.getTimeZone());
-      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation).setMarketDataSpecification(MarketData.historical(startDate, null))
+      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation).setMarketDataSpecification(MarketData.historical(date.toLocalDate(), null))
           .setResolverVersionCorrection(VersionCorrection.of(valuation, target.getCorrection())).create());
       if (date.toLocalDate().equals(finishDate)) {
         return cycles;
       }
       date = date.plusDays(1);
     } while (true);
-  }
-
-  private static class AbstractTimeSeriesBuilder {
-
-    private final long[] _dates;
-    private int _next;
-
-    protected AbstractTimeSeriesBuilder(final long[] dates, final int next) {
-      _dates = dates;
-      _next = next;
-    }
-
-    protected AbstractTimeSeriesBuilder(final AbstractTimeSeriesBuilder copyFrom) {
-      _dates = copyFrom._dates;
-      _next = copyFrom._next;
-    }
-
-    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
-      if (value instanceof Number) {
-        return new DoubleTimeSeriesBuilder(_dates, date, ((Number) value).doubleValue());
-      } else {
-        return new ObjectTimeSeriesBuilder(_dates, date, value);
-      }
-    }
-
-    protected int index(final long date) {
-      final int i = _next++;
-      _dates[i] = date;
-      return i;
-    }
-
-  }
-
-  // TODO: If the duration of the time series is high, or there are simply a large quantity then we could modify these builders to
-  // write directly to the time series database instead (or batch up the points in internal arrays) and the result bundle will be
-  // the identifiers of the time series that were written to the database
-
-  private static class DoubleTimeSeriesBuilder extends AbstractTimeSeriesBuilder {
-
-    private final double[] _values;
-
-    public DoubleTimeSeriesBuilder(final long[] dates, final long date, final double initial) {
-      super(dates, 0);
-      _values = new double[dates.length];
-      _values[index(date)] = initial;
-    }
-
-    @Override
-    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
-      if (value instanceof Number) {
-        _values[index(date)] = ((Number) value).doubleValue();
-        return this;
-      } else {
-        return new ObjectTimeSeriesBuilder(this, date, value);
-      }
-    }
-
-  }
-
-  private static class ObjectTimeSeriesBuilder extends AbstractTimeSeriesBuilder {
-
-    private final Object[] _values;
-
-    public ObjectTimeSeriesBuilder(final long[] dates, final long date, final Object initial) {
-      super(dates, 0);
-      _values = new Object[dates.length];
-      _values[index(date)] = initial;
-    }
-
-    public ObjectTimeSeriesBuilder(final DoubleTimeSeriesBuilder copyFrom, final long date, final Object next) {
-      super(copyFrom);
-      _values = new Object[copyFrom._values.length];
-      final int count = index(date);
-      _values[count] = next;
-      for (int i = 0; i < count; i++) {
-        _values[i] = copyFrom._values[i];
-      }
-    }
-
-    @Override
-    public AbstractTimeSeriesBuilder addPoint(final long date, final Object value) {
-      _values[index(date)] = value;
-      return this;
-    }
-
-  }
-
-  private static class ResultBuilder {
-
-    private final Map<String, Map<ValueRequirement, AbstractTimeSeriesBuilder>> _results = new HashMap<String, Map<ValueRequirement, AbstractTimeSeriesBuilder>>();
-
-    public ResultBuilder(final int cycles, final ViewDefinition viewDefinition) {
-      for (final ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
-        final Map<ValueRequirement, AbstractTimeSeriesBuilder> configResults = new HashMap<ValueRequirement, AbstractTimeSeriesBuilder>();
-        _results.put(calcConfig.getName(), configResults);
-        for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
-          configResults.put(requirement, new AbstractTimeSeriesBuilder(new long[cycles], 0));
-        }
-      }
-    }
-
-    // TODO: need to store the calculation configuration to get the vspec/vreq mapping
-
-    public void store(final ViewComputationResultModel results) {
-      for (final ViewResultEntry viewResult : results.getAllResults()) {
-        final Map<ValueRequirement, AbstractTimeSeriesBuilder> configResults = _results.get(viewResult.getCalculationConfiguration());
-        final ValueSpecification spec = viewResult.getComputedValue().getSpecification();
-        final Object value = viewResult.getComputedValue().getValue();
-        // TODO: lookup the original value requirement(s) from the compiled view definition and get the builder to apply the value to
-      }
-    }
-
-    public Object getResult() {
-      // TODO: get the time series from all of the builders and package it up into a result object
-      throw new UnsupportedOperationException("TODO");
-    }
-
   }
 
   // FunctionInvoker
@@ -282,7 +179,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     s_logger.info("Created view client {}, connecting to {}", viewClientId, viewId);
     final Collection<ViewCycleExecutionOptions> cycles = getExecutionCycleOptions(executionContext, viewEvaluation);
     viewClient.attachToViewProcess(viewId, ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
-    final ResultBuilder resultBuilder = new ResultBuilder(cycles.size(), viewEvaluation.getViewDefinition());
+    final ViewEvaluationResultBuilder resultBuilder = new ViewEvaluationResultBuilder(viewEvaluation.getTimeZone(), cycles.size(), viewEvaluation.getViewDefinition());
     final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
@@ -322,8 +219,8 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
 
       @Override
       public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-        // This is good. Don't need to do anything.
         s_logger.debug("View definition compiled for {}", viewClientId);
+        resultBuilder.store(compiledViewDefinition);
       }
 
       @Override
@@ -368,8 +265,15 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
       public void processCompleted() {
         s_logger.info("View process completed for {}", viewClientId);
         try {
-          reportResult(Collections.singleton(new ComputedValue(
-              new ValueSpecification(ValueRequirementNames.VALUE, target.toSpecification(), createValueProperties().get()), resultBuilder.getResult())));
+          final Map<String, ViewEvaluationResult> viewResults = resultBuilder.getResults();
+          final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(viewResults.size());
+          final ValueProperties.Builder properties = createValueProperties();
+          final ComputationTargetSpecification targetSpec = target.toSpecification();
+          for (final Map.Entry<String, ViewEvaluationResult> viewResult : viewResults.entrySet()) {
+            properties.withoutAny(PROPERTY_CALC_CONFIG).with(PROPERTY_CALC_CONFIG, viewResult.getKey());
+            results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.VALUE, targetSpec, properties.get()), viewResult.getValue()));
+          }
+          reportResult(results);
         } catch (final RuntimeException e) {
           s_logger.error("Caught exception during process completed callback", e);
           reportException(e);

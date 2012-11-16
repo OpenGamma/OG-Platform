@@ -132,8 +132,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return _functionCompilationService;
   }
 
-  public ComputationTargetResolver getTargetResolver() {
+  public ComputationTargetResolver getRawTargetResolver() {
     return getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
+  }
+
+  protected ComputationTargetResolver.AtVersionCorrection getTargetResolver() {
+    return getFunctionExecutionContext().getComputationTargetResolver();
   }
 
   public boolean isUseWriteBehindSharedCache() {
@@ -306,6 +310,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final CalculationJobSpecification spec = job.getSpecification();
     getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
     getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
+    getFunctionExecutionContext().setComputationTargetResolver(getRawTargetResolver().atVersionCorrection(job.getResolverVersionCorrection()));
     setFunctions(getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime()));
     setCache(getDeferredViewComputationCache(getCache(spec)));
     setExecutionStartTime(System.nanoTime());
@@ -406,7 +411,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
    * @param resultItems the list to populate with results, not null
    */
   private void executeJobItems(final Iterator<CalculationJobItem> jobItemItr, final List<CalculationJobResultItem> resultItems) throws AsynchronousExecution {
-    final ComputationTargetResolver.AtVersionCorrection resolver = getTargetResolver().atVersionCorrection(getJob().getResolverVersionCorrection());
     while (jobItemItr.hasNext()) {
       if (getJob().isCancelled()) {
         throw new CancellationException();
@@ -421,7 +425,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         attachLog(executionLog);
         try {
-          invoke(resolver, jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
+          invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
           s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
           final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
@@ -628,7 +632,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(outputs.size());
     for (ComputedValue result : results) {
       ValueSpecification resultSpec = result.getSpecification();
-      final ComputationTargetSpecification targetSpec = ComputationTargetResolverUtils.simplifyType(resultSpec.getTargetSpecification(), getTargetResolver());
+      final ComputationTargetSpecification targetSpec = ComputationTargetResolverUtils.simplifyType(resultSpec.getTargetSpecification(), getRawTargetResolver());
       if (targetSpec != resultSpec.getTargetSpecification()) {
         resultSpec = new ValueSpecification(resultSpec.getValueName(), targetSpec, resultSpec.getProperties());
         result = new ComputedValue(resultSpec, result.getValue());
@@ -656,8 +660,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     resultItemBuilder.withException(t);
   }
 
-  private void invoke(final ComputationTargetResolver.AtVersionCorrection resolver, final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics,
-      final CalculationJobResultItemBuilder resultItemBuilder) throws AsynchronousExecution {
+  private void invoke(final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics, final CalculationJobResultItemBuilder resultItemBuilder) throws AsynchronousExecution {
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
@@ -666,11 +669,11 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       targetFuture = getExecutorService().submit(new Callable<ComputationTarget>() {
         @Override
         public ComputationTarget call() {
-          return resolver.resolve(jobItem.getComputationTargetSpecification());
+          return getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
         }
       });
     } else {
-      target = LazyComputationTargetResolver.resolve(resolver, jobItem.getComputationTargetSpecification());
+      target = LazyComputationTargetResolver.resolve(getTargetResolver(), jobItem.getComputationTargetSpecification());
       if (target == null) {
         postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
         resultItemBuilder.withException(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
@@ -728,7 +731,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return;
       }
     }
-    final FunctionInputs functionInputs = new FunctionInputsImpl(resolver.getSpecificationResolver(), inputs, missing);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(getTargetResolver().getSpecificationResolver(), inputs, missing);
     if (target == null) {
       try {
         target = targetFuture.get();

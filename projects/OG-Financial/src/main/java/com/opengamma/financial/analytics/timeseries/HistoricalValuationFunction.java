@@ -11,9 +11,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -22,9 +26,11 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -32,18 +38,22 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.financial.view.ViewEvaluationResult;
 import com.opengamma.financial.view.ViewEvaluationTarget;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.timeseries.TimeSeries;
 
 /**
  * Iterates a view client over historical data to produce a historical valuation of a target. The view client iteration is performed by a helper function on a {@link ViewEvaluationTarget} created by
  * this function. The time series appropriate to this function's target are then extracted from the overall evaluation results.
  */
 public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalValuationFunction.class);
 
   /**
    * Property naming the value produced on the target to generate the time series. For example {@code Historical Series[Value=FairValue]} will produce a time series based on evaluating
@@ -80,6 +90,109 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    */
   public static final String TARGET_SPECIFICATION_EXTERNAL = "External";
 
+  protected ValueRequirement getNestedRequirement(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTarget target, final ValueProperties constraints,
+      final ViewEvaluationTarget updateTempTarget) {
+    String valueName = ValueRequirementNames.VALUE;
+    ComputationTargetReference requirementTarget = null;
+    final ValueProperties.Builder requirementConstraints = ValueProperties.builder();
+    if (constraints.getProperties() != null) {
+      for (final String constraintName : constraints.getProperties()) {
+        final Set<String> constraintValues = constraints.getValues(constraintName);
+        if (VALUE.equals(constraintName)) {
+          if (constraintValues.isEmpty()) {
+            valueName = ValueRequirementNames.VALUE;
+          } else if (constraintValues.size() > 1) {
+            return null;
+          } else {
+            valueName = constraintValues.iterator().next();
+          }
+        } else if (TARGET_SPECIFICATION.equals(constraintName)) {
+          if (constraintValues.isEmpty() || constraintValues.contains(TARGET_SPECIFICATION_UNIQUE)) {
+            requirementTarget = target.toSpecification();
+          } else if (constraintValues.contains(TARGET_SPECIFICATION_OBJECT)) {
+            final ComputationTargetSpecification targetSpec = target.toSpecification();
+            if (targetSpec.getUniqueId() != null) {
+              requirementTarget = ComputationTargetResolverUtils.simplifyType(targetSpec.replaceIdentifier(target.getUniqueId().toLatest()), resolver);
+            } else {
+              // Null - special case
+              requirementTarget = targetSpec;
+            }
+          } else if (constraintValues.contains(TARGET_SPECIFICATION_EXTERNAL)) {
+            final ExternalIdBundle identifiers;
+            if (target.getValue() instanceof ExternalIdentifiable) {
+              final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+              if (identifier == null) {
+                identifiers = ExternalIdBundle.EMPTY;
+              } else {
+                identifiers = identifier.toBundle();
+              }
+            } else if (target.getValue() instanceof ExternalBundleIdentifiable) {
+              identifiers = ((ExternalBundleIdentifiable) target.getValue()).getExternalIdBundle();
+            } else if (target.getValue() == null) {
+              // Null - special case
+              identifiers = ExternalIdBundle.EMPTY;
+            } else {
+              return null;
+            }
+            if (target.getContextIdentifiers() == null) {
+              requirementTarget = new ComputationTargetRequirement(resolver.simplifyType(target.getType()), identifiers);
+            } else {
+              requirementTarget = target.getContextSpecification().containing(resolver.simplifyType(target.getLeafSpecification().getType()), identifiers);
+            }
+          } else {
+            return null;
+          }
+        } else if (updateTempTarget != null) {
+          if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
+            final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
+            if (constraintValues.isEmpty()) {
+              requirementConstraints.withAny(name);
+            } else {
+              requirementConstraints.with(name, constraintValues);
+            }
+            if (constraints.isOptional(constraintName)) {
+              requirementConstraints.withOptional(name);
+            }
+          } else if (HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY.equals(constraintName)) {
+            if (constraintValues.isEmpty()) {
+              updateTempTarget.setFirstValuationDate("");
+            } else {
+              updateTempTarget.setFirstValuationDate(constraintValues.iterator().next());
+            }
+          } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY.equals(constraintName)) {
+            if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
+              updateTempTarget.setIncludeFirstValuationDate(true);
+            } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
+              updateTempTarget.setIncludeFirstValuationDate(false);
+            } else {
+              return null;
+            }
+          } else if (HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY.equals(constraintName)) {
+            if (constraintValues.isEmpty()) {
+              updateTempTarget.setLastValuationDate("");
+            } else {
+              updateTempTarget.setLastValuationDate(constraintValues.iterator().next());
+            }
+          } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY.equals(constraintName)) {
+            if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
+              updateTempTarget.setIncludeLastValuationDate(true);
+            } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
+              updateTempTarget.setIncludeLastValuationDate(false);
+            } else {
+              return null;
+            }
+          } else if (!ValuePropertyNames.FUNCTION.equals(constraintName) && !constraints.isOptional(constraintName)) {
+            return null;
+          }
+        }
+      }
+    }
+    if (requirementTarget == null) {
+      requirementTarget = ComputationTargetResolverUtils.simplifyType(target.toSpecification(), resolver);
+    }
+    return new ValueRequirement(valueName, requirementTarget, requirementConstraints.get());
+  }
+
   // FunctionDefinition
 
   @Override
@@ -104,108 +217,11 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ViewEvaluationTarget tempTarget = new ViewEvaluationTarget(context.getViewCalculationConfiguration().getViewDefinition().getMarketDataUser());
-    // TODO: get a suitable time zone for the target
-    // TODO: get a suitable valuation time for the target
+    // TODO: get a suitable time zone for the target -- use constraint injection
+    // TODO: get a suitable valuation time for the target -- use constraint injection
     tempTarget.setCorrection(context.getComputationTargetResolver().getVersionCorrection().getCorrectedTo());
-    String valueName = ValueRequirementNames.VALUE;
-    ComputationTargetReference requirementTarget = null;
-    final ValueProperties.Builder requirementConstraints = ValueProperties.builder();
-    final ValueProperties desiredConstraints = desiredValue.getConstraints();
-    if (desiredConstraints.getProperties() != null) {
-      for (final String constraintName : desiredConstraints.getProperties()) {
-        final Set<String> constraintValues = desiredConstraints.getValues(constraintName);
-        if (VALUE.equals(constraintName)) {
-          if (constraintValues.isEmpty()) {
-            valueName = ValueRequirementNames.VALUE;
-          } else if (constraintValues.size() > 1) {
-            return null;
-          } else {
-            valueName = constraintValues.iterator().next();
-          }
-        } else if (TARGET_SPECIFICATION.equals(constraintName)) {
-          if (constraintValues.isEmpty() || constraintValues.contains(TARGET_SPECIFICATION_UNIQUE)) {
-            requirementTarget = target.toSpecification();
-          } else if (constraintValues.contains(TARGET_SPECIFICATION_OBJECT)) {
-            final ComputationTargetSpecification targetSpec = target.toSpecification();
-            if (targetSpec.getUniqueId() != null) {
-              requirementTarget = targetSpec.replaceIdentifier(target.getUniqueId().toLatest());
-            } else {
-              // Null - special case
-              requirementTarget = targetSpec;
-            }
-          } else if (constraintValues.contains(TARGET_SPECIFICATION_EXTERNAL)) {
-            final ExternalIdBundle identifiers;
-            if (target.getValue() instanceof ExternalIdentifiable) {
-              final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
-              if (identifier == null) {
-                identifiers = ExternalIdBundle.EMPTY;
-              } else {
-                identifiers = identifier.toBundle();
-              }
-            } else if (target.getValue() instanceof ExternalBundleIdentifiable) {
-              identifiers = ((ExternalBundleIdentifiable) target.getValue()).getExternalIdBundle();
-            } else if (target.getValue() == null) {
-              // Null - special case
-              identifiers = ExternalIdBundle.EMPTY;
-            } else {
-              return null;
-            }
-            if (target.getContextIdentifiers() == null) {
-              requirementTarget = new ComputationTargetRequirement(target.getType(), identifiers);
-            } else {
-              requirementTarget = target.getContextSpecification().containing(target.getLeafSpecification().getType(), identifiers);
-            }
-          } else {
-            return null;
-          }
-        } else if (constraintName.startsWith(PASSTHROUGH_PREFIX)) {
-          final String name = constraintName.substring(PASSTHROUGH_PREFIX.length());
-          if (constraintValues.isEmpty()) {
-            requirementConstraints.withAny(name);
-          } else {
-            requirementConstraints.with(name, constraintValues);
-          }
-          if (desiredConstraints.isOptional(constraintName)) {
-            requirementConstraints.withOptional(name);
-          }
-        } else if (HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY.equals(constraintName)) {
-          if (constraintValues.isEmpty()) {
-            tempTarget.setFirstValuationDate("");
-          } else {
-            tempTarget.setFirstValuationDate(constraintValues.iterator().next());
-          }
-        } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY.equals(constraintName)) {
-          if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
-            tempTarget.setIncludeFirstValuationDate(true);
-          } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
-            tempTarget.setIncludeFirstValuationDate(false);
-          } else {
-            return null;
-          }
-        } else if (HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY.equals(constraintName)) {
-          if (constraintValues.isEmpty()) {
-            tempTarget.setLastValuationDate("");
-          } else {
-            tempTarget.setLastValuationDate(constraintValues.iterator().next());
-          }
-        } else if (HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY.equals(constraintName)) {
-          if (constraintValues.isEmpty() || constraintValues.contains(HistoricalTimeSeriesFunctionUtils.YES_VALUE)) {
-            tempTarget.setIncludeLastValuationDate(true);
-          } else if (constraintValues.contains(HistoricalTimeSeriesFunctionUtils.NO_VALUE)) {
-            tempTarget.setIncludeLastValuationDate(false);
-          } else {
-            return null;
-          }
-        } else if (!desiredConstraints.isOptional(constraintName)) {
-          return null;
-        }
-      }
-    }
-    if (requirementTarget == null) {
-      requirementTarget = target.toSpecification();
-    }
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(tempTarget.getViewDefinition(), context.getViewCalculationConfiguration().getName());
-    calcConfig.addSpecificRequirement(new ValueRequirement(valueName, requirementTarget, requirementConstraints.get()));
+    calcConfig.addSpecificRequirement(getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints(), tempTarget));
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
     final UniqueId requirement = targets.locateOrStore(tempTarget);
@@ -343,11 +359,23 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    // TODO: fetch the valuation results from the cache and construct a time series of the desired value, or from our inputs.
-    // Not currently sure whether the values should be written to the shared cache directly, or whether the HTS master should be
-    // used to hold them (as they are generated for example) and the result bundle is the set of HTS unique identifiers corresponding
-    // to the results.
-    throw new UnsupportedOperationException();
+    final ViewEvaluationResult evaluationResult = (ViewEvaluationResult) inputs.getValue(ValueRequirementNames.VALUE);
+    final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    for (final ValueRequirement desiredValue : desiredValues) {
+      final ValueRequirement requirement = getNestedRequirement(executionContext.getComputationTargetResolver(), target, desiredValue.getConstraints(), null);
+      if (requirement != null) {
+        final TimeSeries ts = evaluationResult.getTimeSeries(requirement);
+        if (ts != null) {
+          results.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()), ts));
+        } else {
+          s_logger.warn("Nested requirement {} did not produce a time series for {}", requirement, desiredValue);
+        }
+      } else {
+        s_logger.error("Couldn't produce nested requirement for {}", desiredValue);
+      }
+    }
+    return results;
   }
 
 }
