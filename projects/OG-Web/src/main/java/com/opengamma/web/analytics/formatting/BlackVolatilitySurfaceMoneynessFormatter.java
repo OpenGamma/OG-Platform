@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.formatting;
 
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -28,8 +29,19 @@ import com.opengamma.engine.value.ValueSpecification;
     return SurfaceFormatterUtils.formatCell(value.getSurface());
   }
 
+  /**
+   * Returns {@link DataType#UNKNOWN UNKNOWN} because the type can be differ for different instances depending on
+   * the type returned by {@link VolatilitySurface#getSurface() getSurface()}.
+   * The type for a given surface instance can be obtained from {@link #getDataTypeForValue}
+   * @return {@link DataType#UNKNOWN}
+   */
   @Override
   public DataType getDataType() {
-    return DataType.SURFACE_DATA;
+    return DataType.UNKNOWN;
+  }
+
+  @Override
+  public DataType getDataTypeForValue(BlackVolatilitySurfaceMoneyness value) {
+    return SurfaceFormatterUtils.getDataType(value.getSurface());
   }
 }

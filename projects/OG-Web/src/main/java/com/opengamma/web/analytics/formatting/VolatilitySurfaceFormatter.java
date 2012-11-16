@@ -47,8 +47,19 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
+  /**
+   * Returns {@link DataType#UNKNOWN UNKNOWN} because the type can be differ for different instances of
+   * {@link VolatilitySurface} depending on the type returned by {@link VolatilitySurface#getSurface() getSurface()}.
+   * The type for a given surface instance can be obtained from {@link #getDataTypeForValue}
+   * @return {@link DataType#UNKNOWN}
+   */
   @Override
   public DataType getDataType() {
-    return DataType.SURFACE_DATA;
+    return DataType.UNKNOWN;
+  }
+
+  @Override
+  public DataType getDataTypeForValue(VolatilitySurface value) {
+    return SurfaceFormatterUtils.getDataType(value.getSurface());
   }
 }

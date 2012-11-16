@@ -9,11 +9,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,6 +26,7 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   protected VolatilitySurfaceDataFormatter() {
     super(VolatilitySurfaceData.class);
     addFormatter(new Formatter<VolatilitySurfaceData>(Format.EXPANDED) {
+      @SuppressWarnings("unchecked")
       @Override
       Object format(VolatilitySurfaceData value, ValueSpecification valueSpec) {
         return formatExpanded(value);
@@ -43,11 +42,11 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> formatExpanded(VolatilitySurfaceData surface) {
+  private <X, Y> Map<String, Object> formatExpanded(VolatilitySurfaceData<X, Y> surface) {
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
-    SortedSet xVals = surface.getUniqueXValues();
-    SortedSet yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
+    Set<X> xVals = surface.getUniqueXValues();
+    Set<Y> yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
     Map<String, Object> results = Maps.newHashMap();
     results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(xVals));
     results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(yVals));
@@ -64,21 +63,23 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * @return The data formatted for display as text
    */
   @SuppressWarnings("unchecked")
-  private Map<String, Object> formatForGrid(VolatilitySurfaceData surface,
-                                            SortedSet xVals,
-                                            SortedSet yVals,
-                                            Map<String, Object> baseResults) {
-    Map<String, Object> results = Maps.newHashMap(baseResults);
-    List<List<Object>> vol = Lists.newArrayListWithCapacity(yVals.size());
-    for (Object yVal : yVals) {
-      List<Object> volVals = Lists.newArrayListWithCapacity(xVals.size());
-      for (Object xVal : xVals) {
+  private <X, Y> Map<String, Object> formatForGrid(VolatilitySurfaceData<X, Y> surface,
+                                                   Set<X> xVals,
+                                                   Set<Y> yVals,
+                                                   Map<String, Object> baseResults) {
+    List<List<Double>> vol = Lists.newArrayListWithCapacity(yVals.size());
+    for (Y yVal : yVals) {
+      List<Double> volVals = Lists.newArrayListWithCapacity(xVals.size());
+      for (X xVal : xVals) {
         Double volatility = surface.getVolatility(xVal, yVal);
         volVals.add(volatility);
       }
       vol.add(volVals);
     }
-    results.put("matrix", vol);
+    Map<String, Object> results = Maps.newHashMap(baseResults);
+    results.put(LabelledMatrix2DFormatter.MATRIX, vol);
+    results.put(LabelledMatrix2DFormatter.X_LABELS, SurfaceFormatterUtils.getAxisLabels(xVals));
+    results.put(LabelledMatrix2DFormatter.Y_LABELS, SurfaceFormatterUtils.getAxisLabels(yVals));
     return results;
   }
 
@@ -105,35 +106,28 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
   @SuppressWarnings("unchecked")
-  private Map<String, Object> formatForPlotting(VolatilitySurfaceData surface,
-                                                SortedSet xVals,
-                                                SortedSet yVals,
-                                                Map<String, Object> baseResults) {
+  private <X, Y> Map<String, Object> formatForPlotting(VolatilitySurfaceData<X, Y> surface,
+                                                       Set<X> xVals,
+                                                       Set<Y> yVals,
+                                                       Map<String, Object> baseResults) {
     Map<String, Object> results = Maps.newHashMap(baseResults);
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
     // numeric values corresponding to the axis labels to help with plotting the surface
-    List<Object> xAxisValues = Lists.newArrayListWithCapacity(xVals.size());
-    List<Object> yAxisValues = Lists.newArrayListWithCapacity(yVals.size());
+    List<Number> xAxisValues = Lists.newArrayListWithCapacity(xVals.size());
+    List<Number> yAxisValues = Lists.newArrayListWithCapacity(yVals.size());
     List<Double> vol = Lists.newArrayListWithCapacity(xVals.size() * yVals.size());
-    for (Object yVal : yVals) {
-      for (Object xVal : xVals) {
+    for (Y yVal : yVals) {
+      for (X xVal : xVals) {
         vol.add(surface.getVolatility(xVal, yVal));
       }
-      CollectionUtils.addIgnoreNull(yAxisValues, getAxisValue(yVal));
+      yAxisValues.add(getAxisValue(yVal));
     }
     for (Object xVal : xVals) {
-      CollectionUtils.addIgnoreNull(xAxisValues, getAxisValue(xVal));
+      xAxisValues.add(getAxisValue(xVal));
     }
-    // not all volatility surfaces can be sensibly plotted. if a value can't be meaningfully converted to a number
-    // then it will be null and won't be added to the collection. so if the collection is empty it isn't added to the
-    // results and a plot won't be generated
-    if (!yAxisValues.isEmpty()) {
-      results.put(SurfaceFormatterUtils.Y_VALUES, yAxisValues);
-    }
-    if (!xAxisValues.isEmpty()) {
-      results.put(SurfaceFormatterUtils.X_VALUES, xAxisValues);
-    }
+    results.put(SurfaceFormatterUtils.Y_VALUES, yAxisValues);
+    results.put(SurfaceFormatterUtils.X_VALUES, xAxisValues);
     results.put(SurfaceFormatterUtils.X_TITLE, surface.getXLabel());
     results.put(SurfaceFormatterUtils.Y_TITLE, surface.getYLabel());
     results.put(SurfaceFormatterUtils.VOL, vol);
@@ -153,9 +147,9 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * @param axisValue A point on the axis
    * @return A numeric value corresponding to the value or null if there's no meaningful numeric value
    */
-  private Object getAxisValue(Object axisValue) {
+  private Number getAxisValue(Object axisValue) {
     if (axisValue instanceof Number) {
-      return axisValue;
+      return (Number) axisValue;
     } else if (axisValue instanceof LocalDate) {
       return ((LocalDate) axisValue).toEpochDays();
     } else if (axisValue instanceof Tenor) {
@@ -177,17 +171,17 @@ import com.opengamma.web.server.conversion.LabelFormatter;
 
   /**
    * If the axis values can be sensibly converted to numbers this returns {@link DataType#SURFACE_DATA}, if not
-   * it returns {@link DataType#UNPLOTTABLE_SURFACE_DATA}.
+   * it returns {@link DataType#LABELLED_MATRIX_2D}.
    * @param surfaceData The surface data
    * @return The format type for the surface data, {@link DataType#SURFACE_DATA} or 
-   * {@link DataType#UNPLOTTABLE_SURFACE_DATA} depending on the axis types of the data
+   * {@link DataType#LABELLED_MATRIX_2D} depending on the axis types of the data
    */
   @Override
   public DataType getDataTypeForValue(VolatilitySurfaceData surfaceData) {
     if (isPlottable(surfaceData)) {
       return DataType.SURFACE_DATA;
     } else {
-      return DataType.UNPLOTTABLE_SURFACE_DATA;
+      return DataType.LABELLED_MATRIX_2D;
     }
   }
 
