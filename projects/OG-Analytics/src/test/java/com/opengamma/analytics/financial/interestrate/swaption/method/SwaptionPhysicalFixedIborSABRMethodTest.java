@@ -305,6 +305,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       assertEquals("Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
+    int t = 0;
+    t++;
 
   }
 

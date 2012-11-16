@@ -39,12 +39,12 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.LastFixingTimeCalculator;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -177,9 +177,9 @@ public class MulticurveBuildingDiscountingForwardTest {
   private static List<Pair<MulticurveProviderForward, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<MulticurveProviderForward, CurveBuildingBlockBundle>>();
 
   // Calculator
-  private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final MulticurveProviderForwardBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveProviderForwardBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 

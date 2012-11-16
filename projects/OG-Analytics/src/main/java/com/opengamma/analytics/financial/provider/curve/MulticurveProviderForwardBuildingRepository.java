@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMatrixMulticurveCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveMatrixCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -94,7 +94,7 @@ public class MulticurveProviderForwardBuildingRepository {
     final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveProviderForwardFinderFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderForwardFinderJacobian(
-        new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data);
+        new ParameterSensitivityMulticurveMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final MulticurveProviderForward newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
     return new ObjectsPair<MulticurveProviderForward, Double[]>(newCurves, ArrayUtils.toObject(parameters));
@@ -123,7 +123,7 @@ public class MulticurveProviderForwardBuildingRepository {
     final GeneratorMulticurveProviderForward generator = new GeneratorMulticurveProviderForward(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderForwardFinderJacobian(
-        new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data);
+        new ParameterSensitivityMulticurveMatrixCalculator(sensitivityCalculator), data);
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     double[][] matrixTotal = inverseJacobian.getData();

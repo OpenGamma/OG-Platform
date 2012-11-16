@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;

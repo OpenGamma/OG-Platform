@@ -47,12 +47,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -242,9 +242,9 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   private static List<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>();
 
   // Calculator
-  private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
@@ -299,7 +299,7 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
@@ -319,38 +319,6 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " x 3 curves construction / 1 unit: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction 1 unit: 08-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 995 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " x 3 curves construction / 2 units: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 850 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " x 3 curves construction / 1 unit: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1025 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " x 3 curves construction / 2 units: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 2 units: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 850 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " x 3 curves construction / 1 unit: " + (endTime - startTime) + " ms");
-    // Performance note: Curve construction 1 unit: 02-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1025 ms for 100 sets.
 
   }
 

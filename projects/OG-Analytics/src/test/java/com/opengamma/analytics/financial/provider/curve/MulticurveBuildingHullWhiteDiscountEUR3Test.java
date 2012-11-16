@@ -47,13 +47,13 @@ import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteCurveSensitivityHullWhiteProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteHullWhiteProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueHullWhiteProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -232,9 +232,9 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   private static List<Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle>>();
 
   // Calculator
-  private static final PresentValueHullWhiteProviderCalculator PVHWC = PresentValueHullWhiteProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteHullWhiteProviderCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteProviderCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityHullWhiteProviderCalculator PSMQCSHWC = ParSpreadMarketQuoteCurveSensitivityHullWhiteProviderCalculator.getInstance();
+  private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
+  private static final ParSpreadMarketQuoteHullWhiteCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator PSMQCSHWC = ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
 
   private static final HullWhiteProviderDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new HullWhiteProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
@@ -291,7 +291,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;

@@ -30,10 +30,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveForwardInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -93,8 +97,8 @@ public class ParameterSensitivityProviderCalculatorTest {
     MARKET_FWD.setCurve(USDLIBOR3M, FWD3_FWD);
   }
 
-  private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
-  private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final ParameterSensitivityMulticurveCalculator PSC = new ParameterSensitivityMulticurveCalculator(PVCSC);
   // private static final ParameterSensitivityMatrixMarketCalculator PSC_MAT = new ParameterSensitivityMatrixMarketCalculator(PVCSC);
   private static final double SHIFT = 5.0E-7;

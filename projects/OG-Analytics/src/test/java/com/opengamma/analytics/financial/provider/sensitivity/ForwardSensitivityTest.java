@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 
 public class ForwardSensitivityTest {
   private static final double VALUE = 12345.6;

@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapita
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 

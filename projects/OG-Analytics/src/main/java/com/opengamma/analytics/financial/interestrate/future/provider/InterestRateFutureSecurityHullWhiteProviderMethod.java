@@ -13,9 +13,9 @@ import java.util.Map;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.ForwardSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 

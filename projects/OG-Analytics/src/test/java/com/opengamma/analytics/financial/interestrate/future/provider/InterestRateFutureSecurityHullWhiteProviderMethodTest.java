@@ -16,14 +16,14 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityHullWhiteProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueHullWhiteProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityHullWhiteProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -69,10 +69,10 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
-  private static final PresentValueHullWhiteProviderCalculator PVHWC = PresentValueHullWhiteProviderCalculator.getInstance();
+  private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
 
-  private static final PresentValueCurveSensitivityHullWhiteProviderCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteProviderCalculator.getInstance();
-  private static final ParameterSensitivityHullWhiteProviderCalculator PSHWC = new ParameterSensitivityHullWhiteProviderCalculator(PVCSHWC);
+  private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
+  private static final ParameterSensitivityHullWhiteCalculator PSHWC = new ParameterSensitivityHullWhiteCalculator(PVCSHWC);
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PSHWC_DSC_FD = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT);
 

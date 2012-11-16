@@ -26,8 +26,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.provider.calculator.ParSpreadMarketQuoteDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -65,8 +65,8 @@ public class SwapCalculatorTest {
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED, NOT_USED};
 
   // Calculators
-  private static final ParSpreadMarketQuoteDiscountingProviderCalculator PSMQDC = ParSpreadMarketQuoteDiscountingProviderCalculator.getInstance();
-  private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
   private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),

@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;

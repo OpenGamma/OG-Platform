@@ -9,11 +9,11 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -42,8 +42,8 @@ public class CouponFixedDiscountingProviderMethodTest {
   private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
 
   private static final CouponFixedDiscountingProviderMethod METHOD_CPN_FIXED = CouponFixedDiscountingProviderMethod.getInstance();
-  private static final PresentValueDiscountingProviderCalculator PVC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2;

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
-import com.opengamma.analytics.financial.provider.sensitivity.AbstractParameterSensitivityMatrixMulticurveProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.AbstractParameterSensitivityMatrixMulticurveProviderCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;

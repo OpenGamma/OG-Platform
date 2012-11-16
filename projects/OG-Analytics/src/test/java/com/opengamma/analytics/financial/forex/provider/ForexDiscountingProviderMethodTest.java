@@ -17,11 +17,11 @@ import com.opengamma.analytics.financial.forex.method.MulticurveProviderDiscount
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
-import com.opengamma.analytics.financial.provider.calculator.CurrencyExposureDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -52,8 +52,8 @@ public class ForexDiscountingProviderMethodTest {
 
   private static final ForexDiscountingProviderMethod METHOD_FX = ForexDiscountingProviderMethod.getInstance();
   private static final PaymentFixedDiscountingProviderMethod METHOD_PAY = PaymentFixedDiscountingProviderMethod.getInstance();
-  private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVSCDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVSCDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final CurrencyExposureDiscountingCalculator CEDC = CurrencyExposureDiscountingCalculator.getInstance();
   //  private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
   //  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();

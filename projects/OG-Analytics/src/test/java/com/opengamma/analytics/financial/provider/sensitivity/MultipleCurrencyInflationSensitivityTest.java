@@ -18,6 +18,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;

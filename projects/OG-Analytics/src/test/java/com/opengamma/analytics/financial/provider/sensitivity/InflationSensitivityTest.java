@@ -16,6 +16,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.tuple.DoublesPair;
 

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 

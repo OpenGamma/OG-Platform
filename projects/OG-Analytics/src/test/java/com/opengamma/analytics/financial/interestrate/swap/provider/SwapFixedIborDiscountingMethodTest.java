@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -39,7 +39,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwapFixedIborDiscountingMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createProvider3();
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final IborIndex EURIBOR6M = INDEX_LIST[1];
@@ -60,7 +61,6 @@ public class SwapFixedIborDiscountingMethodTest {
   private static final AnnuityCouponFixedDefinition ANNUITY_FIXED_DEFINITION = AnnuityCouponFixedDefinition.from(START_DATE, TOTAL_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
   private static final SwapDefinition SWAP_DEFINITION = new SwapDefinition(ANNUITY_FIXED_DEFINITION, ANNUITY_IBOR_DEFINITION);
   // Derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   private static final CouponIbor CPN_IBOR_3 = (CouponIbor) CPN_IBOR_3_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -71,7 +71,7 @@ public class SwapFixedIborDiscountingMethodTest {
 
   private static final CouponIborDiscountingProviderMethod METHOD_CPN_IBOR = CouponIborDiscountingProviderMethod.getInstance();
 
-  private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
 
@@ -80,13 +80,13 @@ public class SwapFixedIborDiscountingMethodTest {
    * Tests the present value for a swap with the Ibor leg having different Ibor indexes (EURIBOR3M and EURIBOR6M).
    */
   public void presentValue2Iborindex() {
-    MultipleCurrencyAmount pvCalcCpn3 = PVDC.visit(CPN_IBOR_3, PROVIDER);
-    MultipleCurrencyAmount pvMethCpn3 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_3, PROVIDER);
-    MultipleCurrencyAmount pvCalcCpn6 = PVDC.visit(CPN_IBOR_6, PROVIDER);
-    MultipleCurrencyAmount pvMethCpn6 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_6, PROVIDER);
-    MultipleCurrencyAmount pvCalcAnnIbor = PVDC.visit(ANNUITY_IBOR, PROVIDER);
-    MultipleCurrencyAmount pvCalcAnnFixed = PVDC.visit(ANNUITY_FIXED, PROVIDER);
-    MultipleCurrencyAmount pvCalcSwap = PVDC.visit(SWAP, PROVIDER);
+    MultipleCurrencyAmount pvCalcCpn3 = PVDC.visit(CPN_IBOR_3, MULTICURVES);
+    MultipleCurrencyAmount pvMethCpn3 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_3, MULTICURVES);
+    MultipleCurrencyAmount pvCalcCpn6 = PVDC.visit(CPN_IBOR_6, MULTICURVES);
+    MultipleCurrencyAmount pvMethCpn6 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_6, MULTICURVES);
+    MultipleCurrencyAmount pvCalcAnnIbor = PVDC.visit(ANNUITY_IBOR, MULTICURVES);
+    MultipleCurrencyAmount pvCalcAnnFixed = PVDC.visit(ANNUITY_FIXED, MULTICURVES);
+    MultipleCurrencyAmount pvCalcSwap = PVDC.visit(SWAP, MULTICURVES);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvMethCpn3.getAmount(EUR), pvCalcCpn3.getAmount(EUR), TOLERANCE_PV);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvMethCpn6.getAmount(EUR), pvCalcCpn6.getAmount(EUR), TOLERANCE_PV);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvCalcCpn3.plus(pvCalcCpn6).getAmount(EUR), pvCalcAnnIbor.getAmount(EUR), TOLERANCE_PV);

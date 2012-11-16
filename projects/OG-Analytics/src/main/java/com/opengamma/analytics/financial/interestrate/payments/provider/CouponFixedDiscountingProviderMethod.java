@@ -14,8 +14,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -55,6 +56,20 @@ public final class CouponFixedDiscountingProviderMethod {
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = coupon.getAmount() * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
+  }
+
+  /**
+   * Computes the present value of the fixed coupon with positive notional (abs(notional) is used) by discounting.
+   * @param coupon The coupon.
+   * @param multicurves The multi-curve provider.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValuePositiveNotional(final CouponFixed coupon, final MulticurveProviderInterface multicurves) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(multicurves, "multicurve");
+    final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    double pv = coupon.getPaymentYearFraction() * Math.abs(coupon.getNotional()) * coupon.getFixedRate() * df;
+    return CurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   /**

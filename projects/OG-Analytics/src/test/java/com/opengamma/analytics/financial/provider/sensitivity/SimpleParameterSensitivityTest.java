@@ -15,6 +15,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
@@ -101,7 +102,7 @@ public class SimpleParameterSensitivityTest {
   }
 
   @Test
-  public void add() {
+  public void plus() {
     SimpleParameterSensitivity sensitivity1 = new SimpleParameterSensitivity();
     sensitivity1 = sensitivity1.plus(NAME_1, SENSITIVITY_1_1);
     sensitivity1 = sensitivity1.plus(NAME_1, SENSITIVITY_1_2);
@@ -120,7 +121,16 @@ public class SimpleParameterSensitivityTest {
     assertEquals("Test add same sensitivities: ", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2));
     assertEquals("Test other currency: ", MATRIX.add(SENSITIVITY_1_1, MATRIX.add(SENSITIVITY_1_1, SENSITIVITY_1_2)), sensitivity2.getSensitivity(NAME_1));
     sensitivity2 = sensitivity2.plus(NAME_1, SENSITIVITY_1_1);
-    assertEquals("ParameterSensitivity: add", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2));
+    assertEquals("SimpleParameterSensitivity: plus", MATRIX.scale(SENSITIVITY_2_1, 2.0), sensitivity2.getSensitivity(NAME_2));
+    SimpleParameterSensitivity sensitivity3 = new SimpleParameterSensitivity();
+    sensitivity3 = sensitivity3.plus("New name", SENSITIVITY_1_1);
+    sensitivity3 = sensitivity3.plus(NAME_1, SENSITIVITY_1_1);
+    SimpleParameterSensitivity sensitivity4 = new SimpleParameterSensitivity();
+    sensitivity4 = sensitivity4.plus("New name", SENSITIVITY_1_1);
+    SimpleParameterSensitivity sensitivity5 = new SimpleParameterSensitivity();
+    sensitivity5 = sensitivity5.plus(NAME_1, SENSITIVITY_1_1);
+    sensitivity4 = sensitivity4.plus(sensitivity5);
+    AssertSensivityObjects.assertEquals("SimpleParameterSensitivity: plus", sensitivity3, sensitivity4, TOLERANCE);
   }
 
   @Test

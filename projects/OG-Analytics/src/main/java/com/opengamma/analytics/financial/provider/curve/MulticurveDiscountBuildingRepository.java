@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMatrixMulticurveUnderlyingCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveUnderlyingMatrixCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -94,7 +94,7 @@ public class MulticurveDiscountBuildingRepository {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
                 data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
     //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
@@ -125,7 +125,7 @@ public class MulticurveDiscountBuildingRepository {
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveUnderlyingCalculator(sensitivityCalculator),
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
                 data);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
     //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO

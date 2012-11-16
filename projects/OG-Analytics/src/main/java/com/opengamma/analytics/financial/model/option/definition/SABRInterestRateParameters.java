@@ -45,10 +45,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
   /**
    * The standard day count for which the parameter surfaces are valid.
+   * TODO: should be removed from the data structure but available at the provider level.
    */
   private final DayCount _dayCount;
-
-  // TODO: add SwapGenerator?
 
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
@@ -127,7 +126,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   /**
    * Gets the standard day count for which the parameter surfaces are valid.
    * @return The day count.
+   * @deprecated Should be removed from the data structure but available at the provider level.
    */
+  @Deprecated
   public DayCount getDayCount() {
     return _dayCount;
   }

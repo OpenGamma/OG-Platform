@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -87,6 +88,8 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
     return derivative.accept(this);
   }
 
+  //     -----     Deposit     -----
+
   @Override
   public MultipleCurrencyAmount visitCash(final Cash deposit) {
     ArgumentChecker.notNull(deposit, "instrument");
@@ -102,6 +105,19 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
 
   @Override
   public MultipleCurrencyAmount visitDepositZero(final DepositZero deposit) {
+    ArgumentChecker.notNull(deposit, "instrument");
+    MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(deposit.getCurrency(), 0.0);
+    if (isWithinLimit(deposit.getStartTime())) {
+      cash = cash.plus(deposit.getCurrency(), -deposit.getInitialAmount());
+    }
+    if (isWithinLimit(deposit.getEndTime())) {
+      cash = cash.plus(deposit.getCurrency(), deposit.getNotional() + deposit.getInterestAmount());
+    }
+    return cash;
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitDepositCounterpart(final DepositCounterpart deposit) {
     ArgumentChecker.notNull(deposit, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(deposit.getCurrency(), 0.0);
     if (isWithinLimit(deposit.getStartTime())) {

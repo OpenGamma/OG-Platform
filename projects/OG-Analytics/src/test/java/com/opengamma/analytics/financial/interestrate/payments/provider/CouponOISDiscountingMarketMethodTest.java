@@ -17,14 +17,14 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMa
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueCurveSensitivityDiscountingProviderCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueDiscountingProviderCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMulticurveCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -56,8 +56,8 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final CouponOIS CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final CouponOISDiscountingProviderMethod METHOD_CPN_OIS = CouponOISDiscountingProviderMethod.getInstance();
-  private static final PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingProviderCalculator PVCSDC = PresentValueCurveSensitivityDiscountingProviderCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityMulticurveCalculator PSC = new ParameterSensitivityMulticurveCalculator(PVCSDC);
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);

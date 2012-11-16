@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.sensitivity.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;

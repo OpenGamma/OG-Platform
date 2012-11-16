@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -36,6 +39,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Sets of market data used in tests.
@@ -49,31 +54,37 @@ public class MulticurveProviderDiscountDataSets {
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
 
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140};
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
-  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final String USD_FWD3_NAME = "USD LIBOR 3M";
   private static final YieldAndDiscountCurve USD_FWD3 = new YieldCurve(USD_FWD3_NAME, new InterpolatedDoublesCurve(USD_FWD3_TIME, USD_FWD3_RATE, LINEAR_FLAT, true, USD_FWD3_NAME));
-  private static final double[] USD_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
-  private static final double[] USD_FWD6_RATE = new double[] {0.0175, 0.0150, 0.0170, 0.0190, 0.0165};
+  private static final double[] USD_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_FWD6_RATE = new double[] {0.0175, 0.0150, 0.0170, 0.0190, 0.0165, 0.0165};
   private static final String USD_FWD6_NAME = "USD LIBOR 6M";
   private static final YieldAndDiscountCurve USD_FWD6 = new YieldCurve(USD_FWD6_NAME, new InterpolatedDoublesCurve(USD_FWD6_TIME, USD_FWD6_RATE, LINEAR_FLAT, true, USD_FWD6_NAME));
 
-  private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
-  private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final String EUR_DSC_NAME = "EUR Dsc";
   private static final YieldAndDiscountCurve EUR_DSC = new YieldCurve(EUR_DSC_NAME, new InterpolatedDoublesCurve(EUR_DSC_TIME, EUR_DSC_RATE, LINEAR_FLAT, true, EUR_DSC_NAME));
   private static final double[] EUR_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
   private static final double[] EUR_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210};
   private static final String EUR_FWD3_NAME = "EUR EURIBOR 3M";
   private static final YieldAndDiscountCurve EUR_FWD3 = new YieldCurve(EUR_FWD3_NAME, new InterpolatedDoublesCurve(EUR_FWD3_TIME, EUR_FWD3_RATE, LINEAR_FLAT, true, EUR_FWD3_NAME));
-  private static final double[] EUR_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
-  private static final double[] EUR_FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final double[] EUR_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] EUR_FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final String EUR_FWD6_NAME = "EUR EURIBOR 6M";
   private static final YieldAndDiscountCurve EUR_FWD6 = new YieldCurve(EUR_FWD6_NAME, new InterpolatedDoublesCurve(EUR_FWD6_TIME, EUR_FWD6_RATE, LINEAR_FLAT, true, EUR_FWD6_NAME));
+
+  private static final String ISSUER_NAME = "Corporate";
+  private static final double[] EUR_ISSUER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] EUR_ISSUER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
+  private static final String EUR_ISSUER_NAME = "EUR " + ISSUER_NAME;
+  private static final YieldAndDiscountCurve EUR_ISSUER = new YieldCurve(EUR_ISSUER_NAME, new InterpolatedDoublesCurve(EUR_ISSUER_TIME, EUR_ISSUER_RATE, LINEAR_FLAT, true, EUR_ISSUER_NAME));
 
   private static final YieldAndDiscountCurve CURVE_GBP_35 = YieldCurve.from(ConstantDoublesCurve.from(0.0350, "GBP 3.50"));
   private static final YieldAndDiscountCurve CURVE_GBP_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
@@ -141,6 +152,13 @@ public class MulticurveProviderDiscountDataSets {
     PROVIDER_3.setCurve(EURIBOR3M, EUR_FWD3);
     PROVIDER_3.setCurve(EURIBOR6M, EUR_FWD6);
   }
+
+  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+  static {
+    ISSUER_CURVES.put(new ObjectsPair<String, Currency>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+  }
+  private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(PROVIDER_3, ISSUER_CURVES);
+
   // Seasonal factors (from February/January to December/November)
   //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
   private static final double[] SEASONAL_FACTOR_USD = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
@@ -260,11 +278,19 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   /**
-   * Returns a market with two currencies (EUR, USD), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M).
+   * Returns a multi-curves provider with two currencies (EUR, USD), four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M).
    * @return The provider.
    */
   public static MulticurveProviderDiscount createProvider3() {
     return PROVIDER_3;
+  }
+
+  /**
+   * Returns an issuer provider with two currencies (EUR, USD), four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M) and one issuer curve.
+   * @return The provider.
+   */
+  public static IssuerProviderDiscount createIssuerProvider() {
+    return PROVIDER_ISSUER;
   }
 
   /**
@@ -304,7 +330,7 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static String[] getIssuerNames() {
-    return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT};
+    return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT, ISSUER_NAME};
   }
 
 }

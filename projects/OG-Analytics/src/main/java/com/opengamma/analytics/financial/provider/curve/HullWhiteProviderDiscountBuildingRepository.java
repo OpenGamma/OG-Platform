@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.ParameterSensitivityMatrixHullWhiteProviderCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteMatrixCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -94,7 +94,7 @@ public class HullWhiteProviderDiscountBuildingRepository {
     final GeneratorHullWhiteProviderDiscount generator = new GeneratorHullWhiteProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final HullWhiteProviderDiscountBuildingData data = new HullWhiteProviderDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new HullWhiteProviderDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new HullWhiteProviderDiscountFinderJacobian(new ParameterSensitivityMatrixHullWhiteProviderCalculator(sensitivityCalculator),
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new HullWhiteProviderDiscountFinderJacobian(new ParameterSensitivityHullWhiteMatrixCalculator(sensitivityCalculator),
         data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final HullWhiteOneFactorProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
@@ -123,7 +123,7 @@ public class HullWhiteProviderDiscountBuildingRepository {
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorHullWhiteProviderDiscount generator = new GeneratorHullWhiteProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final HullWhiteProviderDiscountBuildingData data = new HullWhiteProviderDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new HullWhiteProviderDiscountFinderJacobian(new ParameterSensitivityMatrixHullWhiteProviderCalculator(sensitivityCalculator),
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new HullWhiteProviderDiscountFinderJacobian(new ParameterSensitivityHullWhiteMatrixCalculator(sensitivityCalculator),
         data);
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
