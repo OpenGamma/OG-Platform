@@ -2,43 +2,43 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-    	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
     
-  <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>	
+  <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>  
   <import resource="classpath:/com/opengamma/bbg/bbg-reference-data-context.xml"/>
 
   <!-- TODO: stop using this, everything should switch to explicit weak, but we have to wait for that change to propagate -->  
   <bean id="volatilitySubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.ByTypeFakeSubscriptionSelector">
     <constructor-arg>
-	    <list>
-	        <value>SWAPTION VOLATILITY</value>
-	        <value>OPTION VOLATILITY</value>
-	    </list>
+      <list>
+        <value>SWAPTION VOLATILITY</value>
+        <value>OPTION VOLATILITY</value>
+      </list>
     </constructor-arg>
   </bean>
   
   
     <bean id="weakSubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.BySchemeFakeSubscriptionSelector">
     <constructor-arg>
-	    <list>
-	        <value>BLOOMBERG_BUID_WEAK</value>
-	        <value>BLOOMBERG_TICKER_WEAK</value>
-	    </list>
+      <list>
+        <value>BLOOMBERG_BUID_WEAK</value>
+        <value>BLOOMBERG_TICKER_WEAK</value>
+      </list>
     </constructor-arg>
   </bean>
   
   <bean id="fakeSubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.UnionFakeSubscriptionSelector">
     <constructor-arg>
-	    <list>
-	        <ref bean="volatilitySubscriptionSelector" />
-	        <ref bean="weakSubscriptionSelector" />
-	    </list>
+      <list>
+          <ref bean="volatilitySubscriptionSelector" />
+          <ref bean="weakSubscriptionSelector" />
+      </list>
     </constructor-arg>
   </bean>
   
@@ -98,5 +98,3 @@
     <constructor-arg ref="bloombergLiveDataServer"/>
   </bean>
 </beans>
-	
-	

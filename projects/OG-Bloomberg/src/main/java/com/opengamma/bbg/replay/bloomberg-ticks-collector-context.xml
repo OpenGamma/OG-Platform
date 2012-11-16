@@ -3,14 +3,14 @@
 
 <beans>
 
-	<bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<value>classpath:bbgtickwriter.properties</value>
-		</property>
-	</bean>
+  <bean id="propertyConfigurer"
+    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location">
+      <value>classpath:bbgtickwriter.properties</value>
+    </property>
+  </bean>
 
-	<!-- Bloomberg Reference Data Provider -->
+  <!-- Bloomberg Reference Data Provider -->
   <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
     <property name="name" value="TicksCollector" />
     <property name="host" value="${opengamma.bloomberg.host}" />
@@ -21,11 +21,11 @@
     <constructor-arg ref="standardBloombergConnector" />
   </bean>
 
-	<!-- Caching Reference Data Provider -->
+  <!-- Caching Reference Data Provider -->
   <bean id="bloombergRefDataMongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
     <property name="name" value="BloombergReferenceData" />
     <property name="host" value="${opengamma.mongo.host}" />
-    <property name="port" value="${opengamma.mongo.port}" /> 	
+    <property name="port" value="${opengamma.mongo.port}" />   
     <property name="databaseName" value="${opengamma.bloomberg.reference.database}" />
   </bean>
 
@@ -34,38 +34,38 @@
     <constructor-arg ref="bloombergRefDataMongoConnector"/>
   </bean>
 
-  	<bean id="refDataOutFile" class="com.opengamma.util.FileFactoryBean">
-    	<property name="filename" value="${opengamma.demo.refdata.file}" />
-  	</bean>
-  	
-  	<bean id="watchListFile" class="com.opengamma.util.FileFactoryBean">
-    	<property name="filename" value="${bbgTickCollector.watchList}" />
-  	</bean>
-  	
-  	<bean id="fieldListFile" class="com.opengamma.util.FileFactoryBean">
-    	<property name="filename" value="${bbgRefDataCollector.fieldList}" />
-  	</bean>
-  	
+    <bean id="refDataOutFile" class="com.opengamma.util.FileFactoryBean">
+      <property name="filename" value="${opengamma.demo.refdata.file}" />
+    </bean>
+    
+    <bean id="watchListFile" class="com.opengamma.util.FileFactoryBean">
+      <property name="filename" value="${bbgTickCollector.watchList}" />
+    </bean>
+    
+    <bean id="fieldListFile" class="com.opengamma.util.FileFactoryBean">
+      <property name="filename" value="${bbgRefDataCollector.fieldList}" />
+    </bean>
+    
     <bean id="bbgRefDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
-    	<constructor-arg ref="standardBloombergConnector" />
-  	</bean>
+      <constructor-arg ref="standardBloombergConnector" />
+    </bean>
   
-  	<!-- Bloomberg ref Data Collector -->
-  	<bean id="bbgRefDataCollector" class="com.opengamma.bbg.replay.BloombergRefDataCollector">
-  		<constructor-arg ref="watchListFile" /> 
-  		<constructor-arg ref="bbgRefDataProvider" />
-  		<constructor-arg ref="fieldListFile" />
-    	<constructor-arg ref="refDataOutFile" /> 
-  	</bean>
-	
-	<!-- Bloomberg Ticks Data Collector -->
-	<bean id="bbgTicksCollector" class="com.opengamma.bbg.replay.BloombergTicksCollector">
-		<constructor-arg ref="standardBloombergConnector" />
-		<constructor-arg ref="cachingReferenceDataProvider" />
-		<constructor-arg value="${bbgTickCollector.rootDir}" />
-		<constructor-arg value="${bbgTickCollector.watchList}" />
-		<constructor-arg value="${bbgTickCollector.sessions}" />
-		<constructor-arg value="${bbgTickCollector.storageMode}" />
-	</bean>
-	
+    <!-- Bloomberg ref Data Collector -->
+    <bean id="bbgRefDataCollector" class="com.opengamma.bbg.replay.BloombergRefDataCollector">
+      <constructor-arg ref="watchListFile" /> 
+      <constructor-arg ref="bbgRefDataProvider" />
+      <constructor-arg ref="fieldListFile" />
+      <constructor-arg ref="refDataOutFile" /> 
+    </bean>
+  
+  <!-- Bloomberg Ticks Data Collector -->
+  <bean id="bbgTicksCollector" class="com.opengamma.bbg.replay.BloombergTicksCollector">
+    <constructor-arg ref="standardBloombergConnector" />
+    <constructor-arg ref="cachingReferenceDataProvider" />
+    <constructor-arg value="${bbgTickCollector.rootDir}" />
+    <constructor-arg value="${bbgTickCollector.watchList}" />
+    <constructor-arg value="${bbgTickCollector.sessions}" />
+    <constructor-arg value="${bbgTickCollector.storageMode}" />
+  </bean>
+  
 </beans>

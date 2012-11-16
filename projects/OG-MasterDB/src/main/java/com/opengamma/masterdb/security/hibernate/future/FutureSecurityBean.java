@@ -71,7 +71,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
   /**
    * Visitor.
    */
-  public static interface Visitor<T> {
+  public interface Visitor<T> {
     T visitAgricultureFutureType(AgricultureFutureBean bean);
 
     T visitBondFutureType(BondFutureBean bean);

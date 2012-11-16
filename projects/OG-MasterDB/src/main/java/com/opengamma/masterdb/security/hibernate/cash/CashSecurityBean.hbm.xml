@@ -1,25 +1,23 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cash">
   <union-subclass name="CashSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_cash">
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
-  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
-  	  <property name="scheme" column="region_scheme" type="string" />
-  	  <property name="identifier" column="region_identifier" type="string" />
-  	</component>
-  	<component name="start" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-  	  <property name="date" column="start_date" type="timestamp" not-null="true" />
+    <component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="region_scheme" type="string" />
+      <property name="identifier" column="region_identifier" type="string" />
+    </component>
+    <component name="start" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="start_date" type="timestamp" not-null="true" />
       <property name="zone" column="start_zone" type="string" not-null="true" />
     </component>
-  	<component name="maturity" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-	    <property name="date" column="maturity_date" type="timestamp" not-null="true" />
+    <component name="maturity" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="maturity_date" type="timestamp" not-null="true" />
       <property name="zone" column="maturity_zone" type="string" not-null="true" />
-  	</component>
-  	<many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="daycount_id" not-null="true" />
-  	<property name="rate" type="double" not-null="true"/>
-  	<property name="amount" type="double" not-null="true"/>
+    </component>
+    <many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="daycount_id" not-null="true" />
+    <property name="rate" type="double" not-null="true"/>
+    <property name="amount" type="double" not-null="true"/>
   </union-subclass>
 
   <query name="CashSecurityBean.one.bySecurityId"><![CDATA[

@@ -66,7 +66,7 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
   /**
    * Visitor.
    */
-  public static interface Visitor<T> {
+  public interface Visitor<T> {
     T visitAgricultureForwardType(AgricultureForwardSecurityBean bean);
 
     T visitEnergyForwardType(EnergyForwardSecurityBean bean);

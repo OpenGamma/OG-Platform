@@ -1,20 +1,18 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.capfloor">
   <union-subclass name="CapFloorSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_capfloor">
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
     <many-to-one name="dayCount" column="daycountconvention_id" class="com.opengamma.masterdb.security.hibernate.DayCountBean" not-null="true" />
     <many-to-one name="frequency" column="frequency_id" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" not-null="true" />
-  	<property name="cap" column="is_cap" type="boolean" not-null="true"/>
-  	<property name="ibor" column="is_ibor" type="boolean" not-null="true"/>
-  	<property name="payer" column="is_payer" type="boolean" not-null="true"/>
-  	<component name="maturityDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+    <property name="cap" column="is_cap" type="boolean" not-null="true"/>
+    <property name="ibor" column="is_ibor" type="boolean" not-null="true"/>
+    <property name="payer" column="is_payer" type="boolean" not-null="true"/>
+    <component name="maturityDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
       <property name="date" column="maturity_date" type="timestamp" not-null="true" />
       <property name="zone" column="maturity_zone" type="string" not-null="true" />
     </component>
-  	<property name="notional" type="double" not-null="true"/>
+    <property name="notional" type="double" not-null="true"/>
     <component name="startDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
       <property name="date" column="start_date" type="timestamp" not-null="true" />
       <property name="zone" column="start_zone" type="string" not-null="true" />

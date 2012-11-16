@@ -3,10 +3,10 @@
 
 <beans>
 
-	<import resource="classpath:/com/opengamma/bbg/loader/refDataProvider-context.xml"/>
+  <import resource="classpath:/com/opengamma/bbg/loader/refDataProvider-context.xml"/>
 
-	<bean id="csvMicExchangeDataProvider"
-		class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider" />
+  <bean id="csvMicExchangeDataProvider"
+    class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider" />
 
   <!-- ============================================================================== -->
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
@@ -64,9 +64,9 @@
   </bean>
 
   <!-- ============================================================================== -->
-	<bean id="bloombergSecurityProvider" class="com.opengamma.bbg.security.BloombergSecurityProvider">
-		<constructor-arg ref="cachingRefProvider" />
-		<constructor-arg ref="csvMicExchangeDataProvider" />
-	</bean>
-	
+  <bean id="bloombergSecurityProvider" class="com.opengamma.bbg.security.BloombergSecurityProvider">
+    <constructor-arg ref="cachingRefProvider" />
+    <constructor-arg ref="csvMicExchangeDataProvider" />
+  </bean>
+  
 </beans>
