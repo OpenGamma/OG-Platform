@@ -283,7 +283,7 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     final Collection<ViewCycleExecutionOptions> cycles = getExecutionCycleOptions(executionContext, viewEvaluation);
     viewClient.attachToViewProcess(viewId, ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), EnumSet.of(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER)), true);
     final ResultBuilder resultBuilder = new ResultBuilder(cycles.size(), viewEvaluation.getViewDefinition());
-    final AsynchronousOperation<Set<ComputedValue>> async = new AsynchronousOperation<Set<ComputedValue>>();
+    final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
     final AtomicReference<ResultCallback<Set<ComputedValue>>> asyncResult = new AtomicReference<ResultCallback<Set<ComputedValue>>>(async.getCallback());
     viewClient.setResultListener(new ViewResultListener() {
 

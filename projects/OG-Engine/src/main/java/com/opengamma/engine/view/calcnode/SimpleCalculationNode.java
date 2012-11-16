@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -49,9 +50,6 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGath
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.async.AsynchronousHandle;
-import com.opengamma.util.async.AsynchronousHandleExecution;
-import com.opengamma.util.async.AsynchronousHandleOperation;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
@@ -66,6 +64,20 @@ import com.opengamma.util.tuple.Pair;
  * whatever will logically be dispatching jobs. This is typically a {@link ViewProcessor} for local nodes or a {@link RemoteNodeClient} for remote nodes.
  */
 public class SimpleCalculationNode extends SimpleCalculationNodeState implements CalculationNode {
+
+  /**
+   * Interface used by deferred executions. Any {@link AsynchronousExecution} exceptions thrown by this class will supply either an instance of {@code Deferred} on the original method type, or the
+   * original method type. Instances of {@code Deferred} are not bound (tightly) to their original calculation node instance allowing them to run on another (for example if the original node is now
+   * being reused for another job). Thus the caller must supply the node that will now host the deferred operation. The state from the original node must be preserved and then restored into the new
+   * host node.
+   *
+   * @param <T> the original return type of the asynchronous method
+   */
+  public interface Deferred<T> {
+
+    T call(SimpleCalculationNode self) throws AsynchronousExecution;
+
+  }
 
   private static final String ERROR_CANT_RESOLVE = "com.opengamma.engine.view.calcnode.InvalidTargetException";
   private static final String ERROR_BAD_FUNCTION = "com.opengamma.engine.view.calcnode.InvalidFunctionException";
@@ -247,9 +259,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   //-------------------------------------------------------------------------
   private CalculationJobResult executeJobResult(final List<CalculationJobResultItem> resultItems) throws AsynchronousExecution {
-    if (resultItems == null) {
-      return null;
-    }
     final long executionTime = System.nanoTime() - getExecutionStartTime();
     final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), executionTime, resultItems, getNodeId());
     s_logger.info("Executed {} in {}ns", getJob(), executionTime);
@@ -257,7 +266,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       getCache().flush();
     } catch (final AsynchronousExecution e) {
       s_logger.info("Starting cache flush at {}", _nodeId);
-      final AsynchronousOperation<CalculationJobResult> async = new AsynchronousOperation<CalculationJobResult>();
+      final AsynchronousOperation<CalculationJobResult> async = AsynchronousOperation.create(CalculationJobResult.class);
       e.setResultListener(new ResultListener<Void>() {
         @Override
         public void operationComplete(final AsynchronousResult<Void> result) {
@@ -275,16 +284,23 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return jobResult;
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T> AsynchronousOperation<Deferred<T>> deferredOperation() {
+    return (AsynchronousOperation) AsynchronousOperation.create(Deferred.class);
+  }
+
   /**
-   * Invokes all of the items from a calculation job on this node. If asynchronous execution occurs, the {@link AsynchronousHandleExecution} will report a handle so that it can be resumed when the job
-   * next becomes runnable. If the write behind cache is being used then the {@link AsynchronousExecution} will contain the deferred completion job. This is to allow tail job executions on the local
-   * nodes to start immediately but block the central dispatcher until the cache has been flushed.
+   * Invokes all of the items from a calculation job on this node. If asynchronous execution occurs, the {@link AsynchronousExecution} will report either a {@code Deferred&lt;CalculationJobResult&gt;}
+   * or a {@code CalculationJobResult}. This is to allow the node to be reused if calculations are running externally and for tail job executions on the local nodes to start immediately but block the
+   * central dispatcher until the cache has been flushed.
+   * <p>
+   * If a deferred result is returned, and this node will be used for other work, its state must be saved and then later restored into a node that will be used to complete the deferred action.
    *
    * @param job the job to execute
    * @return the job result
-   * @throws AsynchronousHandleExecution if the job is completing asynchronously
+   * @throws AsynchronousExecution if the job is completing asynchronously
    */
-  public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousHandleExecution, AsynchronousExecution {
+  public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousExecution {
     s_logger.info("Executing {} on {}", job, _nodeId);
     setJob(job);
     final CalculationJobSpecification spec = job.getSpecification();
@@ -297,45 +313,60 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     List<CalculationJobResultItem> jobItems;
     try {
       jobItems = executeJobItems();
-    } catch (final AsynchronousHandleExecution ex) {
-      s_logger.info("Initial asynchronous job execution at {}", _nodeId);
-      return executeJobAsyncResult(ex);
+    } catch (final AsynchronousExecution e) {
+      s_logger.debug("Asynchronous job execution at {}", _nodeId);
+      final AsynchronousOperation<Deferred<CalculationJobResult>> async = deferredOperation();
+      e.setResultListener(new ResultListener<Deferred<List<CalculationJobResultItem>>>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<Deferred<List<CalculationJobResultItem>>> result) {
+          s_logger.debug("Asynchronous job execution result available");
+          try {
+            async.getCallback().setResult(new ExecuteJobFinish(result.getResult()));
+          } catch (final RuntimeException e) {
+            async.getCallback().setException(e);
+          }
+        }
+      });
+      return async.getResult().call(this);
     }
     return executeJobResult(jobItems);
   }
 
-  private CalculationJobResult executeJobAsyncResult(final AsynchronousHandleExecution ex) throws AsynchronousHandleExecution {
-    final AsynchronousHandleOperation<CalculationJobResult> async = new AsynchronousHandleOperation<CalculationJobResult>();
-    ex.setResultHandleListener(new ResultListener<AsynchronousHandle<List<CalculationJobResultItem>>>() {
-      @Override
-      public void operationComplete(final AsynchronousResult<AsynchronousHandle<List<CalculationJobResultItem>>> result) {
-        try {
-          final AsynchronousHandle<List<CalculationJobResultItem>> resultHandle = result.getResult();
-          async.getCallback().setResult(new AsynchronousHandle<CalculationJobResult>() {
-            @Override
-            public CalculationJobResult get() throws AsynchronousHandleExecution {
-              try {
-                final CalculationJobResult result = executeJobResult(resultHandle.get());
-                s_logger.info("Finished job execution at {}", _nodeId);
-                return result;
-              } catch (final AsynchronousHandleExecution e) {
-                s_logger.info("Resuming asynchronous job execution at {}", _nodeId);
-                return executeJobAsyncResult(e);
-              } catch (final AsynchronousExecution e) {
-                s_logger.info("Waiting for asynchronous job execution at {}", _nodeId);
-                return AsynchronousOperation.getResult(e);
-              }
+  private static class ExecuteJobFinish implements Deferred<CalculationJobResult> {
+
+    private final Deferred<List<CalculationJobResultItem>> _deferredExecute;
+
+    public ExecuteJobFinish(final Deferred<List<CalculationJobResultItem>> deferredExecute) {
+      _deferredExecute = deferredExecute;
+    }
+
+    @Override
+    public CalculationJobResult call(final SimpleCalculationNode self) throws AsynchronousExecution {
+      s_logger.debug("Asynchronous job execution result at {}", self._nodeId);
+      List<CalculationJobResultItem> jobItems;
+      try {
+        jobItems = _deferredExecute.call(self);
+      } catch (final AsynchronousExecution e) {
+        s_logger.debug("Asynchronous execution of job remainder at {}", self._nodeId);
+        final AsynchronousOperation<Deferred<CalculationJobResult>> async = deferredOperation();
+        e.setResultListener(new ResultListener<Deferred<List<CalculationJobResultItem>>>() {
+          @Override
+          public void operationComplete(final AsynchronousResult<Deferred<List<CalculationJobResultItem>>> result) {
+            s_logger.debug("Asynchronous job execution result available");
+            try {
+              async.getCallback().setResult(new ExecuteJobFinish(result.getResult()));
+            } catch (final RuntimeException e) {
+              async.getCallback().setException(e);
             }
-          });
-        } catch (final RuntimeException e) {
-          async.getCallback().setException(e);
-        }
+          }
+        });
+        return async.getResult().call(self);
       }
-    });
-    return async.getHandleResult();
+      return self.executeJobResult(jobItems);
+    }
+
   }
 
-  //-------------------------------------------------------------------------
   private void postEvaluationErrors(final Set<ValueSpecification> outputs, final NotCalculatedSentinel type) {
     final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.size());
     for (final ValueSpecification output : outputs) {
@@ -367,12 +398,18 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     getLogListener().detach();
   }
 
-  //-------------------------------------------------------------------------
-  private List<CalculationJobResultItem> executeJobItems(final Iterator<CalculationJobItem> jobItemItr, final List<CalculationJobResultItem> resultItems) throws AsynchronousHandleExecution {
+  /**
+   * Executes one or more items from the supplied iterator, populating the supplied list. If a job item starts running asynchronously, an exception will be thrown. At resumption of the operation,
+   * another call to this method will occur with the same parameters allowing it to continue with the remaining items the iterator has.
+   *
+   * @param jobItemItr the job items to execute, not null
+   * @param resultItems the list to populate with results, not null
+   */
+  private void executeJobItems(final Iterator<CalculationJobItem> jobItemItr, final List<CalculationJobResultItem> resultItems) throws AsynchronousExecution {
     final ComputationTargetResolver.AtVersionCorrection resolver = getTargetResolver().atVersionCorrection(getJob().getResolverVersionCorrection());
     while (jobItemItr.hasNext()) {
       if (getJob().isCancelled()) {
-        return null;
+        throw new CancellationException();
       }
       final CalculationJobItem jobItem = jobItemItr.next();
       // TODO: start resolving the next target while this item executes -- can we "poll" an iterator?
@@ -382,54 +419,168 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         invocationBlacklisted(jobItem, resultItemBuilder);
       } else {
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
+        attachLog(executionLog);
         try {
-          // Can only use this thread's logs during the synchronous attempt
-          attachLog(executionLog);
-          try {
-            invoke(resolver, jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
-          } finally {
-            detachLog();
-          }
+          invoke(resolver, jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
-          s_logger.info("Asynchronous job item execution at {}", _nodeId);
-          final AsynchronousHandleOperation<List<CalculationJobResultItem>> async = new AsynchronousHandleOperation<List<CalculationJobResultItem>>();
-          final AsynchronousHandle<List<CalculationJobResultItem>> continueExecution = new AsynchronousHandle<List<CalculationJobResultItem>>() {
+          s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
+          final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
+          final ExecuteJobItemsInvoke invoke = new ExecuteJobItemsInvoke(jobItem, executionLog, resultItemBuilder);
+          e.setResultListener(new ResultListener<Deferred<Void>>() {
             @Override
-            public List<CalculationJobResultItem> get() throws AsynchronousHandleExecution {
-              s_logger.info("Resuming job item execution at {}", _nodeId);
-              return executeJobItems(jobItemItr, resultItems);
-            }
-          };
-          e.setResultListener(new ResultListener<Void>() {
-            @Override
-            public void operationComplete(final AsynchronousResult<Void> result) {
-              s_logger.info("Got asynchronous job item result at {}", _nodeId);
+            public void operationComplete(final AsynchronousResult<Deferred<Void>> result) {
+              s_logger.debug("Asynchronous job item result available");
               try {
-                result.getResult();
-              } catch (final Throwable t) {
-                invocationFailure(t, jobItem, resultItemBuilder);
+                async.getCallback().setResult(new ExecuteJobItemsResume(resultItems, invoke, result.getResult(), jobItemItr));
+              } catch (final RuntimeException e) {
+                async.getCallback().setException(e);
               }
-              resultItems.add(resultItemBuilder.toResultItem());
-              async.getCallback().setResult(continueExecution);
             }
           });
-          // Discard the handle -- it contains the same state that this loop already has
-          async.getResultHandle();
-          // Completed successfully so result item would have been added in the callback
+          final Deferred<Void> inline = async.getResult();
+          // If the result is already available we can call the deferred block inline. The log and watchdog are already attached,
+          // and we don't want it to make a recursive call into this method (which means it won't throw AsynchronousExecution).
+          invoke.inline();
+          inline.call(this);
           continue;
         } catch (final Throwable t) {
           invocationFailure(t, jobItem, resultItemBuilder);
         } finally {
+          detachLog();
           getMaxJobItemExecution().jobExecutionStopped();
         }
       }
       resultItems.add(resultItemBuilder.toResultItem());
     }
-    return resultItems;
   }
 
-  private List<CalculationJobResultItem> executeJobItems() throws AsynchronousHandleExecution {
-    return executeJobItems(getJob().getJobItems().iterator(), new ArrayList<CalculationJobResultItem>());
+  private static class ExecuteJobItemsInvoke {
+
+    private final CalculationJobItem _jobItem;
+    private MutableExecutionLog _executionLog;
+    private final CalculationJobResultItemBuilder _resultItemBuilder;
+
+    public ExecuteJobItemsInvoke(final CalculationJobItem jobItem, final MutableExecutionLog executionLog, final CalculationJobResultItemBuilder resultItemBuilder) {
+      _jobItem = jobItem;
+      _executionLog = executionLog;
+      _resultItemBuilder = resultItemBuilder;
+    }
+
+    public void inline() {
+      _executionLog = null;
+    }
+
+    public boolean isInline() {
+      return _executionLog == null;
+    }
+
+    public CalculationJobResultItem call(final SimpleCalculationNode self, final Deferred<Void> deferredInvoke) {
+      if (_executionLog != null) {
+        self.getMaxJobItemExecution().jobExecutionStarted(_jobItem);
+        self.attachLog(_executionLog);
+      }
+      try {
+        deferredInvoke.call(self);
+      } catch (final Throwable t) {
+        self.invocationFailure(t, _jobItem, _resultItemBuilder);
+      } finally {
+        if (_executionLog != null) {
+          self.detachLog();
+          self.getMaxJobItemExecution().jobExecutionStopped();
+        }
+      }
+      return _resultItemBuilder.toResultItem();
+    }
+
+  }
+
+  private static class ExecuteJobItemsResume implements Deferred<Void> {
+
+    private final List<CalculationJobResultItem> _resultItems;
+    private ExecuteJobItemsInvoke _invoke;
+    private Deferred<Void> _deferredInvoke;
+    private final Iterator<CalculationJobItem> _jobItemItr;
+
+    public ExecuteJobItemsResume(final List<CalculationJobResultItem> resultItems, final ExecuteJobItemsInvoke invoke, final Deferred<Void> deferredInvoke,
+        final Iterator<CalculationJobItem> jobItemItr) {
+      _resultItems = resultItems;
+      _invoke = invoke;
+      _deferredInvoke = deferredInvoke;
+      _jobItemItr = jobItemItr;
+    }
+
+    @Override
+    public Void call(final SimpleCalculationNode self) throws AsynchronousExecution {
+      s_logger.debug("Asynchronous job item result at {}", self._nodeId);
+      _resultItems.add(_invoke.call(self, _deferredInvoke));
+      if (!_invoke.isInline()) {
+        _invoke = null;
+        _deferredInvoke = null;
+        self.executeJobItems(_jobItemItr, _resultItems);
+      }
+      return null;
+    }
+
+  }
+
+  private List<CalculationJobResultItem> executeJobItems() throws AsynchronousExecution {
+    final List<CalculationJobItem> jobItems = getJob().getJobItems();
+    final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>(jobItems.size());
+    try {
+      executeJobItems(jobItems.iterator(), resultItems);
+      return resultItems;
+    } catch (final AsynchronousExecution e) {
+      s_logger.debug("Asynchronous execution of remaining job items at {}", _nodeId);
+      final AsynchronousOperation<Deferred<List<CalculationJobResultItem>>> async = deferredOperation();
+      e.setResultListener(new ResultListener<Deferred<Void>>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<Deferred<Void>> result) {
+          s_logger.debug("Asynchronous job item results available");
+          try {
+            async.getCallback().setResult(new ExecuteJobItemsFinish(resultItems, result.getResult()));
+          } catch (final RuntimeException e) {
+            async.getCallback().setException(e);
+          }
+        }
+      });
+      return async.getResult().call(this);
+    }
+  }
+
+  private static class ExecuteJobItemsFinish implements Deferred<List<CalculationJobResultItem>> {
+
+    private final List<CalculationJobResultItem> _results;
+    private final Deferred<Void> _deferredResult;
+
+    public ExecuteJobItemsFinish(final List<CalculationJobResultItem> results, final Deferred<Void> deferredResult) {
+      _results = results;
+      _deferredResult = deferredResult;
+    }
+
+    @Override
+    public List<CalculationJobResultItem> call(final SimpleCalculationNode self) throws AsynchronousExecution {
+      s_logger.debug("Asynchronous job item results at {}", self._nodeId);
+      try {
+        _deferredResult.call(self);
+        return _results;
+      } catch (final AsynchronousExecution e) {
+        s_logger.debug("Asynchronous execution of remaining job items at {}", self._nodeId);
+        final AsynchronousOperation<Deferred<List<CalculationJobResultItem>>> async = deferredOperation();
+        e.setResultListener(new ResultListener<Deferred<Void>>() {
+          @Override
+          public void operationComplete(final AsynchronousResult<Deferred<Void>> result) {
+            s_logger.debug("Asynchronous job item results available");
+            try {
+              async.getCallback().setResult(new ExecuteJobItemsFinish(_results, result.getResult()));
+            } catch (final RuntimeException e) {
+              async.getCallback().setException(e);
+            }
+          }
+        });
+        return async.getResult().call(self);
+      }
+    }
+
   }
 
   private DeferredViewComputationCache getDeferredViewComputationCache(final ViewComputationCache cache) {
@@ -496,6 +647,13 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       resultItemBuilder.withMissingOutputs(missing);
     }
     getCache().putValues(newResults, getJob().getCacheSelectHint(), statistics);
+  }
+
+  private void invokeException(final Set<ValueSpecification> outputs, final Throwable t, final CalculationJobResultItemBuilder resultItemBuilder) {
+    s_logger.error("Invocation error: {}", t.getMessage());
+    s_logger.warn("Caught exception", t);
+    postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
+    resultItemBuilder.withException(t);
   }
 
   private void invoke(final ComputationTargetResolver.AtVersionCorrection resolver, final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics,
@@ -588,36 +746,46 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     // Execute
     statistics.beginInvocation(functionUniqueId);
+    Set<ComputedValue> result;
     try {
-      invokeResult(invoker, statistics, missing, outputs, invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs)), resultItemBuilder);
+      result = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
     } catch (final AsynchronousExecution e) {
-      s_logger.info("Starting asynchronous invocation at {}", _nodeId);
-      final AsynchronousOperation<Void> async = new AsynchronousOperation<Void>();
+      s_logger.debug("Asynchronous execution of {} at {}", jobItem, _nodeId);
+      final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
       e.setResultListener(new ResultListener<Set<ComputedValue>>() {
         @Override
         public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
-          s_logger.info("Finished asynchronous invocation at {}", _nodeId);
-          try {
-            invokeResult(invoker, statistics, missing, outputs, result.getResult(), resultItemBuilder);
-          } catch (final FunctionBlacklistedException e) {
-            invocationBlacklisted(jobItem, resultItemBuilder);
-          } catch (final Throwable t) {
-            s_logger.error("Invocation error: {}", t.getMessage());
-            s_logger.warn("Caught exception", t);
-            postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
-            resultItemBuilder.withException(t);
-          }
-          async.getCallback().setResult(null);
+          s_logger.debug("Job item {} result available", jobItem);
+          async.getCallback().setResult(new Deferred<Void>() {
+            @Override
+            public Void call(final SimpleCalculationNode self) {
+              s_logger.debug("Asynchronous result for {} at {}", jobItem, self._nodeId);
+              Set<ComputedValue> results;
+              try {
+                results = result.getResult();
+              } catch (final FunctionBlacklistedException e) {
+                self.invocationBlacklisted(jobItem, resultItemBuilder);
+                return null;
+              } catch (final Throwable t) {
+                self.invokeException(outputs, t, resultItemBuilder);
+                return null;
+              }
+              self.invokeResult(invoker, statistics, missing, outputs, results, resultItemBuilder);
+              return null;
+            }
+          });
         }
       });
-      async.getResult();
+      async.getResult().call(this);
+      return;
     } catch (final FunctionBlacklistedException e) {
       invocationBlacklisted(jobItem, resultItemBuilder);
+      return;
     } catch (final Throwable t) {
-      s_logger.error("Invocation error: {}", t.getMessage());
-      s_logger.warn("Caught exception", t);
-      postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
-      resultItemBuilder.withException(t);
+      invokeException(outputs, t, resultItemBuilder);
+      return;
     }
+    invokeResult(invoker, statistics, missing, outputs, result, resultItemBuilder);
   }
+
 }

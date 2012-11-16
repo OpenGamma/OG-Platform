@@ -32,7 +32,6 @@ import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.async.AsynchronousHandleExecution;
 import com.opengamma.util.log.LogBridge;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
@@ -134,7 +133,7 @@ public class CalculationNodeTest {
   }
 
   private CalculationJobResultItem getResultWithLogging(final MockFunction mockFunction, final ThreadLocalLogEventListener logEventListener, final TestCalculationNode calcNode, final CalculationJob calcJob)
-      throws AsynchronousHandleExecution, AsynchronousExecution {
+      throws AsynchronousExecution {
     LogBridge.getInstance().addListener(logEventListener);
     CalculationJobResult jobResult;
     try {
