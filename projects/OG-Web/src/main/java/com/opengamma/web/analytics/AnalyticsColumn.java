@@ -119,8 +119,8 @@ import com.opengamma.util.ArgumentChecker;
   public String toString() {
     return "AnalyticsColumn [" +
         "_header='" + _header + '\'' +
-        ", _description='" + _description + '\'' +
         ", _type=" + _type +
+        ", _description='" + _description + '\'' +
         "]";
   }
 }

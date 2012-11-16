@@ -25,6 +25,12 @@ import com.opengamma.engine.value.ValueSpecification;
 
   /* package */ VolatilitySurfaceFormatter() {
     super(VolatilitySurface.class);
+    addFormatter(new Formatter<VolatilitySurface>(Format.EXPANDED) {
+      @Override
+      Object format(VolatilitySurface value, ValueSpecification valueSpec) {
+        return SurfaceFormatterUtils.formatExpanded(value.getSurface());
+      }
+    });
   }
 
   @Override

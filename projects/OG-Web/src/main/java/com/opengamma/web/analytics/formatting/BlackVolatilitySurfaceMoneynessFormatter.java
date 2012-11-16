@@ -5,12 +5,7 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -18,28 +13,19 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 /* package */ class BlackVolatilitySurfaceMoneynessFormatter extends AbstractFormatter<BlackVolatilitySurfaceMoneyness> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceMoneynessFormatter.class);
-
   /* package */ BlackVolatilitySurfaceMoneynessFormatter() {
     super(BlackVolatilitySurfaceMoneyness.class);
+    addFormatter(new Formatter<BlackVolatilitySurfaceMoneyness>(Format.EXPANDED) {
+      @Override
+      Object format(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
+        return SurfaceFormatterUtils.formatExpanded(value.getSurface());
+      }
+    });
   }
 
   @Override
-  public String formatCell(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
-    int xCount;
-    int yCount;
-    if (value.getSurface() instanceof InterpolatedDoublesSurface) {
-      InterpolatedDoublesSurface interpolated = (InterpolatedDoublesSurface) value.getSurface();
-      xCount = interpolated.getXData().length;
-      yCount = interpolated.getYData().length;
-    } else if (value.getSurface() instanceof FunctionalDoublesSurface) {
-      xCount = 20;
-      yCount = 20;
-    } else {
-      s_logger.warn("Unable for format surface of type {}", value.getSurface().getClass());
-      return null;
-    }
-    return "Volatility Surface (" + xCount + " x " + yCount + ")";
+  public Object formatCell(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
+    return SurfaceFormatterUtils.formatCell(value.getSurface());
   }
 
   @Override

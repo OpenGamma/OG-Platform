@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -73,21 +72,4 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
     abstract Object format(T value, ValueSpecification valueSpec);
   }
 
-  /**
-   * Error value returned to the client for values that can't be formatted.
-   */
-  private static class MissingFormatter implements MissingInput {
-
-    private final String _message;
-
-    private MissingFormatter(String message) {
-      ArgumentChecker.notEmpty(message, "message");
-      _message = message;
-    }
-
-    @Override
-    public String toString() {
-      return _message;
-    }
-  }
 }
