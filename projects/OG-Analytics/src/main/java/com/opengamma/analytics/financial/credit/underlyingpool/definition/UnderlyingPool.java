@@ -10,6 +10,10 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -25,8 +29,9 @@ public class UnderlyingPool {
 
   // TODO : Add the hashcode and equals methods
   // TODO : Add the arg checker for a null YieldCurve object (taken out for the purposes of testing)
+  // TODO : Add an arg checker to ensure no two obligors are the same
   // TODO : Need to check the validity of the creditSpreadTenors and spreadTermStructures arguments
-  // TODO : Will want to include calculations such as e.g. average T year spread of constituents and other descriptive statistics
+  // TODO : Will want to include calculations such as e.g. average T year spread of constituents and other descriptive statistics (std dev, var, skew, kurt, percentile)
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm
@@ -210,6 +215,99 @@ public class UnderlyingPool {
 
   public double getPoolNotional() {
     return _poolNotional;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the average spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadAverage(CreditSpreadTenors creditSpreadTenor) {
+
+    MeanCalculator mean = new MeanCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return mean.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the variance of the spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadVariance(CreditSpreadTenors creditSpreadTenor) {
+
+    SampleVarianceCalculator variance = new SampleVarianceCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return variance.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the standard deviation of the spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadStandardDeviation(CreditSpreadTenors creditSpreadTenor) {
+
+    SampleStandardDeviationCalculator standardDeviation = new SampleStandardDeviationCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return standardDeviation.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadSkewness(CreditSpreadTenors creditSpreadTenor) {
+
+    SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return skewness.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // fix
+  // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadKurtosis(CreditSpreadTenors creditSpreadTenor) {
+
+    SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return skewness.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Fix
+  // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
+  public double calculateCreditSpreadPercentile(CreditSpreadTenors creditSpreadTenor, double q) {
+
+    SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return skewness.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  private double[] getSpreads(CreditSpreadTenors creditSpreadTenor) {
+
+    int counter = 0;
+
+    double[] spreads = new double[this._numberOfObligors];
+
+    while (this.getCreditSpreadTenors()[counter] != creditSpreadTenor) {
+      counter++;
+    }
+
+    for (int i = 0; i < this._numberOfObligors; i++) {
+      spreads[i] = this.getSpreadTermStructures()[i][counter];
+    }
+
+    return spreads;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
