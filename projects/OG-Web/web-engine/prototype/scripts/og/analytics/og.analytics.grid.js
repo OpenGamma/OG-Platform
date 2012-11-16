@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
         var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24,
-            templates = null, default_col_width = 175, scrollbar = (function () {
+            templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
@@ -91,10 +91,8 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
-            grid.clipboard = new og.analytics.Clipboard(grid);
             grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('connect', function (connection) {grid.fire('connect', connection);})
                 .on('disconnect', function () {grid.selector.clear(); grid.clipboard.clear();})
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
@@ -108,6 +106,7 @@ $.register_module({
                     });
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
+            grid.clipboard = new og.analytics.Clipboard(grid);
         };
         var init_elements = function () {
             var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
@@ -204,7 +203,7 @@ $.register_module({
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
-        var init_grid = function (meta) {
+        var init_grid = function (meta, raw) {
             var grid = this, config = grid.config, columns = meta.columns;
             grid.meta = meta;
             meta.viewport = {format: 'CELL'};
@@ -262,7 +261,7 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, data, fixed, loading) {
-                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner,
+                var meta = grid.meta, fixed_len = meta.fixed_length, i, j, index, data_row, inner = meta.inner, prefix,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
@@ -276,11 +275,12 @@ $.register_module({
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
                     for (data_row = rows[i]; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
-                        value = formatter[type = types[column]] ? formatter[type](data[index]) : data[index].v || '';
-                        cells.push({
-                            column: column, error: data[index] && data[index].error,
-                            value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
-                        });
+                        value = formatter[type = types[column]] ?
+                            data[index] && formatter[type](data[index]) : data[index] && data[index].v || '';
+                        prefix = fixed && j === 0 ? meta.unraveled_cache[meta.unraveled[data_row]]({
+                            state: grid.meta.nodes[data_row] ? 'collapse' : 'expand'
+                        }) : '';
+                        cells.push({column: column, error: data[index] && data[index].error, value: prefix + value});
                     }
                 }
                 return result;
@@ -289,18 +289,14 @@ $.register_module({
                 var grid = this, meta = grid.meta;
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
                 grid.data = data;
-                grid.elements.fixed_body.html(templates.row(row_data(grid, data, true, loading)));
-                grid.elements.scroll_body.html(templates.row(row_data(grid, data, false, loading)));
+                grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, data, true, loading));
+                grid.elements.scroll_body[0][HTML] = templates.row(row_data(grid, data, false, loading));
                 grid.updated(+new Date);
                 if (loading) {
                     if (!grid.elements.notified) grid.elements.main
                         .append(grid.elements.notified = $(templates.loading({text: 'waiting for data...'})));
                 } else {
                     if (grid.elements.notified) grid.elements.notified = (grid.elements.notified.remove(), null);
-                    grid.elements.main.find('.node').each(function (idx, val) {
-                        var $node = $(this);
-                        $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
-                    });
                 }
                 grid.busy(false);
                 grid.fire('render');
@@ -330,8 +326,9 @@ $.register_module({
             };
             var unravel = function (arr, result, indent) {
                 var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str,
-                    i, j, len = children.length, child, curr_start, curr_end;
-                prefix = (cache[rep(indent) + '<span data-row="' + start + '" class="node"></span>&nbsp;'] = counter++);
+                    i, j, len = children.length, child, curr_start, curr_end, html;
+                html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
+                prefix = cache[rep(indent) + html] = counter++;
                 result.push({prefix: prefix, node: true, length: end - start});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
@@ -352,7 +349,7 @@ $.register_module({
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});
-                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = prefix;
+                for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);
                 meta.unraveled = unraveled.pluck('prefix');
             };
         })();

@@ -74,17 +74,11 @@ $.register_module({
         var constructor = function (grid) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
-            clipboard.dataman = null;
+            clipboard.dataman = new og.analytics.Data(grid.source, {label: 'clipboard', parent: grid.dataman})
+                .on('data', data_handler, clipboard);
             clipboard.grid = grid
                 .on('select', function (selection) {clipboard.viewport(selection);})
-                .on('deselect', function () {clipboard.clear();})
-                .on('connect', function (connection) {
-                    if (clipboard.dataman) return clipboard.dataman.reconnect(connection);
-                    clipboard.dataman = new og.analytics.Data(grid.source, {
-                        bypass: true, label: 'clipboard', autoconnect: false,
-                        view_id: connection.view_id, graph_id: connection.graph_id
-                    }).on('data', data_handler, clipboard);
-                });
+                .on('deselect', function () {clipboard.clear();});
         };
         var data_handler = function (data) {
             var clipboard = this, grid = clipboard.grid, lcv, index = 0, selection = clipboard.selection,

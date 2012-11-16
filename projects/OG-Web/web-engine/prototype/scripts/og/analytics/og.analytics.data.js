@@ -15,8 +15,7 @@ $.register_module({
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
-                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'},
-                autoconnect = typeof config.autoconnect !== 'undefined' ? config.autoconnect : true,
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass,
                 label = config.label ? config.label + '-' : '';
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
@@ -57,14 +56,12 @@ $.register_module({
             };
             var disconnect_handler = function () {fire('disconnect'), data.disconnect(data.prefix + 'disconnected');};
             var fire = (function () {
-                var fatal_fired = false, connect_fired = null;
+                var fatal_fired = false;
                 return function (type) {
                     var args = Array.prototype.slice.call(arguments);
                     try {
                         if (type === 'fatal' && !fatal_fired) // fire only once ever
                             return (fatal_fired = true), og.common.events.fire.apply(data, args);
-                        if (type === 'connect' && connect_fired !== view_id) // fire once per new view_id
-                            return (connect_fired = view_id), og.common.events.fire.apply(data, args);
                         og.common.events.fire.apply(data, args);
                     } catch (error) {og.dev.warn(data.prefix + 'a ' + type + ' handler threw ', error);}
                 }
@@ -72,7 +69,7 @@ $.register_module({
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
-                if (depgraph || config.bypass) grid_type = source.type; // don't bother with type_setup
+                if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup();
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
@@ -82,13 +79,12 @@ $.register_module({
             var structure_handler = function (result) {
                 if (!grid_type || (depgraph && !graph_id)) return;
                 if (result.error) return fire('fatal', data.prefix + result.message);
-                fire('connect', {view_id: view_id, graph_id: graph_id});
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
-                fire('meta', meta);
+                fire('meta', meta, {grid_type: grid_type, view_id: view_id, graph_id: graph_id, meta: result});
                 if (!subscribed) return data_setup();
             };
             var same_viewport = function (one, two) {
@@ -138,7 +134,7 @@ $.register_module({
             };
             data.disconnect = function () {
                 if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
-                if (view_id) api.del({view_id: view_id});
+                if (view_id && !data.parent) api.del({view_id: view_id});
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 view_id = graph_id = viewport_id = subscribed = null;
             };
@@ -146,9 +142,11 @@ $.register_module({
             data.kill = function () {
                 data.disconnect.apply(data, Array.prototype.slice.call(arguments));
                 delete connections[data.id];
-                if (autoconnect) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+                if (!data.parent)
+                    og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
             };
             data.meta = meta = {columns: {}};
+            data.parent = config.parent;
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.reconnect = function (connection) {
                 view_id = connection.view_id; graph_id = connection.graph_id;
@@ -177,9 +175,18 @@ $.register_module({
                 return data;
             };
             connections[data.id] = data;
-            if (autoconnect) og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
             data.on('fatal', function (message) {data.kill(message);});
-            setTimeout(initialize); // allow events to be attached
+            if (data.parent) { // use parent's connection information
+                bypass_types = true; // child data connections don't need to know about grid types
+                data.parent.on('meta', function (meta, raw) {
+                    data.disconnect();
+                    view_id = raw.view_id; graph_id = raw.graph_id; grid_type = raw.grid_type;
+                    structure_handler(raw.meta);
+                });
+            } else {
+                og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
+                setTimeout(initialize); // allow events to be attached
+            }
         };
         constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
