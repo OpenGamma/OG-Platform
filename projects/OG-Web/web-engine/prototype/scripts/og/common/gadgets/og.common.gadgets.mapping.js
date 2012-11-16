@@ -74,7 +74,7 @@ $.register_module({
                 LABELLED_MATRIX_2D      : [0, 1],
                 LABELLED_MATRIX_3D      : [0, 1],
                 PRIMITIVE               : [5],
-                SURFACE_DATA            : [2, 1],
+                SURFACE_DATA            : [2, 1, 0],
                 UNPLOTTABLE_SURFACE_DATA: [1],
                 TENOR                   : [0],
                 TIME_SERIES             : [4, 1],
