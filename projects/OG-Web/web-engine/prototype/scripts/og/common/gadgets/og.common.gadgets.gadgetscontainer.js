@@ -210,7 +210,6 @@ $.register_module({
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                console.log(index, swap, gadgets);
                 if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
