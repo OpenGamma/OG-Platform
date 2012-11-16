@@ -12,6 +12,14 @@
   <description>OpenGamma maven aggregator project</description>
   <url>http://developers.opengamma.com/</url>
 
+  <repositories>
+    <repository>
+      <id>og-public</id>
+      <name>OG Public</name>
+      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
       <plugin>
