@@ -1,0 +1,24 @@
+/**
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+$.register_module({
+    name: 'og.blotter.container',
+    dependencies: [''],
+    obj: function () {
+        var module = this;
+        return function () {
+            var container = this, css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0};
+            container.alive = function () {
+                //am I alive
+            };
+            container.load = function () {
+                //load here
+            };
+            container.load();
+            container.resize = function () {
+                //maybe not needed
+            };
+        };
+    }
+});
