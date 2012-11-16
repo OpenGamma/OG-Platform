@@ -49,7 +49,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
    * @param underlyingSwap The futures underlying swap.
    * @param notional The notional of the future.
    */
-  public DeliverableSwapFuturesSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, double notional) {
+  public DeliverableSwapFuturesSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(underlyingSwap, "Swap");
     ArgumentChecker.isTrue(Math.abs(underlyingSwap.getFixedLeg().getNthPayment(0).getNotional() - 1.0) < 1.0E-10, "Swap should be receiver of notional 1");
@@ -61,7 +61,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
 
   /**
    * Builder from the financial details.
-   * @param effectiveDate The underlying swap effective date (delivery date). 
+   * @param effectiveDate The underlying swap effective date (delivery date).
    * @param generator The swap generator.
    * @param tenor The underlying swap tenor.
    * @param notional The futures notional.
@@ -71,8 +71,8 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
   public static DeliverableSwapFuturesSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(generator, "Generator");
-    ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
-    SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, tenor, generator, 1.0, rate, false);
+    final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
+    final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, tenor, generator, 1.0, rate, false);
     return new DeliverableSwapFuturesSecurityDefinition(lastTradingDate, swap, notional);
   }
 
@@ -109,7 +109,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
   }
 
   @Override
-  public DeliverableSwapFuturesSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public DeliverableSwapFuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
@@ -117,12 +117,12 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this);
   }
 
@@ -140,7 +140,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -150,7 +150,7 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeliverableSwapFuturesSecurityDefinition other = (DeliverableSwapFuturesSecurityDefinition) obj;
+    final DeliverableSwapFuturesSecurityDefinition other = (DeliverableSwapFuturesSecurityDefinition) obj;
     if (!ObjectUtils.equals(_deliveryDate, other._deliveryDate)) {
       return false;
     }

@@ -129,6 +129,10 @@ public class FutureInstrumentsDescriptionDataSet {
     return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
   }
 
+  public static BondFutureOptionPremiumSecurityDefinition createBondFutureOptionPremiumSecurityDefinition() {
+    return new BondFutureOptionPremiumSecurityDefinition(createBondFutureSecurityDefinition(), OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+  }
+
   public static String[] curveNames() {
     return CURVES_NAME;
   }

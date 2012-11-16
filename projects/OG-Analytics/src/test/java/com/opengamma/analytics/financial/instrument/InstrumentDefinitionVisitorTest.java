@@ -10,25 +10,6 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.ANNUITY_COUPON_CMS;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.ANNUITY_FIXED;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.ANNUITY_IBOR;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.ANNUITY_IBOR_SPREAD_1;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.BNDFUT_SECURITY_DEFINITION;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.CASH;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.COUPON_CMS;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.GENERAL_ANNUITY;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.IR_FUT_OPT_MARGIN_SEC_DEF;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.IR_FUT_OPT_MARGIN_T_DEF;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.IR_FUT_OPT_PREMIUM_SEC_DEF;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.IR_FUT_OPT_PREMIUM_T_DEF;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.IR_FUT_SECURITY_DEFINITION;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.PAYMENT_FIXED;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.SWAPTION_CASH;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.SWAPTION_PHYS;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.SWAP_FIXED_IBOR;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.SWAP_FIXED_IBOR_SPREAD;
-import static com.opengamma.analytics.financial.instrument.TestInstrumentDefinitions.SWAP_IBOR_IBOR;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -115,44 +96,13 @@ public class InstrumentDefinitionVisitorTest {
   public void test() {
     final Object o = "G";
     final String s = " + data";
-    assertEquals(CASH.accept(VISITOR), CASH.getClass().getSimpleName());
-    assertEquals(CASH.accept(VISITOR, o), CASH.getClass().getSimpleName() + s);
-    assertEquals(ANNUITY_FIXED.accept(VISITOR), ANNUITY_FIXED.getClass().getSimpleName());
-    assertEquals(ANNUITY_FIXED.accept(VISITOR, o), ANNUITY_FIXED.getClass().getSimpleName() + s);
-    assertEquals(ANNUITY_IBOR.accept(VISITOR), ANNUITY_IBOR.getClass().getSimpleName());
-    assertEquals(ANNUITY_IBOR.accept(VISITOR, o), ANNUITY_IBOR.getClass().getSimpleName() + s);
-    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR), ANNUITY_IBOR_SPREAD_1.getClass().getSimpleName());
-    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR, o), ANNUITY_IBOR_SPREAD_1.getClass().getSimpleName() + s);
-    assertEquals(SWAP_FIXED_IBOR.accept(VISITOR), SWAP_FIXED_IBOR.getClass().getSimpleName());
-    assertEquals(SWAP_FIXED_IBOR.accept(VISITOR, o), SWAP_FIXED_IBOR.getClass().getSimpleName() + s);
-    assertEquals(SWAP_FIXED_IBOR_SPREAD.accept(VISITOR), SWAP_FIXED_IBOR_SPREAD.getClass().getSimpleName());
-    assertEquals(SWAP_FIXED_IBOR_SPREAD.accept(VISITOR, o), SWAP_FIXED_IBOR_SPREAD.getClass().getSimpleName() + s);
-    assertEquals(SWAP_IBOR_IBOR.accept(VISITOR), SWAP_IBOR_IBOR.getClass().getSimpleName());
-    assertEquals(SWAP_IBOR_IBOR.accept(VISITOR, o), SWAP_IBOR_IBOR.getClass().getSimpleName() + s);
-    assertEquals(GENERAL_ANNUITY.accept(VISITOR), GENERAL_ANNUITY.getClass().getSimpleName());
-    assertEquals(GENERAL_ANNUITY.accept(VISITOR, o), GENERAL_ANNUITY.getClass().getSimpleName() + s);
-    assertEquals(COUPON_CMS.accept(VISITOR), COUPON_CMS.getClass().getSimpleName());
-    assertEquals(COUPON_CMS.accept(VISITOR, o), COUPON_CMS.getClass().getSimpleName() + s);
-    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), ANNUITY_COUPON_CMS.getClass().getSimpleName());
-    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), ANNUITY_COUPON_CMS.getClass().getSimpleName() + s);
-    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR), IR_FUT_SECURITY_DEFINITION.getClass().getSimpleName());
-    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR, o), IR_FUT_SECURITY_DEFINITION.getClass().getSimpleName() + s);
-    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR), BNDFUT_SECURITY_DEFINITION.getClass().getSimpleName());
-    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR, o), BNDFUT_SECURITY_DEFINITION.getClass().getSimpleName() + s);
-    assertEquals(SWAPTION_CASH.accept(VISITOR), SWAPTION_CASH.getClass().getSimpleName());
-    assertEquals(SWAPTION_CASH.accept(VISITOR, o), SWAPTION_CASH.getClass().getSimpleName() + s);
-    assertEquals(SWAPTION_PHYS.accept(VISITOR), SWAPTION_PHYS.getClass().getSimpleName());
-    assertEquals(SWAPTION_PHYS.accept(VISITOR, o), SWAPTION_PHYS.getClass().getSimpleName() + s);
-    assertEquals(IR_FUT_OPT_MARGIN_SEC_DEF.accept(VISITOR), IR_FUT_OPT_MARGIN_SEC_DEF.getClass().getSimpleName());
-    assertEquals(IR_FUT_OPT_MARGIN_SEC_DEF.accept(VISITOR, o), IR_FUT_OPT_MARGIN_SEC_DEF.getClass().getSimpleName() + s);
-    assertEquals(IR_FUT_OPT_PREMIUM_SEC_DEF.accept(VISITOR), IR_FUT_OPT_PREMIUM_SEC_DEF.getClass().getSimpleName());
-    assertEquals(IR_FUT_OPT_PREMIUM_SEC_DEF.accept(VISITOR, o), IR_FUT_OPT_PREMIUM_SEC_DEF.getClass().getSimpleName() + s);
-    assertEquals(IR_FUT_OPT_MARGIN_T_DEF.accept(VISITOR), IR_FUT_OPT_MARGIN_T_DEF.getClass().getSimpleName());
-    assertEquals(IR_FUT_OPT_MARGIN_T_DEF.accept(VISITOR, o), IR_FUT_OPT_MARGIN_T_DEF.getClass().getSimpleName() + s);
-    assertEquals(IR_FUT_OPT_PREMIUM_T_DEF.accept(VISITOR), IR_FUT_OPT_PREMIUM_T_DEF.getClass().getSimpleName());
-    assertEquals(IR_FUT_OPT_PREMIUM_T_DEF.accept(VISITOR, o), IR_FUT_OPT_PREMIUM_T_DEF.getClass().getSimpleName() + s);
-    assertEquals(PAYMENT_FIXED.accept(VISITOR), PAYMENT_FIXED.getClass().getSimpleName());
-    assertEquals(PAYMENT_FIXED.accept(VISITOR, o), PAYMENT_FIXED.getClass().getSimpleName() + s);
+    int count = 0;
+    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+      assertEquals(definition.accept(VISITOR), definition.getClass().getSimpleName());
+      assertEquals(definition.accept(VISITOR, o), definition.getClass().getSimpleName() + s);
+      count += 2;
+    }
+    //assertEquals("Have not tested all methods - need to make sure that the accept() method in the definition points to the right method:", InstrumentDefinitionVisitor.class.getMethods().length, count);
   }
 
   private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
@@ -192,7 +142,7 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final T data) {
-      return getValue(bond, false);
+      return getValue(bond, true);
     }
 
     @Override

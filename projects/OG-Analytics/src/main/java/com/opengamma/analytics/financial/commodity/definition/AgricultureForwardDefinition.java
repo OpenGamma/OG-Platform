@@ -34,8 +34,8 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public AgricultureForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName, SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+  public AgricultureForwardDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
+      final double amount, final String unitName, final SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
@@ -52,8 +52,8 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public AgricultureForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, SettlementType settlementType,
-      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+  public AgricultureForwardDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final double amount, final String unitName,
+      final SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     this(expiryDate, underlying, unitAmount, null, null, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
@@ -70,7 +70,7 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @param settlementDate settlement date
    * @return the forward
    */
-  public static AgricultureForwardDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+  public static AgricultureForwardDefinition withCashSettlement(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final double amount, final String unitName,
       final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     return new AgricultureForwardDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
@@ -90,8 +90,8 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @param settlementDate settlement date
    * @return the forward
    */
-  public static AgricultureForwardDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate,
-      ZonedDateTime lastDeliveryDate, double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+  public static AgricultureForwardDefinition withPhysicalSettlement(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate,
+      final ZonedDateTime lastDeliveryDate, final double amount, final String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     return new AgricultureForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency,
         settlementDate);
   }
@@ -99,15 +99,15 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
   /**
    * Get the derivative at a given fix time from the definition
    * 
-   * @param date  fixing time
-   * @param yieldCurveNames  
+   * @param date  fixing time, before or on the expiry, not null
+   * @param yieldCurveNames  the yield curve names, not used
    * @return the fixed derivative
    */
   @Override
   public AgricultureForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(),
         timeToSettlement, getReferencePrice(), getCurrency());
   }
@@ -119,10 +119,11 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @param referencePrice reference price
    * @return the fixed derivative
    */
+  @Override
   public AgricultureForward toDerivative(final ZonedDateTime date, final double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
         referencePrice, getCurrency());
   }
@@ -143,7 +144,7 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
