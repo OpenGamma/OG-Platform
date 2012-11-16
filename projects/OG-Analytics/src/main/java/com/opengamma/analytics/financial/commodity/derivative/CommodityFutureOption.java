@@ -37,7 +37,7 @@ public abstract class CommodityFutureOption<T extends CommodityFutureDefinition<
    * @param isCall Call if true, Put if false
    */
   public CommodityFutureOption(final double expiry, final T underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
-    ArgumentChecker.isTrue(expiry > 0, "time to expiry must be positive");
+    ArgumentChecker.isTrue(expiry >= 0, "time to expiry must be positive");
 
     _expiry = expiry;
     _underlying = underlying;

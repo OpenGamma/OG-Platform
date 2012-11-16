@@ -61,7 +61,7 @@ public abstract class CommodityForward implements InstrumentDerivative {
    */
   public CommodityForward(final double expiry, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
       final double amount, final String unitName, final SettlementType settlementType, final double settlement, final double referencePrice, final Currency currency) {
-    ArgumentChecker.isTrue(expiry > 0, "time to expiry must be positive");
+    ArgumentChecker.isTrue(expiry >= 0, "time to expiry must be positive");
 
     _expiry = expiry;
     _underlying = underlying;
