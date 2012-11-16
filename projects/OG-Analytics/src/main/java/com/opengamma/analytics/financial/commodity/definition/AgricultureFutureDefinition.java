@@ -8,16 +8,16 @@ package com.opengamma.analytics.financial.commodity.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Agriculture future definition
  */
-public class AgricultureFutureDefinition extends CommodityFutureDefinition implements InstrumentDefinition<AgricultureFuture> {
+public class AgricultureFutureDefinition extends CommodityFutureDefinition<AgricultureFuture> {
 
   /**
    * Constructor for futures
@@ -30,10 +30,13 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - PHYSICAL or CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public AgricultureFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName, SettlementType settlementType) {
-    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      double amount, String unitName, SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -45,9 +48,13 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
-  public AgricultureFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, SettlementType settlementType) {
-    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, settlementType);
+  public AgricultureFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, SettlementType settlementType,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -59,9 +66,13 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
    * @param amount  number of units
    * @param unitName  description of unit size
    * @return the forward
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
-  public static AgricultureFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    return new AgricultureFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public static AgricultureFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new AgricultureFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -74,11 +85,15 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
    * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice number of units
+   * @param currency currency
+   * @param settlementDate settlement date
    * @return the forward
    */
   public static AgricultureFutureDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName) {
-    return new AgricultureFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL);
+      double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new AgricultureFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName,
+        SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -92,7 +107,24 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition imple
   public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    return new AgricultureFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new AgricultureFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(),
+        timeToSettlement, getReferencePrice(), getCurrency());
+  }
+
+  /**
+   * Get the derivative at a given fix time from the definition
+   *
+   * @param date  fixing time
+   * @param referencePrice reference price
+   * @return the fixed derivative
+   */
+  public AgricultureFuture toDerivative(final ZonedDateTime date, final double referencePrice) {
+    ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
+    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new AgricultureFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
+        referencePrice, getCurrency());
   }
 
   @Override

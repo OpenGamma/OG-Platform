@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.simpleinstrument;
 
+import com.opengamma.analytics.financial.commodity.derivative.CommodityFuture;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -20,8 +21,12 @@ public class SimpleFutureRhoFunction extends SimpleFutureFunction {
     super(ValueRequirementNames.VALUE_RHO);
   }
 
-  @Override
   protected Object computeValues(SimpleFuture derivative, SimpleFutureDataBundle market) {
+    return derivative.getSettlement() * market.getMarketPrice();
+  }
+
+  @Override
+  protected <T extends CommodityFuture> Object computeValues(T derivative, SimpleFutureDataBundle market) {
     return derivative.getSettlement() * market.getMarketPrice();
   }
 

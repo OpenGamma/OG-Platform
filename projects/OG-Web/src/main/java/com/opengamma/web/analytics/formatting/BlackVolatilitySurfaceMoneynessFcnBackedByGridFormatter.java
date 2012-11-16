@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,18 +15,12 @@ import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.conversion.LabelFormatter;
 
 public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter 
     extends AbstractFormatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid> {
 
-  private final BlackVolatilitySurfaceMoneynessFormatter _delegate;
-
-  /* package */ BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(BlackVolatilitySurfaceMoneynessFormatter delegate) {
+  /* package */ BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter() {
     super(BlackVolatilitySurfaceMoneynessFcnBackedByGrid.class);
-    ArgumentChecker.notNull(delegate, "delegate");
-    _delegate = delegate;
     addFormatter(new Formatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid>(Format.EXPANDED) {
       @Override
       Object format(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
@@ -38,7 +31,7 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
 
   @Override
   public Object formatCell(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value, ValueSpecification valueSpec) {
-    return _delegate.formatCell(value, valueSpec);
+    return SurfaceFormatterUtils.formatCell(value.getSurface());
   }
 
   private Object formatExpanded(BlackVolatilitySurfaceMoneynessFcnBackedByGrid value) {
@@ -63,21 +56,13 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
     }
     Map<String, Object> results = Maps.newHashMap();
     results.put(SurfaceFormatterUtils.X_VALUES, expiries);
-    results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(expiries));
+    results.put(SurfaceFormatterUtils.X_LABELS, SurfaceFormatterUtils.getAxisLabels(expiries));
     results.put(SurfaceFormatterUtils.X_TITLE, "Time to Expiry");
     results.put(SurfaceFormatterUtils.Y_VALUES, strikes);
-    results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(strikes));
+    results.put(SurfaceFormatterUtils.Y_LABELS, SurfaceFormatterUtils.getAxisLabels(strikes));
     results.put(SurfaceFormatterUtils.Y_TITLE, "Strike");
     results.put(SurfaceFormatterUtils.VOL, vol);
     return results;
-  }
-
-  private List<String> getAxisLabels(Collection values) {
-    List<String> labels = Lists.newArrayListWithCapacity(values.size());
-    for (Object value : values) {
-      labels.add(LabelFormatter.format(value));
-    }
-    return labels;
   }
 
   @Override

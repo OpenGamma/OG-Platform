@@ -341,10 +341,8 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePV01Function;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePriceDeltaFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFutureRhoFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
@@ -622,8 +620,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 //    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
-    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "FUNDING"));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "FUNDING", "FUNDING"));
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
@@ -1130,7 +1126,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SimpleFuturePriceDeltaFunction.class));
     functionConfigs.add(functionConfiguration(SimpleFuturePV01Function.class));
     functionConfigs.add(functionConfiguration(SimpleFutureRhoFunction.class));
-
   }
 
   private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {

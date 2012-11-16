@@ -8,16 +8,16 @@ package com.opengamma.analytics.financial.commodity.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Energy forward definition
  */
-public class EnergyForwardDefinition extends CommodityForwardDefinition implements InstrumentDefinition<EnergyForward> {
+public class EnergyForwardDefinition extends CommodityForwardDefinition<EnergyForward> {
 
   /**
    * Constructor for forwards with delivery dates (i.e. physical settlement)
@@ -30,11 +30,15 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition implemen
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - PHYSICAL or CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public EnergyForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, double amount, String unitName,
-      SettlementType settlementType) {
-    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
+
 
   /**
    * Constructor for forwards without delivery dates (e.g. cash settlement)
@@ -44,9 +48,13 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition implemen
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
-  public EnergyForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public EnergyForwardDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -57,10 +65,14 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition implemen
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    * @return the forward
    */
-  public static EnergyForwardDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    return new EnergyForwardDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public static EnergyForwardDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new EnergyForwardDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -73,11 +85,15 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition implemen
    * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    * @return the forward
    */
   public static EnergyForwardDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName) {
-    return new EnergyForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL);
+      double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new EnergyForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL,
+        referencePrice, currency, settlementDate);
   }
 
   /**
@@ -90,7 +106,24 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition implemen
   public EnergyForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    return new EnergyForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new EnergyForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(),
+        timeToSettlement, getReferencePrice(), getCurrency());
+  }
+
+  /**
+   * Get the derivative at a given fix time from the definition
+   *
+   * @param date  fixing time
+   * @param referencePrice reference price
+   * @return the fixed derivative
+   */
+  public EnergyForward toDerivative(final ZonedDateTime date, final double referencePrice) {
+    ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
+    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new EnergyForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
+        referencePrice, getCurrency());
   }
 
   @Override

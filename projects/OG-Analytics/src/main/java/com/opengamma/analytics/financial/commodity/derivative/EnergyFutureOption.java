@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.commodity.derivative;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * energy future option commodity derivative
  */
-public class EnergyFutureOption extends CommodityFutureOption {
+public class EnergyFutureOption extends CommodityFutureOption<EnergyFutureDefinition> {
 
   /**
    * Constructor for future options
@@ -23,7 +23,7 @@ public class EnergyFutureOption extends CommodityFutureOption {
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public EnergyFutureOption(final double expiry, final CommodityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public EnergyFutureOption(final double expiry, final EnergyFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     super(expiry, underlying, strike, exerciseType, isCall);
   }
 

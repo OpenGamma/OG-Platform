@@ -176,7 +176,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
         .with(CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfig)
         .with(CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get();
     final ValueProperties hazardRateCurveProperties = ValueProperties.builder()
-        .with(PROPERTY_HAZARD_RATE_CURVE, hazardRateCurveName)
+        .with(CURVE, hazardRateCurveName)
         .with(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS, nCurveIterations)
         .with(PROPERTY_HAZARD_RATE_CURVE_TOLERANCE, tolerance)
         .with(PROPERTY_HAZARD_RATE_CURVE_RANGE_MULTIPLIER, rangeMultiplier).get();

@@ -18,7 +18,6 @@ public interface TypeFormatter<T> {
     CELL,
     EXPANDED,
     HISTORY,
-    SURFACE_PLOT,
   }
   
   Object formatCell(T value, ValueSpecification valueSpec);

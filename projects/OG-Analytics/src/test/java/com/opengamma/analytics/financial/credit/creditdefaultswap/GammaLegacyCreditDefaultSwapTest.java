@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.hazardratemodel;
+package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -14,9 +14,12 @@ import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.CS01LegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -37,11 +40,16 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Class to test the implementation of the calibration of the hazard rate term structure
+ * Test of the implementation of the Gamma calculations for a legacy CDS
  */
-public class CalibrateHazardRateCurveTest {
+public class GammaLegacyCreditDefaultSwapTest {
 
-  // ---------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------
+
+  // TODO : Add all the tests
+  // TODO : Fix the time decay test
+
+  // ----------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
   private static final boolean outputResults = false;
@@ -136,9 +144,15 @@ public class CalibrateHazardRateCurveTest {
 
   // Dummy yield curve
 
+  // Need to sort out understanding of this better
+
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+  final int baseDateYear = 2008;
+  final int baseDateMonth = 9;
+  final int baseDateDay = 22;
+
+  final ZonedDateTime baseDate = ZonedDateTime.of(baseDateYear, baseDateMonth, baseDateDay, 0, 0, 0, 0, TimeZone.UTC);
 
   double[] times = {
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
@@ -275,7 +289,31 @@ public class CalibrateHazardRateCurveTest {
   };
 
   // Use an ISDACurve object (from RiskCare implementation) for the yield curve
-  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(valuationDate, baseDate));
+  final double offset = s_act365.getDayCountFraction(valuationDate, baseDate);
+
+  // Build the yield curve object
+  ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
+
+  // ----------------------------------------------------------------------------------
+
+  // Hazard rate term structure (assume this has been calibrated previously)
+
+  static double[] hazardRateTimes = {
+      0.0,
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+  };
+
+  static double[] hazardRates = {
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+  };
+
+  // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -353,67 +391,32 @@ public class CalibrateHazardRateCurveTest {
       protectionStart,
       parSpread);
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Test to demonstrate calibration of a hazard rate curve to a single tenor
-
-  //@Test
-  public void testCalibrateHazardRateCurveSingleTenor() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS Calibration test  ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    int numberOfCalibrationCDS = 1;
-
-    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
-    final double[] marketSpreads = new double[numberOfCalibrationCDS];
-
-    final double flatSpread = 550;
-    final double calibrationRecoveryRate = 0.40;
-
-    tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
-    marketSpreads[0] = flatSpread;
-
-    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
-    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
-
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
-
-    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
-
-    if (outputResults) {
-      for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRateTermStructure[i]);
-      }
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Test to demonstrate calibration of a hazard rate curve to a term structure of market data
+  // -----------------------------------------------------------------------------------------------
 
   @Test
-  public void testCalibrateHazardRateCurveFlatTermStructure() {
+  public void testGammaCalculationParallelShift() {
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running Hazard Rate Curve Calibration test ...");
+      System.out.println("Running CS01 calculation test ...");
     }
 
     // -------------------------------------------------------------------------------------
 
     // Define the market data to calibrate to
 
+    // The type of spread bump to apply
+    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+
     // The number of CDS instruments used to calibrate against
-    int numberOfCalibrationCDS = 8;
+    final int numberOfCalibrationCDS = 8;
+
+    // The flat (unbumped) spread
+    final double flatSpread = 550.0;
+
+    // The magnitude (but not direction) of bump to apply (in bps)
+    final double spreadBump = 1.0;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
@@ -430,8 +433,6 @@ public class CalibrateHazardRateCurveTest {
     // The market observed par CDS spreads at these tenors
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    final double flatSpread = 550.0;
-
     marketSpreads[0] = flatSpread;
     marketSpreads[1] = flatSpread;
     marketSpreads[2] = flatSpread;
@@ -441,335 +442,21 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[6] = flatSpread;
     marketSpreads[7] = flatSpread;
 
-    /*
-    marketSpreads[0] = 500.0;
-    marketSpreads[1] = 600.0;
-    marketSpreads[2] = 500.0;
-    marketSpreads[3] = 600.0;
-    marketSpreads[4] = 500.0;
-    marketSpreads[5] = 400.0;
-    marketSpreads[6] = 500.0;
-    marketSpreads[7] = 600.0;
-
-    marketSpreads[0] = 3865.0;
-    marketSpreads[1] = 3072.0;
-    marketSpreads[2] = 2559.0;
-    marketSpreads[3] = 2243.0;
-    marketSpreads[4] = 2141.0;
-    marketSpreads[5] = 2045.0;
-    marketSpreads[6] = 1944.0;
-    marketSpreads[7] = 1856.0;
-
-    marketSpreads[0] = 780.0;
-    marketSpreads[1] = 812.0;
-    marketSpreads[2] = 803.0;
-    marketSpreads[3] = 826.0;
-    marketSpreads[4] = 874.0;
-    marketSpreads[5] = 896.0;
-    marketSpreads[6] = 868.0;
-    marketSpreads[7] = 838.0;
-    */
-
-    // The recovery rate assumption used in the PV calculations when calibrating
-    final double calibrationRecoveryRate = 0.40;
-
     // -------------------------------------------------------------------------------------
 
-    // Create a calibration CDS (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
+    // Create a CS01 calculator object
+    CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
 
-    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
-    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
+    // Compute the CS01 for a parallel shift
+    double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
 
     // -------------------------------------------------------------------------------------
-
-    // Create a calibrate survival curve object
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
-
-    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {
-      for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRateCurve[i]);
-      }
+      System.out.println("CDS CS01 = " + parallelCS01);
     }
 
     // -------------------------------------------------------------------------------------
-
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Test to demonstrate calibration of a hazard rate curve to a (flat) term structure of market data and recompute calibration CDS PV's
-
-  //@Test
-  public void testCalibrateHazardRateCurveAndRepriceCalibrationCDS() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS calibration and re-pricing test ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Don't remove this code yet
-
-  public void testCalibrateHazardRateCurveData() {
-
-    /*
-    // Set the tenors at which we have market observed par CDS spread quotes
-    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
-    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
-    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
-    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
-    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
-    tenors[5] = DateUtils.getUTCDate(2014, 6, 20);
-    tenors[6] = DateUtils.getUTCDate(2017, 6, 20);
-    tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
-    tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
-    tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
-     */
-
-    /*
-    // Flat (tight)
-
-    marketSpreads[0] = 100.0;
-    marketSpreads[1] = 100.0;
-    marketSpreads[2] = 100.0;
-    marketSpreads[3] = 100.0;
-    marketSpreads[4] = 100.0;
-    marketSpreads[5] = 100.0;
-    marketSpreads[6] = 100.0;
-    marketSpreads[7] = 100.0;
-    marketSpreads[8] = 100.0;
-    marketSpreads[9] = 100.0;
-    //curveRecoveryRate = 0.40;
-     */
-
-    // Flat (distressed)
-    /*
-        marketSpreads[0] = 1000.0;
-        marketSpreads[1] = 1000.0;
-        marketSpreads[2] = 1000.0;
-        marketSpreads[3] = 1000.0;
-        marketSpreads[4] = 1000.0;
-        marketSpreads[5] = 1000.0;
-        marketSpreads[6] = 1000.0;
-        marketSpreads[7] = 1000.0;
-        marketSpreads[8] = 1000.0;
-        marketSpreads[9] = 1000.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Flat (blown)
-    /*
-        marketSpreads[0] = 100000.0;
-        marketSpreads[1] = 100000.0;
-        marketSpreads[2] = 100000.0;
-        marketSpreads[3] = 100000.0;
-        marketSpreads[4] = 100000.0;
-        marketSpreads[5] = 100000.0;
-        marketSpreads[6] = 100000.0;
-        marketSpreads[7] = 100000.0;
-        marketSpreads[8] = 100000.0;
-        marketSpreads[9] = 100000.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Zig-zag (Tight)
-    /*
-    marketSpreads[0] = 50.0;
-    marketSpreads[1] = 60.0;
-    marketSpreads[2] = 50.0;
-    marketSpreads[3] = 60.0;
-    marketSpreads[4] = 50.0;
-    marketSpreads[5] = 40.0;
-    marketSpreads[6] = 50.0;
-    marketSpreads[7] = 60.0;
-    marketSpreads[8] = 50.0;
-    marketSpreads[9] = 60.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Zig-zag (Distressed)
-    /*
-        marketSpreads[0] = 500.0;
-        marketSpreads[1] = 600.0;
-        marketSpreads[2] = 500.0;
-        marketSpreads[3] = 600.0;
-        marketSpreads[4] = 500.0;
-        marketSpreads[5] = 400.0;
-        marketSpreads[6] = 500.0;
-        marketSpreads[7] = 600.0;
-        marketSpreads[8] = 500.0;
-        marketSpreads[9] = 600.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, gentle
-    /*
-        marketSpreads[0] = 100.0;
-        marketSpreads[1] = 120.0;
-        marketSpreads[2] = 140.0;
-        marketSpreads[3] = 160.0;
-        marketSpreads[4] = 180.0;
-        marketSpreads[5] = 200.0;
-        marketSpreads[6] = 220.0;
-        marketSpreads[7] = 240.0;
-        marketSpreads[8] = 260.0;
-        marketSpreads[9] = 280.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, steep
-
-    /* marketSpreads[0] = 100.0;
-     marketSpreads[1] = 200.0;
-     marketSpreads[2] = 300.0;
-     marketSpreads[3] = 400.0;
-     marketSpreads[4] = 500.0;
-     marketSpreads[5] = 600.0;
-     marketSpreads[6] = 700.0;
-     marketSpreads[7] = 800.0;
-     marketSpreads[8] = 900.0;
-     marketSpreads[9] = 1000.0;
-     curveRecoveryRate = 0.40;
-     */
-
-    // Upward, steep short end
-    /*
-        marketSpreads[0] = 100.0;
-        marketSpreads[1] = 200.0;
-        marketSpreads[2] = 300.0;
-        marketSpreads[3] = 400.0;
-        marketSpreads[4] = 500.0;
-        marketSpreads[5] = 520.0;
-        marketSpreads[6] = 540.0;
-        marketSpreads[7] = 560.0;
-        marketSpreads[8] = 580.0;
-        marketSpreads[9] = 600.0;
-        curveRecoveryRate = 0.40;
-     */
-    // Upward, steep long end
-
-    /*  marketSpreads[0] = 100.0;
-      marketSpreads[1] = 120.0;
-      marketSpreads[2] = 140.0;
-      marketSpreads[3] = 160.0;
-      marketSpreads[4] = 180.0;
-      marketSpreads[5] = 280.0;
-      marketSpreads[6] = 380.0;
-      marketSpreads[7] = 480.0;
-      marketSpreads[8] = 580.0;
-      marketSpreads[9] = 680.0;
-      curveRecoveryRate = 0.40;
-     */
-    // Downward, gentle
-
-    /*
-    marketSpreads[0] = 280.0;
-    marketSpreads[1] = 260.0;
-    marketSpreads[2] = 240.0;
-    marketSpreads[3] = 220.0;
-    marketSpreads[4] = 200.0;
-    marketSpreads[5] = 180.0;
-    marketSpreads[6] = 160.0;
-    marketSpreads[7] = 140.0;
-    marketSpreads[8] = 120.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep
-    /*
-    marketSpreads[0] = 1000.0;
-    marketSpreads[1] = 900.0;
-    marketSpreads[2] = 800.0;
-    marketSpreads[3] = 700.0;
-    marketSpreads[4] = 600.0;
-    marketSpreads[5] = 500.0;
-    marketSpreads[6] = 400.0;
-    marketSpreads[7] = 300.0;
-    marketSpreads[8] = 200.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep short end
-    /*
-    marketSpreads[0] = 600.0;
-    marketSpreads[1] = 500.0;
-    marketSpreads[2] = 400.0;
-    marketSpreads[3] = 300.0;
-    marketSpreads[4] = 200.0;
-    marketSpreads[5] = 180.0;
-    marketSpreads[6] = 160.0;
-    marketSpreads[7] = 140.0;
-    marketSpreads[8] = 120.0;
-    marketSpreads[9] = 100.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Downward, steep long end
-    /*
-    marketSpreads[0] = 680.0;
-    marketSpreads[1] = 660.0;
-    marketSpreads[2] = 640.0;
-    marketSpreads[3] = 620.0;
-    marketSpreads[4] = 600.0;
-    marketSpreads[5] = 580.0;
-    marketSpreads[6] = 480.0;
-    marketSpreads[7] = 380.0;
-    marketSpreads[8] = 280.0;
-    marketSpreads[9] = 180.0;
-    curveRecoveryRate = 0.40;
-     */
-
-    // Inverted Cavale
-    /*
-    marketSpreads[0] = 1774.0;
-    marketSpreads[1] = 1805.0;
-    marketSpreads[2] = 1856.0;
-    marketSpreads[3] = 1994.0;
-    marketSpreads[4] = 2045.0;
-    marketSpreads[5] = 2141.0;
-    marketSpreads[6] = 2243.0;
-    marketSpreads[7] = 2559.0;
-    marketSpreads[8] = 3072.0;
-    marketSpreads[9] = 3865.0;
-    curveRecoveryRate = 0.20;
-     */
-
-    // Cavale
-    /*
-    marketSpreads[0] = 3865.0;
-    marketSpreads[1] = 3072.0;
-    marketSpreads[2] = 2559.0;
-    marketSpreads[3] = 2243.0;
-    marketSpreads[4] = 2141.0;
-    marketSpreads[5] = 2045.0;
-    marketSpreads[6] = 1944.0;
-    marketSpreads[7] = 1856.0;
-    marketSpreads[8] = 1805.0;
-    marketSpreads[9] = 1774.0;
-    curveRecoveryRate = 0.20;
-     */
-    // BCPN
-    /*
-    marketSpreads[0] = 780.0;
-    marketSpreads[1] = 812.0;
-    marketSpreads[2] = 803.0;
-    marketSpreads[3] = 826.0;
-    marketSpreads[4] = 874.0;
-    marketSpreads[5] = 896.0;
-    marketSpreads[6] = 868.0;
-    marketSpreads[7] = 838.0;
-    marketSpreads[8] = 800.0;
-    marketSpreads[9] = 780.0;
-    curveRecoveryRate = 0.40;
-     */
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
 }
