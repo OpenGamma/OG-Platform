@@ -36,7 +36,7 @@ $.register_module({
             grid.on('render', function () {
                 if (grid.config.sparklines) grid.elements.parent.find('.OG-g .sp').sparkline('html', sp_options);
                 // only bother looking for flot elements if the grid has some curve values in the last render
-                if (curves || (curves = false)) grid.elements.parent.find('.OG-g .fl').each(function () {
+                if (curves) (curves = false), grid.elements.parent.find('.OG-g .fl').each(function () {
                     var $this = $(this), data;
                     try {
                         data = JSON.parse($this.text());
