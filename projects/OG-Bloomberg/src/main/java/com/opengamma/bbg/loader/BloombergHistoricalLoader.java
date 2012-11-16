@@ -237,7 +237,7 @@ public class BloombergHistoricalLoader {
     if (_updateDb || _reload) {
       if (_reload) {
         _startDate = DEFAULT_START_DATE;
-        _endDate = DateUtils.previousWeekDay();
+        _endDate = LocalDate.now();
       }
       updateTimeSeriesInDB();
       return;
@@ -279,7 +279,7 @@ public class BloombergHistoricalLoader {
   
   private void load(Set<ExternalId> identifiers) {
     LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
-    LocalDate endDate = _endDate == null ? DateUtils.previousWeekDay() : _endDate;
+    LocalDate endDate = _endDate == null ? LocalDate.now() : _endDate;
     if (_dataProviders.isEmpty()) {
       _dataProviders.add(BloombergDataUtils.UNKNOWN_DATA_PROVIDER);
     }
@@ -317,7 +317,7 @@ public class BloombergHistoricalLoader {
 
   private void processCsvFiles() {
     LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
-    LocalDate endDate = _endDate == null ? DateUtils.previousWeekDay() : _endDate;
+    LocalDate endDate = _endDate == null ? LocalDate.now() : _endDate;
     Map<Pair<String, String>, Set<ExternalId>> providerFieldRequestsMap = readCsvFiles();
     for (Entry<Pair<String, String>, Set<ExternalId>> providerFieldRequests : providerFieldRequestsMap.entrySet()) {
       String dataProvider = providerFieldRequests.getKey().getFirst();
@@ -436,7 +436,7 @@ public class BloombergHistoricalLoader {
     }
     
     // select end date
-    LocalDate endDate = (_endDate == null ? DateUtils.previousWeekDay() : _endDate);
+    LocalDate endDate = (_endDate == null ? LocalDate.now() : _endDate);
     
     s_logger.info("Updating {} time series to {}", toUpdate, endDate);
     // load from Bloomberg and store in database
