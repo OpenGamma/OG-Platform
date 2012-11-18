@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -395,7 +395,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _fxMatrix;
   }
 
-  @Override
   public MulticurveProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?
     Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);

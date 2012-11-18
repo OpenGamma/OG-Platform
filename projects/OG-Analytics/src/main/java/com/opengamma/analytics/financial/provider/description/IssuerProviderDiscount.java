@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,12 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
     _issuerCurves = issuerCurves;
     _multicurvesNames = _multicurveProvider.getAllNames();
     init();
+  }
+
+  @Override
+  public IssuerProviderDiscount copy() {
+    Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
+    return new IssuerProviderDiscount(_multicurveProvider.copy(), issuerCurvesNew);
   }
 
   public void init() {
@@ -110,6 +117,22 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
   }
 
   @Override
+  public Integer getNumberOfParameters(String name) {
+    if (_multicurvesNames.contains(name)) {
+      return _multicurveProvider.getNumberOfParameters(name);
+    }
+    return _issuerCurvesNames.get(name).getNumberOfParameters();
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames(String name) {
+    if (_multicurvesNames.contains(name)) {
+      return _multicurveProvider.getUnderlyingCurvesNames(name);
+    }
+    return _issuerCurvesNames.get(name).getUnderlyingCurvesNames();
+  }
+
+  @Override
   public Set<Pair<String, Currency>> getIssuersCurrencies() {
     return _issuerCurves.keySet();
   }
@@ -121,10 +144,6 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
   public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
     return _issuerCurves.get(ic);
   }
-
-  //  public YieldAndDiscountCurve getCurve(final String name) {
-  //    return _issuerCurvesNames.get(name);
-  //  }
 
   public IssuerProviderDiscount withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
     Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);

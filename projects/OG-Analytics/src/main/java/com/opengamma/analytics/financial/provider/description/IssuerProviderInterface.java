@@ -19,6 +19,8 @@ import com.opengamma.util.tuple.Pair;
 public interface IssuerProviderInterface {
   // TODO: Can probably be merged with MulticurveProvider if the Currency is replaced by a UniqueIdentifiable.
 
+  IssuerProviderInterface copy();
+
   /**
    * Gets the discount factor for one issuer in one currency.
    * @param issuerCcy The issuer name/currency pair.
@@ -49,6 +51,10 @@ public interface IssuerProviderInterface {
   double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
+
+  Integer getNumberOfParameters(String name);
+
+  List<String> getUnderlyingCurvesNames(String name);
 
   Set<Pair<String, Currency>> getIssuersCurrencies();
 

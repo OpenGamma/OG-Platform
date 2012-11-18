@@ -46,6 +46,7 @@ public interface HullWhiteOneFactorProviderInterface {
   MulticurveProviderInterface getMulticurveProvider();
 
   //     =====     Methods related to MulticurveProvider     =====
+  // TODO: not required? The getMulticurveProvider is enough.
 
   /**
    * Gets the discount factor for one currency at a given time to maturity.

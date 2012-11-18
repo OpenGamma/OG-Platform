@@ -425,7 +425,6 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     return _fxMatrix;
   }
 
-  @Override
   public MulticurveProviderForward withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?
     Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);

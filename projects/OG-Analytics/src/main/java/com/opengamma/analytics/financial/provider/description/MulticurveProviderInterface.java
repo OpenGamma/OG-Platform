@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -141,9 +140,5 @@ public interface MulticurveProviderInterface {
    * @return The names.
    */
   Set<String> getAllNames();
-
-  //     =====     Convenience methods     =====
-
-  MulticurveProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
 
 }
