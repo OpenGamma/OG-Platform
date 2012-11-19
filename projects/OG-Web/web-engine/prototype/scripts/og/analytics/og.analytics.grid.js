@@ -84,6 +84,7 @@ $.register_module({
                 };
             })(null, 0);
             if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
+                            var blotter = new og.blotter.Container();
         };
         var init_data = function () {
             var grid = this, config = grid.config;

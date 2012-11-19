@@ -30,9 +30,6 @@ $.register_module({
                 $('.og-icon-header-dropdown').parent().hover(function () {
                     $(this).addClass('open').find('.og-dd-menu').show();
                 });
-            
-                var blotter = new og.blotter.Container();
-
                 /*
                  * TODO: Add in delay
                  */
