@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -31,7 +30,7 @@ public class StandardQuantoCreditDefaultSwapDefinition extends CreditDefaultSwap
 
   // -----------------------------------------------------------------------------------------------
 
-  // Member variables specific to the standard CDS contract 
+  // Member variables specific to the standard CDS contract
 
   private final double _quotedSpread;
 
@@ -42,32 +41,30 @@ public class StandardQuantoCreditDefaultSwapDefinition extends CreditDefaultSwap
   // Ctor for the Standard CDS contract
 
   public StandardQuantoCreditDefaultSwapDefinition(
-      BuySellProtection buySellProtection,
-      Obligor protectionBuyer,
-      Obligor protectionSeller,
-      Obligor referenceEntity,
-      Currency currency,
-      DebtSeniority debtSeniority,
-      RestructuringClause restructuringClause,
-      Calendar calendar,
-      ZonedDateTime startDate,
-      ZonedDateTime effectiveDate,
-      ZonedDateTime maturityDate,
-      ZonedDateTime valuationDate,
-      StubType stubType,
-      PeriodFrequency couponFrequency,
-      DayCount daycountFractionConvention,
-      BusinessDayConvention businessdayAdjustmentConvention,
-      boolean immAdjustMaturityDate,
-      boolean adjustEffectiveDate,
-      boolean adjustMaturityDate,
-      double notional,
-      double recoveryRate,
-      boolean includeAccruedPremium,
-      PriceType priceType,
-      boolean protectionStart,
-      double quotedSpread,
-      double upfrontAmount) {
+      final BuySellProtection buySellProtection,
+      final Obligor protectionBuyer,
+      final Obligor protectionSeller,
+      final Obligor referenceEntity,
+      final Currency currency,
+      final DebtSeniority debtSeniority,
+      final RestructuringClause restructuringClause,
+      final Calendar calendar,
+      final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate,
+      final StubType stubType,
+      final PeriodFrequency couponFrequency,
+      final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention,
+      final boolean immAdjustMaturityDate,
+      final boolean adjustEffectiveDate,
+      final boolean adjustMaturityDate,
+      final double notional,
+      final double recoveryRate,
+      final boolean includeAccruedPremium,
+      final boolean protectionStart,
+      final double quotedSpread,
+      final double upfrontAmount) {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -84,7 +81,6 @@ public class StandardQuantoCreditDefaultSwapDefinition extends CreditDefaultSwap
         startDate,
         effectiveDate,
         maturityDate,
-        valuationDate,
         stubType,
         couponFrequency,
         daycountFractionConvention,
@@ -95,7 +91,6 @@ public class StandardQuantoCreditDefaultSwapDefinition extends CreditDefaultSwap
         notional,
         recoveryRate,
         includeAccruedPremium,
-        priceType,
         protectionStart);
 
     // -----------------------------------------------------------------------------------------------
@@ -119,5 +114,40 @@ public class StandardQuantoCreditDefaultSwapDefinition extends CreditDefaultSwap
     return _upfrontAmount;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_quotedSpread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_upfrontAmount);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof StandardQuantoCreditDefaultSwapDefinition)) {
+      return false;
+    }
+    final StandardQuantoCreditDefaultSwapDefinition other = (StandardQuantoCreditDefaultSwapDefinition) obj;
+    if (Double.compare(_quotedSpread, other._quotedSpread) != 0) {
+      return false;
+    }
+    if (Double.compare(_upfrontAmount, other._upfrontAmount) != 0) {
+      return false;
+    }
+    return true;
+  }
+
   // -----------------------------------------------------------------------------------------------
+
+
 }

@@ -179,8 +179,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullBuySellProtectionField() {
 
     new LegacyCreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
 
   }
 
@@ -190,8 +190,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullProtectionBuyerField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, null, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -200,8 +200,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullProtectionSellerField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, null, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -210,8 +210,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullReferenceEntityField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, null, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -220,8 +220,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullCurrencyField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, null, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -230,8 +230,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullDebtSeniorityField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, null, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -240,8 +240,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullRestructuringClauseField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, null, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -250,8 +250,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullCalendarField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, null, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -260,8 +260,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullStartDateField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, null, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -270,8 +270,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullEffectiveDateField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, null,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,18 +280,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullMaturityDateField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        null, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValuationDateField() {
-
-    new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -300,8 +290,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullStubTypeField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -310,8 +300,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullCouponFrequencyField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -320,8 +310,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullDayCountFractionConventionField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -330,8 +320,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNullBusinessDayAdjustmentConventionField() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -340,8 +330,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testNotionalIsPositive() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, -notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, -notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -350,39 +340,21 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testRecoveryRateIsPositive() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, -recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, -recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRecoveryRateIsLessThanUnity() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, 1.0 + recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, 1.0 + recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullPriceTypeField() {
-
-    new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, null, protectionStart, parSpread);
-  }
-
   // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testStartDateIsBeforeValuationDate() {
-
-    final ZonedDateTime testValuationDate = startDate.minusDays(1);
-
-    new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartDateIsBeforeEffectiveDate() {
@@ -390,8 +362,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
     final ZonedDateTime testEffectiveDate = startDate.minusDays(1);
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, testEffectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -400,28 +372,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
     final ZonedDateTime testMaturityDate = startDate.minusDays(1);
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        testMaturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateIsBeforeMaturityDate() {
-
-    final ZonedDateTime testValuationDate = maturityDate.plusDays(1);
-
-    new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateIsAfterEffectiveDate() {
-
-    final ZonedDateTime testValuationDate = effectiveDate.minusDays(1);
-
-    new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        testMaturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -430,8 +382,8 @@ public class LegacyCreditDefaultSwapDefinitionTest {
   public void testParSpreadIsPositive() {
 
     new LegacyCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, -parSpread);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, -parSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

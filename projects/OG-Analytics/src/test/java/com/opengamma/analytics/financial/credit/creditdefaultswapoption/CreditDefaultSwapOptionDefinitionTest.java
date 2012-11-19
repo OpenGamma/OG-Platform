@@ -355,17 +355,17 @@ public class CreditDefaultSwapOptionDefinitionTest {
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -452,7 +452,7 @@ public class CreditDefaultSwapOptionDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct CDS contract that is the underlying for the CDS swaption 
+  // Construct CDS contract that is the underlying for the CDS swaption
   private static final LegacyCreditDefaultSwapDefinition underlyingCDS = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       cdsProtectionBuyer,
@@ -465,7 +465,6 @@ public class CreditDefaultSwapOptionDefinitionTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -476,7 +475,6 @@ public class CreditDefaultSwapOptionDefinitionTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 

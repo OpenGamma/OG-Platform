@@ -39,7 +39,7 @@ public class StandardCreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Make sure that all the input arguments have been error checked 
+  // TODO : Make sure that all the input arguments have been error checked
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -181,8 +181,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullBuySellProtectionField() {
 
     new StandardCreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
 
   }
 
@@ -192,8 +192,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullProtectionBuyerField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, null, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -202,8 +202,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullProtectionSellerField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, null, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -212,8 +212,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullReferenceEntityField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, null, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -222,8 +222,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullCurrencyField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, null, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -232,8 +232,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullDebtSeniorityField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, null, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -242,8 +242,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullRestructuringClauseField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, null, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -252,8 +252,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullCalendarField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, null, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,8 +262,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullStartDateField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, null, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -272,8 +272,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullEffectiveDateField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, null,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -282,28 +282,19 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullMaturityDateField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        null, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValuationDateField() {
-
-    new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStubTypeField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -312,8 +303,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullCouponFrequencyField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -322,8 +313,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullDayCountFractionConventionField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -332,8 +323,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullBusinessDayAdjustmentConventionField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -342,8 +333,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNotionalIsPositive() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, -notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, -notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -352,29 +343,19 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testRecoveryRateIsPositive() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, -recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, -recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRecoveryRateIsLessThanUnity() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, 1.0 + recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, 1.0 + recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testStartDateIsBeforeValuationDate() {
-
-    final ZonedDateTime testValuationDate = startDate.minusDays(1);
-
-    new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
-  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartDateIsBeforeEffectiveDate() {
@@ -383,8 +364,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate,
         testEffectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -393,28 +374,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
     final ZonedDateTime testMaturityDate = startDate.minusDays(1);
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        testMaturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateIsBeforeMaturityDate() {
-
-    final ZonedDateTime testValuationDate = maturityDate.plusDays(1);
-
-    new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateIsAfterEffectiveDate() {
-
-    final ZonedDateTime testValuationDate = effectiveDate.minusDays(1);
-
-    new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        testMaturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -423,8 +384,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testQuotedSpreadIsPositive() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, -quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, -quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -433,8 +394,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testNullStandardCDSCouponField() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, null, upfrontAmount, cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, null, upfrontAmount, cashSettlementDate);
   }
 
   //--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -443,8 +404,8 @@ public class StandardCreditDefaultSwapDefinitionTest {
   public void testCashSettlementDateIsPositive() {
 
     new StandardCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, -cashSettlementDate);
+        maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, -cashSettlementDate);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

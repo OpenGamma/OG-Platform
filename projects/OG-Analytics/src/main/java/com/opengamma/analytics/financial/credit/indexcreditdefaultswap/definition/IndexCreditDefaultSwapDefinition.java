@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definiti
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -56,7 +55,7 @@ public class IndexCreditDefaultSwapDefinition {
   // NOTE : This is because we need to specify at the index level what the schedule of cashflow payments is (not at the individual
   // NOTE : index constituent level). These fields are input to the CDS index definition and then used to construct the underlying CDS's
 
-  // NOTE : The price type, include accrued and protection start fields are also defined at the level of the index and applied to 
+  // NOTE : The price type, include accrued and protection start fields are also defined at the level of the index and applied to
   // NOTE : all the underlying CDS's in the index
 
   // NOTE : In the index ctor we only construct the CDS objects for the obligors in the underlying pool. The calibration of these CDS's
@@ -105,9 +104,6 @@ public class IndexCreditDefaultSwapDefinition {
   // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
-  // The date on which we want to calculate the CDS index MtM
-  private final ZonedDateTime _valuationDate;
-
   // The method for generating the schedule of premium payments
   private final StubType _stubType;
 
@@ -135,9 +131,6 @@ public class IndexCreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
   private final boolean _includeAccruedPremium;
 
-  // Calculate clean or dirty price (clean price includes the accrued interest from valuation date to the previous coupon date)
-  private final PriceType _priceType;
-
   // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
   private final boolean _protectionStart;
 
@@ -158,35 +151,33 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   //Constructor for a CDS index swap definition object (all fields are user specified)
-  public IndexCreditDefaultSwapDefinition(BuySellProtection buySellProtection,
-      Obligor protectionBuyer,
-      Obligor protectionSeller,
-      UnderlyingPool underlyingPool,
-      CDSIndex cdsIndex,
-      int series,
-      String version,
-      Currency currency,
-      Calendar calendar,
-      ZonedDateTime startDate,
-      ZonedDateTime effectiveDate,
-      ZonedDateTime settlementDate,
-      ZonedDateTime maturityDate,
-      ZonedDateTime valuationDate,
-      StubType stubType,
-      PeriodFrequency couponFrequency,
-      DayCount daycountFractionConvention,
-      BusinessDayConvention businessdayAdjustmentConvention,
-      boolean immAdjustMaturityDate,
-      boolean adjustEffectiveDate,
-      boolean adjustSettlementDate,
-      boolean adjustMaturityDate,
-      boolean includeAccruedPremium,
-      PriceType priceType,
-      boolean protectionStart,
-      double notional,
-      double upfrontPayment,
-      double indexCoupon,
-      double indexSpread) {
+  public IndexCreditDefaultSwapDefinition(final BuySellProtection buySellProtection,
+      final Obligor protectionBuyer,
+      final Obligor protectionSeller,
+      final UnderlyingPool underlyingPool,
+      final CDSIndex cdsIndex,
+      final int series,
+      final String version,
+      final Currency currency,
+      final Calendar calendar,
+      final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate,
+      final ZonedDateTime settlementDate,
+      final ZonedDateTime maturityDate,
+      final StubType stubType,
+      final PeriodFrequency couponFrequency,
+      final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention,
+      final boolean immAdjustMaturityDate,
+      final boolean adjustEffectiveDate,
+      final boolean adjustSettlementDate,
+      final boolean adjustMaturityDate,
+      final boolean includeAccruedPremium,
+      final boolean protectionStart,
+      final double notional,
+      final double upfrontPayment,
+      final double indexCoupon,
+      final double indexSpread) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -207,14 +198,11 @@ public class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(settlementDate, "Settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
-    ArgumentChecker.notNull(valuationDate, "Valuation date");
 
     ArgumentChecker.notNull(stubType, "Stub type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount fraction convention");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
-
-    ArgumentChecker.notNull(priceType, "Price type");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(upfrontPayment, "Upfront payment");
@@ -242,7 +230,6 @@ public class IndexCreditDefaultSwapDefinition {
     _effectiveDate = effectiveDate;
     _settlementDate = settlementDate;
     _maturityDate = maturityDate;
-    _valuationDate = valuationDate;
 
     _stubType = stubType;
     _couponFrequency = couponFrequency;
@@ -255,8 +242,6 @@ public class IndexCreditDefaultSwapDefinition {
     _adjustMaturityDate = adjustMaturityDate;
 
     _includeAccruedPremium = includeAccruedPremium;
-
-    _priceType = priceType;
 
     _protectionStart = protectionStart;
 
@@ -279,7 +264,7 @@ public class IndexCreditDefaultSwapDefinition {
     for (int i = 0; i < numberOfObligors; i++) {
 
       // ... build a CDS object for obligor i
-      LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+      final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
           _buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionBuyer,                               // Specified in the CDS index contract
           _protectionSeller,                              // Specified in the CDS index contract
@@ -290,8 +275,7 @@ public class IndexCreditDefaultSwapDefinition {
           _calendar,                                      // Specified in the CDS index contract - applies to all underlying CDS's
           _startDate,                                     // Specified in the CDS index contract - applies to all underlying CDS's
           _effectiveDate,                                 // Specified in the CDS index contract - applies to all underlying CDS's
-          _maturityDate,                                  // Specified in the CDS index contract - applies to all underlying CDS's       
-          _valuationDate,                                 // Specified in the CDS index contract - applies to all underlying CDS's
+          _maturityDate,                                  // Specified in the CDS index contract - applies to all underlying CDS's
           _stubType,                                      // Specified in the CDS index contract - applies to all underlying CDS's
           _couponFrequency,                               // Specified in the CDS index contract - applies to all underlying CDS's
           _daycountFractionConvention,                    // Specified in the CDS index contract - applies to all underlying CDS's
@@ -302,7 +286,6 @@ public class IndexCreditDefaultSwapDefinition {
           _underlyingPool.getObligorNotionals()[i],       // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
           _underlyingPool.getRecoveryRates()[i],          // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
           _includeAccruedPremium,                         // Specified in the CDS index contract - applies to all underlying CDS's
-          _priceType,                                     // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionStart,                               // Specified in the CDS index contract - applies to all underlying CDS's
           _underlyingPool.getCoupons()[i]);               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
 
@@ -369,10 +352,6 @@ public class IndexCreditDefaultSwapDefinition {
     return _maturityDate;
   }
 
-  public ZonedDateTime getValuationDate() {
-    return _valuationDate;
-  }
-
   public StubType getStubType() {
     return _stubType;
   }
@@ -407,10 +386,6 @@ public class IndexCreditDefaultSwapDefinition {
 
   public boolean getIncludeAccruedPremium() {
     return _includeAccruedPremium;
-  }
-
-  public PriceType getPriceType() {
-    return _priceType;
   }
 
   public boolean getProtectionStart() {

@@ -214,10 +214,10 @@ public class IndexCreditDefaultSwapDefinitionTest {
   public void testIndexConstructionAndPresentValue() {
 
     // Build the underlying pool
-    UnderlyingPool dummyPool = constructPool();
+    final UnderlyingPool dummyPool = constructPool();
 
     // Construct the index
-    IndexCreditDefaultSwapDefinition dummyIndex = new IndexCreditDefaultSwapDefinition(
+    final IndexCreditDefaultSwapDefinition dummyIndex = new IndexCreditDefaultSwapDefinition(
         buySellProtection,
         indexProtectionBuyer,
         indexProtectionSeller,
@@ -231,7 +231,6 @@ public class IndexCreditDefaultSwapDefinitionTest {
         effectiveDate,
         settlementDate,
         maturityDate,
-        valuationDate,
         stubType,
         couponFrequency,
         daycountFractionConvention,
@@ -241,7 +240,6 @@ public class IndexCreditDefaultSwapDefinitionTest {
         adjustSettlementDate,
         adjustMaturityDate,
         includeAccruedPremium,
-        priceType,
         protectionStart,
         notional,
         upfrontPayment,
@@ -249,10 +247,10 @@ public class IndexCreditDefaultSwapDefinitionTest {
         indexSpread);
 
     // Construct an index present value object
-    PresentValueIndexCreditDefaultSwap indexPresentValue = new PresentValueIndexCreditDefaultSwap();
+    final PresentValueIndexCreditDefaultSwap indexPresentValue = new PresentValueIndexCreditDefaultSwap();
 
     // Calculate the value of the index
-    double presentValue = indexPresentValue.getPresentValueIndexCreditDefaultSwap(dummyIndex);
+    final double presentValue = indexPresentValue.getPresentValueIndexCreditDefaultSwap(dummyIndex);
 
     if (outputResults) {
       System.out.println("Index Present Value = " + presentValue);
@@ -329,7 +327,7 @@ public class IndexCreditDefaultSwapDefinitionTest {
     initialiseObligorsInPool();
 
     // Call the pool constructor
-    UnderlyingPool underlyingPool = new UnderlyingPool(
+    final UnderlyingPool underlyingPool = new UnderlyingPool(
         obligors,
         currency,
         debtSeniority,

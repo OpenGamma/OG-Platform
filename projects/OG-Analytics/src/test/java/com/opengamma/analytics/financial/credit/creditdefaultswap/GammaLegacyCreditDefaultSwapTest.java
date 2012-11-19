@@ -299,17 +299,17 @@ public class GammaLegacyCreditDefaultSwapTest {
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -363,7 +363,7 @@ public class GammaLegacyCreditDefaultSwapTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
+  // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -376,7 +376,6 @@ public class GammaLegacyCreditDefaultSwapTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -387,7 +386,6 @@ public class GammaLegacyCreditDefaultSwapTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -407,7 +405,7 @@ public class GammaLegacyCreditDefaultSwapTest {
     // Define the market data to calibrate to
 
     // The type of spread bump to apply
-    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
 
     // The number of CDS instruments used to calibrate against
     final int numberOfCalibrationCDS = 8;
@@ -445,10 +443,11 @@ public class GammaLegacyCreditDefaultSwapTest {
     // -------------------------------------------------------------------------------------
 
     // Create a Gamma calculator object
-    GammaLegacyCreditDefaultSwap gamma = new GammaLegacyCreditDefaultSwap();
+    final GammaLegacyCreditDefaultSwap gamma = new GammaLegacyCreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    double parallelGamma = gamma.getGammaParallelShiftCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
+    final double parallelGamma = gamma.getGammaParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
 
     // -------------------------------------------------------------------------------------
 

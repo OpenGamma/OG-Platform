@@ -39,7 +39,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Test of the implementation of the valuation model for a CDS 
+ *  Test of the implementation of the valuation model for a CDS
  */
 public class PresentValueLegacyCreditDefaultSwapTest {
 
@@ -298,17 +298,17 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -362,7 +362,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
+  // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -375,7 +375,6 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -386,7 +385,6 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -407,16 +405,13 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Set the valuation date on which to compute the CDS MtM
-    ZonedDateTime rollingDate = valuationDate;
+    final ZonedDateTime rollingDate = valuationDate;
 
     // Build the valuation CDS from the baseline CDS object
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // Set the valuation date of the CDS
-    valuationCDS = valuationCDS.withValuationDate(rollingDate);
+    final LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
     // Calculate the CDS MtM
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+    final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
     if (outputResults) {
       System.out.println("CDS PV = " + "\t" + presentValue);
@@ -448,7 +443,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
       valuationCDS = valuationCDS.withRecoveryRate(testRecoveryRate);
 
-      double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
       if (outputResults) {
         System.out.println("Recovery Rate = " + "\t" + testRecoveryRate + "\t" + "CDS PV = " + "\t" + presentValue);
@@ -482,7 +477,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     valuationCDS = valuationCDS.withSpread(testSpread);
 
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
     if (outputResults) {
       System.out.println("Spread = " + "\t" + testSpread + "\t" + "CDS PV = " + "\t" + presentValue);
@@ -492,7 +487,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
       valuationCDS = valuationCDS.withSpread(testSpread);
 
-      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
       if (outputResults) {
         System.out.println("Spread = " + "\t" + testSpread + "\t" + "CDS PV = " + "\t" + presentValue);
@@ -517,7 +512,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
+    final LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
@@ -528,7 +523,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     ZonedDateTime rollingdate = valuationDate.minusDays(1);
 
     // Specify the end date
-    ZonedDateTime endDate = maturityDate.plusDays(3);
+    final ZonedDateTime endDate = maturityDate.plusDays(3);
 
     // -----------------------------------------------------------------------------------------------
 
@@ -539,10 +534,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       // Roll the current valuation date
       rollingdate = rollingdate.plusDays(1);
 
-      // Modify the CDS's valuation date
-      valuationCDS = valuationCDS.withValuationDate(rollingdate);
-
-      double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingdate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
       // Output results
       if (outputResults) {
@@ -578,7 +570,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
     ZonedDateTime rollingMaturityDate = valuationDate.plusDays(1);
 
     // Specify the end date
-    ZonedDateTime endDate = valuationDate.plusDays(4001);
+    final ZonedDateTime endDate = valuationDate.plusDays(4001);
 
     // -----------------------------------------------------------------------------------------------
 
@@ -592,7 +584,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
       // Modify the CDS's valuation date
       valuationCDS = valuationCDS.withMaturityDate(rollingMaturityDate);
 
-      double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
 
       // Output results
       if (outputResults) {

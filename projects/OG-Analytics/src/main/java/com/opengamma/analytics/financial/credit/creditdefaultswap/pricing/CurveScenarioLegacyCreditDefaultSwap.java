@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
@@ -21,25 +22,27 @@ public class CurveScenarioLegacyCreditDefaultSwap {
   // -------------------------------------------------------------
 
   public double[] getCS01BucketedCfreditDefaultSwap(
-      LegacyCreditDefaultSwapDefinition cds,
-      ISDACurve yieldCurve,
-      ZonedDateTime[] marketTenors,
-      double[] marketSpreads,
-      double[] spreadBumps,
-      SpreadBumpType spreadBumpType) {
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final double[] spreadBumps,
+      final SpreadBumpType spreadBumpType,
+      final PriceType priceType) {
 
     // -------------------------------------------------------------
 
-    double[] bucketedCS01 = new double[10];
+    final double[] bucketedCS01 = new double[10];
 
-    double[] bumpedMarketSpreads = new double[marketSpreads.length];
+    final double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
     // -------------------------------------------------------------
 
-    PresentValueLegacyCreditDefaultSwap temp = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueLegacyCreditDefaultSwap temp = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    double presentValue = temp.calibrateAndGetPresentValue(cds, marketTenors, marketSpreads, yieldCurve);
+    final double presentValue = temp.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // -------------------------------------------------------------
 
@@ -61,7 +64,7 @@ public class CurveScenarioLegacyCreditDefaultSwap {
       }
 
       // Calculate the bumped CDS PV
-      double bumpedPresentValue = temp.calibrateAndGetPresentValue(cds, marketTenors, bumpedMarketSpreads, yieldCurve);
+      final double bumpedPresentValue = temp.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
       bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBumps[m];
     }

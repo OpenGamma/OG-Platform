@@ -299,17 +299,17 @@ public class CS01LegacyCreditDefaultSwapTest {
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-      0.0,
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+    0.0,
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
@@ -363,7 +363,7 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
+  // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -376,7 +376,6 @@ public class CS01LegacyCreditDefaultSwapTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -387,7 +386,6 @@ public class CS01LegacyCreditDefaultSwapTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -407,7 +405,7 @@ public class CS01LegacyCreditDefaultSwapTest {
     // Define the market data to calibrate to
 
     // The type of spread bump to apply
-    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
 
     // The number of CDS instruments used to calibrate against
     final int numberOfCalibrationCDS = 8;
@@ -445,10 +443,10 @@ public class CS01LegacyCreditDefaultSwapTest {
     // -------------------------------------------------------------------------------------
 
     // Create a CS01 calculator object
-    CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
+    final CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
+    final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 
@@ -475,7 +473,7 @@ public class CS01LegacyCreditDefaultSwapTest {
     // Define the market data to calibrate to
 
     // The type of spread bump to apply
-    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
+    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
 
     // The number of CDS instruments used to calibrate against
     final int numberOfCalibrationCDS = 8;
@@ -513,10 +511,10 @@ public class CS01LegacyCreditDefaultSwapTest {
     // -------------------------------------------------------------------------------------
 
     // Create a CS01 calculator object
-    CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
+    final CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
+    final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
     // -------------------------------------------------------------------------------------
 

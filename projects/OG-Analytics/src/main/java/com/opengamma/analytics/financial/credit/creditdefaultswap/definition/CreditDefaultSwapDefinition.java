@@ -11,7 +11,6 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -79,9 +78,6 @@ public abstract class CreditDefaultSwapDefinition {
   // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
-  // The date on which we want to calculate the CDS MtM
-  private final ZonedDateTime _valuationDate;
-
   // The method for generating the schedule of premium payments
   private final StubType _stubType;
 
@@ -112,9 +108,6 @@ public abstract class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
   private final boolean _includeAccruedPremium;
 
-  // Calculate clean or dirty price (clean price includes the accrued interest from valuation date to the previous coupon date)
-  private final PriceType _priceType;
-
   // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
   private final boolean _protectionStart;
 
@@ -129,30 +122,28 @@ public abstract class CreditDefaultSwapDefinition {
   // Constructor for a CDS contract object
 
   public CreditDefaultSwapDefinition(
-      BuySellProtection buySellProtection,
-      Obligor protectionBuyer,
-      Obligor protectionSeller,
-      Obligor referenceEntity,
-      Currency currency,
-      DebtSeniority debtSeniority,
-      RestructuringClause restructuringClause,
-      Calendar calendar,
-      ZonedDateTime startDate,
-      ZonedDateTime effectiveDate,
-      ZonedDateTime maturityDate,
-      ZonedDateTime valuationDate,
-      StubType stubType,
-      PeriodFrequency couponFrequency,
-      DayCount daycountFractionConvention,
-      BusinessDayConvention businessdayAdjustmentConvention,
-      boolean immAdjustMaturityDate,
-      boolean adjustEffectiveDate,
-      boolean adjustMaturityDate,
-      double notional,
-      double recoveryRate,
-      boolean includeAccruedPremium,
-      PriceType priceType,
-      boolean protectionStart) {
+      final BuySellProtection buySellProtection,
+      final Obligor protectionBuyer,
+      final Obligor protectionSeller,
+      final Obligor referenceEntity,
+      final Currency currency,
+      final DebtSeniority debtSeniority,
+      final RestructuringClause restructuringClause,
+      final Calendar calendar,
+      final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate,
+      final StubType stubType,
+      final PeriodFrequency couponFrequency,
+      final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention,
+      final boolean immAdjustMaturityDate,
+      final boolean adjustEffectiveDate,
+      final boolean adjustMaturityDate,
+      final double notional,
+      final double recoveryRate,
+      final boolean includeAccruedPremium,
+      final boolean protectionStart) {
 
     // ------------------------------------------------------------------------------------------------
 
@@ -173,14 +164,10 @@ public abstract class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
-    ArgumentChecker.notNull(valuationDate, "Valuation date");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
-    ArgumentChecker.isTrue(!startDate.isAfter(valuationDate), "Start date {} must be on or before valuation date {}", startDate, valuationDate);
     ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
-    ArgumentChecker.isTrue(!valuationDate.isAfter(maturityDate), "Valuation date {} must be on or before maturity date {}", valuationDate, maturityDate);
-    ArgumentChecker.isTrue(!valuationDate.isBefore(effectiveDate), "Valuation date {} must be on or after effective date {}", valuationDate, effectiveDate);
 
     ArgumentChecker.notNull(stubType, "Stub Type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
@@ -191,8 +178,6 @@ public abstract class CreditDefaultSwapDefinition {
 
     ArgumentChecker.notNegative(recoveryRate, "Recovery Rate");
     ArgumentChecker.isTrue(recoveryRate <= 1.0, "Recovery rate should be less than or equal to 100%");
-
-    ArgumentChecker.notNull(priceType, "Price type");
 
     // ------------------------------------------------------------------------------------------------
 
@@ -213,7 +198,6 @@ public abstract class CreditDefaultSwapDefinition {
     _startDate = startDate;
     _effectiveDate = effectiveDate;
     _maturityDate = maturityDate;
-    _valuationDate = valuationDate;
 
     _stubType = stubType;
     _couponFrequency = couponFrequency;
@@ -228,7 +212,6 @@ public abstract class CreditDefaultSwapDefinition {
     _recoveryRate = recoveryRate;
 
     _includeAccruedPremium = includeAccruedPremium;
-    _priceType = priceType;
 
     _protectionStart = protectionStart;
 
@@ -290,10 +273,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _maturityDate;
   }
 
-  public ZonedDateTime getValuationDate() {
-    return _valuationDate;
-  }
-
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   public StubType getStubType() {
@@ -338,10 +317,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _includeAccruedPremium;
   }
 
-  public PriceType getPriceType() {
-    return _priceType;
-  }
-
   public boolean getProtectionStart() {
     return _protectionStart;
   }
@@ -356,139 +331,128 @@ public abstract class CreditDefaultSwapDefinition {
     return _protectionOffset;
   }
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + (_adjustEffectiveDate ? 1231 : 1237);
     result = prime * result + (_adjustMaturityDate ? 1231 : 1237);
-    result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
+    result = prime * result + _businessdayAdjustmentConvention.hashCode();
+    result = prime * result + _buySellProtection.hashCode();
+    result = prime * result + _calendar.hashCode();
+    result = prime * result + _couponFrequency.hashCode();
+    result = prime * result + _creditKey.hashCode();
+    result = prime * result + _currency.hashCode();
+    result = prime * result + _daycountFractionConvention.hashCode();
+    result = prime * result + _debtSeniority.hashCode();
+    result = prime * result + _effectiveDate.hashCode();
+    result = prime * result + (_immAdjustMaturityDate ? 1231 : 1237);
+    result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
+    result = prime * result + _maturityDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
+    result = prime * result + _protectionBuyer.hashCode();
+    temp = Double.doubleToLongBits(_protectionOffset);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_premiumLegCoupon);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _protectionSeller.hashCode();
+    result = prime * result + (_protectionStart ? 1231 : 1237);
     temp = Double.doubleToLongBits(_recoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _referenceEntity.hashCode();
+    result = prime * result + _restructuringClause.hashCode();
+    result = prime * result + _startDate.hashCode();
+    result = prime * result + _stubType.hashCode();
     return result;
   }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
-  public boolean equals(Object obj) {
-
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-
-    if (obj == null) {
+    if (!(obj instanceof CreditDefaultSwapDefinition)) {
       return false;
     }
-
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-
-    CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
-
-    if (_buySellProtection != other._buySellProtection) {
-      return false;
-    }
-
-    if (_adjustMaturityDate != other._adjustMaturityDate) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_businessdayAdjustmentConvention, other._businessdayAdjustmentConvention)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_couponFrequency, other._couponFrequency)) {
-      return false;
-    }
-
+    final CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
     if (!ObjectUtils.equals(_creditKey, other._creditKey)) {
       return false;
     }
-
-    if (!ObjectUtils.equals(_currency, other._currency)) {
+    if (Double.compare(_notional, other._notional) != 0) {
       return false;
     }
-
-    if (!ObjectUtils.equals(_daycountFractionConvention, other._daycountFractionConvention)) {
-      return false;
-    }
-
-    if (_debtSeniority != other._debtSeniority) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
-      return false;
-    }
-
-    if (_includeAccruedPremium != other._includeAccruedPremium) {
-      return false;
-    }
-
-    if (_priceType != other._priceType) {
-      return false;
-    }
-
-    if (_protectionStart != other._protectionStart) {
-      return false;
-    }
-
     if (!ObjectUtils.equals(_maturityDate, other._maturityDate)) {
       return false;
     }
-
-    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_protectionBuyer, other._protectionBuyer)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_protectionSeller, other._protectionSeller)) {
-      return false;
-    }
-
-    if (_restructuringClause != other._restructuringClause) {
-      return false;
-    }
-
-    if (_stubType != other._stubType) {
-      return false;
-    }
-
     if (!ObjectUtils.equals(_startDate, other._startDate)) {
       return false;
     }
-
-    if (!ObjectUtils.equals(_valuationDate, other._valuationDate)) {
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
-
-    if (Double.doubleToLongBits(_recoveryRate) != Double.doubleToLongBits(other._recoveryRate)) {
+    if (!ObjectUtils.equals(_protectionBuyer, other._protectionBuyer)) {
       return false;
     }
-
+    if (!ObjectUtils.equals(_protectionSeller, other._protectionSeller)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_referenceEntity, other._referenceEntity)) {
+      return false;
+    }
+    if (Double.compare(_protectionOffset, other._protectionOffset) != 0) {
+      return false;
+    }
+    if (_protectionStart != other._protectionStart) {
+      return false;
+    }
+    if (_buySellProtection != other._buySellProtection) {
+      return false;
+    }
+    if (Double.compare(_recoveryRate, other._recoveryRate) != 0) {
+      return false;
+    }
+    if (ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
+      return false;
+    }
+    if (_adjustEffectiveDate != other._adjustEffectiveDate) {
+      return false;
+    }
+    if (_adjustMaturityDate != other._adjustMaturityDate) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_couponFrequency, other._couponFrequency)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_businessdayAdjustmentConvention, other._businessdayAdjustmentConvention)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_daycountFractionConvention, other._daycountFractionConvention)) {
+      return false;
+    }
+    if (_debtSeniority != other._debtSeniority) {
+      return false;
+    }
+    if (_immAdjustMaturityDate != other._immAdjustMaturityDate) {
+      return false;
+    }
+    if (_includeAccruedPremium != other._includeAccruedPremium) {
+      return false;
+    }
+    if (_restructuringClause != other._restructuringClause) {
+      return false;
+    }
+    if (_stubType != other._stubType) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
+      return false;
+    }
     return true;
   }
 
-  // ---------------------------------------------------------------------------------------------------------------------------------------- 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------

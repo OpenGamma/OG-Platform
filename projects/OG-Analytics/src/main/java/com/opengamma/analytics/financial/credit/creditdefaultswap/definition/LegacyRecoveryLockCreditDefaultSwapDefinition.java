@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
@@ -30,7 +29,7 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefault
 
   // -----------------------------------------------------------------------------------------------
 
-  // Member variables specific to the legacy CDS contract 
+  // Member variables specific to the legacy CDS contract
 
   // The par spread is the coupon rate to apply to the premium leg to give a PV of zero
   private final double _parSpread;
@@ -40,31 +39,29 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefault
   // Ctor for the Legacy CDS
 
   public LegacyRecoveryLockCreditDefaultSwapDefinition(
-      BuySellProtection buySellProtection,
-      Obligor protectionBuyer,
-      Obligor protectionSeller,
-      Obligor referenceEntity,
-      Currency currency,
-      DebtSeniority debtSeniority,
-      RestructuringClause restructuringClause,
-      Calendar calendar,
-      ZonedDateTime startDate,
-      ZonedDateTime effectiveDate,
-      ZonedDateTime maturityDate,
-      ZonedDateTime valuationDate,
-      StubType stubType,
-      PeriodFrequency couponFrequency,
-      DayCount daycountFractionConvention,
-      BusinessDayConvention businessdayAdjustmentConvention,
-      boolean immAdjustMaturityDate,
-      boolean adjustEffectiveDate,
-      boolean adjustMaturityDate,
-      double notional,
-      double recoveryRate,
-      boolean includeAccruedPremium,
-      PriceType priceType,
-      boolean protectionStart,
-      double parSpread) {
+      final BuySellProtection buySellProtection,
+      final Obligor protectionBuyer,
+      final Obligor protectionSeller,
+      final Obligor referenceEntity,
+      final Currency currency,
+      final DebtSeniority debtSeniority,
+      final RestructuringClause restructuringClause,
+      final Calendar calendar,
+      final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate,
+      final StubType stubType,
+      final PeriodFrequency couponFrequency,
+      final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention,
+      final boolean immAdjustMaturityDate,
+      final boolean adjustEffectiveDate,
+      final boolean adjustMaturityDate,
+      final double notional,
+      final double recoveryRate,
+      final boolean includeAccruedPremium,
+      final boolean protectionStart,
+      final double parSpread) {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -81,7 +78,6 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefault
         startDate,
         effectiveDate,
         maturityDate,
-        valuationDate,
         stubType,
         couponFrequency,
         daycountFractionConvention,
@@ -92,7 +88,6 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefault
         notional,
         recoveryRate,
         includeAccruedPremium,
-        priceType,
         protectionStart);
 
     // -----------------------------------------------------------------------------------------------
@@ -110,5 +105,35 @@ public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefault
     return _parSpread;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_parSpread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof LegacyRecoveryLockCreditDefaultSwapDefinition)) {
+      return false;
+    }
+    final LegacyRecoveryLockCreditDefaultSwapDefinition other = (LegacyRecoveryLockCreditDefaultSwapDefinition) obj;
+    if (Double.compare(_parSpread, other._parSpread) != 0) {
+      return false;
+    }
+    return true;
+  }
+
   // -----------------------------------------------------------------------------------------------
+
+
 }

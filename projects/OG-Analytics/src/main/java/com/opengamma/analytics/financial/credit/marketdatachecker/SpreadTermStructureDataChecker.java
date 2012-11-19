@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.Leg
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to check the efficacy of user input CDS spread data (e.g. that tenors are in ascending order) 
+ * Class to check the efficacy of user input CDS spread data (e.g. that tenors are in ascending order)
  */
 public class SpreadTermStructureDataChecker {
 
@@ -25,7 +25,7 @@ public class SpreadTermStructureDataChecker {
 
   // -------------------------------------------------------------------------------------------------
 
-  public void checkSpreadData(LegacyCreditDefaultSwapDefinition cds, ZonedDateTime[] marketTenors, double[] marketSpreads) {
+  public void checkSpreadData(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors, final double[] marketSpreads) {
 
     // Check that the number of input tenors matches the number of input spreads
     ArgumentChecker.isTrue(marketTenors.length == marketSpreads.length, "Number of tenors and number of spreads should be equal");
@@ -33,7 +33,7 @@ public class SpreadTermStructureDataChecker {
     // Check the efficacy of the input market data
     for (int m = 0; m < marketTenors.length; m++) {
 
-      ArgumentChecker.isTrue(marketTenors[m].isAfter(cds.getValuationDate()), "Calibration instrument of tenor {} is before the valuation date {}", marketTenors[m], cds.getValuationDate());
+      ArgumentChecker.isTrue(marketTenors[m].isAfter(valuationDate), "Calibration instrument of tenor {} is before the valuation date {}", marketTenors[m], valuationDate);
 
       if (marketTenors.length > 1 && m > 0) {
         ArgumentChecker.isTrue(marketTenors[m].isAfter(marketTenors[m - 1]), "Tenors not in ascending order");
