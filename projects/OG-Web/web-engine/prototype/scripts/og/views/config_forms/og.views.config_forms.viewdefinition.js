@@ -131,7 +131,7 @@ $.register_module({
                 };
             master[SETS] = arr(master[SETS]); // initialize master[SETS]
             form.attach([
-                {type: 'form:load', handler: function () {
+                {type: 'form:load', label: 'temporary', handler: function () {
                     var header = '\
                         <header class="OG-header-generic">\
                           <div class="OG-tools"></div>\
@@ -258,144 +258,109 @@ $.register_module({
                         }]
                     }),
                     new_col_set = function (set, set_idx) {
-                        var set_id = prefix + id_count++, new_col_tab, new_col_val, new_spec_val,
+                        var set_id = prefix + id_count++,
                             spec_vals = new form.Block({wrap: '<ul class="og-js-spec-holder">{{html html}}</ul>'}),
                             col_vals = new form.Block({wrap: '{{html html}}'}),
                             col_tabs = new form.Block({wrap: '{{html html}}'}),
                             column_set = new form.Block({
                                 wrap: '<div class="og-mod-content OG-clearFix og-js-colset-holder" id="' + set_id +
-                                    '">{{html html}}</div>',
-                                handlers: [
-                                    {
-                                        type: 'form:load', handler: function () {
-                                            if (!$('#' + set_id + ' .og-js-col-holder').length)
-                                                return $('#' + set_id + ' .og-js-empty-cols').show();
-                                            $('#' + set_id + ' .og-js-col-holder:first').show().siblings().hide();
-                                            $('#' + set_id + ' .og-js-col-tab:first').addClass('og-active');
-                                        }
-                                    },
-                                    {
-                                        type: 'click', selector: '#' + set_id + ' .og-js-add-spec',
-                                        handler: function (e) { // add an additional value
-                                            var $el = $('#' + set_id + ' .og-js-spec-holder'), block, spec = {};
-                                            spec[SPVN] = '', spec[SPTT] = '', spec[SPCT] = '';
-                                            if (!set[SPEC]) set[SPEC] = [spec]; else set[SPEC].push(spec);
-                                            column_set.children.push(block = new_spec_val(spec, set[SPEC].length - 1));
-                                            block.html(function (html) {$el.append($(html)), block.load();});
-                                            return false;
-                                        }
-                                    },
-                                    {
-                                        type: 'click', selector: '#' + set_id + ' .og-js-rem-spec',
-                                        handler: function (e) { // remove an additional value
-                                            var $el = $(e.target).parents('.og-js-spec:first'),
-                                                specs = $el.find('input:first').attr('name').split('.').slice(0, -1),
-                                                index = specs.pop();
-                                            specs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
-                                            $el.remove();
-                                            return false;
-                                        }
-                                    },
-                                    {
-                                        type: 'click', selector: '#' + set_id + ' .og-js-rem-col',
-                                        handler: function (e) { // remove a column value
-                                            var $target = $(e.target),
-                                                $tab = $target.is('.og-js-col-tab') ? $target :
-                                                    $target.parents('.og-js-col-tab:first'),
-                                                index = $('#' + set_id + ' .og-js-col-tab').index($tab),
-                                                $col = $('#' + set_id + ' .og-js-col-holder:eq(' + index + ')'),
-                                                cols = $col.find('select:first').attr('name').split('.').slice(0, -1),
-                                                col_idx = cols.pop(),
-                                                length = $('#' + set_id + ' .og-js-col-holder').length,
-                                                next = index ? index - 1 : index + 1, is_last = next === length,
-                                                is_active = $tab.is('.og-active'), $next_tab, $next_col;
-                                            if (!is_last) {
-                                                $next_tab = $('#' + set_id + ' .og-js-col-tab:eq(' + next + ')');
-                                                $next_col = $('#' + set_id + ' .og-js-col-holder:eq(' + next + ')');
-                                            } else {
-                                                $('#' + set_id + ' .og-js-empty-cols').show();
-                                            }
-                                            $col.remove(), $tab.remove();
-                                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = void 0;
-                                            if (is_last || !is_active) return false;
-                                            $next_tab.addClass('og-active');
-                                            $next_col.show();
-                                            return false;
-                                        }
-                                    },
-                                    {
-                                        type: 'click', selector: '#' + set_id + ' .og-js-rem-port-req',
-                                        handler: function (e) { // remove a portfolio requirement
-                                            var $li = $(e.target).parents('li:first'),
-                                                reqs = $li.find('select:first').attr('name').split('.').slice(0, -1),
-                                                index = reqs.pop();
-                                            reqs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
-                                            $li.remove();
-                                            return false;
-                                        }
-                                    },
-                                    {
-                                        type: 'click', selector: '#' + set_id + ' .og-js-col-tab',
-                                        handler: function (e) { // switch columns
-                                            e.preventDefault();
-                                            var $target = $(e.target), tab_cl = '.og-js-col-tab',
-                                                $tab = $target.is(tab_cl) ? $target
-                                                    : $target.parents(tab_cl + ':first'),
-                                                active_cl = '.og-active', new_cl = '.og-js-new',
-                                                clone_cl = '.og-js-clone', rem_cl = '.og-js-rem-col', index,
-                                                is_remove = $target.is(rem_cl), is_active = $tab.is(active_cl),
-                                                is_new = $tab.is(new_cl), is_clone = $tab.is(clone_cl),
-                                                set_idx, col_idx;
-                                            if (is_active) return false;
-                                            if (is_remove) return false;
-                                            if (is_new || is_clone) { // add a column value
-                                                $('#' + set_id + ' .og-js-empty-cols').hide();
-                                                return (function () {
-                                                    var block, col, idx;
-                                                    if (is_new) {
-                                                        col = {}, col[SECU] = '';
-                                                    } else {
-                                                        col_idx = $(form_id + ' ' + tab_cl)
-                                                            .index($(form_id + ' ' + tab_cl + active_cl));
-                                                        set_idx = $(form_id + ' .og-js-colset-tab')
-                                                            .index($(form_id + ' .og-js-colset-tab' + active_cl));
-                                                        if (!~col_idx) return;
-                                                        col = $.extend(true, {},
-                                                            form.compile().data[SETS][set_idx][COLS][col_idx]
-                                                        );
-                                                        if (col[REQS]) col[REQS] = arr(col[REQS]);
-                                                    }
-                                                    if (!set[COLS]) set[COLS] = [col]; else set[COLS].push(col);
-                                                    idx = set[COLS].length - 1;
-                                                    column_set.children.push(block = new_col_val(col, idx));
-                                                    block.html(function (html) {
-                                                        var tab, $col = $(html);
-                                                        $('#' + set_id + ' .og-js-cols').append($col);
-                                                        tab = new_col_tab(col, idx);
-                                                        tab.html(function (html) {
-                                                            var $tab = $(html);
-                                                            $('#' + set_id + ' .og-js-col-tab.og-js-new')
-                                                                .before($tab);
-                                                            $tab.addClass('og-active').siblings()
-                                                                .removeClass('og-active');
-                                                            $col.siblings().hide();
-                                                        });
-                                                        col_tabs.children.push(tab);
-                                                        block.load();
-                                                    });
-                                                })();
-                                            }
-                                            index = $('#' + set_id + ' .og-js-col-tab').index($tab);
-                                            $('#' + set_id + ' .og-js-col-holder').each(function (idx, col) {
-                                                $(col)[idx === index ? 'show' : 'hide']();
-                                            });
-                                            $('#' + set_id + ' .og-js-col-tab:eq(' + index + ')').addClass('og-active')
-                                                .siblings().removeClass('og-active');
-                                        }
-                                    }
-                                ]
+                                    '">{{html html}}</div>'
                             });
-                        new_col_tab = function (col, col_idx) {
+                        column_set.on('form:load', function () {
+                            if (!$('#' + set_id + ' .og-js-col-holder').length)
+                                return $('#' + set_id + ' .og-js-empty-cols').show();
+                            $('#' + set_id + ' .og-js-col-holder:first').show().siblings().hide();
+                            $('#' + set_id + ' .og-js-col-tab:first').addClass('og-active');
+                        }).on('click', '#' + set_id + ' .og-js-add-spec', function (event) { // add additional value
+                            var $el = $('#' + set_id + ' .og-js-spec-holder'), block, spec = {};
+                            spec[SPVN] = '', spec[SPTT] = '', spec[SPCT] = '';
+                            if (!set[SPEC]) set[SPEC] = [spec]; else set[SPEC].push(spec);
+                            column_set.children.push(block = new_spec_val(spec, set[SPEC].length - 1));
+                            block.html(function (html) {$el.append($(html)), block.load();});
+                            return false;
+                        }).on('click', '#' + set_id + ' .og-js-rem-spec', function (event) { // remove additional value
+                            var $el = $(event.target).parents('.og-js-spec:first'),
+                                specs = $el.find('input:first').attr('name').split('.').slice(0, -1),
+                                index = specs.pop();
+                            specs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
+                            $el.remove();
+                            return false;
+                        }).on('click', '#' + set_id + ' .og-js-rem-col', function (event) { // remove a column value
+                            var $target = $(event.target),
+                                $tab = $target.is('.og-js-col-tab') ? $target :
+                                    $target.parents('.og-js-col-tab:first'),
+                                index = $('#' + set_id + ' .og-js-col-tab').index($tab),
+                                $col = $('#' + set_id + ' .og-js-col-holder:eq(' + index + ')'),
+                                cols = $col.find('select:first').attr('name').split('.').slice(0, -1),
+                                col_idx = cols.pop(),
+                                length = $('#' + set_id + ' .og-js-col-holder').length,
+                                next = index ? index - 1 : index + 1, is_last = next === length,
+                                is_active = $tab.is('.og-active'), $next_tab, $next_col;
+                            if (!is_last) {
+                                $next_tab = $('#' + set_id + ' .og-js-col-tab:eq(' + next + ')');
+                                $next_col = $('#' + set_id + ' .og-js-col-holder:eq(' + next + ')');
+                            } else $('#' + set_id + ' .og-js-empty-cols').show();
+                            $col.remove(), $tab.remove();
+                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = void 0;
+                            if (is_last || !is_active) return false;
+                            $next_tab.addClass('og-active');
+                            $next_col.show();
+                            return false;
+                        }).on('click','#' + set_id + ' .og-js-rem-port-req', function (event) { // remove port req
+                            var $li = $(event.target).parents('li:first'),
+                                reqs = $li.find('select:first').attr('name').split('.').slice(0, -1),
+                                index = reqs.pop();
+                            reqs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
+                            $li.remove();
+                            return false;
+                        }).on('click', '#' + set_id + ' .og-js-col-tab', function (event) { // switch/del/add/clone col
+                            event.preventDefault();
+                            var $target = $(event.target), tab_cl = '.og-js-col-tab', set_idx, col_idx,
+                                $tab = $target.is(tab_cl) ? $target : $target.parents(tab_cl + ':first'),
+                                active_cl = '.og-active', new_cl = '.og-js-new',
+                                clone_cl = '.og-js-clone', rem_cl = '.og-js-rem-col', index,
+                                is_remove = $target.is(rem_cl), is_active = $tab.is(active_cl),
+                                is_new = $tab.is(new_cl), is_clone = $tab.is(clone_cl);
+                            if (is_active || is_remove) return false;
+                            if (is_new || is_clone) { // add a column value
+                                $('#' + set_id + ' .og-js-empty-cols').hide();
+                                return (function () {
+                                    var block, col, idx;
+                                    if (is_new) col = {}, col[SECU] = '';
+                                    else {
+                                        col_idx = $(form_id + ' ' + tab_cl)
+                                            .index($(form_id + ' ' + tab_cl + active_cl));
+                                        set_idx = $(form_id + ' .og-js-colset-tab')
+                                            .index($(form_id + ' .og-js-colset-tab' + active_cl));
+                                        if (!~col_idx) return;
+                                        col = $.extend(true, {}, form.compile().data[SETS][set_idx][COLS][col_idx]);
+                                        if (col[REQS]) col[REQS] = arr(col[REQS]);
+                                    }
+                                    if (!set[COLS]) set[COLS] = [col]; else set[COLS].push(col);
+                                    idx = set[COLS].length - 1;
+                                    column_set.children.push(block = new_col_val(col, idx));
+                                    block.html(function (html) {
+                                        var tab, $col = $(html);
+                                        $('#' + set_id + ' .og-js-cols').append($col);
+                                        tab = new_col_tab(col, idx);
+                                        tab.html(function (html) {
+                                            var $tab = $(html);
+                                            $('#' + set_id + ' .og-js-col-tab.og-js-new').before($tab);
+                                            $tab.addClass('og-active').siblings().removeClass('og-active');
+                                            $col.siblings().hide();
+                                        });
+                                        col_tabs.children.push(tab);
+                                        block.load();
+                                    });
+                                })();
+                            }
+                            index = $('#' + set_id + ' .og-js-col-tab').index($tab);
+                            $('#' + set_id + ' .og-js-col-holder')
+                                .each(function (idx, col) {$(col)[idx === index ? 'show' : 'hide']();});
+                            $('#' + set_id + ' .og-js-col-tab:eq(' + index + ')').addClass('og-active')
+                                .siblings().removeClass('og-active');
+                        });
+                        var new_col_tab = function (col, col_idx) {
                             return new form.Field({
                                 generator: function (handler) {
                                     var secu = col[SECU] || 'not set';
@@ -404,7 +369,7 @@ $.register_module({
                                 }
                             });
                         };
-                        new_col_val = function (col, col_idx) {
+                        var new_col_val = function (col, col_idx) {
                             var col_id = prefix + id_count++,
                                 new_port_req = function (req, req_idx) {
                                     var sel_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, REQO].join('.'),
@@ -468,7 +433,7 @@ $.register_module({
                                 ]
                             });
                         };
-                        new_spec_val = function (spec, spec_idx) {
+                        var new_spec_val = function (spec, spec_idx) {
                             var names = {
                                 name: 'Additional Value ' + (spec_idx + 1),
                                 value: [SETS, set_idx, SPEC, spec_idx, SPVN].join('.'),
