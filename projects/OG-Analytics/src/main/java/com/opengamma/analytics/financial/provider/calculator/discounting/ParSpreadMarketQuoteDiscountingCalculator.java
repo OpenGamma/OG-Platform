@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueMarketQuoteSensitivityMarketCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,7 +50,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends AbstractIns
    * The methods and calculators.
    */
   private static final PresentValueDiscountingCalculator PVMC = PresentValueDiscountingCalculator.getInstance();
-  private static final PresentValueMarketQuoteSensitivityMarketCalculator PVMQSC = PresentValueMarketQuoteSensitivityMarketCalculator.getInstance();
+  private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();

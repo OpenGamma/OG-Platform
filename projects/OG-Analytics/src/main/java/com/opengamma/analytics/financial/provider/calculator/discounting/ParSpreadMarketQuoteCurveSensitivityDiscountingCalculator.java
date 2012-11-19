@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalculator;
-import com.opengamma.analytics.financial.provider.calculator.PresentValueMarketQuoteSensitivityMarketCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -55,8 +53,8 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
    */
   private static final PresentValueDiscountingCalculator PVMC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSMC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final PresentValueMarketQuoteSensitivityMarketCalculator PVMQSMC = PresentValueMarketQuoteSensitivityMarketCalculator.getInstance();
-  private static final PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalculator PVMQSCSMC = PresentValueMarketQuoteSensitivityCurveSensitivityMarketCalculator.getInstance();
+  private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSMC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
+  private static final PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator PVMQSCSMC = PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
