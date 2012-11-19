@@ -7,21 +7,22 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
-            form_template = '<form action="." id="${id}"><div class="OG-form">' +
+        var module = this, STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
+            has = 'hasOwnProperty', form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
-            Form, Block, Field;
+            form_events = {'form:load': null, 'form:submit': null, 'form:error': null};
         /**
          * @class Block
          */
-        Block = function (form, config) {
-            var block = this, klass = 'Block', config = config || {}, template = null, url = config.url,
-                module = config.module, handlers = config.handlers || [], extras = config.extras,
+        var Block = function (form, config) {
+            var block = this, config = config || {}, template = null, url = config.url,
+                module = config.module, extras = config.extras,
                 processor = config.processor,
                 wrap = function (html) {
                     return config.wrap ? $(dummy).append($.tmpl(config.wrap, {html: html})).html() : html;
                 };
             block.children = config.children || [];
+            block.form = form;
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), STALL);
                 var self = 'html', total = block.children.length, done = 0, result = [],
@@ -38,12 +39,13 @@ $.register_module({
                         result[idx] = html, (total === ++done) && internal_handler();
                     });
                     if (typeof val === 'string') return result[idx] = val, (total === ++done) && internal_handler();
-                    error_prefix = klass + '#' + self + ': children[' + idx + ']';
+                    error_prefix = block.klass + '#' + self + ': children[' + idx + ']';
                     throw new TypeError(error_prefix + ' is neither a string nor does it have an html function');
                 });
             };
             block.load = function () {
-                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
+                if (form.events['form:load'])
+                    form.events['form:load'].forEach(function (val) {if (val.ref === block) val.handler();});
                 block.children.forEach(function (child) {if (child.load) child.load();});
             };
             block.process = function (data, errors) {
@@ -52,59 +54,85 @@ $.register_module({
             };
             $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
                 .then(function (result) {template = result || '';});
-            if (form) form.attach(handlers);
+            if (form && config.handlers) form.attach.call(block, config.handlers);
+        };
+        Block.prototype.klass = module.name + ':Block'
+        Block.prototype.off = function (type) {
+            var form = this.form || this, block = this,
+                selector = typeof arguments[1] === 'string' ? arguments[1] : null,
+                handler = typeof arguments[1] === 'function' ? arguments[1] : arguments[2];
+            if (form_events[has](type)) return og.common.events.off.call(form, type, handler), block;
+            if (!form.dom_events[type]) return block;
+            form.dom_events[type] = form.dom_events[type].filter(function (val) {
+                if (val.type !== type) return true;
+                if (handler && selector) return val.handler !== handler && val.selector !== selector;
+                if (handler) return val.handler !== handler;
+                if (selector) return val.selector !== selector;
+                return false;
+            });
+            if (form.dom_events[type].length) return block;
+            delete form.dom_events[type];
+            form.root.off(type);
+            return block;
+        };
+        Block.prototype.on = function (type) {
+            var form = this.form || this, block = this,
+                selector = typeof arguments[1] === 'string' ? arguments[1] : null,
+                handler = typeof arguments[1] === 'function' ? arguments[1] : arguments[2],
+                context = typeof arguments[2] !== 'function' ? arguments[2] : arguments[3];
+            if (form_events[has](type)) {
+                og.common.events.on.call(form, type, handler, context);
+                return form.events[type][form.events[type].length - 1].ref = block;
+            }
+            if (!selector) throw new TypeError(block.klass + '#on: selector is not defined');
+            if (form.dom_events[type])
+                return form.dom_events[type].push({type: type, selector: selector, handler: handler}), block;
+            form.dom_events[type] = [{type: type, selector: selector, handler: handler}];
+            form.root.on(type, delegator.bind(form));
+            return block;
+        };
+        /** @private */
+        var delegator = function (event) {
+                var form = this, $target = $(event.target), results = [];
+                form.dom_events[event.type].forEach(function (val) {
+                    if (!$target.is(val.selector) && !$target.parent(val.selector).length) return;
+                    var result = val.handler(event);
+                    results.push(typeof result === 'undefined' ? true : !!result);
+                });
+                if (results.length && !results.some(Boolean)) return false;
         };
         /**
          * @class Field
          */
-        Field = function (form, config) {
-            var field = this, klass = 'Field', template = null, url = config.url, module = config.module,
-                extras = config.extras, handlers = config.handlers || [], generator = config.generator,
+        var Field = function (form, config) {
+            var field = this, template = null, url = config.url, module = config.module,
+                extras = config.extras, generator = config.generator,
                 processor = config.processor;
+            field.form = form;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), STALL);
                 if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
                 generator(handler, template);
             };
             field.load = function () {
-                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
+                if (form.events['form:load'])
+                    form.events['form:load'].forEach(function (val) {if (val.ref === field) val.handler();});
             };
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
             $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
                 .then(function (result) {template = result || '';});
-            form.attach(handlers);
+            if (config.handlers) form.attach.call(field, config.handlers);
         };
+        Field.prototype.klass = module.name + ':Field';
         /**
          * @class Form
          */
-        Form = function (config) {
-            var form = new Block(null, config), selector = config.selector, $root = $(selector), $form, dom_events = {},
-                klass = 'Form', form_events = {'form:load': [], 'form:submit': [], 'form:error': []},
-                delegator = function (e) {
-                    var $target = $(e.target), results = [];
-                    dom_events[e.type].forEach(function (val) {
-                        if (!$target.is(val.selector) && !$target.parent(val.selector).length) return;
-                        var result = val.handler(e);
-                        results.push(typeof result === 'undefined' ? true : !!result);
-                    });
-                    if (results.length && !results.some(Boolean)) return false;
-                },
-                type_map = config.type_map,
-                find_in_meta = (function (memo) {
-                    var key, len;
-                    for (key in type_map) if (~key.indexOf('*')) memo.push({
-                        expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'),
-                        value: type_map[key]
-                    });
-                    len = memo.length;
-                    return function (path) {
-                        for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
-                        return null
-                    };
-                })([]),
-                build_meta = function (data, path, warns) {
+        var Form = function (config) {
+            var form = new Block(null, config), selector = config.selector, $form, type_map = config.type_map;
+            /** @private */
+            var build_meta = function (data, path, warns) {
                     var result = {}, key, empty = '<EMPTY>', index = '<INDEX>', null_path = path === null, new_path;
                     if ($.isArray(data)) return data.map(function (val, idx) {
                         var value = build_meta(val, null_path ? idx : [path, index].join('.'), warns);
@@ -125,28 +153,34 @@ $.register_module({
                         if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
                     }
                     return result;
-                },
-                submit_handler = function (event, extras) {
+            };
+            /** @private */
+            var find_in_meta = (function (memo) {
+                    var key, len;
+                    for (key in type_map) if (~key.indexOf('*')) memo.push({
+                        expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'),
+                        value: type_map[key]
+                    });
+                    len = memo.length;
+                    return function (path) {
+                        for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
+                        return null
+                    };
+            })([]);
+            /** @private */
+            var submit_handler = function (event, extras) {
                     var self = 'submit_handler', result = form.compile();
                     $.extend(true, result.extras, extras);
                     if (event && event.preventDefault) event.preventDefault();
                     try {
-                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                        form.events['form:submit'].forEach(function (val) {val.handler(result);});
                     } catch (error) {
-                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
+                        og.dev.warn(form.klass + '#' + self + ' a form:submit handler failed with:\n', error);
                     }
-                };
+            };
             form.attach = function (handlers) {
-                var self = 'attach';
-                handlers.forEach(function (val) {
-                    val.type.split(' ').forEach(function (type) {
-                        if (form_events[type]) return form_events[type].push(val);
-                        if (!val.selector) throw new TypeError(klass + '#' + self + ': val.selector is not defined');
-                        if (dom_events[type]) return dom_events[type].push(val);
-                        dom_events[type] = [val];
-                        $root.on(type, delegator);
-                    });
-                });
+                var context = this; // might not === form
+                handlers.forEach(function (val) {form.on.call(context, val.type, val.selector, val.handler);});
             };
             form.Block = Block.partial(form);
             form.compile = function () {
@@ -160,8 +194,8 @@ $.register_module({
                         }, data)[last] = value.value;
                     } catch (error) {
                         data = null;
-                        error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
-                        form_events['form:error'].forEach(function (val) {val.handler(error);});
+                        error = new Error(form.klass + '#' + self + ': could not drill down to data.' + value.name);
+                        form.events['form:error'].forEach(function (val) {val.handler(error);});
                     }
                 });
                 form.process(data, errors);
@@ -169,22 +203,24 @@ $.register_module({
                 meta_warns = meta_warns.sort().reduce(function (acc, val) {
                     return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
                 }, []).join('\n');
-                if (meta_warns.length) og.dev.warn(klass + '#build_meta needs these:\n', meta_warns);
+                if (meta_warns.length) og.dev.warn(form.klass + '#build_meta needs these:\n', meta_warns);
                 return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
             };
             form.data = config.data;
             form.dom = form.html.partial(function (html) {
-                $root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
-                form_events['form:load'].forEach(function (val) {val.handler();});
+                form.root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
+                form.events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(submit_handler);
             });
+            form.dom_events = {};
             form.Field = Field.partial(form);
             form.id = 'gen_form_' + id_count++;
+            form.root = $(selector).unbind();
             form.submit = submit_handler.partial(null);
-            $root.unbind();
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
+        Form.prototype.klass = module.name + ':Form';
         Form.type =  {
             BOO: 'boolean',
             BYT: 'byte',
@@ -193,7 +229,7 @@ $.register_module({
             SHR: 'short',
             STR: 'string'
         };
-        [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
+        ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
     }
 });
