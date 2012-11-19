@@ -78,7 +78,6 @@ $.register_module({
             grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;
             grid.source = config.source;
-            var blotter = new og.blotter.Container();
             grid.updated = (function (last, delta) {
                 return function (time) {
                     return time ? (last ? ((delta = time - last), (last = time), delta) : ((last = time), 0)) : delta;
