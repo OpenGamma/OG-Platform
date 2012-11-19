@@ -5,6 +5,9 @@
  */
 package com.opengamma.core.position.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -22,6 +25,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.WeakInstanceCache;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
@@ -83,6 +87,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   private final Map2<UniqueId, VersionCorrection, Object> _frontCacheByUID = new WeakValueHashMap2<UniqueId, VersionCorrection, Object>();
   private final Map2<ObjectId, VersionCorrection, Object> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, Object>();
+  private final WeakInstanceCache<PortfolioNode> _nodes = new WeakInstanceCache<PortfolioNode>();
 
   /**
    * Creates the cache around an underlying position source.
@@ -124,23 +129,67 @@ public class EHCachingPositionSource implements PositionSource {
     return _cacheManager;
   }
 
-  private PortfolioNode addToFrontCache(final PortfolioNode node, final VersionCorrection versionCorrection) {
-    Object f = _frontCacheByUID.putIfAbsent(node.getUniqueId(), versionCorrection, node);
-    if (f instanceof PortfolioNode) {
-      return (PortfolioNode) f;
-    } else {
-      for (final PortfolioNode childNode : node.getChildNodes()) {
-        addToFrontCache(childNode, versionCorrection);
-      }
-      for (Position position : node.getPositions()) {
-        f = _frontCacheByUID.putIfAbsent(position.getUniqueId(), VersionCorrection.LATEST, position);
-        if (f instanceof Position) {
-          position = (Position) f;
-        }
-        _frontCacheByOID.put(position.getUniqueId().getObjectId(), versionCorrection, position);
-      }
-      return node;
+  protected Position addToFrontCache(Position position, final VersionCorrection versionCorrection) {
+    final Object f = _frontCacheByUID.putIfAbsent(position.getUniqueId(), VersionCorrection.LATEST, position);
+    if (f instanceof Position) {
+      position = (Position) f;
     }
+    _frontCacheByOID.put(position.getUniqueId().getObjectId(), versionCorrection, position);
+    return position;
+  }
+
+  protected PortfolioNode addToFrontCache(PortfolioNode node, final VersionCorrection versionCorrection) {
+    final List<Position> nodePositions = node.getPositions();
+    List<Position> newPositions = null;
+    for (int i = 0; i < nodePositions.size(); i++) {
+      final Position nodePosition = nodePositions.get(i);
+      final Position newPosition = addToFrontCache(nodePosition, versionCorrection);
+      if (newPosition != nodePosition) {
+        if (newPositions == null) {
+          newPositions = new ArrayList<Position>(nodePositions.size());
+          for (int j = 0; j < i - 1; j++) {
+            newPositions.add(nodePositions.get(j));
+          }
+        }
+        newPositions.add(newPosition);
+      } else {
+        if (newPositions != null) {
+          newPositions.add(nodePosition);
+        }
+      }
+    }
+    final List<PortfolioNode> nodeChildren = node.getChildNodes();
+    List<PortfolioNode> newChildren = null;
+    for (int i = 0; i < nodeChildren.size(); i++) {
+      final PortfolioNode nodeChild = nodeChildren.get(i);
+      final PortfolioNode newChild = addToFrontCache(nodeChild, versionCorrection);
+      if (newChild != nodeChild) {
+        if (newChildren == null) {
+          newChildren = new ArrayList<PortfolioNode>(nodeChildren.size());
+          for (int j = 0; j < i - 1; j++) {
+            newChildren.add(nodeChildren.get(j));
+          }
+        }
+        newChildren.add(newChild);
+      } else {
+        if (newChildren != null) {
+          newChildren.add(nodeChild);
+        }
+      }
+    }
+    if ((newPositions != null) || (newChildren != null)) {
+      final SimplePortfolioNode newNode = new SimplePortfolioNode(node.getUniqueId(), node.getName());
+      newNode.setParentNodeId(node.getParentNodeId());
+      newNode.addPositions((newPositions != null) ? newPositions : node.getPositions());
+      newNode.addChildNodes((newChildren != null) ? newChildren : node.getChildNodes());
+      node = newNode;
+    }
+    node = _nodes.get(node);
+    final Object f = _frontCacheByUID.putIfAbsent(node.getUniqueId(), versionCorrection, node);
+    if (f instanceof PortfolioNode) {
+      node = (PortfolioNode) f;
+    }
+    return node;
   }
 
   @Override
@@ -168,6 +217,7 @@ public class EHCachingPositionSource implements PositionSource {
           return (Portfolio) f;
         }
         addToFrontCache(portfolio.getRootNode(), versionCorrection);
+        // TODO: recreate the portfolio object as we might have found an existing node inmemory
         return portfolio;
       } else {
         s_logger.debug("getPortfolioByUniqueId: Cache miss on {}/{}", uniqueId, versionCorrection);
@@ -183,6 +233,7 @@ public class EHCachingPositionSource implements PositionSource {
       return (Portfolio) f;
     }
     addToFrontCache(portfolio.getRootNode(), versionCorrection);
+    // TODO: recreate the portfolio object as we might have found an existing node inmemory
     if (key != null) {
       _portfolioCache.put(new Element(key, portfolio));
     } else {
@@ -214,6 +265,7 @@ public class EHCachingPositionSource implements PositionSource {
       } else {
         _frontCacheByOID.put(objectId, versionCorrection, portfolio);
         addToFrontCache(portfolio.getRootNode(), versionCorrection);
+        // TODO: recreate the portfolio object as we might have found an existing node inmemory
         return portfolio;
       }
     } else {
@@ -226,6 +278,7 @@ public class EHCachingPositionSource implements PositionSource {
       } else {
         _frontCacheByOID.put(objectId, versionCorrection, portfolio);
         addToFrontCache(portfolio.getRootNode(), versionCorrection);
+        // TODO: recreate the portfolio object as we might have found an existing node inmemory
         _portfolioCache.put(new Element(key, portfolio));
         _portfolioCache.put(new Element(Pair.of(portfolio.getUniqueId(), versionCorrection), portfolio));
         return portfolio;

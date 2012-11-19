@@ -8,16 +8,13 @@ package com.opengamma.master.position.impl;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.change.PassthroughChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -63,7 +60,7 @@ public class MasterPositionSource implements PositionSource {
 
   /**
    * Creates an instance with underlying masters which does not override versions.
-   * 
+   *
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
    */
@@ -76,7 +73,7 @@ public class MasterPositionSource implements PositionSource {
 
   /**
    * Gets the underlying portfolio master.
-   * 
+   *
    * @return the portfolio master, not null
    */
   public PortfolioMaster getPortfolioMaster() {
@@ -85,7 +82,7 @@ public class MasterPositionSource implements PositionSource {
 
   /**
    * Gets the underlying position master.
-   * 
+   *
    * @return the position master, not null
    */
   public PositionMaster getPositionMaster() {
@@ -96,15 +93,15 @@ public class MasterPositionSource implements PositionSource {
   public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final ManageablePortfolio manPrt = getPortfolioMaster().get(uniqueId).getPortfolio();
-    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
+    final SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), versionCorrection);
     copyAttributes(manPrt, prt);
     return prt;
   }
 
-  private void copyAttributes(ManageablePortfolio manPrt, SimplePortfolio prt) {
+  private void copyAttributes(final ManageablePortfolio manPrt, final SimplePortfolio prt) {
     if (manPrt.getAttributes() != null) {
-      for (Entry<String, String> entry : manPrt.getAttributes().entrySet()) {
+      for (final Entry<String, String> entry : manPrt.getAttributes().entrySet()) {
         if (entry.getKey() != null && entry.getValue() != null) {
           prt.addAttribute(entry.getKey(), entry.getValue());
         }
@@ -113,11 +110,11 @@ public class MasterPositionSource implements PositionSource {
   }
 
   @Override
-  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Portfolio getPortfolio(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
-    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
+    final ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
+    final SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), versionCorrection);
     copyAttributes(manPrt, prt);
     return prt;
@@ -130,7 +127,7 @@ public class MasterPositionSource implements PositionSource {
     if (manNode == null) {
       throw new DataNotFoundException("Unable to find node: " + uniqueId);
     }
-    SimplePortfolioNode node = new SimplePortfolioNode();
+    final SimplePortfolioNode node = new SimplePortfolioNode();
     convertNode(manNode, node, versionCorrection);
     return node;
   }
@@ -157,7 +154,7 @@ public class MasterPositionSource implements PositionSource {
   }
 
   @Override
-  public Trade getTrade(UniqueId uniqueId) {
+  public Trade getTrade(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final ManageableTrade manTrade = getPositionMaster().getTrade(uniqueId);
     if (manTrade == null) {
@@ -168,11 +165,11 @@ public class MasterPositionSource implements PositionSource {
 
   private static int populatePositionSearchRequest(final PositionSearchRequest positionSearch, final ManageablePortfolioNode node) {
     int count = 0;
-    for (ObjectId positionId : node.getPositionIds()) {
+    for (final ObjectId positionId : node.getPositionIds()) {
       positionSearch.addPositionObjectId(positionId);
       count++;
     }
-    for (ManageablePortfolioNode child : node.getChildNodes()) {
+    for (final ManageablePortfolioNode child : node.getChildNodes()) {
       count += populatePositionSearchRequest(positionSearch, child);
     }
     return count;
@@ -180,20 +177,20 @@ public class MasterPositionSource implements PositionSource {
 
   /**
    * Converts a manageable node to a source node.
-   * 
+   *
    * @param manNode the manageable node, not null
    * @param sourceNode the source node, not null
    * @param versionCorrection the version/correction time for resolving the constituent positions, not null
    */
   protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode, final VersionCorrection versionCorrection) {
-    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    final PositionSearchRequest positionSearch = new PositionSearchRequest();
     final Map<ObjectId, ManageablePosition> positionCache;
     final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
     if (positionCount > 0) {
       positionCache = Maps.newHashMapWithExpectedSize(positionCount);
       positionSearch.setVersionCorrection(versionCorrection);
       final PositionSearchResult positions = getPositionMaster().search(positionSearch);
-      for (PositionDocument position : positions.getDocuments()) {
+      for (final PositionDocument position : positions.getDocuments()) {
         positionCache.put(position.getObjectId(), position.getPosition());
       }
     } else {
@@ -204,7 +201,7 @@ public class MasterPositionSource implements PositionSource {
 
   /**
    * Converts a manageable node to a source node.
-   * 
+   *
    * @param manNode the manageable node, not null
    * @param sourceNode the source node, not null
    * @param positionCache the positions, not null
@@ -215,7 +212,7 @@ public class MasterPositionSource implements PositionSource {
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
     if (manNode.getPositionIds().size() > 0) {
-      for (ObjectId positionId : manNode.getPositionIds()) {
+      for (final ObjectId positionId : manNode.getPositionIds()) {
         final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
           sourceNode.addPosition(foundPosition.toPosition());
@@ -224,8 +221,8 @@ public class MasterPositionSource implements PositionSource {
         }
       }
     }
-    for (ManageablePortfolioNode child : manNode.getChildNodes()) {
-      SimplePortfolioNode childNode = new SimplePortfolioNode();
+    for (final ManageablePortfolioNode child : manNode.getChildNodes()) {
+      final SimplePortfolioNode childNode = new SimplePortfolioNode();
       convertNode(child, childNode, positionCache);
       sourceNode.addChildNode(childNode);
     }
@@ -234,26 +231,7 @@ public class MasterPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return new ChangeManager() {
-
-      @Override
-      public void addChangeListener(final ChangeListener listener) {
-        getPortfolioMaster().changeManager().addChangeListener(listener);
-        getPositionMaster().changeManager().addChangeListener(listener);
-      }
-
-      @Override
-      public void removeChangeListener(final ChangeListener listener) {
-        getPortfolioMaster().changeManager().removeChangeListener(listener);
-        getPositionMaster().changeManager().removeChangeListener(listener);
-      }
-
-      @Override
-      public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
-        throw new UnsupportedOperationException();
-      }
-
-    };
+    return new PassthroughChangeManager(getPortfolioMaster(), getPositionMaster());
   }
 
   //-------------------------------------------------------------------------
