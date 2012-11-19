@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.sensitivities;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -172,6 +173,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     assert curveName != null;
     assert curveCalculationConfig != null;
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final BigDecimal qty = target.getPosition().getQuantity();
     final ValueRequirement curveRequirement = getCurveRequirement(target, curveName, curveCalculationConfig);
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
@@ -188,7 +190,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     interpolatedCurves.put(curveName, curve);
     final YieldCurveBundle bundle = new YieldCurveBundle(interpolatedCurves);
-    final DoubleMatrix1D sensitivitiesForCurves = getSensitivities(executionContext.getSecuritySource(), inputs, security, curveSpec, curve);
+    final DoubleMatrix1D sensitivitiesForCurves = getSensitivities(executionContext.getSecuritySource(), inputs, security, curveSpec, curve, qty);
     final ValueProperties.Builder properties = createValueProperties(target)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig);
@@ -199,9 +201,8 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     return results;
   }
 
-  private DoubleMatrix1D getSensitivities(final SecuritySource secSource, final FunctionInputs inputs, final RawSecurity rawSecurity,
-      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final YieldAndDiscountCurve curve) {
+  private DoubleMatrix1D getSensitivities(final SecuritySource secSource, final FunctionInputs inputs, final RawSecurity rawSecurity, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+      final YieldAndDiscountCurve curve, final BigDecimal qty) {
     final Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
     final double[] entries = new double[curveSpec.getStrips().size()];
     int i = 0;
@@ -210,9 +211,9 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (externalSensitivitiesData != null) {
         final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(externalSensitivitiesData.getExposureExternalId()));
         if (computedValue != null) {
-          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue();
+          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
           final Double value = mhts.getTimeSeries().getLatestValue();
-          entries[i] = -value; // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
+          entries[i] = -value * (qty.doubleValue() / 10000d); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
           s_logger.warn("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
           entries[i] = 0d;

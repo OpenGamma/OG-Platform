@@ -12,6 +12,7 @@ import javax.time.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -26,8 +27,6 @@ public class ViewportResults {
   private final AnalyticsColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
-  /** Version of the viewport used when building these results. */
-  private final long _version;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
 
@@ -36,12 +35,10 @@ public class ViewportResults {
    * list contains the data by rows and the inner lists contain the data for each row
    * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
-   * @param version The version of the viewport used when creating the results
    */
   /* package */ ViewportResults(List<Cell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
-                                long version,
                                 Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
@@ -50,7 +47,6 @@ public class ViewportResults {
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
-    _version = version;
     _calculationDuration = calculationDuration;
   }
 
@@ -76,7 +72,7 @@ public class ViewportResults {
    * correspond to the current viewport state.
    */
   /* package */ long getVersion() {
-    return _version;
+    return _viewportDefinition.getVersion();
   }
 
   /**
@@ -101,7 +97,7 @@ public class ViewportResults {
    */
   /* package */ static Cell stringCell(String value, int column) {
     ArgumentChecker.notNull(value, "value");
-    return new Cell(value, null, null, column);
+    return new Cell(value, null, null, column, null, null);
   }
 
   /**
@@ -112,7 +108,7 @@ public class ViewportResults {
    * @return A cell for displaying the value
    */
   /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
-    return new Cell(value, valueSpecification, history, column);
+    return new Cell(value, valueSpecification, history, column, null, null);
   }
 
   /**
@@ -123,7 +119,15 @@ public class ViewportResults {
    * @param colIndex Index of the cell's grid column
    */
   /* package */ static Cell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new Cell(null, null, emptyHistory, colIndex);
+    return new Cell(null, null, emptyHistory, colIndex, null, null);
+  }
+
+  /* package */ static Cell positionCell(String name, int colIndex, UniqueId positionId) {
+    return new Cell(name, null, null, colIndex, positionId, null);
+  }
+
+  /* package */ static Cell nodeCell(String name, int colIndex, UniqueId nodeId) {
+    return new Cell(name, null, null, colIndex, null, nodeId);
   }
 
   @Override
@@ -136,9 +140,6 @@ public class ViewportResults {
     }
     ViewportResults that = (ViewportResults) o;
 
-    if (_version != that._version) {
-      return false;
-    }
     if (!_columns.equals(that._columns)) {
       return false;
     }
@@ -156,7 +157,6 @@ public class ViewportResults {
     int result = _allResults.hashCode();
     result = 31 * result + _columns.hashCode();
     result = 31 * result + _viewportDefinition.hashCode();
-    result = 31 * result + (int) (_version ^ (_version >>> 32));
     return result;
   }
 
@@ -166,7 +166,6 @@ public class ViewportResults {
         "_allResults=" + _allResults +
         ", _columns=" + _columns +
         ", _viewportDefinition=" + _viewportDefinition +
-        ", _version=" + _version +
         "]";
   }
 
@@ -179,12 +178,21 @@ public class ViewportResults {
     private final ValueSpecification _valueSpecification;
     private final Collection<Object> _history;
     private final int _column;
+    private final UniqueId _positionId;
+    private final UniqueId _nodeId;
 
-    private Cell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
+    private Cell(Object value,
+                 ValueSpecification valueSpecification,
+                 Collection<Object> history,
+                 int column,
+                 UniqueId positionId,
+                 UniqueId nodeId) {
       _value = value;
       _valueSpecification = valueSpecification;
       _history = history;
       _column = column;
+      _positionId = positionId;
+      _nodeId = nodeId;
     }
 
     /**
@@ -215,8 +223,16 @@ public class ViewportResults {
       return _value instanceof MissingInput;
     }
 
-    public int getColumn() {
+    /* package */ int getColumn() {
       return _column;
+    }
+
+    /* package */ UniqueId getPositionId() {
+      return _positionId;
+    }
+
+    /* package */ UniqueId getNodeId() {
+      return _nodeId;
     }
 
     @Override

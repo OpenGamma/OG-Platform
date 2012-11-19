@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.cds;
@@ -27,19 +27,18 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Base class for ISDA CDS pricing functions
- * 
+ *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * @see ISDAApproxHazardCurveFunction
  * @see ISDAApproxFlatSpreadFunction
  */
 public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
-  
-  protected abstract String getHazardRateStructre();
+
+  protected abstract String getHazardRateStructure();
 
   protected abstract DoublesPair executeImpl(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues);
 
@@ -47,12 +46,13 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.CDS_SECURITY;
   }
-  
+
+  @Override
   protected ValueProperties.Builder createValueProperties() {
     return super.createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
                 .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-                .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre());
+                .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure());
   }
 
   private ValueProperties.Builder createValueProperties(final CDSSecurity security) {
@@ -61,7 +61,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
     final ValueProperties properties = createValueProperties(cds).get();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
@@ -74,44 +74,42 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
     results.add(presentValueSpec);
     return results;
   }
-    
+
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties properties = createValueProperties(cds).get();
-    
+
     final DoublesPair calculationResult = executeImpl(executionContext, inputs, target, desiredValues);
     final Double cleanPrice = calculationResult.getFirst();
     final Double dirtyPrice = calculationResult.getSecond();
-    
+
     // Pack up the results
-    Set<ComputedValue> results = new HashSet<ComputedValue>();
-    
+    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+
     final ComputedValue cleanPriceValue = new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRICE, targetSpec, properties), cleanPrice);
-    
     final ComputedValue dirtyPriceValue = new ComputedValue(new ValueSpecification(ValueRequirementNames.DIRTY_PRICE, targetSpec, properties), dirtyPrice);
-    
     final ComputedValue presentValue = new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, targetSpec, properties), cleanPrice);
-    
+
     results.add(cleanPriceValue);
     results.add(dirtyPriceValue);
     results.add(presentValue);
-    
+
     return results;
   }
-  
+
   protected ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
-    
+
     final DateAdjuster adjuster = convention.getBusinessDayConvention().getDateAdjuster(convention.getWorkingDayCalendar());
-    
+
     ZonedDateTime result = startDate;
-    
+
     for (int i = 0, n = convention.getSettlementDays(); i < n; ++i) {
       result = result.plusDays(1).with(adjuster);
     }
-    
+
     return result;
   }
 

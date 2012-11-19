@@ -1,45 +1,47 @@
-<table class="OG-table">
-  <thead>
-    <tr><th colspan="3"><span><em>${template_data.name}</em></span></th></tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td>
-      {{if external_links}}
-        <a href="./admin.ftl#/securities/${template_data.security_unique_id}" target="_blank">
-      {{else}}
-        <a href="#/securities/${template_data.security_unique_id}">
-      {{/if}}
-      {{if template_data.security_name}}
-        ${template_data.security_name}
-      {{else}}
-        (no value)
-      {{/if}}
-    </a></td>
-    <td>
-      <strong class="og-quantity"
-        {{if editable}}data-og-editable="quantity" data-og-id="${template_data.object_id}"{{/if}}
-      >${template_data.quantity}</strong>
-    </td>
-    <td>${template_data.security_type}</td>
-  </tr>
-  </tbody>
-</table>
-<div class="og-js-sec-time">
-  <table class="og-securities">
-    <tbody class="og-js-identifiers">
-      {{if securities[0]}}
-        {{each securities}}
-          <tr><td><span><em>${$value.scheme.lang()}</em></span></td><td>${$value.value.lang()}</td></tr>
-        {{/each}}
-      {{else}}
-        <tr><td colspan="2">(no value)</td></tr>
-      {{/if}}
-    </tbody>
-  </table>
-  <div class="og-timeseries-container">
-    <div class="og-timeseries-extra">loading...</div>
-    <div class="og-timeseries"></div>
-    <div class="og-timeseries-hover"><a href="#">View</a></div>
-  </div>
+<div class="OG-gadgets-positions">
+    <table class="OG-table">
+      <thead>
+        <tr><th colspan="3"><span><em>{{if child}}{{else}}${template_data.name}{{/if}}</em></span></th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          {{if external_links}}
+            <a href="./admin.ftl#/securities/${template_data.security_unique_id}" target="_blank">
+          {{else}}
+            <a href="#/securities/${template_data.security_unique_id}">
+          {{/if}}
+          {{if template_data.security_name}}
+            ${template_data.security_name}
+          {{else}}
+            (no value)
+          {{/if}}
+        </a></td>
+        <td>
+          <strong class="og-quantity"
+            {{if editable}}data-og-editable="quantity" data-og-id="${template_data.object_id}"{{/if}}
+          >${template_data.quantity}</strong>
+        </td>
+        <td>${template_data.security_type}</td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="og-js-sec-time">
+      <table class="og-securities">
+        <tbody class="og-js-identifiers">
+          {{if securities[0]}}
+            {{each securities}}
+              <tr><td><span><em>${$value.scheme.lang()}</em></span></td><td>${$value.value.lang()}</td></tr>
+            {{/each}}
+          {{else}}
+            <tr><td colspan="2">(no value)</td></tr>
+          {{/if}}
+        </tbody>
+      </table>
+      <div class="og-timeseries-container">
+        <div class="og-timeseries"></div>
+        <div class="og-timeseries-extra">loading...</div>
+        <div class="og-timeseries-hover"><a href="#">View</a></div>
+      </div>
+    </div>
 </div>

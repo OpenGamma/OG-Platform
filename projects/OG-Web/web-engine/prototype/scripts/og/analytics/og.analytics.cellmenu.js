@@ -6,21 +6,18 @@ $.register_module({
     name: 'og.analytics.CellMenu',
     dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
-        var module = this, 
-            icons = '.og-num, .og-icon-new-window-2', 
-            open_icon = '.og-small', 
-            open_inplace = '.og-icon-down-chevron', 
-            expand_class = 'og-expanded', 
-            panels = ['south', 'dock-north', 'dock-center', 'dock-south'], 
+        var module = this,
+            icons = '.og-num, .og-icon-new-window-2',
+            open_icon = '.og-small',
+            expand_class = 'og-expanded',
+            panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
             width = 34,
-            mapping = og.common.gadgets.mapping,
-            $selector; 
-            type_map = mapping.data_type_map,
-            onlydepgraphs = Object.keys(type_map) // a list of datatypes that only support depgraph gadgets
-                .filter(function (key) {return type_map[key].length === 1 && type_map[key][0] === 0;});
+            mapping = og.common.gadgets.mapping;
         var constructor = function (grid) {
-            var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent,
-                inplace_config; cellmenu.frozen = false; cellmenu.grid = grid;
+            var cellmenu = this, depgraph = grid.source.depgraph, primitives = grid.source.type === 'primitives',
+                parent = grid.elements.parent, inplace_config, timer;
+            cellmenu.frozen = false;
+            cellmenu.grid = grid;
             if (og.analytics.containers.initialize) throw new Error(module.name + ': there are no panels');
             cellmenu.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
@@ -56,9 +53,14 @@ $.register_module({
                     if (cellmenu.frozen || cellmenu.busy()) return;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
-                    var type = cell.type, hide = !(cellmenu.current = cell).value
-                        || (cell.col < (depgraph ? 1 : 2)) || (cell.right > parent.width())
-                        || (depgraph && $.inArray(type, onlydepgraphs) > -1);
+                    var type = cell.type, hide =
+                        // Hide the cell menu if...
+                        !(cellmenu.current = cell).value                    // There is no cell Value
+                        || (cell.col === ((!primitives && !depgraph) && 1)) // Second column of portfolio
+                        || ((depgraph || primitives) && cell.col < 1)       // First column of depgraph or primitives
+                        || (cell.value.nodeId)                              // Is node
+                        || (cell.right > parent.width())                             // End of the cell not visible
+                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));  // Unsupported type on a depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
@@ -71,25 +73,26 @@ $.register_module({
                 })
                 .on('scrollend', function () {cellmenu.busy(false);});
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    var unique = 'inplace-' + cellmenu.grid.id.slice(1);
+                    var unique = 'inplace-' + +new Date;
                     inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
-                    cellmenu.inplace.$dom.toggle.on('click', function() {
+                    cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
                             cellmenu.create_inplace();
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
                         else cellmenu.destroy_frozen();
                     });
-                     cellmenu.container.on('del', function(){
+                     cellmenu.container.on('del', function () {
                         cellmenu.destroy_frozen();
                     });
                 });
             });
         };
         constructor.prototype.destroy_frozen = function () {
-            $('.OG-cell-options.og-frozen').remove();
+           $('.OG-cell-options.og-frozen').remove();
+           og.common.gadgets.manager.clean();
         };
         constructor.prototype.create_inplace = function () {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
@@ -105,8 +108,7 @@ $.register_module({
                 inner.css({marginTop: -inner.height()});
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width} );
-            cellmenu.grid.new_menu(cellmenu);
-            
+            new constructor(cellmenu.grid);
         };
         constructor.prototype.hide = function () {
            var cellmenu = this;
@@ -116,10 +118,8 @@ $.register_module({
         };
         constructor.prototype.show = function () {
             var cellmenu = this, current = this.current;
-            if (cellmenu.menu && cellmenu.menu.length){
-                (cellmenu.menu).appendTo($('body')).css(
-                    {top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
-            }
+            if (cellmenu.menu && cellmenu.menu.length) cellmenu.menu.appendTo($('body'))
+                .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
         };
         return constructor;
     }

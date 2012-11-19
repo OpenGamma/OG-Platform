@@ -15,7 +15,7 @@ public interface Derivative {
   <T> T accept(DerivativeVisitor<?, T> visitor);
 
   /**
-   * @return
+   * @return 'Analytics Time' (years in ACT_ACT) between valuation and settlement times 
    */
   double getTimeToSettlement();
 }

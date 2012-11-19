@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.forex.option.black;
 
 import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 
 import java.util.Collections;
 import java.util.HashSet;

@@ -33,19 +33,19 @@ import com.opengamma.util.tuple.Pair;
  * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
  * portfolio (primitives). This class isn't thread safe.
  */
-/* package */ class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
+/* package */ abstract class MainAnalyticsGrid<V extends MainGridViewport> extends AnalyticsGrid<V> {
 
+  /** Row and column structure of the grid. */
+  protected final MainGridStructure _gridStructure;
   /** Type of data in the grid, portfolio or primitives. */
   private final AnalyticsView.GridType _gridType;
   /** Dependency graph grids for cells in this grid, keyed by grid ID. */
   private final Map<Integer, DependencyGraphGrid> _depGraphs = Maps.newHashMap();
-  /** Row and column structure of the grid. */
-  private final MainGridStructure _gridStructure;
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
 
   /** Cache of results. */
-  private ResultsCache _cache = new ResultsCache();
+  protected ResultsCache _cache = new ResultsCache();
   /** The calculation cycle used to calculate the most recent set of results. */
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
@@ -60,50 +60,6 @@ import com.opengamma.util.tuple.Pair;
     _gridType = gridType;
     _gridStructure = gridStructure;
     _targetResolver = targetResolver;
-  }
-
-  /**
-   * Factory method for creating a portfolio grid that doesn't contain any data.
-   * @return An empty portoflio grid
-   */
-  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId, new DummyTargetResolver());
-  }
-
-  /**
-   * Factory method for creating a primitives grid that doesn't contain any data.
-   * @return An empty primitives grid
-   */
-  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver());
-  }
-
-  /**
-   * Factory method for creating a grid to display portfolio data.
-   * @param compiledViewDef The view definition whose results the grid will display
-   * @param gridId The grid ID, sent to listeners when the grid structure changes
-   * @param targetResolver For looking up calculation targets using their specification
-   * @return The new grid
-   */
-  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef,
-                                                 String gridId,
-                                                 ComputationTargetResolver targetResolver) {
-    MainGridStructure gridStructure = new PortfolioGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver);
-  }
-
-  /**
-   * Factory method for creating a grid to display primitives data.
-   * @param compiledViewDef The view definition whose results the grid will display
-   * @param gridId The grid ID, sent to listeners when the grid structure changes
-   * @param targetResolver For looking up calculation targets using their specification
-   * @return The new grid
-   */
-  /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef,
-                                                    String gridId,
-                                                    ComputationTargetResolver targetResolver) {
-    MainGridStructure gridStructure = new PrimitivesGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver);
   }
 
   /**
@@ -131,11 +87,10 @@ import com.opengamma.util.tuple.Pair;
    *
    * @param viewportId ID of the viewport
    * @param viewportDefinition Definition of the updated viewport
-   * @return Version number of the updated viewport, allows the client to check that any data it receives corresponds
-   * to the current state of the viewport
+   * @return The viewport's callback ID if it was updated or {@code null} if not
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ long updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
     return getViewport(viewportId).update(viewportDefinition, _cache);
   }
 
@@ -213,10 +168,9 @@ import com.opengamma.util.tuple.Pair;
    * @param viewportId ID of the viewport, can be any unique value
    * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
    * @param viewportDefinition Definition of the viewport
-   * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
-   * the current viewport state
+   * @return {@code true} if there is data available for the new viewport
    */
-  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  /* package */ boolean createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
@@ -230,8 +184,8 @@ import com.opengamma.util.tuple.Pair;
    * the current viewport state
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ long updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle, _cache);
+  /* package */ String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle);
   }
 
   /**
@@ -256,17 +210,6 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Returns the ID sent to listeners when the data changes in a dependency graph grid viewport.
-   * @param graphId ID of the dependency graph
-   * @param viewportId ID of the viewport
-   * @return The ID
-   * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
-   */
-  /* package */ String getCallbackId(int graphId, int viewportId) {
-    return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
-  }
-
-  /**
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
   /* package */ List<String> getDependencyGraphCallbackIds() {
@@ -285,15 +228,10 @@ import com.opengamma.util.tuple.Pair;
     return _gridStructure;
   }
 
-  @Override
-  protected MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new MainGridViewport(viewportDefinition, _gridStructure, callbackId, _cache);
-  }
-
   /**
    * Resolver that doesn't resolve anything, used for grids that will always be empty.
    */
-  private static class DummyTargetResolver implements ComputationTargetResolver {
+  protected static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
     public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {

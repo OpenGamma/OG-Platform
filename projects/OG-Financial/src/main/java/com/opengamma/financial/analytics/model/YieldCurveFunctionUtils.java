@@ -68,6 +68,10 @@ public class YieldCurveFunctionUtils {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
   }
 
+  public static ValueRequirement getCurveRequirement(final ComputationTargetSpecification target) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target);
+  }
+
   //TODO won't work if curves have different currencies
   public static YieldCurveBundle getAllYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
     final YieldCurveBundle curves = new YieldCurveBundle();

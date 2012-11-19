@@ -41,7 +41,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     if (latestDataPointObject == null) {
       throw new OpenGammaRuntimeException("Could not get latest data point");
     }
-    final Double price = (Double) latestDataPointObject;
+    final Double price = (Double) latestDataPointObject / 100d; // REVIEW: jim 9/11/2012 -- this needs to go into the normalisation map.
 
     return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().with(
         ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()), price));

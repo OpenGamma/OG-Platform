@@ -5,9 +5,11 @@
  */
 package com.opengamma.web.analytics;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -27,10 +29,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class PortfolioGridStructure extends MainGridStructure {
 
+  private static final AnalyticsColumnGroup s_fixedColumnGroup =
+      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
+                                                         new AnalyticsColumn("Quantity", "", BigDecimal.class)));
   private final AnalyticsNode _root;
 
-  /* package */PortfolioGridStructure(final CompiledViewDefinition compiledViewDef) {
-    super(compiledViewDef, rows(compiledViewDef));
+  /* package */ PortfolioGridStructure(final CompiledViewDefinition compiledViewDef, final ValueMappings valueMappings) {
+    super(s_fixedColumnGroup, compiledViewDef, rows(compiledViewDef), valueMappings);
     ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
   }

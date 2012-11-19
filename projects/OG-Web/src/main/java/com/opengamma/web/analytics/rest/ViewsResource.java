@@ -96,7 +96,7 @@ public class ViewsResource {
     //String userName = user.getUserName();
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
-    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
     _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath());
     return Response.status(Response.Status.CREATED).build();

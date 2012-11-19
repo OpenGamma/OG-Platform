@@ -17,7 +17,6 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -56,16 +55,17 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioCallbackId);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesCallbackId);
+    _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
+    _primitivesGrid = PrimitivesAnalyticsGrid.empty(primitivesCallbackId);
   }
 
   @Override
   public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver);
+    ValueMappings valueMappings = new ValueMappings(_compiledViewDefinition);
+    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver, valueMappings);
+    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver, valueMappings);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
@@ -102,23 +102,18 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType,
-                                           int viewportId,
-                                           String callbackId,
-                                           ViewportDefinition viewportDefinition) {
-    long version = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
-    return Pair.of(version, callbackId);
+    return hasData;
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport {} for {} grid to {}",
                    new Object[]{_viewId, viewportId, gridType, viewportDefinition});
-    long version = getGrid(gridType).updateViewport(viewportId, viewportDefinition);
-    String callbackId = getGrid(gridType).getViewport(viewportId).getCallbackId();
-    return Pair.of(version, callbackId);
+    return getGrid(gridType).updateViewport(viewportId, viewportDefinition);
   }
 
   @Override
@@ -134,11 +129,10 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public String openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
-    s_logger.debug("View {} opening dependency graph for cell ({}, {}) of the {} grid",
-                   new Object[]{_viewId, row, col, gridType});
+  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
+    s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
+                   new Object[]{_viewId, graphId, row, col, gridType});
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition);
-    return callbackId;
   }
 
   @Override
@@ -155,28 +149,20 @@ import com.opengamma.util.tuple.Pair;
     return gridStructure;
   }
 
+  // TODO return a boolean indicating whether there's data available
   @Override
-  public Pair<Long, String> createViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           String callbackId,
-                                           ViewportDefinition viewportDefinition) {
-    long version = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, viewportId, graphId, gridType, viewportDefinition});
-    return Pair.of(version, callbackId);
+    return hasData;
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType,
-                                           int graphId,
-                                           int viewportId,
-                                           ViewportDefinition viewportDefinition) {
+  public String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     s_logger.debug("View {} updating viewport for dependency graph {} of the {} grid using {}",
                    new Object[]{_viewId, graphId, gridType, viewportDefinition});
-    long version = getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition);
-    String callbackId = getGrid(gridType).getCallbackId(graphId, viewportId);
-    return Pair.of(version, callbackId);
+    return getGrid(gridType).updateViewport(graphId, viewportId, viewportDefinition);
   }
 
   @Override
@@ -188,7 +174,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
-    s_logger.debug("View {} getting data for the viewport {} of the dependency graph {} of the {} grid",
+    s_logger.debug("View {} getting data for viewport {} of dependency graph {} of the {} grid",
                    new Object[]{_viewId, viewportId, graphId, gridType});
     return getGrid(gridType).getData(graphId, viewportId);
   }

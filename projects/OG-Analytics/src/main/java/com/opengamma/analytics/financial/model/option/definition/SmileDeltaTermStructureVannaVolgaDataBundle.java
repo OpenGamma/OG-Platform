@@ -30,7 +30,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionData
    */
   public SmileDeltaTermStructureVannaVolgaDataBundle(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameters smile, final Pair<Currency, Currency> currencyPair) {
     super(ycBundle, smile, currencyPair);
-    ArgumentChecker.isTrue(smile.getNumberStrike() == 3, "Vanna-volga methods work only with three strikes");
+    ArgumentChecker.isTrue(smile.getNumberStrike() == 3, "Vanna-volga methods work only with three strikes; have {}", smile.getNumberStrike());
   }
 
   @Override

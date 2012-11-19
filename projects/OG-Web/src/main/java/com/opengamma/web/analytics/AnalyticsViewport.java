@@ -22,14 +22,6 @@ import com.opengamma.util.ArgumentChecker;
   protected ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
   protected ViewportResults _latestResults;
-  /**
-   * The version of the viewport. When a viewport is updated (by the user scrolling the grid for example) the
-   * version is incremented. This version number is returned to the client when the viewport is updated and it is also
-   * included in the viewport data. This allows clients to ensure the data they receive matches the viewport.
-   * Without this there would be a race condition if the client updates the viewport when it has a pending request
-   * for data. It is possible that the data it receives will apply to the previous version of the viewport.
-   */
-  protected long _version;
 
   /**
    * @param callbackId The ID that is sent to the client to notify it that the viewport's data has been updated. This
@@ -45,20 +37,5 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ ViewportResults getData() {
     return _latestResults;
-  }
-
-  /**
-   * @return The ID that is sent to the client to notify it that the viewport's data has been updated.
-   */
-  /* package */ String getCallbackId() {
-    return _callbackId;
-  }
-
-  /**
-   * @return The current version of the viewport, allows the client to that a set of results correspond to the
-   * current viewport state.
-   */
-  /* package */ long getVersion() {
-    return _version;
   }
 }

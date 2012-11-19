@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.future.definition;
 
+import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.money.Currency;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
-import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -57,7 +57,6 @@ public class EquityFutureDefinition {
     return _expiryDate;
   }
 
-
   /**
    * Gets the _settlementDate.
    * @return the _settlementDate
@@ -65,7 +64,6 @@ public class EquityFutureDefinition {
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-
 
   /**
    * Gets the _strikePrice.
@@ -75,7 +73,6 @@ public class EquityFutureDefinition {
     return _strikePrice;
   }
 
-
   /**
    * Gets the _currency.
    * @return the _currency
@@ -83,7 +80,6 @@ public class EquityFutureDefinition {
   public Currency getCurrency() {
     return _currency;
   }
-
 
   /**
    * Gets the _unitAmount.
@@ -93,13 +89,33 @@ public class EquityFutureDefinition {
     return _unitAmount;
   }
 
-
+  /**
+   * In this form, the reference (strike) price must already be set in the constructor of the Definition.
+   * The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
+   * @param date time of valuation
+   * @return derivative form
+   */
   public EquityFuture toDerivative(ZonedDateTime date) {
-
     double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
     double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
-
     EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, _strikePrice, _currency, _unitAmount);
+    return newDeriv;
+  }
+
+  /**
+   * In this form, the reference (strike) price must be provided. 
+   * @param date time of valuation
+   * @param referencePrice The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
+   * @return derivative form
+   */
+  public EquityFuture toDerivative(ZonedDateTime date, Double referencePrice) {
+    Validate.notNull(date, "null date provided.");
+    if (referencePrice == null) {
+      return toDerivative(date);
+    }
+    double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
+    double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
+    EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, referencePrice, _currency, _unitAmount);
     return newDeriv;
   }
 
@@ -141,12 +157,11 @@ public class EquityFutureDefinition {
     }
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
-    }   
+    }
     if (Double.doubleToLongBits(_unitAmount) != Double.doubleToLongBits(other._unitAmount)) {
       return false;
     }
     return true;
   }
-  
-  
+
 }

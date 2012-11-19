@@ -22,11 +22,12 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
   private final List<GridCell> _cells;
 
   /**
+   * @param version
    * @param cells Cells in the viewport, not empty
-   * @param format 
+   * @param format
    */
-  /* package */ ArbitraryViewportDefinition(List<GridCell> cells, TypeFormatter.Format format) {
-    super(format);
+  /* package */ ArbitraryViewportDefinition(int version, List<GridCell> cells, TypeFormatter.Format format) {
+    super(version, format);
     ArgumentChecker.notEmpty(cells, "cells");
     _cells = new ArrayList<GridCell>(cells);
     Collections.sort(_cells);

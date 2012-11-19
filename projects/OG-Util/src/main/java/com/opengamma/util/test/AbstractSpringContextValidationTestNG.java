@@ -32,11 +32,6 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public abstract class AbstractSpringContextValidationTestNG {
 
-  /**
-   * System property used to specify the run mode.
-   */
-  public static final String RUN_MODE_PROPERTY_NAME = "opengamma.platform.runmode";
-
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractSpringContextValidationTestNG.class);
   private ThreadLocal<GenericApplicationContext> _springContext = new ThreadLocal<GenericApplicationContext>();
 
@@ -62,27 +57,21 @@ public abstract class AbstractSpringContextValidationTestNG {
   /**
    * This should be called by the subclass to initialise the test.
    */
-  protected void loadClassPathResource(final String opengammaPlatformRunmode, final String name) {
-    System.setProperty(RUN_MODE_PROPERTY_NAME, opengammaPlatformRunmode);
-    
+  protected void loadClassPathResource(final String name) {
     GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(springContext);
     xmlReader.loadBeanDefinitions(new ClassPathResource(name));
     springContext.refresh();
   }
 
-  protected void loadFileSystemResource(final String opengammaPlatformRunmode, final String path) {
-    System.setProperty(RUN_MODE_PROPERTY_NAME, opengammaPlatformRunmode);
-    
+  protected void loadFileSystemResource(final String path) {
     GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.loadBeanDefinitions(new FileSystemResource(path));
     springContext.refresh();
   }
 
-  protected void loadXMLResource(final String opengammaPlatformRunmode, final String xml) {
-    System.setProperty(RUN_MODE_PROPERTY_NAME, opengammaPlatformRunmode);
-    
+  protected void loadXMLResource(final String xml) {
     GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
@@ -90,9 +79,7 @@ public abstract class AbstractSpringContextValidationTestNG {
     springContext.refresh();
   }
 
-  protected void loadUrlResource(final String opengammaPlatformRunmode, final String url) {
-    System.setProperty(RUN_MODE_PROPERTY_NAME, opengammaPlatformRunmode);
-    
+  protected void loadUrlResource(final String url) {
     try {
       GenericApplicationContext springContext = createSpringContext();
       XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
@@ -108,9 +95,7 @@ public abstract class AbstractSpringContextValidationTestNG {
    * Populates the Spring context from multiple XML configuration files.  The file paths must have a prefix to
    * indicate what kind of resource they are, e.g. {@code file:} or {@code classpath:}.
    */
-  protected void loadResources(final String opengammaPlatformRunmode, final String... filePaths) {
-    System.setProperty(RUN_MODE_PROPERTY_NAME, opengammaPlatformRunmode);
-
+  protected void loadResources(final String... filePaths) {
     GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     for (String path : filePaths) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface;
@@ -31,7 +31,7 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShi
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public abstract class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
@@ -44,10 +44,6 @@ public abstract class ForexVolatilitySurfaceFunction extends AbstractFunction.No
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Need one surface name; have " + surfaceNames);
-    }
     final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
@@ -58,6 +54,11 @@ public abstract class ForexVolatilitySurfaceFunction extends AbstractFunction.No
     }
     final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      s_logger.error("Need one surface name; have " + surfaceNames);
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();

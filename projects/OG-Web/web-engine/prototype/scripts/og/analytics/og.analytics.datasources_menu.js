@@ -31,13 +31,15 @@ $.register_module({
                 source_s = '.source',  extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom',
                 custom_val = 'Custom', date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
                 corrections_s = '.corrections', events = {
+                    open: 'dropmenu:open',
                     sourcespopulated: 'dropmenu:ds:sourcespopulated',
                     typereset: 'dropmenu:ds:typereset',
                     typeselected:'dropmenu:ds:typesselected',
                     dataselected: 'dropmenu:ds:dataselected',
                     optsrepositioned: 'dropmenu:ds:optsrespositioned',
                     resetquery:'dropmenu:resetquery',
-                    queryresequested:'dropmenu:queryresequested'
+                    queryresequested:'dropmenu:queryresequested',
+                    preventblurkill: 'mouseup.prevent_blurkill'
                 };
             var add_handler = function () {
                 menu.add_handler();
@@ -69,9 +71,18 @@ $.register_module({
             };
             var display_datepicker = function (entry) {
                 if (!menu.opts[entry]) return;
-                $(custom_s, menu.opts[entry])
-                    .datepicker({onSelect: function() {date_handler(entry);}, dateFormat:'yy-mm-dd'})
-                    .datepicker('show');
+                var custom_dp = $(custom_s, menu.opts[entry]), widget;
+                custom_dp.datepicker({
+                    dateFormat:'yy-mm-dd',
+                    onSelect: function () {
+                        date_handler(entry);
+                        widget.off(events.preventblurkill);
+                    }
+                })
+                .datepicker('show');
+                widget = custom_dp.datepicker('widget').on(events.preventblurkill, function(event) {
+                    menu.emitEvent(events.open, [menu]);
+                });
             };
             var display_query = function () {
                 if(query.length) {
@@ -157,7 +168,7 @@ $.register_module({
             };
             var populate_livedatasources = function (entry, config) {
                 if (!menu.opts[entry]) return;
-                og.api.rest.livedatasources.get().pipe(function (resp) {
+                og.api.rest.livedatasources.get({cache_for: 5000}).pipe(function (resp) {
                     if (resp.error) return;
                     if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
                     if (resp.data) populate_src_options(entry, resp.data);
@@ -167,7 +178,7 @@ $.register_module({
             };
             var populate_marketdatasnapshots = function (entry, config) {
                 if (!menu.opts[entry]) return;
-                og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
+                og.api.rest.marketdatasnapshots.get({cache_for: 5000}).pipe(function (resp) {
                     if (resp.error) return;
                     if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
                     if (resp.data && resp.data[0]) populate_src_options(entry, resp.data[0].snapshots);

@@ -16,6 +16,10 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
  */
 /* package */ class LabelledMatrix2DFormatter extends AbstractFormatter<LabelledMatrix2D> {
 
+  /* package */ static final String X_LABELS = "xLabels";
+  /* package */ static final String Y_LABELS = "yLabels";
+  /* package */ static final String MATRIX = "matrix";
+
   /* package */ LabelledMatrix2DFormatter() {
     super(LabelledMatrix2D.class);
     addFormatter(new Formatter<LabelledMatrix2D>(Format.EXPANDED) {
@@ -40,12 +44,12 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
     for (int i = 0; i < xLabels.length; i++) {
       xLabels[i] = value.getXLabels()[i].toString();
     }
-    results.put("xLabels", xLabels);
+    results.put(X_LABELS, xLabels);
     for (int i = 0; i < yLabels.length; i++) {
       yLabels[i] = value.getYLabels()[i].toString();
     }
-    results.put("yLabels", yLabels);
-    results.put("matrix", value.getValues());
+    results.put(Y_LABELS, yLabels);
+    results.put(MATRIX, value.getValues());
     return results;
   }
 

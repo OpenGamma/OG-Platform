@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.commodity.derivative;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * energy future option commodity derivative
  */
-public class MetalFutureOption extends CommodityFutureOption {
+public class MetalFutureOption extends CommodityFutureOption<MetalFutureDefinition> {
 
   /**
    * Constructor for future options
@@ -23,7 +23,7 @@ public class MetalFutureOption extends CommodityFutureOption {
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public MetalFutureOption(final double expiry, final CommodityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public MetalFutureOption(final double expiry, final MetalFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     super(expiry, underlying, strike, exerciseType, isCall);
   }
 
@@ -46,9 +46,6 @@ public class MetalFutureOption extends CommodityFutureOption {
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
-    }
-    if (obj == null) {
-      return false;
     }
     if (!(obj instanceof MetalFutureOption)) {
       return false;

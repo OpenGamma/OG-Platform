@@ -22,8 +22,8 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public long update(ViewportDefinition viewportDefinition) {
-    return _view.updateViewport(_gridType, _graphId, _viewportId, viewportDefinition).getFirst();
+  public void update(ViewportDefinition viewportDefinition) {
+    _view.updateViewport(_gridType, _graphId, _viewportId, viewportDefinition);
   }
 
   @Override

@@ -22,8 +22,8 @@ public class SimpleFuture implements SimpleInstrument {
   
   public SimpleFuture(final double expiry, final double settlement, final double referencePrice, final double unitAmount, final Currency currency) {
     Validate.notNull(currency, "currency");
-    Validate.isTrue(expiry > 0, "time to expiry must be positive");
-    Validate.isTrue(settlement > 0, "time to settlement must be positive");
+    Validate.isTrue(expiry >= 0, "time to expiry must be positive");
+    Validate.isTrue(settlement >= 0, "time to settlement must be positive");
     _expiry = expiry;
     _settlement = settlement;
     _referencePrice = referencePrice;

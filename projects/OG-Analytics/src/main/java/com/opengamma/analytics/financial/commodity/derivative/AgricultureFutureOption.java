@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.commodity.derivative;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * Agriculture future option commodity derivative
  */
-public class AgricultureFutureOption extends CommodityFutureOption {
+public class AgricultureFutureOption extends CommodityFutureOption<AgricultureFutureDefinition> {
 
   /**
    * Constructor for future options
@@ -23,7 +23,7 @@ public class AgricultureFutureOption extends CommodityFutureOption {
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public AgricultureFutureOption(final double expiry, final CommodityFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public AgricultureFutureOption(final double expiry, final AgricultureFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     super(expiry, underlying, strike, exerciseType, isCall);
   }
 

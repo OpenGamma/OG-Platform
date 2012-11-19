@@ -14,6 +14,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -219,6 +220,11 @@ public class FinancialSecurityTypes {
    * The IR Future Option security type.
    */
   public static final ObjectComputationTargetType<IRFutureOptionSecurity> IR_FUTURE_OPTION_SECURITY = ObjectComputationTargetType.of(IRFutureOptionSecurity.class);
+
+  /**
+   * The Legacy Vanilla CDS security type
+   */
+  public static final ObjectComputationTargetType<LegacyVanillaCDSSecurity> LEGACY_VANILLA_CDS_SECURITY = ObjectComputationTargetType.of(LegacyVanillaCDSSecurity.class);
 
   /**
    * The Metal Future security type.

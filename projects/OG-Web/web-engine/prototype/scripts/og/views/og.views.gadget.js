@@ -23,7 +23,7 @@ $.register_module({
             },
             positions: function (args) {
                 $content.html('\
-                    <section class="OG-details-positions og-js-positions"></section>\
+                    <section class="OG-gadgets-positions-container og-js-positions"></section>\
                     <section class="og-js-trades"></section>\
                 ');
                 gadgets.positions({

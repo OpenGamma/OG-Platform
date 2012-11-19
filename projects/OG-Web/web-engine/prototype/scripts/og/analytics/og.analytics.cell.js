@@ -13,9 +13,8 @@ $.register_module({
                 try {cell.fire('fatal', message);}
                 catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
             };
-            events.register.call(cell, 'data', 'fatal');
-            cell.dataman = new og.analytics.Data(config.source, true, 'cell' + label)
-                .on('meta', function (meta) {
+            cell.dataman = new og.analytics.Data(config.source, {bypass: true, label: 'cell' + label})
+                .on('meta', function (meta, raw) {
                     cell.dataman.viewport({rows: [config.row], cols: [config.col], format: config.format});
                 })
                 .on('data', function (data) {

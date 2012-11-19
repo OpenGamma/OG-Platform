@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -82,7 +84,7 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);

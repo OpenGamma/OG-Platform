@@ -46,7 +46,6 @@ import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
-import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.analytics.cashflow.FixedPayCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.FixedReceiveCashFlowFunction;
@@ -95,8 +94,6 @@ import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFundingCurveSensitivitiesFunction;
@@ -229,6 +226,7 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLoc
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEGridPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.vannavolga.FXOptionVannaVolgaPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
@@ -328,10 +326,8 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePV01Function;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePriceDeltaFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFutureRhoFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
@@ -441,6 +437,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_PHI);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
 
+    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
@@ -483,11 +480,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(AttributableDefaultPropertyFunction.class));
   }
 
-  protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
-    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
-  }
-
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
@@ -511,8 +503,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 //    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
-    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "FUNDING"));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "FUNDING", "FUNDING"));
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
@@ -538,7 +528,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addLateAggregationFunctions(functionConfigs);
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
-    addHistoricalDataFunctions(functionConfigs);
 
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
@@ -663,10 +652,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "KRW", "DefaultCashCurveKRWConfig", "Cash",
         "BRL", "DefaultCashCurveBRLConfig", "Cash",
         "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE,
-        EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityForwardCalculationDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig"));
@@ -676,7 +661,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityVarianceSwapDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "BBG"));
     functionConfigs.add(functionConfiguration(EquityForwardCurveDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
+        "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY"));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));
@@ -690,8 +677,20 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionSpotVannaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionRhoFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, "BBG", "FUNDING", "Spline"));
-
+    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+        "CAD", "DefaultTwoCurveCADConfig", "Discounting",
+        "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
+        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
+        "MXN", "DefaultCashCurveMXNConfig", "Cash",
+        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
+        "GBP", "DefaultTwoCurveGBPConfig", "Discounting",
+        "NZD", "DefaultTwoCurveNZDConfig", "Discounting",
+        "HUF", "DefaultCashCurveHUFConfig", "Cash",
+        "KRW", "DefaultCashCurveKRWConfig", "Cash",
+        "BRL", "DefaultCashCurveBRLConfig", "Cash",
+        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
@@ -704,12 +703,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaultPropertiesFunction.class, "0.0", "0.001"));
-
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
+    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
   }
 
   private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -763,6 +761,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionVannaVolgaPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
@@ -851,7 +850,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SimpleFuturePriceDeltaFunction.class));
     functionConfigs.add(functionConfiguration(SimpleFuturePV01Function.class));
     functionConfigs.add(functionConfiguration(SimpleFutureRhoFunction.class));
-
   }
 
   private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -897,12 +895,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class.getName()));
-    
+
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
 
-    
+
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName()));
 
@@ -1159,10 +1157,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
     final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
         BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
-        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y, 
-        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE, 
+        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,
+        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE,
         Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, 
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final List<String> splineProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
     splineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
@@ -1184,7 +1182,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(PureVolatilitySurfaceSplineDefaults.class.getName(), commonPureSurfaceProperties));
   }
-  
+
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
@@ -1388,7 +1386,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurvePV01Function.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(),         
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(),
         "EUR", "DefaultTwoCurveEURConfig",
         "USD", "DefaultTwoCurveUSDConfig",
         "CHF", "DefaultTwoCurveCHFConfig",

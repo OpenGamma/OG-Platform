@@ -4,10 +4,12 @@
  */
 .OG-icon.og-icon-down-chevron:after {
     background-position: -37px -9px;
-    background-color: transparent;
     display: inline-block;
     height: 6px;
     position: relative;
     width: 10px;
     z-index: 2;
+}
+.OG-icon.og-icon-down-chevron:hover:after {
+    background-position: -48px -9px;
 }

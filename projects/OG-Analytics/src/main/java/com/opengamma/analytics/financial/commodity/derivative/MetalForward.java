@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 
 /**
  * Metal  commodity derivative
@@ -25,11 +26,13 @@ public class MetalForward extends CommodityForward {
    * @param amount Number of units
    * @param unitName Description of unit size
    * @param settlementType Settlement type - PHYISCAL or CASH
+   * @param settlement  Time (in years as a double) until the date-time at which the future is settled
+   * @param referencePrice reference price
+   * @param currency currency
    */
   public MetalForward(final double expiry, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
-      final double amount, final String unitName,
-      final SettlementType settlementType) {
-    super(expiry, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      final double amount, final String unitName, final SettlementType settlementType, final double settlement, final double referencePrice, final Currency currency) {
+    super(expiry, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, settlement, referencePrice, currency);
   }
 
   @Override

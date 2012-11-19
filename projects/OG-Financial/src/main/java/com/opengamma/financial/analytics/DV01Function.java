@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -33,7 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class DV01Function extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(DV01Function.class);
-  
+
   @Override
   public String getShortName() {
     return "DV01Function";

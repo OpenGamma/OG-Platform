@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.forex.option.black;
 
 import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 
 import java.util.Collections;
 import java.util.Set;
@@ -32,7 +33,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -116,7 +116,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
-    if (security instanceof FXBarrierOptionSecurity) { // ONE_LOOK's are handled by FXOneLookBarrierOptionBlackFunction
+    if (security instanceof FXBarrierOptionSecurity) {
       if (((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK)) {
         return false;
       }
@@ -192,19 +192,6 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
-
-  protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency,
-      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
-    final ValueProperties surfaceProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .get();
-    final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget), surfaceProperties);
-  }
 
   protected final String getValueRequirementName() {
     return _valueRequirementName;

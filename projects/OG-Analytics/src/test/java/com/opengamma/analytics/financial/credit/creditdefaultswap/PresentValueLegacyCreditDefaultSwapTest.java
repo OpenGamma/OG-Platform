@@ -134,7 +134,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
-  private static final PriceType priceType = PriceType.DIRTY;
+  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
@@ -403,16 +403,20 @@ public class PresentValueLegacyCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
 
-    // Call the constructor to create a CDS whose PV we will compute
+    // Call the constructor to create a CDS present value object
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
-    ZonedDateTime rollingDate = DateUtils.getUTCDate(2008, 11, 24);
+    // Set the valuation date on which to compute the CDS MtM
+    ZonedDateTime rollingDate = valuationDate;
 
-    LegacyCreditDefaultSwapDefinition test = cds;
+    // Build the valuation CDS from the baseline CDS object
+    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
-    test = test.withValuationDate(rollingDate);
+    // Set the valuation date of the CDS
+    valuationCDS = valuationCDS.withValuationDate(rollingDate);
 
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(test, yieldCurve, hazardRateCurve);
+    // Calculate the CDS MtM
+    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
       System.out.println("CDS PV = " + "\t" + presentValue);
@@ -424,7 +428,7 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   //@Test
-  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivit() {
+  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivity() {
 
     // -----------------------------------------------------------------------------------------------
 

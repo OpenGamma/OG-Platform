@@ -22,6 +22,7 @@ $.register_module({
                 var menu = this, tmpl = config.tmpl, data = config.data || {};
                 menu.state = 'closed';
                 menu.opened = false;
+                menu.init_blurkill = false;
                 menu.data = data;
                 menu.events = events;
                 menu.$dom = {};
@@ -39,14 +40,21 @@ $.register_module({
             return this.opened = true, this.state = 'focused', this.emitEvent(events.focused, [this]), this;
         };
         DropMenu.prototype.open = function () {
+            var menu = this;
             if (this.$dom.menu) {
-                return this.$dom.menu.show()/*.blurkill(this.close.bind(this))*/, this.state = 'open', 
-                this.opened = true, this.$dom.toggle.addClass('og-active'), this.emitEvent(events.opened, [this]), this;
+                setTimeout(function() {
+                    if (!menu.init_blurkill) {
+                        menu.init_blurkill = true;
+                        menu.$dom.menu.blurkill(menu.close.bind(menu));
+                    }
+                });
+                return this.$dom.menu.show(), this.state = 'open', this.opened = true,
+                    this.$dom.toggle.addClass('og-active'), this.emitEvent(events.opened, [this]), this;
             }
         };
         DropMenu.prototype.close = function () {
             if (this.$dom.menu) {
-                return this.$dom.menu.hide(), this.state = 'closed', this.opened = false,
+                return this.$dom.menu.hide(), this.state = 'closed', this.opened = false, this.init_blurkill = false,
                     this.$dom.toggle.removeClass('og-active'), this.emitEvent(events.closed, [this]), this;
             }
         };

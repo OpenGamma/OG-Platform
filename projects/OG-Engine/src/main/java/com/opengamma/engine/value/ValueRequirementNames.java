@@ -148,6 +148,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Hazard rate curve for credit instruments.
+   */
+  public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
+  /**
    * The bundle of historical time series objects for instruments on a curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
@@ -230,6 +234,10 @@ public final class ValueRequirementNames {
    * Surface containing (x, y, volatility) triples that are the outer join of the values on the x and y axes.
    */
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
+  /**
+   * Surface containing (x, y, volatility) triples for the vanna-volga FX volatility model
+   */
+  public static final String VANNA_VOLGA_VOLATILITY_SURFACE_DATA = "VannaVolgaVolatilitySurfaceData";
   /**
    * Surface containing (x, y, volatility) triples (where (x, y) can be (expiry, strike) (equity options) or (expiry, tenor) (swaptions).
    */

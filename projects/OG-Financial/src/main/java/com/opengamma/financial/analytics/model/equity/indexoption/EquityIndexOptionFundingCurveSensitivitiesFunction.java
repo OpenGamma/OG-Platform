@@ -37,7 +37,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -58,7 +57,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
     // Get Funding Curve Name
-    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
       return null;
     }
@@ -90,8 +89,9 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
 
     // Unpack the curve we're bumping
     ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
+    final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
     if (fundingObject == null) {
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }

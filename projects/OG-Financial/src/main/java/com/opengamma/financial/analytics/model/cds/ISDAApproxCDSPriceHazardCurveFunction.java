@@ -49,7 +49,7 @@ public class ISDAApproxCDSPriceHazardCurveFunction extends ISDAApproxCDSPriceFun
   private static final ISDAApproxCDSPricingMethod ISDA_APPROX_METHOD = new ISDAApproxCDSPricingMethod();
   
   @Override
-  protected String getHazardRateStructre() {
+  protected String getHazardRateStructure() {
     return ISDAFunctionConstants.ISDA_HAZARD_RATE_TERM;
   }
   

@@ -3,7 +3,6 @@
  * Please see distribution for license.
  */
 .OG-analytics-inplace .OG-icon.og-icon-down-chevron {
-    background: transparent;
     border: 1px solid #dadcdd;
     cursor: pointer;
     height: 11px;
@@ -16,7 +15,7 @@
     -webkit-box-shadow: 3px 3px 3px #ebebeb;
     height:275px;
 }
-
+.OG-analytics-inplace .ui-layout-header:after,
 .OG-analytics-inplace .ui-layout-header {
     background: none;
 }
@@ -37,4 +36,9 @@
 
 .OG-analytics-inplace .OG-gadget-tabs ul:before {
     height: 0;
+}
+
+/* Remove left shadow on tabs to coincide with rest of inplace gadget */
+.OG-analytics-inplace .OG-gadget-tabs li.og-active:before {
+    background-size: 0 100%, 6px 100%;
 }

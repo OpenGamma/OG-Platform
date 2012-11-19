@@ -35,10 +35,11 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
       return formatCell(value, valueSpec);
     }
     Formatter<T> formatter = _formatters.get(format);
-    if (formatter == null) {
-      throw new IllegalArgumentException("Format type " + format + " not supported by " + getClass().getSimpleName());
+    if (formatter != null) {
+      return formatter.format(value, valueSpec);
+    } else {
+      return new MissingFormatter(format + " format not supported for " + value.getClass().getSimpleName());
     }
-    return formatter.format(value, valueSpec);
   }
 
   @Override
@@ -70,4 +71,5 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
 
     abstract Object format(T value, ValueSpecification valueSpec);
   }
+
 }

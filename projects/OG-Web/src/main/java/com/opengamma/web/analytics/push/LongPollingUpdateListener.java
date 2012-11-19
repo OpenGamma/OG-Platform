@@ -68,7 +68,7 @@ import com.opengamma.util.ArgumentChecker;
           sendUpdate(formatUpdate(callbackId));
         } catch (JSONException e) {
           // this shouldn't ever happen
-          s_logger.warn("Unable to format URL as JSON: " + callbackId, e);
+          s_logger.warn("Unable to format callback ID as JSON: " + callbackId, e);
         }
       } else {
         _updates.add(callbackId);
@@ -84,16 +84,14 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public void itemsUpdated(Collection<?> callbackIds) {
-    ArgumentChecker.notNull(callbackIds, "urls");
+    ArgumentChecker.notNull(callbackIds, "callbackIds");
     if (callbackIds.isEmpty()) {
       return;
     }
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          String urls = formatUpdate(callbackIds);
-          sendUpdate(urls);
-          s_logger.debug("Sent update to client {}: {}", _clientId, urls);
+          sendUpdate(formatUpdate(callbackIds));
         } catch (JSONException e) {
           // this shouldn't ever happen, the updates are all URLs
           s_logger.warn("Unable to format URLs as JSON. URLs: " + callbackIds, e);
@@ -129,12 +127,13 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Adds {@code urls} to the connection's continuation and resumes it so the response is sent to the client.
-   * @param urls URLs of the changed items
+   * @param update URLs of the changed items
    */
-  private void sendUpdate(String urls) {
-    _continuation.setAttribute(LongPollingServlet.RESULTS, urls);
+  private void sendUpdate(String update) {
+    _continuation.setAttribute(LongPollingServlet.RESULTS, update);
     _continuation.resume();
     _continuation = null;
+    s_logger.debug("Sent update to client {}: {}", _clientId, update);
   }
 
   // for testing

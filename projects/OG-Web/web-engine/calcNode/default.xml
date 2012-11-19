@@ -94,13 +94,6 @@
   
   <!-- Config Master and Config Source -->
   <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
-  <bean id="configMaster" class="com.opengamma.core.config.impl.RemoteConfigMaster">
-    <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
-        <property name="uri" value="${opengamma.engine.configuration.url}/configMaster" />
-      </bean>
-    </constructor-arg>
-  </bean>
   <bean id="configSource" class="com.opengamma.core.config.impl.RemoteConfigSource">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -247,7 +240,7 @@
     <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
   </bean>
   <bean id="functionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
-    <property name="configMaster" ref="configMaster" />
+    <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="exchangeSource" ref="exchangeSource"/>
     <property name="historicalTimeSeriesSource" ref="historicalTimeSeriesSource" />

@@ -44,7 +44,7 @@ public class CalibrateHazardRateCurveTest {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = true;
+  private static final boolean outputResults = false;
 
   // ----------------------------------------------------------------------------------
 
@@ -126,8 +126,8 @@ public class CalibrateHazardRateCurveTest {
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
-  private static final PriceType priceType = PriceType.DIRTY;
+  private static final boolean includeAccruedPremium = false;
+  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
@@ -357,7 +357,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a single tenor
 
-  @Test
+  //@Test
   public void testCalibrateHazardRateCurveSingleTenor() {
 
     // -----------------------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a term structure of market data
 
-  //@Test
+  @Test
   public void testCalibrateHazardRateCurveFlatTermStructure() {
 
     // -------------------------------------------------------------------------------------
@@ -441,6 +441,7 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[6] = flatSpread;
     marketSpreads[7] = flatSpread;
 
+    /*
     marketSpreads[0] = 500.0;
     marketSpreads[1] = 600.0;
     marketSpreads[2] = 500.0;
@@ -467,6 +468,7 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[5] = 896.0;
     marketSpreads[6] = 868.0;
     marketSpreads[7] = 838.0;
+    */
 
     // The recovery rate assumption used in the PV calculations when calibrating
     final double calibrationRecoveryRate = 0.40;
@@ -484,7 +486,7 @@ public class CalibrateHazardRateCurveTest {
     // Create a calibrate survival curve object
     final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
 
-    // Calibrate the survival curve to the market observed par CDS spreads (returns survival probabilities as a vector of doubles)
+    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {

@@ -32,6 +32,8 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   private BlackList _dataFieldBlackList;
   
   private String _globalPrefix;
+  
+  private String _baseDir;
     
   /**
    * Gets the htsMaster.
@@ -160,6 +162,22 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
   public void setGlobalPrefix(String globalPrefix) {
     _globalPrefix = globalPrefix;
   }
+  
+  /**
+   * Gets the baseDir.
+   * @return the baseDir
+   */
+  public String getBaseDir() {
+    return _baseDir;
+  }
+
+  /**
+   * Sets the baseDir.
+   * @param baseDir  the baseDir
+   */
+  public void setBaseDir(String baseDir) {
+    _baseDir = baseDir;
+  }
 
   @Override
   protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -174,6 +192,7 @@ public class QuartzRedisHtsSnapshotJob extends QuartzJobBean {
     job.setNormalizationRuleSetId(getNormalizationRuleSetId());
     job.setObservationTime(getObservationTime());
     job.setRedisConnector(getRedisConnector());
+    job.setBaseDir(getBaseDir());
     job.run();
   }
 

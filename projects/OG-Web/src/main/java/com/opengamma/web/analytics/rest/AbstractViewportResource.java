@@ -52,12 +52,12 @@ public abstract class AbstractViewportResource {
    * its current state
    */
   @PUT
-  public ViewportVersion update(@FormParam("rows") List<Integer> rows,
-                                @FormParam("columns") List<Integer> columns,
-                                @FormParam("cells") List<GridCell> cells,
-                                @FormParam("format") TypeFormatter.Format format) {
-    long version = update(ViewportDefinition.create(rows, columns, cells, format));
-    return new ViewportVersion(version);
+  public void update(@FormParam("version") int version,
+                     @FormParam("rows") List<Integer> rows,
+                     @FormParam("columns") List<Integer> columns,
+                     @FormParam("cells") List<GridCell> cells,
+                     @FormParam("format") TypeFormatter.Format format) {
+    update(ViewportDefinition.create(version, rows, columns, cells, format));
   }
 
   /**
@@ -66,7 +66,7 @@ public abstract class AbstractViewportResource {
    * @return The version ID of the updated viewport, allows the client to ensure that the data they receive for the
    * viewport was created for the correct version of the viewport
    */
-  public abstract long update(ViewportDefinition viewportDefinition);
+  public abstract void update(ViewportDefinition viewportDefinition);
 
   /**
    * Deletes the viewport

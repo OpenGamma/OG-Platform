@@ -77,8 +77,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
       UniqueId uid = null;
       if (security != null && security instanceof ManageableSecurity) {
         ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
-        uid = getUid(buid);
-        addOrUpdate((ManageableSecurity) security, uid);
+        uid = addOrUpdate((ManageableSecurity) security, getUid(buid));
       }
       result.put(requestBundle, uid);
     }
@@ -100,12 +99,13 @@ public class BloombergSecurityLoader implements SecurityLoader {
     }
   }
 
-  private void addOrUpdate(ManageableSecurity security, UniqueId uid) {
+  private UniqueId addOrUpdate(ManageableSecurity security, UniqueId uid) {
     if (uid == null) {
-      uid = addSecurity(security);
+      return addSecurity(security);
     } else {
-      updateSecurity(security, uid);
+      return updateSecurity(security, uid);
     }
+ 
   }
 
   private UniqueId updateSecurity(ManageableSecurity security, UniqueId uid) {

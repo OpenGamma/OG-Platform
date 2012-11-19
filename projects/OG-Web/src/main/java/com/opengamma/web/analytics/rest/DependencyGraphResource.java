@@ -34,8 +34,8 @@ public class DependencyGraphResource extends AbstractGridResource {
   }
 
   @Override
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    return _view.createViewport(_gridType, _graphId, viewportId, callbackId, viewportDefinition).getFirst();
+  /* package */ void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    _view.createViewport(requestId, _gridType, _graphId, viewportId, callbackId, viewportDefinition);
   }
 
   @Override

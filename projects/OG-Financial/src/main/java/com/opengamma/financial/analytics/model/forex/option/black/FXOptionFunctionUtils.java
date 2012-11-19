@@ -28,15 +28,22 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -99,7 +106,7 @@ public class FXOptionFunctionUtils {
     }
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final ObjectsPair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
+    final Pair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
     if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
       final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
       final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, currencyPair);
@@ -119,4 +126,41 @@ public class FXOptionFunctionUtils {
     return curve;
   }
 
+  public static YieldAndDiscountCurve getCurveForCurrency(final FunctionInputs inputs, final Currency currency) {
+    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency)));
+    if (curveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + currency + " curve");
+    }
+    final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
+    return curve;
+  }
+
+  public static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency,
+      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
+    final ValueProperties surfaceProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .get();
+    final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget), surfaceProperties);
+  }
+
+  public static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    if (security instanceof FXDigitalOptionSecurity || security instanceof NonDeliverableFXDigitalOptionSecurity) {
+      return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
+    }
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    Currency ccy;
+    if (baseQuotePair.getBase().equals(putCurrency)) {
+      ccy = callCurrency;
+    } else {
+      ccy = putCurrency;
+    }
+    return ccy.getCode();
+  }
 }

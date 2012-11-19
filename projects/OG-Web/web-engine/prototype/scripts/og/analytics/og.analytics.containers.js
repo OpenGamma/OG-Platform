@@ -14,7 +14,7 @@ $.register_module({
                         .init()
                         .on('del', function (index) {og.analytics.url.remove(panel, index);})
                         .on('drop', function (params, source) {
-                            og.analytics.url.add(panel, params, panels.indexOf(source)>0?true:false); 
+                            og.analytics.url.add(panel, params, ~panels.indexOf(source)); 
                             return false;
                         })
                         .on('launch', og.analytics.url.launch);

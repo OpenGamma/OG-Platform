@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,7 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    final String resultCurrency = FXOptionBlackSingleValuedFunction.getResultCurrency(target, baseQuotePair);
+    final String resultCurrency = getResultCurrency(target, baseQuotePair);
     final String fullCurveName = putCurrencyCurve + "_" + putCurrency.getCode();
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(resultCurrency)).getSensitivities();
@@ -166,7 +168,7 @@ public class FXOptionBlackPhiFunction extends AbstractFunction.NonCompiledInvoke
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target, baseQuotePair));
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 
   private static ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String putCurveCalculationConfig, final String callCurveName,

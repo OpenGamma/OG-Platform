@@ -10,6 +10,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Base class for grids that display analytics data calculated by the engine.
@@ -58,15 +59,17 @@ import com.opengamma.util.ArgumentChecker;
    * @param callbackId ID that will be passed to listeners when the grid's data changes, can be any unique value, the
    * grid makes no assumptions about its form
    * @param viewportDefinition Defines the extent and properties of the viewport
-   * @return The version number of the new viewport
+   * @return {@code true} if the viewport has data
    */
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  /* package */ boolean createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    V viewport = createViewport(viewportDefinition, callbackId);
+    Pair<V, Boolean> pair = createViewport(viewportDefinition, callbackId);
+    V viewport = pair.getFirst();
+    boolean hasData = pair.getSecond();
     _viewports.put(viewportId, viewport);
-    return viewport.getVersion();
+    return hasData;
   }
 
   /**
@@ -74,9 +77,9 @@ import com.opengamma.util.ArgumentChecker;
    *
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
-   * @return The new viewport
+   * @return The new viewport and a flag indicating whether there is data available for it
    */
-  protected abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId);
+  protected abstract Pair<V, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId);
 
   /**
    * Deletes a viewport.

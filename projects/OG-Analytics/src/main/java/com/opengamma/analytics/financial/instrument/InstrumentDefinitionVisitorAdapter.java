@@ -84,690 +84,690 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureSecurityDefinition(final BondFutureDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondIborTransactionDefinition(final BondIborTransactionDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondIborSecurityDefinition(final BondIborSecurityDefinition bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill, final DATA_TYPE data) {
-    return getDefaultValue(bill, data);
+    return getException(bill, data);
   }
 
   @Override
   public RESULT_TYPE visitBillSecurityDefinition(final BillSecurityDefinition bill) {
-    return getDefaultValue(bill);
+    return getException(bill);
   }
 
   @Override
   public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill, final DATA_TYPE data) {
-    return getDefaultValue(bill, data);
+    return getException(bill, data);
   }
 
   @Override
   public RESULT_TYPE visitBillTransactionDefinition(final BillTransactionDefinition bill) {
-    return getDefaultValue(bill);
+    return getException(bill);
   }
 
   @Override
   public RESULT_TYPE visitCashDefinition(final CashDefinition cash, final DATA_TYPE data) {
-    return getDefaultValue(cash, data);
+    return getException(cash, data);
   }
 
   @Override
   public RESULT_TYPE visitCashDefinition(final CashDefinition cash) {
-    return getDefaultValue(cash);
+    return getException(cash);
   }
 
   @Override
   public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return getException(deposit, data);
   }
 
   @Override
   public RESULT_TYPE visitDepositIborDefinition(final DepositIborDefinition deposit) {
-    return getDefaultValue(deposit);
+    return getException(deposit);
   }
 
   @Override
   public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return getException(deposit, data);
   }
 
   @Override
   public RESULT_TYPE visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit) {
-    return getDefaultValue(deposit);
+    return getException(deposit);
   }
 
   @Override
   public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit, final DATA_TYPE data) {
-    return getDefaultValue(deposit, data);
+    return getException(deposit, data);
   }
 
   @Override
   public RESULT_TYPE visitDepositZeroDefinition(final DepositZeroDefinition deposit) {
-    return getDefaultValue(deposit);
+    return getException(deposit);
   }
 
   @Override
   public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra, final DATA_TYPE data) {
-    return getDefaultValue(fra, data);
+    return getException(fra, data);
   }
 
   @Override
   public RESULT_TYPE visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra) {
-    return getDefaultValue(fra);
+    return getException(fra);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureSecurityDefinition(final InterestRateFutureDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureOptionPremiumSecurityDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future, data);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
+    return getException(capFloor, data);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition capFloor) {
-    return getDefaultValue(capFloor);
+    return getException(capFloor);
   }
 
   @Override
   public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
-    return getDefaultValue(payment, data);
+    return getException(payment, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment) {
-    return getDefaultValue(payment);
+    return getException(payment);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
+    return getException(capFloor, data);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition capFloor) {
-    return getDefaultValue(capFloor);
+    return getException(capFloor);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloor, final DATA_TYPE data) {
-    return getDefaultValue(capFloor, data);
+    return getException(capFloor, data);
   }
 
   @Override
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition capFloorCMSSpread) {
-    return getDefaultValue(capFloorCMSSpread);
+    return getException(capFloorCMSSpread);
   }
 
   @Override
   public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final DATA_TYPE data) {
-    return getDefaultValue(annuity, data);
+    return getException(annuity, data);
   }
 
   @Override
   public RESULT_TYPE visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
-    return getDefaultValue(annuity);
+    return getException(annuity);
   }
 
   @Override
   public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
+    return getException(swap, data);
   }
 
   @Override
   public RESULT_TYPE visitSwapDefinition(final SwapDefinition swap) {
-    return getDefaultValue(swap);
+    return getException(swap);
   }
 
   @Override
   public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
+    return getException(swap, data);
   }
 
   @Override
   public RESULT_TYPE visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap) {
-    return getDefaultValue(swap);
+    return getException(swap);
   }
 
   @Override
   public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
+    return getException(swap, data);
   }
 
   @Override
   public RESULT_TYPE visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap) {
-    return getDefaultValue(swap);
+    return getException(swap);
   }
 
   @Override
   public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
+    return getException(swap, data);
   }
 
   @Override
   public RESULT_TYPE visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
-    return getDefaultValue(swap);
+    return getException(swap);
   }
 
   @Override
   public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap, final DATA_TYPE data) {
-    return getDefaultValue(swap, data);
+    return getException(swap, data);
   }
 
   @Override
   public RESULT_TYPE visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap) {
-    return getDefaultValue(swap);
+    return getException(swap);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
+    return getException(swaption, data);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
+    return getException(swaption);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
+    return getException(swaption, data);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
+    return getException(swaption);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
+    return getException(swaption, data);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption) {
-    return getDefaultValue(swaption);
+    return getException(swaption);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption, final DATA_TYPE data) {
-    return getDefaultValue(swaption, data);
+    return getException(swaption, data);
   }
 
   @Override
   public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
-    return getDefaultValue(swaption);
+    return getException(swaption);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
+    return getException(coupon, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon) {
-    return getDefaultValue(coupon);
+    return getException(coupon);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
+    return getException(coupon, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon) {
-    return getDefaultValue(coupon);
+    return getException(coupon);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
+    return getException(coupon, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
-    return getDefaultValue(coupon);
+    return getException(coupon);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon, final DATA_TYPE data) {
-    return getDefaultValue(coupon, data);
+    return getException(coupon, data);
   }
 
   @Override
   public RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
-    return getDefaultValue(coupon);
+    return getException(coupon);
   }
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond, final DATA_TYPE data) {
-    return getDefaultValue(bond, data);
+    return getException(bond, data);
   }
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
-    return getDefaultValue(bond);
+    return getException(bond);
   }
 
   @Override
   public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds, final DATA_TYPE data) {
-    return getDefaultValue(cds, data);
+    return getException(cds, data);
   }
 
   @Override
   public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds) {
-    return getDefaultValue(cds);
+    return getException(cds);
   }
 
   @Override
   public RESULT_TYPE visitForexDefinition(final ForexDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
+    return getException(fx, data);
   }
 
   @Override
   public RESULT_TYPE visitForexDefinition(final ForexDefinition fx) {
-    return getDefaultValue(fx);
+    return getException(fx);
   }
 
   @Override
   public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
+    return getException(fx, data);
   }
 
   @Override
   public RESULT_TYPE visitForexSwapDefinition(final ForexSwapDefinition fx) {
-    return getDefaultValue(fx);
+    return getException(fx);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
+    return getException(fx, data);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx) {
-    return getDefaultValue(fx);
+    return getException(fx);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
+    return getException(fx, data);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
-    return getDefaultValue(fx);
+    return getException(fx);
   }
 
   @Override
   public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final DATA_TYPE data) {
-    return getDefaultValue(ndf, data);
+    return getException(ndf, data);
   }
 
   @Override
   public RESULT_TYPE visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf) {
-    return getDefaultValue(ndf);
+    return getException(ndf);
   }
 
   @Override
   public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo, final DATA_TYPE data) {
-    return getDefaultValue(ndo, data);
+    return getException(ndo, data);
   }
 
   @Override
   public RESULT_TYPE visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo) {
-    return getDefaultValue(ndo);
+    return getException(ndo);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx, final DATA_TYPE data) {
-    return getDefaultValue(fx, data);
+    return getException(fx, data);
   }
 
   @Override
   public RESULT_TYPE visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx) {
-    return getDefaultValue(fx);
+    return getException(fx);
   }
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final DATA_TYPE data) {
-    return getDefaultValue(futures, data);
+    return getException(futures, data);
   }
 
   @Override
   public RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
-    return getDefaultValue(futures);
+    return getException(futures);
   }
 
   @Override
   public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitMetalForwardDefinition(final MetalForwardDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final DATA_TYPE data) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
-    return getDefaultValue(future);
+    return getException(future);
   }
 
-  private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
+  private RESULT_TYPE getException(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
         + " with data of type " + data.getClass().getSimpleName());
   }
 
-  private RESULT_TYPE getDefaultValue(final InstrumentDefinition<?> definition) {
+  private RESULT_TYPE getException(final InstrumentDefinition<?> definition) {
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
   }
 

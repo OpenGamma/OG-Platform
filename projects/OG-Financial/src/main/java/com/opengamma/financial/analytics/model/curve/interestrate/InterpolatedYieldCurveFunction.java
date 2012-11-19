@@ -162,7 +162,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           return null;
         }
         final String curveName = curveNames.iterator().next();
-        final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(2);
+        final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(3);
         final ComputationTargetSpecification targetSpec = target.toSpecification();
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName).get();
