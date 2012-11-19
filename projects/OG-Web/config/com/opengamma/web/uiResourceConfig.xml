@@ -328,8 +328,8 @@
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">
-    <fragment>/scripts/og/views/og.views.blotter.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.container.js</fragment>
+    <fragment>/scripts/og/views/og.views.blotter.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>

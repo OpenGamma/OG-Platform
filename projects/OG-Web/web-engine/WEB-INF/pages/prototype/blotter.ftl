@@ -12,6 +12,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
   </div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
-
+${ogScript.print('og_common.js',false)}
+${ogScript.print('og_blotter.js',false)}
 </body>
 </html>
