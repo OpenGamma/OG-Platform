@@ -277,7 +277,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dropmenu.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.AutoCombo.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.autocombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
   </bundle>
