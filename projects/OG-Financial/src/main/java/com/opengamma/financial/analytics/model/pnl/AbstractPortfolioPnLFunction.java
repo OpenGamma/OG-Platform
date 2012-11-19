@@ -43,7 +43,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
   @Override
   protected ValueProperties.Builder createValueProperties() {
     final ValueProperties.Builder properties = super.createValueProperties();
-    properties.withOptional(ValuePropertyNames.CURRENCY);
+    properties.withAny(ValuePropertyNames.CURRENCY);
     return properties;
   }
 
@@ -63,7 +63,11 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
     if (currencies == null) {
       constraints = ValueProperties.withOptional(ValuePropertyNames.CURRENCY).get();
     } else if (currencies.isEmpty()) {
-      constraints = ValueProperties.withAny(ValuePropertyNames.CURRENCY).get();
+      if (desiredValue.getConstraints().isOptional(ValuePropertyNames.CURRENCY)) {
+        constraints = ValueProperties.withOptional(ValuePropertyNames.CURRENCY).get();
+      } else {
+        constraints = ValueProperties.withAny(ValuePropertyNames.CURRENCY).get();
+      }
     } else {
       constraints = ValueProperties.with(ValuePropertyNames.CURRENCY, currencies).get();
     }
