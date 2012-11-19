@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Implementation of {@link Map2} backed by a standard {@link ConcurrentHashMap}.
- * 
+ *
  * @param <K1> key 1 type
  * @param <K2> key 2 type
  * @param <V> value type
@@ -41,7 +41,7 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   @Override
   public V get(final K1 key1, final K2 key2) {
-    ConcurrentMap<K2, V> values = _values.get(key1);
+    final ConcurrentMap<K2, V> values = _values.get(key1);
     if (values != null) {
       return values.get(key2);
     } else {
@@ -56,9 +56,10 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
       ConcurrentMap<K2, V> values = _values.get(key1);
       if (values == null) {
         values = createSubMap(key1, key2, value);
-        ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
+        final ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
         if (existing == null) {
-          return null;
+          result = null;
+          break;
         }
         values = existing;
       }
@@ -116,9 +117,10 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
       ConcurrentMap<K2, V> values = _values.get(key1);
       if (values == null) {
         values = createSubMap(key1, key2, value);
-        ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
+        final ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
         if (existing == null) {
-          return null;
+          result = null;
+          break;
         }
         values = existing;
       }
@@ -155,7 +157,7 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
   @Override
   public int size() {
     int size = 0;
-    for (ConcurrentMap<K2, V> map : _values.values()) {
+    for (final ConcurrentMap<K2, V> map : _values.values()) {
       size += map.size();
     }
     return size;
