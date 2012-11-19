@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -64,7 +65,7 @@ public class CalibrateHazardRateCurve {
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
-  public double[] getCalibratedHazardRateTermStructure(LegacyCreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, ISDACurve yieldCurve) {
+  public double[] getCalibratedHazardRateTermStructure(LegacyCreditDefaultSwapDefinition cds, ZonedDateTime[] marketTenors, double[] marketSpreads, ISDACurve yieldCurve) {
 
     // ----------------------------------------------------------------------------
 
@@ -75,29 +76,19 @@ public class CalibrateHazardRateCurve {
     ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
 
     // Check user data input is not null
-    ArgumentChecker.notNull(tenors, "Tenors field");
+    ArgumentChecker.notNull(marketTenors, "Tenors field");
     ArgumentChecker.notNull(marketSpreads, "Market observed CDS spreads field");
 
-    // Check that the number of input tenors matches the number of input spreads
-    ArgumentChecker.isTrue(tenors.length == marketSpreads.length, "Number of tenors and number of spreads should be equal");
+    // Construct a market data checker object
+    SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    for (int m = 0; m < tenors.length; m++) {
-
-      ArgumentChecker.isTrue(tenors[m].isAfter(cds.getValuationDate()), "Calibration instrument of tenor {} is before the valuation date {}", tenors[m], cds.getValuationDate());
-
-      if (tenors.length > 1 && m > 0) {
-        ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
-      }
-
-      ArgumentChecker.notNegative(marketSpreads[m], "Market spread at tenor " + tenors[m]);
-      ArgumentChecker.notZero(marketSpreads[m], _tolerance, "Market spread at tenor " + tenors[m]);
-    }
+    checkMarketData.checkSpreadData(cds, marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------
 
     // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
-    double[] hazardRates = new double[tenors.length];
+    double[] hazardRates = new double[marketTenors.length];
 
     // ----------------------------------------------------------------------------
 
@@ -105,7 +96,7 @@ public class CalibrateHazardRateCurve {
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(tenors, cds.getValuationDate(), DayCountFactory.INSTANCE.getDayCount("ACT/365"));
+    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(marketTenors, cds.getValuationDate(), DayCountFactory.INSTANCE.getDayCount("ACT/365"));
 
     // ----------------------------------------------------------------------------
 
@@ -118,7 +109,7 @@ public class CalibrateHazardRateCurve {
     // ----------------------------------------------------------------------------
 
     // Loop through each of the input tenors
-    for (int m = 0; m < tenors.length; m++) {
+    for (int m = 0; m < marketTenors.length; m++) {
 
       // Construct a temporary vector of the first m tenors (note size of array)
       double[] runningTenors = new double[m + 1];
@@ -132,7 +123,7 @@ public class CalibrateHazardRateCurve {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m] 
-      calibrationCDS = calibrationCDS.withMaturityDate(tenors[m]);
+      calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);

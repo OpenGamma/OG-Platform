@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.CS01LegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GammaLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -444,16 +444,16 @@ public class GammaLegacyCreditDefaultSwapTest {
 
     // -------------------------------------------------------------------------------------
 
-    // Create a CS01 calculator object
-    CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
+    // Create a Gamma calculator object
+    GammaLegacyCreditDefaultSwap gamma = new GammaLegacyCreditDefaultSwap();
 
     // Compute the CS01 for a parallel shift
-    double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
+    double parallelGamma = gamma.getGammaParallelShiftCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("CDS CS01 = " + parallelCS01);
+      System.out.println("CDS Gamma = " + parallelGamma);
     }
 
     // -------------------------------------------------------------------------------------

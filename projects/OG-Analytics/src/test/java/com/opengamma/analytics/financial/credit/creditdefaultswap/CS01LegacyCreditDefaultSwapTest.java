@@ -19,8 +19,6 @@ import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.CS01LegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -401,7 +399,7 @@ public class CS01LegacyCreditDefaultSwapTest {
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running CS01 calculation test ...");
+      System.out.println("Running parallel CS01 calculation test ...");
     }
 
     // -------------------------------------------------------------------------------------
@@ -463,23 +461,30 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testCS01CalculationBucketed() {
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running CS01 calculation test ...");
+      System.out.println("Running bucketed CS01 calculation test ...");
     }
 
     // -------------------------------------------------------------------------------------
 
     // Define the market data to calibrate to
 
-    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+    // The type of spread bump to apply
+    SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
 
     // The number of CDS instruments used to calibrate against
-    int numberOfCalibrationCDS = 8;
+    final int numberOfCalibrationCDS = 8;
+
+    // The flat (unbumped) spread
+    final double flatSpread = 550.0;
+
+    // The magnitude (but not direction) of bump to apply (in bps)
+    final double spreadBump = 1.0;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
@@ -495,13 +500,6 @@ public class CS01LegacyCreditDefaultSwapTest {
 
     // The market observed par CDS spreads at these tenors
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
-    final double[] bumpedMarketSpreads = new double[numberOfCalibrationCDS];
-
-    final double[] spreadBumps = new double[numberOfCalibrationCDS];
-
-    final double flatSpread = 550.0;
-
-    final double spreadBump = 1.0;
 
     marketSpreads[0] = flatSpread;
     marketSpreads[1] = flatSpread;
@@ -512,94 +510,25 @@ public class CS01LegacyCreditDefaultSwapTest {
     marketSpreads[6] = flatSpread;
     marketSpreads[7] = flatSpread;
 
-    spreadBumps[0] = spreadBump;
-    spreadBumps[1] = spreadBump;
-    spreadBumps[2] = spreadBump;
-    spreadBumps[3] = spreadBump;
-    spreadBumps[4] = spreadBump;
-    spreadBumps[5] = spreadBump;
-    spreadBumps[6] = spreadBump;
-    spreadBumps[7] = spreadBump;
-
-    // Calculate the bumped market spreads
-    for (int m = 0; m < numberOfCalibrationCDS; m++) {
-      bumpedMarketSpreads[m] = marketSpreads[m] + spreadBumps[m];
-    }
-
     // -------------------------------------------------------------------------------------
 
-    // The recovery rate assumption used in the PV calculations when calibrating
-    final double calibrationRecoveryRate = 0.40;
-
-    // -------------------------------------------------------------------------------------
-
-    // Create a calibration CDS (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
-
-    // Create a CDS for valuation
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
+    // Create a CS01 calculator object
     CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
 
-    double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationCDS, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
-
-    // -------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Create a calibrate survival curve object
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
-
-    // -------------------------------------------------------------------------------------
-
-    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
-    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
-
-    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
-
-    // -------------------------------------------------------------------------------------
-
-    double[] times = new double[numberOfCalibrationCDS];
-
-    times[0] = 0.0;
-
-    // Construct the HazardRateCurve object from the calibrated hazard rates
-    for (int m = 1; m < numberOfCalibrationCDS; m++) {
-      times[m] = s_act365.getDayCountFraction(valuationDate, tenors[m]);
-    }
-
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
-
-    // -------------------------------------------------------------------------------------
-
-    // Calculate the unbumped CDS PV using the just calibrated hazard rate term structure
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, calibratedHazardRateCurve);
-
-    // -------------------------------------------------------------------------------------
-
-    // Calibrate a hazard rate curve to the bumped market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    double[] bumpedCalibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, bumpedMarketSpreads, yieldCurve);
-
-    final HazardRateCurve bumpedCalibratedHazardRateCurve = new HazardRateCurve(times, bumpedCalibratedHazardRates, 0.0);
-
-    // Calculate the bumped CDS PV using the just calibrated bumped hazard rate term structure
-    double bumpedPresentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, bumpedCalibratedHazardRateCurve);
+    // Compute the CS01 for a parallel shift
+    double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType);
 
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedHazardRates[i]);
+      for (int m = 0; m < numberOfCalibrationCDS; m++) {
+        System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + bucketedCS01[m]);
       }
-
-      System.out.println("CDS PV = " + presentValue);
-      System.out.println("CDS PV Bumped = " + bumpedPresentValue);
-      System.out.println("CDS CS01 = " + parallelCS01);
     }
 
     // -------------------------------------------------------------------------------------
   }
+
+  // -----------------------------------------------------------------------------------------------
 
 }

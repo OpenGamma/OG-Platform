@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
@@ -495,6 +496,54 @@ public class PresentValueLegacyCreditDefaultSwap {
     // -------------------------------------------------------------
 
     return cds.getNotional() * (1.0 - cds.getRecoveryRate()) * presentValueContingentLeg;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
+  // Public method to calibrate a CDS hazard rate term structure to a user input term structure of market spreads and calculate CDS PV
+  public double calibrateAndGetPresentValue(LegacyCreditDefaultSwapDefinition cds, ZonedDateTime[] marketTenors, double[] spreads, ISDACurve yieldCurve) {
+
+    // -------------------------------------------------------------
+
+    double[] times = new double[marketTenors.length];
+
+    times[0] = 0.0;
+    for (int m = 1; m < marketTenors.length; m++) {
+      times[m] = ACT_365.getDayCountFraction(cds.getValuationDate(), marketTenors[m]);
+    }
+
+    // -------------------------------------------------------------
+
+    // Create a CDS for calibration 
+    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Create a CDS for valuation
+    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
+
+    // -------------------------------------------------------------
+
+    // Call the constructor to create a CDS present value object
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+
+    // Call the constructor to create a calibrate hazard rate curve object
+    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
+
+    // -------------------------------------------------------------
+
+    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
+    double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, marketTenors, spreads, yieldCurve);
+
+    // Build a hazard rate curve object based on the input market data
+    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
+
+    // -------------------------------------------------------------
+
+    // Calculate the CDS PV using the just calibrated hazard rate term structure
+    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, calibratedHazardRateCurve);
+
+    // -------------------------------------------------------------
+
+    return presentValue;
   }
 
   // -------------------------------------------------------------------------------------------------
