@@ -104,10 +104,11 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final double upFrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final int cashSettlementDate = DateUtils.getDaysBetween(effectiveDate, security.getSettlementDate());
-    return new StandardCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount,
-        recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate);
+    return null;
+//    return new StandardCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+//        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+//        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount,
+//        recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate);
   }
 
   @Override
@@ -136,10 +137,11 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final double quotedSpread = security.getQuotedSpread();
     final double upfrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
-    return new StandardFixedRecoveryCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
-        includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount);
+    return null;
+//    return new StandardFixedRecoveryCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+//        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+//        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
+//        includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount);
   }
 
   @Override
@@ -168,10 +170,11 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final double quotedSpread = security.getQuotedSpread();
     final double upfrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
-    return new StandardRecoveryLockCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
-        includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount);
+    return null;
+//    return new StandardRecoveryLockCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+//        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
+//        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
+//        includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount);
   }
 
   @Override
