@@ -106,7 +106,7 @@ public class Loader extends ContextInitializationBean {
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getJmsConnector(), getHousekeepingScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchViewDefinitionFunction.INSTANCE,
-        GetViewPortfolioFunction.INSTANCE, 
+        GetViewPortfolioFunction.INSTANCE,
         GetViewResultFunction.INSTANCE,
         HistoricalExecutionSequenceFunction.INSTANCE,
         SetViewClientExecutionFlagFunction.INSTANCE,
@@ -122,6 +122,7 @@ public class Loader extends ContextInitializationBean {
         ViewPrimitiveCycleValueFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
         ConfigureViewClientProcedure.INSTANCE,
+        StoreViewDefinitionProcedure.INSTANCE,
         TriggerViewCycleProcedure.INSTANCE));
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
         UserViewClientConverter.INSTANCE,
