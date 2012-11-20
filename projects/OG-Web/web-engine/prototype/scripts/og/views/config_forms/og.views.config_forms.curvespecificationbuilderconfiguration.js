@@ -247,7 +247,7 @@ $.register_module({
                             <div class="og-input">\
                                 <input value="' + val.tenor + '" class="og-js-tenor" type="text" />\
                             </div>\
-                            {{html html}}\
+                            {{{html}}}\
                           </div>\
                         </li>',
                     children: field_names.map(function (field) {return format(val[field]);})
@@ -264,11 +264,11 @@ $.register_module({
             }, {});
             form.children = [
                 new form.Block({ // headers
-                    wrap: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{html html}}</div>',
+                    wrap: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{{html}}}</div>',
                     children: field_names.map(function (val) {return '<div>' + val.replace(INSP, '') + '</div>';})
                 }),
                 new form.Block({ // content
-                    wrap: '<ul class="og-awesome-list og-js-strip">{{html html}}</ul>',
+                    wrap: '<ul class="og-awesome-list og-js-strip">{{{html}}}</ul>',
                     children: tenors.map(function (tenor) {
                         return field_names.reduce(function (acc, val) {
                             return (acc[val] = transposed[val][tenor] || null), acc;

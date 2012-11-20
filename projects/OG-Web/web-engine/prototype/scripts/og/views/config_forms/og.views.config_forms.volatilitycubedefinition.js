@@ -93,7 +93,7 @@ $.register_module({
             ]);
             form.children = fields.map(function (field) {
                 return new form.Block({
-                    wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>',
+                    wrap: '<ul class="og-awesome-list og-js-strips">{{{html}}}</ul>',
                     children: (master[field][''] = arr(master[field][''])).map(new_item)
                 });
             });

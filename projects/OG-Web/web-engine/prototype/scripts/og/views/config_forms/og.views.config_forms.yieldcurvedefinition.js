@@ -149,11 +149,8 @@ $.register_module({
                 new form.Field({
                     module: 'og.views.forms.currency',
                     generator: function (handler, template) {handler(template());}, // item_0
-                    handlers: [{type: 'change', selector: form_id + ' select[name=currency]', handler: function (e) {
-                        // this needs to happen immediately in case a user adds new rows,
-                        // it's not enough that it just happens on submit
-                        master.currency = $(e.target).val();
-                    }}]
+                }).on('change', form_id + ' select[name=currency]', function (event) {
+                    master.currency = $(event.target).val(); // do now in case a new row is added, not just on submit
                 }),
                 new forms.Dropdown({ // item_1
                     form: form, value: master.region.split(sep)[1], placeholder: 'Please select...',
@@ -171,7 +168,7 @@ $.register_module({
                         });
                     }
                 }),
-                strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>'}) // item_2
+                strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{{html}}}</ul>'}) // item_2
             ];
             if ((master.strip = arr(master.strip)).length)
                 Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
