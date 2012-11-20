@@ -54,6 +54,9 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  *
  */
 public abstract class SimpleFutureFunction extends NonCompiledInvoker {
+  /** Calculation method name */
+  public static final String MARKET_METHOD = "Market";
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpleFutureFunction.class);
   private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
   private final String _valueRequirementName;
 
@@ -90,8 +93,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     final Object results = computeValues(derivative, market);
 
     // 4. Create result specification to match the properties promised and return
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue, executionContext).get());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get());
     return Collections.singleton(new ComputedValue(spec, results));
   }
 
@@ -111,17 +113,6 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties(target).get()));
-  }
-
-  private Builder createValueProperties(ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties.Builder properties = createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, ccy.getCode());
-    return properties;
-  }
-
-  protected Builder createValueProperties(ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    return createValueProperties(target);
   }
 
   @Override
@@ -173,5 +164,12 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     return _valueRequirementName;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SimpleFutureFunction.class);
+  private Builder createValueProperties(ComputationTarget target) {
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, MARKET_METHOD);
+    return properties;
+  }
+
 }
