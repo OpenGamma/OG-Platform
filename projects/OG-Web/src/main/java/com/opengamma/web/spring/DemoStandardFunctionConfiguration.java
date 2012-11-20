@@ -44,12 +44,14 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
+import com.opengamma.financial.analytics.AttributesFunction;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
+import com.opengamma.financial.analytics.NotionalFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -800,6 +802,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDefaultPropertyFunctions(functionConfigs);
     addHistoricalDataFunctions(functionConfigs);
     addPassthroughFunctions(functionConfigs);
+    
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.NOTIONAL);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.ATTRIBUTES);
+    functionConfigs.add(functionConfiguration(NotionalFunction.class));
+    functionConfigs.add(functionConfiguration(AttributesFunction.class));
 
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
