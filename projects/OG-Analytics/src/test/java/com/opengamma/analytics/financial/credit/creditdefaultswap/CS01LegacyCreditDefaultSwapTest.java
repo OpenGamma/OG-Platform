@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.CS01LegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.CS01LegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -47,7 +47,6 @@ public class CS01LegacyCreditDefaultSwapTest {
   //----------------------------------------------------------------------------------
 
   // TODO : Add all the tests
-  // TODO : Fix the time decay test
 
   // ----------------------------------------------------------------------------------
 
@@ -299,17 +298,17 @@ public class CS01LegacyCreditDefaultSwapTest {
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-    0.0,
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+      0.0,
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)

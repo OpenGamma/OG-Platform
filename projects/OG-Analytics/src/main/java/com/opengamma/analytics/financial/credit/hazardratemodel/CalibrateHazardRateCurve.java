@@ -9,8 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCountFactory;

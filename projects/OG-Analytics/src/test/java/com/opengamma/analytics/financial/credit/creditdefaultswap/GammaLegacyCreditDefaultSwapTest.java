@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GammaLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.GammaLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -44,17 +44,17 @@ import com.opengamma.util.time.DateUtils;
  */
 public class GammaLegacyCreditDefaultSwapTest {
 
-  //----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add all the tests
   // TODO : Fix the time decay test
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
   private static final boolean outputResults = false;
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // CDS contract parameters
 
@@ -135,12 +135,12 @@ public class GammaLegacyCreditDefaultSwapTest {
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
-  private static final PriceType priceType = PriceType.CLEAN;
+  private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Dummy yield curve
 
@@ -294,28 +294,28 @@ public class GammaLegacyCreditDefaultSwapTest {
   // Build the yield curve object
   ISDACurve yieldCurve = new ISDACurve("IR_CURVE", times, rates, offset);
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Hazard rate term structure (assume this has been calibrated previously)
 
   static double[] hazardRateTimes = {
-    0.0,
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-    s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+      0.0,
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
   static double[] hazardRates = {
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
-    (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
   private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct the obligors party to the contract
 
@@ -361,7 +361,7 @@ public class GammaLegacyCreditDefaultSwapTest {
       referenceEntityRegion,
       referenceEntityCountry);
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
@@ -389,18 +389,18 @@ public class GammaLegacyCreditDefaultSwapTest {
       protectionStart,
       parSpread);
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Test
   public void testGammaCalculationParallelShift() {
 
-    // -------------------------------------------------------------------------------------
+    //  ----------------------------------------------------------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running CS01 calculation test ...");
+      System.out.println("Running Gamma (parallel) calculation test ...");
     }
 
-    // -------------------------------------------------------------------------------------
+    //  ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Define the market data to calibrate to
 
@@ -440,22 +440,90 @@ public class GammaLegacyCreditDefaultSwapTest {
     marketSpreads[6] = flatSpread;
     marketSpreads[7] = flatSpread;
 
-    // -------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a Gamma calculator object
     final GammaLegacyCreditDefaultSwap gamma = new GammaLegacyCreditDefaultSwap();
 
-    // Compute the CS01 for a parallel shift
+    // Compute the Gamma for a parallel shift
     final double parallelGamma = gamma.getGammaParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
 
-
-    // -------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     if (outputResults) {
       System.out.println("CDS Gamma = " + parallelGamma);
     }
 
-    // -------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
+  @Test
+  public void testGammaCalculationBucketed() {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      System.out.println("Running Gamma (bucketed) calculation test ...");
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Define the market data to calibrate to
+
+    // The type of spread bump to apply
+    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_BUCKETED;
+
+    // The number of CDS instruments used to calibrate against
+    final int numberOfCalibrationCDS = 8;
+
+    // The flat (unbumped) spread
+    final double flatSpread = 550.0;
+
+    // The magnitude (but not direction) of bump to apply (in bps)
+    final double spreadBump = 1.0;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
+    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
+    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
+    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2013, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2015, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2018, 6, 20);
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    marketSpreads[0] = flatSpread;
+    marketSpreads[1] = flatSpread;
+    marketSpreads[2] = flatSpread;
+    marketSpreads[3] = flatSpread;
+    marketSpreads[4] = flatSpread;
+    marketSpreads[5] = flatSpread;
+    marketSpreads[6] = flatSpread;
+    marketSpreads[7] = flatSpread;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Create a Gamma calculator object
+    final GammaLegacyCreditDefaultSwap gamma = new GammaLegacyCreditDefaultSwap();
+
+    // Compute the Gamma for a parallel shift
+    final double[] bucketedGamma = gamma.getGammaBucketedCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      for (int m = 0; m < numberOfCalibrationCDS; m++) {
+        System.out.println("Tenor = " + tenors[m] + "\t" + "CDS bucketed Gamma = " + "\t" + bucketedGamma[m]);
+      }
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

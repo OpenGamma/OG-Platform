@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definit
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;

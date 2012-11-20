@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionExerciseType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionKnockoutType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionType;

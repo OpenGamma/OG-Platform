@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 /**
  * 
  */
-public class StandardForwardStartingCreditDefaultSwapDefinition {
+public class VoDLegacyCreditDefaultSwap {
 
 }

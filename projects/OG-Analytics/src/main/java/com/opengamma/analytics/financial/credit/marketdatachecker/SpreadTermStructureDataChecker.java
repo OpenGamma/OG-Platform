@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.credit.marketdatachecker;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**

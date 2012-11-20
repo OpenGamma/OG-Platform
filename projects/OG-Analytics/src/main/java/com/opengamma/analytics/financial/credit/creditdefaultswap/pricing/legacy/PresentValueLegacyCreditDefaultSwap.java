@@ -3,14 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PresentValueLegacyCreditDefaultSwap {
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
@@ -42,7 +42,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     _numberOfIntegrationSteps = numberOfIntegrationPoints;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
@@ -57,22 +57,27 @@ public class PresentValueLegacyCreditDefaultSwap {
   // TODO : Tidy up the calculatePremiumLeg, valueFeeLegAccrualOnDefault and methods
   // TODO : Add the calculation for the settlement and stepin discount factors
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
-  public double getPresentValueCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve,
+  public double getPresentValueCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
     ArgumentChecker.notNull(priceType, "price type");
-    // -------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg (including accrued if required)
     final double presentValuePremiumLeg = calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
@@ -83,7 +88,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -(cds.getParSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // If we require the clean price, then calculate the accrued interest and add this to the PV
     if (priceType == PriceType.CLEAN) {
@@ -95,29 +100,37 @@ public class PresentValueLegacyCreditDefaultSwap {
       presentValue = -1 * presentValue;
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return presentValue;
   }
 
-  //-------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
-  public double getParSpreadCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+  public double getParSpreadCreditDefaultSwap(
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
+      final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(cds, "CDS field");
-    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
-    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve field");
+    // Check input objects are not null
 
-    // -------------------------------------------------------------
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
+    ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
+    ArgumentChecker.notNull(priceType, "price type");
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     double parSpread = 0.0;
+    double accruedInterest = 0.0;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -125,7 +138,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Check if the valuationDate equals the adjusted effective date (have to do this after the schedule is constructed)
     ArgumentChecker.isTrue(valuationDate.equals(cashflowSchedule.getAdjustedEffectiveDate(cds)), "Valuation Date should equal the adjusted effective date when computing par spreads");
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg
     final double presentValuePremiumLeg = calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
@@ -133,27 +146,39 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Calculate the value of the contingent leg
     final double presentValueContingentLeg = calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve);
 
-    // -------------------------------------------------------------
+    // If we require the clean price, then calculate the accrued interest and add this to the PV of the premium leg
+    if (priceType == PriceType.CLEAN) {
+      accruedInterest = calculateAccruedInterest(valuationDate, cds);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the par spread (NOTE : Returned value is in bps)
     if (Double.doubleToLongBits(presentValuePremiumLeg) == 0.0) {
       throw new IllegalStateException("Warning : The premium leg has a PV of zero - par spread cannot be computed");
     } else {
-      parSpread = 10000.0 * presentValueContingentLeg / presentValuePremiumLeg;
+      parSpread = 10000.0 * presentValueContingentLeg / (presentValuePremiumLeg + accruedInterest);
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return parSpread;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to calculate the value of the premium leg of a CDS (with a hazard rate curve calibrated to market observed data)
-  // The code for the accrued calc has just been lifted from RiskCare's implementation for now because it exactly reproduces the ISDA model - will replace with a better model in due course
-  private double calculatePremiumLeg(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
-    // -------------------------------------------------------------
+  // The code for the accrued calc has just been lifted from RiskCare's implementation for now because it exactly reproduces 
+  // the ISDA model - will replace with a better model in due course
+
+  private double calculatePremiumLeg(
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Local variable definitions
     int startIndex = 0;
@@ -162,7 +187,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedInterest = 0.0;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Construct a cashflow schedule object for the premium leg
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -179,12 +204,12 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Calculate the stepin time with the appropriate offset
     final double offsetStepinTime = accruedSchedule.calculateCreditDefaultSwapOffsetStepinTime(valuationDate, cds, ACT_365);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Get the (adjusted) maturity date of the trade
     final ZonedDateTime adjustedMaturityDate = cashflowSchedule.getAdjustedMaturityDate(cds);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // If the valuationDate is after the adjusted maturity date then throw an exception (differs from check in ctor because of the adjusted maturity date)
     ArgumentChecker.isTrue(!valuationDate.isAfter(adjustedMaturityDate), "Valuation date {} must be on or before the adjusted maturity date {}", valuationDate, adjustedMaturityDate);
@@ -194,12 +219,12 @@ public class PresentValueLegacyCreditDefaultSwap {
       return 0.0;
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Determine where in the cashflow schedule the valuationDate is
     final int startCashflowIndex = getCashflowIndex(valuationDate, premiumLegSchedule, 1, 1);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the remaining premium and accrual payments (due after valuationDate)
     for (int i = startCashflowIndex; i < premiumLegSchedule.length; i++) {
@@ -208,7 +233,7 @@ public class PresentValueLegacyCreditDefaultSwap {
       ZonedDateTime accrualStart = premiumLegSchedule[i - 1];
       ZonedDateTime accrualEnd = premiumLegSchedule[i];
 
-      // -------------------------------------------------------------
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
       // Calculate the time between the valuation date (time at which survival probability is unity) and the current cashflow
       double t = TimeCalculator.getTimeBetween(valuationDate, accrualEnd, ACT_365);
@@ -216,7 +241,7 @@ public class PresentValueLegacyCreditDefaultSwap {
       // Calculate the discount factor at time t
       final double discountFactor = yieldCurve.getDiscountFactor(t);
 
-      // -------------------------------------------------------------
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
       // If protection starts at the beginning of the period ...
       if (cds.getProtectionStart()) {
@@ -237,7 +262,7 @@ public class PresentValueLegacyCreditDefaultSwap {
         }
       }
 
-      // -------------------------------------------------------------
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
       // Compute the daycount fraction for the current accrual period
       final double dcf = cds.getDayCountFractionConvention().getDayCountFraction(accrualStart, accrualEnd);
@@ -248,7 +273,7 @@ public class PresentValueLegacyCreditDefaultSwap {
       // Add this discounted cashflow to the running total for the value of the premium leg
       presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
-      // -------------------------------------------------------------
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
       // Now calculate the accrued leg component if required (need to re-write this code)
 
@@ -266,26 +291,34 @@ public class PresentValueLegacyCreditDefaultSwap {
             offsetStepinTime, stepinDiscountFactor);
       }
 
-      // -------------------------------------------------------------
+      // ----------------------------------------------------------------------------------------------------------------------------------------
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return cds.getNotional() * (presentValuePremiumLeg + presentValueAccruedInterest);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  //-------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Need to re-write this code completely!!
-  private double valueFeeLegAccrualOnDefault(final double amount, final double[] timeline, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve, final int startIndex,
-      final int endIndex, final double stepinTime, final double stepinDiscountFactor) {
+  // Need to re-write this code completely - it is completely terrible!!
+  private double valueFeeLegAccrualOnDefault(
+      final double amount,
+      final double[] timeline,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
+      final int startIndex,
+      final int endIndex,
+      final double stepinTime,
+      final double stepinDiscountFactor) {
 
     final double[] timePoints = timeline; //timeline.getTimePoints();
 
     final double startTime = timePoints[startIndex];
     final double endTime = timePoints[endIndex];
+
     final double subStartTime = stepinTime > startTime ? stepinTime : startTime;
     final double accrualRate = amount / (endTime - startTime);
 
@@ -293,6 +326,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     double lambda, fwdRate, lambdaFwdRate, valueForTimeStep, value;
 
     t0 = subStartTime - startTime + 0.5 * (1.0 / 365.0); //HALF_DAY_ACT_365F;
+
     survival0 = hazardRateCurve.getSurvivalProbability(subStartTime);
 
     final double PRICING_TIME = 0.0;
@@ -322,6 +356,7 @@ public class PresentValueLegacyCreditDefaultSwap {
       value += valueForTimeStep;
 
       t0 = t1;
+
       survival0 = survival1;
       discount0 = discount1;
     }
@@ -329,7 +364,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     return value;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // If the cleanPrice flag is TRUE then this function is called to calculate the accrued interest between valuationDate and the previous coupon date
   private double calculateAccruedInterest(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds) {
@@ -358,7 +393,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     return accruedInterest;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to determine where in the premium leg cashflow schedule the valuation date is
   private int getCashflowIndex(final ZonedDateTime valuationDate, final ZonedDateTime[] premiumLegSchedule, final int startIndex, final int deltaDays) {
@@ -373,17 +408,21 @@ public class PresentValueLegacyCreditDefaultSwap {
     return counter;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
-  private double calculateContingentLeg(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+  private double calculateContingentLeg(
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Local variable definitions
     double presentValueContingentLeg = 0.0;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Construct an integration schedule object for the contingent leg
     final GenerateCreditDefaultSwapIntegrationSchedule contingentLegSchedule = new GenerateCreditDefaultSwapIntegrationSchedule();
@@ -391,7 +430,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Build the integration schedule for the calculation of the contingent leg
     final double[] contingentLegIntegrationSchedule = contingentLegSchedule.constructCreditDefaultSwapContingentLegIntegrationSchedule(valuationDate, cds, yieldCurve, hazardRateCurve);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Get the survival probability at the first point in the integration schedule
     double survivalProbability = hazardRateCurve.getSurvivalProbability(contingentLegIntegrationSchedule[0]);
@@ -399,7 +438,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Get the discount factor at the first point in the integration schedule
     double discountFactor = yieldCurve.getDiscountFactor(contingentLegIntegrationSchedule[0]);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop over each of the points in the integration schedule
     for (int i = 1; i < contingentLegIntegrationSchedule.length; ++i) {
@@ -429,17 +468,17 @@ public class PresentValueLegacyCreditDefaultSwap {
       presentValueContingentLeg += (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious * discountFactorPrevious;
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return cds.getNotional() * (1 - cds.getRecoveryRate()) * presentValueContingentLeg;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to calculate the value of the contingent leg of a CDS (with a hazard rate curve calibrated to market observed data) - Currently not used but this is a more elegant calc than ISDA
   private double calculateContingentLegOld(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Construct a schedule generation object (to access the adjusted maturity date method)
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -447,7 +486,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Get the date when protection ends
     final ZonedDateTime adjustedMaturityDate = cashflowSchedule.getAdjustedMaturityDate(cds);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // If the valuationDate is after the adjusted maturity date then throw an exception (differs from check in ctor because of the adjusted maturity date)
     ArgumentChecker.isTrue(!valuationDate.isAfter(adjustedMaturityDate), "Valuation date {} must be on or before the adjusted maturity date {}", valuationDate, adjustedMaturityDate);
@@ -457,11 +496,11 @@ public class PresentValueLegacyCreditDefaultSwap {
       return 0.0;
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     double presentValueContingentLeg = 0.0;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the partition of the time axis for the calculation of the integral in the contingent leg
 
@@ -474,7 +513,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // The size of the time increments in the calculation of the integral
     final double epsilon = protectionPeriod / numberOfPartitions;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the integral for the contingent leg (note the limits of the loop)
     for (int k = 1; k <= numberOfPartitions; k++) {
@@ -490,19 +529,25 @@ public class PresentValueLegacyCreditDefaultSwap {
       presentValueContingentLeg += discountFactor * (survivalProbabilityPrevious - survivalProbability);
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return cds.getNotional() * (1.0 - cds.getRecoveryRate()) * presentValueContingentLeg;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Public method to calibrate a CDS hazard rate term structure to a user input term structure of market spreads and calculate CDS PV
-  public double calibrateAndGetPresentValue(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors,
-      final double[] spreads, final ISDACurve yieldCurve, final PriceType priceType) {
+  // Public method to calibrate a CDS hazard rate term structure to a user input term structure of market spreads and calculate the CDS PV
+  public double calibrateAndGetPresentValue(
+      final ZonedDateTime valuationDate,
+      final LegacyCreditDefaultSwapDefinition cds,
+      final ZonedDateTime[] marketTenors,
+      final double[] spreads,
+      final ISDACurve yieldCurve,
+      final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Vector of time nodes for the hazard rate curve
     final double[] times = new double[marketTenors.length];
 
     times[0] = 0.0;
@@ -510,7 +555,7 @@ public class PresentValueLegacyCreditDefaultSwap {
       times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m]);
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS for calibration
     final LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
@@ -518,7 +563,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Create a CDS for valuation
     final LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS present value object
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
@@ -526,7 +571,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Call the constructor to create a calibrate hazard rate curve object
     final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
@@ -534,15 +579,15 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Build a hazard rate curve object based on the input market data
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the CDS PV using the just calibrated hazard rate term structure
     final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return presentValue;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

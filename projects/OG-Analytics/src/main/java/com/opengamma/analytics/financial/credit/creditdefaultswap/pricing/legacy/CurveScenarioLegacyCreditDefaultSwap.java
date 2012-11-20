@@ -3,14 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 
 /**
  * Class to enable user to specify a non-homogeneous set of bumps to the credit spread term structure

@@ -3,14 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -25,11 +25,11 @@ public class GammaLegacyCreditDefaultSwap {
 
   private static final DayCount ACT365 = new ActualThreeSixtyFive();
 
-  //-------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the Gamma by a parallel bump of each point on the spread curve
 
@@ -43,9 +43,9 @@ public class GammaLegacyCreditDefaultSwap {
       final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
@@ -53,6 +53,7 @@ public class GammaLegacyCreditDefaultSwap {
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
     ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
+    ArgumentChecker.notNull(priceType, "Price type");
 
     // Construct a market data checker object
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
@@ -60,8 +61,9 @@ public class GammaLegacyCreditDefaultSwap {
     // Check the efficacy of the input market data
     checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Vectors to hold the bumped (up and down) market spreads
     final double[] bumpedUpMarketSpreads = new double[marketSpreads.length];
     final double[] bumpedDownMarketSpreads = new double[marketSpreads.length];
 
@@ -78,8 +80,9 @@ public class GammaLegacyCreditDefaultSwap {
       }
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
@@ -91,7 +94,7 @@ public class GammaLegacyCreditDefaultSwap {
     // Calculate the bumped down CDS PV
     final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the parallel gamma using a simple finite-difference approximation
     final double parallelGamma = (bumpedUpPresentValue - 2 * presentValue + bumpedDownPresentValue) / (2 * spreadBump);
@@ -99,7 +102,7 @@ public class GammaLegacyCreditDefaultSwap {
     return parallelGamma;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the Gamma by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
 
@@ -113,15 +116,17 @@ public class GammaLegacyCreditDefaultSwap {
       final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    // Check input objects are not null
 
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
     ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
+    ArgumentChecker.notNull(priceType, "Price type");
 
     // Construct a market data checker object
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
@@ -129,21 +134,24 @@ public class GammaLegacyCreditDefaultSwap {
     // Check the efficacy of the input market data
     checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Vector to hold the bucketed gamma sensitivities (by tenor)
     final double[] bucketedGamma = new double[marketSpreads.length];
 
+    // Vectors to hold the bumped (up and down) market spreads
     final double[] bumpedUpMarketSpreads = new double[marketSpreads.length];
     final double[] bumpedDownMarketSpreads = new double[marketSpreads.length];
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Create a CDS calculator object
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
     final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop through each of the spreads at each tenor
     for (int m = 0; m < marketTenors.length; m++) {
@@ -171,12 +179,12 @@ public class GammaLegacyCreditDefaultSwap {
       // Calculate the bumped down CDS PV
       final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
-      // Compute the gamma
+      // Compute the bucketed gamma for this tenor
       bucketedGamma[m] = (bumpedUpPresentValue - 2 * presentValue + bumpedDownPresentValue) / (2 * spreadBump);
     }
 
     return bucketedGamma;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

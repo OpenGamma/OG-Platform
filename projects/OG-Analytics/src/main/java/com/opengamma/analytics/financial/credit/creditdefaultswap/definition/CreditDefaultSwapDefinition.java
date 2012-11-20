@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Definition of a generic Single Name Credit Default Swap contract (different types of CDS will inherit from this)
+ *  Definition of a generic Single Name Credit Default Swap contract (abstract class therefore different types of CDS will inherit from this)
  */
 public abstract class CreditDefaultSwapDefinition {
 
@@ -40,10 +40,12 @@ public abstract class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
-  // TODO : Check that buyer is not equal to the seller etc
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
+
+  // NOTE : We are enforcing the condition that the three obligors have to be different entities
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -78,7 +80,7 @@ public abstract class CreditDefaultSwapDefinition {
   // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
-  // The method for generating the schedule of premium payments
+  // The type of stub (front/back and long/short)
   private final StubType _stubType;
 
   // The frequency of coupon payments (usually quarterly for legacy and standard CDS)
@@ -145,7 +147,7 @@ public abstract class CreditDefaultSwapDefinition {
       final boolean includeAccruedPremium,
       final boolean protectionStart) {
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
 
@@ -154,6 +156,11 @@ public abstract class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer");
     ArgumentChecker.notNull(protectionSeller, "Protection seller");
     ArgumentChecker.notNull(referenceEntity, "Reference entity");
+
+    // Check that the counterparties in the contract are not equal to one another e.g. protectionSeller != protectionBuyer
+    ArgumentChecker.isTrue(!protectionBuyer.equals(protectionSeller), "Protection buyer is identical to protection seller");
+    ArgumentChecker.isTrue(!protectionBuyer.equals(referenceEntity), "Protection buyer is identical to reference entity");
+    ArgumentChecker.isTrue(!protectionSeller.equals(referenceEntity), "Protection seller is identical to reference entity");
 
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(debtSeniority, "Debt seniority");
@@ -168,6 +175,7 @@ public abstract class CreditDefaultSwapDefinition {
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
     ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
 
     ArgumentChecker.notNull(stubType, "Stub Type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
@@ -179,7 +187,7 @@ public abstract class CreditDefaultSwapDefinition {
     ArgumentChecker.notNegative(recoveryRate, "Recovery Rate");
     ArgumentChecker.isTrue(recoveryRate <= 1.0, "Recovery rate should be less than or equal to 100%");
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Assign the member variables for the CDS object
 
@@ -218,7 +226,7 @@ public abstract class CreditDefaultSwapDefinition {
     // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
     _creditKey = _referenceEntity.getObligorTicker() + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -241,8 +249,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _referenceEntity;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
-
   public Currency getCurrency() {
     return _currency;
   }
@@ -259,8 +265,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _calendar;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
-
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
@@ -272,8 +276,6 @@ public abstract class CreditDefaultSwapDefinition {
   public ZonedDateTime getMaturityDate() {
     return _maturityDate;
   }
-
-  //----------------------------------------------------------------------------------------------------------------------------------------
 
   public StubType getStubType() {
     return _stubType;
@@ -303,8 +305,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _adjustMaturityDate;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
-
   public double getNotional() {
     return _notional;
   }
@@ -321,8 +321,6 @@ public abstract class CreditDefaultSwapDefinition {
     return _protectionStart;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
-
   public String getCreditKey() {
     return _creditKey;
   }
@@ -330,6 +328,8 @@ public abstract class CreditDefaultSwapDefinition {
   public double getProtectionOffset() {
     return _protectionOffset;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public int hashCode() {
@@ -365,6 +365,8 @@ public abstract class CreditDefaultSwapDefinition {
     result = prime * result + _stubType.hashCode();
     return result;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public boolean equals(final Object obj) {
@@ -451,8 +453,4 @@ public abstract class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
-
 }
-
-// ----------------------------------------------------------------------------------------------------------------------------------------

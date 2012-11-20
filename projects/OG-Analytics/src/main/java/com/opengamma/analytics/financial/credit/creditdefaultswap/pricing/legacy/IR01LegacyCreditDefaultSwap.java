@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 /**
  * 
  */
-public class ThetaLegacyCreditDefaultSwap {
+public class IR01LegacyCreditDefaultSwap {
 
 }

@@ -3,14 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CS01LegacyCreditDefaultSwap {
 
-  // -------------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------------------------------------------------------
 
   private final double _tolerance = 1e-15;
 
@@ -32,9 +32,8 @@ public class CS01LegacyCreditDefaultSwap {
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
   // TODO : Further checks on efficacy of input arguments
-  // TODO : Should spreadBump >= 0 be enforced?
 
-  // -------------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
 
@@ -48,7 +47,7 @@ public class CS01LegacyCreditDefaultSwap {
       final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check input CDS, YieldCurve and SurvivalCurve objects are not null
 
@@ -60,19 +59,23 @@ public class CS01LegacyCreditDefaultSwap {
     ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
     ArgumentChecker.notNull(priceType, "price type");
 
+    ArgumentChecker.notNegative(spreadBump, "Spread bump");
+
     // Construct a market data checker object
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
     checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
+    // Vector of times for the new hazard rate curve
     final double[] times = new double[marketTenors.length];
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     times[0] = 0.0;
     for (int m = 1; m < marketTenors.length; m++) {
@@ -90,17 +93,18 @@ public class CS01LegacyCreditDefaultSwap {
       }
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
     final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
-    // Calculate the bumped CDS PV
+    // Calculate the bumped (up) CDS PV
     final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the parallel CS01
     final double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;
@@ -108,7 +112,7 @@ public class CS01LegacyCreditDefaultSwap {
     return parallelCS01;
   }
 
-  // -------------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
 
@@ -122,15 +126,18 @@ public class CS01LegacyCreditDefaultSwap {
       final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check input CDS, YieldCurve and SurvivalCurve objects are not null
 
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
     ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
+
+    ArgumentChecker.notNegative(spreadBump, "Spread bump");
 
     // Construct a market data checker object
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
@@ -138,23 +145,27 @@ public class CS01LegacyCreditDefaultSwap {
     // Check the efficacy of the input market data
     checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Vector of bucketed CS01 sensitivities (per tenor)
     final double[] bucketedCS01 = new double[marketSpreads.length];
 
+    // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    // Create a CDS PV calculator
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
     final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Loop through each of the spreads at each tenor
+    // Loop through and bump each of the spreads at each tenor
     for (int m = 0; m < marketSpreads.length; m++) {
+
       // Reset the bumpedMarketSpreads vector to the original marketSpreads
       for (int n = 0; n < marketTenors.length; n++) {
         bumpedMarketSpreads[n] = marketSpreads[n];
@@ -175,10 +186,10 @@ public class CS01LegacyCreditDefaultSwap {
       bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBump;
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
     return bucketedCS01;
   }
 
-  // -------------------------------------------------------------------------------------------------
-
+  // ------------------------------------------------------------------------------------------------------------------------------------------
 }

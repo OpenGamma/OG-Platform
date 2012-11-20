@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -21,18 +22,18 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a Standard CDS i.e. with the features of CDS contracts post the Big Bang in 2009
+ * Definition of a Standard fixed recovery CDS i.e. with the features of CDS contracts post the Big Bang in 2009 - WIP
  */
-public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Replace the int _cashSettlementDate with a ZoneddateTime
-  // TODO : Add hashCode and equals methods
+  // TODO : Need to add the test file for this object
+  // TODO : Check hashCode (and need to fix this) and equals methods
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables specific to the standard CDS contract
+  // Member variables specific to the standard fixed recovery CDS contract
 
   // The quoted market observed spread (differs from the contract standard spread)
   private final double _quotedSpread;
@@ -43,14 +44,17 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
   // The upfront amount to exchange at contract inception (can be positive or negative)
   private final double _upfrontAmount;
 
-  // The number of business days after trade date for the exchange of upfront
-  private final int _cashSettlementDate;
+  // The number of business days after trade date for the exchange of the upfront amount
+  private final ZonedDateTime _cashSettlementDate;
 
-  // -----------------------------------------------------------------------------------------------
+  // Flag to determine if we business day adjust the cash settlement date (not a feature of standard CDS, but included to give user flexibility)
+  private final boolean _adjustCashSettlementDate;
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Ctor for the Standard CDS contract
 
-  public StandardCreditDefaultSwapDefinition(
+  public StandardFixedRecoveryCreditDefaultSwapDefinition(
       final BuySellProtection buySellProtection,
       final Obligor protectionBuyer,
       final Obligor protectionSeller,
@@ -76,9 +80,10 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
       final double quotedSpread,
       final StandardCDSCoupon premiumLegCoupon,
       final double upfrontAmount,
-      final int cashSettlementDate) {
+      final ZonedDateTime cashSettlementDate,
+      final boolean adjustCashSettlementDate) {
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the ctor for the superclass (corresponding to the CDS characteristics common to all types of CDS)
 
@@ -105,7 +110,7 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
         includeAccruedPremium,
         protectionStart);
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the validity of the input quoted spread
     ArgumentChecker.notNegative(quotedSpread, "Quoted spread");
@@ -113,25 +118,27 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
     // Check that the (standard) premium leg coupon is not null
     ArgumentChecker.notNull(premiumLegCoupon, "Standard coupon");
 
-    // Check that the cash settlement date is not in the past
-    ArgumentChecker.notNegative(cashSettlementDate, "Cash settlement date");
+    // Check the validity of the input cash settlement date
+    ArgumentChecker.notNull(cashSettlementDate, "Cash settlement date");
+    ArgumentChecker.isTrue(!startDate.isAfter(cashSettlementDate), "Start date {} must be on or before cash settlement date {}", startDate, cashSettlementDate);
+    ArgumentChecker.isTrue(!effectiveDate.isAfter(cashSettlementDate), "Effective date {} must be on or before cash settlement date {}", effectiveDate, cashSettlementDate);
+    ArgumentChecker.isTrue(!cashSettlementDate.isAfter(maturityDate), "Cash settlement date {} must be on or before maturity date {}", cashSettlementDate, maturityDate);
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Assign the member variables for the features specific to a standard CDS
 
     _quotedSpread = quotedSpread;
-
     _premiumLegCoupon = premiumLegCoupon;
-
     _upfrontAmount = upfrontAmount;
 
     _cashSettlementDate = cashSettlementDate;
+    _adjustCashSettlementDate = adjustCashSettlementDate;
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public double getQuotedSpread() {
     return _quotedSpread;
@@ -145,58 +152,67 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
     return _upfrontAmount;
   }
 
-  public int getCashSettlementDate() {
+  public ZonedDateTime getCashSettlementDate() {
     return _cashSettlementDate;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  public boolean getAdjustCashSettlementDate() {
+    return _adjustCashSettlementDate;
+  }
 
-  //Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the survival curve)
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public StandardCreditDefaultSwapDefinition withMaturity(final ZonedDateTime maturityDate) {
+  // Builder method to allow the maturity of a standard CDS object to be modified (used during calibration of the survival curve)
+
+  public StandardFixedRecoveryCreditDefaultSwapDefinition withMaturity(final ZonedDateTime maturityDate) {
+
     ArgumentChecker.notNull(maturityDate, "maturity date");
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(),
+    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
+
+    final StandardFixedRecoveryCreditDefaultSwapDefinition modifiedCDS = new StandardFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(),
         getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(),
         maturityDate, getStubType(), getCouponFrequency(), getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(),
         getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(),
-        _quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate);
+        _quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate, _adjustCashSettlementDate);
 
     return modifiedCDS;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the premium leg coupon of a standard CDS object to be modified (used during calibration of the survival curve)
 
-  public StandardCreditDefaultSwapDefinition withSpread(final double quotedSpread) {
+  public StandardFixedRecoveryCreditDefaultSwapDefinition withSpread(final double quotedSpread) {
 
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
+    final StandardFixedRecoveryCreditDefaultSwapDefinition modifiedCDS = new StandardFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
         getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate);
+        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate, _adjustCashSettlementDate);
 
     return modifiedCDS;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the recovery rate of a standard CDS object to be modified (used during calibration of the survival curve)
 
-  public StandardCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+  public StandardFixedRecoveryCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
 
-    final StandardCreditDefaultSwapDefinition modifiedCDS = new StandardCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
+    final StandardFixedRecoveryCreditDefaultSwapDefinition modifiedCDS = new StandardFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
         getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate);
+        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _quotedSpread, _premiumLegCoupon, _upfrontAmount, _cashSettlementDate, _adjustCashSettlementDate);
 
     return modifiedCDS;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _cashSettlementDate;
+    //result = prime * result + _cashSettlementDate;
     result = prime * result + _premiumLegCoupon.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_quotedSpread);
@@ -206,34 +222,43 @@ public class StandardCreditDefaultSwapDefinition extends CreditDefaultSwapDefini
     return result;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   @Override
   public boolean equals(final Object obj) {
+
     if (this == obj) {
       return true;
     }
+
     if (!super.equals(obj)) {
       return false;
     }
+
     if (!(obj instanceof StandardCreditDefaultSwapDefinition)) {
       return false;
     }
-    final StandardCreditDefaultSwapDefinition other = (StandardCreditDefaultSwapDefinition) obj;
+
+    final StandardFixedRecoveryCreditDefaultSwapDefinition other = (StandardFixedRecoveryCreditDefaultSwapDefinition) obj;
+
     if (_cashSettlementDate != other._cashSettlementDate) {
       return false;
     }
+
     if (_premiumLegCoupon != other._premiumLegCoupon) {
       return false;
     }
+
     if (Double.compare(_quotedSpread, other._quotedSpread) != 0) {
       return false;
     }
+
     if (Double.compare(_upfrontAmount, other._upfrontAmount) != 0) {
       return false;
     }
+
     return true;
   }
 
-  // -----------------------------------------------------------------------------------------------
-
-
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

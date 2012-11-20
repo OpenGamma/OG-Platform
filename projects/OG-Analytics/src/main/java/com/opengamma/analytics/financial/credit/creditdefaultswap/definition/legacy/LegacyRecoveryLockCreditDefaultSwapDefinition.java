@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -20,27 +21,28 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition of a Legacy CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009
+ * Definition of a Legacy recovery lock CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
  */
+public class LegacyRecoveryLockCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
 
-public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // -----------------------------------------------------------------------------------------------
+  // TODO : Check hashCode and equals methods
+  // TODO : Need to add the test file for this object
+  // TODO : Need to add the correct member variables for a recovery lock CDS
 
-  // TODO : Add hashCode and equals methods
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // -----------------------------------------------------------------------------------------------
-
-  // Member variables specific to the legacy CDS contract
+  // Member variables specific to the legacy recovery lock CDS contract
 
   // The par spread is the coupon rate to apply to the premium leg to give a PV of zero
   private final double _parSpread;
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Ctor for the Legacy CDS
+  // Ctor for the Legacy fixed recovery CDS
 
-  public LegacyCreditDefaultSwapDefinition(
+  public LegacyRecoveryLockCreditDefaultSwapDefinition(
       final BuySellProtection buySellProtection,
       final Obligor protectionBuyer,
       final Obligor protectionSeller,
@@ -65,7 +67,7 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
       final boolean protectionStart,
       final double parSpread) {
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the ctor for the superclass (corresponding to the CDS characteristics common to all types of CDS)
 
@@ -92,31 +94,30 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
         includeAccruedPremium,
         protectionStart);
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check the validity of the input par spread
-    ArgumentChecker.notNegative(parSpread, "Par spread");
-
-    // Assign the member variables for the features specific to a legacy CDS
-
+    // Assign the member variables for the features specific to a legacy fixed recovery CDS
     _parSpread = parSpread;
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public double getParSpread() {
     return _parSpread;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
-  public LegacyCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+  public LegacyRecoveryLockCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+
     ArgumentChecker.notNull(maturityDate, "maturity date");
-    final LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
+    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
+
+    final LegacyRecoveryLockCreditDefaultSwapDefinition modifiedCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
         getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
         getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
@@ -124,12 +125,13 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     return modifiedCDS;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
-  public LegacyCreditDefaultSwapDefinition withSpread(final double parSpread) {
-    final LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
+  public LegacyRecoveryLockCreditDefaultSwapDefinition withSpread(final double parSpread) {
+
+    final LegacyRecoveryLockCreditDefaultSwapDefinition modifiedCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
         getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(),
         getStubType(), getCouponFrequency(), getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(),
         getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), parSpread);
@@ -137,18 +139,21 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     return modifiedCDS;
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
-  public LegacyCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-    final LegacyCreditDefaultSwapDefinition modifiedCDS = new LegacyCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
+  public LegacyRecoveryLockCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+
+    final LegacyRecoveryLockCreditDefaultSwapDefinition modifiedCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
         getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
         getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
         recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
 
     return modifiedCDS;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public int hashCode() {
@@ -160,25 +165,31 @@ public class LegacyCreditDefaultSwapDefinition extends CreditDefaultSwapDefiniti
     return result;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   @Override
   public boolean equals(final Object obj) {
+
     if (this == obj) {
       return true;
     }
+
     if (!super.equals(obj)) {
       return false;
     }
-    if (!(obj instanceof LegacyCreditDefaultSwapDefinition)) {
+
+    if (!(obj instanceof LegacyRecoveryLockCreditDefaultSwapDefinition)) {
       return false;
     }
-    final LegacyCreditDefaultSwapDefinition other = (LegacyCreditDefaultSwapDefinition) obj;
+
+    final LegacyRecoveryLockCreditDefaultSwapDefinition other = (LegacyRecoveryLockCreditDefaultSwapDefinition) obj;
+
     if (Double.compare(_parSpread, other._parSpread) != 0) {
       return false;
     }
+
     return true;
   }
 
-  // -----------------------------------------------------------------------------------------------
-
-
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }
