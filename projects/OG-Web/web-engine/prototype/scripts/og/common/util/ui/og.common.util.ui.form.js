@@ -10,15 +10,8 @@ $.register_module({
         var module = this, STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
             has = 'hasOwnProperty', form_template = Handlebars.compile('<form action="." id="{{id}}">' +
                 '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
-        /** private */
-        var jq_compile = function (name, template) {
-            og.dev.warn(module.name + ': ' + name + ' is a deprecated template');
-            return function (values) {return $(dummy).append($.tmpl(template, values)).html();};
-        };
         /** @private */
-        var templatize = function (name, html) {
-            return !module || !html ? false : ~name.search(/tash$/) ? Handlebars.compile(html) : jq_compile(name, html);
-        };
+        var templatize = function (name, html) {return !module || !html ? false : Handlebars.compile(html);};
         /**
          * @class Block
          */
@@ -58,7 +51,6 @@ $.register_module({
             };
             $.when(module ? api_text({module: module}) : void 0)
                 .then(function (result) {template = templatize(module, result);});
-            if (form && config.handlers && config.handlers.length) form.attach.call(block, config.handlers);
         };
         Block.prototype.off = function (type) {
             var form = this.form || this, origin = this,
@@ -124,7 +116,6 @@ $.register_module({
             };
             $.when(module ? api_text({module: module}) : void 0)
                 .then(function (result) {template = templatize(module, result);});
-            if (config.handlers && config.handlers.length) form.attach.call(field, config.handlers);
         };
         Field.prototype.on = function () {
             var field = this, form = field.form;
@@ -186,11 +177,6 @@ $.register_module({
                         og.dev.warn(module.name + '#submit_handler a form:submit handler failed with:', error);
                     }
             };
-            form.attach = function (handlers) {
-                og.dev.warn(module.name + '#attach is deprecated: ', handlers);
-                var context = this; // might not === form
-                handlers.forEach(function (val) {form.on.call(context, val.type, val.selector, val.handler);});
-            };
             form.Block = Block.partial(form);
             form.compile = function () {
                 var raw = $form.serializeArray(), built_meta, meta_warns = [],
@@ -226,7 +212,6 @@ $.register_module({
             form.id = 'gen_form_' + id_count++;
             form.root = $(selector).unbind();
             form.submit = submit_handler.partial(null);
-            if (config.handlers) form.attach(config.handlers);
             return form;
         };
         Form.type =  {
