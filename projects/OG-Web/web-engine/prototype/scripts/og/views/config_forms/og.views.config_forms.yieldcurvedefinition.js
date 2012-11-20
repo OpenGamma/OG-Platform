@@ -126,7 +126,7 @@ $.register_module({
             });
             form.children = [
                 new form.Field({
-                    module: 'og.views.forms.currency',
+                    module: 'og.views.forms.currency_tash',
                     generator: function (handler, template) {handler(template());}, // item_0
                 }).on('change', form_id + ' select[name=currency]', function (event) {
                     master.currency = $(event.target).val(); // do now in case a new row is added, not just on submit

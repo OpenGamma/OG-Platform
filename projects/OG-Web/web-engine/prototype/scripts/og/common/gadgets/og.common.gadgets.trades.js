@@ -19,12 +19,11 @@ $.register_module({
             return function (css_class) {
                 $(css_class).html('Loading form...');
                 var form = new og.common.util.ui.Form({
-                    selector: css_class, data: {}, module: 'og.views.forms.add-trades',
-                    handlers: [{type: 'form:load', handler: function () {load_handler();}}]
-                });
+                    selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'
+                }).on('form:load', load_handler);
                 form.children = [new form.Field({
-                    module: 'og.views.forms.currency',
-                    generator: function (handler, template) {handler(template);}
+                    module: 'og.views.forms.currency_tash',
+                    generator: function (handler, template) {handler(template());}
                 })];
                 form.dom();
             };

@@ -156,7 +156,7 @@ $.register_module({
                             processor: function (selector, data) {if (!data.identifier) delete data.identifier;}
                         }),
                         new form.Field({
-                            module: 'og.views.forms.currency',
+                            module: 'og.views.forms.currency_tash',
                             generator: function (handler, template) {handler(template());}
                         })
                     ]
@@ -190,7 +190,7 @@ $.register_module({
                     });
                 })(),
                 new form.Block({ // form item_2
-                    module: 'og.views.forms.view-definition-execution-parameters'
+                    module: 'og.views.forms.view-definition-execution-parameters_tash'
                 }).on('form:load', function () {
                     ['DeltaCalcPeriod', 'FullCalcPeriod'].forEach(function (suffix) {
                         ['min', 'max'].forEach(function (prefix) {
