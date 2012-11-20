@@ -214,10 +214,7 @@ $.register_module({
             form.submit = submit_handler.partial(null);
             return form;
         };
-        Form.type =  {
-            BOO: 'boolean',     BYT: 'byte',    DBL: 'double',
-            IND: 'indicator',   SHR: 'short',   STR: 'string'
-        };
+        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
     }
