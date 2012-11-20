@@ -120,12 +120,12 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    * @return the fixed derivative
    */
   @Override
-  public AgricultureForward toDerivative(final ZonedDateTime date, final double referencePrice) {
+  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
-        referencePrice, getCurrency());
+        referencePrice.doubleValue(), getCurrency());
   }
 
   @Override

@@ -13,11 +13,12 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
@@ -26,10 +27,12 @@ import com.opengamma.id.ExternalId;
 /**
  *
  */
-public class CommodityFutureConverter extends AbstractFutureSecurityVisitor<CommodityFutureDefinition<?>> {
+public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinitionWithData<?, Double>> {
+
+  // Add SimpleInstruments if we change this to inherit from InstrumentDefinition at a later point
 
   @Override
-  public CommodityFutureDefinition<?> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+  public AgricultureFutureDefinition visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
     return visitAgricultureFutureSecurity(security, 0.0);
   }
 
@@ -38,7 +41,7 @@ public class CommodityFutureConverter extends AbstractFutureSecurityVisitor<Comm
     final ZonedDateTime expiry = security.getExpiry().getExpiry();
     final Set<ExternalId> externalIds = security.getExternalIdBundle().getExternalIds();
     if (externalIds == null) {
-      throw new OpenGammaRuntimeException("Can get security id");
+      throw new OpenGammaRuntimeException("Cant get security id");
     }
     return new AgricultureFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
         security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
@@ -52,10 +55,9 @@ public class CommodityFutureConverter extends AbstractFutureSecurityVisitor<Comm
   public EnergyFutureDefinition visitEnergyFutureSecurity(final EnergyFutureSecurity security, final double referencePrice) {
     Validate.notNull(security, "security");
     final ZonedDateTime expiry = security.getExpiry().getExpiry();
-    //final ExternalId externalId = security.getExternalIdBundle().getExternalId(SCHEME);
     final Set<ExternalId> externalIds = security.getExternalIdBundle().getExternalIds();
     if (externalIds == null) {
-      throw new OpenGammaRuntimeException("Can get security id");
+      throw new OpenGammaRuntimeException("Cant get security id");
     }
     return new EnergyFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
         security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
@@ -71,15 +73,20 @@ public class CommodityFutureConverter extends AbstractFutureSecurityVisitor<Comm
     final ZonedDateTime expiry = security.getExpiry().getExpiry();
     final Set<ExternalId> externalIds = security.getExternalIdBundle().getExternalIds();
     if (externalIds == null) {
-      throw new OpenGammaRuntimeException("Cannot get security id");
+      throw new OpenGammaRuntimeException("Cant get security id");
     }
     return new MetalFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
         security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
   }
 
   @Override
-  public CommodityFutureDefinition<?> visitStockFutureSecurity(final StockFutureSecurity security) {
+  public InstrumentDefinitionWithData<?, Double> visitStockFutureSecurity(final StockFutureSecurity security) {
     throw new UnsupportedOperationException("Cannot use this converter for InterestRateFutureSecurity");
+  }
+
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitBondFutureSecurity(final BondFutureSecurity security) {
+    throw new UnsupportedOperationException("Cannot use this converter for BondFutureSecurity");
   }
 
 }

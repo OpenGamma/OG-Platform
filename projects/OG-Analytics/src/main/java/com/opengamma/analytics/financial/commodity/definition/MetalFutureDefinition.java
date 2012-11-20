@@ -116,12 +116,12 @@ public class MetalFutureDefinition extends CommodityFutureDefinition<MetalFuture
    * @param referencePrice reference price
    * @return the fixed derivative
    */
-  public MetalFuture toDerivative(final ZonedDateTime date, final double referencePrice) {
+  public MetalFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new MetalFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
-        referencePrice, getCurrency());
+        referencePrice.doubleValue(), getCurrency());
   }
 
   @Override

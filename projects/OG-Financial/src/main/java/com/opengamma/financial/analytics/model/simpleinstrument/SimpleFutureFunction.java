@@ -17,8 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
-import com.opengamma.analytics.financial.commodity.derivative.CommodityFuture;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -35,7 +34,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.CommodityFutureConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -55,7 +54,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  *
  */
 public abstract class SimpleFutureFunction extends NonCompiledInvoker {
-  private static final CommodityFutureConverter CONVERTER = new CommodityFutureConverter();
+  private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
   private final String _valueRequirementName;
 
   public SimpleFutureFunction(final String valueRequirementName) {
@@ -82,12 +81,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Could not find latest value in time series.");
     }
 
-    final CommodityFutureDefinition<?> defn = security.accept(CONVERTER);
-    final CommodityFuture derivative = (CommodityFuture) defn.toDerivative(now, lastMarginPrice);
-
-    if (derivative.getSettlement() < 0.0) { // Check to see whether it has already settled
-      throw new OpenGammaRuntimeException("Future with expiry, " + security.getExpiry().getExpiry().toString() + ", has already settled.");
-    }
+    final InstrumentDerivative derivative = security.accept(CONVERTER).toDerivative(now, lastMarginPrice, new String[0]);
 
     // 2. Build up the (simple) market data bundle
     final SimpleFutureDataBundle market = new SimpleFutureDataBundle(null, getMarketPrice(security, inputs), null, null, null);
@@ -101,7 +95,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     return Collections.singleton(new ComputedValue(spec, results));
   }
 
-  protected abstract <T extends CommodityFuture> Object computeValues(T derivative, SimpleFutureDataBundle market);
+  protected abstract Object computeValues(InstrumentDerivative derivative, SimpleFutureDataBundle market);
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
