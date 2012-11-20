@@ -37,10 +37,8 @@ $.register_module({
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON.data, strips, sep = '~', config_type = config.type,
                 form = new Form({
-                    module: 'og.views.forms.yield-curve-definition',
-                    data: master,
-                    type_map: type_map,
-                    selector: selector,
+                    module: 'og.views.forms.yield-curve-definition_tash',
+                    data: master, type_map: type_map, selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
                         interpolator: master[INTR]
@@ -67,27 +65,18 @@ $.register_module({
                 },
                 new_strip = function (row, idx) {
                     return new form.Block({
-                        module: 'og.views.forms.yield-curve-definition-strip',
+                        module: 'og.views.forms.yield-curve-definition-strip_tash',
                         extras: {idx: idx, tenor: row.tenor, future: row[NUMF]},
-                        children: [new_conv_dropdown(row, idx, master.currency)],
-                        handlers: [
-                            {type: 'form:load', handler: function () {
-                                $(form_id + ' [name="' + ['strip', idx, 'type'].join('.') + '"]').val(row.type);
-                                if (row.type !== 'FUTURE')
-                                    $(form_id + ' [name="' + ['strip', idx, NUMF].join('.') + '"]')
-                                        .attr('disabled', 'disabled');
-                            }},
-                            {
-                                type: 'change',
-                                selector: form_id + ' [name="' + ['strip', idx, 'type'].join('.') + '"]',
-                                handler: function (e) {
-                                    var $el = $(form_id + ' [name="' + ['strip', idx, NUMF].join('.') + '"]'),
-                                        is_future = $(e.target).val() === 'FUTURE';
-                                    if (is_future) $el.removeAttr('disabled'); else $el.attr('disabled', 'disabled');
-                                    if (!is_future) $el.attr('value', '');
-                                }
-                            }
-                        ]
+                        children: [new_conv_dropdown(row, idx, master.currency)]
+                    }).on('form:load', function () {
+                        $(form_id + ' [name="' + ['strip', idx, 'type'].join('.') + '"]').val(row.type);
+                        if (row.type !== 'FUTURE') $(form_id + ' [name="' + ['strip', idx, NUMF].join('.') + '"]')
+                            .attr('disabled', 'disabled');
+                    }).on('change', form_id + ' [name="' + ['strip', idx, 'type'].join('.') + '"]', function (event) {
+                        var $el = $(form_id + ' [name="' + ['strip', idx, NUMF].join('.') + '"]'),
+                            is_future = $(event.target).val() === 'FUTURE';
+                        if (is_future) $el.removeAttr('disabled'); else $el.attr('disabled', 'disabled');
+                        if (!is_future) $el.attr('value', '');
                     });
                 },
                 save_resource = function (result) {
@@ -103,48 +92,38 @@ $.register_module({
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
-            form.attach([
-                {type: 'form:load', handler: function () {
-                    var header = '\
-                        <header class="OG-header-generic">\
-                          <div class="OG-tools"></div>\
-                          <h1>\
-                            <span class="og-js-name">' + master.name + '</span>_<span class="og-js-currency">' +
-                            master.currency + '</span>\
-                          </h1>\
-                          (Yield Curve Definition)\
-                        </header>\
-                    ';
-                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    $(form_id + ' [name=currency]').val(master.currency);
-                    setTimeout(load_handler.partial(form));
-                }},
-                {type: 'form:submit', handler: save_resource},
-                {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
-                    var currency = $(e.target).val();
-                    $('.OG-layout-admin-details-center .og-js-currency').text(currency);
-                    $(form_id + ' .og-js-conv').each(function () {
-                        var $el = $(this), idx = $el.attr('name').split('.').slice(1, -1),
-                            row = master.strip[idx], value = row[CONV] || (row[CONV] = $el.val());
-                        new_conv_dropdown(row, idx, currency).html(function (html) {
-                            $el.replaceWith($(html).val(value));
-                        });
-                    });
-                }},
-                {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
-                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
-                }},
-                {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) { // remove a strip
-                    var $el = $(e.target).parents('.og-js-strip:first'),
-                        data_idx = $el.find('input').attr('name').split('.').slice(1, -1);
-                        master.strip[data_idx] = void 0;
-                        $el.remove();
-                }},
-                {type: 'click', selector: form_id + ' .og-js-add', handler: function (e) { // add a strip
-                    var block = new_strip({}, master.strip.push({}) - 1);
-                    block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
-                }}
-            ]);
+            form.on('form:submit', save_resource).on('form:load', function () {
+                var header = '\
+                    <header class="OG-header-generic">\
+                      <div class="OG-tools"></div>\
+                      <h1>\
+                        <span class="og-js-name">' + master.name + '</span>_<span class="og-js-currency">' +
+                        master.currency + '</span>\
+                      </h1>\
+                      (Yield Curve Definition)\
+                    </header>\
+                ';
+                $('.OG-layout-admin-details-center .ui-layout-header').html(header);
+                $(form_id + ' [name=currency]').val(master.currency);
+                setTimeout(load_handler.partial(form));
+            }).on('change', form_id + ' [name=currency]', function (event) {
+                var currency = $(event.target).val();
+                $('.OG-layout-admin-details-center .og-js-currency').text(currency);
+                $(form_id + ' .og-js-conv').each(function () {
+                    var $el = $(this), idx = $el.attr('name').split('.').slice(1, -1),
+                        row = master.strip[idx], value = row[CONV] || (row[CONV] = $el.val());
+                    new_conv_dropdown(row, idx, currency).html(function (html) {$el.replaceWith($(html).val(value));});
+                });
+            }).on('keyup', form_id + ' [name=name]', function (event) {
+                $('.OG-layout-admin-details-center .og-js-name').text($(event.target).val());
+            }).on('click', form_id + ' .og-js-rem', function (event) { // remove a strip
+                var $el = $(event.target).parents('.og-js-strip:first');
+                master.strip[$el.find('input').attr('name').split('.').slice(1, -1)] = void 0;
+                $el.remove();
+            }).on('click', form_id + ' .og-js-add', function (event) { // add a strip
+                var block = new_strip({}, master.strip.push({}) - 1);
+                block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
+            });
             form.children = [
                 new form.Field({
                     module: 'og.views.forms.currency',

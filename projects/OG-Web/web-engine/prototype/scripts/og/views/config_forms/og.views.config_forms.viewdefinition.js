@@ -409,9 +409,7 @@ $.register_module({
                             module: 'og.views.forms.view-definition-column-set-top_tash',
                             extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
                             children: [
-                                col_tabs, // column tabs
-                                col_vals, // column values
-                                spec_vals, // additional values
+                                col_tabs, col_vals, spec_vals, // additional values
                                 new forms.Constraints({ // default properties
                                     form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
                                 }),
