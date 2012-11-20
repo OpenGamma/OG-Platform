@@ -9,8 +9,8 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.InflationIssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 

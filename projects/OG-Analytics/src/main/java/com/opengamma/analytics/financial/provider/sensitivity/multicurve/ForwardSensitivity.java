@@ -64,6 +64,11 @@ public class ForwardSensitivity {
   }
 
   @Override
+  public String toString() {
+    return "[" + _startTime + "," + _endTime + "/" + _accrualFactor + "]: " + _value;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

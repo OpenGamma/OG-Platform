@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Describes a (Treasury) Bill transaction.
@@ -83,6 +84,10 @@ public class BillTransaction implements InstrumentDerivative {
    */
   public BillSecurity getBillStandard() {
     return _billStandard;
+  }
+
+  public Currency getCurrency() {
+    return _billStandard.getCurrency();
   }
 
   @Override

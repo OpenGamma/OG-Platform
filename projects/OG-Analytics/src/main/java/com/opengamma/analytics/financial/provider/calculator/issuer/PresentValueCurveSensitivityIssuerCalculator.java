@@ -7,6 +7,10 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -45,6 +49,8 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Abstract
    * Composite calculator.
    */
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
+  private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
@@ -55,9 +61,23 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Abstract
     }
   }
 
+  //     -----     Deposit     -----
+
   @Override
   public MultipleCurrencyMulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
     return METHOD_DEPO_CTPY.presentValueCurveSensitivity(deposit, issuercurves);
+  }
+
+  //     -----     Bond/Bill     -----
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitBillSecurity(final BillSecurity bill, final IssuerProviderInterface issuercurves) {
+    return METHOD_BILL_SEC.presentValueCurveSensitivity(bill, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves);
   }
 
 }

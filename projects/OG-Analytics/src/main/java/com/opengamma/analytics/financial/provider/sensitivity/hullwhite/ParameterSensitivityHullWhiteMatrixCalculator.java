@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is DoubleMatrix1D object.
  */
-public class ParameterSensitivityHullWhiteMatrixCalculator extends AbstractParameterSensitivityMatrixHullWhiteProviderCalculator {
+public class ParameterSensitivityHullWhiteMatrixCalculator extends AbstractParameterSensitivityHullWhiteMatrixCalculator {
 
   /**
    * Constructor
@@ -35,20 +35,20 @@ public class ParameterSensitivityHullWhiteMatrixCalculator extends AbstractParam
   }
 
   @Override
-  public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface multicurves, final Set<String> curvesSet) {
+  public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface hullWhite, final Set<String> curvesSet) {
     SimpleParameterSensitivity ps = new SimpleParameterSensitivity();
     // YieldAndDiscount
     Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
     for (final String name : sensitivityDsc.keySet()) {
       if (curvesSet.contains(name)) {
-        ps = ps.plus(name, new DoubleMatrix1D(multicurves.parameterSensitivity(name, sensitivityDsc.get(name))));
+        ps = ps.plus(name, new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
       }
     }
     // Forward
     Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
     for (final String name : sensitivityFwd.keySet()) {
       if (curvesSet.contains(name)) {
-        ps = ps.plus(name, new DoubleMatrix1D(multicurves.parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+        ps = ps.plus(name, new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
       }
     }
     // By curve name in the curves set (to have the right order)
@@ -58,7 +58,7 @@ public class ParameterSensitivityHullWhiteMatrixCalculator extends AbstractParam
       if (sensi != null) {
         result = ArrayUtils.addAll(result, sensi.getData());
       } else {
-        result = ArrayUtils.addAll(result, new double[multicurves.getNumberOfParameters(name)]);
+        result = ArrayUtils.addAll(result, new double[hullWhite.getMulticurveProvider().getNumberOfParameters(name)]);
       }
     }
     return new DoubleMatrix1D(result);

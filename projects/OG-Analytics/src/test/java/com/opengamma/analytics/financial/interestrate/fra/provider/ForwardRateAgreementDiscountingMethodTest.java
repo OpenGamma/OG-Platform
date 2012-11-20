@@ -40,8 +40,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class ForwardRateAgreementDiscountingMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
-  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIbor();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex INDEX = INDEX_LIST[2];
   private static final Currency CUR = INDEX.getCurrency();
   // Dates : The dates are not standard but selected for insure correct testing.

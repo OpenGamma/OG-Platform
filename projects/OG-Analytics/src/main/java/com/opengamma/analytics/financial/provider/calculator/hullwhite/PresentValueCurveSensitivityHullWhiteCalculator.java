@@ -9,7 +9,8 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
@@ -40,24 +41,22 @@ public final class PresentValueCurveSensitivityHullWhiteCalculator extends Abstr
   /**
    * Pricing methods.
    */
-  private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
-  /**
-   * Composite calculator.
-   */
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
+  private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_SWPT_PHYS = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
-    try {
-      return derivative.accept(this, multicurves);
-    } catch (Exception e) {
-      return derivative.accept(PVCSDC, multicurves.getMulticurveProvider());
-    }
+  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return derivative.accept(this, hullWhite);
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_IRFUT_HW.presentValueCurveSensitivity(future, multicurves);
+  public MultipleCurrencyMulticurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return METHOD_IRFUT.presentValueCurveSensitivity(future, hullWhite);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return METHOD_SWPT_PHYS.presentValueCurveSensitivity(swaption, hullWhite);
   }
 
 }

@@ -36,8 +36,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createProvider3();
-  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIbor();
+  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
@@ -115,7 +115,7 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_PROVIDER, HW_PROVIDER.getAllNames());
+    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_PROVIDER, HW_PROVIDER.getMulticurveProvider().getAllNames());
     MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(ERU2, HW_PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }

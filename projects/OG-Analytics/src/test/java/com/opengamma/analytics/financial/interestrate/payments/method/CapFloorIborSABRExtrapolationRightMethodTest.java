@@ -313,7 +313,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
-    pvsCapShort = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsCapShort, -1.0);
+    pvsCapShort = pvsCapShort.multiplyBy(-1.0);
     assertEquals(pvsCapShort.getAlpha(), pvsCapLong.getAlpha());
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
@@ -357,7 +357,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_HIGH_LONG, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_HIGH_SHORT, sabrBundle);
     // Long/short parity
-    pvsCapShort = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsCapShort, -1.0);
+    pvsCapShort = pvsCapShort.multiplyBy(-1.0);
     assertEquals(pvsCapShort.getAlpha(), pvsCapLong.getAlpha());
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;

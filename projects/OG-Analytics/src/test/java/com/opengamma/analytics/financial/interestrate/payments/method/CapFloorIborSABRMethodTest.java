@@ -235,7 +235,7 @@ public class CapFloorIborSABRMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, SABR_BUNDLE);
     PresentValueSABRSensitivityDataBundle pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_SHORT, SABR_BUNDLE);
     // Long/short parity
-    pvsCapShort = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsCapShort, -1.0);
+    pvsCapShort = pvsCapShort.multiplyBy(-1.0);
     assertEquals(pvsCapShort.getAlpha(), pvsCapLong.getAlpha());
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;

@@ -40,8 +40,8 @@ import com.opengamma.util.time.DateUtils;
 public class SwapFixedIborDiscountingMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);
-  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createProvider3();
-  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIbor();
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final IborIndex EURIBOR6M = INDEX_LIST[1];
   private static final Currency EUR = EURIBOR3M.getCurrency();

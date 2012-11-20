@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -33,7 +36,7 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
    */
   private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
 
-  private final Set<String> _multicurvesNames;
+  private Set<String> _multicurvesNames;
   private final Set<String> _allNames = new TreeSet<String>();
   private final Map<String, YieldAndDiscountCurve> _issuerCurvesNames = new LinkedHashMap<String, YieldAndDiscountCurve>();
 
@@ -45,7 +48,6 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
   public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
     _multicurveProvider = multicurve;
     _issuerCurves = issuerCurves;
-    _multicurvesNames = _multicurveProvider.getAllNames();
     init();
   }
 
@@ -56,6 +58,7 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
   }
 
   public void init() {
+    _multicurvesNames = _multicurveProvider.getAllNames();
     _allNames.addAll(_multicurvesNames);
     final Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
     for (final Pair<String, Currency> issuer : issuerSet) {
@@ -143,6 +146,48 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
 
   public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
     return _issuerCurves.get(ic);
+  }
+
+  /**
+   * Sets the discounting curve for a given issuer/currency.
+   * @param issuerCcy The issuer/currency.
+   * @param curve The yield curve used for discounting.
+   */
+  public void setCurve(final Pair<String, Currency> issuerCcy, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(issuerCcy, "Issuer/currency");
+    ArgumentChecker.notNull(curve, "curve");
+    if (_issuerCurves.containsKey(issuerCcy)) {
+      throw new IllegalArgumentException("Currency discounting curve already set: " + issuerCcy.toString());
+    }
+    _issuerCurves.put(issuerCcy, curve);
+    init();
+  }
+
+  public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
+    _multicurveProvider.setCurve(ccy, curve);
+    // TODO: Should we make sure that we don't set the _multicurveProvider directly (without the list update)
+    init();
+  }
+
+  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    _multicurveProvider.setCurve(index, curve);
+    init();
+  }
+
+  public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    _multicurveProvider.setCurve(index, curve);
+    init();
+  }
+
+  /**
+   * Set all the curves contains in another provider. If a currency, index, or issuer is already present in the map, the associated curve is changed.
+   * @param other The other provider.
+   */
+  public void setAll(final IssuerProviderDiscount other) {
+    ArgumentChecker.notNull(other, "Market bundle");
+    _multicurveProvider.setAll(other._multicurveProvider);
+    _issuerCurves.putAll(other._issuerCurves);
+    init();
   }
 
   public IssuerProviderDiscount withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {

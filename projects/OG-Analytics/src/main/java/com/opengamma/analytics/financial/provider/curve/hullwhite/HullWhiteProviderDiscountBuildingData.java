@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve;
+package com.opengamma.analytics.financial.provider.curve.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;

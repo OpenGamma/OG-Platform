@@ -50,6 +50,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
@@ -326,7 +327,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
       for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
-          pv[loopcurve][loopins] = curves.getFxRates().convert(PVHWC.visit(instruments[loopcurve][loopins], curves), EUR).getAmount();
+          pv[loopcurve][loopins] = curves.getMulticurveProvider().getFxRates().convert(PVHWC.visit(instruments[loopcurve][loopins], curves), EUR).getAmount();
           assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }
@@ -352,7 +353,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
         ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR3M);
         double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
         double accrualFactor = EURIBOR3M.getDayCount().getDayCountFraction(startDate, endDate);
-        rateDsc[loopdate] = marketDsc.getForwardRate(EURIBOR3M, startTime[loopdate], endTime, accrualFactor);
+        rateDsc[loopdate] = marketDsc.getMulticurveProvider().getForwardRate(EURIBOR3M, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, TARGET);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }

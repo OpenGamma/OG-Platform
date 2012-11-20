@@ -132,6 +132,17 @@ public class MulticurveSensitivity {
     return new MulticurveSensitivity(resultDsc, resultFwd);
   }
 
+  /**
+   * Return a new sensitivity by sorting the times and adding the values at duplicated times. The total value below the tolerance threshold are removed.
+   * @param tolerance The tolerance.
+   * @return The cleaned sensitivity.
+   */
+  public MulticurveSensitivity cleaned(final double tolerance) {
+    final Map<String, List<DoublesPair>> resultDsc = MulticurveSensitivityUtils.cleaned(_sensitivityYieldDiscounting, tolerance);
+    final Map<String, List<ForwardSensitivity>> resultFwd = MulticurveSensitivityUtils.cleanedFwd(_sensitivityForward, tolerance);
+    return new MulticurveSensitivity(resultDsc, resultFwd);
+  }
+
   @Override
   public String toString() {
     return _sensitivityYieldDiscounting.toString() + "\n" + _sensitivityForward.toString();

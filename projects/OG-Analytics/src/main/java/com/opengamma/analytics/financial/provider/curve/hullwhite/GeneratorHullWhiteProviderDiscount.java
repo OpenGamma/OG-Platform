@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve;
+package com.opengamma.analytics.financial.provider.curve.hullwhite;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

@@ -733,7 +733,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     PresentValueSABRSensitivityDataBundle pvssLong = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     PresentValueSABRSensitivityDataBundle pvssShort = METHOD_CMS_SPREAD.presentValueSABRSensitivity(cmsSpreadShort, sabrBundleCor);
-    pvssShort = PresentValueSABRSensitivityDataBundle.multiplyBy(pvssShort, -1);
+    pvssShort = pvssShort.multiplyBy(-1);
     assertEquals("CMS spread: Long/Short parity", pvssLong, pvssShort);
   }
 

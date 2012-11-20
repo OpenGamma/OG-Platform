@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is ParameterSensitivity object.
  */
-public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSensitivityHullWhiteProviderCalculator {
+public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSensitivityHullWhiteCalculator {
 
   /**
    * Constructor
@@ -35,7 +35,7 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
   }
 
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface multicurves,
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface hullWhite,
       final Set<String> curvesSet) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     // YieldAndDiscount
@@ -43,7 +43,8 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
       Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getSensitivity(ccySensi).getYieldDiscountingSensitivities();
       for (final String name : sensitivityDsc.keySet()) {
         if (curvesSet.contains(name)) {
-          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(multicurves.parameterSensitivity(name, sensitivityDsc.get(name))));
+          result = result
+              .plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
         }
       }
     }
@@ -52,7 +53,8 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
       Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getSensitivity(ccySensi).getForwardSensitivities();
       for (final String name : sensitivityFwd.keySet()) {
         if (curvesSet.contains(name)) {
-          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(multicurves.parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi),
+              new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
         }
       }
     }

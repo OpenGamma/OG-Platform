@@ -141,6 +141,21 @@ public class MultipleCurrencyMulticurveSensitivity {
   }
 
   /**
+   * Returns a new multiple currency sensitivity by creating clean sensitivity for each currency (see {@link InterestRateCurveSensitivity} clean() method). 
+   * The total value below the tolerance threshold are removed.
+   * @param tolerance The tolerance.
+   * @return The cleaned sensitivity.
+   */
+  public MultipleCurrencyMulticurveSensitivity cleaned(final double tolerance) {
+    final TreeMap<Currency, MulticurveSensitivity> map = new TreeMap<Currency, MulticurveSensitivity>();
+    for (final Currency loopccy : _sensitivity.keySet()) {
+      map.put(loopccy, _sensitivity.get(loopccy).cleaned(tolerance));
+    }
+    final MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity(map);
+    return result;
+  }
+
+  /**
    * Returns the set of currencies in the multiple currency sensitivities.
    * @return The set of currencies.
    */

@@ -59,6 +59,38 @@ public class MulticurveSensitivityUtils {
     return result;
   }
 
+  /**
+   * Clean a map by sorting the times and adding the values at duplicated times. The total value below the tolerance threshold are removed.
+   * @param map The map.
+   * @param tolerance The tolerance.
+   * @return The cleaned map.
+   */
+  public static Map<String, List<DoublesPair>> cleaned(final Map<String, List<DoublesPair>> map, final double tolerance) {
+    //TODO: improve the sorting algorithm.
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
+      final List<DoublesPair> list = entry.getValue();
+      final List<DoublesPair> listClean = new ArrayList<DoublesPair>();
+      final Set<Double> set = new TreeSet<Double>();
+      for (final DoublesPair pair : list) {
+        set.add(pair.getFirst());
+      }
+      for (final Double time : set) {
+        double sensi = 0;
+        for (int looplist = 0; looplist < list.size(); looplist++) {
+          if (Double.doubleToLongBits(list.get(looplist).getFirst()) == Double.doubleToLongBits(time)) {
+            sensi += list.get(looplist).second;
+          }
+        }
+        if (Math.abs(sensi) > tolerance) {
+          listClean.add(new DoublesPair(time, sensi));
+        }
+      }
+      result.put(entry.getKey(), listClean);
+    }
+    return result;
+  }
+
   public static Map<String, List<ForwardSensitivity>> cleanedFwd(final Map<String, List<ForwardSensitivity>> map) {
     //TODO: improve the sorting algorithm.
     final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
@@ -85,71 +117,33 @@ public class MulticurveSensitivityUtils {
     return result;
   }
 
-  //  /**
-  //   * Takes a list of curve sensitivities (i.e. an unordered list of pairs of times and sensitivities) and returns a list order by ascending
-  //   * time, and with sensitivities that occur at the same time netted (zero net sensitivities are removed)
-  //   * @param old An unordered list of pairs of times and sensitivities
-  //   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed
-  //   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed
-  //   * @return A time ordered netted list
-  //   */
-  //  static final List<DoublesPair> cleaned(final List<DoublesPair> old, final double relTol, final double absTol) {
-  //
-  //    ArgumentChecker.notNull(old, "null list");
-  //    ArgumentChecker.isTrue(relTol >= 0.0 && absTol >= 0.0, "Tolerances must be greater than zero");
-  //    if (old.size() == 0) {
-  //      return new ArrayList<DoublesPair>();
-  //    }
-  //    final List<DoublesPair> res = new ArrayList<DoublesPair>();
-  //    final DoublesPair[] sort = old.toArray(new DoublesPair[] {});
-  //    Arrays.sort(sort, FirstThenSecondDoublesPairComparator.INSTANCE);
-  //    final DoublesPair pairOld = sort[0];
-  //    double tOld = pairOld.first;
-  //    double sum = pairOld.getSecond();
-  //    double scale = Math.abs(sum);
-  //    double t = tOld;
-  //    for (int i = 1; i < sort.length; i++) {
-  //      final DoublesPair pair = sort[i];
-  //      t = pair.first;
-  //      if (t > tOld) {
-  //        if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
-  //          res.add(new DoublesPair(tOld, sum));
-  //        }
-  //        tOld = t;
-  //        sum = pair.getSecondDouble();
-  //        scale = Math.abs(sum);
-  //      } else {
-  //        sum += pair.getSecondDouble();
-  //        scale += Math.abs(pair.getSecondDouble());
-  //      }
-  //    }
-  //
-  //    if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
-  //      res.add(new DoublesPair(t, sum));
-  //    }
-  //
-  //    return res;
-  //  }
-  //
-  //  /**
-  //   * Takes a map of curve sensitivities (i.e. a map between curve names and a unordered lists of pairs of times and sensitivities)
-  //   *  and returns a similar map where the lists order by ascending time, and with sensitivities that occur at the same time netted
-  //   *  (zero net sensitivities are removed)
-  //   * @param old A map between curve names and unordered lists of pairs of times and sensitivities
-  //   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed
-  //   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed
-  //   * @return A map between curve names and time ordered netted lists
-  //   */
-  //  public static Map<String, List<DoublesPair>> cleaned(final Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
-  //    final Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
-  //    for (final Map.Entry<String, List<DoublesPair>> entry : old.entrySet()) {
-  //      List<DoublesPair> cleanList = cleaned(entry.getValue(), relTol, absTol);
-  //      if (!cleanList.isEmpty()) {
-  //        res.put(entry.getKey(), cleanList);
-  //      }
-  //    }
-  //    return res;
-  //  }
+  public static Map<String, List<ForwardSensitivity>> cleanedFwd(final Map<String, List<ForwardSensitivity>> map, final double tolerance) {
+    //TODO: improve the sorting algorithm.
+    final Map<String, List<ForwardSensitivity>> result = new HashMap<String, List<ForwardSensitivity>>();
+    for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
+      final List<ForwardSensitivity> list = entry.getValue();
+      final List<ForwardSensitivity> listClean = new ArrayList<ForwardSensitivity>();
+      final Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
+      for (final ForwardSensitivity pair : list) {
+        set.add(new Triple<Double, Double, Double>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
+      }
+      for (final Triple<Double, Double, Double> time : set) {
+        double sensi = 0;
+        for (int looplist = 0; looplist < list.size(); looplist++) {
+          final ForwardSensitivity fwdSensitivity = list.get(looplist);
+          final Triple<Double, Double, Double> triple = new Triple<Double, Double, Double>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
+          if (triple.equals(time)) {
+            sensi += list.get(looplist).getValue();
+          }
+        }
+        if (Math.abs(sensi) > tolerance) {
+          listClean.add(new ForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
+        }
+      }
+      result.put(entry.getKey(), listClean);
+    }
+    return result;
+  }
 
   /**
    * Add two list representing sensitivities into one. No attempt is made to net off sensitivities occurring at the same time - Use clean()

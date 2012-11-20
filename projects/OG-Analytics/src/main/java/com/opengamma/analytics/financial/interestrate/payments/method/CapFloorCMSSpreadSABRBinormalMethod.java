@@ -327,14 +327,14 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     PresentValueSABRSensitivityDataBundle cmsCoupon2SABRSensitivity = _methodCmsCoupon.presentValueSABRSensitivity(cmsCoupon2, sabrData);
     PresentValueSABRSensitivityDataBundle cmsCap1SABRSensitivity = _methodCmsCap.presentValueSABRSensitivity(cmsCap1, sabrData);
     PresentValueSABRSensitivityDataBundle cmsCap2SABRSensitivity = _methodCmsCap.presentValueSABRSensitivity(cmsCap2, sabrData);
-    cmsCoupon1SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCoupon1SABRSensitivity, cmsCoupon1PriceBar);
-    cmsCoupon2SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCoupon2SABRSensitivity, cmsCoupon2PriceBar);
-    cmsCap1SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCap1SABRSensitivity, cmsCap1PriceBar);
-    cmsCap2SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCap2SABRSensitivity, cmsCap2PriceBar);
+    cmsCoupon1SABRSensitivity = cmsCoupon1SABRSensitivity.multiplyBy(cmsCoupon1PriceBar);
+    cmsCoupon2SABRSensitivity = cmsCoupon2SABRSensitivity.multiplyBy(cmsCoupon2PriceBar);
+    cmsCap1SABRSensitivity = cmsCap1SABRSensitivity.multiplyBy(cmsCap1PriceBar);
+    cmsCap2SABRSensitivity = cmsCap2SABRSensitivity.multiplyBy(cmsCap2PriceBar);
     PresentValueSABRSensitivityDataBundle result = cmsCoupon1SABRSensitivity;
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCoupon2SABRSensitivity);
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCap1SABRSensitivity);
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCap2SABRSensitivity);
+    result = result.plus(cmsCoupon2SABRSensitivity);
+    result = result.plus(cmsCap1SABRSensitivity);
+    result = result.plus(cmsCap2SABRSensitivity);
     return result;
   }
 

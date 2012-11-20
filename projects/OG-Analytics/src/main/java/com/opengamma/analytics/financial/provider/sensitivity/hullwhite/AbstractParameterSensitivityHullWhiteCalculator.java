@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way 
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  */
-public abstract class AbstractParameterSensitivityHullWhiteProviderCalculator {
+public abstract class AbstractParameterSensitivityHullWhiteCalculator {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times (discounting) or forward rates.
@@ -32,7 +32,7 @@ public abstract class AbstractParameterSensitivityHullWhiteProviderCalculator {
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterSensitivityHullWhiteProviderCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public AbstractParameterSensitivityHullWhiteCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }

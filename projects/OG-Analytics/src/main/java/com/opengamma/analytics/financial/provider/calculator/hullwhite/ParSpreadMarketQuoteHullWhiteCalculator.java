@@ -43,14 +43,14 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends AbstractInstr
   /**
    * Composite calculator.
    */
-  private static final ParSpreadMarketQuoteDiscountingCalculator PVDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
     try {
       return derivative.accept(this, multicurves);
     } catch (Exception e) {
-      return derivative.accept(PVDC, multicurves.getMulticurveProvider());
+      return derivative.accept(PSMQDC, multicurves.getMulticurveProvider());
     }
   }
 

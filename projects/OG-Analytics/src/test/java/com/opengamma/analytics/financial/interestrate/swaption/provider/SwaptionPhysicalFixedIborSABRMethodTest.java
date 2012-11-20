@@ -53,8 +53,8 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SwaptionPhysicalFixedIborSABRMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createProvider3();
-  private static final IborIndex IBOR_INDEX = MulticurveProviderDiscountDataSets.getIndexesIbor()[1];
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final IborIndex IBOR_INDEX = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency CUR = IBOR_INDEX.getCurrency();
   private static final Calendar CALENDAR = IBOR_INDEX.getCalendar();
   // Swaption description
@@ -101,8 +101,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final PresentValueCurveSensitivitySABRSwaptionCalculator PVCSSSC = PresentValueCurveSensitivitySABRSwaptionCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC = PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
 
-  private static final ParameterSensitivitySABRSwptCalculator PS_SS_C = new ParameterSensitivitySABRSwptCalculator(PVCSSSC);
   private static final double SHIFT = 1.0E-7;
+  private static final ParameterSensitivitySABRSwptCalculator PS_SS_C = new ParameterSensitivitySABRSwptCalculator(PVCSSSC);
   private static final ParameterSensitivitySABRSwptDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwptDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
 
   // Pricing functions
@@ -110,7 +110,6 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+0; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
-  private static final double TOLERANCE_PV_SABR = 1.0E+0;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoSABRHaganSensi() {
@@ -180,16 +179,6 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
   @Test
   /**
-   * Tests the method against the present value curve sensitivity calculator.
-   */
-  public void presentValueCurveSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value curve sensitivity: method and calculator", pvcsMethod, pvcsCalculator);
-  }
-
-  @Test
-  /**
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
@@ -199,12 +188,22 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   }
 
   @Test
+  /**
+   * Tests the method against the present value curve sensitivity calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value curve sensitivity: method and calculator", pvcsMethod, pvcsCalculator);
+  }
+
+  @Test
   public void presentValueSABRSensitivity() {
     // Swaption sensitivity
     final PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_SHORT_PAYER, SABR_MULTICURVES);
     // Long/short parity
-    pvsShortPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsShortPayer, -1.0);
+    pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueSABRSensitivity", pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES).getAmount(CUR);

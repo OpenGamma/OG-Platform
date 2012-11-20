@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
@@ -41,6 +43,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
    * Pricing methods.
    */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
+  private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
   /**
    * Composite calculator.
    */
@@ -60,6 +63,13 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   @Override
   public MulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
     return METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves);
+  }
+
+  //     -----     Bond/Bill     -----
+
+  @Override
+  public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves);
   }
 
 }

@@ -51,7 +51,7 @@ public final class CouponIborDiscountingProviderMethod {
    */
   public MultipleCurrencyAmount presentValue(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurve, "Market");
+    ArgumentChecker.notNull(multicurve, "Multi-curves provider");
     final double forward = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * df;
@@ -81,8 +81,7 @@ public final class CouponIborDiscountingProviderMethod {
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
-    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
-    return result;
+    return MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
   }
 
 }

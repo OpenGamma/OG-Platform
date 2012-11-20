@@ -52,7 +52,7 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
-  //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
+  private static final Calendar CALENDAR_CAD = new MondayToFridayCalendar("CAD");
 
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
@@ -80,6 +80,15 @@ public class MulticurveProviderDiscountDataSets {
   private static final String EUR_FWD6_NAME = "EUR EURIBOR 6M";
   private static final YieldAndDiscountCurve EUR_FWD6 = new YieldCurve(EUR_FWD6_NAME, new InterpolatedDoublesCurve(EUR_FWD6_TIME, EUR_FWD6_RATE, LINEAR_FLAT, true, EUR_FWD6_NAME));
 
+  private static final double[] CAD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] CAD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
+  private static final String CAD_DSC_NAME = "CAD Dsc";
+  private static final YieldAndDiscountCurve CAD_DSC = new YieldCurve(CAD_DSC_NAME, new InterpolatedDoublesCurve(CAD_DSC_TIME, CAD_DSC_RATE, LINEAR_FLAT, true, CAD_DSC_NAME));
+  private static final double[] CAD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] CAD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
+  private static final String CAD_FWD3_NAME = "CAD CDOR3M 3M";
+  private static final YieldAndDiscountCurve CAD_FWD3 = new YieldCurve(CAD_FWD3_NAME, new InterpolatedDoublesCurve(CAD_FWD3_TIME, CAD_FWD3_RATE, LINEAR_FLAT, true, CAD_FWD3_NAME));
+
   private static final String ISSUER_NAME = "Corporate";
   private static final double[] EUR_ISSUER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
   private static final double[] EUR_ISSUER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
@@ -90,10 +99,12 @@ public class MulticurveProviderDiscountDataSets {
   private static final YieldAndDiscountCurve CURVE_GBP_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
   private static final YieldAndDiscountCurve CURVE_USD_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
 
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
-  private static final IborIndex USDLIBOR6M = IndexIborMaster.getInstance().getIndex("USDLIBOR6M", CALENDAR_USD);
-  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
-  private static final IborIndex EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
+  private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
+  private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M", CALENDAR_USD);
+  private static final IborIndex USDLIBOR6M = MASTER_IBOR_INDEX.getIndex("USDLIBOR6M", CALENDAR_USD);
+  private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M", CALENDAR_EUR);
+  private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M", CALENDAR_EUR);
+  private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M", CALENDAR_CAD);
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA", CALENDAR_EUR);
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
@@ -142,22 +153,28 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(ISSUER_US_GOVT, Currency.EUR, CURVE_USD_30);
   }
 
-  private static final MulticurveProviderDiscount PROVIDER_3 = new MulticurveProviderDiscount();
+  private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
-    PROVIDER_3.setCurve(Currency.USD, USD_DSC);
-    PROVIDER_3.setCurve(Currency.EUR, EUR_DSC);
-    PROVIDER_3.setCurve(USDLIBOR3M, USD_FWD3);
-    PROVIDER_3.setCurve(USDLIBOR6M, USD_FWD6);
-    PROVIDER_3.setCurve(EONIA, EUR_DSC);
-    PROVIDER_3.setCurve(EURIBOR3M, EUR_FWD3);
-    PROVIDER_3.setCurve(EURIBOR6M, EUR_FWD6);
+    MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
+    MULTICURVES_EUR_USD.setCurve(Currency.EUR, EUR_DSC);
+    MULTICURVES_EUR_USD.setCurve(USDLIBOR3M, USD_FWD3);
+    MULTICURVES_EUR_USD.setCurve(USDLIBOR6M, USD_FWD6);
+    MULTICURVES_EUR_USD.setCurve(EONIA, EUR_DSC);
+    MULTICURVES_EUR_USD.setCurve(EURIBOR3M, EUR_FWD3);
+    MULTICURVES_EUR_USD.setCurve(EURIBOR6M, EUR_FWD6);
+  }
+
+  private static final MulticurveProviderDiscount MULTICURVES_CAD = new MulticurveProviderDiscount();
+  static {
+    MULTICURVES_CAD.setCurve(Currency.CAD, CAD_DSC);
+    MULTICURVES_CAD.setCurve(CADCDOR3M, CAD_FWD3);
   }
 
   private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
   static {
     ISSUER_CURVES.put(new ObjectsPair<String, Currency>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
   }
-  private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(PROVIDER_3, ISSUER_CURVES);
+  private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 
   // Seasonal factors (from February/January to December/November)
   //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
@@ -281,8 +298,16 @@ public class MulticurveProviderDiscountDataSets {
    * Returns a multi-curves provider with two currencies (EUR, USD), four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M).
    * @return The provider.
    */
-  public static MulticurveProviderDiscount createProvider3() {
-    return PROVIDER_3;
+  public static MulticurveProviderDiscount createMulticurveEurUsd() {
+    return MULTICURVES_EUR_USD;
+  }
+
+  /**
+   * Returns a multi-curves provider with one currency (CAD), one Ibor index (CadCDOR3M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveCad() {
+    return MULTICURVES_CAD;
   }
 
   /**
@@ -321,8 +346,12 @@ public class MulticurveProviderDiscountDataSets {
     return new IndexPrice[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
   }
 
-  public static IborIndex[] getIndexesIbor() {
+  public static IborIndex[] getIndexesIborMulticurveEurUsd() {
     return new IborIndex[] {EURIBOR3M, EURIBOR6M, USDLIBOR3M, USDLIBOR6M};
+  }
+
+  public static IborIndex[] getIndexesIborMulticurveCad() {
+    return new IborIndex[] {CADCDOR3M};
   }
 
   public static IndexON[] getIndexesON() {

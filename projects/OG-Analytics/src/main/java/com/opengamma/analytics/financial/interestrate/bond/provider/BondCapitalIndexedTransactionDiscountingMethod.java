@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.bond.method;
+package com.opengamma.analytics.financial.interestrate.bond.provider;
 
 import org.apache.commons.lang.Validate;
 

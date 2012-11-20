@@ -5,18 +5,12 @@
  */
 package com.opengamma.analytics.financial.provider.description;
 
-import java.util.List;
-import java.util.Set;
-
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -60,11 +54,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   }
 
   @Override
-  public Integer getNumberOfParameters(String name) {
-    return _multicurveProvider.getNumberOfParameters(name);
-  }
-
-  @Override
   public HullWhiteOneFactorProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
     return new HullWhiteOneFactorProviderDiscount(multicurveProvider, _parameters, _ccyHW);
@@ -73,63 +62,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
     return _multicurveProvider;
-  }
-
-  //     =====     Methods related to MulticurveProvider     =====
-
-  @Override
-  public double getDiscountFactor(final Currency ccy, final Double time) {
-    return _multicurveProvider.getDiscountFactor(ccy, time);
-  }
-
-  @Override
-  public double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity) {
-    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
-  }
-
-  @Override
-  public double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity) {
-    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
-  }
-
-  @Override
-  public String getName(final Currency ccy) {
-    return _multicurveProvider.getName(ccy);
-  }
-
-  @Override
-  public Set<Currency> getCurrencies() {
-    return _multicurveProvider.getCurrencies();
-  }
-
-  @Override
-  public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
-  }
-
-  @Override
-  public String getName(final IborIndex index) {
-    return _multicurveProvider.getName(index);
-  }
-
-  @Override
-  public Set<IborIndex> getIndexesIbor() {
-    return _multicurveProvider.getIndexesIbor();
-  }
-
-  @Override
-  public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
-    return _multicurveProvider.getForwardRate(index, startTime, endTime, accrualFactor);
-  }
-
-  @Override
-  public String getName(final IndexON index) {
-    return _multicurveProvider.getName(index);
-  }
-
-  @Override
-  public Set<IndexON> getIndexesON() {
-    return _multicurveProvider.getIndexesON();
   }
 
   /**
@@ -157,14 +89,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    */
   public YieldAndDiscountCurve getCurve(final IndexON index) {
     return _multicurveProvider.getCurve(index);
-  }
-
-  @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
-  public Set<String> getAllNames() {
-    return _multicurveProvider.getAllNames();
   }
 
   /**
@@ -222,20 +146,6 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(index, curve);
-  }
-
-  @Override
-  public double getFxRate(final Currency ccy1, final Currency ccy2) {
-    return _multicurveProvider.getFxRate(ccy1, ccy2);
-  }
-
-  /**
-   * Gets the underlying FXMatrix containing the exchange rates.
-   * @return The matrix.
-   */
-  @Override
-  public FXMatrix getFxRates() {
-    return _multicurveProvider.getFxRates();
   }
 
   public HullWhiteOneFactorProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {

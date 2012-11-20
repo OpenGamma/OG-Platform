@@ -59,7 +59,8 @@ public final class InterestRateFutureSecurityHullWhiteProviderMethod extends Int
   public double price(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
-    double forward = hwMulticurves.getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), future.getFixingPeriodAccrualFactor());
+    double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
+        future.getFixingPeriodAccrualFactor());
     double futureConvexityFactor = MODEL.futureConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
@@ -86,7 +87,7 @@ public final class InterestRateFutureSecurityHullWhiteProviderMethod extends Int
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), future.getFixingPeriodAccrualFactor(), forwardBar));
-    mapFwd.put(hwMulticurves.getName(future.getIborIndex()), listForward);
+    mapFwd.put(hwMulticurves.getMulticurveProvider().getName(future.getIborIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(future.getCurrency(), MulticurveSensitivity.ofForward(mapFwd));
     return result;
   }

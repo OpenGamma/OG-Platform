@@ -241,7 +241,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsReceiver = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     PresentValueSABRSensitivityDataBundle pvsPayer = METHOD.presentValueSABRSensitivity(CMS_COUPON_PAYER, SABR_BUNDLE);
     // Long/short parity
-    pvsPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsPayer, -1.0);
+    pvsPayer = pvsPayer.multiplyBy(-1.0);
     assertEquals(pvsPayer.getAlpha(), pvsReceiver.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD.presentValue(CMS_COUPON_RECEIVER, SABR_BUNDLE).getAmount();

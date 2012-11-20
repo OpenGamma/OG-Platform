@@ -38,7 +38,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class DepositIborDiscountingMethodTest {
 
-  private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIbor()[0];
+  private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 12, 12);
@@ -47,7 +47,7 @@ public class DepositIborDiscountingMethodTest {
   private static final double RATE = 0.0250;
   private static final DepositIborDefinition DEPOSIT_IBOR_DEFINITION = DepositIborDefinition.fromTrade(TRADE_DATE, NOTIONAL, RATE, EURIBOR3M);
 
-  private static final MulticurveProviderDiscount PROVIDER_MULTICURVES = MulticurveProviderDiscountDataSets.createProvider3();
+  private static final MulticurveProviderDiscount PROVIDER_MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final String[] NOT_USED = new String[] {"Not used 1"};
 
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT = DepositIborDiscountingMethod.getInstance();
