@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -16,10 +17,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -44,11 +46,9 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final Object currencyPairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
-    if (currencyPairsObject == null) {
-      throw new OpenGammaRuntimeException("Could not get currency pairs");
-    }
-    final CurrencyPairs currencyPairs = (CurrencyPairs) currencyPairsObject;
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final NotionalVisitor visitor = new NotionalVisitor(currencyPairs);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final CurrencyAmount ca = security.accept(visitor);
@@ -76,9 +76,7 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS).get();
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification(), properties));
+    return Collections.emptySet();
   }
 
   private static class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmount> {
