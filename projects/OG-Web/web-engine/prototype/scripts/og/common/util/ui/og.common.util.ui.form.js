@@ -8,29 +8,37 @@ $.register_module({
     dependencies: ['og.api.text'],
     obj: function () {
         var module = this, STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
-            has = 'hasOwnProperty', form_template = '<form action="." id="${id}"><div class="OG-form">' +
-                '{{html html}}<input type="submit" style="display: none;"></div></form>',
-            form_events = {'form:load': null, 'form:submit': null, 'form:error': null};
+            has = 'hasOwnProperty', form_events = {'form:load': null, 'form:submit': null, 'form:error': null},
+            form_template = Handlebars.compile('<form action="." id="{{id}}"><div class="OG-form">' +
+                '{{{html}}}<input type="submit" style="display: none;"></div></form>');
+        /** private */
+        var jq_compile = function (name, template) {
+            og.dev.warn(module.name + ': ' + name + ' is a deprecated template');
+            return function (values) {return $(dummy).append($.tmpl(template, values)).html();};
+        };
+        /** @private */
+        var templatize = function (name, html) {
+            return !module || !html ? false : ~name.search(/tash$/) ? Handlebars.compile(html) : jq_compile(name, html);
+        };
         /**
          * @class Block
          */
         var Block = function (form, config) {
-            var block = this, config = config || {}, template = null, url = config.url,
-                module = config.module, extras = config.extras,
-                processor = config.processor,
-                wrap = function (html) {
-                    return config.wrap ? $(dummy).append($.tmpl(config.wrap, {html: html})).html() : html;
-                };
+            var block = this, config = config || {}, template = null, module = config.module, extras = config.extras,
+                processor = config.processor;
+            var wrap = function (html) {
+                return config.wrap ? $(dummy).append($.tmpl(config.wrap, {html: html})).html() : html;
+            };
             block.children = config.children || [];
             block.form = form;
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), STALL);
-                var self = 'html', total = block.children.length, done = 0, result = [],
+                var total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
-                        handler(template ? $(dummy).append($.tmpl(template, $.extend(
+                        handler(template ? template($.extend(
                             result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
                             extras
-                        ))).html() : wrap(result.join('')));
+                        )) : wrap(result.join('')));
                     };
                 if (!total) return internal_handler();
                 block.children.forEach(function (val, idx) {
@@ -39,24 +47,23 @@ $.register_module({
                         result[idx] = html, (total === ++done) && internal_handler();
                     });
                     if (typeof val === 'string') return result[idx] = val, (total === ++done) && internal_handler();
-                    error_prefix = block.klass + '#' + self + ': children[' + idx + ']';
+                    error_prefix = module.name + '#html: children[' + idx + ']';
                     throw new TypeError(error_prefix + ' is neither a string nor does it have an html function');
                 });
             };
             block.load = function () {
                 if (form.events['form:load'])
-                    form.events['form:load'].forEach(function (val) {if (val.ref === block) val.handler();});
+                    form.events['form:load'].forEach(function (val) {if (val.origin === block) val.handler();});
                 block.children.forEach(function (child) {if (child.load) child.load();});
             };
             block.process = function (data, errors) {
                 block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
-                .then(function (result) {template = result || '';});
+            $.when(module ? api_text({module: module}) : void 0)
+                .then(function (result) {template = templatize(module, result);});
             if (form && config.handlers) form.attach.call(block, config.handlers);
         };
-        Block.prototype.klass = module.name + ':Block'
         Block.prototype.off = function (type) {
             var form = this.form || this, block = this,
                 selector = typeof arguments[1] === 'string' ? arguments[1] : null,
@@ -76,20 +83,20 @@ $.register_module({
             return block;
         };
         Block.prototype.on = function (type) {
-            var form = this.form || this, block = this,
+            var form = this.form || this, origin = this,
                 selector = typeof arguments[1] === 'string' ? arguments[1] : null,
                 handler = typeof arguments[1] === 'function' ? arguments[1] : arguments[2],
                 context = typeof arguments[2] !== 'function' ? arguments[2] : arguments[3];
             if (form_events[has](type)) {
                 og.common.events.on.call(form, type, handler, context);
-                return form.events[type][form.events[type].length - 1].ref = block;
+                return form.events[type][form.events[type].length - 1].origin = origin;
             }
-            if (!selector) throw new TypeError(block.klass + '#on: selector is not defined');
+            if (!selector) throw new TypeError(module.name + '#on: selector is not defined');
             if (form.dom_events[type])
-                return form.dom_events[type].push({type: type, selector: selector, handler: handler}), block;
+                return form.dom_events[type].push({type: type, selector: selector, handler: handler}), origin;
             form.dom_events[type] = [{type: type, selector: selector, handler: handler}];
             form.root.on(type, delegator.bind(form));
-            return block;
+            return origin;
         };
         /** @private */
         var delegator = function (event) {
@@ -105,27 +112,24 @@ $.register_module({
          * @class Field
          */
         var Field = function (form, config) {
-            var field = this, template = null, url = config.url, module = config.module,
-                extras = config.extras, generator = config.generator,
-                processor = config.processor;
+            var field = this, template = null, module = config.module, extras = config.extras,
+                generator = config.generator, processor = config.processor;
             field.form = form;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), STALL);
-                if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
-                generator(handler, template);
+                if (extras && template) return handler(template(extras)); else generator(handler, template);
             };
             field.load = function () {
                 if (form.events['form:load'])
-                    form.events['form:load'].forEach(function (val) {if (val.ref === field) val.handler();});
+                    form.events['form:load'].forEach(function (val) {if (val.origin === field) val.handler();});
             };
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
-                .then(function (result) {template = result || '';});
+            $.when(module ? api_text({module: module}) : void 0)
+                .then(function (result) {template = templatize(module, result);});
             if (config.handlers) form.attach.call(field, config.handlers);
         };
-        Field.prototype.klass = module.name + ':Field';
         /**
          * @class Form
          */
@@ -169,16 +173,17 @@ $.register_module({
             })([]);
             /** @private */
             var submit_handler = function (event, extras) {
-                    var self = 'submit_handler', result = form.compile();
+                    var result = form.compile();
                     $.extend(true, result.extras, extras);
                     if (event && event.preventDefault) event.preventDefault();
                     try {
                         form.events['form:submit'].forEach(function (val) {val.handler(result);});
                     } catch (error) {
-                        og.dev.warn(form.klass + '#' + self + ' a form:submit handler failed with:\n', error);
+                        og.dev.warn(module.name + '#submit_handler a form:submit handler failed with:', error);
                     }
             };
             form.attach = function (handlers) {
+                og.dev.warn(module.name + '#attach is deprecated: ', config.module);
                 var context = this; // might not === form
                 handlers.forEach(function (val) {form.on.call(context, val.type, val.selector, val.handler);});
             };
@@ -194,7 +199,7 @@ $.register_module({
                         }, data)[last] = value.value;
                     } catch (error) {
                         data = null;
-                        error = new Error(form.klass + '#' + self + ': could not drill down to data.' + value.name);
+                        error = new Error(module.name + '#compile: could not drill down to data.' + value.name);
                         form.events['form:error'].forEach(function (val) {val.handler(error);});
                     }
                 });
@@ -203,12 +208,12 @@ $.register_module({
                 meta_warns = meta_warns.sort().reduce(function (acc, val) {
                     return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
                 }, []).join('\n');
-                if (meta_warns.length) og.dev.warn(form.klass + '#build_meta needs these:\n', meta_warns);
+                if (meta_warns.length) og.dev.warn(module.name + '#build_meta needs these:', meta_warns);
                 return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
             };
             form.data = config.data;
             form.dom = form.html.partial(function (html) {
-                form.root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
+                form.root.empty().append(form_template({id: form.id, html: html}));
                 form.events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(submit_handler);
             });
@@ -220,7 +225,6 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        Form.prototype.klass = module.name + ':Form';
         Form.type =  {
             BOO: 'boolean',
             BYT: 'byte',

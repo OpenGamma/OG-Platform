@@ -148,7 +148,7 @@ $.register_module({
             form.children = [
                 new form.Field({
                     module: 'og.views.forms.currency',
-                    generator: function (handler, template) {handler(template);}, // item_0
+                    generator: function (handler, template) {handler(template());}, // item_0
                     handlers: [{type: 'change', selector: form_id + ' select[name=currency]', handler: function (e) {
                         // this needs to happen immediately in case a user adds new rows,
                         // it's not enough that it just happens on submit

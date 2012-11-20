@@ -169,9 +169,10 @@ $.register_module({
                             rest_options: {page: '*'}, placeholder: 'Please choose a portfolio...', fields: [0, 2],
                             processor: function (selector, data) {if (!data.identifier) delete data.identifier;}
                         }),
-                        new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) {
-                            handler(template);
-                        }})
+                        new form.Field({
+                            module: 'og.views.forms.currency',
+                            generator: function (handler, template) {handler(template());}
+                        })
                     ],
                     handlers: [
                         {type: 'form:load', handler: function () {
