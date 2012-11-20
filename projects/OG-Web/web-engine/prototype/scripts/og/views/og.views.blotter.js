@@ -4,11 +4,15 @@
  */
 $.register_module({
     name: 'og.views.blotter',
-    dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.common.routes', 'og.blotter.container'],
+    dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.common.routes'],
     obj: function () {
-        var module = this, masthead = og.common.masthead, page_name = module.name.split('.').pop();
-        console.log(page_name);
-        masthead.menu.set_tab(page_name);
-        var blotter = new og.blotter.Container();
+        var module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
+
+        return view = {
+            init : function () {
+                masthead.menu.set_tab(page_name);
+                dialog = new og.blotter.Container();
+            }
+        };
     }
 });

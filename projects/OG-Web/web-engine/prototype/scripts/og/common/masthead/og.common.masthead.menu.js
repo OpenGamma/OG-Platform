@@ -39,7 +39,6 @@ $.register_module({
                 });
             },
             set_tab: function (name) {
-                console.log(name);
                 $('.OG-masthead a').removeClass('og-active');
                 $('.OG-masthead .og-' + name).addClass('og-active');
             }

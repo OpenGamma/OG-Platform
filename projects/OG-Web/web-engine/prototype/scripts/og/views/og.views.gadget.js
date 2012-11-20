@@ -9,7 +9,10 @@ $.register_module({
         var module = this, view, common = og.common, routes = common.routes,
             gadgets = common.gadgets, content = '.OG-gadget-container', $content = $(content);
         return view = {
-            init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
+            init: function () {
+                for (var rule in view.rules) 
+                    routes.add(view.rules[rule]);
+            },
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
