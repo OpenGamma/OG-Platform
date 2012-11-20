@@ -16,6 +16,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -75,7 +76,9 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification()));
+    final ValueProperties properties = ValueProperties.builder()
+        .with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS).get();
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification(), properties));
   }
 
   private static class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmount> {
