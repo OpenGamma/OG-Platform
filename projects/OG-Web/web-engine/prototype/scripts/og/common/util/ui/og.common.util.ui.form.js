@@ -10,14 +10,11 @@ $.register_module({
         var module = this, STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
             has = 'hasOwnProperty', form_template = Handlebars.compile('<form action="." id="{{id}}">' +
                 '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
-        /** @private */
-        var templatize = function (name, html) {return !module || !html ? false : Handlebars.compile(html);};
-        /**
-         * @class Block
-         */
+        /** @class Block */
         var Block = function (form, config) {
             var block = this, config = config || {}, template = null, module = config.module, extras = config.extras,
                 processor = config.processor;
+            /** @private */
             var wrap = function (html) {return config.wrap ? Handlebars.compile(config.wrap)({html: html}) : html;};
             block.children = config.children || [];
             block.form = form;
@@ -96,9 +93,7 @@ $.register_module({
                 });
                 if (results.length && !results.some(Boolean)) return false;
         };
-        /**
-         * @class Field
-         */
+        /** @class Field */
         var Field = function (form, config) {
             var field = this, template = null, module = config.module, extras = config.extras,
                 generator = config.generator, processor = config.processor;
@@ -125,9 +120,7 @@ $.register_module({
             var field = this, form = field.form;
             return form ? form.off.apply(field, Array.prototype.slice.call(arguments)) : field;
         };
-        /**
-         * @class Form
-         */
+        /** @class Form */
         var Form = function (config) {
             var form = new Block(null, config), selector = config.selector, $form, type_map = config.type_map;
             /** @private */
@@ -214,6 +207,8 @@ $.register_module({
             form.submit = submit_handler.partial(null);
             return form;
         };
+        /** @private */
+        var templatize = function (name, html) {return !module || !html ? false : Handlebars.compile(html);};
         Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
