@@ -41,7 +41,7 @@ public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<Instr
     final ZonedDateTime expiry = security.getExpiry().getExpiry();
     final Set<ExternalId> externalIds = security.getExternalIdBundle().getExternalIds();
     if (externalIds == null) {
-      throw new OpenGammaRuntimeException("Cant get security id");
+      throw new OpenGammaRuntimeException("Can't get security id");
     }
     return new AgricultureFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
         security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
