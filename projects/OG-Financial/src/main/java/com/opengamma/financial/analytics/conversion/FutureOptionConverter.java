@@ -20,7 +20,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.CommodityFutureSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -58,9 +58,9 @@ public class FutureOptionConverter extends FinancialSecurityVisitorAdapter<Instr
   public InstrumentDefinition<?> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
     // Future details
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
-    final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
+    final CommodityFutureSecurity underlyingSecurity = ((CommodityFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
     if (underlyingSecurity == null) { s_logger.error("Couldn't find underlying security with ExternalId[{}] of security {}", new Object[] {underlyingIdentifier, security.toString() }); }
-    final AgricultureFutureDefinition underlyingFuture = (AgricultureFutureDefinition) underlyingSecurity.accept(_underlyingConverter); // START HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    final AgricultureFutureDefinition underlyingFuture = (AgricultureFutureDefinition) underlyingSecurity.accept(_underlyingConverter);
     // Option details
     final ZonedDateTime expiryDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();
