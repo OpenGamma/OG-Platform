@@ -5,17 +5,17 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
@@ -93,7 +93,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    final Double referencePrice = 0.0; // FIXME FutureRefactor Urgently need to update Options on Futures 
+    final Double referencePrice = 0.0;
     final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
     InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
     return option;
