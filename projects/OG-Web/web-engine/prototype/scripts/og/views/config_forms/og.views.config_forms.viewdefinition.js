@@ -155,10 +155,7 @@ $.register_module({
                             rest_options: {page: '*'}, placeholder: 'Please choose a portfolio...', fields: [0, 2],
                             processor: function (selector, data) {if (!data.identifier) delete data.identifier;}
                         }),
-                        new form.Field({
-                            module: 'og.views.forms.currency_tash',
-                            generator: function (handler, template) {handler(template());}
-                        })
+                        new form.Field({module: 'og.views.forms.currency_tash'})
                     ]
                 }).on('form:load', function () {
                     $(form_id + ' select[name=currency]').val(master.currency);
@@ -332,9 +329,8 @@ $.register_module({
                     var new_col_tab = function (col, col_idx) {
                         return new form.Field({
                             generator: function (handler) {
-                                var secu = col[SECU] || 'not set';
                                 handler('<li class="og-js-col-tab"><div class="og-delete og-js-rem-col"></div>' +
-                                    '<strong class="og-js-secu">' + secu + '</strong></li>');
+                                    '<strong class="og-js-secu">' + (col[SECU] || 'not set') + '</strong></li>');
                             }
                         });
                     };
@@ -367,7 +363,7 @@ $.register_module({
                                 new forms.Dropdown({
                                     form: form, resource: 'securities', value: col[SECU], index: dropdown_name,
                                     rest_options: {meta: true, cache_for: 300 * 1000}, placeholder: 'Please select...'
-                                }).on('change', set_id + ' [name="' + dropdown_name +'"]', function (event) {
+                                }).on('change', function (event) {
                                     var idx = $(this.selector).parents('.og-js-col-holder:first')
                                         .index(set_id + ' .og-js-col-holder');
                                     $(set_id + ' .og-js-col-tab:eq(' + idx + ')')

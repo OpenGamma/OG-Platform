@@ -21,10 +21,7 @@ $.register_module({
                 var form = new og.common.util.ui.Form({
                     selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'
                 }).on('form:load', load_handler);
-                form.children = [new form.Field({
-                    module: 'og.views.forms.currency_tash',
-                    generator: function (handler, template) {handler(template());}
-                })];
+                form.children = [new form.Field({module: 'og.views.forms.currency_tash'})];
                 form.dom();
             };
         };

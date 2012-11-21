@@ -14,11 +14,15 @@ $.register_module({
         var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, Form = ui.Form,
             CONV = 'conventionName', NUMF = 'numFutures',
             CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
+            INTY = 'interpolateYields', LTXN = 'leftExtrapolatorName', RTXN = 'rightExtrapolatorName',
             INDX = '<INDEX>',
             type_map = [
                 [['0', INDX].join('.'),                 Form.type.STR],
                 ['currency',                            Form.type.STR],
                 [INTR,                                  Form.type.STR],
+                [INTY,                                  Form.type.BOO],
+                [LTXN,                                  Form.type.STR],
+                [RTXN,                                  Form.type.STR],
                 ['name',                                Form.type.STR],
                 ['region',                              Form.type.STR],
                 [['strip', INDX, CONV].join('.'),       Form.type.STR],
@@ -26,10 +30,9 @@ $.register_module({
                 [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
                 [['strip', INDX, 'type'].join('.'),     Form.type.STR],
                 ['uniqueId',                            Form.type.STR]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
-            constructor,
-            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
-        constructor = function (config) {
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {});
+        var arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
+        var constructor = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name,
@@ -41,9 +44,11 @@ $.register_module({
                     data: master, type_map: type_map, selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
-                        interpolator: master[INTR]
+                        interpolator: master[INTR], interpolate: master[INTY] ? 'checked="checked"' : '',
+                        left: master[LTXN], right: master[RTXN]
                     },
                     processor: function (data) {
+                        data[INTY] = $(form_id + ' input[name=' + INTY + ']').is(':checked');
                         data.strip = data.strip.filter(function (v) {return v !== void 0;}); // remove undefineds
                     }
                 }),
@@ -55,10 +60,9 @@ $.register_module({
                         data_generator: function (handler) {
                             var rest_options = {page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000};
                             api.configs.get(rest_options).pipe(function (result) {
-                                handler(result.data.data.map(function (val) {
-                                    var value = val.split('|')[1].split('_').slice(0, -1).join('_');
-                                    return {value: value, text: value};
-                                }));
+                                var options = result.data.data
+                                    .map(function (val) {return val.split('|')[1].split('_').slice(0, -1).join('_');});
+                                handler(options);
                             });
                         }
                     });
@@ -108,6 +112,7 @@ $.register_module({
                 setTimeout(load_handler.partial(form));
             }).on('change', form_id + ' [name=currency]', function (event) {
                 var currency = $(event.target).val();
+                master.currency = $(event.target).val(); // do now in case a new row is added, not just on submit
                 $('.OG-layout-admin-details-center .og-js-currency').text(currency);
                 $(form_id + ' .og-js-conv').each(function () {
                     var $el = $(this), idx = $el.attr('name').split('.').slice(1, -1),
@@ -125,12 +130,7 @@ $.register_module({
                 block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
             });
             form.children = [
-                new form.Field({
-                    module: 'og.views.forms.currency_tash',
-                    generator: function (handler, template) {handler(template());}, // item_0
-                }).on('change', form_id + ' select[name=currency]', function (event) {
-                    master.currency = $(event.target).val(); // do now in case a new row is added, not just on submit
-                }),
+                new form.Field({module: 'og.views.forms.currency_tash'}), // item_0
                 new forms.Dropdown({ // item_1
                     form: form, value: master.region.split(sep)[1], placeholder: 'Please select...',
                     processor: function (selector, data, errors) {

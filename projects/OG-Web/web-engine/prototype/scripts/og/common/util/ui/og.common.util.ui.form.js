@@ -12,7 +12,7 @@ $.register_module({
                 '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
         /** @class Block */
         var Block = function (form, config) {
-            var block = this, config = config || {}, template = null, module = config.module, extras = config.extras,
+            var block = this, config = config || {}, template = null, url = config.module, extras = config.extras,
                 processor = config.processor;
             /** @private */
             var wrap = function (html) {return config.wrap ? Handlebars.compile(config.wrap)({html: html}) : html;};
@@ -46,8 +46,8 @@ $.register_module({
                 block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            $.when(module ? api_text({module: module}) : void 0)
-                .then(function (result) {template = templatize(module, result);});
+            $.when(url ? api_text({module: url}) : void 0)
+                .then(function (result) {template = templatize(url, result);});
         };
         Block.prototype.off = function (type) {
             var form = this.form || this, origin = this,
@@ -95,12 +95,14 @@ $.register_module({
         };
         /** @class Field */
         var Field = function (form, config) {
-            var field = this, template = null, module = config.module, extras = config.extras,
-                generator = config.generator, processor = config.processor;
+            var field = this, template = null, url = config.module, signature = module.name + ':Field#html ',
+                generator = config.generator, processor = config.processor, extras = config.extras;
+            if (generator && extras) og.dev.warn(signature + 'extras will be ignored if generator exists');
+            if (!url && !generator) throw new TypeError(signature + 'neither url nor generator is defined');
             field.form = form;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), STALL);
-                if (extras && template) return handler(template(extras)); else generator(handler, template);
+                if (generator) return generator(handler, template); else handler(template(extras));
             };
             field.load = function () {
                 if (form.events['form:load']) // mimic a form load event
@@ -109,8 +111,8 @@ $.register_module({
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            $.when(module ? api_text({module: module}) : void 0)
-                .then(function (result) {template = templatize(module, result);});
+            $.when(url ? api_text({module: url}) : void 0)
+                .then(function (result) {template = templatize(url, result);});
         };
         Field.prototype.on = function () {
             var field = this, form = field.form;
@@ -208,7 +210,7 @@ $.register_module({
             return form;
         };
         /** @private */
-        var templatize = function (name, html) {return !module || !html ? false : Handlebars.compile(html);};
+        var templatize = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
         Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
