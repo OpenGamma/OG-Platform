@@ -3,26 +3,37 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.Container',
+    name: 'og.blotter.Dialog',
     dependencies: [],
     obj: function () {   
-        return function () {
-            var container = this, css_attr = {position: 'absolute', width: '500px', height: '800px', zIndex: '50', 
-                marginLeft: 'auto', marginRight: 'auto'};
-            container.alive = function () {
+        return function (config) {
+            var dialog = this, close = '.OG-blotter-form-close', form_block = '.OG-blotter-form-block';
+            dialog.alive = function () {
                 //am I alive?
             };
-            container.load = function () {
-                og.api.text({module: 'og.blotter.container'}).pipe(function (template) {
-                    container.selector = $(template);
-                    container.selector.appendTo($('body'));
-                    container.selector.css(css_attr);
+            dialog.load = function () {
+                og.api.text({module: 'og.blotter.dialog_tash'}).pipe(function (tmpl) {
+                    template = Handlebars.compile(tmpl);
+                    dialog.selector = $(template(config))
+                    .appendTo($('body'))
+                    .on('click', close, function () {
+                       dialog.kill(); 
+                    });
+                    dialog.form_block(config.tmpl);
+                });   
+            }; 
+            dialog.load();
+            dialog.form_block = function(form_template){
+                og.api.text({module: form_template}).pipe(function (tmpl) {
+                    var $form_block = $(form_block);
+                    $form_block.html(tmpl); 
                 });
-               
-            };
-            container.load();
-            container.resize = function () {
+            },
+            dialog.resize = function () {
                 //maybe not needed
+            },
+            dialog.kill = function () {
+                dialog.selector.remove();
             };
         };
     }

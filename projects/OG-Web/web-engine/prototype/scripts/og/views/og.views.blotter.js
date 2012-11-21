@@ -4,14 +4,13 @@
  */
 $.register_module({
     name: 'og.views.blotter',
-    dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.common.routes'],
+    dependencies: [],
     obj: function () {
-        var module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
-
+        var view, module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
         return view = {
-            init : function () {
+            init: function () {
                 masthead.menu.set_tab(page_name);
-                dialog = new og.blotter.Container();
+                dialog = new og.blotter.Dialog(og.blotter.mapping.forms.VAN_SWA);
             }
         };
     }
