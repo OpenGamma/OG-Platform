@@ -886,8 +886,14 @@ CREATE TABLE sec_cds (
   CONSTRAINT sec_fk_cds_underlying2currency FOREIGN KEY (underlying_currency_id) REFERENCES sec_currency (id)
 );
 
-CREATE TABLE sec_debtseniority (
+CREATE TABLE sec_debt_seniority (
     id bigint NOT NULL,
     name varchar(255) NOT NULL UNIQUE,
     PRIMARY KEY (id)
+ );
+ 
+ CREATE TABLE  sec_restructuring_clause (
+     id bigint NOT NULL,
+     name varchar(255) NOT NULL UNIQUE,
+     PRIMARY KEY (id)
  );
