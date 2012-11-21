@@ -61,7 +61,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class ISDACurveFunction extends AbstractFunction {
+public class ISDAYieldCurveFunction extends AbstractFunction {
   private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
 
   @Override

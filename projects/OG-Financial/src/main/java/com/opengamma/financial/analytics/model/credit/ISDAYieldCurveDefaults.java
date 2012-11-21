@@ -28,12 +28,12 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class ISDACurveDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(ISDACurveDefaults.class);
+public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(ISDAYieldCurveDefaults.class);
   private final PriorityClass _priority;
   private final Map<String, String> _offsetsForCurrency;
 
-  public ISDACurveDefaults(final String priority, final String... currencyAndOffsets) {
+  public ISDAYieldCurveDefaults(final String priority, final String... currencyAndOffsets) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndOffsets, "currency and offsets");
