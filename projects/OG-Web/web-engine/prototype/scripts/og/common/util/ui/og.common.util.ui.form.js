@@ -192,8 +192,8 @@ $.register_module({
                 built_meta = type_map ? build_meta(data, null, meta_warns) : null;
                 meta_warns = meta_warns.sort().reduce(function (acc, val) {
                     return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
-                }, []).join('\n');
-                if (meta_warns.length) og.dev.warn(module.name + '#build_meta needs these:', meta_warns);
+                }, []).join(', ');
+                if (meta_warns.length) throw new Error(module.name + '#build_meta needs: ' + meta_warns);
                 return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
             };
             form.data = config.data;
