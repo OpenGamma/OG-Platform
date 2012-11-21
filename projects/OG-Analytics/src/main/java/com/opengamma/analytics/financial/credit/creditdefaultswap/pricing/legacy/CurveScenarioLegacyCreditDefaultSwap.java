@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to enable user to specify a non-homogeneous set of bumps to the credit spread term structure
@@ -19,9 +21,9 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
  */
 public class CurveScenarioLegacyCreditDefaultSwap {
 
-  // -------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double[] getCS01BucketedCfreditDefaultSwap(
+  public double getCurveScenarioCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
@@ -31,48 +33,63 @@ public class CurveScenarioLegacyCreditDefaultSwap {
       final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    final double[] bucketedCS01 = new double[10];
+    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
 
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
+    ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve");
+    ArgumentChecker.notNull(marketTenors, "Market tenors");
+    ArgumentChecker.notNull(marketSpreads, "Market spreads");
+    ArgumentChecker.notNull(spreadBumps, "Spread bumps");
+    ArgumentChecker.notNull(spreadBumpType, "Spread bump type");
+    ArgumentChecker.notNull(priceType, "Price type");
+
+    // Construct a market data checker object
+    final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
+
+    // Check the efficacy of the input market data
+    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    final PresentValueLegacyCreditDefaultSwap temp = new PresentValueLegacyCreditDefaultSwap();
+    // Create a CDS PV calculator
+    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = temp.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Loop through each of the spreads at each tenor
-    for (int m = 0; m < marketTenors.length; m++) {
-
-      // Reset the bumpedMarketSpreads vector to the original marketSpreads
-      for (int n = 0; n < marketTenors.length; n++) {
-        bumpedMarketSpreads[n] = marketSpreads[n];
-      }
+    // Loop through and bump each of the spreads at each tenor
+    for (int m = 0; m < marketSpreads.length; m++) {
 
       // Bump the spread at tenor m
-      if (spreadBumpType == SpreadBumpType.ADDITIVE_BUCKETED) {
+      if (spreadBumpType == SpreadBumpType.ADDITIVE) {
         bumpedMarketSpreads[m] = marketSpreads[m] + spreadBumps[m];
       }
 
-      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE_BUCKETED) {
+      if (spreadBumpType == SpreadBumpType.MULTIPLICATIVE) {
         bumpedMarketSpreads[m] = marketSpreads[m] * (1 + spreadBumps[m]);
       }
 
-      // Calculate the bumped CDS PV
-      final double bumpedPresentValue = temp.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
-
-      bucketedCS01[m] = (bumpedPresentValue - presentValue) / spreadBumps[m];
+      ArgumentChecker.notNegative(bumpedMarketSpreads[m], "Bumped market spread");
     }
 
-    // -------------------------------------------------------------
+    // Calculate the bumped CDS PV
+    final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-    return bucketedCS01;
+    double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    return curveScenarioPresentValue;
   }
-  // -------------------------------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.ModeCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleFisherKurtosisCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
@@ -20,8 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class to specify the composition and characteristics of a 'pool' of obligors
- * In the credit index context the underlying pool is the set of obligors that constitute the index (e.g. CDX.NA.IG series 18)
+ * Class to specify the composition and characteristics of a collection of Obligor objects aggregated into a common pool
+ * In the credit index context the underlying pool is the set of obligors that constitute an index (e.g. CDX.NA.IG series 18)
  */
 public class UnderlyingPool {
 
@@ -37,7 +39,7 @@ public class UnderlyingPool {
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm
-  // NOTE : Alternatively we can specify the total pool notional to be $100mm and then calculate by hand what the appropriate obligor notionals should be
+  // NOTE : Alternatively we can specify the total pool notional to be $100mm and then calculate by hand what the appropriate obligor notionals should be (1/100)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -58,6 +60,9 @@ public class UnderlyingPool {
 
   // Vector of tenors at which we have market observed par CDS spreads
   private final CreditSpreadTenors[] _creditSpreadTenors;
+
+  // The number of tenor points used in specifying the term structure of credit spreads
+  private final int _numberOfCreditSpreadTenors;
 
   // Matrix holding the term structure of market observed credit spreads (one term structure for each obligor in the underlying pool)
   private final double[][] _spreadTermStructures;
@@ -85,17 +90,17 @@ public class UnderlyingPool {
   // Ctor for the pool of obligor objects
 
   public UnderlyingPool(
-      Obligor[] obligors,
-      Currency[] currency,
-      DebtSeniority[] debtSeniority,
-      RestructuringClause[] restructuringClause,
-      CreditSpreadTenors[] creditSpreadTenors,
-      double[][] spreadTermStructures,
-      double[] obligorNotionals,
-      double[] obligorCoupons,
-      double[] obligorRecoveryRates,
-      double[] obligorWeights,
-      YieldCurve[] yieldCurve) {
+      final Obligor[] obligors,
+      final Currency[] currency,
+      final DebtSeniority[] debtSeniority,
+      final RestructuringClause[] restructuringClause,
+      final CreditSpreadTenors[] creditSpreadTenors,
+      final double[][] spreadTermStructures,
+      final double[] obligorNotionals,
+      final double[] obligorCoupons,
+      final double[] obligorRecoveryRates,
+      final double[] obligorWeights,
+      final YieldCurve[] yieldCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -107,10 +112,19 @@ public class UnderlyingPool {
     ArgumentChecker.notNull(restructuringClause, "Restructuring Clause");
     ArgumentChecker.notNull(creditSpreadTenors, "Credit spread tenors");
     ArgumentChecker.notNull(spreadTermStructures, "Credit spread term structures");
+    ArgumentChecker.notNull(obligorNotionals, "Notionals");
     ArgumentChecker.notNull(obligorCoupons, "Coupons");
     ArgumentChecker.notNull(obligorRecoveryRates, "Recovery Rates");
     ArgumentChecker.notNull(obligorWeights, "Obligor Weights");
     //ArgumentChecker.notNull(yieldCurve, "Yield curve");
+
+    ArgumentChecker.noNulls(obligors, "Obligors");
+    ArgumentChecker.noNulls(currency, "Currency");
+    ArgumentChecker.noNulls(debtSeniority, "Debt Seniority");
+    ArgumentChecker.noNulls(restructuringClause, "Restructuring Clause");
+    ArgumentChecker.noNulls(creditSpreadTenors, "Credit spread tenors");
+    ArgumentChecker.noNulls(spreadTermStructures, "Credit spread term structures");
+    //ArgumentChecker.noNulls(yieldCurve, "Yield curve");
 
     ArgumentChecker.isTrue(obligors.length == currency.length, "Number of obligors and number of obligor currencies should be equal");
     ArgumentChecker.isTrue(obligors.length == debtSeniority.length, "Number of obligors and number of obligor debt seniorities should be equal");
@@ -148,6 +162,7 @@ public class UnderlyingPool {
 
     _creditSpreadTenors = creditSpreadTenors;
     _spreadTermStructures = spreadTermStructures;
+    _numberOfCreditSpreadTenors = creditSpreadTenors.length;
 
     _obligorNotionals = obligorNotionals;
     _obligorCoupons = obligorCoupons;
@@ -195,6 +210,10 @@ public class UnderlyingPool {
     return _spreadTermStructures;
   }
 
+  public int getNumberOfCreditSpreadTenors() {
+    return _numberOfCreditSpreadTenors;
+  }
+
   public double[] getObligorNotionals() {
     return _obligorNotionals;
   }
@@ -221,8 +240,84 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Calculate the average spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadAverage(CreditSpreadTenors creditSpreadTenor) {
+  public double getPoolRecoveryRateMean() {
+    return calculateAverageRecoveryRate();
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public double getPoolSpreadMean(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadMean(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadMedian(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadMedian(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadMode(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadMode(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadVariance(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadVariance(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadStandardDeviation(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadStandardDeviation(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadSkewness(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadSkewness(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadKurtosis(final CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+
+    return calculateCreditSpreadKurtosis(creditSpreadTenor);
+  }
+
+  public double getPoolSpreadPercentile(final CreditSpreadTenors creditSpreadTenor, final double q) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
+    ArgumentChecker.notNegative(q, "Percentile");
+    ArgumentChecker.isTrue(q <= 1.0, "Percentile must be less than or equal to 100%");
+
+    return calculateCreditSpreadPercentile(creditSpreadTenor, q);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the average recovery rate of the obligors in the underlying pool
+  private double calculateAverageRecoveryRate() {
+
+    MeanCalculator mean = new MeanCalculator();
+
+    return mean.evaluate(_obligorRecoveryRates);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the average (mean) spread of the obligors in the underlying pool for a given tenor
+  private double calculateCreditSpreadMean(CreditSpreadTenors creditSpreadTenor) {
 
     MeanCalculator mean = new MeanCalculator();
 
@@ -233,8 +328,32 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Calculate the median spread of the obligors in the underlying pool for a given tenor
+  private double calculateCreditSpreadMedian(CreditSpreadTenors creditSpreadTenor) {
+
+    MedianCalculator median = new MedianCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return median.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate the modal spread of the obligors in the underlying pool for a given tenor
+  private double calculateCreditSpreadMode(CreditSpreadTenors creditSpreadTenor) {
+
+    ModeCalculator mode = new ModeCalculator();
+
+    double[] spreads = getSpreads(creditSpreadTenor);
+
+    return mode.evaluate(spreads);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Calculate the variance of the spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadVariance(CreditSpreadTenors creditSpreadTenor) {
+  private double calculateCreditSpreadVariance(CreditSpreadTenors creditSpreadTenor) {
 
     SampleVarianceCalculator variance = new SampleVarianceCalculator();
 
@@ -246,7 +365,7 @@ public class UnderlyingPool {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the standard deviation of the spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadStandardDeviation(CreditSpreadTenors creditSpreadTenor) {
+  private double calculateCreditSpreadStandardDeviation(CreditSpreadTenors creditSpreadTenor) {
 
     SampleStandardDeviationCalculator standardDeviation = new SampleStandardDeviationCalculator();
 
@@ -258,7 +377,7 @@ public class UnderlyingPool {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the skewness of the spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadSkewness(CreditSpreadTenors creditSpreadTenor) {
+  private double calculateCreditSpreadSkewness(CreditSpreadTenors creditSpreadTenor) {
 
     SampleSkewnessCalculator skewness = new SampleSkewnessCalculator();
 
@@ -270,7 +389,7 @@ public class UnderlyingPool {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the excess kurtosis of the spread of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadKurtosis(CreditSpreadTenors creditSpreadTenor) {
+  private double calculateCreditSpreadKurtosis(CreditSpreadTenors creditSpreadTenor) {
 
     SampleFisherKurtosisCalculator excessKurtosis = new SampleFisherKurtosisCalculator();
 
@@ -282,7 +401,7 @@ public class UnderlyingPool {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the q'th percentile of the spread distribution of the obligors in the underlying pool for a given tenor
-  public double calculateCreditSpreadPercentile(CreditSpreadTenors creditSpreadTenor, final double q) {
+  private double calculateCreditSpreadPercentile(CreditSpreadTenors creditSpreadTenor, final double q) {
 
     PercentileCalculator percentile = new PercentileCalculator(q);
 
@@ -293,7 +412,10 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Method to extract out the creditSpreadTenor spreads from the underlying pool
   private double[] getSpreads(CreditSpreadTenors creditSpreadTenor) {
+
+    ArgumentChecker.notNull(creditSpreadTenor, "Credit spread tenor");
 
     int counter = 0;
 

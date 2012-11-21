@@ -32,6 +32,10 @@ public class CS01LegacyCreditDefaultSwap {
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
   // TODO : Further checks on efficacy of input arguments
+  // TODO : Need to get the times[] calculation correct
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+
+  // NOTE : We enforce spreadBump > 0, therefore if the marketSpreads > 0 then bumpedMarketSpreads > 0 by construction
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,7 +53,7 @@ public class CS01LegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
@@ -128,7 +132,7 @@ public class CS01LegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");

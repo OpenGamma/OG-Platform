@@ -42,14 +42,9 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Work In Progress
 
   // TODO : Add the hashCode and equals methods
-  // TODO : Replace _series, _version with enums
-  // TODO : Add the argument checkers to verify the input dates are in the right temporal order
   // TODO : Need to sort out the quoting conventions for the different indices
-  // TODO : Do we need the flag to adjust the maturity date to an IMM date - standard CDS index positions always mature on an IMM date anyway
-  // TODO : Generalise the model so that if the underlying pool has only a single name, the code knows we are modelling the index as a single name CDS
-  // TODO : Include the standard indices which inherit from this super class (include a bespoke index that allows the user to create their own index)
 
-  // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyinPool class
+  // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
   // NOTE : The stub type, coupon frequency, daycount fraction and business day convention fields are part of the CDS index definition.
   // NOTE : This is because we need to specify at the index level what the schedule of cashflow payments is (not at the individual
@@ -60,6 +55,14 @@ public class IndexCreditDefaultSwapDefinition {
 
   // NOTE : In the index ctor we only construct the CDS objects for the obligors in the underlying pool. The calibration of these CDS's
   // NOTE : to the user input CDS par spread term structures
+
+  // NOTE : In principle the user can create an index with an UnderlyingPool consisting of a single Obligor. In this case we are
+  // NOTE : essentially approximating the full pool with a one single name CDS. The pricing analytics should be ambivalent to the
+  // NOTE : number of obligors in the underlying pool i.e. the correct answer should fall out
+
+  // NOTE : A standard CDS index is uniquely identified by the three-tuple of (_index, _series, _version). This combination is sufficient to 
+  // NOTE : identify what UnderlyingPool should be attached to the index (the UnderlyingPool object in turn will be composed of the Obligors
+  // NOTE : corresponding to the index identified by the three-tuple)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +107,7 @@ public class IndexCreditDefaultSwapDefinition {
   // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
-  // The method for generating the schedule of premium payments
+  // The type of stub (front/back and long/short)
   private final StubType _stubType;
 
   // The frequency of coupon payments (usually quarterly)
@@ -125,19 +128,19 @@ public class IndexCreditDefaultSwapDefinition {
   // Flag to determine if we business day adjust the user input settlement date (not a standard feature of index CDS positions)
   private final boolean _adjustSettlementDate;
 
-  // Flag to determine if we business day adjust the final maturity date (not a standard feature of index CDS positions)
+  // Flag to determine if we business day adjust the final maturity date (not a standard feature of index CDS positions which usually mature on IMM dates)
   private final boolean _adjustMaturityDate;
 
-  // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
+  // Flag to determine whether the accrued coupons should be included in the underlying pool CDS premium leg calculation
   private final boolean _includeAccruedPremium;
 
-  // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA model)
+  // Flag to determine if survival probabilities are calculated at the beginning or end of the day (hard coded to TRUE in ISDA CDS model)
   private final boolean _protectionStart;
 
   //The trade notional (in the trade currency)
   private final double _notional;
 
-  // The amount of upfront exchanged (usually on T + 3bd)
+  // The amount of upfront exchanged (usually on T + 3bd) - can be positive or negative
   private final double _upfrontPayment;
 
   // The fixed index coupon (fixed at the issuance of the index)
@@ -146,6 +149,7 @@ public class IndexCreditDefaultSwapDefinition {
   // The current market observed index spread (can differ from the fixed coupon)
   private final double _indexSpread;
 
+  // Vector of single name CDS objects (one for each obligor in the underlying pool)
   private final LegacyCreditDefaultSwapDefinition[] _underlyingCDS;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -190,6 +194,7 @@ public class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(underlyingPool, "Underlying Pool");
 
     ArgumentChecker.notNull(cdsIndex, "CDS Index");
+    ArgumentChecker.notNegative(series, "CDS series");
 
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(calendar, "Calendar");
@@ -199,13 +204,19 @@ public class IndexCreditDefaultSwapDefinition {
     ArgumentChecker.notNull(settlementDate, "Settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
 
+    // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
+    ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(settlementDate), "Start date {} must be on or before settlement date {}", startDate, settlementDate);
+    ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
+    ArgumentChecker.isTrue(!settlementDate.isAfter(maturityDate), "Settlement date {} must be on or before maturity date {}", settlementDate, maturityDate);
+
     ArgumentChecker.notNull(stubType, "Stub type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount fraction convention");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
-    ArgumentChecker.notNegative(upfrontPayment, "Upfront payment");
     ArgumentChecker.notNegative(indexCoupon, "Index coupon");
     ArgumentChecker.notNegative(indexSpread, "Index spread");
 
@@ -296,7 +307,7 @@ public class IndexCreditDefaultSwapDefinition {
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public member accessor methods
 
@@ -412,5 +423,5 @@ public class IndexCreditDefaultSwapDefinition {
     return _underlyingCDS;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

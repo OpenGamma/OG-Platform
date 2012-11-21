@@ -30,6 +30,7 @@ public class StandardRecoveryLockCreditDefaultSwapDefinition extends CreditDefau
 
   // TODO : Need to add the test file for this object
   // TODO : Check hashCode (and need to fix this) and equals methods
+  // TODO : Need to add the member variables specific to this contract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

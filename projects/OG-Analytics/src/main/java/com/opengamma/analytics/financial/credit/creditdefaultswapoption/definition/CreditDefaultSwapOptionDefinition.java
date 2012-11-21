@@ -46,7 +46,7 @@ public class CreditDefaultSwapOptionDefinition {
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
-  // The counterparties in the CDS swaption trade (can be different to the counterparties in the underlying CDS)
+  // The counterparties in the CDS swaption trade (can in principle be different to the counterparties in the underlying CDS)
   private final Obligor _protectionBuyer;
   private final Obligor _protectionSeller;
 

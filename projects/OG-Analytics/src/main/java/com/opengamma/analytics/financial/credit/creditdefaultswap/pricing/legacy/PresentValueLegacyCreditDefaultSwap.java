@@ -60,6 +60,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
+
   public double getPresentValueCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
@@ -108,6 +109,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
+
   public double getParSpreadCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
@@ -304,6 +306,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Need to re-write this code completely - it is completely terrible!!
+
   private double valueFeeLegAccrualOnDefault(
       final double amount,
       final double[] timeline,
@@ -367,6 +370,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // If the cleanPrice flag is TRUE then this function is called to calculate the accrued interest between valuationDate and the previous coupon date
+
   private double calculateAccruedInterest(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds) {
 
     // Construct a cashflow schedule object
@@ -396,6 +400,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to determine where in the premium leg cashflow schedule the valuation date is
+
   private int getCashflowIndex(final ZonedDateTime valuationDate, final ZonedDateTime[] premiumLegSchedule, final int startIndex, final int deltaDays) {
 
     int counter = startIndex;
@@ -411,6 +416,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to calculate the contingent leg (replicates the calculation in the ISDA model)
+
   private double calculateContingentLeg(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
@@ -476,6 +482,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to calculate the value of the contingent leg of a CDS (with a hazard rate curve calibrated to market observed data) - Currently not used but this is a more elegant calc than ISDA
+
   private double calculateContingentLegOld(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -537,6 +544,7 @@ public class PresentValueLegacyCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method to calibrate a CDS hazard rate term structure to a user input term structure of market spreads and calculate the CDS PV
+
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,

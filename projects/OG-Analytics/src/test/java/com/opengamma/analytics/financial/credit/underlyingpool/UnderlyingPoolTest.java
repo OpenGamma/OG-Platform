@@ -26,16 +26,17 @@ import com.opengamma.util.money.Currency;
  */
 public class UnderlyingPoolTest {
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add the obligor credit spread term structures
+  // TODO : Need to sort out a better way of building the pool
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
   private static final boolean outputResults = false;
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Define the composition of the underlying pool
 
@@ -87,10 +88,20 @@ public class UnderlyingPoolTest {
   private static final Region[] obligorRegion = {Region.NORTHAMERICA, Region.NORTHAMERICA, Region.EUROPE };
   private static final String[] obligorCountry = {"United States", "United States", "United Kingdom" };
 
-  // ----------------------------------------------------------------------------------
+  private static final CreditSpreadTenors dummyCreditSpreadTenor = null;
+  private static final double q = 0.99;
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Build the underlying pool
+
+  private static final UnderlyingPool dummyPool = constructPool();
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Initialise the obligors in the pool
-  private void initialiseObligorsInPool() {
+
+  private static void initialiseObligorsInPool() {
 
     // Loop over each of the obligors in the pool
     for (int i = 0; i < numberOfObligors; i++) {
@@ -148,10 +159,11 @@ public class UnderlyingPoolTest {
     }
   }
 
-  //--------------------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Build the underlying pool
-  private final UnderlyingPool constructPool() {
+
+  private static final UnderlyingPool constructPool() {
 
     // Initialise the obligors in the pool
     initialiseObligorsInPool();
@@ -173,14 +185,144 @@ public class UnderlyingPoolTest {
     return underlyingPool;
   }
 
-  // ----------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullObligorsField() {
+
+    new UnderlyingPool(null, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCurrencyField() {
+
+    new UnderlyingPool(obligors, null, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDebtSeniorityField() {
+
+    new UnderlyingPool(obligors, currency, null, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullRestructuringClauseField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, null, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, null, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTermStructuresField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, null, notionals, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullNotionalsField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, null, coupons, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCouponsField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, null, recoveryRates, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullRecoveryRatesField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, null, obligorWeights, yieldCurve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullObligorWeightsField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, null, yieldCurve);
+  }
+
+  /*
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullYieldCurveField() {
+
+    new UnderlyingPool(obligors, currency, debtSeniority, restructuringClause, creditSpreadTenors, spreadTermStructures, notionals, coupons, recoveryRates, obligorWeights, null);
+  }
+  */
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsMeanSpreadField() {
+
+    double meanSpread = dummyPool.getPoolSpreadMean(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsMedianSpreadField() {
+
+    double medianSpread = dummyPool.getPoolSpreadMedian(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsModeSpreadField() {
+
+    double modeSpread = dummyPool.getPoolSpreadMode(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsVarianceSpreadField() {
+
+    double varianceSpread = dummyPool.getPoolSpreadVariance(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsStandardDeviationSpreadField() {
+
+    double standardDeviationSpread = dummyPool.getPoolSpreadStandardDeviation(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsSkewnessSpreadField() {
+
+    double skewnessSpread = dummyPool.getPoolSpreadSkewness(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsKurtosisSpreadField() {
+
+    double kurtosisSpread = dummyPool.getPoolSpreadKurtosis(dummyCreditSpreadTenor);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCreditSpreadTenorsPercentileSpreadField() {
+
+    double percentileSpread = dummyPool.getPoolSpreadPercentile(dummyCreditSpreadTenor, q);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeCreditSpreadTenorsPercentileSpreadField() {
+
+    double percentileSpread = dummyPool.getPoolSpreadPercentile(dummyCreditSpreadTenor, -q);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testLessThanUnityCreditSpreadTenorsPercentileSpreadField() {
+
+    double percentileSpread = dummyPool.getPoolSpreadPercentile(dummyCreditSpreadTenor, q + 1.0);
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Test the construction of an underlying pool from user input data
 
   @Test
   public void testUnderlyingPoolConstruction() {
-
-    UnderlyingPool dummyPool = constructPool();
 
     int n = dummyPool.getNumberOfObligors();
 
@@ -211,5 +353,6 @@ public class UnderlyingPoolTest {
       }
     }
   }
-  // ----------------------------------------------------------------------------------
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

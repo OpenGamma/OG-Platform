@@ -52,7 +52,7 @@ public class GammaLegacyCreditDefaultSwapTest {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
