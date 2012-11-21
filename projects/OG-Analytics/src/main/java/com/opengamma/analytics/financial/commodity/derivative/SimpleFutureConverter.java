@@ -43,8 +43,4 @@ public final class SimpleFutureConverter extends AbstractInstrumentDerivativeVis
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
-  @Override
-  public SimpleFuture visitSimpleFuture(SimpleFuture visitor) {
-    return visitor;
-  }
 }
