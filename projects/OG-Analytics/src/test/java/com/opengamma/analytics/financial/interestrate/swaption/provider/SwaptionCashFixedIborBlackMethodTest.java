@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -23,6 +24,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionS
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
@@ -32,6 +34,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParRate
 import com.opengamma.analytics.financial.provider.description.BlackSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
@@ -103,35 +107,79 @@ public class SwaptionCashFixedIborBlackMethodTest {
   //    assertEquals("Swaption Black method: present value", pvCalculator, pvMethod.getAmount(), TOLERANCE_PRICE);
   //  }
   //
-  //  @Test
-  //  /**
-  //   * Tests the curve sensitivity for the explicit formula.
-  //   */
-  //  public void presentValueCurveSensitivity() {
-  //    MultipleCurrencyMulticurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
-  //    pvcsSwaption = pvcsSwaption.cleaned();
-  //    // 1. Forward curve sensitivity
-  //    final DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
-  //    for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-  //      final CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
-  //      forwardTime.add(cpn.getFixingPeriodStartTime());
-  //      forwardTime.add(cpn.getFixingPeriodEndTime());
+
+  @Test
+  /**
+   * Tests the curve sensitivity for the explicit formula.
+   */
+  public void presentValueCurveSensitivity() {
+    MultipleCurrencyMulticurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
+    pvcsSwaption = pvcsSwaption.cleaned();
+    // 1. Forward curve sensitivity
+    final DoubleArrayList forwardTime = new DoubleArrayList();
+    for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
+      final CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      forwardTime.add(cpn.getFixingPeriodStartTime());
+      forwardTime.add(cpn.getFixingPeriodEndTime());
+    }
+    final double[] nodeTimesForward = forwardTime.toDoubleArray();
+    final DoubleArrayList discTime = new DoubleArrayList();
+    discTime.add(SWAPTION_LONG_REC.getSettlementTime());
+    for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
+      final CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      discTime.add(cpn.getPaymentTime());
+    }
+    final double[] nodeTimesDisc = discTime.toDoubleArray();
+    final MulticurveSensitivity sensitivityPvFwd = pvcsSwaption.getSensitivity(SWAPTION_LONG_REC.getCurrency());
+    //final MulticurveSensitivity fdSensitivityPvFwd = getDiscountingCurveFiniteDifferenceSensitivities(SWAPTION_LONG_REC, BLACK_MULTICURVES, nodeTimesDisc, TOLERANCE_DELTA);
+    //    assertEquals("Swaption Black method: curve sensitivities", sensitivityPvFwd, fdSensitivityPvFwd, TOLERANCE_DELTA);
+    //    // 2. Discounting curve sensitivity
+    //    final DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
+    //    discTime.add(SWAPTION_LONG_REC.getSettlementTime());
+    //    for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
+    //      final CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+    //      discTime.add(cpn.getPaymentTime());
+    //    }
+    //    final double[] nodeTimesDisc = discTime.toDoubleArray();
+    //    final List<DoublesPair> sensiPvDisc = pvcsSwaption.getSensitivities().get(CURVES_NAME[0]);
+    //    final List<DoublesPair> fdSenseDsc = null;//FDCurveSensitivityCalculator.curveSensitvityFDCalculator(SWAPTION_LONG_REC, METHOD_BLACK, CURVES_BLACK, CURVES_NAME[0], nodeTimesDisc, TOLERANCE_DELTA);
+    //    assertSensitivityEquals(sensiPvDisc, fdSenseDsc, TOLERANCE_DELTA);
+  }
+
+  //  private static MulticurveSensitivity getDiscountingCurveFiniteDifferenceSensitivities(final InstrumentDerivative instrument, final BlackSwaptionProviderInterface blackMulticurves,
+  //      final double[] times, final double absTol) {
+  //    final double eps = 1e-6;
+  //
+  //    final List<DoublesPair> res = new ArrayList<DoublesPair>();
+  //    for (final double t : times) {
+  //      final Function1D<Double, Double> blip = new Function1D<Double, Double>() {
+  //        @Override
+  //        public Double evaluate(final Double x) {
+  //          return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance
+  //        }
+  //      };
+  //      final YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
+  //      final MulticurveProviderDiscount multicurveProvider = (MulticurveProviderDiscount) blackMulticurves.getMulticurveProvider();
+  //      final YieldAndDiscountCurve originalCurve = multicurveProvider.getCurve(Currency.EUR);
+  //      final YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+  //      final YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
+  //      final MulticurveProviderDiscount upCurves = multicurveProvider.withDiscountFactor(Currency.EUR, upCurve);
+  //      final MulticurveProviderDiscount downCurves = multicurveProvider.withDiscountFactor(Currency.EUR, downCurve);
+  //      final BlackSwaptionProviderInterface upData = new BlackSwaptionProviderDiscount(upCurves, blackMulticurves.getBlackParameters());
+  //      final BlackSwaptionProviderInterface downData = new BlackSwaptionProviderDiscount(downCurves, blackMulticurves.getBlackParameters());
+  //      final MultipleCurrencyAmount upPV = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, upData);
+  //      final MultipleCurrencyAmount downPV = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, downData);
+  //      assertEquals(1, upPV.size());
+  //      assertEquals(1, downPV.size());
+  //      final double up = upPV.getAmount(Currency.EUR);
+  //      final double down = downPV.getAmount(Currency.EUR);
+  //      final double dPV = (up - down) / 2 / eps;
+  //      if (Math.abs(dPV) > absTol) {
+  //        res.add(new DoublesPair(t, dPV));
+  //      }
   //    }
-  //    final double[] nodeTimesForward = forwardTime.toDoubleArray();
-  //    final List<DoublesPair> sensiPvFwd = pvcsSwaption.getSensitivity(SWAPTION_LONG_REC.getCurrency()).getYieldDiscountingSensitivities();
-  //        final List<DoublesPair> fdSenseFwd = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(SWAPTION_LONG_REC, METHOD_BLACK, CURVES_BLACK, CURVES_NAME[2], nodeTimesForward, TOLERANCE_DELTA);
-  //    assertSensitivityEquals(sensiPvFwd, fdSenseFwd, TOLERANCE_DELTA);
-  //    // 2. Discounting curve sensitivity
-  //    final DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
-  //    discTime.add(SWAPTION_LONG_REC.getSettlementTime());
-  //    for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-  //      final CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
-  //      discTime.add(cpn.getPaymentTime());
-  //    }
-  //    final double[] nodeTimesDisc = discTime.toDoubleArray();
-  //    final List<DoublesPair> sensiPvDisc = pvcsSwaption.getSensitivities().get(CURVES_NAME[0]);
-  //    final List<DoublesPair> fdSenseDsc = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(SWAPTION_LONG_REC, METHOD_BLACK, CURVES_BLACK, CURVES_NAME[0], nodeTimesDisc, TOLERANCE_DELTA);
-  //    assertSensitivityEquals(sensiPvDisc, fdSenseDsc, TOLERANCE_DELTA);
+  //    return MulticurveSensitivity.ofYieldDiscounting(res);
+  //    return null;
   //  }
   //
   //  @Test

@@ -39,8 +39,8 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.sabr.ParameterSensitivitySABRSwptCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.sabr.ParameterSensitivitySABRSwptDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.sabr.ParameterSensitivitySABRSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.sabr.ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -108,8 +108,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC = PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivitySABRSwptCalculator PS_SS_C = new ParameterSensitivitySABRSwptCalculator(PVCSSSC);
-  private static final ParameterSensitivitySABRSwptDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwptDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
+  private static final ParameterSensitivitySABRSwaptionCalculator PS_SS_C = new ParameterSensitivitySABRSwaptionCalculator(PVCSSSC);
+  private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
