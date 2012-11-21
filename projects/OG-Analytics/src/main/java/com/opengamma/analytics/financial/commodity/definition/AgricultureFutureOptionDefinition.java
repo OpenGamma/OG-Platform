@@ -5,13 +5,14 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.ExerciseDecisionType;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * Agriculture future options definition
@@ -42,8 +43,8 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
   public AgricultureFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    // timeToSettlement
-    return new AgricultureFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
+    AgricultureFuture underlyingDeriv = getUnderlying().toDerivative(date, yieldCurveNames);
+    return new AgricultureFutureOption(timeToFixing, underlyingDeriv, getStrike(), getExerciseType(), isCall());
   }
 
   @Override
@@ -71,6 +72,5 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
     }
     return super.equals(obj);
   }
-
 
 }

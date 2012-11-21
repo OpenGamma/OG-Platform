@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * Energy future option definition
@@ -42,8 +42,7 @@ public class EnergyFutureOptionDefinition extends CommodityFutureOptionDefinitio
   public EnergyFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    //timetoSettlement
-    return new EnergyFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
+    return new EnergyFutureOption(timeToFixing, getUnderlying().toDerivative(date, yieldCurveNames), getStrike(), getExerciseType(), isCall());
   }
 
   @Override

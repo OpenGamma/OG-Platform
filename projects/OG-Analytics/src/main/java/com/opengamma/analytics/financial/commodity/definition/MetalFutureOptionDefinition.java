@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * Metal future option definition
@@ -43,7 +43,7 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     //timeToSettlement
-    return new MetalFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
+    return new MetalFutureOption(timeToFixing, getUnderlying().toDerivative(date, yieldCurveNames), getStrike(), getExerciseType(), isCall());
   }
 
   @Override
@@ -71,6 +71,5 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
     }
     return super.equals(obj);
   }
-
 
 }
