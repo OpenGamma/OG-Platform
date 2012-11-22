@@ -55,6 +55,13 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.INTEREST_AT_MATURITY);
     store(SimpleYieldConvention.FRANCE_COMPOUND_METHOD);
     store(SimpleYieldConvention.SPAIN_GOVERNMENT_BONDS);
+    store(SimpleYieldConvention.GREEK_GOVERNMENT_BONDS);
+    store(SimpleYieldConvention.FINLAND_GOVERNMENT_BONDS);
+    store(SimpleYieldConvention.AUSTRIA_ISMA_METHOD);
+    store(SimpleYieldConvention.ITALY_TREASURY_BONDS);
+    store(SimpleYieldConvention.SPANISH_T_BILLS);
+    store(SimpleYieldConvention.PORTUGAL_DOMESTIC_SETTLE);
+    store(SimpleYieldConvention.ITALY_TREASURY_BILL);
   }
 
   /**
