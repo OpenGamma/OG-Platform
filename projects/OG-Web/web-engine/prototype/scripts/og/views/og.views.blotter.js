@@ -7,10 +7,27 @@ $.register_module({
     dependencies: [],
     obj: function () {
         var view, module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
+        
+        
+
+        $(window).load(function () { 
+
+            $('.van_swap').click(function (){
+                new og.blotter.forms.Vanilla_swap();
+            });
+            $('.var_swap').click(function (){
+                new og.blotter.forms.Variance_swap();
+            });
+            
+        });
+        
+
         return view = {
             init: function () {
+                
                 masthead.menu.set_tab(page_name);
-                dialog = new og.blotter.Dialog(og.blotter.mapping.forms.VAN_SWAP);
+                new og.blotter.Dialog();
+
             }
         };
     }

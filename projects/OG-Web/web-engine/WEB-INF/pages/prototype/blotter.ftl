@@ -9,6 +9,8 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="og-form"></div>
   </div>
   <div class="ui-layout-center">
+      <div class="van_swap">VANILLA SWAP</div>
+      <div class="var_swap">VARIANCE SWAP</div>
   </div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
