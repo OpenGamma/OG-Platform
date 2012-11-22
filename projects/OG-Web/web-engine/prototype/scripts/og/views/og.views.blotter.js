@@ -10,7 +10,7 @@ $.register_module({
         return view = {
             init: function () {
                 masthead.menu.set_tab(page_name);
-                dialog = new og.blotter.Dialog(og.blotter.mapping.forms.VAN_SWA);
+                dialog = new og.blotter.Dialog(og.blotter.mapping.forms.VAN_SWAP);
             }
         };
     }

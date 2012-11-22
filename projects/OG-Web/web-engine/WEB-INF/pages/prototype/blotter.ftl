@@ -8,7 +8,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <#include "modules/common/og.common.masthead.ftl">
       <div class="og-form"></div>
   </div>
-  <div class="ui-layout-blotter.center">Hello
+  <div class="ui-layout-center">
   </div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->

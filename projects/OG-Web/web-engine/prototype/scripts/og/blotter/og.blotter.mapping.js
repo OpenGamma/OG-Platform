@@ -10,8 +10,9 @@ $.register_module({
             template_name = function (name) {return tmpl_prefix + name + tmpl_suffix;};
         return mapping = {
             forms : {
-                VAR_SWA : {title: 'Variance Swap', tmpl: template_name('variance_swap')},
-                VAN_SWA : {title: 'Vannilla Swap', tmpl: template_name('vanilla_swap')}
+                VAR_SWAP : {title: 'Variance Swap', tmpl: template_name('variance_swap')},
+                VAN_SWAP : {title: 'Vannilla Swap', tmpl: template_name('vanilla_swap')},
+                SWAPTION : {title: 'Swaption', tmpl: template_name('swaption')}
             }
         };
     }

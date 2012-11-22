@@ -5,13 +5,20 @@
 .OG-blotter-dialog{
     background-color: white;
     border: 1px solid black;
+    box-shadow: 3px 3px 3px #000;
     height: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 10px auto;
     overflow: auto;
+    padding: 5px;
     width: 800px;
     z-index: 5;
 }
 .OG-blotter-form-block{
 	padding: 10px;
 }
+.OG-blotter-dialog input[type="text"]{
+	width: 50%
+}
+.OG-blotter-dialog select{
+	width: 50%
+} 
