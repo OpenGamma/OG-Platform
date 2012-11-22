@@ -11,6 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
 import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
 import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
+import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
 import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
@@ -77,13 +78,14 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
    * The valid Bloomberg security types for Interest Rate Future Option
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
-    BBG_PRECIOUS_METAL_TYPE,
-    BBG_BASE_METAL_TYPE,
-    BBG_REFINED_PRODUCTS,
-    BBG_ELECTRICITY,
-    BBG_COAL,
-    BBG_CRUDE_OIL,
-    BBG_WHEAT);
+      BBG_PRECIOUS_METAL_TYPE,
+      BBG_BASE_METAL_TYPE,
+      BBG_REFINED_PRODUCTS,
+      BBG_ELECTRICITY,
+      BBG_COAL,
+      BBG_CRUDE_OIL,
+      BBG_WHEAT,
+      BBG_SOY);
 
   /**
    * Creates an instance.
