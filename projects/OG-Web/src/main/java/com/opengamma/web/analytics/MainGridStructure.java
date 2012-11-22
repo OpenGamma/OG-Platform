@@ -117,6 +117,16 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  public ValueSpecification getValueSpecificationForCell(int row, int col) {
+    Pair<String, ValueSpecification> target = getTargetForCell(row, col);
+    if (target == null) {
+      return null;
+    } else {
+      return target.getSecond();
+    }
+  }
+
+  @Override
   public AnalyticsColumnGroups getColumnStructure() {
     return _columnGroups;
   }

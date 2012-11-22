@@ -18,14 +18,16 @@ import com.opengamma.util.tuple.Pair;
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
-                                        ValueMappings valueMappings) {
-    this(new PrimitivesGridStructure(compiledViewDef, valueMappings), gridId, targetResolver);
+                                        ValueMappings valueMappings,
+                                        ViewportListener viewportListener) {
+    this(new PrimitivesGridStructure(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,
                                         String gridId,
-                                        ComputationTargetResolver targetResolver) {
-    super(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver);
+                                        ComputationTargetResolver targetResolver,
+                                        ViewportListener viewportListener) {
+    super(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver, viewportListener);
   }
 
   /**
@@ -37,7 +39,7 @@ import com.opengamma.util.tuple.Pair;
   @Override
   protected Pair<PrimitivesGridViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
     PrimitivesGridViewport viewport = new PrimitivesGridViewport(_gridStructure, callbackId);
-    String updatedCallbackId = viewport.update(viewportDefinition, _cache);
+    String updatedCallbackId = viewport.update(viewportDefinition, _cycle, _cache);
     boolean hasData = (updatedCallbackId != null);
     return Pair.of(viewport, hasData);
   }
@@ -47,6 +49,6 @@ import com.opengamma.util.tuple.Pair;
    * @return An empty primitives grid
    */
   /* package */ static PrimitivesAnalyticsGrid empty(String gridId) {
-    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver());
+    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver(), new NoOpViewportListener());
   }
 }

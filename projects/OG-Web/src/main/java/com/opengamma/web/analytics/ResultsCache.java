@@ -157,7 +157,7 @@ import com.opengamma.util.tuple.Pair;
    * @param type The type, possibly null
    * @return The history, possibly null
    */
-  public Collection<Object> getEmptyHistory(Class<?> type) {
+  public Collection<Object> emptyHistory(Class<?> type) {
     if (s_historyTypes.contains(type)) {
       return Collections.emptyList();
     } else {

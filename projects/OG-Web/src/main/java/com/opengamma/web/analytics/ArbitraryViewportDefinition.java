@@ -20,14 +20,20 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
 
   /** Cells in the viewport, not empty, sorted by column then row (i.e. along rows) */
   private final List<GridCell> _cells;
+  private final boolean _enableLogging;
 
   /**
    * @param version
    * @param cells Cells in the viewport, not empty
    * @param format
+   * @param enableLogging Whether full logging info should be collected for the viewport's cells
    */
-  /* package */ ArbitraryViewportDefinition(int version, List<GridCell> cells, TypeFormatter.Format format) {
+  /* package */ ArbitraryViewportDefinition(int version,
+                                            List<GridCell> cells,
+                                            TypeFormatter.Format format,
+                                            boolean enableLogging) {
     super(version, format);
+    _enableLogging = enableLogging;
     ArgumentChecker.notEmpty(cells, "cells");
     _cells = new ArrayList<GridCell>(cells);
     Collections.sort(_cells);
@@ -47,5 +53,9 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
       }
     }
     return true;
+  }
+
+  public boolean enableLogging() {
+    return _enableLogging;
   }
 }

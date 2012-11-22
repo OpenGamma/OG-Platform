@@ -77,6 +77,7 @@ public class ViewportResultsJsonWriter {
         valueMap.put(NODE_ID, cell.getNodeId());
       }
       // TODO add logging metadata to results
+      // TODO add full logging output to results
       results.add(valueMap);
     }
     String duration = _durationFormatter.format(new BigDecimal(viewportResults.getCalculationDuration().toMillisLong()));

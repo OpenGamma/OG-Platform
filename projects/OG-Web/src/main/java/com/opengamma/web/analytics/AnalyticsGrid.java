@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -21,15 +22,19 @@ import com.opengamma.util.tuple.Pair;
   /** Viewports keyed by ID. */
   protected final Map<Integer, V> _viewports = Maps.newHashMap();
 
+  private final ViewportListener _viewportListener;
+
   /** ID that's passed to listeners when this grid's row and column structure changes. */
   private final String _callbackId;
 
   /**
+   * @param viewportListener
    * @param callbackId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
-   * the grid doesn't use it and makes no assumptions about its form.
    */
-  protected AnalyticsGrid(String callbackId) {
+  protected AnalyticsGrid(ViewportListener viewportListener, String callbackId) {
+    ArgumentChecker.notNull(viewportListener, "viewportListener");
     ArgumentChecker.notNull(callbackId, "callbackId");
+    _viewportListener = viewportListener;
     _callbackId = callbackId;
   }
 
@@ -37,6 +42,18 @@ import com.opengamma.util.tuple.Pair;
    * @return The row and column structure of the grid
    */
   public abstract GridStructure getGridStructure();
+
+  protected abstract ViewCycle getViewCycle();
+
+  protected abstract ResultsCache getResultsCache();
+
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+    V viewport = getViewport(viewportId);
+    ViewportDefinition currentViewportDefinition = viewport.getDefinition();
+    String callbackId = viewport.update(viewportDefinition, getViewCycle(), getResultsCache());
+    _viewportListener.viewportUpdated(currentViewportDefinition, viewportDefinition, getGridStructure());
+    return callbackId;
+  }
 
   /**
    * Returns a viewport that represents part of the grid that a user is viewing.

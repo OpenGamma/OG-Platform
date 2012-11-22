@@ -43,13 +43,14 @@ import com.opengamma.util.tuple.Pair;
   /** Cache of results. */
   protected ResultsCache _cache = new ResultsCache();
   /** The calculation cycle used to calculate the most recent set of results. */
-  private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
+  protected ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
                                   MainGridStructure gridStructure,
                                   String gridId,
-                                  ComputationTargetResolver targetResolver) {
-    super(gridId);
+                                  ComputationTargetResolver targetResolver,
+                                  ViewportListener viewportListener) {
+    super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -86,9 +87,9 @@ import com.opengamma.util.tuple.Pair;
    * @return The viewport's callback ID if it was updated or {@code null} if not
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
-    return getViewport(viewportId).update(viewportDefinition, _cache);
-  }
+  /* package */ /*String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+    return getViewport(viewportId).update(viewportDefinition, _cycle, _cache);
+  }*/
 
   // -------- dependency graph grids --------
 
@@ -99,14 +100,15 @@ import com.opengamma.util.tuple.Pair;
    * @param row Row index of the cell whose dependency graph is required
    * @param col Column index of the cell whose dependency graph is required
    * @param compiledViewDef Compiled view definition containing the full dependency graph
-   * TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
-   * one of these will be needed when dynamic view aggregation is implemented
+* TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
+   * @param viewportListener
    */
   /* package */ void openDependencyGraph(int graphId,
                                          String gridId,
                                          int row,
                                          int col,
-                                         CompiledViewDefinition compiledViewDef) {
+                                         CompiledViewDefinition compiledViewDef,
+                                         ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
@@ -117,7 +119,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, viewportListener);
     _depGraphs.put(graphId, grid);
   }
 
@@ -176,12 +178,11 @@ import com.opengamma.util.tuple.Pair;
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    * @param viewportDefinition Definition of the viewport
-   * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
-   * the current viewport state
+   * @return The viewport's callback ID if it has data available, {@code null} if not.
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */ String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
-    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle);
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition);
   }
 
   /**
@@ -222,6 +223,16 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public GridStructure getGridStructure() {
     return _gridStructure;
+  }
+
+  @Override
+  protected ViewCycle getViewCycle() {
+    return _cycle;
+  }
+
+  @Override
+  protected ResultsCache getResultsCache() {
+    return _cache;
   }
 
   /**

@@ -84,7 +84,8 @@ public class AnalyticsViewManager {
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     s_logger.debug("Client ID {} creating new view with ID {}", clientId, viewId);
-    AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver);
+    ViewportListener viewportListener = new LoggingViewportListener(viewClient);
+    AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver, viewportListener);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,

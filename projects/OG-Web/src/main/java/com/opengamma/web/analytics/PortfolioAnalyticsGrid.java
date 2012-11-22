@@ -19,18 +19,21 @@ import com.opengamma.util.tuple.Pair;
    * @param gridId The grid ID, sent to listeners when the grid structure changes
    * @param targetResolver For looking up calculation targets using their specification
    * @param valueMappings Mappings between the requirements and outputs of the view
+   * @param viewportListener
    */
   /* package */ PortfolioAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
-                                       ValueMappings valueMappings) {
-    this(new PortfolioGridStructure(compiledViewDef, valueMappings), gridId, targetResolver);
+                                       ValueMappings valueMappings,
+                                       ViewportListener viewportListener) {
+    this(new PortfolioGridStructure(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
                                        String gridId,
-                                       ComputationTargetResolver targetResolver) {
-    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver);
+                                       ComputationTargetResolver targetResolver,
+                                       ViewportListener viewportListener) {
+    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
   }
 
   /**
@@ -42,7 +45,7 @@ import com.opengamma.util.tuple.Pair;
   @Override
   protected Pair<PortfolioGridViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
     PortfolioGridViewport viewport = new PortfolioGridViewport(_gridStructure, callbackId);
-    String updatedCallbackId = viewport.update(viewportDefinition, _cache);
+    String updatedCallbackId = viewport.update(viewportDefinition, _cycle, _cache);
     boolean hasData = (updatedCallbackId != null);
     return Pair.of(viewport, hasData);
   }
@@ -52,6 +55,6 @@ import com.opengamma.util.tuple.Pair;
    * @return An empty portfolio grid
    */
   /* package */ static PortfolioAnalyticsGrid empty(String gridId) {
-    return new PortfolioAnalyticsGrid(PortfolioGridStructure.empty(), gridId, new DummyTargetResolver());
+    return new PortfolioAnalyticsGrid(PortfolioGridStructure.empty(), gridId, new DummyTargetResolver(), new NoOpViewportListener());
   }
 }

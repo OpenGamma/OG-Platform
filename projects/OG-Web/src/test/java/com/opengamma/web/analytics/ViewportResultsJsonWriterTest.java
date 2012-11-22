@@ -27,9 +27,13 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 public class ViewportResultsJsonWriterTest {
 
   private static final Duration DURATION = Duration.ofMillis(1234);
-  
-  private final ViewportDefinition _viewportDefinition =
-      ViewportDefinition.create(0, ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), TypeFormatter.Format.CELL);
+
+  private final ViewportDefinition _viewportDefinition = ViewportDefinition.create(0,
+                                                                                   ImmutableList.of(0),
+                                                                                   ImmutableList.of(0),
+                                                                                   ImmutableList.<GridCell>of(),
+                                                                                   TypeFormatter.Format.CELL,
+                                                                                   false);
   private final ValueRequirement _valueReq =
       new ValueRequirement("valueName", ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
   private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq, "fnName");

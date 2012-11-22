@@ -26,7 +26,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
  * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
  * target at the root of the graph.
  */
-/* package */ class DependencyGraphStructureBuilder {
+/* package */ class  DependencyGraphStructureBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 

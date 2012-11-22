@@ -29,6 +29,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DependencyGraphGridStructure implements GridStructure {
 
+  private static final int TARGET_COL = 0;
+  private static final int TARGET_TYPE_COL = 1;
+  private static final int VALUE_NAME_COL = 2;
+  private static final int VALUE_COL = 3;
+  private static final int FN_NAME_COL = 4;
+  private static final int PROPERTIES_COL = 5;
+
   /** The fixed set of columns used in all dependency graph grids. */
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
       // fixed column group with one column for the row label
@@ -113,18 +120,18 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                           ResultsCache cache,
                                                           String calcConfigName) {
     switch (colIndex) {
-      case 0: // target
+      case TARGET_COL:
         return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
-      case 1: // target type
+      case TARGET_TYPE_COL:
         return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
-      case 2: // value name
+      case VALUE_NAME_COL:
         return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
-      case 3: // value
+      case VALUE_COL:
         Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
         return ViewportResults.valueCell(value, valueSpec, cellHistory, colIndex);
-      case 4: // function name
+      case FN_NAME_COL:
         return ViewportResults.stringCell(fnName, colIndex);
-      case 5: // properties
+      case PROPERTIES_COL:
         return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
@@ -236,6 +243,15 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public AnalyticsColumnGroups getColumnStructure() {
     return COLUMN_GROUPS;
+  }
+
+  @Override
+  public ValueSpecification getValueSpecificationForCell(int row, int col) {
+    if (col != VALUE_COL) {
+      return null;
+    } else {
+      return _valueSpecs.get(row);
+    }
   }
 
   /**

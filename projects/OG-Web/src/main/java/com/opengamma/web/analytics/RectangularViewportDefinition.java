@@ -77,6 +77,14 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
+  /**
+   * @return false
+   */
+  @Override
+  boolean enableLogging() {
+    return false;
+  }
+
   @Override
   public String toString() {
     return "RectangularViewportDefinition [_rows=" + _rows + ", _columns=" + _columns + "]";
