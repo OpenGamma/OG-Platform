@@ -405,6 +405,18 @@ public class DbPositionMaster
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Mapper from SQL rows to a PositionDocument.
    */
@@ -540,14 +552,4 @@ public class DbPositionMaster
     }
   }
 
-  @Override
-  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
-    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
-    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
-    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
-    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
-    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
-    historyRequest.setObjectId(request.getObjectId());
-    return history(historyRequest);
-  }
 }
