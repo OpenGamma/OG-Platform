@@ -1,3 +1,6 @@
+.project
+.classpath
+.checkstyle
 /bin/
 /build/
 /dist/

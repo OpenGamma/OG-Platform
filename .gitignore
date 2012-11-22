@@ -1,5 +1,8 @@
 /db/
 *.log
+.project
+.classpath
+.checkstyle
 common/build-projects.xml
 common/credentials.properties
 common/tests.properties
@@ -56,3 +59,4 @@ docs.sqlite3
 *.pid
 *.pyc
 .settings/
+target/
