@@ -39,21 +39,29 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
   private SoybeanFutureOptionExpiryCalculator() {
   }
 
+
+  /**
+   * Expiry date of Soybean Future Options:
+   * The last Friday which precedes by at least two business days the last business day of the month preceding the option month.
+   * See http://www.cmegroup.com/trading/agricultural/grain-and-oilseed/soybean_contractSpecs_options.html#prodType=AME
+   * TODO Confirm adjustment made if Friday is not a business day. We use the business day before
+   * @param n n'th expiry date after today
+   * @param today valuation date
+   * @param holidayCalendar holiday calendar
+   * @return True expiry date of the option
+   */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
-    final LocalDate lastFridayOfThisMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(LAST_DAY_ADJUSTER.adjustDate(today));
-    LocalDate lastDayOfMonth;
-    LocalDate lastFridayOfMonth;
-    if (today.isAfter(lastFridayOfThisMonth)) {
-      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n));
-      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
-    } else {
-      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n - 1));
-      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
-    }
+
+    final LocalDate expiryMonth = getExpiryMonth(n, today);
+    final LocalDate actualExpiryMonth = expiryMonth.minusMonths(1);
+    final LocalDate lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(actualExpiryMonth);
+    final LocalDate lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+    LocalDate expiryDate = lastFridayOfMonth;
+
     int nBusinessDays = 0;
     LocalDate date = lastFridayOfMonth.plusDays(1);
     while (!date.isAfter(lastDayOfMonth)) {
@@ -61,14 +69,14 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
         nBusinessDays++;
       }
       if (nBusinessDays >= 2) {
-        while (!holidayCalendar.isWorkingDay(lastFridayOfMonth)) {
-          lastFridayOfMonth = lastFridayOfMonth.minusDays(1);
+        while (!holidayCalendar.isWorkingDay(expiryDate)) {
+          expiryDate = expiryDate.minusDays(1);
         }
-        return lastFridayOfMonth;
+        return expiryDate;
       }
       date = date.plusDays(1);
     }
-    LocalDate result = PREVIOUS_FRIDAY_ADJUSTER.adjustDate(lastFridayOfMonth);
+    LocalDate result = PREVIOUS_FRIDAY_ADJUSTER.adjustDate(expiryDate);
     while (!holidayCalendar.isWorkingDay(result)) {
       result = result.minusDays(1);
     }
@@ -102,12 +110,12 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
   private LocalDate getNextExpiryMonth(final LocalDate dtCurrent) {
     MonthOfYear mthCurrent = dtCurrent.getMonthOfYear();
     int idx = Arrays.binarySearch(SOYBEAN_FUTURE_EXPIRY_MONTHS, mthCurrent);
-    if (idx == SOYBEAN_FUTURE_EXPIRY_MONTHS.length) {
-      return LocalDate.of(dtCurrent.getYear() + 1, MonthOfYear.JANUARY, dtCurrent.getDayOfYear());
-    } else if (idx > 0) {
+    if (idx >= (SOYBEAN_FUTURE_EXPIRY_MONTHS.length - 1)) {
+      return LocalDate.of(dtCurrent.getYear() + 1, MonthOfYear.JANUARY, dtCurrent.getDayOfMonth());
+    } else if (idx >= 0) {
       return dtCurrent.with(SOYBEAN_FUTURE_EXPIRY_MONTHS[idx + 1]);
     } else {
-      return dtCurrent.with(SOYBEAN_FUTURE_EXPIRY_MONTHS[1 - idx]);
+      return dtCurrent.with(SOYBEAN_FUTURE_EXPIRY_MONTHS[-1 - idx]);
     }
   }
 
