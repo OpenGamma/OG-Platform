@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.opengamma</groupId>
   <artifactId>og-parent</artifactId>
@@ -41,6 +39,23 @@
     <name>OpenGamma</name>
     <url>http://www.opengamma.com</url>
   </organization>
+
+  <!-- ==================================================================== -->
+  <!-- OpenGamma public repositories -->
+  <repositories>
+    <repository>
+      <id>og-public</id>
+      <name>OG Public</name>
+      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>og-public</id>
+      <name>OG Public</name>
+      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <!-- ==================================================================== -->
   <!-- standard build setup -->
@@ -90,13 +105,13 @@
           <excludeDefaultDirectories>true</excludeDefaultDirectories>
           <filesets>
             <fileset>
-            <directory>target</directory>
-            <includes>
-              <include>**/*</include>
-            </includes>
-          </fileset>
-        </filesets>
-      </configuration>
+              <directory>target</directory>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -205,6 +220,47 @@
         <artifactId>maven-repository-plugin</artifactId>
         <version>2.3.1</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>${basedir}/../../common/checkstyle.xml</configLocation>
+          <headerLocation>${basedir}/../../common/checkstyle-header.txt</headerLocation>
+          <suppressionsLocation>${basedir}/../../common/checkstyle-suppressions.xml</suppressionsLocation>
+          <propertiesLocation>${basedir}/../../common/checkstyle.properties</propertiesLocation>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.8</version>
+        <configuration>
+          <additionalBuildcommands>
+            <buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
+          </additionalBuildcommands>
+          <additionalProjectnatures>
+            <projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
+          </additionalProjectnatures>
+          <additionalConfig>
+            <file>
+              <name>.checkstyle</name>
+              <location>../../common/eclipse-checkstyle.xml</location>
+            </file>
+          </additionalConfig>
+        </configuration>
+      </plugin>
       <!-- use enforcer to apply build rules -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -218,7 +274,8 @@
             </goals>
             <configuration>
               <rules>
-                <!-- no commons-logging or good/evil licensed json, junit only in test/provided -->
+                <!-- no commons-logging or good/evil licensed json, junit 
+                  only in test/provided -->
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-logging:*</exclude>
@@ -231,7 +288,7 @@
                   </includes>
                 </bannedDependencies>
                 <!-- ensure dependencies resolve to latest version -->
-                <requireUpperBoundDeps/>
+                <requireUpperBoundDeps />
                 <!-- need Java 6 or greater -->
                 <requireJavaVersion>
                   <version>[1.6,)</version>
@@ -265,10 +322,15 @@
           <artifactId>og-maven-plugin</artifactId>
           <version>${project.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.9.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
-
+  
   <!-- ==================================================================== -->
   <!-- The OpenGamma repository is at http://ivyrepos.opengamma.com/og-maven/public/ -->
 
@@ -811,11 +873,8 @@
         <version>10.6.1.0</version>
         <optional>true</optional>
       </dependency>
-      <!--dependency>
-        <groupId>com.microsoft</groupId>
-        <artifactId>sqljdbc</artifactId>
-        <version>3.0</version>
-      </dependency-->
+      <!--dependency> <groupId>com.microsoft</groupId> <artifactId>sqljdbc</artifactId> 
+        <version>3.0</version> </dependency -->
       <dependency>
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
@@ -826,7 +885,7 @@
         <groupId>com.sleepycat</groupId>
         <artifactId>je</artifactId>
         <version>4.0.92</version>
-        <!--version>4.1.21</version--><!-- needs Oracle repo - http://download.oracle.com/maven -->
+        <!--version>4.1.21</version --><!-- needs Oracle repo - http://download.oracle.com/maven -->
       </dependency>
       <dependency>
         <groupId>redis.clients</groupId>
