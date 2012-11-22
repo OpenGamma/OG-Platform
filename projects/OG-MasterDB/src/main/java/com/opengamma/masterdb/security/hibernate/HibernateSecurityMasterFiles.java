@@ -15,6 +15,7 @@ import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecur
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBean;
+import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
@@ -55,6 +56,8 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       FrequencyBean.class,
       StubTypeBean.class,
       IdentifierAssociationBean.class,
+      DebtSeniorityBean.class,
+      RestructuringClauseBean.class,
       SecurityBean.class,
       
       BondSecurityBean.class,
@@ -99,7 +102,9 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       CapFloorSecurityBean.class,
       CapFloorCMSSpreadSecurityBean.class,
       
-      CDSSecurityBean.class
+      CDSSecurityBean.class,
+      CreditDefaultSwapSecurityBean.class
+      
     };
   }
 
