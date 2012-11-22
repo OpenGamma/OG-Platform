@@ -25,9 +25,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -44,11 +42,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.FutureOptionConverter;
+import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -65,7 +62,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   public static final String BLACK_METHOD = "BlackMethod";
 
   private final String _valueRequirementName;     // Set in concrete classes
-  private FutureOptionConverter _converter;  // Set in init() call, not constructor, as requires OpenGammaCompilationContext
+  private CommodityFutureOptionConverter _converter;  // Set in init() call, not constructor, as requires OpenGammaCompilationContext
   private static final Logger s_logger = LoggerFactory.getLogger(FutureOptionBlackFunction.class);
 
   public FutureOptionBlackFunction(final String valueRequirementName) {
@@ -76,11 +73,8 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   @Override
   /** Pass all conventions required to function to convert security to definition */
   public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new FutureOptionConverter(holidaySource, conventionSource, regionSource, securitySource);
+    _converter = new CommodityFutureOptionConverter(securitySource);
   }
 
   @Override
@@ -325,7 +319,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return _valueRequirementName;
   }
 
-  protected final FutureOptionConverter getSecurityConverter() {
+  protected final CommodityFutureOptionConverter getSecurityConverter() {
     return _converter;
   }
 
