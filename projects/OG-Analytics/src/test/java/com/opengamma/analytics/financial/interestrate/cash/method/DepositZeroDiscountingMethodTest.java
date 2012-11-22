@@ -274,7 +274,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, result[loopnode], TOLERANCE_PRICE);
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
-    InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
+    InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
     AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
@@ -310,7 +310,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, result[loopnode], TOLERANCE_PRICE);
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
-    final InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
+    final InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
     AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
 

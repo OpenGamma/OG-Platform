@@ -85,7 +85,7 @@ public class LastTimeCalculatorTest {
     final double refrencePrice = 0.0;
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1, paymentAccrualFactor, 1,
         "S", "Funding", "Forward");
-    assertEquals(fixingPeriodEndTime, ir.accept(LDC, fixingPeriodStartTime), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
+    assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
 
   @Test
