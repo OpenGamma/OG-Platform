@@ -28,9 +28,9 @@ public class ViewsFunctionTest {
 
   private ConfigSource createConfigSource() {
     final InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
-    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "1", "1"), "One", "Test"))));
-    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "2", "1"), "Two", "Test"))));
-    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition(UniqueId.of("View", "3", "1"), "Three", "Test"))));
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition("One", "Test"))));
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition("Two", "Test"))));
+    configMaster.add(new ConfigDocument(ConfigItem.of(new ViewDefinition("Three", "Test"))));
     return new MasterConfigSource(configMaster);
   }
 
@@ -44,7 +44,8 @@ public class ViewsFunctionTest {
     final ConfigSource source = createConfigSource();
     final Map<UniqueId, String> result = ViewsFunction.invoke(source, "Two");
     assertEquals(result.size(), 1);
-    assertTrue(result.keySet().contains(UniqueId.of("View", "2", "1")));
+    assertTrue(result.keySet().contains(UniqueId.of(InMemoryConfigMaster.DEFAULT_OID_SCHEME, "2")));
+    assertTrue(result.values().contains("Two"));
   }
 
   public void testNamedViewMissing() {

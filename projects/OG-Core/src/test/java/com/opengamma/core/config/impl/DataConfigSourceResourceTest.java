@@ -9,15 +9,14 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
-import java.util.Collections;
 
 import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -26,7 +25,7 @@ import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.transport.jaxrs.FudgeResponse;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -51,41 +50,39 @@ public class DataConfigSourceResourceTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Test
   public void testGetConfigByUid() {
     final SimpleExchange target = new SimpleExchange();
     target.setName("Test");
-    
-    when(_underlying.getConfig(eq(SimpleExchange.class), eq(UID))).thenReturn(target);
-    
-    Response test = _resource.get(UID.toString());
+    when(_underlying.get(eq(UID))).thenReturn((ConfigItem) ConfigItem.of(target));
+    final Response test = _resource.get(UID.toString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(target, test.getEntity());
+    assertEquals(target, OpenGammaFudgeContext.getInstance().fromFudgeMsg(ConfigItem.class, (FudgeMsg) test.getEntity()).getValue());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testGetConfigByOid() {
     final SimpleExchange target = new SimpleExchange();
     target.setName("Test");
-    
-    when(_underlying.getConfig(eq(SimpleExchange.class), eq(OID), eq(VC))).thenReturn(target);
-    
-    Response test = _resource.getByOidVersionCorrection(OID.toString(), VC.toString());
+    when(_underlying.get(eq(OID), eq(VC))).thenReturn((ConfigItem) ConfigItem.of(target));
+    final Response test = _resource.getByOidVersionCorrection(OID.toString(), VC.toString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(target, test.getEntity());
+    assertEquals(target, OpenGammaFudgeContext.getInstance().fromFudgeMsg(ConfigItem.class, (FudgeMsg) test.getEntity()).getValue());
   }
 
   @Test
   public void testSearch() {
     final ConfigItem<SimpleExchange> target = ConfigItem.of(new SimpleExchange());
     target.setName("Test");
-    
     when(_underlying.get(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(target);
-    
-    Response test = _resource.search(SimpleExchange.class.getName(), VC.getVersionAsOfString(), VC.getCorrectedToString(), NAME);
+    final Response test = _resource.search(SimpleExchange.class.getName(), VC.getVersionAsOfString(), VC.getCorrectedToString(), NAME);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertEquals(new FudgeResponse(Collections.singleton(target)), test.getEntity());
+    final FudgeMsg msg = (FudgeMsg) test.getEntity();
+    assertEquals(1, msg.getNumFields());
+    assertEquals(target, OpenGammaFudgeContext.getInstance().fromFudgeMsg(ConfigItem.class, (FudgeMsg) msg.getAllFields().get(0).getValue()));
   }
-  
+
 
 }
