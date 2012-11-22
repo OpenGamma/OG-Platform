@@ -27,6 +27,7 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Cashflow Conventions are assumed to be as below (these will apply throughout the entire credit suite for index credit default swaps)
+
   // Note that the long/short credit convention is opposite to that for single name CDS's
 
   // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
@@ -42,6 +43,7 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Work In Progress
 
   // TODO : Add the hashCode and equals methods
+  // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
