@@ -102,7 +102,7 @@ public class InstrumentDefinitionVisitorTest {
       assertEquals(definition.accept(VISITOR, o), definition.getClass().getSimpleName() + s);
       count += 2;
     }
-    //assertEquals("Have not tested all methods - need to make sure that the accept() method in the definition points to the right method:", InstrumentDefinitionVisitor.class.getMethods().length, count);
+    //assertEquals("Have not tested all methods - need to make sure that the accept() method in the definition points to the correct method in the visitor:", InstrumentDefinitionVisitor.class.getMethods().length, count);
   }
 
   private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {

@@ -22,6 +22,13 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -29,12 +36,18 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpr
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
@@ -48,26 +61,51 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapXCcyIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
+import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -97,8 +135,32 @@ public class TestInstrumentDefinitions {
   public static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
   public static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
   public static final double SPREAD = 0.001;
+  public static final GeneratorSwapXCcyIborIbor XCCY_GENERATOR = new GeneratorSwapXCcyIborIbor("XCCY", IBOR_INDEX_2, IBOR_INDEX_1);
+  public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR, CUR, Period.ofMonths(1));
+  public static final Convention CONVENTION = new Convention(2, FIXED_DAY_COUNT, BD, C, "");
+  public static final ISDACDSPremiumDefinition ISDA_PREMIUM = ISDACDSPremiumDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(5), PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END, false, NOTIONAL, SPREAD, CUR);
 
+  public static final CouponFixedDefinition COUPON_FIXED = CouponFixedDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE, SETTLE_DATE, SPOT_LAG, NOTIONAL, FIXED_RATE);
+  public static final CouponIborDefinition COUPON_IBOR = CouponIborDefinition.from(NOTIONAL, SETTLE_DATE, IBOR_INDEX_1);
+  public static final CouponIborGearingDefinition COUPON_IBOR_GEARING = CouponIborGearingDefinition.from(COUPON_IBOR, 0.3, 2);
+  public static final CouponIborSpreadDefinition COUPON_IBOR_SPREAD = CouponIborSpreadDefinition.from(COUPON_IBOR, 0.3);
+  public static final CouponIborCompoundedDefinition COUPON_IBOR_COMPOUNDED = CouponIborCompoundedDefinition.from(NOTIONAL, SETTLE_DATE, TENOR, IBOR_INDEX_1);
+  public static final CouponIborRatchetDefinition COUPON_IBOR_RATCHET = new CouponIborRatchetDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.01,
+      NOTIONAL, SETTLE_DATE.plusMonths(1), IBOR_INDEX_1, new double[] {1, 2, 3}, new double[] {3, 4, 5}, new double[] {5, 6, 7});
   public static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
+  public static final CouponOISSimplifiedDefinition COUPON_OIS_SIMPLIFIED = CouponOISSimplifiedDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusDays(28), NOTIONAL, 2);
+  public static final CouponOISDefinition COUPON_OIS = CouponOISDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusYears(1), NOTIONAL, SPOT_LAG);
+
+  public static final CouponInflationZeroCouponMonthlyDefinition INFLATION_ZERO_COUPON = CouponInflationZeroCouponMonthlyDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, INDEX_PRICE, 100, 1, true);
+  public static final CouponInflationZeroCouponInterpolationDefinition INFLATION_INTERPOLATED_COUPON = new CouponInflationZeroCouponInterpolationDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3),
+      0.25, NOTIONAL, INDEX_PRICE, 2, SETTLE_DATE, 100, new ZonedDateTime[] {SETTLE_DATE}, SETTLE_DATE.plusMonths(3), false);
+  public static final CouponInflationZeroCouponMonthlyGearingDefinition INFLATION_ZERO_GEARING_COUPON = CouponInflationZeroCouponMonthlyGearingDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, INDEX_PRICE, 100, 2, false, 0.4);
+  public static final CouponInflationZeroCouponInterpolationGearingDefinition INFLATION_INTERPOLATED_GEARING_COUPON = new CouponInflationZeroCouponInterpolationGearingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3),
+      0.25, NOTIONAL, INDEX_PRICE, 2, SETTLE_DATE, 100, new ZonedDateTime[] {SETTLE_DATE}, SETTLE_DATE.plusMonths(3), false, 1.4);
+
+  public static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> CAPITAL_INDEXED_BOND_SECURITY =
+      BondCapitalIndexedSecurityDefinition.fromMonthly(INDEX_PRICE, SPOT_LAG, SETTLE_DATE, 100, SETTLE_DATE.plusYears(5), FIXED_PERIOD, NOTIONAL, FIXED_RATE, BD, 2, C, FIXED_DAY_COUNT, SimpleYieldConvention.AUSTRIA_ISMA_METHOD, IS_EOM, "");
+  public static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> CAPITAL_INDEXED_BOND_TRANSACTION = new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(CAPITAL_INDEXED_BOND_SECURITY, 1, SETTLE_DATE, 100);
   public static final PaymentFixedDefinition PAYMENT_FIXED = new PaymentFixedDefinition(CUR, SETTLE_DATE, NOTIONAL);
 
   public static final DepositCounterpartDefinition DEPOSIT_COUNTERPART = new DepositCounterpartDefinition(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), NOTIONAL, FIXED_RATE, FIXED_RATE, "a");
@@ -119,6 +181,8 @@ public class TestInstrumentDefinitions {
 
   public static final BondFixedSecurityDefinition BOND_FIXED_SECURITY = BondFixedSecurityDefinition.from(CUR, SETTLE_DATE.plusYears(2), SETTLE_DATE, FIXED_PERIOD, FIXED_RATE, SPOT_LAG, C, FIXED_DAY_COUNT, BD, SimpleYieldConvention.DISCOUNT, IS_EOM);
   public static final BondFixedTransactionDefinition BOND_FIXED_TRANSACTION = new BondFixedTransactionDefinition(BOND_FIXED_SECURITY, 100, SETTLE_DATE, -100);
+  public static final BondIborSecurityDefinition BOND_IBOR_SECURITY = BondIborSecurityDefinition.from(SETTLE_DATE.plusYears(2), SETTLE_DATE, IBOR_INDEX_1, 2, FIXED_DAY_COUNT, BD, IS_EOM);
+  public static final BondIborTransactionDefinition BOND_IBOR_TRANSACTION = new BondIborTransactionDefinition(BOND_IBOR_SECURITY, 100, SETTLE_DATE, -100);
   public static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
   public static final BondFutureOptionPremiumSecurityDefinition BFO_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureOptionPremiumSecurityDefinition();
   public static final BondFutureOptionPremiumTransactionDefinition BFO_TRANSACTION = new BondFutureOptionPremiumTransactionDefinition(BFO_SECURITY, -100, BFO_SECURITY.getExpirationDate().minusMonths(3), 100);
@@ -148,8 +212,29 @@ public class TestInstrumentDefinitions {
   public static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
   public static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_PAY, ANNUITY_IBOR_SPREAD_RECEIVE);
   public static final DeliverableSwapFuturesSecurityDefinition DELIVERABLE_SWAP_FUTURE = new DeliverableSwapFuturesSecurityDefinition(SETTLE_DATE, new SwapFixedIborDefinition(ANNUITY_FIXED_UNIT_NOTIONAL, ANNUITY_IBOR_UNIT_NOTIONAL), NOTIONAL);
+
   public static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
   public static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
+  public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, IS_EOM);
+  public static final SwaptionBermudaFixedIborDefinition SWAPTION_BERMUDA = SwaptionBermudaFixedIborDefinition.from(SWAP_FIXED_IBOR, false,
+      new ZonedDateTime[] {SETTLE_DATE.minusMonths(6), SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3)});
+
+  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true);
+  public static final CapFloorCMSDefinition CAP_FLOOR_CMS = CapFloorCMSDefinition.from(COUPON_CMS, FIXED_RATE, true);
+  public static final CapFloorCMSSpreadDefinition CAP_FLOOR_CMS_SPREAD = CapFloorCMSSpreadDefinition.from(SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.1, NOTIONAL, CMS_INDEX, CMS_INDEX, FIXED_RATE, false);
+
+  public static final SwapXCcyIborIborDefinition XCCY_SWAP = SwapXCcyIborIborDefinition.from(SETTLE_DATE, TENOR, XCCY_GENERATOR, NOTIONAL, NOTIONAL, SPREAD, IS_PAYER);
+
+  public static final ISDACDSDefinition ISDA_CDS = new ISDACDSDefinition(SETTLE_DATE, SETTLE_DATE.plusYears(2), ISDA_PREMIUM, NOTIONAL, SPREAD, FIXED_RATE, false, false, true, PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END);
+
+  public static final ForexDefinition FX = ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE, NOTIONAL, -NOTIONAL * 1.5);
+  public static final ForexSwapDefinition FX_SWAP = new ForexSwapDefinition(FX, ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE.plusMonths(3), -NOTIONAL, NOTIONAL * 1.5));
+  public static final ForexOptionVanillaDefinition FX_VANILLA_OPTION = new ForexOptionVanillaDefinition(FX, SETTLE_DATE.minusMonths(6), false, false);
+  public static final ForexOptionSingleBarrierDefinition FX_BARRIER_OPTION = new ForexOptionSingleBarrierDefinition(FX_VANILLA_OPTION, new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CONTINUOUS, 1.5));
+  public static final ForexNonDeliverableForwardDefinition FX_NDF = new ForexNonDeliverableForwardDefinition(CUR, Currency.AUD, NOTIONAL, -1.5 * NOTIONAL, SETTLE_DATE.minusMonths(2), SETTLE_DATE);
+  public static final ForexNonDeliverableOptionDefinition FX_NDO = new ForexNonDeliverableOptionDefinition(FX_NDF, true, false);
+  public static final ForexOptionDigitalDefinition FX_DIGITAL = new ForexOptionDigitalDefinition(FX, SETTLE_DATE, IS_PAYER, IS_EOM);
+
   private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = Sets.newHashSet();
 
   static {
@@ -168,8 +253,23 @@ public class TestInstrumentDefinitions {
     ALL_INSTRUMENTS.add(BNDFUT_SECURITY_DEFINITION);
     ALL_INSTRUMENTS.add(BOND_FIXED_SECURITY);
     ALL_INSTRUMENTS.add(BOND_FIXED_TRANSACTION);
+    ALL_INSTRUMENTS.add(BOND_IBOR_SECURITY);
+    ALL_INSTRUMENTS.add(BOND_IBOR_TRANSACTION);
+    ALL_INSTRUMENTS.add(CAP_FLOOR_CMS);
+    ALL_INSTRUMENTS.add(CAP_FLOOR_CMS_SPREAD);
+    ALL_INSTRUMENTS.add(CAP_FLOOR_IBOR);
+    ALL_INSTRUMENTS.add(CAPITAL_INDEXED_BOND_SECURITY);
+    ALL_INSTRUMENTS.add(CAPITAL_INDEXED_BOND_TRANSACTION);
     ALL_INSTRUMENTS.add(CASH);
     ALL_INSTRUMENTS.add(COUPON_CMS);
+    ALL_INSTRUMENTS.add(COUPON_FIXED);
+    ALL_INSTRUMENTS.add(COUPON_IBOR);
+    ALL_INSTRUMENTS.add(COUPON_IBOR_COMPOUNDED);
+    ALL_INSTRUMENTS.add(COUPON_IBOR_GEARING);
+    ALL_INSTRUMENTS.add(COUPON_IBOR_RATCHET);
+    ALL_INSTRUMENTS.add(COUPON_IBOR_SPREAD);
+    ALL_INSTRUMENTS.add(COUPON_OIS);
+    ALL_INSTRUMENTS.add(COUPON_OIS_SIMPLIFIED);
     ALL_INSTRUMENTS.add(DELIVERABLE_SWAP_FUTURE);
     ALL_INSTRUMENTS.add(DEPOSIT_COUNTERPART);
     ALL_INSTRUMENTS.add(DEPOSIT_IBOR);
@@ -180,12 +280,24 @@ public class TestInstrumentDefinitions {
     ALL_INSTRUMENTS.add(FF_SECURITY);
     ALL_INSTRUMENTS.add(FF_TRANSACTION);
     ALL_INSTRUMENTS.add(FRA);
+    ALL_INSTRUMENTS.add(FX);
+    ALL_INSTRUMENTS.add(FX_BARRIER_OPTION);
+    ALL_INSTRUMENTS.add(FX_DIGITAL);
+    ALL_INSTRUMENTS.add(FX_NDF);
+    ALL_INSTRUMENTS.add(FX_NDO);
+    ALL_INSTRUMENTS.add(FX_SWAP);
+    ALL_INSTRUMENTS.add(FX_VANILLA_OPTION);
     ALL_INSTRUMENTS.add(GENERAL_ANNUITY);
+    ALL_INSTRUMENTS.add(INFLATION_INTERPOLATED_COUPON);
+    ALL_INSTRUMENTS.add(INFLATION_INTERPOLATED_GEARING_COUPON);
+    ALL_INSTRUMENTS.add(INFLATION_ZERO_COUPON);
+    ALL_INSTRUMENTS.add(INFLATION_ZERO_GEARING_COUPON);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_MARGIN_SEC_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_MARGIN_T_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_SEC_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_T_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_SECURITY_DEFINITION);
+    ALL_INSTRUMENTS.add(ISDA_CDS);
     ALL_INSTRUMENTS.add(METAL_FUTURE);
     ALL_INSTRUMENTS.add(METAL_FUTURE_OPTION);
     ALL_INSTRUMENTS.add(METAL_FWD);
@@ -194,8 +306,11 @@ public class TestInstrumentDefinitions {
     ALL_INSTRUMENTS.add(SWAP_IBOR_IBOR);
     ALL_INSTRUMENTS.add(SWAP_FIXED_IBOR);
     ALL_INSTRUMENTS.add(SWAP_FIXED_IBOR_SPREAD);
+    ALL_INSTRUMENTS.add(SWAPTION_BERMUDA);
     ALL_INSTRUMENTS.add(SWAPTION_CASH);
     ALL_INSTRUMENTS.add(SWAPTION_PHYS);
+    ALL_INSTRUMENTS.add(SWAPTION_PHYS_SPREAD);
+    ALL_INSTRUMENTS.add(XCCY_SWAP);
   }
 
   public static Set<InstrumentDefinition<?>> getAllInstruments() {
