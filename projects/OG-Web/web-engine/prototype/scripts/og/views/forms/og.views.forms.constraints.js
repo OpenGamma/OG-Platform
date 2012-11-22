@@ -40,8 +40,7 @@ $.register_module({
                     return result;
                 };
             return new config.form.Block({
-                module: 'og.views.forms.constraints',
-                extras: $.extend({classes: classes}, ids),
+                module: 'og.views.forms.constraints_tash', extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
                     var indices = data_index.split('.'), last = indices.pop(), result = {},
                         $withs = $('#' + ids.widget + ' .og-js-with'),
@@ -61,50 +60,41 @@ $.register_module({
                     indices.reduce(function (acc, level) {
                         return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
                     }, data)[last] = result;
-                },
-                handlers: [
-                    {type: 'form:load', handler: function () {
-                        var item, $widget = $('#' + ids.widget), rows = {
-                            'with': $('#' + ids.row_with).remove().removeAttr('id'),
-                            without: $('#' + ids.row_without).remove().removeAttr('id')
+                }
+            }).on('form:load', function () {
+                var item, $widget = $('#' + ids.widget), rows = {
+                    'with': $('#' + ids.row_with).remove().removeAttr('id'),
+                    without: $('#' + ids.row_without).remove().removeAttr('id')
+                };
+                render = {
+                    'with': function (datum, $replace, $after) {
+                        var item, add = function (item) {
+                            var $row = rows['with'].clone(), $inputs = $row.find('input'), value = convert(datum[item]);
+                            $inputs[0].checked = 'checked', $inputs[2].value = item, $inputs[3].value = value;
+                            if (datum[item] && typeof datum[item] === 'object' && ('optional' in datum[item]))
+                                $inputs[4].checked = 'checked';
+                            if (!$replace && !$after) return $widget.append($row);
+                            if ($replace) return $replace.replaceWith($row);
+                            if ($after) return $after.after($row);
                         };
-                        render = {
-                            'with': function (datum, $replace, $after) {
-                                var item, add = function (item) {
-                                    var $row = rows['with'].clone(), $inputs = $row.find('input'),
-                                        value = convert(datum[item]);
-                                    $inputs[0].checked = 'checked', $inputs[2].value = item, $inputs[3].value = value;
-                                    if (datum[item] && typeof datum[item] === 'object' && ('optional' in datum[item]))
-                                        $inputs[4].checked = 'checked';
-                                    if (!$replace && !$after) return $widget.append($row);
-                                    if ($replace) return $replace.replaceWith($row);
-                                    if ($after) return $after.after($row);
-                                };
-                                for (item in datum) add(item);
-                            },
-                            without: function (datum, $replace) {
-                                var $row = rows.without.clone(), $inputs = $row.find('input'), value = convert(datum);
-                                $inputs[1].checked = 'checked', $inputs[2].value = value;
-                                if (!$replace) return $widget.append($row);
-                                $replace.replaceWith($row);
-                            }
-                        };
-                        for (item in data) render[item](data[item]);
-                    }},
-                    {type: 'change', selector: '#' + ids.widget + ' input.og-js-radio', handler: function (e) {
-                        var target = e.target, value = target.value;
-                        if (value === 'without' && $('#' + ids.widget + ' .og-js-without-field').length)
-                            return alert('Sorry, but only one "without" constraint at a time.'), e.target.checked = '';
-                        render[value]({'with': {'': null}, without: ''}[value], $(target).closest('.og-js-row'));
-                    }},
-                    {type: 'click', selector: '#' + ids.widget + ' .og-js-rem', handler: function (e) {
-                        $(e.target).closest('.og-js-row').remove();
-                    }},
-                    {type: 'click', selector: '#' + ids.container + ' .og-js-add', handler: function (e) {
-                        render['with']({'': null});
-                    }}
-                ]
-            });
+                        for (item in datum) add(item);
+                    },
+                    without: function (datum, $replace) {
+                        var $row = rows.without.clone(), $inputs = $row.find('input'), value = convert(datum);
+                        $inputs[1].checked = 'checked', $inputs[2].value = value;
+                        if (!$replace) return $widget.append($row);
+                        $replace.replaceWith($row);
+                    }
+                };
+                for (item in data) render[item](data[item]);
+            }).on('change', '#' + ids.widget + ' input.og-js-radio', function (event) {
+                var target = event.target, value = target.value;
+                if (value === 'without' && $('#' + ids.widget + ' .og-js-without-field').length)
+                    return alert('Sorry, but only one "without" constraint at a time.'), event.target.checked = '';
+                render[value]({'with': {'': null}, without: ''}[value], $(target).closest('.og-js-row'));
+            }).on('click', '#' + ids.widget + ' .og-js-rem', function (event) {
+                $(event.target).closest('.og-js-row').remove();
+            }).on('click', '#' + ids.container + ' .og-js-add', function (event) {render['with']({'': null});});
         };
     }
 });

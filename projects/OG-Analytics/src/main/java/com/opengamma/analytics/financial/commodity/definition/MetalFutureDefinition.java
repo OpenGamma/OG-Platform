@@ -8,16 +8,16 @@ package com.opengamma.analytics.financial.commodity.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Metal future definition
  */
-public class MetalFutureDefinition extends CommodityFutureDefinition implements InstrumentDefinition<MetalFuture> {
+public class MetalFutureDefinition extends CommodityFutureDefinition<MetalFuture> {
 
   /**
    * Constructor for futures with delivery dates (i.e. physical settlement)
@@ -30,10 +30,13 @@ public class MetalFutureDefinition extends CommodityFutureDefinition implements 
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - PHYSICAL or CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public MetalFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, double amount, String unitName,
-      SettlementType settlementType) {
-    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType);
+      SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -44,9 +47,13 @@ public class MetalFutureDefinition extends CommodityFutureDefinition implements 
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
-  public MetalFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public MetalFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, final double referencePrice,
+      final Currency currency, ZonedDateTime settlementDate) {
+    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -57,10 +64,14 @@ public class MetalFutureDefinition extends CommodityFutureDefinition implements 
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice Number of units
+   * @param currency Currency
+   * @param settlementDate Settlement date
    * @return the forward
    */
-  public static MetalFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName) {
-    return new MetalFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+  public static MetalFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new MetalFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -73,11 +84,14 @@ public class MetalFutureDefinition extends CommodityFutureDefinition implements 
    * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    * @return the forward
    */
   public static MetalFutureDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName) {
-    return new MetalFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL);
+      double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    return new MetalFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
   /**
@@ -90,7 +104,24 @@ public class MetalFutureDefinition extends CommodityFutureDefinition implements 
   public MetalFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    return new MetalFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new MetalFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
+        getReferencePrice(), getCurrency());
+  }
+
+  /**
+   * Get the derivative at a given fix time from the definition
+   *
+   * @param date  fixing time
+   * @param referencePrice reference price
+   * @return the fixed derivative
+   */
+  public MetalFuture toDerivative(final ZonedDateTime date, final double referencePrice) {
+    ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
+    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    return new MetalFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
+        referencePrice, getCurrency());
   }
 
   @Override

@@ -30,8 +30,8 @@ $.register_module({
             if (!data.length) og.dev.warn('og.common.util.ui.AutoCombo: Empty array param [data]');
 
             d = data.sort((function(){
-                return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
-            })());
+                return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
+            })());
             var replace_placeholder = function (event) {
                 if (event.type === 'keydown' && (event.which !== 40 && event.which !== 38)) return;
                 var val = combo.$input.val().replace(/<(|\/)strong>/gi, "");

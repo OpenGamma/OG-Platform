@@ -109,7 +109,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
       startDate = DEFAULT_START_DATE;
     }
     if (endDate == null) {
-      endDate = DateUtils.previousWeekDay();
+      endDate = LocalDate.now();
     }
     
     // finds the time-series that need loading

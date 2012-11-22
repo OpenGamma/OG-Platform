@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.web.analytics.formatting.DataType;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
@@ -66,7 +67,7 @@ public class ViewportResultsJsonWriter {
       if (history != null) {
         valueMap.put(HISTORY, formatHistory(cellValueSpec, history));
       }
-      if (cell.isError()) {
+      if (cell.isError() || isError(formattedValue)) {
         valueMap.put(ERROR, true);
       }
       if (cell.getPositionId() != null) {
@@ -83,6 +84,10 @@ public class ViewportResultsJsonWriter {
                                                               CALCULATION_DURATION, duration,
                                                               DATA, results);
     return new JSONObject(resultsMap).toString();
+  }
+
+  private static boolean isError(Object value) {
+    return value instanceof MissingInput;
   }
 
   /**

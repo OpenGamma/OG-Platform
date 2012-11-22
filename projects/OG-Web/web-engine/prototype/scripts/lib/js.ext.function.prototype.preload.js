@@ -30,6 +30,8 @@
             return arguments.length ? method.call(this, merge.apply(null, concat.apply([orig], arguments)))
                 : method.call(this, orig);
         };
+        // make sure you also bring along the old prototype
+        new_method.prototype = method.prototype;
         // if the function instance has been extended, copy all of its properties
         for (key in method) if (method[has](key)) new_method[key] = method[key];
         return new_method;

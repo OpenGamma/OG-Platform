@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Abstract commodity future derivative.
@@ -35,6 +36,16 @@ public abstract class CommodityForward implements InstrumentDerivative {
   /** Settlement type - PHYISCAL or CASH */
   private final SettlementType _settlementType;
 
+  // extra variables taken from SimpleFuture
+  // TODO: Check they are needed
+
+  /** settlement time */
+  private final double _settlement;
+  /** reference price */
+  private final double _referencePrice;
+  /** currency */
+  private final Currency _currency;
+
   /**
    * @param expiry Time (in years as a double) until the date-time at which the future expires
    * @param underlying Identifier of the underlying commodity
@@ -44,10 +55,13 @@ public abstract class CommodityForward implements InstrumentDerivative {
    * @param amount Number of units
    * @param unitName Description of unit size
    * @param settlementType Settlement type - PHYSICAL or CASH
+   * @param settlement  Time (in years as a double) until the date-time at which the future is settled
+   * @param referencePrice reference price
+   * @param currency currency
    */
   public CommodityForward(final double expiry, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
-      final double amount, final String unitName, final SettlementType settlementType) {
-    ArgumentChecker.isTrue(expiry > 0, "time to expiry must be positive");
+      final double amount, final String unitName, final SettlementType settlementType, final double settlement, final double referencePrice, final Currency currency) {
+    ArgumentChecker.isTrue(expiry >= 0, "time to expiry must be positive");
 
     _expiry = expiry;
     _underlying = underlying;
@@ -57,6 +71,9 @@ public abstract class CommodityForward implements InstrumentDerivative {
     _amount = amount;
     _unitName = unitName;
     _settlementType = settlementType;
+    _settlement = settlement;
+    _referencePrice = referencePrice;
+    _currency = currency;
   }
 
   /**
@@ -123,6 +140,30 @@ public abstract class CommodityForward implements InstrumentDerivative {
     return _settlementType;
   }
 
+  /**
+   * Gets the settlement.
+   * @return the settlement
+   */
+  public double getSettlement() {
+    return _settlement;
+  }
+
+  /**
+   * Gets the referencePrice.
+   * @return the referencePrice
+   */
+  public double getReferencePrice() {
+    return _referencePrice;
+  }
+
+  /**
+   * Gets the currency.
+   * @return the currency
+   */
+  public Currency getCurrency() {
+    return _currency;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -136,12 +177,17 @@ public abstract class CommodityForward implements InstrumentDerivative {
     }
     result = prime * result + _unitName.hashCode();
     result = prime * result + _settlementType.hashCode();
+    result = prime * result + _currency.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_expiry);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_amount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_unitAmount);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_settlement);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_referencePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -176,10 +222,19 @@ public abstract class CommodityForward implements InstrumentDerivative {
     if (!ObjectUtils.equals(_settlementType, other._settlementType)) {
       return false;
     }
+    if (!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
     if (Double.compare(_amount, other._amount) != 0) {
       return false;
     }
     if (Double.compare(_unitAmount, other._unitAmount) != 0) {
+      return false;
+    }
+    if (Double.compare(_settlement, other._settlement) != 0) {
+      return false;
+    }
+    if (Double.compare(_referencePrice, other._referencePrice) != 0) {
       return false;
     }
     return true;

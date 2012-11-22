@@ -18,19 +18,16 @@ $.register_module({
                 $rules.append($el);
             };
             block_options = {
-                module: 'og.views.forms.view-definition-resolution-rule-transform-fields',
+                module: 'og.views.forms.view-definition-resolution-rule-transform-fields_tash',
                 extras: {
-                    id: id,
-                    class_value: (data && data[0]) ||
-                        // default value
+                    id: id, class_value: (data && data[0]) ||
                         'com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform'
                 },
                 processor: function (data) {
                     if (!$('#' + id).length) return;
                     var indices = data_index.split('.'), last = indices.pop(), result = {};
                     $('#' + id + ' .og-js-res-rule').each(function (idx, el) {
-                        var $el = $(el),
-                            key = $el.find('.og-js-key').val(),
+                        var $el = $(el), key = $el.find('.og-js-key').val(),
                             val = $(el).find('.og-js-val').val() || null;
                         if (key) result[key] = val === 'null' ? null : val;
                     });
@@ -38,25 +35,18 @@ $.register_module({
                     indices.reduce(function (acc, level) {
                         return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
                     }, data)[last] = result;
-                },
-                handlers: [
-                    {type: 'form:load', handler: function () {
-                        var rule;
-                        $rules = $('#' + id + ' .og-js-res-rule-holder');
-                        $rule = $('#' + id + ' .og-js-res-rule').remove();
-                        for (rule in data) if (rule !== '0') render_rule(rule, data[rule]);
-                    }},
-                    {type: 'click', selector: '#' + id + ' .og-js-add-rule', handler: function () {
-                        render_rule('', null);
-                        return false;
-                    }},
-                    {type: 'click', selector: '#' + id + ' .og-js-rem-rule', handler: function (e) {
-                        $(e.target).parents('.og-js-res-rule:first').remove();
-                        return false;
-                    }}
-                ]
+                }
             };
-            return new form.Block(block_options);
+            return new form.Block(block_options).on('form:load', function () {
+                var rule;
+                $rules = $('#' + id + ' .og-js-res-rule-holder');
+                $rule = $('#' + id + ' .og-js-res-rule').remove();
+                for (rule in data) if (rule !== '0') render_rule(rule, data[rule]);
+            })
+            .on('click', '#' + id + ' .og-js-add-rule', function () {return render_rule('', null), false;})
+            .on('click', '#' + id + ' .og-js-rem-rule', function (event) {
+                return $(event.target).parents('.og-js-res-rule:first').remove(), false;
+            });
         };
     }
 });

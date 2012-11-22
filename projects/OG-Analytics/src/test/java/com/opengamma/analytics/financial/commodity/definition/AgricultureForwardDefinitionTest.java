@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -25,6 +26,7 @@ public class AgricultureForwardDefinitionTest {
   private final static ExternalId AN_UNDERLYING= ExternalId.of("Scheme", "value");
   private final static ZonedDateTime FIRST_DELIVERY_DATE = DateUtils.getUTCDate(2011, 9, 21);
   private final static ZonedDateTime LAST_DELIVERY_DATE = DateUtils.getUTCDate(2012, 9, 21);
+  private final static ZonedDateTime SETTLEMENT_DATE = LAST_DELIVERY_DATE;
   private final static ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 9, 21);
   private final static ZonedDateTime A_DATE = DateUtils.getUTCDate(2011, 9, 20);
 
@@ -33,7 +35,7 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void cashHasNoDelivery() {
-    new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.CASH);
+    new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
   }
 
   /**
@@ -41,7 +43,7 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void physicalHasDelivery() {
-    new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, null, 1000, "tonnes", SettlementType.PHYSICAL);
+    new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, null, 1000, "tonnes", SettlementType.PHYSICAL, 0, Currency.GBP, SETTLEMENT_DATE);
   }
 
   /**
@@ -49,11 +51,13 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test()
   public void testHashEquals() {
-    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL);
-    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL);
+    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL, 0,
+        Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL, 0,
+        Currency.GBP, SETTLEMENT_DATE);
     assertEquals(first, second);
     assertEquals(first.hashCode(), second.hashCode());
-    AgricultureForwardDefinition third = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH);
+    AgricultureForwardDefinition third = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
     assertFalse(first.equals(third));
     assertFalse(second.hashCode() == third.hashCode());
   }
@@ -63,10 +67,12 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test
   public void testBuilders() {
-    AgricultureForwardDefinition cash = AgricultureForwardDefinition.withCashSettlement(EXPIRY_DATE, AN_UNDERLYING, 100, 1000, "tonnes");
-    AgricultureForwardDefinition physical = AgricultureForwardDefinition.withPhysicalSettlement(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes");
-    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH);
-    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL);
+    AgricultureForwardDefinition cash = AgricultureForwardDefinition.withCashSettlement(EXPIRY_DATE, AN_UNDERLYING, 100, 1000, "tonnes", 0, Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition physical = AgricultureForwardDefinition.withPhysicalSettlement(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", 0,
+        Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000, "tonnes", SettlementType.PHYSICAL, 0,
+        Currency.GBP, SETTLEMENT_DATE);
     assertEquals(cash, first);
     assertEquals(physical, second);
   }
@@ -76,8 +82,9 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test
   public void testGetters() {
-    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000., "tonnes", SettlementType.CASH);
-    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000., "tonnes", SettlementType.PHYSICAL);
+    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, null, null, 1000., "tonnes", SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100, FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000., "tonnes", SettlementType.PHYSICAL, 0,
+        Currency.GBP, SETTLEMENT_DATE);
     assertEquals(first.getAmount(), 1000.);
     assertEquals(first.getUnitAmount(), 100.);
     assertEquals(first.getUnitName(), "tonnes");
@@ -96,8 +103,9 @@ public class AgricultureForwardDefinitionTest {
    */
   @Test
   public void testToDerivative() {
-    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100., null, null, 1000., "tonnes", SettlementType.CASH);
-    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100., FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000., "tonnes", SettlementType.PHYSICAL);
+    AgricultureForwardDefinition first = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100., null, null, 1000., "tonnes", SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
+    AgricultureForwardDefinition second = new AgricultureForwardDefinition(EXPIRY_DATE, AN_UNDERLYING, 100., FIRST_DELIVERY_DATE, LAST_DELIVERY_DATE, 1000., "tonnes", SettlementType.PHYSICAL, 0,
+        Currency.GBP, SETTLEMENT_DATE);
 
     AgricultureForward firstDerivative = first.toDerivative(A_DATE);
     AgricultureForward secondDerivative = second.toDerivative(A_DATE);
@@ -113,7 +121,7 @@ public class AgricultureForwardDefinitionTest {
     assertEquals(secondDerivative.getLastDeliveryDate(), LAST_DELIVERY_DATE);
     assertEquals(secondDerivative.getSettlementType(), SettlementType.PHYSICAL);
 
-    AgricultureForward firstDerivative2 = new AgricultureForward(0.0027397260273972603, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH);
+    AgricultureForward firstDerivative2 = new AgricultureForward(0.0027397260273972603, AN_UNDERLYING, 100, null, null, 1000, "tonnes", SettlementType.CASH, 1.0035032562317538, 0, Currency.GBP);
     assertEquals(firstDerivative.hashCode(), firstDerivative2.hashCode());
     assertEquals(firstDerivative, firstDerivative2);
   }

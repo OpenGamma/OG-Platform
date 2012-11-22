@@ -1,8 +1,8 @@
 <li class="og-js-strip">
   <div class="og-del og-js-rem"></div>
   <div class="OG-clearFix og-strip">
-    <input type="text" class="og-tenor" name="strip.${idx}.tenor" value="${tenor}" />
-    <select class="og-type" name="strip.${idx}.type">
+    <input type="text" class="og-tenor" name="strip.{{idx}}.tenor" value="{{tenor}}" />
+    <select class="og-type" name="strip.{{idx}}.type">
       <option value="LIBOR">Libor rate</option>
       <option value="CASH">Cash rate</option>
       <option value="FRA">Forward-rate agreement</option>
@@ -24,8 +24,8 @@
       <option value="PERIODIC_ZERO_DEPOSIT">Periodic zero deposit strip
       <option value="CONTINUOUS_ZERO_DEPOSIT">Continuous zero deposit strip</option>
     </select>
-    <input class="og-num" type="text" name="strip.${idx}.numFutures" value="${future}" />
+    <input class="og-num" type="text" name="strip.{{idx}}.numFutures" value="{{future}}" />
     <!-- convention name -->
-    {{html item_0}}
+    {{{item_0}}}
   </div>
 </li>

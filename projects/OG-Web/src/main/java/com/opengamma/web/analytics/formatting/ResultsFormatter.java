@@ -34,7 +34,6 @@ public class ResultsFormatter {
     BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
-    BlackVolatilitySurfaceMoneynessFormatter blackVolSurfaceMoneynessFormatter = new BlackVolatilitySurfaceMoneynessFormatter();
 
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
@@ -51,7 +50,7 @@ public class ResultsFormatter {
                   new MissingMarketDataSentinelFormatter(),
                   new NotCalculatedSentinelFormatter(),
                   new ForwardCurveFormatter(),
-                  blackVolSurfaceMoneynessFormatter,
+                  new BlackVolatilitySurfaceMoneynessFormatter(),
                   new LocalVolatilitySurfaceMoneynessFormatter(),
                   new BucketedGreekResultCollectionFormatter(),
                   new DoublesCurveFormatter(),
@@ -65,7 +64,7 @@ public class ResultsFormatter {
                   new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter(),
                   new HistoricalTimeSeriesBundleFormatter(),
                   new VolatilitySurfaceSpecificationFormatter(),
-                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(blackVolSurfaceMoneynessFormatter));
+                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter());
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

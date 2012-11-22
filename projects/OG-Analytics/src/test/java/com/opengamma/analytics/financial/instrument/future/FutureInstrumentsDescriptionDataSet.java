@@ -48,7 +48,10 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final int QUANTITY = 123;
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2012, 2, 29);
   private static final double TRADE_PRICE = 0.9925;
-
+  // Future option
+  private static final ZonedDateTime OPTION_EXPIRY = DateUtils.getUTCDate(2012, 6, 19);
+  private static final double OPTION_STRIKE = 0.97;
+  private static final boolean IS_CALL = false;
   // Derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 13);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
@@ -63,6 +66,28 @@ public class FutureInstrumentsDescriptionDataSet {
     return createInterestRateFutureSecurityDefinition().toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES);
   }
 
+  public static InterestRateFutureOptionMarginSecurityDefinition createInterestRateFutureOptionMarginSecurityDefinition() {
+    final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
+    return new InterestRateFutureOptionMarginSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+  }
+
+  public static InterestRateFutureOptionMarginTransactionDefinition createInterestRateFutureOptionMarginTransactionDefinition() {
+    final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
+    final InterestRateFutureOptionMarginSecurityDefinition option = new InterestRateFutureOptionMarginSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+    return new InterestRateFutureOptionMarginTransactionDefinition(option, 1, TRADE_DATE, .99);
+  }
+
+  public static InterestRateFutureOptionPremiumSecurityDefinition createInterestRateFutureOptionPremiumSecurityDefinition() {
+    final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
+    return new InterestRateFutureOptionPremiumSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+  }
+
+  public static InterestRateFutureOptionPremiumTransactionDefinition createInterestRateFutureOptionPremiumTransactionDefinition() {
+    final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
+    final InterestRateFutureOptionPremiumSecurityDefinition option = new InterestRateFutureOptionPremiumSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+    return new InterestRateFutureOptionPremiumTransactionDefinition(option, 1, TRADE_DATE, .99);
+  }
+
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency BNDFUT_CUR = Currency.USD;
   private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
@@ -74,7 +99,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final int NB_BOND = 7;
   private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
+    DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
@@ -90,7 +115,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final ZonedDateTime BNDFUT_FIRST_NOTICE_DATE = DateUtils.getUTCDate(2011, 8, 31);
   private static final ZonedDateTime BNDFUT_LAST_NOTICE_DATE = DateUtils.getUTCDate(2011, 9, 29);
   private static final double BNDFUT_NOTIONAL = 100000;
-  private static final double BNDFUT_REFERENCE_PRICE = 0.0; // FIXME CASE Confirm BNDFUT_REFERENCE_PRICE. Was 1.23 
+  private static final double BNDFUT_REFERENCE_PRICE = 0.0; // FIXME CASE Confirm BNDFUT_REFERENCE_PRICE. Was 1.23
   private static final ZonedDateTime BNDFUT_REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 21);
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String DISC_CURVE_NAME = "Discounting";
@@ -102,6 +127,10 @@ public class FutureInstrumentsDescriptionDataSet {
 
   public static BondFuture createBondFutureSecurity() {
     return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
+  }
+
+  public static BondFutureOptionPremiumSecurityDefinition createBondFutureOptionPremiumSecurityDefinition() {
+    return new BondFutureOptionPremiumSecurityDefinition(createBondFutureSecurityDefinition(), OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
   }
 
   public static String[] curveNames() {

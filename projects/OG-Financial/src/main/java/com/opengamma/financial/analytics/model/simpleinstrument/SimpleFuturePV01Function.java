@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.simpleinstrument;
 
-import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
+import com.opengamma.analytics.financial.commodity.derivative.CommodityFuture;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.engine.value.ValueRequirementNames;
 
@@ -19,7 +19,7 @@ public class SimpleFuturePV01Function extends SimpleFutureFunction {
   }
 
   @Override
-  protected Double computeValues(SimpleFuture derivative, SimpleFutureDataBundle market) {
+  protected <T extends CommodityFuture> Double computeValues(/*SimpleFuture*/T derivative, SimpleFutureDataBundle market) {
     return derivative.getSettlement() * market.getMarketPrice() / 10000.0;
   }
 

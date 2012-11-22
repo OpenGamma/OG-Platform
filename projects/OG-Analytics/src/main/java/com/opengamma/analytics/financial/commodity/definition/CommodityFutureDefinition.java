@@ -9,13 +9,18 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Abstract commodity future definition.
+ *
+ * @param <T> concrete derivative class toDerivative() returns
  */
-public abstract class CommodityFutureDefinition {
+public abstract class CommodityFutureDefinition<T extends InstrumentDerivative> implements InstrumentDefinition<T> {
   /** Expiry date */
   private final ZonedDateTime _expiryDate;
   /** Identifier of the underlying commodity */
@@ -33,6 +38,16 @@ public abstract class CommodityFutureDefinition {
   /** Settlement type - PHYISCAL or CASH */
   private final SettlementType _settlementType;
 
+  // extra variables taken from SimpleFuture
+  // TODO: Check they are needed
+
+  /** reference price */
+  private final double _referencePrice;
+  /** currency */
+  private final Currency _currency;
+  /** Settlement date */
+  private final ZonedDateTime _settlementDate;
+
   /**
    * Constructor for futures with delivery dates (i.e. physical settlement)
    *
@@ -44,20 +59,26 @@ public abstract class CommodityFutureDefinition {
    * @param amount  number of units
    * @param unitName  description of unit size
    * @param settlementType  settlement type - PHYSICAL or CASH
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
-      final double amount, final String unitName, final SettlementType settlementType) {
+                                   final double amount, final String unitName, final SettlementType settlementType, final double referencePrice, final Currency currency,
+                                   final ZonedDateTime settlementDate) {
     ArgumentChecker.notNull(expiryDate, "expiry time");
     ArgumentChecker.notNull(underlying, "underlying");
 
     ArgumentChecker.notEmpty(unitName, "unit name");
     ArgumentChecker.notNull(settlementType, "settlement type");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
     if (settlementType.equals(SettlementType.PHYSICAL)) {
       ArgumentChecker.inOrderOrEqual(firstDeliveryDate, lastDeliveryDate, "first delivery date", "last delivery date");
     } else {
       ArgumentChecker.isTrue(firstDeliveryDate == null, "first delivery date must be null for non physical settlement");
       ArgumentChecker.isTrue(lastDeliveryDate == null, "last delivery date must be null for non physical settlement");
     }
+    ArgumentChecker.notNull(currency, "currency");
 
     _expiryDate = expiryDate;
     _underlying = underlying;
@@ -67,6 +88,9 @@ public abstract class CommodityFutureDefinition {
     _amount = amount;
     _unitName = unitName;
     _settlementType = settlementType;
+    _referencePrice = referencePrice;
+    _currency = currency;
+    _settlementDate = settlementDate;
   }
 
   /**
@@ -77,11 +101,23 @@ public abstract class CommodityFutureDefinition {
    * @param unitAmount  size of a unit
    * @param amount  number of units
    * @param unitName  description of unit size
+   * @param referencePrice reference price
+   * @param currency currency
+   * @param settlementDate settlement date
    */
   public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount,
-      final double amount, final String unitName) {
-    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH);
+      final double amount, final String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+    this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
+
+  /**
+   * Get the derivative at a given fix time from the definition
+   *
+   * @param date  fixing time
+   * @param referencePrice reference price
+   * @return the fixed derivative
+   */
+  public abstract T toDerivative(final ZonedDateTime date, final double referencePrice);
 
   /**
    * Gets the expiryDate.
@@ -147,6 +183,30 @@ public abstract class CommodityFutureDefinition {
     return _settlementType;
   }
 
+  /**
+   * Gets the referencePrice.
+   * @return the referencePrice
+   */
+  public double getReferencePrice() {
+    return _referencePrice;
+  }
+
+  /**
+   * Gets the currency.
+   * @return the currency
+   */
+  public Currency getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * Gets the settlement date.
+   * @return the settlement date
+   */
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -161,10 +221,14 @@ public abstract class CommodityFutureDefinition {
     }
     result = prime * result + _unitName.hashCode();
     result = prime * result + _settlementType.hashCode();
+    result = prime * result + _currency.hashCode();
+    result = prime * result + _settlementDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_amount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_unitAmount);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_referencePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -177,7 +241,7 @@ public abstract class CommodityFutureDefinition {
     if (!(obj instanceof CommodityFutureDefinition)) {
       return false;
     }
-    final CommodityFutureDefinition other = (CommodityFutureDefinition) obj;
+    final CommodityFutureDefinition<?> other = (CommodityFutureDefinition<?>) obj;
     if (!ObjectUtils.equals(_expiryDate, other._expiryDate)) {
       return false;
     }
@@ -196,10 +260,19 @@ public abstract class CommodityFutureDefinition {
     if (!ObjectUtils.equals(_settlementType, other._settlementType)) {
       return false;
     }
+    if (!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_settlementDate, other._settlementDate)) {
+      return false;
+    }
     if (Double.compare(_amount, other._amount) != 0) {
       return false;
     }
     if (Double.compare(_unitAmount, other._unitAmount) != 0) {
+      return false;
+    }
+    if (Double.compare(_referencePrice, other._referencePrice) != 0) {
       return false;
     }
     return true;
