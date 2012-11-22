@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -122,21 +121,11 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
           (eqSec instanceof EquityBarrierOptionSecurity))) {
       return false;
     }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(eqSec);
     final boolean applies = _currencyCurveConfigAndDiscountingCurveNames.containsKey(ccy);
     return applies;
   }
 
-  private Currency getCurrency(final ComputationTarget target) {
-    final Security eqSec = target.getSecurity();
-    if (eqSec instanceof EquityIndexOptionSecurity) {
-      return ((EquityIndexOptionSecurity) eqSec).getCurrency();
-    } else if (eqSec instanceof EquityBarrierOptionSecurity) {
-      return ((EquityBarrierOptionSecurity) eqSec).getCurrency();
-    } else {
-      throw new OpenGammaRuntimeException("Unhandled SecurityType: " + eqSec.getSecurityType());
-    }
-  }
   @Override
   public PriorityClass getPriority() {
     return _priority;

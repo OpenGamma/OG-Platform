@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Converts an EquityIndexOptionSecurity into OG-Financial's version of one: EquityIndexOptionDefinition
  */
 public class EquityIndexOptionConverter {
   private final HolidaySource _holidaySource;
