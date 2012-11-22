@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.commodity.derivative;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 
 /**
  * Convert from a specialized future to a simple one.
  */
-public final class SimpleFutureConverter extends AbstractInstrumentDerivativeVisitor<Object, SimpleFuture> {
+public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdapter<Object, SimpleFuture> {
 
   private static SimpleFutureConverter s_instance;
 

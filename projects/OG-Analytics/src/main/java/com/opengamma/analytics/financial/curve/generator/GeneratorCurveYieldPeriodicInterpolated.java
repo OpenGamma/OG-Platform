@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.curve.generator;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -22,7 +22,7 @@ public class GeneratorCurveYieldPeriodicInterpolated extends GeneratorYDCurve {
   /**
    * Calculator of the node associated to instruments.
    */
-  private final AbstractInstrumentDerivativeVisitor<Object, Double> _nodeTimeCalculator;
+  private final InstrumentDerivativeVisitorAdapter<Object, Double> _nodeTimeCalculator;
   /**
    * The interpolator used for the curve.
    */
@@ -38,7 +38,7 @@ public class GeneratorCurveYieldPeriodicInterpolated extends GeneratorYDCurve {
    * @param compoundingPeriodsPerYear The number of composition periods per year for the storage curve (1 for annual, 2 for semi-annual, etc.).
    * @param interpolator The interpolator used for the curve.
    */
-  public GeneratorCurveYieldPeriodicInterpolated(AbstractInstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator, final int compoundingPeriodsPerYear, Interpolator1D interpolator) {
+  public GeneratorCurveYieldPeriodicInterpolated(final InstrumentDerivativeVisitorAdapter<Object, Double> nodeTimeCalculator, final int compoundingPeriodsPerYear, final Interpolator1D interpolator) {
     _nodeTimeCalculator = nodeTimeCalculator;
     _interpolator = interpolator;
     _compoundingPeriodsPerYear = compoundingPeriodsPerYear;
@@ -50,27 +50,27 @@ public class GeneratorCurveYieldPeriodicInterpolated extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final IMarketBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
   @Override
-  public GeneratorYDCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(final Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
-    InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
-    double[] node = new double[instruments.length];
+    final InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
+    final double[] node = new double[instruments.length];
     for (int loopins = 0; loopins < instruments.length; loopins++) {
-      node[loopins] = _nodeTimeCalculator.visit(instruments[loopins]);
+      node[loopins] = instruments[loopins].accept(_nodeTimeCalculator);
     }
     return new GeneratorCurveYieldPeriodicInterpolatedNode(node, _compoundingPeriodsPerYear, _interpolator);
   }

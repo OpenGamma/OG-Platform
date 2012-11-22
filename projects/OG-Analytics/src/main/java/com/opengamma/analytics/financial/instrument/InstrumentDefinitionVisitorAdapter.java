@@ -763,12 +763,18 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
   }
 
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
-        + " with data of type " + data.getClass().getSimpleName());
+    if (definition != null && data != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
+          + " with data of type " + data.getClass().getSimpleName());
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition) {
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
+    if (definition != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
 }

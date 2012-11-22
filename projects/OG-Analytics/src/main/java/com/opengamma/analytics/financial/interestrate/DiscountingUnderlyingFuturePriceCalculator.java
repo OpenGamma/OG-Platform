@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 /**
  * Returns the underlying future price of the security, given a yield curve bundle
  */
-public class DiscountingUnderlyingFuturePriceCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class DiscountingUnderlyingFuturePriceCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /** The method unique instance.*/
   private static final DiscountingUnderlyingFuturePriceCalculator INSTANCE = new DiscountingUnderlyingFuturePriceCalculator();

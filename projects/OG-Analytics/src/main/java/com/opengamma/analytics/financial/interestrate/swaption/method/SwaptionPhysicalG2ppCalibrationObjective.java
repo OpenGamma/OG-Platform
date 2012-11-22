@@ -49,7 +49,7 @@ public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFind
    * @param parameters The G2++ parameters.
    * @param ratio The ratio between the first factor volatility and the second factor volatility.
    */
-  public SwaptionPhysicalG2ppCalibrationObjective(final G2ppPiecewiseConstantParameters parameters, double ratio) {
+  public SwaptionPhysicalG2ppCalibrationObjective(final G2ppPiecewiseConstantParameters parameters, final double ratio) {
     _g2Parameters = parameters;
     _ratio = ratio;
     setMinimumParameter(1.0E-6);
@@ -63,7 +63,7 @@ public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFind
    * @param curves The curves.
    */
   @Override
-  public void setCurves(YieldCurveBundle curves) {
+  public void setCurves(final YieldCurveBundle curves) {
     _g2Bundle = new G2ppPiecewiseConstantDataBundle(_g2Parameters, curves);
   }
 
@@ -87,20 +87,20 @@ public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFind
    * Sets the calibration time for the next calibration.
    * @param calibrationTime The calibration time.
    */
-  public void setNextCalibrationTime(double calibrationTime) {
+  public void setNextCalibrationTime(final double calibrationTime) {
     _g2Parameters.addVolatility(_g2Parameters.getLastVolatilities(), calibrationTime);
   }
 
   @Override
-  public void setInstrument(InstrumentDerivative instrument) {
+  public void setInstrument(final InstrumentDerivative instrument) {
     super.setInstrument(instrument);
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Instrument should be a physical delivery swaption");
-    _cfe = CASH_FLOW_EQUIVALENT_CALCULATOR.visit(((SwaptionPhysicalFixedIbor) instrument).getUnderlyingSwap(), _g2Bundle);
+    _cfe = ((SwaptionPhysicalFixedIbor) instrument).getUnderlyingSwap().accept(CASH_FLOW_EQUIVALENT_CALCULATOR, _g2Bundle);
   }
 
   @Override
-  public Double evaluate(Double x) {
-    _g2Bundle.getG2ppParameter().setLastVolatilities(new double[] {x, x / _ratio});
+  public Double evaluate(final Double x) {
+    _g2Bundle.getG2ppParameter().setLastVolatilities(new double[] {x, x / _ratio });
     return METHOD_G2_SWAPTION.presentValue((SwaptionPhysicalFixedIbor) getInstrument(), _cfe, _g2Bundle).getAmount() - getPrice();
   }
 

@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -38,7 +36,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 /**
  * Get the last time (in years from now) referenced in the instrument description.
  */
-public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
+public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
   private static final LastTimeCalculator CALCULATOR = new LastTimeCalculator();
 
   public static LastTimeCalculator getInstance() {
@@ -46,23 +44,6 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   private LastTimeCalculator() {
-  }
-
-  @Override
-  public Double visit(final InstrumentDerivative ird, final Object data) {
-    Validate.notNull(ird, "ird");
-    return ird.accept(this);
-  }
-
-  @Override
-  public Double[] visit(final InstrumentDerivative[] derivative) {
-    Validate.notNull(derivative, "derivative");
-    Validate.noNullElements(derivative, "derivative");
-    final Double[] output = new Double[derivative.length];
-    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
-      output[loopderivative] = derivative[loopderivative].accept(this);
-    }
-    return output;
   }
 
   @Override
@@ -117,13 +98,13 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
 
   @Override
   public Double visitGenericAnnuity(final Annuity<? extends Payment> annuity) {
-    return visit(annuity.getNthPayment(annuity.getNumberOfPayments() - 1));
+    return annuity.getNthPayment(annuity.getNumberOfPayments() - 1).accept(this);
   }
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap) {
-    final double a = visit(swap.getFirstLeg());
-    final double b = visit(swap.getSecondLeg());
+    final double a = swap.getFirstLeg().accept(this);
+    final double b = swap.getSecondLeg().accept(this);
     return Math.max(a, b);
   }
 
@@ -154,7 +135,7 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS payment) {
-    final double swapLastTime = visit(payment.getUnderlyingSwap());
+    final double swapLastTime = payment.getUnderlyingSwap().accept(this);
     final double paymentTime = payment.getPaymentTime();
     return Math.max(swapLastTime, paymentTime);
   }
@@ -173,22 +154,22 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond) {
-    return Math.max(visit(bond.getCoupon()), visit(bond.getNominal()));
+    return Math.max(bond.getCoupon().accept(this), bond.getNominal().accept(this));
   }
 
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond) {
-    return visit(bond.getBondStandard());
+    return bond.getBondStandard().accept(this);
   }
 
   @Override
   public Double visitBondIborSecurity(final BondIborSecurity bond) {
-    return Math.max(visit(bond.getCoupon()), visit(bond.getNominal()));
+    return Math.max(bond.getCoupon().accept(this), bond.getNominal().accept(this));
   }
 
   @Override
   public Double visitBondIborTransaction(final BondIborTransaction bond) {
-    return visit(bond.getBondStandard());
+    return bond.getBondStandard().accept(this);
   }
 
   // -----     Bond     -----

@@ -57,20 +57,20 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
    */
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    double nominal = Math.abs(annuityFixed.getNthPayment(0).getNotional());
-    double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    double annuityPhysical = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
-    double strike = swaption.getStrike();
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
+    final double nominal = Math.abs(annuityFixed.getNthPayment(0).getNotional());
+    final double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
+    final double annuityPhysical = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
+    final double strike = swaption.getStrike();
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     // Linear approximation
-    double[] alpha = new double[2];
+    final double[] alpha = new double[2];
     for (int loopcpn = 0; loopcpn < annuityFixed.getNumberOfPayments(); loopcpn++) {
       alpha[1] += annuityFixed.getNthPayment(loopcpn).getPaymentYearFraction();
     }
     alpha[1] = 1 / alpha[1];
     alpha[0] = (discountFactorSettle / annuityPhysical - alpha[1]) / forward;
 
-    LinearTSRIntegrant integrant = new LinearTSRIntegrant(swaption, sabrData.getSABRParameter(), forward, alpha);
+    final LinearTSRIntegrant integrant = new LinearTSRIntegrant(swaption, sabrData.getSABRParameter(), forward, alpha);
 
     @SuppressWarnings("synthetic-access")
     final double strikePart = integrant.k(strike) * integrant.bs(strike);
@@ -87,12 +87,12 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    double pv = nominal * annuityPhysical * (strikePart + integralPart) * (swaption.isLong() ? 1.0 : -1.0);
+    final double pv = nominal * annuityPhysical * (strikePart + integralPart) * (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return null;
   }
 
@@ -155,7 +155,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
      */
     private double k(final double x) {
       double g;
-      double linear = _linear[0] * x + _linear[1];
+      final double linear = _linear[0] * x + _linear[1];
       if (x >= EPS) {
         final double periodFactor = 1 + x / _nbFixedPaymentYear;
         final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
@@ -191,7 +191,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       }
       final double kp = _linear[0] * g + (_linear[0] * x + _linear[1]) * gp;
       final double kpp = 2 * _linear[0] * gp + (_linear[0] * x + _linear[1]) * gpp;
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**

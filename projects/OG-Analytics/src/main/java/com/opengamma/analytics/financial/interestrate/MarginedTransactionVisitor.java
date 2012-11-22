@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
  * Provides the reference margin price,
  * for futures, options and other exchange traded securities that are margined
  */
-public class MarginedTransactionVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Boolean> {
+public class MarginedTransactionVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Boolean> {
 
   /** The method unique instance. */
   private static final MarginedTransactionVisitor INSTANCE = new MarginedTransactionVisitor();

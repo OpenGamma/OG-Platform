@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
@@ -42,7 +40,7 @@ import com.opengamma.util.CompareUtils;
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. 
  * For instruments that cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
-public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -74,13 +72,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   // TODO: review
   @Override
@@ -128,8 +119,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
-    final double pvbp = PVC.visit(swap.getFixedLeg().withUnitCoupon(), curves);
+    final double pvSecond = swap.getSecondLeg().accept(PVC, curves);
+    final double pvbp = swap.getFixedLeg().withUnitCoupon().accept(PVC, curves);
     return -pvSecond / pvbp;
   }
 
@@ -155,7 +146,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    * @return The modified rate.
    */
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final YieldCurveBundle curves) {
-    final double pvSecond = -PVC.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = -swap.getSecondLeg().accept(PVC, curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return -pvSecond / pvbp;
   }
 
@@ -169,9 +160,9 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     final AnnuityCouponIborSpread firstLeg = (AnnuityCouponIborSpread) swap.getFirstLeg();
     final AnnuityCouponIborSpread secondLeg = (AnnuityCouponIborSpread) swap.getSecondLeg();
-    final double pvFirst = PVC.visit(firstLeg.withZeroSpread(), curves);
-    final double pvSecond = PVC.visit(secondLeg.withZeroSpread(), curves);
-    final double pvSpread = PVC.visit(secondLeg.withUnitCoupons(), curves);
+    final double pvFirst = firstLeg.withZeroSpread().accept(PVC, curves);
+    final double pvSecond = secondLeg.withZeroSpread().accept(PVC, curves);
+    final double pvSpread = secondLeg.withUnitCoupons().accept(PVC, curves);
     if (pvSpread == 0.0) {
       throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
     }
@@ -186,17 +177,17 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   @Override
   public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-    FloatingRateNote dFRN = ccs.getDomesticLeg();
-    FloatingRateNote fFRN = ccs.getForeignLeg();
-    AnnuityCouponIborSpread dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
-    AnnuityCouponIborSpread fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
-    AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
+    final FloatingRateNote dFRN = ccs.getDomesticLeg();
+    final FloatingRateNote fFRN = ccs.getForeignLeg();
+    final AnnuityCouponIborSpread dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
+    final AnnuityCouponIborSpread fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
+    final AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
 
-    double dPV = PVC.visit(dFloatLeg, curves) + PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
-    double fPV = PVC.visit(fFloatLeg, curves) + PVC.visit(fFRN.getFirstLeg(), curves); //this is in foreign currency
-    double fAnnuityPV = PVC.visit(fAnnuity, curves); //this is in foreign currency
+    final double dPV = dFloatLeg.accept(PVC, curves) + dFRN.getFirstLeg().accept(PVC, curves); //this is in domestic currency
+    final double fPV = fFloatLeg.accept(PVC, curves) + fFRN.getFirstLeg().accept(PVC, curves); //this is in foreign currency
+    final double fAnnuityPV = fAnnuity.accept(PVC, curves); //this is in foreign currency
 
-    double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 
+    final double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 
 
     return (dPV - fx * fPV) / fx / fAnnuityPV;
   }
@@ -228,8 +219,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
     final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
-    final double pvann = PVC.visit(unitCouponAnnuity, curves);
-    final double matPV = PVC.visit(bond.getNominal(), curves);
+    final double pvann = unitCouponAnnuity.accept(PVC, curves);
+    final double matPV = bond.getNominal().accept(PVC, curves);
     return (1 - matPV) / pvann;
   }
 

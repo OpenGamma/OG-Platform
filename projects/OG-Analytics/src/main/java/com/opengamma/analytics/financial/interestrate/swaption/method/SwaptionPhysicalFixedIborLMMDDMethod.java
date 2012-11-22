@@ -77,24 +77,24 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
     // 1. Swaption CFE preparation
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), lmmBundle);
-    YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
-    int nbCFInit = cfe.getNumberOfPayments();
-    double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
-    boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
-    double[] cftInit = new double[nbCFInit];
-    double[] cfaInit = new double[nbCFInit];
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, lmmBundle);
+    final YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
+    final int nbCFInit = cfe.getNumberOfPayments();
+    final double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
+    final boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
+    final double[] cftInit = new double[nbCFInit];
+    final double[] cfaInit = new double[nbCFInit];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cftInit[loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       cfaInit[loopcf] = cfe.getNthPayment(loopcf).getAmount() * -multFact;
     }
-    double timeToExpiry = swaption.getTimeToExpiry();
+    final double timeToExpiry = swaption.getTimeToExpiry();
     // 2. Model data
-    int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
-    double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
-    double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
+    final int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
+    final double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
+    final double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
     // 3. Link cfe dates to lmm
-    int[] indCFDate = new int[nbCFInit];
+    final int[] indCFDate = new int[nbCFInit];
     int indStart = nbCFInit - 1;
     int indEnd = 0;
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
@@ -117,49 +117,49 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         indEnd = indCFDate[loopcf];
       }
     }
-    int nbCF = indEnd - indStart + 1;
-    double[] cfa = new double[nbCF];
+    final int nbCF = indEnd - indStart + 1;
+    final double[] cfa = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cfa[indCFDate[loopcf] - indStart] = cfaInit[loopcf];
     }
-    double[] cft = new double[nbCF];
+    final double[] cft = new double[nbCF];
     System.arraycopy(timeLMM, indStart, cft, 0, nbCF);
 
-    double[] dfLMM = new double[nbCF];
+    final double[] dfLMM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       dfLMM[loopcf] = dsc.getDiscountFactor(cft[loopcf]);
     }
-    double[][] gammaLMM = new double[nbCF - 1][nbFactor];
-    double[] deltaLMM = new double[nbCF - 1];
+    final double[][] gammaLMM = new double[nbCF - 1][nbFactor];
+    final double[] deltaLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getAccrualFactor(), indStart, deltaLMM, 0, nbCF - 1);
-    double[] aLMM = new double[nbCF - 1];
+    final double[] aLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getDisplacement(), indStart, aLMM, 0, nbCF - 1);
-    double[] liborLMM = new double[nbCF - 1];
-    double amr = lmmBundle.getLmmParameter().getMeanReversion();
+    final double[] liborLMM = new double[nbCF - 1];
+    final double amr = lmmBundle.getLmmParameter().getMeanReversion();
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       gammaLMM[loopcf] = volLMM[indStart + loopcf];
       liborLMM[loopcf] = (dfLMM[loopcf] / dfLMM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     // TODO: 4. cfe modification (for roller coasters)
-    double[] cfaMod = new double[nbCF + 1];
-    double cfaMod0 = cfa[0];
+    final double[] cfaMod = new double[nbCF + 1];
+    final double cfaMod0 = cfa[0];
     cfaMod[0] = cfaMod0; // modified strike
     cfaMod[1] = 0.0;
     System.arraycopy(cfa, 1, cfaMod, 2, nbCF - 1);
     // 5. Pricing algorithm
-    double[] p0 = new double[nbCF];
-    double[] dP = new double[nbCF];
+    final double[] p0 = new double[nbCF];
+    final double[] dP = new double[nbCF];
     double b0 = 0;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       p0[loopcf] = dfLMM[loopcf] / dfLMM[0];
       dP[loopcf] = cfaMod[loopcf + 1] * p0[loopcf];
       b0 += dP[loopcf];
     }
-    double bK = -cfaMod0;
-    double bM = (b0 + bK) / 2.0d;
-    double meanReversionImpact = Math.abs(amr) < 1.0E-6 ? timeToExpiry : (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr); // To handle 0 mean reversion.
-    double[] rate0Ratio = new double[nbCF - 1];
-    double[][] mu0 = new double[nbCF - 1][nbFactor];
+    final double bK = -cfaMod0;
+    final double bM = (b0 + bK) / 2.0d;
+    final double meanReversionImpact = Math.abs(amr) < 1.0E-6 ? timeToExpiry : (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr); // To handle 0 mean reversion.
+    final double[] rate0Ratio = new double[nbCF - 1];
+    final double[][] mu0 = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rate0Ratio[loopcf] = (liborLMM[loopcf] + aLMM[loopcf]) / (liborLMM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -171,8 +171,8 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0[loopcf][loopfact] = mu0[loopcf - 1][loopfact] + rate0Ratio[loopcf] * gammaLMM[loopcf][loopfact];
       }
     }
-    double[] tau = new double[nbCF];
-    double[] tau2 = new double[nbCF];
+    final double[] tau = new double[nbCF];
+    final double[] tau2 = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         tau2[loopcf + 1] += mu0[loopcf][loopfact] * mu0[loopcf][loopfact];
@@ -186,21 +186,21 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       sumNum += dP[loopcf] - dP[loopcf] * tau2[loopcf] / 2.0;
       sumDen += dP[loopcf] * tau[loopcf];
     }
-    double xBar = sumNum / sumDen;
-    double[] pM = new double[nbCF];
+    final double xBar = sumNum / sumDen;
+    final double[] pM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       pM[loopcf] = p0[loopcf] * (1 - xBar * tau[loopcf] - tau2[loopcf] / 2.0);
     }
-    double[] liborM = new double[nbCF - 1];
-    double[] alphaM = new double[nbCF];
+    final double[] liborM = new double[nbCF - 1];
+    final double[] alphaM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborM[loopcf] = (pM[loopcf] / pM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       alphaM[loopcf] = cfaMod[loopcf + 1] * pM[loopcf] / bM;
     }
-    double[] rateMRatio = new double[nbCF - 1];
-    double[][] muM = new double[nbCF - 1][nbFactor];
+    final double[] rateMRatio = new double[nbCF - 1];
+    final double[][] muM = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rateMRatio[loopcf] = (liborM[loopcf] + aLMM[loopcf]) / (liborM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -213,15 +213,15 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
     double normSigmaM = 0;
-    double[] sigmaM = new double[nbFactor];
+    final double[] sigmaM = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         sigmaM[loopfact] += alphaM[loopcf + 1] * muM[loopcf][loopfact];
       }
       normSigmaM += sigmaM[loopfact] * sigmaM[loopfact];
     }
-    double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
+    final double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, 1.0, impliedBlackVol);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
@@ -230,7 +230,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof LiborMarketModelDisplacedDiffusionDataBundle, "Bundle should contain LMM data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (LiborMarketModelDisplacedDiffusionDataBundle) curves);
@@ -244,24 +244,24 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
    */
   public double[][] presentValueLMMSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
     // 1. Swaption CFE preparation
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), lmmBundle);
-    YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
-    int nbCFInit = cfe.getNumberOfPayments();
-    double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
-    boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
-    double[] cftInit = new double[nbCFInit];
-    double[] cfaInit = new double[nbCFInit];
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, lmmBundle);
+    final YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
+    final int nbCFInit = cfe.getNumberOfPayments();
+    final double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
+    final boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
+    final double[] cftInit = new double[nbCFInit];
+    final double[] cfaInit = new double[nbCFInit];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cftInit[loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       cfaInit[loopcf] = cfe.getNthPayment(loopcf).getAmount() * -multFact;
     }
-    double timeToExpiry = swaption.getTimeToExpiry();
+    final double timeToExpiry = swaption.getTimeToExpiry();
     // 2. Model data
-    int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
-    double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
-    double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
+    final int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
+    final double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
+    final double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
     // 3. Link cfe dates to lmm
-    int[] indCFDate = new int[nbCFInit];
+    final int[] indCFDate = new int[nbCFInit];
     int indStart = nbCFInit - 1;
     int indEnd = 0;
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
@@ -284,48 +284,48 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         indEnd = indCFDate[loopcf];
       }
     }
-    int nbCF = indEnd - indStart + 1;
-    double[] cfa = new double[nbCF];
+    final int nbCF = indEnd - indStart + 1;
+    final double[] cfa = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cfa[indCFDate[loopcf] - indStart] = cfaInit[loopcf];
     }
-    double[] cft = new double[nbCF];
+    final double[] cft = new double[nbCF];
     System.arraycopy(timeLMM, indStart, cft, 0, nbCF);
 
-    double[] dfLMM = new double[nbCF];
+    final double[] dfLMM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       dfLMM[loopcf] = dsc.getDiscountFactor(cft[loopcf]);
     }
-    double[][] gammaLMM = new double[nbCF - 1][nbFactor];
-    double[] deltaLMM = new double[nbCF - 1];
+    final double[][] gammaLMM = new double[nbCF - 1][nbFactor];
+    final double[] deltaLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getAccrualFactor(), indStart, deltaLMM, 0, nbCF - 1);
-    double[] aLMM = new double[nbCF - 1];
+    final double[] aLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getDisplacement(), indStart, aLMM, 0, nbCF - 1);
-    double[] liborLMM = new double[nbCF - 1];
-    double amr = lmmBundle.getLmmParameter().getMeanReversion();
+    final double[] liborLMM = new double[nbCF - 1];
+    final double amr = lmmBundle.getLmmParameter().getMeanReversion();
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       gammaLMM[loopcf] = volLMM[indStart + loopcf];
       liborLMM[loopcf] = (dfLMM[loopcf] / dfLMM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     // TODO: 4. cfe modification (for roller coasters)
-    double[] cfaMod = new double[nbCF + 1];
-    double cfaMod0 = cfa[0];
+    final double[] cfaMod = new double[nbCF + 1];
+    final double cfaMod0 = cfa[0];
     cfaMod[0] = cfaMod0; // modified strike
     cfaMod[1] = 0.0;
     System.arraycopy(cfa, 1, cfaMod, 2, nbCF - 1);
     // 5. Pricing algorithm
-    double[] p0 = new double[nbCF];
-    double[] dP = new double[nbCF];
+    final double[] p0 = new double[nbCF];
+    final double[] dP = new double[nbCF];
     double b0 = 0;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       p0[loopcf] = dfLMM[loopcf] / dfLMM[0];
       dP[loopcf] = cfaMod[loopcf + 1] * p0[loopcf];
       b0 += dP[loopcf];
     }
-    double bK = -cfaMod0;
-    double bM = (b0 + bK) / 2.0d;
-    double[] rate0Ratio = new double[nbCF - 1];
-    double[][] mu0 = new double[nbCF - 1][nbFactor];
+    final double bK = -cfaMod0;
+    final double bM = (b0 + bK) / 2.0d;
+    final double[] rate0Ratio = new double[nbCF - 1];
+    final double[][] mu0 = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rate0Ratio[loopcf] = (liborLMM[loopcf] + aLMM[loopcf]) / (liborLMM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -337,9 +337,9 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0[loopcf][loopfact] = mu0[loopcf - 1][loopfact] + rate0Ratio[loopcf] * gammaLMM[loopcf][loopfact];
       }
     }
-    double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
-    double[] tau = new double[nbCF];
-    double[] tau2 = new double[nbCF];
+    final double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
+    final double[] tau = new double[nbCF];
+    final double[] tau2 = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         tau2[loopcf + 1] += mu0[loopcf][loopfact] * mu0[loopcf][loopfact];
@@ -353,21 +353,21 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       sumNum += dP[loopcf] - dP[loopcf] * tau2[loopcf] / 2.0;
       sumDen += dP[loopcf] * tau[loopcf];
     }
-    double xBar = sumNum / sumDen;
-    double[] pM = new double[nbCF];
+    final double xBar = sumNum / sumDen;
+    final double[] pM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       pM[loopcf] = p0[loopcf] * (1 - xBar * tau[loopcf] - tau2[loopcf] / 2.0);
     }
-    double[] liborM = new double[nbCF - 1];
-    double[] alphaM = new double[nbCF];
+    final double[] liborM = new double[nbCF - 1];
+    final double[] alphaM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborM[loopcf] = (pM[loopcf] / pM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       alphaM[loopcf] = cfaMod[loopcf + 1] * pM[loopcf] / bM;
     }
-    double[] rateMRatio = new double[nbCF - 1];
-    double[][] muM = new double[nbCF - 1][nbFactor];
+    final double[] rateMRatio = new double[nbCF - 1];
+    final double[][] muM = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rateMRatio[loopcf] = (liborM[loopcf] + aLMM[loopcf]) / (liborM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -380,28 +380,28 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
     double normSigmaM = 0;
-    double[] sigmaM = new double[nbFactor];
+    final double[] sigmaM = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         sigmaM[loopfact] += alphaM[loopcf + 1] * muM[loopcf][loopfact];
       }
       normSigmaM += sigmaM[loopfact] * sigmaM[loopfact];
     }
-    double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
+    final double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, 1.0, impliedBlackVol);
-    double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    final double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     // Backward sweep
-    double pvBar = 1.0;
-    double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * pvBar;
-    double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
-    double[] sigmaMBar = new double[nbFactor];
+    final double pvBar = 1.0;
+    final double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * pvBar;
+    final double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
+    final double[] sigmaMBar = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       sigmaMBar[loopfact] = 2 * sigmaM[loopfact] * normSigmaMBar;
     }
 
-    double[][] muMBar = new double[nbCF - 1][nbFactor];
+    final double[][] muMBar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         muMBar[loopcf][loopfact] = alphaM[loopcf + 1] * sigmaMBar[loopfact];
@@ -413,27 +413,27 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
 
-    double[] rateMRatioBar = new double[nbCF - 1];
+    final double[] rateMRatioBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         rateMRatioBar[loopcf] += gammaLMM[loopcf][loopfact] * muMBar[loopcf][loopfact];
       }
     }
 
-    double[] alphaMBar = new double[nbCF];
+    final double[] alphaMBar = new double[nbCF];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         alphaMBar[loopcf + 1] += muM[loopcf][loopfact] * sigmaMBar[loopfact];
       }
     }
 
-    double[] liborMBar = new double[nbCF - 1];
+    final double[] liborMBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborMBar[loopcf] = ((liborM[loopcf] + 1 / deltaLMM[loopcf]) - (liborM[loopcf] + aLMM[loopcf])) / ((liborM[loopcf] + 1 / deltaLMM[loopcf]) * (liborM[loopcf] + 1 / deltaLMM[loopcf]))
           * rateMRatioBar[loopcf];
     }
 
-    double[] pMBar = new double[nbCF];
+    final double[] pMBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       pMBar[loopcf] += 1.0 / pM[loopcf + 1] / deltaLMM[loopcf] * liborMBar[loopcf];
       pMBar[loopcf + 1] += -pM[loopcf] / (pM[loopcf + 1] * pM[loopcf + 1]) / deltaLMM[loopcf] * liborMBar[loopcf];
@@ -446,16 +446,16 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       xBarBar += -p0[loopcf] * tau[loopcf] * pMBar[loopcf];
     }
-    double sumNumBar = 1.0 / sumDen * xBarBar;
-    double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
-    double[] tauBar = new double[nbCF];
+    final double sumNumBar = 1.0 / sumDen * xBarBar;
+    final double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
+    final double[] tauBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] = -p0[loopcf] * xBar * pMBar[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] += dP[loopcf] * sumDenBar;
     }
-    double[] tau2Bar = new double[nbCF];
+    final double[] tau2Bar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tau2Bar[loopcf] = -p0[loopcf] / 2.0 * pMBar[loopcf];
     }
@@ -465,7 +465,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       tau2Bar[loopcf + 1] += 1 / 2.0 / tau[loopcf + 1] * tauBar[loopcf + 1];
     }
-    double[][] mu0Bar = new double[nbCF - 1][nbFactor];
+    final double[][] mu0Bar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         mu0Bar[loopcf][loopfact] = 2.0 * mu0[loopcf][loopfact] * meanReversionImpact * tau2Bar[loopcf + 1];
@@ -476,7 +476,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0Bar[loopcf][loopfact] += mu0Bar[loopcf + 1][loopfact];
       }
     }
-    double[][] gammaLMMBar = new double[nbCF - 1][nbFactor];
+    final double[][] gammaLMMBar = new double[nbCF - 1][nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       gammaLMMBar[0][loopfact] = rateMRatio[0] * muMBar[0][loopfact];
     }
@@ -493,7 +493,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         gammaLMMBar[loopcf][loopfact] += rate0Ratio[loopcf] * mu0Bar[loopcf][loopfact];
       }
     }
-    double[][] volLMMBar = new double[volLMM.length][nbFactor];
+    final double[][] volLMMBar = new double[volLMM.length][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       volLMMBar[indStart + loopcf] = gammaLMMBar[loopcf];
     }
@@ -509,24 +509,24 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
    */
   public double[] presentValueDDSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
     // 1. Swaption CFE preparation
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), lmmBundle);
-    YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
-    int nbCFInit = cfe.getNumberOfPayments();
-    double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
-    boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
-    double[] cftInit = new double[nbCFInit];
-    double[] cfaInit = new double[nbCFInit];
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, lmmBundle);
+    final YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
+    final int nbCFInit = cfe.getNumberOfPayments();
+    final double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
+    final boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
+    final double[] cftInit = new double[nbCFInit];
+    final double[] cfaInit = new double[nbCFInit];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cftInit[loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       cfaInit[loopcf] = cfe.getNthPayment(loopcf).getAmount() * -multFact;
     }
-    double timeToExpiry = swaption.getTimeToExpiry();
+    final double timeToExpiry = swaption.getTimeToExpiry();
     // 2. Model data
-    int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
-    double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
-    double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
+    final int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
+    final double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
+    final double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
     // 3. Link cfe dates to lmm
-    int[] indCFDate = new int[nbCFInit];
+    final int[] indCFDate = new int[nbCFInit];
     int indStart = nbCFInit - 1;
     int indEnd = 0;
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
@@ -549,48 +549,48 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         indEnd = indCFDate[loopcf];
       }
     }
-    int nbCF = indEnd - indStart + 1;
-    double[] cfa = new double[nbCF];
+    final int nbCF = indEnd - indStart + 1;
+    final double[] cfa = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cfa[indCFDate[loopcf] - indStart] = cfaInit[loopcf];
     }
-    double[] cft = new double[nbCF];
+    final double[] cft = new double[nbCF];
     System.arraycopy(timeLMM, indStart, cft, 0, nbCF);
 
-    double[] dfLMM = new double[nbCF];
+    final double[] dfLMM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       dfLMM[loopcf] = dsc.getDiscountFactor(cft[loopcf]);
     }
-    double[][] gammaLMM = new double[nbCF - 1][nbFactor];
-    double[] deltaLMM = new double[nbCF - 1];
+    final double[][] gammaLMM = new double[nbCF - 1][nbFactor];
+    final double[] deltaLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getAccrualFactor(), indStart, deltaLMM, 0, nbCF - 1);
-    double[] aLMM = new double[nbCF - 1];
+    final double[] aLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getDisplacement(), indStart, aLMM, 0, nbCF - 1);
-    double[] liborLMM = new double[nbCF - 1];
-    double amr = lmmBundle.getLmmParameter().getMeanReversion();
+    final double[] liborLMM = new double[nbCF - 1];
+    final double amr = lmmBundle.getLmmParameter().getMeanReversion();
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       gammaLMM[loopcf] = volLMM[indStart + loopcf];
       liborLMM[loopcf] = (dfLMM[loopcf] / dfLMM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     // TODO: 4. cfe modification (for roller coasters)
-    double[] cfaMod = new double[nbCF + 1];
-    double cfaMod0 = cfa[0];
+    final double[] cfaMod = new double[nbCF + 1];
+    final double cfaMod0 = cfa[0];
     cfaMod[0] = cfaMod0; // modified strike
     cfaMod[1] = 0.0;
     System.arraycopy(cfa, 1, cfaMod, 2, nbCF - 1);
     // 5. Pricing algorithm
-    double[] p0 = new double[nbCF];
-    double[] dP = new double[nbCF];
+    final double[] p0 = new double[nbCF];
+    final double[] dP = new double[nbCF];
     double b0 = 0;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       p0[loopcf] = dfLMM[loopcf] / dfLMM[0];
       dP[loopcf] = cfaMod[loopcf + 1] * p0[loopcf];
       b0 += dP[loopcf];
     }
-    double bK = -cfaMod0;
-    double bM = (b0 + bK) / 2.0d;
-    double[] rate0Ratio = new double[nbCF - 1];
-    double[][] mu0 = new double[nbCF - 1][nbFactor];
+    final double bK = -cfaMod0;
+    final double bM = (b0 + bK) / 2.0d;
+    final double[] rate0Ratio = new double[nbCF - 1];
+    final double[][] mu0 = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rate0Ratio[loopcf] = (liborLMM[loopcf] + aLMM[loopcf]) / (liborLMM[loopcf] + 1.0 / deltaLMM[loopcf]);
     }
@@ -602,9 +602,9 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0[loopcf][loopfact] = mu0[loopcf - 1][loopfact] + rate0Ratio[loopcf] * gammaLMM[loopcf][loopfact];
       }
     }
-    double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
-    double[] tau = new double[nbCF];
-    double[] tau2 = new double[nbCF];
+    final double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
+    final double[] tau = new double[nbCF];
+    final double[] tau2 = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         tau2[loopcf + 1] += mu0[loopcf][loopfact] * mu0[loopcf][loopfact];
@@ -618,21 +618,21 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       sumNum += dP[loopcf] - dP[loopcf] * tau2[loopcf] / 2.0;
       sumDen += dP[loopcf] * tau[loopcf];
     }
-    double xBar = sumNum / sumDen;
-    double[] pM = new double[nbCF];
+    final double xBar = sumNum / sumDen;
+    final double[] pM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       pM[loopcf] = p0[loopcf] * (1 - xBar * tau[loopcf] - tau2[loopcf] / 2.0);
     }
-    double[] liborM = new double[nbCF - 1];
-    double[] alphaM = new double[nbCF];
+    final double[] liborM = new double[nbCF - 1];
+    final double[] alphaM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborM[loopcf] = (pM[loopcf] / pM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       alphaM[loopcf] = cfaMod[loopcf + 1] * pM[loopcf] / bM;
     }
-    double[] rateMRatio = new double[nbCF - 1];
-    double[][] muM = new double[nbCF - 1][nbFactor];
+    final double[] rateMRatio = new double[nbCF - 1];
+    final double[][] muM = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rateMRatio[loopcf] = (liborM[loopcf] + aLMM[loopcf]) / (liborM[loopcf] + 1.0 / deltaLMM[loopcf]);
     }
@@ -645,28 +645,28 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
     double normSigmaM = 0;
-    double[] sigmaM = new double[nbFactor];
+    final double[] sigmaM = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         sigmaM[loopfact] += alphaM[loopcf + 1] * muM[loopcf][loopfact];
       }
       normSigmaM += sigmaM[loopfact] * sigmaM[loopfact];
     }
-    double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
+    final double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, 1.0, impliedBlackVol);
-    double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    final double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     // Backward sweep
-    double pvBar = 1.0;
-    double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * pvBar;
-    double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
-    double[] sigmaMBar = new double[nbFactor];
+    final double pvBar = 1.0;
+    final double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * pvBar;
+    final double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
+    final double[] sigmaMBar = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       sigmaMBar[loopfact] = 2 * sigmaM[loopfact] * normSigmaMBar;
     }
 
-    double[][] muMBar = new double[nbCF - 1][nbFactor];
+    final double[][] muMBar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         muMBar[loopcf][loopfact] = alphaM[loopcf + 1] * sigmaMBar[loopfact];
@@ -678,27 +678,27 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
 
-    double[] rateMRatioBar = new double[nbCF - 1];
+    final double[] rateMRatioBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         rateMRatioBar[loopcf] += gammaLMM[loopcf][loopfact] * muMBar[loopcf][loopfact];
       }
     }
 
-    double[] alphaMBar = new double[nbCF];
+    final double[] alphaMBar = new double[nbCF];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         alphaMBar[loopcf + 1] += muM[loopcf][loopfact] * sigmaMBar[loopfact];
       }
     }
 
-    double[] liborMBar = new double[nbCF - 1];
+    final double[] liborMBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborMBar[loopcf] = ((liborM[loopcf] + 1 / deltaLMM[loopcf]) - (liborM[loopcf] + aLMM[loopcf])) / ((liborM[loopcf] + 1 / deltaLMM[loopcf]) * (liborM[loopcf] + 1 / deltaLMM[loopcf]))
           * rateMRatioBar[loopcf];
     }
 
-    double[] pMBar = new double[nbCF];
+    final double[] pMBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       pMBar[loopcf] += 1.0 / pM[loopcf + 1] / deltaLMM[loopcf] * liborMBar[loopcf];
       pMBar[loopcf + 1] += -pM[loopcf] / (pM[loopcf + 1] * pM[loopcf + 1]) / deltaLMM[loopcf] * liborMBar[loopcf];
@@ -711,16 +711,16 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       xBarBar += -p0[loopcf] * tau[loopcf] * pMBar[loopcf];
     }
-    double sumNumBar = 1.0 / sumDen * xBarBar;
-    double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
-    double[] tauBar = new double[nbCF];
+    final double sumNumBar = 1.0 / sumDen * xBarBar;
+    final double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
+    final double[] tauBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] = -p0[loopcf] * xBar * pMBar[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] += dP[loopcf] * sumDenBar;
     }
-    double[] tau2Bar = new double[nbCF];
+    final double[] tau2Bar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tau2Bar[loopcf] = -p0[loopcf] / 2.0 * pMBar[loopcf];
     }
@@ -730,7 +730,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       tau2Bar[loopcf + 1] += 1 / 2.0 / tau[loopcf + 1] * tauBar[loopcf + 1];
     }
-    double[][] mu0Bar = new double[nbCF - 1][nbFactor];
+    final double[][] mu0Bar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         mu0Bar[loopcf][loopfact] = 2.0 * mu0[loopcf][loopfact] * meanReversionImpact * tau2Bar[loopcf + 1];
@@ -742,20 +742,20 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
 
-    double[] rate0RatioBar = new double[nbCF - 1];
+    final double[] rate0RatioBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         rate0RatioBar[loopcf] += gammaLMM[loopcf][loopfact] * mu0Bar[loopcf][loopfact];
       }
     }
-    double[] aLMMBar = new double[nbCF - 1];
+    final double[] aLMMBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       aLMMBar[loopcf] = 1.0 / (liborLMM[loopcf] + 1 / deltaLMM[loopcf]) * rate0RatioBar[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       aLMMBar[loopcf] += 1.0 / (liborM[loopcf] + 1 / deltaLMM[loopcf]) * rateMRatioBar[loopcf];
     }
-    double[] displacementBar = new double[volLMM.length];
+    final double[] displacementBar = new double[volLMM.length];
     System.arraycopy(aLMMBar, 0, displacementBar, indStart, nbCF - 1);
     return displacementBar;
   }
@@ -768,24 +768,24 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
     // 1. Swaption CFE preparation
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), lmmBundle);
-    YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
-    int nbCFInit = cfe.getNumberOfPayments();
-    double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
-    boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
-    double[] cftInit = new double[nbCFInit];
-    double[] cfaInit = new double[nbCFInit];
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, lmmBundle);
+    final YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
+    final int nbCFInit = cfe.getNumberOfPayments();
+    final double multFact = Math.signum(cfe.getNthPayment(0).getAmount());
+    final boolean isCall = (cfe.getNthPayment(0).getAmount() < 0);
+    final double[] cftInit = new double[nbCFInit];
+    final double[] cfaInit = new double[nbCFInit];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cftInit[loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       cfaInit[loopcf] = cfe.getNthPayment(loopcf).getAmount() * -multFact;
     }
-    double timeToExpiry = swaption.getTimeToExpiry();
+    final double timeToExpiry = swaption.getTimeToExpiry();
     // 2. Model data
-    int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
-    double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
-    double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
+    final int nbFactor = lmmBundle.getLmmParameter().getNbFactor();
+    final double[][] volLMM = lmmBundle.getLmmParameter().getVolatility();
+    final double[] timeLMM = lmmBundle.getLmmParameter().getIborTime();
     // 3. Link cfe dates to lmm
-    int[] indCFDate = new int[nbCFInit];
+    final int[] indCFDate = new int[nbCFInit];
     int indStart = nbCFInit - 1;
     int indEnd = 0;
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
@@ -808,46 +808,46 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         indEnd = indCFDate[loopcf];
       }
     }
-    int nbCF = indEnd - indStart + 1;
-    double[] cfa = new double[nbCF];
+    final int nbCF = indEnd - indStart + 1;
+    final double[] cfa = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cfa[indCFDate[loopcf] - indStart] = cfaInit[loopcf];
     }
-    double[] cft = new double[nbCF];
+    final double[] cft = new double[nbCF];
     System.arraycopy(timeLMM, indStart, cft, 0, nbCF);
-    double[] dfLMM = new double[nbCF];
+    final double[] dfLMM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       dfLMM[loopcf] = dsc.getDiscountFactor(cft[loopcf]);
     }
-    double[][] gammaLMM = new double[nbCF - 1][nbFactor];
-    double[] deltaLMM = new double[nbCF - 1];
+    final double[][] gammaLMM = new double[nbCF - 1][nbFactor];
+    final double[] deltaLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getAccrualFactor(), indStart, deltaLMM, 0, nbCF - 1);
-    double[] aLMM = new double[nbCF - 1];
+    final double[] aLMM = new double[nbCF - 1];
     System.arraycopy(lmmBundle.getLmmParameter().getDisplacement(), indStart, aLMM, 0, nbCF - 1);
-    double[] liborLMM = new double[nbCF - 1];
-    double amr = lmmBundle.getLmmParameter().getMeanReversion();
+    final double[] liborLMM = new double[nbCF - 1];
+    final double amr = lmmBundle.getLmmParameter().getMeanReversion();
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       gammaLMM[loopcf] = volLMM[indStart + loopcf];
       liborLMM[loopcf] = (dfLMM[loopcf] / dfLMM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
-    double[] cfaMod = new double[nbCF + 1];
-    double cfaMod0 = cfa[0];
+    final double[] cfaMod = new double[nbCF + 1];
+    final double cfaMod0 = cfa[0];
     cfaMod[0] = cfaMod0; // modified strike
     cfaMod[1] = 0.0; // TODO: 4. cfe modification (for roller coasters)
     System.arraycopy(cfa, 1, cfaMod, 2, nbCF - 1);
     // 5. Pricing algorithm
-    double[] p0 = new double[nbCF];
-    double[] dP = new double[nbCF];
+    final double[] p0 = new double[nbCF];
+    final double[] dP = new double[nbCF];
     double b0 = 0;
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       p0[loopcf] = dfLMM[loopcf] / dfLMM[0];
       dP[loopcf] = cfaMod[loopcf + 1] * p0[loopcf];
       b0 += dP[loopcf];
     }
-    double bK = -cfaMod[0];
-    double bM = (b0 + bK) / 2.0d;
-    double[] rate0Ratio = new double[nbCF - 1];
-    double[][] mu0 = new double[nbCF - 1][nbFactor];
+    final double bK = -cfaMod[0];
+    final double bM = (b0 + bK) / 2.0d;
+    final double[] rate0Ratio = new double[nbCF - 1];
+    final double[][] mu0 = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rate0Ratio[loopcf] = (liborLMM[loopcf] + aLMM[loopcf]) / (liborLMM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -859,9 +859,9 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0[loopcf][loopfact] = mu0[loopcf - 1][loopfact] + rate0Ratio[loopcf] * gammaLMM[loopcf][loopfact];
       }
     }
-    double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
-    double[] tau = new double[nbCF];
-    double[] tau2 = new double[nbCF];
+    final double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
+    final double[] tau = new double[nbCF];
+    final double[] tau2 = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         tau2[loopcf + 1] += mu0[loopcf][loopfact] * mu0[loopcf][loopfact];
@@ -875,21 +875,21 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       sumNum += dP[loopcf] - dP[loopcf] * tau2[loopcf] / 2.0;
       sumDen += dP[loopcf] * tau[loopcf];
     }
-    double xBar = sumNum / sumDen;
-    double[] pM = new double[nbCF];
+    final double xBar = sumNum / sumDen;
+    final double[] pM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       pM[loopcf] = p0[loopcf] * (1 - xBar * tau[loopcf] - tau2[loopcf] / 2.0);
     }
-    double[] liborM = new double[nbCF - 1];
-    double[] alphaM = new double[nbCF];
+    final double[] liborM = new double[nbCF - 1];
+    final double[] alphaM = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborM[loopcf] = (pM[loopcf] / pM[loopcf + 1] - 1.0d) / deltaLMM[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       alphaM[loopcf] = cfaMod[loopcf + 1] * pM[loopcf] / bM;
     }
-    double[] rateMRatio = new double[nbCF - 1];
-    double[][] muM = new double[nbCF - 1][nbFactor];
+    final double[] rateMRatio = new double[nbCF - 1];
+    final double[][] muM = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       rateMRatio[loopcf] = (liborM[loopcf] + aLMM[loopcf]) / (liborM[loopcf] + 1 / deltaLMM[loopcf]);
     }
@@ -902,27 +902,27 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       }
     }
     double normSigmaM = 0;
-    double[] sigmaM = new double[nbFactor];
+    final double[] sigmaM = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         sigmaM[loopfact] += alphaM[loopcf + 1] * muM[loopcf][loopfact];
       }
       normSigmaM += sigmaM[loopfact] * sigmaM[loopfact];
     }
-    double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
+    final double impliedBlackVol = Math.sqrt(normSigmaM * meanReversionImpact);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(bK, 1, isCall);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, 1.0, impliedBlackVol);
-    double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    final double[] blkAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     // Backward sweep
-    double pvBar = 1.0;
-    double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * (swaption.isLong() ? 1.0 : -1.0) * pvBar;
-    double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
-    double[] sigmaMBar = new double[nbFactor];
+    final double pvBar = 1.0;
+    final double impliedBlackVolBar = dfLMM[0] * blkAdjoint[2] * (swaption.isLong() ? 1.0 : -1.0) * pvBar;
+    final double normSigmaMBar = meanReversionImpact / (2.0 * impliedBlackVol) * impliedBlackVolBar;
+    final double[] sigmaMBar = new double[nbFactor];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       sigmaMBar[loopfact] = 2 * sigmaM[loopfact] * normSigmaMBar;
     }
-    double[][] muMBar = new double[nbCF - 1][nbFactor];
+    final double[][] muMBar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         muMBar[loopcf][loopfact] = alphaM[loopcf + 1] * sigmaMBar[loopfact];
@@ -933,24 +933,24 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         muMBar[loopcf][loopfact] += muMBar[loopcf + 1][loopfact];
       }
     }
-    double[] rateMRatioBar = new double[nbCF - 1];
+    final double[] rateMRatioBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         rateMRatioBar[loopcf] += gammaLMM[loopcf][loopfact] * muMBar[loopcf][loopfact];
       }
     }
-    double[] alphaMBar = new double[nbCF];
+    final double[] alphaMBar = new double[nbCF];
     for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
       for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
         alphaMBar[loopcf + 1] += muM[loopcf][loopfact] * sigmaMBar[loopfact];
       }
     }
-    double[] liborMBar = new double[nbCF - 1];
+    final double[] liborMBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborMBar[loopcf] = ((liborM[loopcf] + 1 / deltaLMM[loopcf]) - (liborM[loopcf] + aLMM[loopcf])) / ((liborM[loopcf] + 1 / deltaLMM[loopcf]) * (liborM[loopcf] + 1 / deltaLMM[loopcf]))
           * rateMRatioBar[loopcf];
     }
-    double[] pMBar = new double[nbCF];
+    final double[] pMBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       pMBar[loopcf] += 1.0 / pM[loopcf + 1] / deltaLMM[loopcf] * liborMBar[loopcf];
       pMBar[loopcf + 1] += -pM[loopcf] / (pM[loopcf + 1] * pM[loopcf + 1]) / deltaLMM[loopcf] * liborMBar[loopcf];
@@ -962,16 +962,16 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       xBarBar += -p0[loopcf] * tau[loopcf] * pMBar[loopcf];
     }
-    double sumNumBar = 1.0 / sumDen * xBarBar;
-    double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
-    double[] tauBar = new double[nbCF];
+    final double sumNumBar = 1.0 / sumDen * xBarBar;
+    final double sumDenBar = -sumNum / (sumDen * sumDen) * xBarBar;
+    final double[] tauBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] = -p0[loopcf] * xBar * pMBar[loopcf];
     }
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tauBar[loopcf] += dP[loopcf] * sumDenBar;
     }
-    double[] tau2Bar = new double[nbCF];
+    final double[] tau2Bar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       tau2Bar[loopcf] = -p0[loopcf] / 2.0 * pMBar[loopcf];
     }
@@ -981,7 +981,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       tau2Bar[loopcf + 1] += 1.0 / tau[loopcf + 1] / 2.0 * tauBar[loopcf + 1];
     }
-    double[][] mu0Bar = new double[nbCF - 1][nbFactor];
+    final double[][] mu0Bar = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         mu0Bar[loopcf][loopfact] = 2.0 * mu0[loopcf][loopfact] * meanReversionImpact * tau2Bar[loopcf + 1];
@@ -992,7 +992,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
         mu0Bar[loopcf][loopfact] += mu0Bar[loopcf + 1][loopfact];
       }
     }
-    double[] rate0RatioBar = new double[nbCF - 1];
+    final double[] rate0RatioBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       for (int loopfact = 0; loopfact < nbFactor; loopfact++) {
         rate0RatioBar[loopcf] += gammaLMM[loopcf][loopfact] * mu0Bar[loopcf][loopfact];
@@ -1006,28 +1006,28 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
     bKBar += dfLMM[0] * blkAdjoint[3] * (swaption.isLong() ? 1.0 : -1.0) * pvBar;
     double b0Bar = bMBar / 2.0;
     b0Bar += dfLMM[0] * blkAdjoint[1] * (swaption.isLong() ? 1.0 : -1.0) * pvBar;
-    double[] dPBar = new double[nbCF];
+    final double[] dPBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       dPBar[loopcf] = b0Bar + tau[loopcf] * sumDenBar + (1.0 - tau2[loopcf] / 2.0) * sumNumBar;
     }
-    double[] p0Bar = new double[nbCF];
+    final double[] p0Bar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       p0Bar[loopcf] = cfaMod[loopcf + 1] * dPBar[loopcf] + (1 - xBar * tau[loopcf] - tau2[loopcf] / 2.0) * pMBar[loopcf];
     }
 
-    double[] cfaModBar = new double[nbCF + 1];
+    final double[] cfaModBar = new double[nbCF + 1];
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       cfaModBar[loopcf + 1] = p0[loopcf] * dPBar[loopcf] + pM[loopcf] / bM * alphaMBar[loopcf];
     }
     cfaModBar[0] += -bKBar;
 
-    double[] liborLMMBar = new double[nbCF - 1];
+    final double[] liborLMMBar = new double[nbCF - 1];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       liborLMMBar[loopcf] = (1.0 / (liborLMM[loopcf] + 1 / deltaLMM[loopcf]) - (liborLMM[loopcf] + aLMM[loopcf])
           / ((liborLMM[loopcf] + 1 / deltaLMM[loopcf]) * (liborLMM[loopcf] + 1 / deltaLMM[loopcf])))
           * rate0RatioBar[loopcf];
     }
-    double[] dfLMMBar = new double[nbCF];
+    final double[] dfLMMBar = new double[nbCF];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {
       dfLMMBar[loopcf] += (1.0 / dfLMM[loopcf + 1]) / deltaLMM[loopcf] * liborLMMBar[loopcf];
       dfLMMBar[loopcf + 1] += -dfLMM[loopcf] / (dfLMM[loopcf + 1] * dfLMM[loopcf + 1]) / deltaLMM[loopcf] * liborLMMBar[loopcf];
@@ -1037,25 +1037,25 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       dfLMMBar[0] += -dfLMM[loopcf] / (dfLMM[0] * dfLMM[0]) * p0Bar[loopcf];
     }
     dfLMMBar[0] += blkAdjoint[0] * (swaption.isLong() ? 1.0 : -1.0) * pvBar;
-    double[] cfaBar = new double[nbCF];
+    final double[] cfaBar = new double[nbCF];
     cfaBar[0] = cfaModBar[0];
     System.arraycopy(cfaModBar, 2, cfaBar, 1, nbCF - 1);
-    double[] cfaInitBar = new double[nbCFInit];
+    final double[] cfaInitBar = new double[nbCFInit];
     for (int loopcf = 0; loopcf < nbCFInit; loopcf++) {
       cfaInitBar[loopcf] = cfaBar[indCFDate[loopcf] - indStart];
     }
 
     final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-      DoublesPair dfSensi = new DoublesPair(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
+      final DoublesPair dfSensi = new DoublesPair(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
     pvsDF.put(cfe.getDiscountCurve(), listDfSensi);
     InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
-    Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap(), lmmBundle);
+    final Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = swaption.getUnderlyingSwap().accept(CFECSC, lmmBundle);
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
+      final InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
         sensitivity = sensitivity.plus(sensiCfe.multipliedBy(-multFact * cfaInitBar[loopcf]));
       }

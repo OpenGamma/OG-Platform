@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -46,7 +46,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
+public class PresentValueMCACalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -155,9 +155,9 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
-    MultipleCurrencyAmount pv = visit(annuity.getNthPayment(0), curves);
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, curves);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      pv = pv.plus(visit(annuity.getNthPayment(loopp), curves));
+      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, curves));
     }
     return pv;
   }
@@ -173,8 +173,8 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final MultipleCurrencyAmount pvFirst = visit(swap.getFirstLeg(), curves);
-    final MultipleCurrencyAmount pvSecond = visit(swap.getSecondLeg(), curves);
+    final MultipleCurrencyAmount pvFirst = swap.getFirstLeg().accept(this, curves);
+    final MultipleCurrencyAmount pvSecond = swap.getSecondLeg().accept(this, curves);
     return pvSecond.plus(pvFirst);
   }
 

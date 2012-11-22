@@ -69,7 +69,7 @@ public class DecisionScheduleCalculatorTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   //  private static final FixedCouponSwap<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -82,12 +82,12 @@ public class DecisionScheduleCalculatorTest {
 
   @Test
   public void swaption() {
-    Annuity<Coupon> leg2 = SWAP_PAYER.getSecondLeg();
-    DecisionSchedule swaptionLongSchedule = DC.visit(SWAPTION_PAYER_LONG, CURVES);
+    final Annuity<Coupon> leg2 = SWAP_PAYER.getSecondLeg();
+    final DecisionSchedule swaptionLongSchedule = SWAPTION_PAYER_LONG.accept(DC, CURVES);
     assertEquals("Decision schedule", 1, swaptionLongSchedule.getDecisionTime().length);
     assertEquals("Decision schedule", leg2.getNumberOfPayments() + 1, swaptionLongSchedule.getImpactTime()[0].length);
     assertEquals("Decision schedule", SWAPTION_PAYER_LONG.getTimeToExpiry(), swaptionLongSchedule.getDecisionTime()[0], 1E-10);
-    DecisionSchedule swaptionShortSchedule = DC.visit(SWAPTION_PAYER_SHORT, CURVES);
+    final DecisionSchedule swaptionShortSchedule = SWAPTION_PAYER_SHORT.accept(DC, CURVES);
     ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getDecisionTime(), swaptionShortSchedule.getDecisionTime(), 1.0E-8);
     ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getImpactTime()[0], swaptionShortSchedule.getImpactTime()[0], 1.0E-8);
     ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getImpactAmount()[0], swaptionShortSchedule.getImpactAmount()[0], 1.0E-8);

@@ -79,7 +79,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final int SPOT_LAG = 0;
   private static final IborIndex IBOR = new IborIndex(CCY, Period.ofMonths(3), 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, false);
   private static final double[] SINGLE_CURVE_MARKET_RATES = {0.02, 0.0366, 0.04705, 0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085,
-      0.048925, 0.049155, 0.049195};
+      0.048925, 0.049155, 0.049195 };
   private static final String SINGLE_CURVE_NAME = "single";
   private static final ZonedDateTime SWAP_FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
   private static final List<InstrumentDerivative> SINGLE_CURVE_IRD = makeSingleCurveIRD(SINGLE_CURVE_MARKET_RATES);
@@ -102,7 +102,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final YieldCurveBundle SINGLE_CURVE_PV_CURVES;
   private static final YieldCurveBundle SINGLE_CURVE_PV_ALL_CURVES;
   private static final DoubleMatrix1D SINGLE_CURVE_PV_COUPON_SENSITIVITY;
-  private static final String[] DOUBLE_CURVE_NAMES = new String[] {"Funding", "Libor"};
+  private static final String[] DOUBLE_CURVE_NAMES = new String[] {"Funding", "Libor" };
   private static double[] DOUBLE_CURVE_MARKET_RATES = new double[28];
   private static List<InstrumentDerivative> DOUBLE_CURVE_IRD = new ArrayList<InstrumentDerivative>();
   private static List<double[]> DOUBLE_CURVE_NODES = new ArrayList<double[]>();
@@ -137,7 +137,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     SINGLE_CURVE_PV_ALL_CURVES = getAllCurves(SINGLE_CURVE_PV_DATA, SINGLE_CURVE_PV_CURVES);
     double[] couponSensitivityArray = new double[SINGLE_CURVE_PV_DATA.getNumInstruments()];
     for (int i = 0; i < SINGLE_CURVE_PV_DATA.getNumInstruments(); i++) {
-      couponSensitivityArray[i] = PVCS.visit(SINGLE_CURVE_PV_DATA.getDerivative(i), SINGLE_CURVE_PV_ALL_CURVES);
+      couponSensitivityArray[i] = SINGLE_CURVE_PV_DATA.getDerivative(i).accept(PVCS, SINGLE_CURVE_PV_ALL_CURVES);
     }
     SINGLE_CURVE_PV_COUPON_SENSITIVITY = new DoubleMatrix1D(couponSensitivityArray);
     initDoubleCurveMarketCurveData(DOUBLE_CURVE_MARKET_RATES, DOUBLE_CURVE_IRD, DOUBLE_CURVE_NODES);
@@ -161,7 +161,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     DOUBLE_CURVE_PV_ALL_CURVES = getAllCurves(DOUBLE_CURVE_PV_DATA, DOUBLE_CURVE_PV_CURVES);
     couponSensitivityArray = new double[DOUBLE_CURVE_PV_DATA.getNumInstruments()];
     for (int i = 0; i < DOUBLE_CURVE_PV_DATA.getNumInstruments(); i++) {
-      couponSensitivityArray[i] = PVCS.visit(DOUBLE_CURVE_PV_DATA.getDerivative(i), DOUBLE_CURVE_PV_ALL_CURVES);
+      couponSensitivityArray[i] = DOUBLE_CURVE_PV_DATA.getDerivative(i).accept(PVCS, DOUBLE_CURVE_PV_ALL_CURVES);
     }
     DOUBLE_CURVE_PV_COUPON_SENSITIVITY = new DoubleMatrix1D(couponSensitivityArray);
   }
@@ -186,7 +186,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     for (int i = 0; i < SINGLE_CURVE_PAR_RATE_DATA.getNumInstruments(); i++) {
       final DoubleMatrix1D bucketedDelta = ISC.calculateFromParRate(SINGLE_CURVE_PAR_RATE_DATA.getDerivative(i), SINGLE_CURVE_PAR_RATE_DATA.getKnownCurves(),
           SINGLE_CURVE_PAR_RATE_CURVES, SINGLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
-      final double sensitivity = PVCS.visit(SINGLE_CURVE_PAR_RATE_DATA.getDerivative(i), SINGLE_CURVE_PAR_RATE_ALL_CURVES);
+      final double sensitivity = SINGLE_CURVE_PAR_RATE_DATA.getDerivative(i).accept(PVCS, SINGLE_CURVE_PAR_RATE_ALL_CURVES);
       assertEquals(-sensitivity, bucketedDelta.getEntry(i), 1e-8);
       for (int j = 0; j < SINGLE_CURVE_PAR_RATE_DATA.getNumInstruments(); j++) {
         if (j != i) {
@@ -201,7 +201,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     for (int i = 0; i < DOUBLE_CURVE_PAR_RATE_DATA.getNumInstruments(); i++) {
       final DoubleMatrix1D bucketedDelta = ISC.calculateFromParRate(DOUBLE_CURVE_PAR_RATE_DATA.getDerivative(i), DOUBLE_CURVE_PAR_RATE_DATA.getKnownCurves(),
           DOUBLE_CURVE_PAR_RATE_CURVES, DOUBLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
-      final double sensitivity = PVCS.visit(DOUBLE_CURVE_PAR_RATE_DATA.getDerivative(i), DOUBLE_CURVE_PAR_RATE_ALL_CURVES);
+      final double sensitivity = DOUBLE_CURVE_PAR_RATE_DATA.getDerivative(i).accept(PVCS, DOUBLE_CURVE_PAR_RATE_ALL_CURVES);
       assertEquals(-sensitivity, bucketedDelta.getEntry(i), 1e-8);
       for (int j = 0; j < DOUBLE_CURVE_PAR_RATE_DATA.getNumInstruments(); j++) {
         if (j != i) {
@@ -277,7 +277,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private void testSingleCurveBumpedDataParRateMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, SINGLE_CURVE_PAR_RATE_CURVES, SINGLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-    final double pv1 = calculator.visit(ird, SINGLE_CURVE_PAR_RATE_ALL_CURVES);
+    final double pv1 = ird.accept(calculator, SINGLE_CURVE_PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       final double[] bumpedData = getSingleCurveBumpedData(i, eps);
       final List<InstrumentDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
@@ -288,7 +288,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
       final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedDataBundle.getStartPosition());
       final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedDataBundle, bumpedNodes);
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedDataBundle, bumpedCurves);
-      final double pv2 = calculator.visit(ird, allBumpedCurves);
+      final double pv2 = ird.accept(calculator, allBumpedCurves);
       final double delta = pv2 - pv1;
       if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
         assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
@@ -303,7 +303,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, SINGLE_CURVE_PV_CURVES, SINGLE_CURVE_PV_COUPON_SENSITIVITY, SINGLE_CURVE_PV_JACOBIAN,
         PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-    final double pv1 = calculator.visit(ird, SINGLE_CURVE_PV_ALL_CURVES);
+    final double pv1 = ird.accept(calculator, SINGLE_CURVE_PV_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       final double[] bumpedData = getSingleCurveBumpedData(i, eps);
       final List<InstrumentDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
@@ -314,7 +314,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
       final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedDataBundle.getStartPosition());
       final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedDataBundle, bumpedNodes);
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedDataBundle, bumpedCurves);
-      final double pv2 = calculator.visit(ird, allBumpedCurves);
+      final double pv2 = ird.accept(calculator, allBumpedCurves);
       final double delta = pv2 - pv1;
       if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
         assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
@@ -328,7 +328,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private void testDoubleCurveBumpedDataParRateMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, DOUBLE_CURVE_PAR_RATE_CURVES, DOUBLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-    final double pv1 = calculator.visit(ird, DOUBLE_CURVE_PAR_RATE_ALL_CURVES);
+    final double pv1 = ird.accept(calculator, DOUBLE_CURVE_PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       final double[] bumpedData = new double[28];
       final List<InstrumentDerivative> bumpedIRD = new ArrayList<InstrumentDerivative>();
@@ -340,7 +340,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
       final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedDataBundle.getStartPosition());
       final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedDataBundle, bumpedNodes);
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedDataBundle, bumpedCurves);
-      final double pv2 = calculator.visit(ird, allBumpedCurves);
+      final double pv2 = ird.accept(calculator, allBumpedCurves);
       final double delta = pv2 - pv1;
       if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
         assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
@@ -371,7 +371,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     final double[] nodes = new double[nNodes];
     for (int i = 0; i < nNodes; i++) {
       marketValues[i] = isPV ? 0 : marketRates[i];
-      nodes[i] = MATURITY_CALCULATOR.visit(instruments.get(i));
+      nodes[i] = instruments.get(i).accept(MATURITY_CALCULATOR);
     }
     final List<double[]> curveKnots = new ArrayList<double[]>();
     curveKnots.add(nodes);
@@ -395,7 +395,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     final double[] nodes = new double[nNodes];
     for (int i = 0; i < nNodes; i++) {
       marketValues[i] = isPV ? 0 : marketRates[i];
-      nodes[i] = MATURITY_CALCULATOR.visit(instruments.get(i));
+      nodes[i] = instruments.get(i).accept(MATURITY_CALCULATOR);
     }
     final double[] rates = new double[nNodes];
     for (int i = 0; i < nNodes; i++) {
@@ -442,7 +442,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
       final String forwardCurveName) {
     return new SwapFixedIborDefinition(AnnuityCouponFixedDefinition.from(CCY, DateUtils.getUTCDate(2011, 1, 3), maturity, SimpleFrequency.SEMI_ANNUAL, CALENDAR,
         DAY_COUNT, BUSINESS_DAY, false, notional, rate, true), AnnuityCouponIborDefinition.from(DateUtils.getUTCDate(2011, 1, 3), maturity, notional, IBOR, false))
-        .toDerivative(NOW, new DoubleTimeSeries[] {new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_FIXING_DATE}, new double[] {rate})},
+        .toDerivative(NOW, new DoubleTimeSeries[] {new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_FIXING_DATE }, new double[] {rate }) },
             fundingCurveName, forwardCurveName);
   }
 
@@ -480,61 +480,61 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     final double[] fundingNodes = new double[10];
     final double[] forwardNodes = new double[18];
     InstrumentDerivative ird = makeCashDefinition(DateUtils.getUTCDate(2011, 1, 4), 0, 1, DOUBLE_CURVE_NAMES[0]);
-    double t = MATURITY_CALCULATOR.visit(ird);
+    double t = ird.accept(MATURITY_CALCULATOR);
     marketRates[0] = dummyCurve.evaluate(t) + (n == 0 ? eps : 0);
     fundingNodes[0] = t;
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 1, 4), marketRates[0], 1, DOUBLE_CURVE_NAMES[0]));
 
     ird = makeCashDefinition(DateUtils.getUTCDate(2011, 1, 10), 0, 1, DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     marketRates[1] = dummyCurve.evaluate(t) + (n == 1 ? eps : 0);
     fundingNodes[1] = t;
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 1, 10), marketRates[1], 1, DOUBLE_CURVE_NAMES[0]));
 
     ird = makeCashDefinition(DateUtils.getUTCDate(2011, 1, 17), 0, 1, DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[2] = t;
     marketRates[2] = dummyCurve.evaluate(t) + (n == 2 ? eps : 0);
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 1, 17), marketRates[2], 1, DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2012, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[3] = t;
     marketRates[3] = dummyCurve.evaluate(t) + (n == 3 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2012, 1, 3), marketRates[3], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2013, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[4] = t;
     marketRates[4] = dummyCurve.evaluate(t) + (n == 4 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2013, 1, 3), marketRates[4], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2016, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[5] = t;
     marketRates[5] = dummyCurve.evaluate(t) + (n == 5 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2016, 1, 3), marketRates[5], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2021, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[6] = t;
     marketRates[6] = dummyCurve.evaluate(t) + (n == 6 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2021, 1, 3), marketRates[6], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2031, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[7] = t;
     marketRates[7] = dummyCurve.evaluate(t) + (n == 7 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2031, 1, 3), marketRates[7], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2041, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[8] = t;
     marketRates[8] = dummyCurve.evaluate(t) + (n == 8 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2041, 1, 3), marketRates[8], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2051, 1, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     fundingNodes[9] = t;
     marketRates[9] = dummyCurve.evaluate(t) + (n == 9 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2051, 1, 3), marketRates[9], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]));
@@ -543,111 +543,111 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     }
 
     ird = makeCashDefinition(DateUtils.getUTCDate(2011, 2, 3), 0, 1, DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[0] = t;
     marketRates[10] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 10 ? eps : 0);
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 2, 3), marketRates[10], 1, DOUBLE_CURVE_NAMES[1]));
 
     ird = makeCashDefinition(DateUtils.getUTCDate(2011, 3, 3), 0, 1, DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[1] = t;
     marketRates[11] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 11 ? eps : 0);
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 3, 3), marketRates[11], 1, DOUBLE_CURVE_NAMES[1]));
 
     ird = makeCashDefinition(DateUtils.getUTCDate(2011, 4, 3), 0, 1, DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[2] = t;
     marketRates[12] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 12 ? eps : 0);
     instruments.add(makeCashDefinition(DateUtils.getUTCDate(2011, 4, 3), marketRates[12], 1, DOUBLE_CURVE_NAMES[1]));
 
     ird = makeFRADefinition(DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[3] = t;
     marketRates[13] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 13 ? eps : 0);
     instruments.add(makeFRADefinition(DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 7, 3), marketRates[13], 1, DOUBLE_CURVE_NAMES[0],
         DOUBLE_CURVE_NAMES[1]));
 
     ird = makeFRADefinition(DateUtils.getUTCDate(2011, 7, 3), DateUtils.getUTCDate(2011, 10, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[4] = t;
     marketRates[14] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 14 ? eps : 0);
     instruments.add(makeFRADefinition(DateUtils.getUTCDate(2011, 7, 3), DateUtils.getUTCDate(2011, 10, 3), marketRates[14], 1, DOUBLE_CURVE_NAMES[0],
         DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2012, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[5] = t;
     marketRates[15] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 15 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2012, 7, 3), marketRates[15], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2013, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[6] = t;
     marketRates[16] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 16 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2013, 7, 3), marketRates[16], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2014, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[7] = t;
     marketRates[17] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 17 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2014, 7, 3), marketRates[17], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2015, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[8] = t;
     marketRates[18] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 18 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2015, 7, 3), marketRates[18], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2016, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[9] = t;
     marketRates[19] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 19 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2016, 7, 3), marketRates[19], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2018, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[10] = t;
     marketRates[20] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 20 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2018, 7, 3), marketRates[20], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2021, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[11] = t;
     marketRates[21] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 21 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2021, 7, 3), marketRates[21], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2026, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[12] = t;
     marketRates[22] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 22 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2026, 7, 3), marketRates[22], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2031, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[13] = t;
     marketRates[23] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 23 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2031, 7, 3), marketRates[23], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2036, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[14] = t;
     marketRates[24] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 24 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2036, 7, 3), marketRates[24], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2041, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[15] = t;
     marketRates[25] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 25 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2041, 7, 3), marketRates[25], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2046, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[16] = t;
     marketRates[26] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 26 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2046, 7, 3), marketRates[26], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
 
     ird = makeSwapDefinition(DateUtils.getUTCDate(2061, 7, 3), 0, 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
-    t = MATURITY_CALCULATOR.visit(ird);
+    t = ird.accept(MATURITY_CALCULATOR);
     forwardNodes[17] = t;
     marketRates[27] = spreadCurve.evaluate(t) + dummyCurve.evaluate(t) + (n == 27 ? eps : 0);
     instruments.add(makeSwapDefinition(DateUtils.getUTCDate(2061, 7, 3), marketRates[27], 1, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]));
