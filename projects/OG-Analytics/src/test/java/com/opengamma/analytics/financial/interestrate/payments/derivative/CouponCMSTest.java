@@ -89,7 +89,7 @@ public class CouponCMSTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CouponCMS CMS_COUPON_RECEIVER = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -113,7 +113,7 @@ public class CouponCMSTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final double forward = PRC.visit(SWAP, curves);
+    final double forward = SWAP.accept(PRC, curves);
     final double discountFactor = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON_RECEIVER.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(CMS_COUPON_RECEIVER, sabrParameter, forward);
     final double factor = discountFactor / integrant.h(forward) * integrant.G(forward);
@@ -136,10 +136,10 @@ public class CouponCMSTest {
     final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getInstance();
     final double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle).getAmount();
     assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
-    final double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);
+    final double priceCMS_calculator = CMS_COUPON_RECEIVER.accept(PVC, sabrBundle);
     assertEquals(priceCMS_method, priceCMS_calculator, 2E-1);// Different precision in integration.
     final PresentValueCalculator pvcNoConvexity = PresentValueCalculator.getInstance();
-    final double priceCMS_noConvexity = pvcNoConvexity.visit(CMS_COUPON_RECEIVER, curves);// Price without convexity adjustment.
+    final double priceCMS_noConvexity = CMS_COUPON_RECEIVER.accept(pvcNoConvexity, curves);// Price without convexity adjustment.
     assertEquals(priceCMS_calculator, priceCMS_noConvexity, 400.0);
     assertEquals(priceCMS_calculator > priceCMS_noConvexity, true);
   }
@@ -150,32 +150,26 @@ public class CouponCMSTest {
     // SABR Hagan volatility function
     final SABRInterestRateParameters sabrParameterHagan = TestsDataSetsSABR.createSABR1(new SABRHaganVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
-    final double priceHagan = PVC.visit(CMS_COUPON_RECEIVER, sabrHaganBundle);
+    final double priceHagan = CMS_COUPON_RECEIVER.accept(PVC, sabrHaganBundle);
     // From previous run
     assertEquals(8853.300, priceHagan, 1E-2);
     // No convexity adjustment
     final PresentValueCalculator pvcNoConvexity = PresentValueCalculator.getInstance();
-    final double priceNoConvexity = pvcNoConvexity.visit(CMS_COUPON_RECEIVER, curves);
+    final double priceNoConvexity = CMS_COUPON_RECEIVER.accept(pvcNoConvexity, curves);
     assertEquals(priceHagan, priceNoConvexity, 400.0);
     // SABR Hagan alternative volatility function
     final SABRInterestRateParameters sabrParameterHaganAlt = TestsDataSetsSABR.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);
-    final double priceHaganAlt = PVC.visit(CMS_COUPON_RECEIVER, sabrHaganAltBundle);
+    final double priceHaganAlt = CMS_COUPON_RECEIVER.accept(PVC, sabrHaganAltBundle);
     assertEquals(priceHagan, priceHaganAlt, 40.0);
     // SABR Berestycki volatility function
     final SABRInterestRateParameters sabrParameterBerestycki = TestsDataSetsSABR.createSABR1(new SABRBerestyckiVolatilityFunction());
     final SABRInterestRateDataBundle sabrBerestyckiBundle = new SABRInterestRateDataBundle(sabrParameterBerestycki, curves);
-    final double priceBerestycki = PVC.visit(CMS_COUPON_RECEIVER, sabrBerestyckiBundle);
+    final double priceBerestycki = CMS_COUPON_RECEIVER.accept(PVC, sabrBerestyckiBundle);
     assertEquals(priceHagan, priceBerestycki, 5);
-    // SABR Johnson volatility function
-    //    SABRInterestRateParameter sabrParameterJohnson = TestsDataSets.createSABR1(new SABRJohnsonVolatilityFunction());
-    //    SABRInterestRateDataBundle sabrJohnsonBundle = new SABRInterestRateDataBundle(sabrParameterJohnson, curves);
-    //    double priceJohnson = PVC.visit(CMS_COUPON, sabrJohnsonBundle);
-    //    assertEquals(priceHagan, priceJohnson, 1);
-    // SABR Paulot volatility function ! Does not work well !
     final SABRInterestRateParameters sabrParameterPaulot = TestsDataSetsSABR.createSABR1(new SABRPaulotVolatilityFunction());
     final SABRInterestRateDataBundle sabrPaulotBundle = new SABRInterestRateDataBundle(sabrParameterPaulot, curves);
-    final double pricePaulot = PVC.visit(CMS_COUPON_RECEIVER, sabrPaulotBundle);
+    final double pricePaulot = CMS_COUPON_RECEIVER.accept(PVC, sabrPaulotBundle);
     assertEquals(priceHagan, pricePaulot, 15);
   }
 
@@ -265,7 +259,7 @@ public class CouponCMSTest {
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / G - h * Gp / (G * G);
       final double kpp = hpp / G - 2 * hp * Gp / (G * G) - h * (Gpp / (G * G) - 2 * (Gp * Gp) / (G * G * G));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     public double bs(final double strike, final double forward) {

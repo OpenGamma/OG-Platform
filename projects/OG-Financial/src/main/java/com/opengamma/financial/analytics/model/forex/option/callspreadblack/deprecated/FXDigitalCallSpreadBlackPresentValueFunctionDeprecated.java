@@ -33,7 +33,7 @@ public class FXDigitalCallSpreadBlackPresentValueFunctionDeprecated extends FXDi
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueCallSpreadBlackForexCalculator calculator = new PresentValueCallSpreadBlackForexCalculator(spread);
-    final MultipleCurrencyAmount result = calculator.visit(fxDigital, data);
+    final MultipleCurrencyAmount result = fxDigital.accept(calculator, data);
     ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
     final CurrencyAmount ca = result.getCurrencyAmounts()[0];
     final double amount = ca.getAmount();

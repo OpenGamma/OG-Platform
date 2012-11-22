@@ -430,7 +430,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = marketValue;
-      nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
+      nodeTimes[i] = derivative.accept(LAST_DATE_CALCULATOR);
       i++;
     }
     ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);
@@ -482,7 +482,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {curve, curve };
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
-        couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
+        couponSensitivities[ii++] = derivative.accept(getCouponSensitivityCalculator(), curveBundle);
       }
       result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties.get()), new DoubleMatrix1D(couponSensitivities)));
     }
@@ -531,7 +531,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       derivatives.add(derivative);
       initialRatesGuess[i] = marketValue;
       i++;
-      fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
+      fundingNodeTimes[fundingIndex] = derivative.accept(LAST_DATE_CALCULATOR);
       fundingIndex++;
     }
     for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
@@ -566,7 +566,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       derivatives.add(derivative);
       initialRatesGuess[i] = marketValue;
       i++;
-      forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
+      forwardNodeTimes[forwardIndex] = derivative.accept(LAST_DATE_CALCULATOR);
       forwardIndex++;
     }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
@@ -620,7 +620,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve };
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
-        couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
+        couponSensitivities[ii++] = derivative.accept(getCouponSensitivityCalculator(), curveBundle);
       }
       final ValueProperties couponProperties = createValueProperties().with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
           .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();

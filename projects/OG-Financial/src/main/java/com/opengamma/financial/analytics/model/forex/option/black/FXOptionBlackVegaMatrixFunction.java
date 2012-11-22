@@ -39,7 +39,7 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(forex, (SmileDeltaTermStructureDataBundle) data);
+      final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = forex.accept(CALCULATOR, (SmileDeltaTermStructureDataBundle) data);
       final double[] expiries = result.getExpiries().getData();
       final double[] delta = result.getDelta().getData();
       final double[][] vega = result.getVega().getData();

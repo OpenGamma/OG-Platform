@@ -100,7 +100,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   @Test
   public void price() {
     final double priceComputed = METHOD_HW.price(BOND_FUTURE_DERIV, BUNDLE_HW);
-    double priceExpected = 1.00; // Rates are at 6%
+    final double priceExpected = 1.00; // Rates are at 6%
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, 5.0E-3);
   }
 
@@ -120,9 +120,9 @@ public class BondFutureSecurityHullWhiteMethodTest {
     System.out.println(nbTest + " price Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
     // Performance note: HW price: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000 futures.
 
-    int[] nbPoint = new int[] {41, 61, 81, 101, 151, 201, 501 };
-    int nbRange = nbPoint.length;
-    double[] priceRange = new double[nbRange];
+    final int[] nbPoint = new int[] {41, 61, 81, 101, 151, 201, 501 };
+    final int nbRange = nbPoint.length;
+    final double[] priceRange = new double[nbRange];
     for (int looprange = 0; looprange < nbRange; looprange++) {
       startTime = System.currentTimeMillis();
       for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -152,7 +152,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
     final CurrencyAmount presentValueMethod = METHOD_HW.presentValueFromPrice(BOND_FUTURE_DERIV, quotedPrice);
     assertEquals("Bond future transaction Method: present value from price", (quotedPrice - REF_PRICE) * NOTIONAL, presentValueMethod.getAmount());
     final PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
-    final double presentValueCalculator = calculator.visit(BOND_FUTURE_DERIV, quotedPrice);
+    final double presentValueCalculator = BOND_FUTURE_DERIV.accept(calculator, quotedPrice);
     assertEquals("Bond future transaction Method: present value from price", presentValueMethod.getAmount(), presentValueCalculator);
   }
 
@@ -165,27 +165,13 @@ public class BondFutureSecurityHullWhiteMethodTest {
     InterestRateCurveSensitivity pvs = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
     pvs = pvs.cleaned();
     // Bond curve sensitivity
-    DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
+    final DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
     bondTime.add(BOND_FUTURE_DERIV.getDeliveryLastTime());
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       for (int loopcpn = 0; loopcpn < BASKET[loopbasket].getCoupon().getNumberOfPayments(); loopcpn++) {
         bondTime.add(BASKET[loopbasket].getCoupon().getNthPayment(loopcpn).getPaymentTime());
       }
     }
-    /*
-    final double toleranceSensitivity = 1.0E+5; // 1.0E+2: 0.01 USD by bp 
-    double[] nodeTimesBond = bondTime.toDoubleArray();
-    List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(BOND_FUTURE_DERIV, BUNDLE_HW, BUNDLE_HW, CURVES_NAME[0], nodeTimesBond, 1e-9);
-    final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
-    assertEquals(fdSensiList.size(), sensiPvCredit.size());
-    for (int loopnode = 0; loopnode < fdSensiList.size(); loopnode++) { //checking times
-      final DoublesPair pairPv = sensiPvCredit.get(loopnode);
-      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8);
-    }
-    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) { // Checking sensitivity value
-      assertEquals("Bond future curve sensitivity: node " + loopnode, fdSensiList.get(loopnode).second, sensiPvCredit.get(loopnode).second, toleranceSensitivity);
-    }
-    */
   }
 
   @Test(enabled = true)

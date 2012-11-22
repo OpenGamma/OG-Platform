@@ -105,7 +105,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
         final double[] times = new double[n];
         final double[] yields = new double[n];
         int i = 0;
-        final String[] curveNamesForSecurity = new String[] {curveName, curveName};
+        final String[] curveNamesForSecurity = new String[] {curveName, curveName };
         for (final FixedIncomeStripWithSecurity strip : specification.getStrips()) {
           final String securityType = strip.getSecurity().getSecurityType();
           if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE))) {
@@ -121,7 +121,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction {
           if (derivative == null) {
             throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
           }
-          times[i] = LAST_DATE_CALCULATOR.visit(derivative);
+          times[i] = derivative.accept(LAST_DATE_CALCULATOR);
           yields[i++] = marketValue;
         }
         final ISDACurve curve = new ISDACurve(curveName, times, yields, offset);

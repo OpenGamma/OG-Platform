@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
@@ -158,6 +157,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
   /**
    * Test the present value calculator with an array of derivative: one for the premium payment and one for the actual swaption.
    */
+  //REVIEW: the method that this is testing (one that took an array of InstrumentDerivative has gone - leaving this test in for now
   public void presentValueWithPremium() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
@@ -166,10 +166,10 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final double premiumAmount = expectedPriceLongPayer / curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(SWAPTION_LONG_PAYER.getSettlementTime());
     final PaymentFixedDefinition premiumDefinition = new PaymentFixedDefinition(CUR, SETTLEMENT_DATE, -premiumAmount);
     final PaymentFixed premium = premiumDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final InstrumentDerivative[] totalSwaption = new InstrumentDerivative[] {premium, SWAPTION_LONG_PAYER };
-    final Double[] presentValue = totalSwaption.accept(PVC, sabrBundle);
-    assertEquals("swaption present value with premium", -expectedPriceLongPayer, presentValue[0], 1.0E-2);
-    assertEquals("swaption present value with premium", expectedPriceLongPayer, presentValue[1], 1.0E-2);
+    final double pvPremium = premium.accept(PVC, sabrBundle);
+    final double swaptionPV = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
+    assertEquals("swaption present value with premium", -expectedPriceLongPayer, pvPremium, 1.0E-2);
+    assertEquals("swaption present value with premium", expectedPriceLongPayer, swaptionPV, 1.0E-2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

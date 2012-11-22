@@ -79,9 +79,9 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueTips1() {
-    MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
+    final MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    final MultipleCurrencyAmount pvSettlement = BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement().accept(PVIC, MARKET).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
         pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
@@ -92,8 +92,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvCalculator = BOND_TIPS_1_TRANSACTION.accept(PVIC, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

@@ -33,7 +33,7 @@ public class FXDigitalCallSpreadBlackVegaPointFunction extends FXDigitalCallSpre
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator(spread);
-    final PresentValueForexBlackVolatilitySensitivity result = calculator.visit(fxDigital, data);
+    final PresentValueForexBlackVolatilitySensitivity result = fxDigital.accept(calculator, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 

@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -50,7 +50,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
-    return Sets.newHashSet(new ComputedValue(resultSpec, 100 * getCalculator().visit(bond, data)));
+    return Sets.newHashSet(new ComputedValue(resultSpec, 100 * bond.accept(getCalculator(), data)));
   }
 
   @Override
@@ -84,7 +84,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     }
     final YieldAndDiscountCurve creditCurve = (YieldAndDiscountCurve) creditCurveObject;
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
-    return new YieldCurveBundle(new String[] {creditCurveName, riskFreeCurveName}, new YieldAndDiscountCurve[] {creditCurve, riskFreeCurve});
+    return new YieldCurveBundle(new String[] {creditCurveName, riskFreeCurveName }, new YieldAndDiscountCurve[] {creditCurve, riskFreeCurve });
   }
 
   @Override
@@ -173,7 +173,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
-  protected abstract AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> getCalculator();
+  protected abstract InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> getCalculator();
 
   protected abstract String getValueRequirementName();
 

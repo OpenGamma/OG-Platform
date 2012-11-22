@@ -35,7 +35,7 @@ public class FXOptionBlackImpliedVolatilityFunctionDeprecated extends FXOptionBl
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final Double result = CALCULATOR.visit(fxOption, data);
+    final Double result = fxOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 

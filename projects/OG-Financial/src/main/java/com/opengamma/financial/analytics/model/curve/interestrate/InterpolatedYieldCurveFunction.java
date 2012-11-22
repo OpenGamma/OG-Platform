@@ -117,7 +117,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           if (derivative == null) {
             throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
           }
-          times[i] = LAST_DATE_CALCULATOR.visit(derivative);
+          times[i] = derivative.accept(LAST_DATE_CALCULATOR);
           yields[i++] = marketValue;
         }
         final Interpolator1D interpolator = specification.getInterpolator();

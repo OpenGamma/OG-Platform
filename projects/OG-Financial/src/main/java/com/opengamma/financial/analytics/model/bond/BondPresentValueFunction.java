@@ -42,14 +42,15 @@ import com.opengamma.financial.security.bond.BondSecurity;
  */
 public abstract class BondPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
+
   //TODO get this to work with curve names
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final BondSecurity security = (BondSecurity) target.getSecurity();    
+    final BondSecurity security = (BondSecurity) target.getSecurity();
     final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     String curveName = null;
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       curveName = YieldCurveFunction.getCurveName(desiredValue);
       if (curveName != null) {
         break;
@@ -70,11 +71,11 @@ public abstract class BondPresentValueFunction extends AbstractFunction.NonCompi
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFixedSecurity bond = ((BondFixedSecurityDefinition) security.accept(visitor)).toDerivative(now, curveName);
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve});
-    double pv = PV_CALCULATOR.visit(bond, bundle);   
-    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), 
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve });
+    final double pv = bond.accept(PV_CALCULATOR, bundle);
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
         createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURRENCY, BondFunctionUtils.getCurrencyName(target)).get());
-    return Sets.newHashSet(new ComputedValue(specification, pv)); 
+    return Sets.newHashSet(new ComputedValue(specification, pv));
   }
 
   @Override

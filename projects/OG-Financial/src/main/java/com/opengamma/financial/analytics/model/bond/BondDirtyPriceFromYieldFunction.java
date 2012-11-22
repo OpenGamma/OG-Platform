@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPriceFromYieldCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 public class BondDirtyPriceFromYieldFunction extends BondFromYieldFunction {
 
   @Override
-  protected AbstractInstrumentDerivativeVisitor<Double, Double> getCalculator() {
+  protected InstrumentDerivativeVisitorAdapter<Double, Double> getCalculator() {
     return DirtyPriceFromYieldCalculator.getInstance();
   }
 

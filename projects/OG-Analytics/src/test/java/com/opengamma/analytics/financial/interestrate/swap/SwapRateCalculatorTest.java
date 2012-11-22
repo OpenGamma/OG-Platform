@@ -48,9 +48,9 @@ public class SwapRateCalculatorTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
-    final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
+    final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5 };
     final int n = t1.length;
-    final double[] t2 = new double[] {0.5, 1, 1.5, 2, 2.5, 3};
+    final double[] t2 = new double[] {0.5, 1, 1.5, 2, 2.5, 3 };
     final double[] forward = new double[n];
     for (int i = 0; i < n; i++) {
       forward[i] = Math.pow(DF_1, t1[i]);
@@ -63,22 +63,14 @@ public class SwapRateCalculatorTest {
   public void testNullForwardCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    CALCULATOR.visit(SWAP, bundle);
+    SWAP.accept(CALCULATOR, bundle);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.visit(SWAP, bundle);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSwap() {
-    final YieldCurveBundle bundle = new YieldCurveBundle();
-    bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.visit((FixedFloatSwap) null, bundle);
+    SWAP.accept(CALCULATOR, bundle);
   }
 
   @Test
@@ -86,6 +78,6 @@ public class SwapRateCalculatorTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.visit(SWAP, bundle);
+    SWAP.accept(CALCULATOR, bundle);
   }
 }

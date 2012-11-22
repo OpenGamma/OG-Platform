@@ -37,7 +37,7 @@ public class FXOptionBlackVegaFunctionDeprecated extends FXOptionBlackSingleValu
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(fxOption, data);
+    final PresentValueForexBlackVolatilitySensitivity result = fxOption.accept(CALCULATOR, data);
     final CurrencyAmount vegaValue = result.toSingleValue();
     return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
   }
