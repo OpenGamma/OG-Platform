@@ -55,11 +55,11 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
   /**
    * Provides an ExternalID for Bloomberg ticker,
    * given a reference date and an integer offset, the n'th subsequent option <p>
-   * The format is prefix + date + callPutFlag + strike + postfix <p>
-   * e.g. DJX 12/21/13 C145.0 Index
+   * The format is prefix + expiry code + callPutFlag + strike + postfix <p>
+   * e.g. S U3P 45 Comdty
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
-   * @param strike option's strike, expressed as price in %, e.g. 98.750, not null
+   * @param strike option's strike, not null
    * @param surfaceDate date of curve validity; valuation date, not null
    * @return the id of the Bloomberg ticker
    */

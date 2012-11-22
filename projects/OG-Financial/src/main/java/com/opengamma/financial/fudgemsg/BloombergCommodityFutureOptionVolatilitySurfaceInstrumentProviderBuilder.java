@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -17,19 +17,16 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider;
 
 /**
  *
  */
 @FudgeBuilderFor(BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider.class)
-public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider> {
+public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderBuilder implements FudgeBuilder<BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider> {
   private static final String CALL_FIELD_NAME = "useCallAboveStrikeValue";
   private static final String EXCHANGE_ID_FIELD_NAME = "exchangeId";
   private static final String SCHEME_NAME = "schemeName";
-  // backwards compatibility
-  private static final String DEFAULT_EXCHANGE_ID = "CBT";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider object) {
@@ -47,30 +44,12 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderFu
   @Override
   public BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     String futureOptionPrefix = message.getString(PREFIX_FIELD_NAME);
-    //backward compatibility
-    if (futureOptionPrefix == null) {
-      futureOptionPrefix = message.getString("futureOptionPrefix");
-    }
     String postfix = message.getString(POSTFIX_FIELD_NAME);
-    //backward compatibility
-    if (postfix == null) {
-      postfix = message.getString("postfix");
-    }
     String dataFieldName = message.getString(DATA_FIELD_NAME);
-    //backward compatibility
-    if (dataFieldName == null) {
-      dataFieldName = message.getString("dataFieldName");
-    }
     String schemeName = message.getString(SCHEME_NAME);
-    if (schemeName == null) {
-      schemeName = ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName();
-    }
     final Double useCallAboveValue = message.getDouble(CALL_FIELD_NAME);
-    if (message.hasField(EXCHANGE_ID_FIELD_NAME)) {
-      final String exchangeId = message.getString(EXCHANGE_ID_FIELD_NAME);
-      return new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, exchangeId, schemeName);
-    }
-    return new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, DEFAULT_EXCHANGE_ID, schemeName);
+    final String exchangeId = message.getString(EXCHANGE_ID_FIELD_NAME);
+    return new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, exchangeId, schemeName);
   }
 
 }
