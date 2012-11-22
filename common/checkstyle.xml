@@ -16,7 +16,9 @@
     <module name="ConstantName">
       <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$|^s_[a-z][a-zA-Z0-9]*$"/>
     </module>
-    <module name="AvoidStarImport"/>
+    <module name="AvoidStarImport">
+      <property name="severity" value="error"/>
+    </module>
     <module name="EmptyBlock">
       <property name="tokens" value="LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,STATIC_INIT"/>
     </module>
@@ -32,15 +34,21 @@
       <property name="classes" value="Boolean"/>
     </module>
     <module name="InnerAssignment"/>
-    <module name="JavadocType"/>
+    <module name="JavadocType">
+      <property name="scope" value="protected"/>
+    </module>
     <module name="JavadocMethod">
       <property name="scope" value="protected"/>
       <property name="allowUndeclaredRTE" value="true"/>
       <property name="allowMissingThrowsTags" value="true"/>
+      <property name="allowMissingJavadoc" value="true"/>
+      <property name="allowMissingPropertyJavadoc" value="true"/>
       <property name="logLoadErrors" value="true"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
-    <module name="JavadocVariable"/>
+    <module name="JavadocVariable">
+      <property name="scope" value="protected"/>
+    </module>
     <module name="LeftCurly"/>
     <module name="LineLength">
       <property name="ignorePattern" value="^ *\* *[^ ]+$"/>
@@ -110,10 +118,10 @@
     <module name="UncommentedMain"/>
   </module>
   <module name="SuppressionFilter">
-    <property name="file" value="${basedir}/../../common/checkstyle-suppressions.xml"/>
+    <property name="file" value="${checkstyle.suppressions.file}"/>
   </module>
   <module name="RegexpHeader">
-    <property name="headerFile" value="${basedir}/../../common/checkstyle-header.txt"/>
+    <property name="headerFile" value="${checkstyle.header.file}"/>
     <property name="fileExtensions" value="java,proto"/>
     <!-- property name="severity" value="error"/   proto generated files cause errors-->
   </module>
@@ -143,6 +151,10 @@
     <property name="format" value="import com.beust.jcommander.internal."/>
     <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
     <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="UnsupportedEncodingException "/>
+    <property name="message" value="Use constants on Guava Charsets class instead"/>
   </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>

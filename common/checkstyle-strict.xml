@@ -5,7 +5,7 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: OG standard lax
+    Checkstyle-Configuration: OG standard Strict
     Description: none
 -->
 <module name="Checker">
@@ -16,9 +16,7 @@
     <module name="ConstantName">
       <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$|^s_[a-z][a-zA-Z0-9]*$"/>
     </module>
-    <module name="AvoidStarImport">
-      <property name="severity" value="error"/>
-    </module>
+    <module name="AvoidStarImport"/>
     <module name="EmptyBlock">
       <property name="tokens" value="LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,STATIC_INIT"/>
     </module>
@@ -34,21 +32,15 @@
       <property name="classes" value="Boolean"/>
     </module>
     <module name="InnerAssignment"/>
-    <module name="JavadocType">
-      <property name="scope" value="protected"/>
-    </module>
+    <module name="JavadocType"/>
     <module name="JavadocMethod">
       <property name="scope" value="protected"/>
       <property name="allowUndeclaredRTE" value="true"/>
       <property name="allowMissingThrowsTags" value="true"/>
-      <property name="allowMissingJavadoc" value="true"/>
-      <property name="allowMissingPropertyJavadoc" value="true"/>
       <property name="logLoadErrors" value="true"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
-    <module name="JavadocVariable">
-      <property name="scope" value="protected"/>
-    </module>
+    <module name="JavadocVariable"/>
     <module name="LeftCurly"/>
     <module name="LineLength">
       <property name="ignorePattern" value="^ *\* *[^ ]+$"/>
@@ -151,10 +143,6 @@
     <property name="format" value="import com.beust.jcommander.internal."/>
     <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
     <property name="severity" value="error"/>
-  </module>
-  <module name="RegexpSingleline">
-    <property name="format" value="UnsupportedEncodingException "/>
-    <property name="message" value="Use constants on Guava Charsets class instead"/>
   </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
