@@ -53,8 +53,9 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
   private static final Object s_eof = new Object();
 
   /**
-   * Decodes records read from the input stream and writes them to a queue so that another thread can process them. Once runninng, the decoding of packets by one thread should be concurrent with the
-   * handling of previous data by other thread(s).
+   * Decodes records read from the input stream and writes them to a queue so that another thread can process them.
+   * Once runninng, the decoding of packets by one thread should be concurrent with the handling of previous data by
+   * other thread(s).
    */
   private class RecordDecoder implements Runnable {
 
@@ -89,7 +90,8 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
   private final Callback<Record> _callback;
   private final ExecutorService _pipeLineExecutor;
 
-  protected AbstractConnectorJob(final Callback<Record> callback, final RecordStream.Factory<Record> streamFactory, final ExecutorService pipeLineExecutor) {
+  protected AbstractConnectorJob(final Callback<Record> callback, final RecordStream.Factory<Record> streamFactory,
+                                 final ExecutorService pipeLineExecutor) {
     ArgumentChecker.notNull(callback, "callback");
     ArgumentChecker.notNull(streamFactory, "streamFactory");
     _callback = callback;
