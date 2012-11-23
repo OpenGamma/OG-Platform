@@ -21,8 +21,9 @@ import com.opengamma.OpenGammaRuntimeException;
  * <p>
  * The format is line-based as follows:<br>
  *  <code>#</code> or <code>;</code> for comment lines (at the start of the line)<br>
- *  </code>key = value</code> declares a property<br>
- *  </code>${key}</code> is replaced by an earlier replacement declaration<br>
+ *  <code>key = value</code> declares a property<br>
+ *  <code>MANAGER.INCLUDE = resource</code> declares a resource to be included immediately<br>
+ *  <code>${key}</code> is replaced by an earlier replacement declaration<br>
  *  Everything is trimmed as necessary.
  *  <p>
  *  The {@link Properties} class is not used for parsing as it does not preserver order.
