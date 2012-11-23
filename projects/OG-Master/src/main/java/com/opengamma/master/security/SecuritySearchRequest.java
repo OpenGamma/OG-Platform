@@ -222,6 +222,13 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         }
       }
     }
+    if (getExternalIdScheme() != null) {
+      for (ExternalId identifier : security.getExternalIdBundle()) {
+        if (RegexUtils.wildcardMatch(getExternalIdScheme(), identifier.getScheme().getName()) == false) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
