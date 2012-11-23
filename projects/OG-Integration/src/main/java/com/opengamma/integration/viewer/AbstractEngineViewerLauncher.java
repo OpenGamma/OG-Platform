@@ -30,31 +30,32 @@ import com.opengamma.livedata.UserPrincipal;
 public abstract class AbstractEngineViewerLauncher extends SingleFrameApplication {
 
   protected PortfolioTreeTableModel buildTreeTableModel() {
-    PortfolioTreeTableModel treeTableModel = new PortfolioTreeTableModel();
+    final PortfolioTreeTableModel treeTableModel = new PortfolioTreeTableModel();
     return treeTableModel;
   }
 
   protected void startViewer(final ViewProcessor viewProcessor) {
-    UserPrincipal user = UserPrincipal.getLocalUser();
-    ViewClient viewClient = viewProcessor.createViewClient(user);
-    PortfolioTreeTableModel treeTableModel = buildTreeTableModel();
+    final UserPrincipal user = UserPrincipal.getLocalUser();
+    final ViewClient viewClient = viewProcessor.createViewClient(user);
+    final PortfolioTreeTableModel treeTableModel = buildTreeTableModel();
     viewClient.setResultListener(treeTableModel);
-    viewClient.attachToViewProcess(viewProcessor.getConfigSource().getConfig(ViewDefinition.class, "Equity Portfolio View", VersionCorrection.LATEST).getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    viewClient.attachToViewProcess(viewProcessor.getConfigSource().getSingle(ViewDefinition.class, "Equity Portfolio View", VersionCorrection.LATEST).getUniqueId(),
+        ExecutionOptions.infinite(MarketData.live()));
 
     getMainFrame().setTitle("OpenGamma Viewer");
 
-    JXTreeTable treeTable = new JXTreeTable(treeTableModel);
+    final JXTreeTable treeTable = new JXTreeTable(treeTableModel);
     treeTable.setName("table");
     treeTable.setRootVisible(true);
     treeTable.setFillsViewportHeight(true);
     treeTable.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
     treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    JScrollPane scrollPane = new JScrollPane(treeTable);
-    JPanel panel = new JPanel(new BorderLayout());
+    final JScrollPane scrollPane = new JScrollPane(treeTable);
+    final JPanel panel = new JPanel(new BorderLayout());
     panel.add(scrollPane, BorderLayout.CENTER);
 
-    JPanel topLevelPanel = new JPanel(new BorderLayout());
+    final JPanel topLevelPanel = new JPanel(new BorderLayout());
     topLevelPanel.add(panel, BorderLayout.CENTER);
     show(topLevelPanel);
   }

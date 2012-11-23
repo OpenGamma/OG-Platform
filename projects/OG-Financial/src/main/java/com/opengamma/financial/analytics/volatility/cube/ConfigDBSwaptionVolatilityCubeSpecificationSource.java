@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube;
@@ -31,7 +31,7 @@ public class ConfigDBSwaptionVolatilityCubeSpecificationSource implements Swapti
   public SwaptionVolatilityCubeSpecification getSpecification(final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return _configSource.getConfig(SwaptionVolatilityCubeSpecification.class, name, versionCorrection);
+    return _configSource.getSingle(SwaptionVolatilityCubeSpecification.class, name, versionCorrection);
   }
 
 }

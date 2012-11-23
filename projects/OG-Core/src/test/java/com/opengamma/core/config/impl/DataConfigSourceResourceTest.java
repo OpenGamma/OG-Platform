@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.net.URI;
+import java.util.Collections;
 
 import javax.time.Instant;
 import javax.ws.rs.core.Response;
@@ -76,8 +77,8 @@ public class DataConfigSourceResourceTest {
   public void testSearch() {
     final ConfigItem<SimpleExchange> target = ConfigItem.of(new SimpleExchange());
     target.setName("Test");
-    when(_underlying.get(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(target);
-    final Response test = _resource.search(SimpleExchange.class.getName(), VC.getVersionAsOfString(), VC.getCorrectedToString(), NAME);
+    when(_underlying.get(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(Collections.singleton(target));
+    final Response test = _resource.search(SimpleExchange.class.getName(), VC.toString(), NAME);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     final FudgeMsg msg = (FudgeMsg) test.getEntity();
     assertEquals(1, msg.getNumFields());

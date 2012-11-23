@@ -57,14 +57,14 @@ public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurf
 
   @Override
   public VolatilitySurfaceDefinition<?, ?> getDefinition(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
-    final VolatilitySurfaceDefinition<?, ?> definition = _configSource.getConfig(VolatilitySurfaceDefinition.class, name + "_" + instrumentType, versionCorrection);
+    final VolatilitySurfaceDefinition<?, ?> definition = _configSource.getSingle(VolatilitySurfaceDefinition.class, name + "_" + instrumentType, versionCorrection);
     if (definition == null && InstrumentTypeProperties.FOREX.equals(instrumentType)) {
       final String[] substrings = name.split("_");
       if (substrings.length == 2 && substrings[1].length() == 6) {
         final String firstCcy = substrings[1].substring(0, 3);
         final String secondCcy = substrings[1].substring(3, 6);
         final String reversedCcys = secondCcy + firstCcy;
-        return _configSource.getConfig(VolatilitySurfaceDefinition.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType, versionCorrection);
+        return _configSource.getSingle(VolatilitySurfaceDefinition.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType, versionCorrection);
       }
     }
     return definition;

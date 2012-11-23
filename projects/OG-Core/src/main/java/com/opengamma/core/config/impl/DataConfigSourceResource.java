@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.Collection;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -75,19 +74,17 @@ public class DataConfigSourceResource extends AbstractDataResource {
     return msg;
   }
 
-  private FudgeMsg configItemSingletonResult(final ConfigItem<?> item) {
+  private FudgeMsg configItemResult(final ConfigItem<?> item) {
     final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
-    final MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(msg, null, null, item, ConfigItem.class);
-    return msg;
+    return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(item), item.getClass(), ConfigItem.class);
   }
 
-  private FudgeMsg configItemResult(final ConfigItem<?> item) {
-    if (item == null) {
+  private FudgeMsg configValueResult(final Class<?> clazz, final Object value) {
+    if (value == null) {
       return null;
     }
     final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
-    return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(item), item.getClass(), ConfigItem.class);
+    return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(value), value.getClass(), clazz);
   }
 
   //-------------------------------------------------------------------------
@@ -100,16 +97,39 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @Path("configs")
   public Response search(
     @QueryParam("type") final String typeStr,
-    @QueryParam("versionAsOf") final String versionAsOf,
-    @QueryParam("correctedTo") final String correctedTo,
+      @QueryParam("versionCorrection") final String versionCorrectionStr,
     @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
     if (name == null) {
-      return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, vc)));
+      return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
     } else {
-      return responseOkFudge(configItemSingletonResult(getConfigSource().get(type, name, vc)));
+      return responseOkFudge(configItemCollectionResult(getConfigSource().get(type, name, versionCorrection)));
     }
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri the base URI, not null
+   * @param name the name, may be null
+   * @param versionCorrection the version to fetch, null means latest
+   * @param type the config type, may be null
+   * @return the URI, not null
+   */
+  public static URI uriGet(final URI baseUri, final String name, final VersionCorrection versionCorrection, final Class<?> type) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(type, "type");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs");
+    bld.queryParam("name", name);
+    bld.queryParam("type", type.getName());
+    if (versionCorrection != null) {
+      bld.queryParam("versionCorrection", versionCorrection.toString());
+    } else {
+      bld.queryParam("versionCorrection", VersionCorrection.LATEST.toString());
+    }
+    return bld.build();
   }
 
   @GET
@@ -171,7 +191,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
-    return responseOkFudge(configItemResult(getConfigSource().get(type, name, versionCorrection)));
+    return responseOkFudge(configValueResult(type, getConfigSource().getSingle(type, name, versionCorrection)));
   }
 
   /**
@@ -227,23 +247,6 @@ public class DataConfigSourceResource extends AbstractDataResource {
     } else {
       bld.queryParam("versionCorrection", VersionCorrection.LATEST.toString());
     }
-    return bld.build();
-  }
-
-  // TODO: put is not a RESTful URI!
-  @PUT
-  @Path("put")
-  public Response put(
-    @QueryParam("type") final String typeStr,
-    @QueryParam("versionCorrection") final String versionCorrectionStr) {
-    final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
-    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
-  }
-
-  public static <T> URI uriPut(final URI baseUri) {
-    ArgumentChecker.notNull(baseUri, "baseUri");
-    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
     return bld.build();
   }
 
