@@ -26,8 +26,6 @@
   WHERE main.id = :doc_id
     AND main.oid = :doc_oid
   ORDER BY
-    doc_id,
-    doc_oid,
     idkey_id,
     ent.entitlement_index
 
@@ -60,14 +58,13 @@
     AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
     AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
   ORDER BY
-    doc_id,
-    doc_oid,
     idkey_id,
     ent.entitlement_index
 
 
 -- ==========================================================================
-@NAME(GetAll)
+@NAME(Search)
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -86,14 +83,12 @@
     ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
     LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
-    doc_id,
-    doc_oid,
-    idkey_id,
-    ent.entitlement_index
+    main.@INCLUDE(:sort_order)
 
 
 -- ==========================================================================
@@ -121,10 +116,20 @@
 @NAME(SearchWhere)
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
-    @AND(:userid)
-      UPPER(userid) @LIKE UPPER(:userid)
     @AND(:sql_search_object_ids)
       oid IN ( @INCLUDE(:sql_search_object_ids) )
+    @AND(:userid)
+      UPPER(userid) @LIKE UPPER(:userid)
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:time_zone)
+      UPPER(time_zone) @LIKE UPPER(:time_zone)
+    @AND(:email_address)
+      UPPER(email_address) @LIKE UPPER(:email_address)
+    @AND(:external_id_scheme)
+      id IN ( @INCLUDE(SelectKeyScheme) )
+    @AND(:external_id_value)
+      id IN ( @INCLUDE(SelectKeyValue) )
     @AND(:sql_search_external_ids_type = EXACT)
       id IN ( @INCLUDE(SelectKeyValuesExact) )
     @AND(:sql_search_external_ids_type = ALL)
@@ -196,7 +201,7 @@
   FROM
     usr_oguser2idkey,
     usr_oguser
-  WHERE usr_oguser2idkey.exchange_id = usr_oguser.id
+  WHERE usr_oguser2idkey.oguser_id = usr_oguser.id
     AND usr_oguser.ver_from_instant <= :version_as_of_instant AND usr_oguser.ver_to_instant > :version_as_of_instant
     AND usr_oguser.corr_from_instant <= :corrected_to_instant AND usr_oguser.corr_to_instant > :corrected_to_instant
     AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
@@ -226,10 +231,18 @@
     main.password AS password,
     main.name AS name,
     main.time_zone AS time_zone,
-    main.email_address AS email_address
+    main.email_address AS email_address,
+    ui.idkey_id as idkey_id,
+    ik.key_scheme as key_scheme,
+    ik.key_scheme as key_scheme,
+    ik.key_value as key_value,
+    ent.entitlement_pattern as entitlement_pattern
   FROM
     usr_oguser main
     INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
+    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
     main.ver_from_instant DESC,
     main.corr_from_instant DESC
@@ -332,6 +345,13 @@
   SET corr_to_instant = :corr_to_instant
   WHERE id = :doc_id
     AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM usr_schema_version
+  WHERE version_key = :version_key
 
 
 -- ==========================================================================

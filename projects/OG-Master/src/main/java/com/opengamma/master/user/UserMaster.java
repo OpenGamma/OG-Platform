@@ -26,6 +26,16 @@ public interface UserMaster extends AbstractChangeProvidingMaster<UserDocument>,
    * @throws IllegalArgumentException if the request is invalid
    */
   UserSearchResult search(UserSearchRequest request);
-  // TODO kirk 2012-08-20 -- History will be added when the basics work.
+
+  /**
+   * Queries the history of a single user.
+   * <p>
+   * The request must contain an object identifier to identify the user.
+   * 
+   * @param request  the history request, not null
+   * @return the user history, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  UserHistoryResult history(UserHistoryRequest request);
 
 }
