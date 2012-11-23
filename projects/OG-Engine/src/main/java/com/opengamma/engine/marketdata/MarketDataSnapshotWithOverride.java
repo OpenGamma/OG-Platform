@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata;
@@ -28,8 +28,8 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
 
   private final MarketDataSnapshot _underlying;
   private final MarketDataSnapshot _override;
-  
-  public MarketDataSnapshotWithOverride(MarketDataSnapshot underlying, MarketDataSnapshot override) {
+
+  public MarketDataSnapshotWithOverride(final MarketDataSnapshot underlying, final MarketDataSnapshot override) {
     _underlying = underlying;
     _override = override;
   }
@@ -38,7 +38,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   public UniqueId getUniqueId() {
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MarketDataSnapshotWithOverride:" + getSnapshotTime());
   }
-  
+
   @Override
   public Instant getSnapshotTimeIndication() {
     return getUnderlying().getSnapshotTimeIndication();
@@ -49,9 +49,9 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
     getUnderlying().init();
     getOverride().init();
   }
-  
+
   @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
+  public void init(final Set<ValueRequirement> valuesRequired, final long timeout, final TimeUnit unit) {
     getUnderlying().init(valuesRequired, timeout, unit);
     getOverride().init();
   }
@@ -62,7 +62,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public ComputedValue query(ValueRequirement requirement) {
+  public ComputedValue query(final ValueRequirement requirement) {
     ComputedValue result = getOverride().query(requirement);
     if (result != null) {
       if (result.getValue() instanceof OverrideOperation) {
@@ -80,7 +80,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
       return getUnderlying().query(requirement);
     }
   }
-  
+
   @Override
   public Map<ValueRequirement, ComputedValue> query(final Set<ValueRequirement> requirements) {
     final Set<ValueRequirement> unqueried = new HashSet<ValueRequirement>(requirements);
@@ -89,7 +89,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
     final Map<ValueRequirement, OverrideOperation> overrideOperations;
     if (response != null) {
       overrideOperations = Maps.newHashMapWithExpectedSize(response.size());
-      for (Map.Entry<ValueRequirement, ComputedValue> overrideEntry : response.entrySet()) {
+      for (final Map.Entry<ValueRequirement, ComputedValue> overrideEntry : response.entrySet()) {
         if (overrideEntry.getValue().getValue() instanceof OverrideOperation) {
           overrideOperations.put(overrideEntry.getKey(), (OverrideOperation) overrideEntry.getValue().getValue());
         } else {
@@ -103,10 +103,11 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
     if (!unqueried.isEmpty()) {
       response = getUnderlying().query(unqueried);
       if (response != null) {
-        for (Map.Entry<ValueRequirement, ComputedValue> underlyingEntry : response.entrySet()) {
+        for (final Map.Entry<ValueRequirement, ComputedValue> underlyingEntry : response.entrySet()) {
           final OverrideOperation overrideOperation = overrideOperations.get(underlyingEntry.getKey());
           if (overrideOperation != null) {
-            result.put(underlyingEntry.getKey(), new ComputedValue(underlyingEntry.getValue().getSpecification(), overrideOperation.apply(underlyingEntry.getKey(), underlyingEntry.getValue())));
+            result.put(underlyingEntry.getKey(),
+                new ComputedValue(underlyingEntry.getValue().getSpecification(), overrideOperation.apply(underlyingEntry.getKey(), underlyingEntry.getValue().getValue())));
           } else {
             result.put(underlyingEntry.getKey(), underlyingEntry.getValue());
           }
@@ -120,7 +121,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   private MarketDataSnapshot getUnderlying() {
     return _underlying;
   }
-  
+
   private MarketDataSnapshot getOverride() {
     return _override;
   }
