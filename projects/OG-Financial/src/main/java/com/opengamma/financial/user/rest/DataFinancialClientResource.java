@@ -46,9 +46,9 @@ public class DataFinancialClientResource extends AbstractDataResource {
    */
   public static final String SECURITY_MASTER_PATH = "securityMaster";
   /**
-   * The path used to retrieve user view definitions.
+   * The path used to retrieve user configurations.
    */
-  public static final String CONFIG_MASTER_PATH = "viewDefinitionMaster";
+  public static final String CONFIG_MASTER_PATH = "configMaster";
   /**
    * The path used to retrieve yield curve definitions.
    */
