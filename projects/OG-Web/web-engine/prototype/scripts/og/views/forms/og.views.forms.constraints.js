@@ -8,37 +8,33 @@ $.register_module({
     obj: function () {
         var module = this, counter = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var data = config.data, data_index = config.index, render, classes = config.classes || '',
-                ids = {
-                    container: prefix + counter++,
-                    widget: prefix + counter++,
-                    row_with: prefix + counter++,
-                    row_without: prefix + counter++
-                },
-                convert = function (datum) {
-                    var length = 0, item, data = [], lcv;
-                    if (!datum || typeof datum === 'string') return datum || '';
-                    for (item in datum) if (+item + 0 === +item) length += 1;
-                    for (lcv = 0; lcv < length; lcv += 1) data.push(datum[lcv]);
-                    return data.length > 1 ?
-                        '[' + data.map(function (str) {return str.replace(/\,/g, '\\,');}).join(', ') + ']'
-                            : data.join('');
-                },
-                to_array = function (datum) {
-                    return datum ?
-                        /^\[(.*)\]$/.test(datum) ? RegExp.$1.replace(/\\\,/g, '\0').split(/,\s*/)
-                            .map(function (str) {return str.replace(/\0/g, ',');}) : [datum]
-                        : [];
-                },
-                deconvert = function (datum, optional) {
-                    var empty = true, result, array = to_array(datum);
-                    if (!optional && !array.length) return null;
-                    result = array
-                        .reduce(function (acc, val, idx) {return (empty = 0), val ? (acc[idx] = val, acc) : acc;}, {});
-                    if (empty && !optional) return null;
-                    if (optional) result.optional = null;
-                    return result;
-                };
+            var data = config.data, data_index = config.index, render, classes = config.classes || '', ids = {
+                container: prefix + counter++, widget: prefix + counter++,
+                row_with: prefix + counter++, row_without: prefix + counter++
+            };
+            var convert = function (datum) {
+                var length = 0, item, data = [], lcv;
+                if (!datum || typeof datum === 'string') return datum || '';
+                for (item in datum) if (+item + 0 === +item) length += 1;
+                for (lcv = 0; lcv < length; lcv += 1) data.push(datum[lcv]);
+                return data.length > 1 ?
+                    '[' + data.map(function (str) {return str.replace(/\,/g, '\\,');}).join(', ') + ']' : data.join('');
+            };
+            var deconvert = function (datum, optional) {
+                var empty = true, result, array = to_array(datum);
+                if (!optional && !array.length) return null;
+                result = array
+                    .reduce(function (acc, val, idx) {return (empty = 0), val ? (acc[idx] = val, acc) : acc;}, {});
+                if (empty && !optional) return null;
+                if (optional) result.optional = null;
+                return result;
+            };
+            var to_array = function (datum) {
+                return datum ?
+                    /^\[(.*)\]$/.test(datum) ? RegExp.$1.replace(/\\\,/g, '\0').split(/,\s*/)
+                        .map(function (str) {return str.replace(/\0/g, ',');}) : [datum]
+                    : [];
+            };
             return new config.form.Block({
                 module: 'og.views.forms.constraints_tash', extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
