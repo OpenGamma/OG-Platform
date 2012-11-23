@@ -5,34 +5,44 @@
  */
 package com.opengamma.util.log;
 
+import java.util.EnumSet;
+import java.util.TreeSet;
+
 /**
  * A standard set of logging levels for use with {@link LogEvent}.
  */
 public enum LogLevel {
 
   /**
-   * Fatal.
+   * Detailed debug information.
    */
-  FATAL,
-  /**
-   * Error.
-   */
-  ERROR,
-  /**
-   * Warning.
-   */
-  WARN,
-  /**
-   * Information.
-   */
-  INFO,
+  TRACE,
   /**
    * Debug information.
    */
   DEBUG,
   /**
-   * Detailed debug information.
+   * Information.
    */
-  TRACE
-  
+  INFO,
+  /**
+   * Warning.
+   */
+  WARN,
+  /**
+   * Error.
+   */
+  ERROR,
+  /**
+   * Fatal.
+   */
+  FATAL,
+}
+
+class Test {
+
+  public static void main(String[] args) {
+    EnumSet<LogLevel> levels = EnumSet.noneOf(LogLevel.class);
+    System.out.println(new TreeSet<LogLevel>(levels).last());
+  }
 }

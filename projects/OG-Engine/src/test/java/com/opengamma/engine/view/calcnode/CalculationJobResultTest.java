@@ -26,6 +26,7 @@ import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.log.LogLevel;
 
 /**
  * 
@@ -65,7 +66,7 @@ public class CalculationJobResultTest {
     CalculationJobResultItem outputItem1 = outputJob.getResultItems().get(0);
     assertNotNull(outputItem1);
     assertEquals(InvocationResult.SUCCESS, outputItem1.getResult());
-    assertFalse(outputItem1.getExecutionLog().hasError());
+    assertFalse(outputItem1.getExecutionLog().getLogLevels().contains(LogLevel.ERROR));
     assertTrue(outputItem1.getMissingInputs().isEmpty());
     
     CalculationJobResultItem outputItem2 = outputJob.getResultItems().get(1);

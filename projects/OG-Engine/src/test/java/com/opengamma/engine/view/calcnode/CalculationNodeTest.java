@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Set;
@@ -95,9 +95,9 @@ public class CalculationNodeTest {
     
     ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
     assertNotNull(executionLog);
-    assertTrue(executionLog.hasWarn());
-    assertFalse(executionLog.hasError());
-    assertFalse(executionLog.hasInfo());
+    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
     
     assertNull(executionLog.getEvents());
     
@@ -116,9 +116,9 @@ public class CalculationNodeTest {
     
     ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
     assertNotNull(executionLog);
-    assertTrue(executionLog.hasWarn());
-    assertFalse(executionLog.hasError());
-    assertFalse(executionLog.hasInfo());
+    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
     
     assertNotNull(executionLog.getEvents());
     assertEquals(1, executionLog.getEvents().size());
