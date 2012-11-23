@@ -34,6 +34,9 @@ import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyFixedRecoveryCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyRecoveryLockCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyVanillaCDSSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cds.StdFixedRecoveryCDSSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cds.StdRecoveryLockCDSSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cds.StdVanillaCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.forward.CommodityForwardSecurityBeanOperation;
@@ -180,6 +183,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(LegacyFixedRecoveryCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(LegacyRecoveryLockCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(LegacyVanillaCDSSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(StdFixedRecoveryCDSSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(StdRecoveryLockCDSSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(StdVanillaCDSSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------

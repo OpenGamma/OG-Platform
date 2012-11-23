@@ -98,7 +98,7 @@ public abstract class StandardCDSSecurityBean extends CreditDefaultSwapSecurityB
    * Gets the quotedSpread.
    * @return the value of the property
    */
-  public double getQuotedSpread() {
+  public Double getQuotedSpread() {
     return _quotedSpread;
   }
 
@@ -106,7 +106,7 @@ public abstract class StandardCDSSecurityBean extends CreditDefaultSwapSecurityB
    * Sets the quotedSpread.
    * @param quotedSpread  the new value of the property
    */
-  public void setQuotedSpread(double quotedSpread) {
+  public void setQuotedSpread(Double quotedSpread) {
     this._quotedSpread = quotedSpread;
   }
 
@@ -157,7 +157,7 @@ public abstract class StandardCDSSecurityBean extends CreditDefaultSwapSecurityB
      * The meta-property for the {@code quotedSpread} property.
      */
     private final MetaProperty<Double> _quotedSpread = DirectMetaProperty.ofReadWrite(
-        this, "quotedSpread", StandardCDSSecurityBean.class, Double.TYPE);
+        this, "quotedSpread", StandardCDSSecurityBean.class, Double.class);
     /**
      * The meta-property for the {@code upfrontAmount} property.
      */

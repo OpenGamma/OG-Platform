@@ -58,7 +58,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
       case 487875210:  // cashSettlementDate
         return getCashSettlementDate();
       case -1224855431:  // adjustCashSettlementDate
-        return isAdjustCashSettlementDate();
+        return getAdjustCashSettlementDate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -88,7 +88,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
       StandardVanillaCDSSecurityBean other = (StandardVanillaCDSSecurityBean) obj;
       return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
           JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
-          JodaBeanUtils.equal(isAdjustCashSettlementDate(), other.isAdjustCashSettlementDate()) &&
+          JodaBeanUtils.equal(getAdjustCashSettlementDate(), other.getAdjustCashSettlementDate()) &&
           super.equals(obj);
     }
     return false;
@@ -99,7 +99,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustCashSettlementDate());
     return hash ^ super.hashCode();
   }
 
@@ -108,7 +108,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
    * Gets the coupon.
    * @return the value of the property
    */
-  public double getCoupon() {
+  public Double getCoupon() {
     return _coupon;
   }
 
@@ -116,7 +116,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
    * Sets the coupon.
    * @param coupon  the new value of the property
    */
-  public void setCoupon(double coupon) {
+  public void setCoupon(Double coupon) {
     this._coupon = coupon;
   }
 
@@ -158,7 +158,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
    * Gets the adjustCashSettlementDate.
    * @return the value of the property
    */
-  public boolean isAdjustCashSettlementDate() {
+  public Boolean getAdjustCashSettlementDate() {
     return _adjustCashSettlementDate;
   }
 
@@ -166,7 +166,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
    * Sets the adjustCashSettlementDate.
    * @param adjustCashSettlementDate  the new value of the property
    */
-  public void setAdjustCashSettlementDate(boolean adjustCashSettlementDate) {
+  public void setAdjustCashSettlementDate(Boolean adjustCashSettlementDate) {
     this._adjustCashSettlementDate = adjustCashSettlementDate;
   }
 
@@ -192,7 +192,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
      * The meta-property for the {@code coupon} property.
      */
     private final MetaProperty<Double> _coupon = DirectMetaProperty.ofReadWrite(
-        this, "coupon", StandardVanillaCDSSecurityBean.class, Double.TYPE);
+        this, "coupon", StandardVanillaCDSSecurityBean.class, Double.class);
     /**
      * The meta-property for the {@code cashSettlementDate} property.
      */
@@ -202,7 +202,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
      * The meta-property for the {@code adjustCashSettlementDate} property.
      */
     private final MetaProperty<Boolean> _adjustCashSettlementDate = DirectMetaProperty.ofReadWrite(
-        this, "adjustCashSettlementDate", StandardVanillaCDSSecurityBean.class, Boolean.TYPE);
+        this, "adjustCashSettlementDate", StandardVanillaCDSSecurityBean.class, Boolean.class);
     /**
      * The meta-properties.
      */

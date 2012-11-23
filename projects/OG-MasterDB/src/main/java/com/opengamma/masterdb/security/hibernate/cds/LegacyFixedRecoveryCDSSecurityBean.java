@@ -87,7 +87,7 @@ public class LegacyFixedRecoveryCDSSecurityBean extends CreditDefaultSwapSecurit
    * Gets the parSpread.
    * @return the value of the property
    */
-  public double getParSpread() {
+  public Double getParSpread() {
     return _parSpread;
   }
 
@@ -95,7 +95,7 @@ public class LegacyFixedRecoveryCDSSecurityBean extends CreditDefaultSwapSecurit
    * Sets the parSpread.
    * @param parSpread  the new value of the property
    */
-  public void setParSpread(double parSpread) {
+  public void setParSpread(Double parSpread) {
     this._parSpread = parSpread;
   }
 
@@ -121,7 +121,7 @@ public class LegacyFixedRecoveryCDSSecurityBean extends CreditDefaultSwapSecurit
      * The meta-property for the {@code parSpread} property.
      */
     private final MetaProperty<Double> _parSpread = DirectMetaProperty.ofReadWrite(
-        this, "parSpread", LegacyFixedRecoveryCDSSecurityBean.class, Double.TYPE);
+        this, "parSpread", LegacyFixedRecoveryCDSSecurityBean.class, Double.class);
     /**
      * The meta-properties.
      */
