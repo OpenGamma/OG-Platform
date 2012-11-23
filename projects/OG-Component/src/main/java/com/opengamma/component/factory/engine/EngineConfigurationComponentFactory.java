@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -48,20 +49,20 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    Map<String, Object> map = new LinkedHashMap<String, Object>();
-    for (String key : configuration.keySet()) {
-      String valueStr = configuration.get(key);
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final Map<String, Object> map = new LinkedHashMap<String, Object>();
+    for (final String key : configuration.keySet()) {
+      final String valueStr = configuration.get(key);
       Object targetValue = valueStr;
       if (valueStr.contains("::")) {
-        String type = StringUtils.substringBefore(valueStr, "::");
-        String classifier = StringUtils.substringAfter(valueStr, "::");
-        ComponentInfo info = repo.findInfo(type, classifier);
+        final String type = StringUtils.substringBefore(valueStr, "::");
+        final String classifier = StringUtils.substringAfter(valueStr, "::");
+        final ComponentInfo info = repo.findInfo(type, classifier);
         if (info == null) {
           throw new IllegalArgumentException("Component not found: " + valueStr);
         }
-        Object instance = repo.getInstance(info);
-        if (instance instanceof CalcNodeSocketConfiguration) {
+        final Object instance = repo.getInstance(info);
+        if ((instance instanceof CalcNodeSocketConfiguration) || (instance instanceof Supplier)) {
           targetValue = instance;
         } else {
           if (info.getUri() == null) {
@@ -72,28 +73,28 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
       }
       buildMap(map, key, targetValue);
     }
-    
-    Map<String, Object> outer = new LinkedHashMap<String, Object>();
+
+    final Map<String, Object> outer = new LinkedHashMap<String, Object>();
     outer.put("0", map);
-    
-    DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
+
+    final DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
     repo.getRestComponents().publishResource(resource);
-    
+
     // indicate that all component configuration was used
     configuration.clear();
   }
 
   /**
    * Builds the map, handling dot separate keys.
-   * 
+   *
    * @param map  the map, not null
    * @param key  the key, not null
    * @param targetValue  the target value,not null
    */
-  protected void buildMap(Map<String, Object> map, String key, Object targetValue) {
+  protected void buildMap(final Map<String, Object> map, final String key, final Object targetValue) {
     if (key.contains(".")) {
-      String key1 = StringUtils.substringBefore(key, ".");
-      String key2 = StringUtils.substringAfter(key, ".");
+      final String key1 = StringUtils.substringBefore(key, ".");
+      final String key2 = StringUtils.substringAfter(key, ".");
       @SuppressWarnings("unchecked")
       Map<String, Object> subMap = (Map<String, Object>) map.get(key1);
       if (subMap == null) {
@@ -125,7 +126,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -136,7 +137,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -156,12 +157,12 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
+      final EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           super.equals(obj);
@@ -190,7 +191,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -216,7 +217,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * Sets the Fudge context.
    * @param fudgeContext  the new value of the property, not null
    */
-  public void setFudgeContext(FudgeContext fudgeContext) {
+  public void setFudgeContext(final FudgeContext fudgeContext) {
     JodaBeanUtils.notNull(fudgeContext, "fudgeContext");
     this._fudgeContext = fudgeContext;
   }
@@ -264,7 +265,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
