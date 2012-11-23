@@ -142,6 +142,9 @@
     <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
     <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
   </bundle>
+  <bundle id="blotter.css">
+    <fragment>/styles/blotter/og.blotter.OG.blotter.dialog.css</fragment>
+  </bundle>
   <bundle id="analytics.css">
     <fragment>/styles/analytics/og.analytics.footer.OG-analytics-footer.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs.css</fragment>
@@ -170,6 +173,7 @@
     <bundle idref="libs.css" />
     <bundle idref="jquery.css" />
     <bundle idref="slickgrid.css" />
+    <bundle idref="blotter.css" />
     <bundle idref="analytics.css" />
   </bundle>
   <!--                                -->
@@ -329,6 +333,20 @@
     <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
+  <bundle id="blotter.js">
+    <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
+    <fragment>/scripts/og/views/og.views.blotter.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.vanilla_swap.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.variance_swap.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaption.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_barrier_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_forward.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.non_del_fx_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
+  </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
@@ -380,6 +398,10 @@
   </bundle>
   <bundle id="og_main.js">
     <bundle idref="views_default.js" />
+  </bundle>
+  <bundle id="og_blotter.js">
+    <bundle idref="blotter.js" />
+    
   </bundle>
   <bundle id="og_analytics.js">
       <bundle idref="lib.js" />
