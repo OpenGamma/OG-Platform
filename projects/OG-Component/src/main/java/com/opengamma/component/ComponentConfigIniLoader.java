@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -23,6 +24,7 @@ import com.opengamma.OpenGammaRuntimeException;
  *  <code>${key}</code> is replaced by an earlier replacement declaration<br>
  *  <code>[group]</code> defines the start of a named group of configs<br>
  *  <code>key = value</code> defines a single config element within a group<br>
+ *  <code>MANAGER.INCLUDE = resource</code> declares a resource to be included immediately<br>
  *  the "global" group is used to add keys to the set of properties used for replacement<br>
  *  Everything is trimmed as necessary.
  *  <p>
@@ -50,16 +52,17 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
 
   //-------------------------------------------------------------------------
   /**
-   * Loads the configuration defining components from the specified resource.
+   * Loads the INI file.
    * <p>
-   * The specified properties are simple key=value pairs and must not be surrounded with ${}.
+   * Loads the configuration defining components from the specified resource.
    * 
    * @param resource  the config resource to load, not null
+   * @param depth  the depth of the properties file, used for logging
    * @return the config, not null
    */
-  public ComponentConfig load(Resource resource) {
+  public ComponentConfig load(final Resource resource, final int depth) {
     try {
-      return doLoad(resource);
+      return doLoad(resource, depth, new ComponentConfig());
     } catch (RuntimeException ex) {
       throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
     }
@@ -67,13 +70,16 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
 
   /**
    * Loads the INI file.
+   * <p>
+   * Loads the configuration defining components from the specified resource.
    * 
    * @param resource  the config resource to load, not null
+   * @param depth  the depth of the properties file, used for logging
+   * @param config  the config being loaded, not null
    * @return the config, not null
    */
-  protected ComponentConfig doLoad(Resource resource) {
+  protected ComponentConfig doLoad(final Resource resource, final int depth, ComponentConfig config) {
     List<String> lines = readLines(resource);
-    ComponentConfig config = new ComponentConfig();
     String group = null;
     int lineNum = 0;
     for (String line : lines) {
@@ -105,10 +111,15 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         // resolve ${} references
         value = resolveProperty(value, lineNum);
         
-        // store group property
-        config.put(group, key, value);
-        if (group.equals("global")) {
-          getProperties().put(key, value);
+        // handle includes
+        if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
+          handleInclude(resource, value, depth, config);
+        } else {
+          // store property
+          config.put(group, key, value);
+          if (group.equals("global")) {
+            getProperties().put(key, value);
+          }
         }
       }
     }
@@ -142,6 +153,36 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       }
     }
     return extracted;
+  }
+
+  /**
+   * Handle the inclusion of another file.
+   * 
+   * @param baseResource  the base resource, not null
+   * @param includeFile  the resource to include, not null
+   * @param depth  the depth of the properties file, used for logging
+   * @param config  the config being loaded, not null
+   */
+  protected void handleInclude(final Resource baseResource, String includeFile, final int depth, ComponentConfig config) {
+    // find resource
+    Resource include;
+    try {
+      include = ComponentManager.createResource(includeFile);
+    } catch (Exception ex) {
+      try {
+        include = baseResource.createRelative(includeFile);
+      } catch (Exception ex2) {
+        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
+      }
+    }
+    
+    // load and merge
+    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
+    try {
+      doLoad(include, depth + 1, config);
+    } catch (RuntimeException ex) {
+      throw new OpenGammaRuntimeException("Unable to load INI file: " + include, ex);
+    }
   }
 
 }
