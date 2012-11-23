@@ -1,14 +1,14 @@
 /*
- * Copyright 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.forms.Dropdown',
+    name: 'og.common.util.ui.Dropdown',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'dropdown_widget_';
-        return function (config) {
-            var field, name = config.index, resource = config.resource, form = config.form, value = config.value,
+        var module = this, id_count = 0, prefix = 'dropdown_widget_', Block = og.common.util.ui.Block;
+        var Dropdown = function (config) {
+            var block = this, name = config.index, resource = config.resource, form = config.form, value = config.value,
                 placeholder = config.placeholder, fields = config.fields || [0], values = fields[0],
                 rest_options = config.rest_options || {}, data_generator = config.data_generator,
                 texts = typeof fields[1] !== 'undefined' ? fields[1] : values, processor = config.processor,
@@ -18,22 +18,17 @@ $.register_module({
                 var rest_handler = function (result) {
                     var empty = true;
                     if (result.error) return handler('an error occurred');
-                    if (meta) {
-                        result.data.types.forEach(function (datum) {
-                            var $option = $('<option/>').val(datum).html(datum);
-                            if (value === datum) $option[0].setAttribute('selected', 'selected');
-                            $select.append($option);
-                            empty = false;
-                        });
-                    } else {
-                        result.data.data.forEach(function (datum) {
-                            var fields = datum.split('|'),
-                                $option = $('<option/>').val(fields[values]).html(fields[texts]);
-                            if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
-                            $select.append($option);
-                            empty = false;
-                        });
-                    }
+                    if (meta) result.data.types.forEach(function (datum) {
+                        var $option = $('<option/>').val(datum).html(datum);
+                        if (value === datum) $option[0].setAttribute('selected', 'selected');
+                        $select.append($option);
+                        empty = false;
+                    }); else result.data.data.forEach(function (datum) {
+                        var fields = datum.split('|'), $option = $('<option/>').val(fields[values]).html(fields[texts]);
+                        if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
+                        $select.append($option);
+                        empty = false;
+                    });
                     if (empty) $select.attr('disabled', 'disabled');
                     handler($.outer($select[0]));
                 };
@@ -53,12 +48,19 @@ $.register_module({
                     return handler($.outer($select[0]));
                 });
             };
-            field = new form.Field({
-                generator: generator, processor: processor ? processor.partial('#' + id) : null
-            });
-            field.on = field.on.partial(undefined, '#' + id);
-            field.off = field.off.partial(undefined, '#' + id);
-            return field;
+            form.Block.call(block, {generator: generator, processor: processor ? processor.partial('#' + id) : null});
+            block.id = id;
         };
+        Dropdown.prototype = new Block; // inherit Block prototype
+        Dropdown.prototype.off = function () {
+            var block = this, args = Array.prototype.slice.call(arguments, 1), type = arguments[0];
+            return Block.prototype.off.apply(block, [type, '#' + block.id].concat(args));
+        };
+        Dropdown.prototype.on = function () {
+            var block = this, args = Array.prototype.slice.call(arguments, 1), type = arguments[0];
+            return Block.prototype.on.apply(block, [type, '#' + block.id].concat(args));
+        };
+        Dropdown.prototype.template = null; // reset back to null because it got set to false in Block
+        return Dropdown;
     }
 });

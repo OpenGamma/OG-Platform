@@ -3,15 +3,15 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.forms.Constraints',
+    name: 'og.views.config_blocks.Constraints',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, counter = 0, prefix = 'constraints_widget_';
-        return function (config) {
-            var data = config.data, data_index = config.index, render, classes = config.classes || '', ids = {
+        var module = this, counter = 0, prefix = 'constraints_widget_', Block = og.common.util.ui.Block;
+        var Constraints = function (config) {
+            var block = this, render, classes = config.classes || '', ids = {
                 container: prefix + counter++, widget: prefix + counter++,
                 row_with: prefix + counter++, row_without: prefix + counter++
-            };
+            }, data = config.data, data_index = config.index;
             var convert = function (datum) {
                 var length = 0, item, data = [], lcv;
                 if (!datum || typeof datum === 'string') return datum || '';
@@ -35,8 +35,9 @@ $.register_module({
                         .map(function (str) {return str.replace(/\0/g, ',');}) : [datum]
                     : [];
             };
-            return new config.form.Block({
-                module: 'og.views.forms.constraints_tash', extras: $.extend({classes: classes}, ids),
+            config.form.Block.call(block, { // create a Block instance and assign it to this (block)
+                module: 'og.views.forms.constraints_tash',
+                extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
                     var indices = data_index.split('.'), last = indices.pop(), result = {},
                         $withs = $('#' + ids.widget + ' .og-js-with'),
@@ -57,7 +58,8 @@ $.register_module({
                         return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
                     }, data)[last] = result;
                 }
-            }).on('form:load', function () {
+            });
+            block.on('form:load', function () {
                 var item, $widget = $('#' + ids.widget), rows = {
                     'with': $('#' + ids.row_with).remove().removeAttr('id'),
                     without: $('#' + ids.row_without).remove().removeAttr('id')
@@ -92,5 +94,7 @@ $.register_module({
                 $(event.target).closest('.og-js-row').remove();
             }).on('click', '#' + ids.container + ' .og-js-add', function (event) {render['with']({'': null});});
         };
+        Constraints.prototype = new Block(null, {module: 'og.views.forms.constraints_tash'}); // inherit Block prototype
+        return Constraints;
     }
 });

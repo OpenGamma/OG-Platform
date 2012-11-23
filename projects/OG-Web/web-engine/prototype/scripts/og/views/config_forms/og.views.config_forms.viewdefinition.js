@@ -7,11 +7,10 @@ $.register_module({
     dependencies: [
         'og.api.rest',
         'og.common.util.ui',
-        'og.views.forms.Constraints',
-        'og.views.forms.Dropdown'
+        'og.views.config_blocks.Constraints'
     ],
     obj: function () {
-        var Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
+        var ui = og.common.util.ui, Form = ui.Form, blocks = og.views.config_blocks, api = og.api.rest,
             RMDF = 'resultModelDefinition',     SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',         COLS = 'portfolioRequirementsBySecurityType',
             RLTR = 'resolutionRuleTransform',   SPEC = 'specificRequirement',
@@ -150,12 +149,12 @@ $.register_module({
                     module: 'og.views.forms.view-definition-identifier-currency_tash',
                     extras: {name: master.name},
                     children: [
-                        new forms.Dropdown({
+                        new ui.Dropdown({
                             form: form, resource: 'portfolios', index: 'identifier', value: master.identifier,
                             rest_options: {page: '*'}, placeholder: 'Please choose a portfolio...', fields: [0, 2],
                             processor: function (selector, data) {if (!data.identifier) delete data.identifier;}
                         }),
-                        new form.Field({module: 'og.views.forms.currency_tash'})
+                        new form.Block({module: 'og.views.forms.currency_tash'})
                     ]
                 }).on('form:load', function () {
                     $(form_id + ' select[name=currency]').val(master.currency);
@@ -308,8 +307,7 @@ $.register_module({
                                 block.html(function (html) {
                                     var tab, $col = $(html);
                                     $(set_id + ' .og-js-cols').append($col);
-                                    tab = new_col_tab(col, idx);
-                                    tab.html(function (html) {
+                                    tab = new_col_tab(col, idx).html(function (html) {
                                         var $tab = $(html);
                                         $(set_id + ' .og-js-col-tab.og-js-new').before($tab);
                                         $tab.addClass('og-active').siblings().removeClass('og-active');
@@ -327,15 +325,14 @@ $.register_module({
                             .siblings().removeClass('og-active');
                     });
                     var new_col_tab = function (col, col_idx) {
-                        return new form.Field({
-                            generator: function (handler) {
-                                handler('<li class="og-js-col-tab"><div class="og-delete og-js-rem-col"></div>' +
-                                    '<strong class="og-js-secu">' + (col[SECU] || 'not set') + '</strong></li>');
-                            }
+                        return new form.Block({
+                            content: '<li class="og-js-col-tab"><div class="og-delete og-js-rem-col"></div>' +
+                                    '<strong class="og-js-secu">' + (col[SECU] || 'not set') + '</strong></li>'
                         });
                     };
                     var new_col_val = function (col, col_idx) {
-                        var col_id = prefix + id_count++, dropdown_name = [SETS, set_idx, COLS, col_idx, SECU].join('.'),
+                        var col_id = prefix + id_count++,
+                            dropdown_name = [SETS, set_idx, COLS, col_idx, SECU].join('.'),
                             reqs_block = new form.Block({wrap: '<ul class="og-js-port-req">{{{html}}}</ul>'});
                         var new_port_req = function (req, req_idx) {
                             var sel_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, REQO].join('.'),
@@ -344,12 +341,12 @@ $.register_module({
                                 module: 'og.views.forms.view-definition-portfolio-requirement_tash',
                                 extras: {title: 'Column ' + (req_idx + 1), name: sel_name},
                                 children: [
-                                    new forms.Dropdown({
+                                    new ui.Dropdown({
                                         form: form, resource: 'valuerequirementnames', index: sel_name,
                                         value: req[REQO], rest_options: {meta: true, page: '*'},
                                         classes: 'og-js-collapse-element', placeholder: 'Please select...'
                                     }),
-                                    new forms.Constraints({
+                                    new blocks.Constraints({
                                         form: form, data: req[CONS], index: cons_name, classes: 'og-js-collapse-element'
                                     })
                                 ]
@@ -360,7 +357,7 @@ $.register_module({
                         return new form.Block({
                             module: 'og.views.forms.view-definition-column-value_tash', extras: {id: col_id},
                             children: [
-                                new forms.Dropdown({
+                                new ui.Dropdown({
                                     form: form, resource: 'securities', value: col[SECU], index: dropdown_name,
                                     rest_options: {meta: true, cache_for: 300 * 1000}, placeholder: 'Please select...'
                                 }).on('change', function (event) {
@@ -389,7 +386,7 @@ $.register_module({
                         };
                         return new form.Block({
                             module: 'og.views.forms.view-definition-specific-requirements_tash', extras: names,
-                            children: [new forms.Constraints({
+                            children: [new blocks.Constraints({
                                 form: form, data: spec[CONS] || (spec[CONS] = {}),
                                 classes: 'og-js-collapse-element',
                                 index: [SETS, set_idx, SPEC, spec_idx, CONS].join('.')
@@ -406,10 +403,10 @@ $.register_module({
                             extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
                             children: [
                                 col_tabs, col_vals, spec_vals, // additional values
-                                new forms.Constraints({ // default properties
+                                new blocks.Constraints({ // default properties
                                     form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
                                 }),
-                                new forms.RuleTransform({ // resolution rule transform
+                                new blocks.RuleTransform({ // resolution rule transform
                                     form: form, data: set[RLTR], index: [SETS, set_idx, RLTR].join('.')
                                 })
                             ]

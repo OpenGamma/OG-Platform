@@ -3,22 +3,21 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.forms.RuleTransform',
+    name: 'og.views.config_blocks.RuleTransform',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'ruletransform_widget_';
-        return function (config) {
-            var id = prefix + id_count++,
+        var module = this, id_count = 0, prefix = 'ruletransform_widget_', Block = og.common.util.ui.Block;
+        var RuleTransform = function (config) {
+            var block = this, id = prefix + id_count++,
                 data_index = config.index, form = config.form, value = config.value,
-                data = config.data, block_options, $rules, $rule, render_rule;
-            render_rule = function (key, value) {
+                data = config.data, block_options, $rules, $rule;
+            var render_rule = function (key, value) {
                 var $el = $rule.clone();
                 $el.find('.og-js-key').val(key);
                 $el.find('.og-js-val').val(value);
                 $rules.append($el);
             };
             block_options = {
-                module: 'og.views.forms.view-definition-resolution-rule-transform-fields_tash',
                 extras: {
                     id: id, class_value: (data && data[0]) ||
                         'com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform'
@@ -37,16 +36,21 @@ $.register_module({
                     }, data)[last] = result;
                 }
             };
-            return new form.Block(block_options).on('form:load', function () {
+            form.Block.call(block, block_options); // create a Block instance and assign it to this (block)
+            block.on('form:load', function () {
                 var rule;
                 $rules = $('#' + id + ' .og-js-res-rule-holder');
                 $rule = $('#' + id + ' .og-js-res-rule').remove();
                 for (rule in data) if (rule !== '0') render_rule(rule, data[rule]);
-            })
-            .on('click', '#' + id + ' .og-js-add-rule', function () {return render_rule('', null), false;})
-            .on('click', '#' + id + ' .og-js-rem-rule', function (event) {
+            }).on('click', '#' + id + ' .og-js-add-rule', function () {
+                return render_rule('', null), false;
+            }).on('click', '#' + id + ' .og-js-rem-rule', function (event) {
                 return $(event.target).parents('.og-js-res-rule:first').remove(), false;
             });
         };
+        RuleTransform.prototype = new Block(null, { // inherit Block prototype
+            module: 'og.views.forms.view-definition-resolution-rule-transform-fields_tash'
+        });
+        return RuleTransform;
     }
 });

@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
+        var module = this, STALL = 500 /* 500ms */, id_count = 0, api_text = og.api.text, numbers = {},
             has = 'hasOwnProperty', form_template = Handlebars.compile('<form action="." id="{{id}}">' +
                 '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
         /** @private */
@@ -59,14 +59,6 @@ $.register_module({
             };
         };
         /** @private */
-        var off = function () {
-            return this.form ? this.form.off.apply(this, Array.prototype.slice.call(arguments)) : this;
-        };
-        /** @private */
-        var on = function () {
-            return this.form ? this.form.on.apply(this, Array.prototype.slice.call(arguments)) : this;
-        };
-        /** @private */
         var submit_handler = function (form, extras) {
             var result = form.compile();
             $.extend(true, result.extras, extras);
@@ -76,94 +68,19 @@ $.register_module({
                 og.dev.warn(module.name + '#submit_handler a form:submit handler failed with:', error);
             }
         };
-        /** @private */
-        var template_gen = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
-        /** @class form.Block */
-        var Block = function (form, config) {
-            var block = this, config = block.config = config || {};
-            block.children = config.children || [];
-            block.form = form;
-            $.when(config.module ? api_text({module: config.module}) : void 0)
-                .then(function (result) {block.template = template_gen(config.module, result);});
-        };
-        Block.prototype.html = function (handler) {
-            var block = this, template = block.template, total = block.children.length, done = 0, result = [];
-            /** @private */
-            var internal_handler = function () {
-                handler(template ? template($.extend(
-                    result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
-                    block.config.extras
-                )) : wrap(result.join('')));
-            };
-            /** @private */
-            var wrap = function (html) {
-                return block.config.wrap ? Handlebars.compile(block.config.wrap)({html: html}) : html;
-            };
-            if (template === null) return setTimeout(function () {block.html(handler);}, STALL);
-            if (!total) return internal_handler();
-            block.children.forEach(function (val, idx) {
-                if (val.html)
-                    return val.html(function (html) {(result[idx] = html), (total === ++done) && internal_handler();});
-                result[idx] = val;
-                if (total === ++done) internal_handler();
-            });
-        };
-        Block.prototype.load = function () {
-            var block = this, form = block.form;
-            if (form.events['form:load']) // mimic a form load event
-                form.events['form:load'].forEach(function (val) {if (val.origin === block) val.handler();});
-            block.children.forEach(function (child) {if (child.load) child.load();});
-        };
-        Block.prototype.off = off;
-        Block.prototype.on = on;
-        Block.prototype.process = function (data, errors) {
-            var block = this, process = block.config.procesor;
-            block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
-            try {if (processor) processor(data);} catch (error) {errors.push(error);}
-        };
-        Block.prototype.template = null;
-        /** @class form.Field */
-        var Field = function (form, config) {
-            var field = this, signature = module.name + ':Field#html ', config = field.config = config || {};
-            if (config.generator && config.extras)
-                og.dev.warn(signature + 'extras will be ignored if generator exists');
-            if (!config.module && !config.generator)
-                throw new TypeError(signature + 'neither url nor generator is defined');
-            field.form = form;
-            $.when(config.module ? api_text({module: config.module}) : void 0)
-                .then(function (result) {field.template = template_gen(config.module, result);});
-        };
-        Field.prototype.html = function (handler) {
-            var field = this, generator = field.config.generator, template = field.template;
-            if (template === null) return setTimeout(function () {field.html(handler);}, STALL);
-            if (generator) return generator(handler, template); else handler(template(field.config.extras));
-        };
-        Field.prototype.load = function () {
-            var field = this, form = field.form;
-            if (form.events['form:load']) // mimic a form load event
-                form.events['form:load'].forEach(function (val) {if (val.origin === field) val.handler();});
-        };
-        Field.prototype.off = off;
-        Field.prototype.on = on;
-        Field.prototype.process = function (data, errors) {
-            var field = this, processor = field.config.processor;
-            try {if (processor) processor(data);} catch (error) {errors.push(error);}
-        };
-        Field.prototype.template = null;
         /** @class Form */
         var Form = function (config) {
             var form = this;
-            Block.call(form, null, config); // create a Block instance and extend it
-            form.Block = Block.partial(form);
+            og.common.util.ui.Block.call(form, null, config); // create a Block instance and extend it
+            form.Block = og.common.util.ui.Block.partial(form);
             form.data = config.data;
             form.dom_events = {};
-            form.Field = Field.partial(form);
             form.id = 'gen_form_' + id_count++;
             form.parent = $(config.selector).unbind(); // no listeners on the selector
             form.root = null;
             form.submit = function (extras) {submit_handler(form, extras);}; // defined here so $ can't hijack this
         };
-        Form.prototype = new Block; // inherit Block's prototype
+        Form.prototype = new og.common.util.ui.Block; // inherit Block prototype
         Form.prototype.compile = function () {
             var form = this, raw = form.root.serializeArray(), built_meta = null, meta_warns = [],
                 data = form.data ? $.extend(true, {}, form.data) : null, errors = [], type_map = form.config.type_map;
@@ -191,7 +108,7 @@ $.register_module({
         };
         Form.prototype.dom = function () {
             var form = this;
-            form.html(function (html) {
+            return form.html(function (html) {
                 form.parent.empty().append(form_template({id: form.id, html: html}));
                 og.common.events.fire.call(form, 'form:load');
                 (form.root = $('#' + form.id)).unbind().submit(function (event) {return submit_handler(form), false;});

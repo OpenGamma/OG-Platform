@@ -6,9 +6,7 @@ $.register_module({
     name: 'og.views.config_forms.yieldcurvedefinition',
     dependencies: [
         'og.api.rest',
-        'og.common.util.ui',
-        'og.views.forms.Constraints',
-        'og.views.forms.Dropdown'
+        'og.common.util.ui'
     ],
     obj: function () {
         var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, Form = ui.Form,
@@ -54,7 +52,7 @@ $.register_module({
                 }),
                 form_id = '#' + form.id,
                 new_conv_dropdown = function (row, idx, currency) {
-                    return new forms.Dropdown({
+                    return new ui.Dropdown({
                         form: form, classes: 'og-convention og-js-conv', value: row[CONV],
                         index: ['strip', idx, CONV].join('.'), placeholder: 'Please select...',
                         data_generator: function (handler) {
@@ -130,8 +128,8 @@ $.register_module({
                 block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
             });
             form.children = [
-                new form.Field({module: 'og.views.forms.currency_tash'}), // item_0
-                new forms.Dropdown({ // item_1
+                new form.Block({module: 'og.views.forms.currency_tash'}), // item_0
+                new ui.Dropdown({ // item_1
                     form: form, value: master.region.split(sep)[1], placeholder: 'Please select...',
                     processor: function (selector, data, errors) {
                         data.region = master.region.split(sep)[0] + sep + $(selector).val();
