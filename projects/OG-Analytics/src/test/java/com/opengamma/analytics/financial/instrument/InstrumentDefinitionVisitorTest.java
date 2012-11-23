@@ -90,9 +90,12 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
  * Class testing the instrument definition visitor.
  */
 public class InstrumentDefinitionVisitorTest {
-
-  @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDelegate() {
+    new InstrumentDefinitionVisitorDelegate(null);
+  }
 
   @Test
   public void testVisitMethodsImplemented() {
