@@ -20,11 +20,11 @@ $.register_module({
                 });
                 form.children.push(
                     new form.Block({
-                        module: 'og.blotter.forms.block.security_tash',
+                        module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}
                     }),
                      new form.Block({
-                        module: 'og.blotter.forms.block.security_ids_tash',
+                        module: 'og.blotter.forms.blocks.security_ids_tash',
                         extras: {}
                     })
                 );

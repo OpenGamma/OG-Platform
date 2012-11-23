@@ -20,11 +20,11 @@ $.register_module({
                 });
                 form.children.push(
                     new form.Block({
-                        module: 'og.blotter.forms.block.derivative_value_tash',
+                        module: 'og.blotter.forms.blocks.derivative_value_tash',
                         extras: {}
                     }),
                      new form.Block({
-                        module: 'og.blotter.forms.block.fx_option_date_tash',
+                        module: 'og.blotter.forms.blocks.fx_option_date_tash',
                         extras: {}
                     })
                 );
