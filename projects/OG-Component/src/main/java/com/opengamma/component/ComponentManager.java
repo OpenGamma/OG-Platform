@@ -245,10 +245,10 @@ public class ComponentManager {
    * @param resource  the INI resource location, not null
    */
   protected void loadIni(Resource resource) {
-    logProperties();
-    
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(_logger, getProperties());
-    ComponentConfig config = loader.load(resource);
+    ComponentConfig config = loader.load(resource, 0);
+    
+    logProperties();
     getRepository().pushThreadLocal();
     initGlobal(config);
     init(config);

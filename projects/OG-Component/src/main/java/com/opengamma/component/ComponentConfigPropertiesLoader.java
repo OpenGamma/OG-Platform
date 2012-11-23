@@ -42,9 +42,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
 
   //-------------------------------------------------------------------------
   /**
-   * Starts the components defined in the specified resource.
-   * <p>
-   * The specified properties are simple key=value pairs and must not be surrounded with ${}.
+   * Loads the properties file.
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
