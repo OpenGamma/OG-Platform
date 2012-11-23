@@ -79,7 +79,7 @@ $.register_module({
             var form = this;
             og.common.util.ui.Block.call(form, null, config); // create a Block instance and extend it
             /**
-             * creates Block instances whose parent is current Form instance
+             * creates Block instance whose parent is current Form instance
              * @function
              * @name Form.prototype.Block
              */
@@ -199,6 +199,10 @@ $.register_module({
             return origin;
         };
         Form.prototype.template = null; // reset back to null because it got set to false in Block
+        /**
+         * collection of meta type information for creating metadata to describe config objects for REST API
+         * @name Form.type
+         */
         Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
