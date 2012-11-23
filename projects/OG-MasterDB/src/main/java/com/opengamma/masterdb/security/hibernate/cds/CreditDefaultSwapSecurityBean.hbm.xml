@@ -84,18 +84,86 @@
     <property name="protectionStart" column="protection_start" type="boolean" not-null="true"/>
     
     <subclass name="LegacyFixedRecoveryCDSSecurityBean" discriminator-value="LEGACY_FIXED_RECOVERY_CDS">
-      <property name="parSpread" type="double" column="par_spread" />
+      <property name="parSpread" type="double" column="legacy_par_spread" />
     </subclass>
     
     <subclass name="LegacyRecoveryLockCDSSecurityBean" discriminator-value="LEGACY_RECOVERY_LOCK_CDS">
-      <property name="parSpread" type="double" column="par_spread" />
+      <property name="parSpread" type="double" column="legacy_par_spread" />
     </subclass>
     
     <subclass name="LegacyVanillaCDSSecurityBean" discriminator-value="LEGACY_VANILLA_CDS">
-      <property name="parSpread" type="double" column="par_spread" />
+      <property name="parSpread" type="double" column="legacy_par_spread" />
     </subclass>
     
+    <subclass name="StandardCDSSecurityBean">
+      <property name="quotedSpread" type="double" column="std_quoted_spread" />
+      <component name="upfrontAmount" class="com.opengamma.masterdb.security.hibernate.swap.NotionalBean">
+        <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="std_upfrontamt_notional_type" />
+        <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="std_upfrontamt_notional_currency_id" />
+        <property name="amount" type="double" column="std_upfrontamt_notional_amount" />
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
+          <property name="scheme" type="string" column="std_upfrontamt_notional_scheme" />
+          <property name="identifier" type="string" column="std_upfrontamt_notional_id" />
+        </component>
+      </component>
+      
+      <subclass name="StandardFixedRecoveryCDSSecurityBean" discriminator-value="STANDARD_FIXED_RECOVERY_CDS">
+      </subclass>
+      
+      <subclass name="StandardRecoveryLockCDSSecurityBean" discriminator-value="STANDARD_RECOVERY_LOCK_CDS">
+      </subclass>
+      
+      <subclass name="StandardVanillaCDSSecurityBean" discriminator-value="STANDARD_VANILLA_CDS">
+        <property name="coupon" type="double" column="stdvanilla_coupon" />
+        <component name="cashSettlementDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+          <property name="date" column="stdvanilla_cashsettlement_date" type="timestamp" />
+          <property name="zone" column="stdvanilla_ashsettlement_date_zone" type="string" />
+        </component>
+        <property name="adjustCashSettlementDate" type="boolean" column="stdvanilla_adjust_cashsettlement_date" />
+      </subclass>
+      
+    </subclass>
+        
 	</class>
+	
+	<query name="StandardFixedRecoveryCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardFixedRecoveryCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardFixedRecoveryCDSSecurityBean.all">
+    from StandardFixedRecoveryCDSSecurityBean
+  </query>
+  
+  <query name="StandardRecoveryLockCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardRecoveryLockCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardRecoveryLockCDSSecurityBean.all">
+    from StandardRecoveryLockCDSSecurityBean
+  </query>
+  
+  <query name="StandardVanillaCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardVanillaCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardVanillaCDSSecurityBean.all">
+    from StandardVanillaCDSSecurityBean
+  </query>
 
 	<query name="LegacyFixedRecoveryCDSSecurityBean.one.bySecurityId">
     <![CDATA[
