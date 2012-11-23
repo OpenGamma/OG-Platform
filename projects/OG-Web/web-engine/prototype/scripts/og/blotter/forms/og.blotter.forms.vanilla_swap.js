@@ -18,8 +18,6 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     extras:{}
                 });
-
-
                 form.children.push(
                     new form.Block({
                         module: 'og.blotter.forms.block.swap_quick_entry_tash',
@@ -40,11 +38,9 @@ $.register_module({
                 );
                 form.dom();
                 $('.OG-blotter-form-title').html(config.title);
-                
             }; 
             contructor.load();
             contructor.kill = function () {
-                
             };
         };
     }

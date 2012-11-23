@@ -3,16 +3,16 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Variance_swap',
+    name: 'og.blotter.forms.Bond_future',
     dependencies: [],
     obj: function () {   
         return function () {
             var contructor = this;
             contructor.load = function () {
                 var config = {}, dialog; 
-                config.title = 'Varience Swap';
+                config.title = 'Bond Future';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.variance_swap_tash',
+                    module: 'og.blotter.forms.bond_future_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
@@ -20,24 +20,16 @@ $.register_module({
                 });
                 form.children.push(
                     new form.Block({
-                        module: 'og.blotter.forms.block.swap_quick_entry_tash',
+                        module: 'og.blotter.forms.block.security_tash',
                         extras: {}
                     }),
-                    new form.Block({
-                        module: 'og.blotter.forms.block.swap_details_tash',
+                     new form.Block({
+                        module: 'og.blotter.forms.block.security_ids_tash',
                         extras: {}
-                    }),
-                    new form.Block({
-                        module: 'og.blotter.forms.block.swap_details_fixed_tash',
-                        extras: {}
-                    }) ,
-                    new form.Block({
-                        module: 'og.blotter.forms.block.swap_details_floating_tash',
-                        extras: {}
-                    })    
+                    })
                 );
-                $('.OG-blotter-form-title').html(config.title);
                 form.dom();
+                $('.OG-blotter-form-title').html(config.title);
             }; 
             contructor.load();
             contructor.kill = function () {

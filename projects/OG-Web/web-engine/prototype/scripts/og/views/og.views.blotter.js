@@ -29,6 +29,15 @@ $.register_module({
             $('.nd_fx_op').click(function (){
                 new og.blotter.forms.Non_del_fx_option();
             });
+            $('.bond_fut').click(function (){
+                new og.blotter.forms.Bond_future();
+            });
+            $('.bond').click(function (){
+                new og.blotter.forms.Bond();
+            });
+            $('.trade').click(function (){
+                new og.blotter.forms.Trade();
+            });
         });
         return view = {
             init: function () {

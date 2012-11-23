@@ -341,6 +341,9 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_forward.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.non_del_fx_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>

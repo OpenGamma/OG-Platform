@@ -16,6 +16,9 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="fx_bar_op">FX BARRIER OPTION</div>
       <div class="fx_op">FX OPTION</div>
       <div class="nd_fx_op">NON-DELIVERABLE FX OPTION</div>
+      <div class="bond_fut">BOND FUTURE</div>
+      <div class="bond">BOND</div>
+      <div class="trade">TRADE</div>
   </div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
