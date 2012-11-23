@@ -29,10 +29,14 @@ cd "${BASEDIR}" || exit 1
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
 if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
-  echo The ${PROJECT} database could not be found.
-  echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
-  echo Exiting immediately...
-  exit 1
+  if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
+    ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
+  else
+    echo The ${PROJECT} database could not be found.
+    echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
+    echo Exiting immediately...
+    exit 1
+  fi
 fi
 
 # Read default configs
