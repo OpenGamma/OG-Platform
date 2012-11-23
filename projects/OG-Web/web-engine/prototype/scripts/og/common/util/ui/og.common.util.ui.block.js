@@ -10,7 +10,20 @@ $.register_module({
         var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
         /** @private */
         var template_gen = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
-        /** @class og.common.util.ui.Block */
+        /**
+         * creates a Block instance
+         * @name Block
+         * @constructor
+         * @param {Form} form parent Form instance
+         * @param {Object} config configuation options for Block instance
+         * @param {String} config.module the Handlebars template name (optional)
+         * @param {String} config.content static content that will populate the Block (optional)
+         * @param {Function} config.generator function that will receive a handler into which it can send Block contents
+         * whenever it is ready, useful for populating a block with async content (optional)
+         * @param {Object} config.extras values plugged into the Handlerbars template (optional)
+         * @param {String} config.wrap simple Handlebars template with a blob named "html" that will be used to wrap
+         * children
+         */
         var Block = function (form, config) {
             var block = this, config = block.config = config || {};
             block.children = config.children || [];
@@ -18,12 +31,23 @@ $.register_module({
             if (block.template === null) $.when(config.module ? api_text({module: config.module}) : void 0)
                 .then(function (result) {block.template = template_gen(config.module, result);});
         };
+        /**
+         * adds an arbitrary number of children to Block instance (configuration options of each child should be passed)
+         * @type Block
+         * @returns {Block} reference to current Block instance
+         */        
         Block.prototype.add = function () {
             var block = this;
             Array.prototype.slice.call(arguments)
                 .forEach(function (child) {block.children.push(new Block(block.form, child));});
             return block;
         };
+        /**
+         * generates the HTML for a Block instance and all of its children and calls a supplied handler with that string
+         * @param {Function} handler the handler that receives the HTML string
+         * @type Block
+         * @returns {Block} reference to current Block instance
+         */
         Block.prototype.html = function (handler) {
             var block = this, template = block.template, total = block.children.length, done = 0, result = [],
                 generator = block.config.generator;
@@ -50,20 +74,37 @@ $.register_module({
             });
             return block;
         };
+        /**
+         * simulates a form:load event, only used when new blocks are added and need to be set up
+         * @type Block
+         * @returns {Block} reference to current Block instance
+         */
         Block.prototype.load = function () {
             var block = this, form = block.form;
             if (form.events['form:load']) // mimic a form load event
                 form.events['form:load'].forEach(function (val) {if (val.origin === block) val.handler();});
             block.children.forEach(function (child) {if (child.load) child.load();});
+            return block;
         };
+        /**
+         * delegates off functionality to current Block instance's parent {@link Form#off}
+         * @type Block
+         * @returns {Block} reference to current Block instance
+         */
         Block.prototype.off = function () {
             var block = this;
             return block.form ? block.form.off.apply(block, Array.prototype.slice.call(arguments)) : block;
         };
+        /**
+         * delegates on functionality to current Block instance's parent {@link Form#on}
+         * @type Block
+         * @returns {Block} reference to current Block instance
+         */
         Block.prototype.on = function () {
             var block = this;
             return block.form ? block.form.on.apply(block, Array.prototype.slice.call(arguments)) : block;
         };
+        /** @ignore */
         Block.prototype.process = function (data, errors) {
             var block = this, process = block.config.procesor;
             block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
