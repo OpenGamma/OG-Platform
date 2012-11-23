@@ -92,7 +92,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 public class InstrumentDefinitionVisitorTest {
 
   @SuppressWarnings("synthetic-access")
-  private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
 
   @Test
   public void testVisitMethodsImplemented() {
@@ -119,8 +119,43 @@ public class InstrumentDefinitionVisitorTest {
     }
   }
 
+  @Test
+  public void testDelegate() {
+    final String s = "aaaa";
+    final String result = s + " + data1";
+    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<Object>(VISITOR, s);
+    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+      if (definition instanceof BondFixedSecurityDefinition) {
+        assertEquals(definition.accept(visitor), s);
+        assertEquals(definition.accept(visitor, ""), result);
+      } else {
+        assertEquals(definition.accept(visitor), definition.accept(VISITOR));
+        assertEquals(definition.accept(visitor, ""), definition.accept(VISITOR, ""));
+      }
+    }
+  }
 
-  private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
+  private static class BondFixedVisitor<T> extends InstrumentDefinitionVisitorDelegate<T, String> {
+    private final String _s;
+
+    public BondFixedVisitor(final InstrumentDefinitionVisitor<T, String> delegate, final String s) {
+      super(delegate);
+      _s = s;
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final T data) {
+      return _s + " + data1";
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond) {
+      return _s;
+    }
+
+  }
+
+  private static class MyVisitor<T> implements InstrumentDefinitionVisitor<T, String> {
 
     private String getValue(final InstrumentDefinition<?> definition, final boolean withData) {
       String result = definition.getClass().getSimpleName();
