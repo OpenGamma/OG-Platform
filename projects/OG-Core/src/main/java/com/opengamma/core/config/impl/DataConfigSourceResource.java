@@ -83,6 +83,9 @@ public class DataConfigSourceResource extends AbstractDataResource {
   }
 
   private FudgeMsg configItemResult(final ConfigItem<?> item) {
+    if (item == null) {
+      return null;
+    }
     final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(item), item.getClass(), ConfigItem.class);
   }
