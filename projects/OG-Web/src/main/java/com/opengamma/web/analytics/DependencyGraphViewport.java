@@ -7,8 +7,8 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ComputationCycleQuery;
+import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -74,8 +74,8 @@ public class DependencyGraphViewport implements AnalyticsViewport {
     ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName(_calcConfigName);
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
-    ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
-    cache.put(_calcConfigName, cacheResponse.getResults(), cycle.getDuration());
+    ComputationResultsResponse resultsResponse = cycle.queryResults(query);
+    cache.put(_calcConfigName, resultsResponse.getResults(), cycle.getDuration());
     List<ViewportResults.Cell> gridResults = _gridStructure.createResultsForViewport(_viewportDefinition,
                                                                                      cache,
                                                                                      _calcConfigName);

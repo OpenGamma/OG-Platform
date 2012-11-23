@@ -46,7 +46,7 @@ public class ViewportResultsJsonWriterTest {
   }
 
   private List<ViewportResults.Cell> createResults(Object value, List<Object> history) {
-    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, 0));
+    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, null, 0));
   }
 
   @Test

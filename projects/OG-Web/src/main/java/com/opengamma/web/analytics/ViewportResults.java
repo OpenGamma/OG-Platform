@@ -11,6 +11,7 @@ import java.util.List;
 import javax.time.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -86,7 +87,7 @@ public class ViewportResults {
   /**
    * @return The duration of the last calculation cycle.
    */
-  public Duration getCalculationDuration() {
+  /* package */ Duration getCalculationDuration() {
     return _calculationDuration;
   }
 
@@ -97,7 +98,7 @@ public class ViewportResults {
    */
   /* package */ static Cell stringCell(String value, int column) {
     ArgumentChecker.notNull(value, "value");
-    return new Cell(value, null, null, column, null, null);
+    return new Cell(value, null, null, column, null, null, null);
   }
 
   /**
@@ -107,8 +108,12 @@ public class ViewportResults {
    * @param history The value's history
    * @return A cell for displaying the value
    */
-  /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
-    return new Cell(value, valueSpecification, history, column, null, null);
+  /* package */ static Cell valueCell(Object value,
+                                      ValueSpecification valueSpecification,
+                                      Collection<Object> history,
+                                      ExecutionLog executionLog,
+                                      int column) {
+    return new Cell(value, valueSpecification, history, column, null, null, executionLog);
   }
 
   /**
@@ -119,15 +124,15 @@ public class ViewportResults {
    * @param colIndex Index of the cell's grid column
    */
   /* package */ static Cell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new Cell(null, null, emptyHistory, colIndex, null, null);
+    return new Cell(null, null, emptyHistory, colIndex, null, null, null);
   }
 
   /* package */ static Cell positionCell(String name, int colIndex, UniqueId positionId) {
-    return new Cell(name, null, null, colIndex, positionId, null);
+    return new Cell(name, null, null, colIndex, positionId, null, null);
   }
 
   /* package */ static Cell nodeCell(String name, int colIndex, UniqueId nodeId) {
-    return new Cell(name, null, null, colIndex, null, nodeId);
+    return new Cell(name, null, null, colIndex, null, nodeId, null);
   }
 
   @Override
@@ -180,19 +185,22 @@ public class ViewportResults {
     private final int _column;
     private final UniqueId _positionId;
     private final UniqueId _nodeId;
+    private final ExecutionLog _executionLog;
 
     private Cell(Object value,
                  ValueSpecification valueSpecification,
                  Collection<Object> history,
                  int column,
                  UniqueId positionId,
-                 UniqueId nodeId) {
+                 UniqueId nodeId,
+                 ExecutionLog executionLog) {
       _value = value;
       _valueSpecification = valueSpecification;
       _history = history;
       _column = column;
       _positionId = positionId;
       _nodeId = nodeId;
+      _executionLog = executionLog;
     }
 
     /**
@@ -233,6 +241,10 @@ public class ViewportResults {
 
     /* package */ UniqueId getNodeId() {
       return _nodeId;
+    }
+
+    /* package */ ExecutionLog getExecutionLog() {
+      return _executionLog;
     }
 
     @Override

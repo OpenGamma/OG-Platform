@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -94,31 +95,33 @@ public class DependencyGraphGridStructure implements GridStructure {
     List<ViewportResults.Cell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       int rowIndex = cell.getRow();
-      ResultsCache.Result cacheResult = cache.getResult(calcConfigName, _valueSpecs.get(rowIndex), null);
-      Object value = cacheResult.getValue();
       ValueSpecification spec = _valueSpecs.get(rowIndex);
+      ResultsCache.Result cacheResult = cache.getResult(calcConfigName, spec, null);
+      Collection<Object> history = cacheResult.getHistory();
+      Object value = cacheResult.getValue();
+      ExecutionLog executionLog = cacheResult.getExecutionLog();
       String fnName = _fnNames.get(rowIndex);
-      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, cache, calcConfigName));
+      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, history, executionLog));
     }
     return results;
   }
 
   /**
    * Builds a the result for a single grid cell.
+   *
    * @param colIndex Index of the column in the grid
    * @param valueSpec The specifications of the cell's value
    * @param fnName The name of the function that calculated the cell's value
    * @param value The cell's value
-   * @param cache Cache of results for the grid, used for building the history of values for the cell
-   * @param calcConfigName Calculation configuration used when calculating the dependency graph
+   * @param executionLog Log generated when the value was calculated
    * @return Cell containing the result and possibly history
    */
   /* package */ ViewportResults.Cell createValueForColumn(int colIndex,
                                                           ValueSpecification valueSpec,
                                                           String fnName,
                                                           Object value,
-                                                          ResultsCache cache,
-                                                          String calcConfigName) {
+                                                          Collection<Object> history,
+                                                          ExecutionLog executionLog) {
     switch (colIndex) {
       case TARGET_COL:
         return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
@@ -127,8 +130,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       case VALUE_NAME_COL:
         return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
       case VALUE_COL:
-        Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
-        return ViewportResults.valueCell(value, valueSpec, cellHistory, colIndex);
+        return ViewportResults.valueCell(value, valueSpec, history, executionLog, colIndex);
       case FN_NAME_COL:
         return ViewportResults.stringCell(fnName, colIndex);
       case PROPERTIES_COL:

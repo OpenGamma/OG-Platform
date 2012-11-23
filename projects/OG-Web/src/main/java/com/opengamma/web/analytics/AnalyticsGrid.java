@@ -28,10 +28,10 @@ import com.opengamma.util.tuple.Pair;
   private final String _callbackId;
 
   /**
-   * @param viewportListener
+   * @param viewportListener Listener for changes to this grid's viewports
    * @param callbackId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
    */
-  protected AnalyticsGrid(ViewportListener viewportListener, String callbackId) {
+  /* package */ AnalyticsGrid(ViewportListener viewportListener, String callbackId) {
     ArgumentChecker.notNull(viewportListener, "viewportListener");
     ArgumentChecker.notNull(callbackId, "callbackId");
     _viewportListener = viewportListener;
@@ -43,9 +43,9 @@ import com.opengamma.util.tuple.Pair;
    */
   public abstract GridStructure getGridStructure();
 
-  protected abstract ViewCycle getViewCycle();
+  /* package */ abstract ViewCycle getViewCycle();
 
-  protected abstract ResultsCache getResultsCache();
+  /* package */ abstract ResultsCache getResultsCache();
 
   /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
     V viewport = getViewport(viewportId);
@@ -61,7 +61,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The viewort
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  protected V getViewport(int viewportId) {
+  /* package */ V getViewport(int viewportId) {
     V viewport = _viewports.get(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);

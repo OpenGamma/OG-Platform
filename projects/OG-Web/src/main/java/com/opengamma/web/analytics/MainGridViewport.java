@@ -65,7 +65,11 @@ import com.opengamma.util.tuple.Pair;
           ValueSpecification valueSpec = cellTarget.getSecond();
           ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
           updated = updated || cacheResult.isUpdated();
-          results.add(ViewportResults.valueCell(cacheResult.getValue(), valueSpec, cacheResult.getHistory(), colIndex));
+          results.add(ViewportResults.valueCell(cacheResult.getValue(),
+                                                valueSpec,
+                                                cacheResult.getHistory(),
+                                                cacheResult.getExecutionLog(),
+                                                colIndex));
         } else {
           Collection<Object> emptyHistory = cache.emptyHistory(columnType);
           results.add(ViewportResults.emptyCell(emptyHistory, colIndex));
