@@ -44,6 +44,7 @@ public abstract class CreditDefaultSwapDefinition {
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
+  // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
 
