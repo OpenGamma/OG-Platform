@@ -22,22 +22,23 @@ $.register_module({
 
                 form.children.push(
                     new form.Block({
-                        module: 'og.blotter.forms.swap_quick_entry_tash',
+                        module: 'og.blotter.forms.block.swap_quick_entry_tash',
                         extras: {}
                     }),
                     new form.Block({
-                        module: 'og.blotter.forms.swap_details_tash',
+                        module: 'og.blotter.forms.block.swap_details_tash',
                         extras: {}
                     }),
                     new form.Block({
-                        module: 'og.blotter.forms.swap_details_fixed_tash',
+                        module: 'og.blotter.forms.block.swap_details_fixed_tash',
                         extras: {}
                     }) ,
                     new form.Block({
-                        module: 'og.blotter.forms.swap_details_floating_tash',
+                        module: 'og.blotter.forms.block.swap_details_floating_tash',
                         extras: {}
-                    })     
+                    })    
                 );
+
                 $('.OG-blotter-form-title').html(config.title);
                 form.dom();
             }; 
