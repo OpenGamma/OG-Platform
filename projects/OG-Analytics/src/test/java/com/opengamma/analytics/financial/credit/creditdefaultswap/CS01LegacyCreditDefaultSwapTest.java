@@ -390,7 +390,7 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testCS01CalculationParallelShift() {
 
     // -------------------------------------------------------------------------------------
@@ -459,6 +459,64 @@ public class CS01LegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   @Test
+  public void testCS01CalculationParallelShiftThreeTenors() {
+
+    // -------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      System.out.println("Running parallel CS01 calculation test ...");
+    }
+
+    // -------------------------------------------------------------------------------------
+
+    // Define the market data to calibrate to
+
+    // The type of spread bump to apply
+    final SpreadBumpType spreadBumpType = SpreadBumpType.ADDITIVE_PARALLEL;
+
+    // The number of CDS instruments used to calibrate against
+    final int numberOfCalibrationCDS = 3;
+
+    // The flat (unbumped) spread
+    final double flatSpread = 550.0;
+
+    // The magnitude (but not direction) of bump to apply (in bps)
+    final double spreadBump = 1.0;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
+    tenors[1] = DateUtils.getUTCDate(2015, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2018, 6, 20);
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    marketSpreads[0] = flatSpread;
+    marketSpreads[1] = flatSpread;
+    marketSpreads[2] = flatSpread;
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a CS01 calculator object
+    final CS01LegacyCreditDefaultSwap cs01 = new CS01LegacyCreditDefaultSwap();
+
+    // Compute the CS01 for a parallel shift
+    final double parallelCS01 = cs01.getCS01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
+
+    // -------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      System.out.println("CDS CS01 = " + parallelCS01);
+    }
+
+    // -------------------------------------------------------------------------------------
+  }
+
+  // -----------------------------------------------------------------------------------------------
+
+  // @Test
   public void testCS01CalculationBucketed() {
 
     // -------------------------------------------------------------------------------------

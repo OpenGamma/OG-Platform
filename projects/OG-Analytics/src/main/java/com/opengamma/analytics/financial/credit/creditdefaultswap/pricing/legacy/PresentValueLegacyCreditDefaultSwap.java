@@ -556,11 +556,11 @@ public class PresentValueLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector of time nodes for the hazard rate curve
-    final double[] times = new double[marketTenors.length];
+    final double[] times = new double[marketTenors.length + 1];
 
     times[0] = 0.0;
-    for (int m = 1; m < marketTenors.length; m++) {
-      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m]);
+    for (int m = 1; m <= marketTenors.length; m++) {
+      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m - 1]);
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -584,8 +584,16 @@ public class PresentValueLegacyCreditDefaultSwap {
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
 
+    double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
+
+    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
+
+    for (int m = 1; m < modifiedHazardRateCurve.length; m++) {
+      modifiedHazardRateCurve[m] = calibratedHazardRates[m - 1];
+    }
+
     // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, calibratedHazardRates, 0.0);
+    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

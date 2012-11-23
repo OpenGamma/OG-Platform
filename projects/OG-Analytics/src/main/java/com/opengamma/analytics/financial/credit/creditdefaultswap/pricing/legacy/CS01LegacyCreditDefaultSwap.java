@@ -110,6 +110,9 @@ public class CS01LegacyCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    //System.out.println(presentValue);
+    //System.out.println(bumpedPresentValue);
+
     // Calculate the parallel CS01
     final double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;
 
