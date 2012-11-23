@@ -20,8 +20,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing dates. 
- * Only the start and the end of the fixing period are described. The description is enough to construct curves from OIS and to price forward OIS but not 
+ * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing dates.
+ * Only the start and the end of the fixing period are described. The description is enough to construct curves from OIS and to price forward OIS but not
  * to describe and price OIS coupons for which some fixing already took place.
  */
 public class CouponOISSimplifiedDefinition extends CouponDefinition {
@@ -76,7 +76,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param settlementDate The coupon settlement date.
    * @param tenor The coupon tenor.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @param settlementDays The number of days between last fixing and the payment (also called spot lag).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The OIS coupon.
@@ -88,13 +88,13 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   /**
-   * Builder from the financial details.  The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index. 
+   * Builder from the financial details.  The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index.
    * The payment date is computed from the endFixingPeriodDate by moving backward by one day (overnight), then forward by the index publication lag and finally by the settlementDays days.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
    * @param endFixingPeriodDate The end date of the fixing period (also used for the end accrual date).
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag). 
+   * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag).
    * @return The OIS coupon.
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate,
@@ -195,11 +195,13 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOISSimplifiedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOISSimplifiedDefinition(this);
   }
 

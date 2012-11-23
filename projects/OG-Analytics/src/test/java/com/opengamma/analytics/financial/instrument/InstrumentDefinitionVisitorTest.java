@@ -11,6 +11,8 @@
 package com.opengamma.analytics.financial.instrument;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
@@ -85,7 +87,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
- * Class testing the Fixed income instrument definition visitor.
+ * Class testing the instrument definition visitor.
  */
 public class InstrumentDefinitionVisitorTest {
 
@@ -93,7 +95,7 @@ public class InstrumentDefinitionVisitorTest {
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
 
   @Test
-  public void test() {
+  public void testVisitMethodsImplemented() {
     final Object o = "G";
     final String s = " + data";
     int count = 0;
@@ -102,8 +104,21 @@ public class InstrumentDefinitionVisitorTest {
       assertEquals(definition.accept(VISITOR, o), definition.getClass().getSimpleName() + s);
       count += 2;
     }
-    //assertEquals("Have not tested all methods - need to make sure that the accept() method in the definition points to the correct method in the visitor:", InstrumentDefinitionVisitor.class.getMethods().length, count);
+    assertTrue("Have not tested all methods - need to make sure that the accept() method in the definition points to the correct method in the visitor:",
+        InstrumentDefinitionVisitor.class.getMethods().length <= count);
   }
+
+  @Test
+  public void testNullVisitor() {
+    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+      try {
+        definition.accept(null);
+        fail();
+      } catch (final IllegalArgumentException e) {
+      }
+    }
+  }
+
 
   private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
 
