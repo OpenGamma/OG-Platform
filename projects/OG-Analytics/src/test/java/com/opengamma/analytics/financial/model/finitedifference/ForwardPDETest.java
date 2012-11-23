@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
@@ -16,20 +14,14 @@ import com.opengamma.analytics.financial.model.finitedifference.applications.Ini
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
@@ -198,30 +190,6 @@ public class ForwardPDETest {
   }
 
   @Test
-  public void deleteMeTest() {
-    final double spot = 10.0;
-    final double strike = 47.0;
-    final double r = 0.1;
-    final double y = 0.0;
-    final double vol = 0.3;
-    final double exp = 0.0475;
-    final double df = Math.exp(-r * exp);
-    final double fwd = spot / df;
-    final double price = 7.8609e-23;
-
-    final double iv = BlackFormulaRepository.impliedVolatility(price / df, fwd, strike, exp, ISCALL);
-    System.out.println(iv);
-
-    System.out.println(BlackFormulaRepository.price(fwd, strike, exp, vol, true) * df);
-    System.out.println(BlackFormulaRepository.price(fwd, strike, exp, iv, true) * df);
-
-    double x1 = 1e-24;
-    double x2 = 1 - x1;
-    double x3 = 1 - x2;
-    System.out.println(x1 + "\t" + x2 + "\t" + x3);
-  }
-
-  @Test
   public void flatVolTest() {
 
     final double spot = 10.0;
@@ -272,13 +240,13 @@ public class ForwardPDETest {
     //
     //    System.out.println("debug " + grid.getSpaceNode(1) + "\t" + price[1][1] + "\t" + res.getFunctionValue(1, 1) + "\t" + iv);
 
-    PDEUtilityTools.printSurface("PDE res", res);
-    PDEUtilityTools.printSurface("call price", price, grid.getSpaceNodes(), grid.getTimeNodes(), System.out);
-
-    Map<DoublesPair, Double> iv = PDEUtilityTools.priceToImpliedVol(new ForwardCurve(spot, r), new YieldCurve("", ConstantDoublesCurve.from(r)), res, 0, 2.0, 0.0, mult * spot);
-    GridInterpolator2D gridIn = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE);
-    Map<Double, Interpolator1DDataBundle> idb = gridIn.getDataBundle(iv);
-    PDEUtilityTools.printSurface("iv", idb, 0.1, 2.0, 0.7, 3 * spot, 100, 100);
+    //    PDEUtilityTools.printSurface("PDE res", res);
+    //    PDEUtilityTools.printSurface("call price", price, grid.getSpaceNodes(), grid.getTimeNodes(), System.out);
+    //
+    //    Map<DoublesPair, Double> iv = PDEUtilityTools.priceToImpliedVol(new ForwardCurve(spot, r), new YieldCurve("", ConstantDoublesCurve.from(r)), res, 0, 2.0, 0.0, mult * spot);
+    //    GridInterpolator2D gridIn = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE);
+    //    Map<Double, Interpolator1DDataBundle> idb = gridIn.getDataBundle(iv);
+    //    PDEUtilityTools.printSurface("iv", idb, 0.1, 2.0, 0.7, 3 * spot, 100, 100);
   }
 
   private ConvectionDiffusionPDE1DStandardCoefficients getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol) {

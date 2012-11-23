@@ -169,15 +169,6 @@ public class BarrierOptionPricer {
     //for now just do linear interpolation on price. TODO replace this with something more robust 
     final double[] xNodes = grid.getSpaceNodes();
 
-    //************************************************
-    //debug
-    System.out.println("DEBUG: BarrierOptionPricer");
-    for (int i = 0; i < _nXNodes; i++) {
-      System.out.println(xNodes[i] + "\t" + res.getFunctionValue(i));
-    }
-    System.out.println("DEBUG: BarrierOptionPricer");
-    //************************************************
-
     final int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, spot);
     final double w = (xNodes[index + 1] - spot) / (xNodes[index + 1] - xNodes[index]);
     return w * res.getFunctionValue(index) + (1 - w) * res.getFunctionValue(index + 1);
