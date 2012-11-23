@@ -25,6 +25,11 @@ import com.opengamma.OpenGammaRuntimeException;
  *  <code>key = value</code> defines a single config element within a group<br>
  *  the "global" group is used to add keys to the set of properties used for replacement<br>
  *  Everything is trimmed as necessary.
+ *  <p>
+ *  The specified properties are used in two ways.
+ *  Firstly, they are used to substitute sections that have defined the '<code>${key}</code>' notation.
+ *  Secondly, they can directly override properties in an INI group, if the property has a
+ *  key of the format '{@code [group].key}'.
  */
 public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
 
