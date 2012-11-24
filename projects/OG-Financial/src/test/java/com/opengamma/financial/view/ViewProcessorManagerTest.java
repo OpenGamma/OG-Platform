@@ -46,7 +46,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test the ViewProcessorManager class.
@@ -67,7 +66,7 @@ public class ViewProcessorManagerTest {
 
         @Override
         public void init(final FunctionCompilationContext context) {
-          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), Pair.of(UniqueId.of("Test", "Watched").getObjectId(), VersionCorrection.LATEST));
+          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), ObjectId.of("Test", "Watched"));
         }
 
       });
@@ -205,7 +204,7 @@ public class ViewProcessorManagerTest {
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Unwatched"), null, null, Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Watched"), null, null, Instant.now()));
     }
   }
 

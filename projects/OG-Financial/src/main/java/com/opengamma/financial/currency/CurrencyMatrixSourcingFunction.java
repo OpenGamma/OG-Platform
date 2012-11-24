@@ -30,7 +30,6 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
@@ -119,7 +118,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(this, Pair.of(matrix.getUniqueId().getObjectId(), VersionCorrection.LATEST));
+        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId().getObjectId());
       }
     }
   }

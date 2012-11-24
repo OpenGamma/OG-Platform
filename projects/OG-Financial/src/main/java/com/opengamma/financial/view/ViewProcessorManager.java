@@ -36,7 +36,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Manages a set of view processors that share common resources, making system configuration appear atomic to them.
@@ -56,7 +55,7 @@ public class ViewProcessorManager implements Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
   private final ExecutorService _executor = Executors.newCachedThreadPool();
-  private final Set<Pair<ObjectId, VersionCorrection>> _watchSet = new HashSet<Pair<ObjectId, VersionCorrection>>();
+  private final Set<ObjectId> _watchSet = new HashSet<ObjectId>();
   private final Set<WatchSetProvider> _watchSetProviders = new HashSet<WatchSetProvider>();
   private boolean _isRunning;
 
@@ -153,7 +152,7 @@ public class ViewProcessorManager implements Lifecycle {
         }
         s_logger.info("Initializing functions");
         for (CompiledFunctionService function : _functions) {
-          final Set<Pair<ObjectId, VersionCorrection>> watch = function.initialize();
+          final Set<ObjectId> watch = function.initialize();
           _watchSet.addAll(watch);
           addAlternateWatchSet(watch);
         }
@@ -251,7 +250,7 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        final Set<Pair<ObjectId, VersionCorrection>> watch = functions.reinitialize();
+        final Set<ObjectId> watch = functions.reinitialize();
         _watchSet.addAll(watch);
         addAlternateWatchSet(watch);
       }
@@ -266,9 +265,9 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void addAlternateWatchSet(final Set<Pair<ObjectId, VersionCorrection>> watchSet) {
+  private void addAlternateWatchSet(final Set<ObjectId> watchSet) {
     for (WatchSetProvider provider : _watchSetProviders) {
-      final Set<Pair<ObjectId, VersionCorrection>> additional = provider.getAdditionalWatchSet(watchSet);
+      final Set<ObjectId> additional = provider.getAdditionalWatchSet(watchSet);
       if (additional != null) {
         _watchSet.addAll(additional);
       }
