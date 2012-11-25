@@ -14,6 +14,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Set;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
@@ -90,6 +92,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
  * Class testing the instrument definition visitor.
  */
 public class InstrumentDefinitionVisitorTest {
+  private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = TestInstrumentDefinitions.getAllInstruments();
   private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -102,7 +105,7 @@ public class InstrumentDefinitionVisitorTest {
     final Object o = "G";
     final String s = " + data";
     int count = 0;
-    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
       assertEquals(definition.accept(VISITOR), definition.getClass().getSimpleName());
       assertEquals(definition.accept(VISITOR, o), definition.getClass().getSimpleName() + s);
       count += 2;
@@ -113,7 +116,7 @@ public class InstrumentDefinitionVisitorTest {
 
   @Test
   public void testNullVisitor() {
-    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
       try {
         definition.accept(null);
         fail();
@@ -127,7 +130,7 @@ public class InstrumentDefinitionVisitorTest {
     final String s = "aaaa";
     final String result = s + " + data1";
     final BondFixedVisitor<Object> visitor = new BondFixedVisitor<Object>(VISITOR, s);
-    for (final InstrumentDefinition<?> definition : TestInstrumentDefinitions.getAllInstruments()) {
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
       if (definition instanceof BondFixedSecurityDefinition) {
         assertEquals(definition.accept(visitor), s);
         assertEquals(definition.accept(visitor, ""), result);
@@ -136,6 +139,78 @@ public class InstrumentDefinitionVisitorTest {
         assertEquals(definition.accept(visitor, ""), definition.accept(VISITOR, ""));
       }
     }
+  }
+
+  @Test
+  public void testAdapter() {
+    final DummyVisitor visitor = new DummyVisitor();
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      try {
+        definition.accept(visitor);
+        fail();
+      } catch (final UnsupportedOperationException e) {
+      }
+    }
+
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      try {
+        definition.accept(visitor, "");
+        fail();
+      } catch (final UnsupportedOperationException e) {
+      }
+    }
+
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      try {
+        definition.accept(visitor, null);
+        fail();
+      } catch (final UnsupportedOperationException e) {
+      }
+    }
+  }
+
+  @Test
+  public void testSameValueAdapter() {
+    final Double value = Math.PI;
+    final InstrumentDefinitionVisitor<Double, Double> visitor = new InstrumentDefinitionVisitorSameValueAdapter<Double, Double>(value);
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      assertEquals(value, definition.accept(visitor));
+      assertEquals(value, definition.accept(visitor, Math.E));
+    }
+  }
+
+  @Test
+  public void testSameMethodAdapter() {
+    final String data = "qwerty";
+    final InstrumentDefinitionVisitor<String, String> visitor = new SameMethodAdapter();
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      final String simpleName = definition.getClass().getSimpleName();
+      assertEquals(simpleName, definition.accept(visitor));
+      assertEquals(definition.getClass().getSimpleName() + data, definition.accept(visitor, data));
+    }
+  }
+
+  private static class DummyVisitor extends InstrumentDefinitionVisitorAdapter<Object, Object> {
+
+    public DummyVisitor() {
+    }
+  }
+
+  private static class SameMethodAdapter extends InstrumentDefinitionVisitorSameMethodAdapter<String, String> {
+
+    public SameMethodAdapter() {
+    }
+
+    @Override
+    public String visit(final InstrumentDefinition<?> instrument) {
+      return instrument.getClass().getSimpleName();
+    }
+
+    @Override
+    public String visit(final InstrumentDefinition<?> instrument, final String data) {
+      return instrument.getClass().getSimpleName() + data;
+    }
+
   }
 
   private static class BondFixedVisitor<T> extends InstrumentDefinitionVisitorDelegate<T, String> {
@@ -159,6 +234,9 @@ public class InstrumentDefinitionVisitorTest {
   }
 
   private static class MyVisitor<T> implements InstrumentDefinitionVisitor<T, String> {
+
+    public MyVisitor() {
+    }
 
     private String getValue(final InstrumentDefinition<?> definition, final boolean withData) {
       String result = definition.getClass().getSimpleName();
