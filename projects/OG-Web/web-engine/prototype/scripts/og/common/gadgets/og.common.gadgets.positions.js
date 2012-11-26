@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.positions',
     dependencies: [],
     obj: function () {
-        var prefix = 'og_data_gadget_', counter = 1, dependencies = ['id', 'node', 'version'],
+        var dependencies = ['id', 'node', 'version'],
             common = og.common, views = og.views, routes = common.routes, api = og.api,
             format_trades = og.common.gadgets.trades.format;
         /**
@@ -33,7 +33,8 @@ $.register_module({
             return '<a href="' + url + '">' + $(this).text() + '</a>'
         };
         return function (config) {
-            var gadget = this, alive = prefix + counter++, current_page = routes.current().page.substring(1);
+            var gadget = this, alive = og.common.id('gadget_position'),
+                current_page = routes.current().page.substring(1);
             gadget.alive = function () {return $('.' + alive).length ? true : false;};
             gadget.resize = function () {gadget.load();};
             gadget.load = function () {

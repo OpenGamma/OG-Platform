@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24,
+        var module = this, row_height = 21, title_height = 31, set_height = 24,
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -75,7 +75,7 @@ $.register_module({
             grid.config = config || {};
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.formatter = new og.analytics.Formatter(grid);
-            grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
+            grid.id = '#' + og.common.id('grid');
             grid.meta = null;
             grid.source = config.source;
             grid.updated = (function (last, delta) {

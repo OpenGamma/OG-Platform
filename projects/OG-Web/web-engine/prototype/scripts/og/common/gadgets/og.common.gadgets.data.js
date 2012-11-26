@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.Data',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var module = this, prefix = 'og_data_gadget_', counter = 1, loading_template;
+        var module = this, loading_template;
         return function (config) {
-            var gadget = this, instantiated = false, alive = prefix + counter++,
+            var gadget = this, instantiated = false, alive = og.common.id('gadget_data'),
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, $data_grid;
             gadget.alive = function () {return $(config.selector).length ? true : (gadget.die(), false);};
             gadget.load = function () {

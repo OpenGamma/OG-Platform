@@ -14,6 +14,7 @@ $.register_module({
          */
         keyboard = {
             'A': 'OG-JS-analytics',
+            'B': 'OG-JS-blotter',
             'P': 'OG-JS-portfolio',
             'S': 'OG-JS-securities',
             'E': 'OG-JS-exchanges',
@@ -30,7 +31,6 @@ $.register_module({
                 $('.og-icon-header-dropdown').parent().hover(function () {
                     $(this).addClass('open').find('.og-dd-menu').show();
                 });
-
                 /*
                  * TODO: Add in delay
                  */
