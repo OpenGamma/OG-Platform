@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 
@@ -48,16 +50,17 @@ public class BaroneAdesiWhaleyModelTest {
         for (int k = 0; k < COM_PRICES.length; k++) {
           double call = baw.price(COM_PRICES[k], STRIKE, R, B, EXPIRIES[i], VOLS[j], true);
           double put = baw.price(COM_PRICES[k], STRIKE, R, B, EXPIRIES[i], VOLS[j], false);
-          assertEquals("", CALL_PRICES[i][j][k], call, 3e-3); //these should be 1e-4
-          assertEquals("", PUT_PRICES[i][j][k], put, 1e-3);
+          assertEquals("call", CALL_PRICES[i][j][k], call, 3e-3); //these should be 1e-4
+          assertEquals("put", PUT_PRICES[i][j][k], put, 1e-3);
         }
       }
     }
 
   }
 
-  @Test(enabled = false)
-  public void test() {
+  @Test
+      (enabled = false)
+      public void test() {
 
     final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
 
@@ -73,6 +76,8 @@ public class BaroneAdesiWhaleyModelTest {
     final double bsprice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, isCall);
     System.out.println(bawPrice + " " + bsprice);
 
+    double impVol = baw.impliedVolatility(bawPrice, s0, k, r, b, t, isCall);
+    System.out.println(impVol);
   }
 
   @Test
@@ -86,42 +91,44 @@ public class BaroneAdesiWhaleyModelTest {
     final double r = 0.1;
     final double b = -0.03;
     final double sigma = 0.35;
-    final boolean isCall = true;
+
     final double eps = 1e-5;
 
-    //delta
-    final double sUp = baw.sCrit(s0 + eps, k, r, b, t, sigma, isCall);
-    final double sDown = baw.sCrit(s0 - eps, k, r, b, t, sigma, isCall);
-    final double fdDelta = (sUp - sDown) / 2 / eps;
-    assertEquals("delta", 0.0, fdDelta, 0.0); //sCrit has no dependence on s0
+    for (int i = 0; i < 2; i++) {
+      boolean isCall = i == 0;
+      //delta
+      final double sUp = baw.sCrit(s0 + eps, k, r, b, t, sigma, isCall);
+      final double sDown = baw.sCrit(s0 - eps, k, r, b, t, sigma, isCall);
+      final double fdDelta = (sUp - sDown) / 2 / eps;
+      assertEquals("delta", 0.0, fdDelta, 0.0); //sCrit has no dependence on s0
 
-    double[] sCAdj = baw.getsCritAdjoint(s0, k, r, b, t, sigma, isCall);
-    //dual-delta  
-    final double kUp = baw.sCrit(s0, k + eps, r, b, t, sigma, isCall);
-    final double kDown = baw.sCrit(s0, k - eps, r, b, t, sigma, isCall);
-    final double fdDD = (kUp - kDown) / 2 / eps;
-    assertEquals("dual-delta", sCAdj[0], fdDD, 1e-8);
-    //rho  
-    final double rUp = baw.sCrit(s0, k, r + eps, b, t, sigma, isCall);
-    final double rDown = baw.sCrit(s0, k, r - eps, b, t, sigma, isCall);
-    final double fdRho = (rUp - rDown) / 2 / eps;
-    assertEquals("rho", sCAdj[1], fdRho, 1e-5);
-    //b-rho  
-    final double bUp = baw.sCrit(s0, k, r, b + eps, t, sigma, isCall);
-    final double bDown = baw.sCrit(s0, k, r, b - eps, t, sigma, isCall);
-    final double fdBRho = (bUp - bDown) / 2 / eps;
-    assertEquals("b-rho", sCAdj[2], fdBRho, 1e-4);
-    //theta  
-    final double tUp = baw.sCrit(s0, k, r, b, t + eps, sigma, isCall);
-    final double tDown = baw.sCrit(s0, k, r, b, t - eps, sigma, isCall);
-    final double fdTheta = (tUp - tDown) / 2 / eps;
-    assertEquals("theta", sCAdj[3], fdTheta, 1e-6);
-    //vega  
-    final double volUp = baw.sCrit(s0, k, r, b, t, sigma + eps, isCall);
-    final double volDown = baw.sCrit(s0, k, r, b, t, sigma - eps, isCall);
-    final double fdVega = (volUp - volDown) / 2 / eps;
-    assertEquals("vega", sCAdj[4], fdVega, 1e-5);
-
+      double[] sCAdj = baw.getsCritAdjoint(s0, k, r, b, t, sigma, isCall);
+      //dual-delta  
+      final double kUp = baw.sCrit(s0, k + eps, r, b, t, sigma, isCall);
+      final double kDown = baw.sCrit(s0, k - eps, r, b, t, sigma, isCall);
+      final double fdDD = (kUp - kDown) / 2 / eps;
+      assertEquals("dual-delta", sCAdj[0], fdDD, 1e-7);
+      //rho  
+      final double rUp = baw.sCrit(s0, k, r + eps, b, t, sigma, isCall);
+      final double rDown = baw.sCrit(s0, k, r - eps, b, t, sigma, isCall);
+      final double fdRho = (rUp - rDown) / 2 / eps;
+      assertEquals("rho", sCAdj[1], fdRho, 1e-5);
+      //b-rho  
+      final double bUp = baw.sCrit(s0, k, r, b + eps, t, sigma, isCall);
+      final double bDown = baw.sCrit(s0, k, r, b - eps, t, sigma, isCall);
+      final double fdBRho = (bUp - bDown) / 2 / eps;
+      assertEquals("b-rho", sCAdj[2], fdBRho, 1e-4);
+      //theta  
+      final double tUp = baw.sCrit(s0, k, r, b, t + eps, sigma, isCall);
+      final double tDown = baw.sCrit(s0, k, r, b, t - eps, sigma, isCall);
+      final double fdTheta = (tUp - tDown) / 2 / eps;
+      assertEquals("theta", sCAdj[3], fdTheta, 1e-6);
+      //vega  
+      final double volUp = baw.sCrit(s0, k, r, b, t, sigma + eps, isCall);
+      final double volDown = baw.sCrit(s0, k, r, b, t, sigma - eps, isCall);
+      final double fdVega = (volUp - volDown) / 2 / eps;
+      assertEquals("vega", sCAdj[4], fdVega, 1e-5);
+    }
   }
 
   @Test
@@ -135,35 +142,38 @@ public class BaroneAdesiWhaleyModelTest {
     final double r = 0.1;
     final double b = 0.07;
     final double sigma = 0.35;
-    final boolean isCall = true;
 
-    double[] greeks = baw.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
     final double eps = 1e-5;
 
-    final double sUp = baw.price(s0 + eps, k, r, b, t, sigma, isCall);
-    final double sDown = baw.price(s0 - eps, k, r, b, t, sigma, isCall);
-    final double fdDelta = (sUp - sDown) / 2 / eps;
-    assertEquals("delta", greeks[0], fdDelta, 1e-9);
-    final double kUp = baw.price(s0, k + eps, r, b, t, sigma, isCall);
-    final double kDown = baw.price(s0, k - eps, r, b, t, sigma, isCall);
-    final double fdDD = (kUp - kDown) / 2 / eps;
-    assertEquals("dual-delta", greeks[1], fdDD, 1e-9);
-    final double rUp = baw.price(s0, k, r + eps, b, t, sigma, isCall);
-    final double rDown = baw.price(s0, k, r - eps, b, t, sigma, isCall);
-    final double fdRho = (rUp - rDown) / 2 / eps;
-    assertEquals("rho", greeks[2], fdRho, 1e-7);
-    final double bUp = baw.price(s0, k, r, b + eps, t, sigma, isCall);
-    final double bDown = baw.price(s0, k, r, b - eps, t, sigma, isCall);
-    final double fdBRho = (bUp - bDown) / 2 / eps;
-    assertEquals("b-rho", greeks[3], fdBRho, 1e-7);
-    final double tUp = baw.price(s0, k, r, b, t + eps, sigma, isCall);
-    final double tDown = baw.price(s0, k, r, b, t - eps, sigma, isCall);
-    final double fdTheta = (tUp - tDown) / 2 / eps;
-    assertEquals("theta", greeks[4], fdTheta, 1e-9);
-    final double volUp = baw.price(s0, k, r, b, t, sigma + eps, isCall);
-    final double volDown = baw.price(s0, k, r, b, t, sigma - eps, isCall);
-    final double fdVega = (volUp - volDown) / 2 / eps;
-    assertEquals("vega", greeks[5], fdVega, 1e-8);
+    for (int i = 0; i < 2; i++) {
+      boolean isCall = i == 0;
+      double[] greeks = baw.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
+
+      final double sUp = baw.price(s0 + eps, k, r, b, t, sigma, isCall);
+      final double sDown = baw.price(s0 - eps, k, r, b, t, sigma, isCall);
+      final double fdDelta = (sUp - sDown) / 2 / eps;
+      assertEquals("delta", greeks[0], fdDelta, 1e-9);
+      final double kUp = baw.price(s0, k + eps, r, b, t, sigma, isCall);
+      final double kDown = baw.price(s0, k - eps, r, b, t, sigma, isCall);
+      final double fdDD = (kUp - kDown) / 2 / eps;
+      assertEquals("dual-delta", greeks[1], fdDD, 1e-9);
+      final double rUp = baw.price(s0, k, r + eps, b, t, sigma, isCall);
+      final double rDown = baw.price(s0, k, r - eps, b, t, sigma, isCall);
+      final double fdRho = (rUp - rDown) / 2 / eps;
+      assertEquals("rho", greeks[2], fdRho, 1e-7);
+      final double bUp = baw.price(s0, k, r, b + eps, t, sigma, isCall);
+      final double bDown = baw.price(s0, k, r, b - eps, t, sigma, isCall);
+      final double fdBRho = (bUp - bDown) / 2 / eps;
+      assertEquals("b-rho", greeks[3], fdBRho, 1e-7);
+      final double tUp = baw.price(s0, k, r, b, t + eps, sigma, isCall);
+      final double tDown = baw.price(s0, k, r, b, t - eps, sigma, isCall);
+      final double fdTheta = (tUp - tDown) / 2 / eps;
+      assertEquals("theta", greeks[4], fdTheta, 1e-9);
+      final double volUp = baw.price(s0, k, r, b, t, sigma + eps, isCall);
+      final double volDown = baw.price(s0, k, r, b, t, sigma - eps, isCall);
+      final double fdVega = (volUp - volDown) / 2 / eps;
+      assertEquals("vega", greeks[5], fdVega, 1e-8);
+    }
   }
 
   /**
@@ -186,6 +196,55 @@ public class BaroneAdesiWhaleyModelTest {
       double ccprice = baw.price(k, s0, r - b, -b, t, sigma, false); //price the call as a put
       assertEquals("strike " + k, cprice, ccprice, 1e-3);
 
+    }
+
+  }
+
+  @Test
+  public void impliedVolTest() {
+
+    final double s0 = 110;
+    final double t = 0.5;
+    final double r = 0.1;
+    final double b = 0.07;
+    final double sigma = 0.35;
+    final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
+
+    for (int j = 0; j < 2; j++) {
+      boolean isCall = j == 0;
+      for (int i = 0; i < 10; i++) {
+        double k = 80 + 50 * i / 9.;
+        double p = baw.price(s0, k, r, b, t, sigma, isCall);
+        Function1D<Double, double[]> func = baw.getPriceAndVegaFunction(s0, k, r, b, t, isCall);
+        double vol = GenericImpliedVolatiltySolver.impliedVolatility(p, func);
+        assertEquals("k = " + k, sigma, vol, 1e-9);
+      }
+    }
+
+  }
+
+  @Test
+  public void impliedVol2Test() {
+
+    final double s0 = 110;
+
+    final double t = 0.5;
+    final double r = 0.1;
+    final double b = 0.07;
+    final double sigma = 0.35;
+    final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
+    final double fwd = s0 * Math.exp(b * t);
+    final double df = Math.exp(-r * t);
+
+    for (int j = 0; j < 2; j++) {
+      boolean isCall = j == 0;
+      for (int i = 0; i < 50; i++) {
+        double k = 75 + 80 * i / 49.;
+        double fp = baw.price(s0, k, r, b, t, sigma, isCall) / df;
+        double biv = BlackFormulaRepository.impliedVolatility(fp, fwd, k, t, isCall);
+        System.out.println(k + "\t" + biv);
+      }
+      System.out.println();
     }
 
   }
