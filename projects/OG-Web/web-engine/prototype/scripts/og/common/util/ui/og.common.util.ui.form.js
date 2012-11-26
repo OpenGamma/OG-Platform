@@ -198,7 +198,6 @@ $.register_module({
             form.parent.on(type, delegator.bind(form));
             return origin;
         };
-        Form.prototype.template = null; // reset back to null because it got set to false in Block
         /**
          * collection of meta type information for creating metadata to describe config objects for REST API
          * @name Form.type

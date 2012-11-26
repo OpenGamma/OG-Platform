@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Block',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
+        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text, has = 'hasOwnProperty';
         /** @private */
         var template_gen = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
         /**
@@ -28,7 +28,8 @@ $.register_module({
             var block = this, config = block.config = config || {};
             block.children = config.children || [];
             block.form = form;
-            if (block.template === null) $.when(config.module ? api_text({module: config.module}) : void 0)
+            if (!block[has]('template')) block.template = block.template || null; // if falsey, create instance variable
+            if (!block.template) $.when(config.module ? api_text({module: config.module}) : void 0)
                 .then(function (result) {block.template = template_gen(config.module, result);});
         };
         /**

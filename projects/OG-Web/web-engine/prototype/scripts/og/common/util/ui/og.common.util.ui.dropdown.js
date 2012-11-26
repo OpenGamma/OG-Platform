@@ -60,7 +60,6 @@ $.register_module({
             var block = this, args = Array.prototype.slice.call(arguments, 1), type = arguments[0];
             return Block.prototype.on.apply(block, [type, '#' + block.id].concat(args));
         };
-        Dropdown.prototype.template = null; // reset back to null because it got set to false in Block
         return Dropdown;
     }
 });
