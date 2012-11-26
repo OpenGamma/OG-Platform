@@ -106,7 +106,7 @@ $.register_module({
         };
         /** @ignore */
         Block.prototype.process = function (data, errors) {
-            var block = this, process = block.config.procesor;
+            var block = this, processor = block.config.processor;
             block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
             try {if (processor) processor(data);} catch (error) {errors.push(error);}
         };

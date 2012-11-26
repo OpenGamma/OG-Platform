@@ -36,7 +36,7 @@ $.register_module({
             block.on('form:load', function () {
                 $rules = $('#' + id + ' .og-js-res-rule-holder');
                 $rule = $('#' + id + ' .og-js-res-rule').remove();
-                Object.keys(data).forEach(function (rule) {if (rule !== '0') render_rule(rule, data[rule]);});
+                if (data) Object.keys(data).forEach(function (rule) {if (rule !== '0') render_rule(rule, data[rule]);});
             }).on('click', '#' + id + ' .og-js-add-rule', function () {
                 return render_rule('', null), false;
             }).on('click', '#' + id + ' .og-js-rem-rule', function (event) {
