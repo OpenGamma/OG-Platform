@@ -136,16 +136,21 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private FunctionBlacklist _compilationBlacklist;
+  /**
+   * The permissive behavior flag.
+   */
+  @PropertyDefinition
+  private boolean _permissive;
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     initFunctionCompilationContext(repo, configuration);
-    OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
+    final OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
     initFunctionExecutionContext(repo, configuration, ooc);
   }
 
-  protected void initFunctionCompilationContext(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected void initFunctionCompilationContext(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
@@ -167,19 +172,20 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     if (getExecutionBlacklist() != null) {
       context.setGraphExecutionBlacklist(new DefaultFunctionBlacklistQuery(getExecutionBlacklist()));
     }
-    ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
+    OpenGammaCompilationContext.setPermissive(context, isPermissive());
+    final ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
 
-  protected OverrideOperationCompiler initOverrideOperationCompiler(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
+  protected OverrideOperationCompiler initOverrideOperationCompiler(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
 
-    ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
     repo.registerComponent(info, ooc);
     return ooc;
   }
 
-  protected void initFunctionExecutionContext(ComponentRepository repo, LinkedHashMap<String, String> configuration, OverrideOperationCompiler ooc) {
+  protected void initFunctionExecutionContext(final ComponentRepository repo, final LinkedHashMap<String, String> configuration, final OverrideOperationCompiler ooc) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
@@ -190,7 +196,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
-    ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
 
@@ -249,6 +255,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getExecutionBlacklist();
       case 1210914458:  // compilationBlacklist
         return getCompilationBlacklist();
+      case -517618017:  // permissive
+        return isPermissive();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -307,6 +315,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case 1210914458:  // compilationBlacklist
         setCompilationBlacklist((FunctionBlacklist) newValue);
         return;
+      case -517618017:  // permissive
+        setPermissive((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -355,6 +366,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
           JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
           JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
+          JodaBeanUtils.equal(isPermissive(), other.isPermissive()) &&
           super.equals(obj);
     }
     return false;
@@ -380,6 +392,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPermissive());
     return hash ^ super.hashCode();
   }
 
@@ -825,6 +838,31 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the permissive behavior flag.
+   * @return the value of the property
+   */
+  public boolean isPermissive() {
+    return _permissive;
+  }
+
+  /**
+   * Sets the permissive behavior flag.
+   * @param permissive  the new value of the property
+   */
+  public void setPermissive(boolean permissive) {
+    this._permissive = permissive;
+  }
+
+  /**
+   * Gets the the {@code permissive} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> permissive() {
+    return metaBean().permissive().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EngineContextsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -919,6 +957,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FunctionBlacklist> _compilationBlacklist = DirectMetaProperty.ofReadWrite(
         this, "compilationBlacklist", EngineContextsComponentFactory.class, FunctionBlacklist.class);
     /**
+     * The meta-property for the {@code permissive} property.
+     */
+    private final MetaProperty<Boolean> _permissive = DirectMetaProperty.ofReadWrite(
+        this, "permissive", EngineContextsComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -939,7 +982,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesSource",
         "historicalTimeSeriesResolver",
         "executionBlacklist",
-        "compilationBlacklist");
+        "compilationBlacklist",
+        "permissive");
 
     /**
      * Restricted constructor.
@@ -984,6 +1028,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _executionBlacklist;
         case 1210914458:  // compilationBlacklist
           return _compilationBlacklist;
+        case -517618017:  // permissive
+          return _permissive;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1138,6 +1184,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<FunctionBlacklist> compilationBlacklist() {
       return _compilationBlacklist;
+    }
+
+    /**
+     * The meta-property for the {@code permissive} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> permissive() {
+      return _permissive;
     }
 
   }

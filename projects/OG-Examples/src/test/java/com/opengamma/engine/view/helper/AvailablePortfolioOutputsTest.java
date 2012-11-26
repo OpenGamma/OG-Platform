@@ -128,8 +128,12 @@ public class AvailablePortfolioOutputsTest {
 
   private static void assertSwapPortfolioOutputs(final AvailableOutputs outputs) {
     assertPositionOutput(outputs, "SWAP", "Par Rate");
+    assertPositionOutput(outputs, "SWAP", "Par Rate Curve Sensitivity");
+    assertPositionOutput(outputs, "SWAP", "Par Rate Parallel Shift Sensitivity");
+    assertPositionOutput(outputs, "SWAP", "P&L Series");
     assertPositionOutput(outputs, "SWAP", "Present Value");
     assertPositionOutput(outputs, "SWAP", "PV01");
+    assertPositionOutput(outputs, "SWAP", "Value");
     assertPositionOutput(outputs, "SWAP", "Yield Curve Node Sensitivities");
   }
 
@@ -140,11 +144,22 @@ public class AvailablePortfolioOutputsTest {
 
   private static void assertMixedExamplePortfolioOutputs(final AvailableOutputs outputs) {
     assertPositionOutput(outputs, "SWAP", "Par Rate");
+    assertPositionOutput(outputs, "SWAP", "Par Rate Curve Sensitivity");
+    assertPositionOutput(outputs, "SWAP", "Par Rate Parallel Shift Sensitivity");
     assertPositionOutput(outputs, "SWAP", "Present Value");
     assertPositionOutput(outputs, "SWAP", "PV01");
+    assertPositionOutput(outputs, "SWAP", "Value");
     assertPositionOutput(outputs, "SWAP", "Yield Curve Node Sensitivities");
     assertPositionOutput(outputs, "SWAPTION", "Present Value");
-    //assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Alpha Sensitivity"); // Don't have default cubes for non-USD instruments
+    assertPositionOutput(outputs, "SWAPTION", "Present Value Curve Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Alpha Node Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Alpha Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Nu Node Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Nu Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Rho Node Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Present Value SABR Rho Sensitivity");
+    assertPositionOutput(outputs, "SWAPTION", "Value");
+    assertPositionOutput(outputs, "SWAPTION", "Vega Quote Cube");
     assertPositionOutput(outputs, "SWAPTION", "Yield Curve Node Sensitivities");
   }
 

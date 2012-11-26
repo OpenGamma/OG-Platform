@@ -126,7 +126,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -137,7 +137,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -157,12 +157,12 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
+      EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           super.equals(obj);
@@ -191,7 +191,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -217,7 +217,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * Sets the Fudge context.
    * @param fudgeContext  the new value of the property, not null
    */
-  public void setFudgeContext(final FudgeContext fudgeContext) {
+  public void setFudgeContext(FudgeContext fudgeContext) {
     JodaBeanUtils.notNull(fudgeContext, "fudgeContext");
     this._fudgeContext = fudgeContext;
   }
@@ -265,7 +265,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

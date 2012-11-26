@@ -55,18 +55,6 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   private final String _anyValue;
 
-  // Hack until the dummy functions get removed
-  private static Collection<CompiledFunctionDefinition> removeDummyFunctions(final Collection<CompiledFunctionDefinition> functions) {
-    final Collection<CompiledFunctionDefinition> result = new ArrayList<CompiledFunctionDefinition>(functions.size());
-    for (final CompiledFunctionDefinition function : functions) {
-      if (function.getClass().getSimpleName().startsWith("Dummy")) {
-        continue;
-      }
-      result.add(function);
-    }
-    return result;
-  }
-
   private static final class SingleItem<T> implements Iterator<T> {
 
     private T _item;
@@ -109,7 +97,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     ArgumentChecker.notNull(functionRepository, "functions");
     ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     _anyValue = anyValue;
-    final Collection<CompiledFunctionDefinition> functions = removeDummyFunctions(functionRepository.getAllFunctions());
+    final Collection<CompiledFunctionDefinition> functions = functionRepository.getAllFunctions();
     final Map<UniqueId, Object> targetCache = new HashMap<UniqueId, Object>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
 
