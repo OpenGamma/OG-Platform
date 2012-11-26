@@ -92,12 +92,34 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
  * Class testing the instrument definition visitor.
  */
 public class InstrumentDefinitionVisitorTest {
-  private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = TestInstrumentDefinitions.getAllInstruments();
+  private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = TestInstrumentDefinitionsAndDerivatives.getAllInstruments();
   private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelegate() {
     new InstrumentDefinitionVisitorDelegate(null);
+  }
+
+  @Test
+  public void testNullVisitor() {
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      try {
+        definition.accept(null);
+        fail();
+      } catch (final IllegalArgumentException e) {
+      } catch (final NullPointerException e) {
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
+      }
+    }
+    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
+      try {
+        definition.accept(null, "");
+        fail();
+      } catch (final IllegalArgumentException e) {
+      } catch (final NullPointerException e) {
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor, S data) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
+      }
+    }
   }
 
   @Test
@@ -112,17 +134,6 @@ public class InstrumentDefinitionVisitorTest {
     }
     assertTrue("Have not tested all methods - need to make sure that the accept() method in the definition points to the correct method in the visitor:",
         InstrumentDefinitionVisitor.class.getMethods().length <= count);
-  }
-
-  @Test
-  public void testNullVisitor() {
-    for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
-      try {
-        definition.accept(null);
-        fail();
-      } catch (final IllegalArgumentException e) {
-      }
-    }
   }
 
   @Test

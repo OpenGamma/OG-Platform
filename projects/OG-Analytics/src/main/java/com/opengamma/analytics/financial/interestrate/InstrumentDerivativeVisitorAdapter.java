@@ -814,7 +814,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   private RESULT_TYPE getException(final InstrumentDerivative definition, final DATA_TYPE data) {
-    if (definition != null || data != null) {
+    if (definition != null && data != null) {
       throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + definition.getClass().getSimpleName()
           + " with data of type " + data.getClass().getSimpleName());
     }

@@ -83,7 +83,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The type of the results
  */
-public abstract class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
+public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   private final RESULT_TYPE _value;
 
   public InstrumentDerivativeVisitorSameValueAdapter(final RESULT_TYPE value) {

@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -66,8 +67,9 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
-  public CouponInflationZeroCouponInterpolationGearing(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex,
-      double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional, double factor) {
+  public CouponInflationZeroCouponInterpolationGearing(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
+      final IndexPrice priceIndex,
+      final double indexStartValue, final double[] referenceEndTime, final double weight, final double fixingEndTime, final boolean payNotional, final double factor) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
@@ -118,7 +120,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   @Override
-  public CouponInflationZeroCouponInterpolationGearing withNotional(double notional) {
+  public CouponInflationZeroCouponInterpolationGearing withNotional(final double notional) {
     return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue,
         _referenceEndTime, _weight, _fixingEndTime, _payNotional, _factor);
   }
@@ -129,21 +131,23 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   @Override
-  public double estimatedIndex(IMarketBundle market) {
+  public double estimatedIndex(final IMarketBundle market) {
     Validate.isTrue(_referenceEndTime.length == 2, "Incorrect number of reference time");
-    double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
-    double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
-    double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
+    final double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
+    final double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
+    final double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
     return estimatedIndex;
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponInterpolationGearing(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponInterpolationGearing(this);
   }
 
@@ -171,7 +175,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -181,7 +185,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCouponInterpolationGearing other = (CouponInflationZeroCouponInterpolationGearing) obj;
+    final CouponInflationZeroCouponInterpolationGearing other = (CouponInflationZeroCouponInterpolationGearing) obj;
     if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
     }

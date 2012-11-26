@@ -43,7 +43,7 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
    * @param underlyingSwap The futures underlying swap.
    * @param notional The notional of the future (also called face value or contract value).
    */
-  public DeliverableSwapFuturesSecurity(double lastTradingTime, double deliveryTime, SwapFixedCoupon<? extends Coupon> underlyingSwap, double notional) {
+  public DeliverableSwapFuturesSecurity(final double lastTradingTime, final double deliveryTime, final SwapFixedCoupon<? extends Coupon> underlyingSwap, final double notional) {
     ArgumentChecker.notNull(underlyingSwap, "Underlying swap");
     _lastTradingTime = lastTradingTime;
     _deliveryTime = deliveryTime;
@@ -92,13 +92,15 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitDeliverableSwapFuturesSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitDeliverableSwapFuturesSecurity(this);
   }
 
   @Override
@@ -117,7 +119,7 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -127,7 +129,7 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeliverableSwapFuturesSecurity other = (DeliverableSwapFuturesSecurity) obj;
+    final DeliverableSwapFuturesSecurity other = (DeliverableSwapFuturesSecurity) obj;
     if (Double.doubleToLongBits(_deliveryTime) != Double.doubleToLongBits(other._deliveryTime)) {
       return false;
     }
