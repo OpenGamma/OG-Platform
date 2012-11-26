@@ -92,11 +92,14 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final Trade trade = target.getTrade();
     final FutureSecurity security = (FutureSecurity) trade.getSecurity();
 
+    // TODO: Clean up
+    // lastMarginPrice is unnecessary, but the timeSeriesBundle would be for DIVIDEND_YIELD if we are estimating the Futures Price instead of taking its marked price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     //final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    final Double lastMarginPrice = 0.0;
+    //final Double lastMarginPrice = 0.0;
     //final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
     final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
+    // TODO: Refactor and hence remove the following line
     final EquityFutureDefinition definition = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(), simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final EquityFuture derivative = definition.toDerivative(valuationTime);

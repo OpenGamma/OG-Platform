@@ -60,7 +60,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getCashInstrumentProviders() != null) {
       final MutableFudgeMsg cashInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
-        serializer.addToMessage(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(CASH, cashInstrumentProvidersMessage);
     }
@@ -71,7 +71,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         if (entry.getKey().getPeriod().toString() == null) {
           throw new OpenGammaRuntimeException("null");
         }
-        serializer.addToMessage(fra3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(fra3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(FRA_3M, fra3MInstrumentProvidersMessage);
     }
@@ -82,7 +82,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         if (entry.getKey().getPeriod().toString() == null) {
           throw new OpenGammaRuntimeException("null");
         }
-        serializer.addToMessage(fra6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(fra6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(FRA_6M, fra6MInstrumentProvidersMessage);
     }
@@ -90,7 +90,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getFutureInstrumentProviders() != null) {
       final MutableFudgeMsg futureInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getFutureInstrumentProviders().entrySet()) {
-        serializer.addToMessage(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(FUTURE, futureInstrumentProvidersMessage);
     }
@@ -98,7 +98,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getLiborInstrumentProviders() != null) {
       final MutableFudgeMsg liborInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getLiborInstrumentProviders().entrySet()) {
-        serializer.addToMessage(liborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(liborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(LIBOR, liborInstrumentProvidersMessage);
     }
@@ -106,7 +106,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getEuriborInstrumentProviders() != null) {
       final MutableFudgeMsg euriborInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getEuriborInstrumentProviders().entrySet()) {
-        serializer.addToMessage(euriborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(euriborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(EURIBOR, euriborInstrumentProvidersMessage);
     }
@@ -114,7 +114,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getCDORInstrumentProviders() != null) {
       final MutableFudgeMsg cdorInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getCDORInstrumentProviders().entrySet()) {
-        serializer.addToMessage(cdorInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(cdorInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(CDOR, cdorInstrumentProvidersMessage);
     }
@@ -122,7 +122,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getCiborInstrumentProviders() != null) {
       final MutableFudgeMsg ciborInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getCiborInstrumentProviders().entrySet()) {
-        serializer.addToMessage(ciborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(ciborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(CIBOR, ciborInstrumentProvidersMessage);
     }
@@ -130,7 +130,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getStiborInstrumentProviders() != null) {
       final MutableFudgeMsg stiborInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getStiborInstrumentProviders().entrySet()) {
-        serializer.addToMessage(stiborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(stiborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(STIBOR, stiborInstrumentProvidersMessage);
     }
@@ -138,7 +138,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getSwap3MInstrumentProviders() != null) {
       final MutableFudgeMsg swap3MInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap3MInstrumentProviders().entrySet()) {
-        serializer.addToMessage(swap3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(swap3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(SWAP_3M, swap3MInstrumentProvidersMessage);
     }
@@ -146,7 +146,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getSwap6MInstrumentProviders() != null) {
       final MutableFudgeMsg swap6MInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap6MInstrumentProviders().entrySet()) {
-        serializer.addToMessage(swap6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(swap6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(SWAP_6M, swap6MInstrumentProvidersMessage);
     }
@@ -154,7 +154,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getSwap12MInstrumentProviders() != null) {
       final MutableFudgeMsg swap12MInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap12MInstrumentProviders().entrySet()) {
-        serializer.addToMessage(swap12MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(swap12MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(SWAP_12M, swap12MInstrumentProvidersMessage);
     }
@@ -162,7 +162,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getBasisSwapInstrumentProviders() != null) {
       final MutableFudgeMsg basisSwapInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getBasisSwapInstrumentProviders().entrySet()) {
-        serializer.addToMessage(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(BASIS_SWAP, basisSwapInstrumentProvidersMessage);
     }
@@ -170,7 +170,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getTenorSwapInstrumentProviders() != null) {
       final MutableFudgeMsg tenorSwapInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getTenorSwapInstrumentProviders().entrySet()) {
-        serializer.addToMessage(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(TENOR_SWAP, tenorSwapInstrumentProvidersMessage);
     }
@@ -178,7 +178,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getOISSwapInstrumentProviders() != null) {
       final MutableFudgeMsg oisSwapInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
-        serializer.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(OIS_SWAP, oisSwapInstrumentProvidersMessage);
     }
@@ -186,7 +186,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getSimpleZeroDepositInstrumentProviders() != null) {
       final MutableFudgeMsg simpleZeroDepositInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSimpleZeroDepositInstrumentProviders().entrySet()) {
-        serializer.addToMessage(simpleZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(simpleZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(SIMPLE_ZERO_DEPOSIT, simpleZeroDepositInstrumentProvidersMessage);
     }
@@ -194,7 +194,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getPeriodicZeroDepositInstrumentProviders() != null) {
       final MutableFudgeMsg periodicZeroDepositInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getPeriodicZeroDepositInstrumentProviders().entrySet()) {
-        serializer.addToMessage(periodicZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(periodicZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(PERIODIC_ZERO_DEPOSIT, periodicZeroDepositInstrumentProvidersMessage);
     }
@@ -202,7 +202,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     if (object.getContinuousZeroDepositInstrumentProviders() != null) {
       final MutableFudgeMsg continuousZeroDepositInstrumentProvidersMessage = serializer.newMessage();
       for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getContinuousZeroDepositInstrumentProviders().entrySet()) {
-        serializer.addToMessage(continuousZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+        serializer.addToMessageWithClassHeaders(continuousZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
       }
       message.add(CONTINUOUS_ZERO_DEPOSIT, continuousZeroDepositInstrumentProvidersMessage);
     }

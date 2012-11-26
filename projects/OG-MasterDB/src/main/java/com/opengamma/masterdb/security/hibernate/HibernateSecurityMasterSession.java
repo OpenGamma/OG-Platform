@@ -643,4 +643,28 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     return bean;
   }
 
+  @Override
+  public DebtSeniorityBean getOrCreateDebtSeniorityBean(String name) {
+    final Query query = getSession().getNamedQuery("DebtSeniorityBean.one");
+    query.setString("name", name);
+    DebtSeniorityBean bean = (DebtSeniorityBean) query.uniqueResult();
+    if (bean == null) {
+      bean = persistBean(new DebtSeniorityBean(name));
+    }
+    return bean;
+  }
+
+  @Override
+  public RestructuringClauseBean getOrCreateRestructuringCleanBean(String name) {
+    final Query query = getSession().getNamedQuery("RestructuringClauseBean.one");
+    query.setString("name", name);
+    RestructuringClauseBean bean = (RestructuringClauseBean) query.uniqueResult();
+    if (bean == null) {
+      bean = persistBean(new RestructuringClauseBean(name));
+    }
+    return bean;
+  }
+  
+  
+  
 }

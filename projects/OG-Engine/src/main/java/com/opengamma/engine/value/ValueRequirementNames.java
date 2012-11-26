@@ -810,6 +810,14 @@ public final class ValueRequirementNames {
    * The return series of the underlying of a security (usually an option).
    */
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
+  /**
+   * The notional of a security
+   */
+  public static final String NOTIONAL = "Notional";
+  /**
+   * The attributes of a security
+   */
+  public static final String ATTRIBUTES = "Attributes";
 
   ///// Value At Risk
 

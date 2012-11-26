@@ -31,7 +31,7 @@ import com.opengamma.id.UniqueId;
   }
 
   @Override
-     protected ViewportResults.Cell getFixedColumnResult(int rowIndex, int colIndex, MainGridStructure.Row row) {
+  protected ViewportResults.Cell getFixedColumnResult(int rowIndex, int colIndex, MainGridStructure.Row row) {
     if (colIndex == LABEL_COLUMN) {
       ComputationTargetSpecification target = row.getTarget();
       UniqueId compoundId = target.getUniqueId();
@@ -54,7 +54,7 @@ import com.opengamma.id.UniqueId;
       }
       throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
     } else if (colIndex == QUANTITY_COLUMN) {
-      return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), colIndex);
+      return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), null, colIndex);
     }
     throw new IllegalArgumentException("Column " + colIndex + " is not fixed");
   }

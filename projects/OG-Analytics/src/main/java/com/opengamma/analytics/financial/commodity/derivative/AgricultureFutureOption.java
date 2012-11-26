@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.commodity.derivative;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Agriculture future option commodity derivative
  */
-public class AgricultureFutureOption extends CommodityFutureOption<AgricultureFutureDefinition> {
+public class AgricultureFutureOption extends CommodityFutureOption<AgricultureFuture> {
 
   /**
    * Constructor for future options
@@ -23,17 +23,19 @@ public class AgricultureFutureOption extends CommodityFutureOption<AgricultureFu
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public AgricultureFutureOption(final double expiry, final AgricultureFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public AgricultureFutureOption(final double expiry, final AgricultureFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     super(expiry, underlying, strike, exerciseType, isCall);
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureFutureOption(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureFutureOption(this);
   }
 
@@ -43,7 +45,7 @@ public class AgricultureFutureOption extends CommodityFutureOption<AgricultureFu
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

@@ -21,8 +21,9 @@ import com.opengamma.OpenGammaRuntimeException;
  * <p>
  * The format is line-based as follows:<br>
  *  <code>#</code> or <code>;</code> for comment lines (at the start of the line)<br>
- *  </code>key = value</code> declares a property<br>
- *  </code>${key}</code> is replaced by an earlier replacement declaration<br>
+ *  <code>key = value</code> declares a property<br>
+ *  <code>MANAGER.INCLUDE = resource</code> declares a resource to be included immediately<br>
+ *  <code>${key}</code> is replaced by an earlier replacement declaration<br>
  *  Everything is trimmed as necessary.
  *  <p>
  *  The {@link Properties} class is not used for parsing as it does not preserver order.
@@ -41,9 +42,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
 
   //-------------------------------------------------------------------------
   /**
-   * Starts the components defined in the specified resource.
-   * <p>
-   * The specified properties are simple key=value pairs and must not be surrounded with ${}.
+   * Loads the properties file.
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
@@ -64,7 +63,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param depth  the depth of the properties file, used for logging
    * @return the combined set of properties, not null
    */
-  protected String doLoad(final Resource resource, final int depth) {
+  private String doLoad(final Resource resource, final int depth) {
     final Map<String, String> fileProperties = new HashMap<String, String>();
     final List<String> lines = readLines(resource);
     int lineNum = 0;
@@ -111,7 +110,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param includeFile  the resource to include, not null
    * @param depth  the depth of the properties file, used for logging
    */
-  protected void handleInclude(final Resource baseResource, String includeFile, final int depth) {
+  private void handleInclude(final Resource baseResource, String includeFile, final int depth) {
     // find resource
     Resource include;
     try {

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definit
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -36,7 +36,6 @@ public class CreditDefaultSwapOptionDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Add the argument checkers to check the temporal ordering of the input dates
   // TODO : Add equals and hashcode
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -46,7 +45,7 @@ public class CreditDefaultSwapOptionDefinition {
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
-  // The counterparties in the CDS swaption trade (can be different to the counterparties in the underlying CDS)
+  // The counterparties in the CDS swaption trade (can in principle be different to the counterparties in the underlying CDS)
   private final Obligor _protectionBuyer;
   private final Obligor _protectionSeller;
 
@@ -64,9 +63,6 @@ public class CreditDefaultSwapOptionDefinition {
 
   // The maturity date of the underlying CDS contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
-
-  // The date on which we want to calculate the CDS option MtM
-  private final ZonedDateTime _valuationDate;
 
   // The CDS swaption trade notional (in the trade currency), convention is that this will always be a positive amount
   private final double _notional;
@@ -97,7 +93,6 @@ public class CreditDefaultSwapOptionDefinition {
       ZonedDateTime effectiveDate,
       ZonedDateTime optionExerciseDate,
       ZonedDateTime maturityDate,
-      ZonedDateTime valuationDate,
       double notional,
       double optionStrike,
       CDSOptionKnockoutType optionKnockoutType,
@@ -105,7 +100,7 @@ public class CreditDefaultSwapOptionDefinition {
       CDSOptionExerciseType optionExerciseType,
       LegacyCreditDefaultSwapDefinition underlyingCDS) {
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
 
@@ -120,9 +115,14 @@ public class CreditDefaultSwapOptionDefinition {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(optionExerciseDate, "Option exercise date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
-    ArgumentChecker.notNull(valuationDate, "Valuation date");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
+    ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(optionExerciseDate), "Start date {} must be on or before option exercise date {}", startDate, optionExerciseDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(!effectiveDate.isAfter(optionExerciseDate), "Effective date {} must be on or before option exercise date {}", effectiveDate, optionExerciseDate);
+    ArgumentChecker.isTrue(!effectiveDate.isAfter(maturityDate), "Effective date {} must be on or before maturity date {}", effectiveDate, maturityDate);
+    ArgumentChecker.isTrue(!optionExerciseDate.isAfter(maturityDate), "Option exercise date {} must be on or before maturity date {}", optionExerciseDate, maturityDate);
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(optionStrike, "Option strike");
@@ -133,7 +133,7 @@ public class CreditDefaultSwapOptionDefinition {
 
     ArgumentChecker.notNull(underlyingCDS, "CDS");
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Assign the member variables for the CDS option object
 
@@ -148,7 +148,6 @@ public class CreditDefaultSwapOptionDefinition {
     _effectiveDate = effectiveDate;
     _optionExerciseDate = optionExerciseDate;
     _maturityDate = maturityDate;
-    _valuationDate = valuationDate;
 
     _notional = notional;
     _optionStrike = optionStrike;
@@ -158,7 +157,7 @@ public class CreditDefaultSwapOptionDefinition {
 
     _underlyingCDS = underlyingCDS;
 
-    // ------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -193,10 +192,6 @@ public class CreditDefaultSwapOptionDefinition {
 
   public ZonedDateTime getMaturityDate() {
     return _maturityDate;
-  }
-
-  public ZonedDateTime getValuationDate() {
-    return _valuationDate;
   }
 
   public double getNotional() {

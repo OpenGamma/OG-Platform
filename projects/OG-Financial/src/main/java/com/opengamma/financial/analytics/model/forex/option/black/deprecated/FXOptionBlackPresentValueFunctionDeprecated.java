@@ -33,7 +33,7 @@ public class FXOptionBlackPresentValueFunctionDeprecated extends FXOptionBlackSi
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
+    final MultipleCurrencyAmount result = fxOption.accept(CALCULATOR, data);
     ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
     final CurrencyAmount ca = result.getCurrencyAmounts()[0];
     final double amount = ca.getAmount();

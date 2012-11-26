@@ -51,14 +51,14 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     ArgumentChecker.notNull(bond, "Bond");
-    MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
-    final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
-    final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
+    final MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedSecurity<?>) instrument, (MarketDiscountBundle) market);
   }
@@ -75,11 +75,11 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market);
-    double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
-    double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
-    double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
+    final double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
+    final double estimatedIndex = bond.getSettlement().estimatedIndex(market);
+    final double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
+    final double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
+    final double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
     return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
   }
 
@@ -114,9 +114,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    */
   public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market);
-    double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
+    final double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
+    final double estimatedIndex = bond.getSettlement().estimatedIndex(market);
+    final double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
     return netAmount;
   }
 
@@ -134,7 +134,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
       double pvAtFirstCoupon;
       if (Math.abs(yield) > 1.0E-8) {
         final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-        double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
+        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
       } else {
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;

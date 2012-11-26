@@ -10,14 +10,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
-import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.CDSIndex;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.pricing.PresentValueIndexCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -25,8 +20,8 @@ import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandar
 import com.opengamma.analytics.financial.credit.obligormodel.Region;
 import com.opengamma.analytics.financial.credit.obligormodel.Sector;
 import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.underlyingpool.UnderlyingPoolDummyPool;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -45,64 +40,11 @@ public class IndexCreditDefaultSwapDefinitionTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Make sure that all the input arguments have been error checked
-  // TODO : Add the credit spread term structures
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
   private static final boolean outputResults = false;
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Define the composition of the underlying pool
-
-  private static final int numberOfObligors = 3;
-  private static final int numberOfTenors = 4;
-
-  private static final Obligor[] obligors = new Obligor[numberOfObligors];
-
-  private static final double[] notionals = new double[numberOfObligors];
-  private static final double[] coupons = new double[numberOfObligors];
-  private static final double[] recoveryRates = new double[numberOfObligors];
-  private static final double[] obligorWeights = new double[numberOfObligors];
-
-  private static final Currency[] currency = new Currency[numberOfObligors];
-  private static final DebtSeniority[] debtSeniority = new DebtSeniority[numberOfObligors];
-  private static final RestructuringClause[] restructuringClause = new RestructuringClause[numberOfObligors];
-
-  private static final CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
-  private static final double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
-
-  private static final YieldCurve[] yieldCurve = new YieldCurve[numberOfObligors];
-
-  private static final double[] obligorNotionals = {10000000.0, 10000000.0, 10000000.0 };
-  private static final double[] obligorCoupons = {100.0, 100.0, 100.0 };
-  private static final double[] obligorRecoveryRates = {0.40, 0.40, 0.40 };
-  private static final double[] obligorIndexWeights = {1.0 / numberOfObligors, 1.0 / numberOfObligors, 1.0 / numberOfObligors };
-
-  private static final Currency[] obligorCurrencies = {Currency.USD, Currency.USD, Currency.EUR };
-  private static final DebtSeniority[] obligorDebtSeniorities = {DebtSeniority.SENIOR, DebtSeniority.SENIOR, DebtSeniority.SENIOR };
-  private static final RestructuringClause[] obligorRestructuringClauses = {RestructuringClause.NORE, RestructuringClause.NORE, RestructuringClause.MODRE };
-
-  private static final CreditSpreadTenors[] obligorCreditSpreadTenors = {CreditSpreadTenors._3Y, CreditSpreadTenors._5Y, CreditSpreadTenors._7Y, CreditSpreadTenors._10Y };
-
-  private static final YieldCurve[] obligorYieldCurves = {null, null, null };
-
-  private static final String[] obligorTickers = {"MSFT", "IBM", "BT" };
-  private static final String[] obligorShortName = {"Microsoft", "International Business Machine", "British Telecom" };
-  private static final String[] obligorREDCode = {"ABC123", "XYZ321", "123ABC" };
-
-  private static final CreditRating[] obligorCompositeRating = {CreditRating.AA, CreditRating.AA, CreditRating.AA };
-  private static final CreditRating[] obligorImpliedRating = {CreditRating.AA, CreditRating.AA, CreditRating.AA };
-  private static final CreditRatingMoodys[] obligorCreditRatingMoodys = {CreditRatingMoodys.AA, CreditRatingMoodys.AA, CreditRatingMoodys.AA };
-  private static final CreditRatingStandardAndPoors[] obligorCreditRatingStandardAndPoors = {CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA };
-  private static final CreditRatingFitch[] obligorCreditRatingFitch = {CreditRatingFitch.AA, CreditRatingFitch.AA, CreditRatingFitch.AA };
-
-  private static final boolean[] obligorHasDefaulted = {false, false, false };
-
-  private static final Sector[] obligorSector = {Sector.INDUSTRIALS, Sector.INDUSTRIALS, Sector.INDUSTRIALS };
-  private static final Region[] obligorRegion = {Region.NORTHAMERICA, Region.NORTHAMERICA, Region.EUROPE };
-  private static final String[] obligorCountry = {"United States", "United States", "United Kingdom" };
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -155,7 +97,6 @@ public class IndexCreditDefaultSwapDefinitionTest {
   private static final ZonedDateTime effectiveDate = startDate;
   private static final ZonedDateTime settlementDate = startDate.plusDays(3);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -168,7 +109,6 @@ public class IndexCreditDefaultSwapDefinitionTest {
   private static final boolean adjustMaturityDate = false;
 
   private static final boolean includeAccruedPremium = false;
-  private static final PriceType priceType = PriceType.CLEAN;
   private static final boolean protectionStart = true;
 
   private static final double notional = 10000000.0;
@@ -210,139 +150,278 @@ public class IndexCreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  @Test
-  public void testIndexConstructionAndPresentValue() {
+  // Create a pool construction object
+  private static final UnderlyingPoolDummyPool pool = new UnderlyingPoolDummyPool();
 
-    // Build the underlying pool
-    UnderlyingPool dummyPool = constructPool();
+  // Build the underlying pool
+  private static final UnderlyingPool dummyPool = pool.constructPool();
 
-    // Construct the index
-    IndexCreditDefaultSwapDefinition dummyIndex = new IndexCreditDefaultSwapDefinition(
-        buySellProtection,
-        indexProtectionBuyer,
-        indexProtectionSeller,
-        dummyPool,
-        cdsIndex,
-        cdsIndexSeries,
-        cdsIndexVersion,
-        indexCurrency,
-        calendar,
-        startDate,
-        effectiveDate,
-        settlementDate,
-        maturityDate,
-        valuationDate,
-        stubType,
-        couponFrequency,
-        daycountFractionConvention,
-        businessdayAdjustmentConvention,
-        immAdjustMaturityDate,
-        adjustEffectiveDate,
-        adjustSettlementDate,
-        adjustMaturityDate,
-        includeAccruedPremium,
-        priceType,
-        protectionStart,
-        notional,
-        upfrontPayment,
-        indexCoupon,
-        indexSpread);
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-    // Construct an index present value object
-    PresentValueIndexCreditDefaultSwap indexPresentValue = new PresentValueIndexCreditDefaultSwap();
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexBuySellProtectionField() {
 
-    // Calculate the value of the index
-    double presentValue = indexPresentValue.getPresentValueIndexCreditDefaultSwap(dummyIndex);
-
-    if (outputResults) {
-      System.out.println("Index Present Value = " + presentValue);
-    }
+    new IndexCreditDefaultSwapDefinition(null, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Initialise the obligors in the pool
-  private void initialiseObligorsInPool() {
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexProtectionBuyerField() {
 
-    // Loop over each of the obligors in the pool
-    for (int i = 0; i < numberOfObligors; i++) {
-
-      // Build obligor i
-      final Obligor obligor = new Obligor(
-          obligorTickers[i],
-          obligorShortName[i],
-          obligorREDCode[i],
-          obligorCompositeRating[i],
-          obligorImpliedRating[i],
-          obligorCreditRatingMoodys[i],
-          obligorCreditRatingStandardAndPoors[i],
-          obligorCreditRatingFitch[i],
-          obligorHasDefaulted[i],
-          obligorSector[i],
-          obligorRegion[i],
-          obligorCountry[i]);
-
-      // Assign obligor i
-      obligors[i] = obligor;
-
-      // Assign the currency of obligor i
-      currency[i] = obligorCurrencies[i];
-
-      // Assign the debt seniority of obligor i
-      debtSeniority[i] = obligorDebtSeniorities[i];
-
-      // Assign the restructuring clause of obligor i
-      restructuringClause[i] = obligorRestructuringClauses[i];
-
-      // Assign the term structure of credit spreads for obligor i
-      for (int j = 0; j < numberOfTenors; j++) {
-        spreadTermStructures[i][j] = i * j;
-      }
-
-      // Assign the notional amount for obligor i
-      notionals[i] = obligorNotionals[i];
-
-      // Assign the coupon for obligor i
-      coupons[i] = obligorCoupons[i];
-
-      // Assign the recovery rate for obligor i
-      recoveryRates[i] = obligorRecoveryRates[i];
-
-      // Assign the weight of obligor i in the index
-      obligorWeights[i] = obligorIndexWeights[i];
-
-      yieldCurve[i] = obligorYieldCurves[i];
-    }
-
-    // Assign the credit spread tenors
-    for (int j = 0; j < numberOfTenors; j++) {
-      creditSpreadTenors[j] = obligorCreditSpreadTenors[j];
-    }
+    new IndexCreditDefaultSwapDefinition(buySellProtection, null, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
   }
 
-  //--------------------------------------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Build the underlying pool
-  private final UnderlyingPool constructPool() {
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexProtectionSellerField() {
 
-    // Initialise the obligors in the pool
-    initialiseObligorsInPool();
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, null, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
 
-    // Call the pool constructor
-    UnderlyingPool underlyingPool = new UnderlyingPool(
-        obligors,
-        currency,
-        debtSeniority,
-        restructuringClause,
-        creditSpreadTenors,
-        spreadTermStructures,
-        notionals,
-        coupons,
-        recoveryRates,
-        obligorWeights,
-        yieldCurve);
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-    return underlyingPool;
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingPoolField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, null, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCDSIndexField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, null, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeCDSIndexSeriesField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, -cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexCurrencyField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        null, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexCalendarField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, null, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexStartDateField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, null, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexEffectiveDateField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, null, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexSettlementDateField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, null, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexMaturityDateField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, null, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexStubTypeField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, null, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexCouponFrequencyField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, null, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexDaycountFractionConventionField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, null,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexBusinessdayAdjustmentConventionField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        null, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeIndexNotionalField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, -notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeIndexCouponField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, -indexCoupon, indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeIndexSpreadField() {
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, -indexSpread);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Check the temporal ordering of the input dates
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStartDateIsBeforeEffectiveDate() {
+
+    final ZonedDateTime testEffectiveDate = startDate.minusDays(1);
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, testEffectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStartDateIsBeforeMaturityDate() {
+
+    final ZonedDateTime testMaturityDate = startDate.minusDays(1);
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, settlementDate, testMaturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStartDateIsBeforeSettlementDate() {
+
+    final ZonedDateTime testSettlementDate = startDate.minusDays(1);
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, testSettlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testSettlementDateIsBeforeMaturityDate() {
+
+    final ZonedDateTime testSettlementDate = maturityDate.plusDays(1);
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, effectiveDate, testSettlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testEffectiveDateIsBeforeMaturityDate() {
+
+    final ZonedDateTime testEffectiveDate = maturityDate.plusDays(1);
+
+    new IndexCreditDefaultSwapDefinition(buySellProtection, indexProtectionBuyer, indexProtectionSeller, dummyPool, cdsIndex, cdsIndexSeries, cdsIndexVersion,
+        indexCurrency, calendar, startDate, testEffectiveDate, settlementDate, maturityDate, stubType, couponFrequency, daycountFractionConvention,
+        businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustSettlementDate, adjustMaturityDate, includeAccruedPremium,
+        protectionStart, notional, upfrontPayment, indexCoupon, indexSpread);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

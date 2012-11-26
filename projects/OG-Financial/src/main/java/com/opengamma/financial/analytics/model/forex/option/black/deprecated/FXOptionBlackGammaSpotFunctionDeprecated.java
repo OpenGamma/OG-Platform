@@ -36,7 +36,7 @@ public class FXOptionBlackGammaSpotFunctionDeprecated extends FXOptionBlackSingl
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final CurrencyAmount result = CALCULATOR.visit(fxOption, data);
+    final CurrencyAmount result = fxOption.accept(CALCULATOR, data);
     final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
     return Collections.singleton(new ComputedValue(spec, gammaValue));
   }

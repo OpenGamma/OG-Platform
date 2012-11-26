@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -42,7 +43,7 @@ public class ForexNonDeliverableOption implements InstrumentDerivative {
    * @param isCall The call (true) / put (false) flag.
    * @param isLong The long (true) / short (false) flag.
    */
-  public ForexNonDeliverableOption(ForexNonDeliverableForward underlyingNDF, boolean isCall, boolean isLong) {
+  public ForexNonDeliverableOption(final ForexNonDeliverableForward underlyingNDF, final boolean isCall, final boolean isLong) {
     Validate.notNull(underlyingNDF, "Underlying NDF is null");
     this._underlyingNDF = underlyingNDF;
     _isLong = isLong;
@@ -106,12 +107,14 @@ public class ForexNonDeliverableOption implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableOption(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableOption(this);
   }
 
@@ -126,7 +129,7 @@ public class ForexNonDeliverableOption implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -136,7 +139,7 @@ public class ForexNonDeliverableOption implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexNonDeliverableOption other = (ForexNonDeliverableOption) obj;
+    final ForexNonDeliverableOption other = (ForexNonDeliverableOption) obj;
     if (_isCall != other._isCall) {
       return false;
     }

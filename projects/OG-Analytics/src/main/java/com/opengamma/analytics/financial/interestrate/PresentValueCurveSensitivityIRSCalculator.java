@@ -5,11 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-
 /**
  * Curve sensitivity calculator returning InterestRateSensitivity object.
  */
-public class PresentValueCurveSensitivityIRSCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityIRSCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
   /**
    * The method unique instance.
    */
@@ -33,7 +32,12 @@ public class PresentValueCurveSensitivityIRSCalculator extends AbstractInstrumen
 
   @Override
   public InterestRateCurveSensitivity visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    return new InterestRateCurveSensitivity(PVCSC.visit(instrument, curves));
+    return new InterestRateCurveSensitivity(instrument.accept(PVCSC, curves));
+  }
+
+  @Override
+  public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException("Need curve data");
   }
 
 }

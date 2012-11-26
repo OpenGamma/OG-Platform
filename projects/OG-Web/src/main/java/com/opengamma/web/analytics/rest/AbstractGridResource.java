@@ -75,8 +75,9 @@ public abstract class AbstractGridResource {
                                  @FormParam("rows") List<Integer> rows,
                                  @FormParam("columns") List<Integer> columns,
                                  @FormParam("cells") List<GridCell> cells,
-                                 @FormParam("format") TypeFormatter.Format format) {
-    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format);
+                                 @FormParam("format") TypeFormatter.Format format,
+                                 @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();

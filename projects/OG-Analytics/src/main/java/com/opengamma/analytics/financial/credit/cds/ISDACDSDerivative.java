@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * ISDA derivative implementation for CDS securities.
@@ -27,27 +28,27 @@ public class ISDACDSDerivative implements InstrumentDerivative {
 
   private final String _discountCurveName;
   private final String _spreadCurveName;
-  
+
   private final ISDACDSPremium _premium;
 
   private final double _startTime;
   private final double _maturity;
   private final double _stepinTime;
   private final double _settlementTime;
-  
+
   private final double _notional;
   private final double _spread;
   private final double _recoveryRate;
   private final double _accruedInterest;
-  
+
   private final boolean _accrualOnDefault;
   private final boolean _payOnDefault;
   private final boolean _protectStart;
-  
+
   // Not needed for ISDA pricing, but used to build the bootstrap CDS for a flat spread
   private final Frequency _couponFrequency;
   private final Convention _convention;
-  private final StubType _stubType;  
+  private final StubType _stubType;
 
   /**
    * Create an (immutable) CDS derivative object ready for pricing
@@ -71,69 +72,71 @@ public class ISDACDSDerivative implements InstrumentDerivative {
    * @param stubType the premium schedule stub type
    */
   public ISDACDSDerivative(final String discountCurveName, final String spreadCurveName, final ISDACDSPremium premium,
-    final double startTime, final double maturity, final double stepinTime, final double settlementTime,
-    final double notional, final double spread, final double recoveryRate, final double accruedInterest,
-    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
-    final Frequency couponFrequency, final Convention convention, final StubType stubType) {
-    
+      final double startTime, final double maturity, final double stepinTime, final double settlementTime,
+      final double notional, final double spread, final double recoveryRate, final double accruedInterest,
+      final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+      final Frequency couponFrequency, final Convention convention, final StubType stubType) {
+
     _discountCurveName = discountCurveName;
     _spreadCurveName = spreadCurveName;
-    
+
     _premium = premium;
-    
+
     _startTime = startTime;
     _maturity = maturity;
     _stepinTime = stepinTime;
     _settlementTime = settlementTime;
-    
+
     _notional = notional;
     _spread = spread;
     _recoveryRate = recoveryRate;
     _accruedInterest = accruedInterest;
-    
+
     _accrualOnDefault = accrualOnDefault;
     _payOnDefault = payOnDefault;
     _protectStart = protectStart;
-    
+
     _couponFrequency = couponFrequency;
     _convention = convention;
     _stubType = stubType;
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCDSDerivative(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCDSDerivative(this);
   }
-  
+
   public String getDiscountCurveName() {
     return _discountCurveName;
   }
-  
+
   public String getSpreadCurveName() {
     return _spreadCurveName;
   }
-  
+
   public ISDACDSPremium getPremium() {
     return _premium;
   }
-  
+
   public double getStartTime() {
     return _startTime;
   }
-  
+
   public double getMaturity() {
     return _maturity;
   }
-  
+
   public double getStepinTime() {
     return _stepinTime;
   }
-  
+
   public double getSettlementTime() {
     return _settlementTime;
   }
@@ -141,15 +144,15 @@ public class ISDACDSDerivative implements InstrumentDerivative {
   public double getNotional() {
     return _notional;
   }
-  
+
   public double getSpread() {
     return _spread;
   }
-  
+
   public double getRecoveryRate() {
     return _recoveryRate;
   }
-  
+
   public double getAccruedInterest() {
     return _accruedInterest;
   }
@@ -161,19 +164,19 @@ public class ISDACDSDerivative implements InstrumentDerivative {
   public boolean isPayOnDefault() {
     return _payOnDefault;
   }
-  
+
   public boolean isProtectStart() {
     return _protectStart;
   }
-  
+
   public Frequency getCouponFrequency() {
     return _couponFrequency;
   }
-  
+
   public Convention getConvention() {
     return _convention;
   }
-  
+
   public StubType getStubType() {
     return _stubType;
   }

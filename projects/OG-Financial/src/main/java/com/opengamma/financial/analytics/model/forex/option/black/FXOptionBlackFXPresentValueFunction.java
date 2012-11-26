@@ -38,10 +38,10 @@ public class FXOptionBlackFXPresentValueFunction extends FXOptionBlackMultiValue
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
-      final MultipleCurrencyAmount result = FLAT_CALCULATOR.visit(forex, data);
+      final MultipleCurrencyAmount result = forex.accept(FLAT_CALCULATOR, data);
       return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
     }
-    final MultipleCurrencyAmount result = SMILE_CALCULATOR.visit(forex, data);
+    final MultipleCurrencyAmount result = forex.accept(SMILE_CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
 

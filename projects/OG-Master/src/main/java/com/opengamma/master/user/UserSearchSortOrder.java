@@ -7,6 +7,8 @@ package com.opengamma.master.user;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -58,7 +60,7 @@ public enum UserSearchSortOrder implements Comparator<UserDocument> {
   NAME_ASC {
     @Override
     public int compare(UserDocument obj1, UserDocument obj2) {
-      return obj1.getName().compareTo(obj2.getName());
+      return ObjectUtils.compare(obj1.getName(), obj2.getName(), true);
     }
   },
   /**
@@ -67,7 +69,25 @@ public enum UserSearchSortOrder implements Comparator<UserDocument> {
   NAME_DESC {
     @Override
     public int compare(UserDocument obj1, UserDocument obj2) {
-      return obj2.getName().compareTo(obj1.getName());
+      return ObjectUtils.compare(obj2.getName(), obj1.getName(), true);
+    }
+  },
+  /**
+   * Sort by email ascending.
+   */
+  EMAIL_ASC {
+    @Override
+    public int compare(UserDocument obj1, UserDocument obj2) {
+      return ObjectUtils.compare(obj1.getUser().getEmailAddress(), obj2.getUser().getEmailAddress(), true);
+    }
+  },
+  /**
+   * Sort by email descending.
+   */
+  EMAIL_DESC {
+    @Override
+    public int compare(UserDocument obj1, UserDocument obj2) {
+      return ObjectUtils.compare(obj2.getUser().getEmailAddress(), obj1.getUser().getEmailAddress(), true);
     }
   };
 

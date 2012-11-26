@@ -56,8 +56,9 @@ public abstract class AbstractViewportResource {
                      @FormParam("rows") List<Integer> rows,
                      @FormParam("columns") List<Integer> columns,
                      @FormParam("cells") List<GridCell> cells,
-                     @FormParam("format") TypeFormatter.Format format) {
-    update(ViewportDefinition.create(version, rows, columns, cells, format));
+                     @FormParam("format") TypeFormatter.Format format,
+                     @FormParam("enableLogging") Boolean enableLogging) {
+    update(ViewportDefinition.create(version, rows, columns, cells, format, enableLogging));
   }
 
   /**

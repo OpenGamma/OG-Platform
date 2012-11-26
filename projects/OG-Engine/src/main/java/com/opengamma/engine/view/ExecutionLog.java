@@ -5,11 +5,13 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import com.opengamma.engine.view.calcnode.EmptyExecutionLog;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.log.LogEvent;
+import com.opengamma.util.log.LogLevel;
 
 /**
  * Provides access to the log events which occurred during some execution.
@@ -24,28 +26,14 @@ public interface ExecutionLog {
    * An empty execution log.
    */
   ExecutionLog EMPTY = EmptyExecutionLog.INSTANCE;
-  
+
   /**
-   * Indicates whether any error-level log events occurred.
-   * 
-   * @return true if any error-level log events occurred, false otherwise
+   * The levels of log events in this log, not null.
+   *
+   * @return The levels of log events in this log, not null.
    */
-  boolean hasError();
-  
-  /**
-   * Indicates whether any warning-level log events occurred.
-   * 
-   * @return true if any warning-level log events occurred, false otherwise.
-   */
-  boolean hasWarn();
-  
-  /**
-   * Indicates whether any information-level log events occurred.
-   * 
-   * @return true if any information-level log events occurred, false otherwise.
-   */
-  boolean hasInfo();
-  
+  EnumSet<LogLevel> getLogLevels();
+
   /**
    * Gets the log events, if these have been collected.
    *  

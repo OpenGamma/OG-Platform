@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.util.ArgumentChecker;
 
 /**
 * A generalisation of a vanilla fixed for floating interest rate swap - here you must have a leg of FixedCouponPayment, but the other leg can be any payment 
@@ -48,9 +49,9 @@ public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
    * @return The new swap.
    */
   @SuppressWarnings("unchecked")
-  public SwapFixedCoupon<R> withNotional(double notional) {
-    AnnuityCouponFixed legFixedNotional = getFixedLeg().withNotional(notional * Math.signum(getFixedLeg().getNthPayment(0).getNotional()));
-    Coupon[] cpn = new Coupon[getSecondLeg().getNumberOfPayments()];
+  public SwapFixedCoupon<R> withNotional(final double notional) {
+    final AnnuityCouponFixed legFixedNotional = getFixedLeg().withNotional(notional * Math.signum(getFixedLeg().getNthPayment(0).getNotional()));
+    final Coupon[] cpn = new Coupon[getSecondLeg().getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getSecondLeg().getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getSecondLeg().getNthPayment(loopcpn).withNotional(notional * Math.signum(getSecondLeg().getNthPayment(loopcpn).getNotional()));
     }
@@ -62,8 +63,8 @@ public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
    * @param rate The rate.
    * @return The new swap.
    */
-  public SwapFixedCoupon<R> withRate(double rate) {
-    AnnuityCouponFixed legFixedNotional = getFixedLeg().withRate(rate);
+  public SwapFixedCoupon<R> withRate(final double rate) {
+    final AnnuityCouponFixed legFixedNotional = getFixedLeg().withRate(rate);
     return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
   }
 
@@ -72,8 +73,8 @@ public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
    * @param spread The spread.
    * @return The new swap.
    */
-  public SwapFixedCoupon<R> withRateShifted(double spread) {
-    AnnuityCouponFixed legFixedNotional = getFixedLeg().withRateShifted(spread);
+  public SwapFixedCoupon<R> withRateShifted(final double spread) {
+    final AnnuityCouponFixed legFixedNotional = getFixedLeg().withRateShifted(spread);
     return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
   }
 
@@ -83,17 +84,19 @@ public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
    * @return The trimmed annuity.
    */
   @Override
-  public SwapFixedCoupon<R> trimAfter(double trimTime) {
+  public SwapFixedCoupon<R> trimAfter(final double trimTime) {
     return new SwapFixedCoupon<R>(getFixedLeg().trimAfter(trimTime), getSecondLeg().trimAfter(trimTime));
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedCouponSwap(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedCouponSwap(this);
   }
 

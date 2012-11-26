@@ -16,15 +16,14 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.ExerciseTypeAnalyticsVisitorAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- * TODO We may want to have additional converters that create the same Definition from a different
- * Security parameterisation. It might be convenient for some to quote month/year and for the system
- * to establish expiry and settlement dates from conventions
+ * Converts an EquityIndexOptionSecurity into OG-Financial's version of one: EquityIndexOptionDefinition
  */
 public class EquityIndexOptionConverter {
   private final HolidaySource _holidaySource;
@@ -48,10 +47,7 @@ public class EquityIndexOptionConverter {
     final ZonedDateTime expiryDT = security.getExpiry().getExpiry();
     final Currency ccy = security.getCurrency();
     final double unitNotional = security.getPointValue();
-    ExerciseDecisionType exerciseType =  ExerciseDecisionType.from(security.getExerciseType().getName());
-    if (exerciseType == null) {
-      exerciseType = ExerciseDecisionType.EUROPEAN; // TODO Review. MAYBE BETTER TO USE BOOLEAN?!?
-    }
+    final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     final ExternalIdBundle indexId = security.getExternalIdBundle();
     final ConventionBundle indexConventions = _conventionSource.getConventionBundle(indexId);
     // TODO !!! We need to know how long after expiry does settlement occur?

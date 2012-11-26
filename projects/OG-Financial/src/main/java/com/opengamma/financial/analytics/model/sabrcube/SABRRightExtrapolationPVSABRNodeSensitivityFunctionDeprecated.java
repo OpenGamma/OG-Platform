@@ -41,7 +41,7 @@ public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunctionDepreca
     final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_CUTOFF_STRIKE));
     final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_TAIL_THICKNESS_PARAMETER));
     final PresentValueSABRSensitivitySABRRightExtrapolationCalculator calculator = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(cutoff, mu);
-    final PresentValueSABRSensitivityDataBundle result = calculator.visit(derivative, data);
+    final PresentValueSABRSensitivityDataBundle result = derivative.accept(calculator, data);
     return getResultAsMatrix(SABRSensitivityNodeCalculator.calculateNodeSensitivities(result, data.getSABRParameter()));
   }
 

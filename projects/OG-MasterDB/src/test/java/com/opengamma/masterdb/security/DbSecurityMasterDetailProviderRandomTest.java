@@ -21,6 +21,7 @@ import com.opengamma.util.test.DbTest;
 /**
  * Test DbSecurityMaster.
  */
+@Test
 public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements SecurityTestCaseMethods {
 
   /** Logger. */
@@ -66,219 +67,214 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   // SecurityMasterTestCaseMethods
 
   @Override
-  @Test
   public void testAgricultureFutureSecurity() {
     _testCase.testAgricultureFutureSecurity();
   }
 
   @Override
-  @Test
   public void testBondFutureSecurity() {
     _testCase.testBondFutureSecurity();
   }
 
   @Override
-  @Test
   public void testCashSecurity() {
     _testCase.testCashSecurity();
   }
 
   @Override
-  @Test
   public void testCorporateBondSecurity() {
     _testCase.testCorporateBondSecurity();
   }
 
   @Override
-  @Test
   public void testEnergyFutureSecurity() {
     _testCase.testEnergyFutureSecurity();
   }
 
   @Override
-  @Test
   public void testEquityOptionSecurity() {
     _testCase.testEquityOptionSecurity();
   }
   
 
   @Override
-  @Test
   public void testEquityBarrierOptionSecurity() {
     _testCase.testEquityBarrierOptionSecurity();
   }
 
   @Override
-  @Test
   public void testEquitySecurity() {
     _testCase.testEquitySecurity();
   }
 
   @Override
-  @Test
   public void testFRASecurity() {
     _testCase.testFRASecurity();
   }
 
   @Override
-  @Test
   public void testFXFutureSecurity() {
     _testCase.testFXFutureSecurity();
   }
 
   @Override
-  @Test
   public void testFXOptionSecurity() {
     _testCase.testFXOptionSecurity();
   } 
 
   @Override
-  @Test
   public void testNonDeliverableFXOptionSecurity() {
     _testCase.testNonDeliverableFXOptionSecurity();
   } 
   
   @Override
-  @Test
   public void testFXBarrierOptionSecurity() {
     _testCase.testFXBarrierOptionSecurity();
   }
 
   @Override
-  @Test
   public void testForwardSwapSecurity() {
     _testCase.testForwardSwapSecurity();
   }
 
   @Override
-  @Test
   public void testIRFutureOptionSecurity() {
     _testCase.testIRFutureOptionSecurity();
   }
 
   @Override
-  @Test
   public void testEquityIndexDividendFutureOptionSecurity() {
     _testCase.testEquityIndexDividendFutureOptionSecurity();
   }
 
   @Override
-  @Test
   public void testGovernmentBondSecurity() {
     _testCase.testGovernmentBondSecurity();
   }
 
   @Override
-  @Test
   public void testIndexFutureSecurity() {
     _testCase.testIndexFutureSecurity();
   }
 
   @Override
-  @Test
   public void testInterestRateFutureSecurity() {
     _testCase.testInterestRateFutureSecurity();
   }
 
   @Override
-  @Test
   public void testMetalFutureSecurity() {
     _testCase.testMetalFutureSecurity();
   }
 
   @Override
-  @Test
   public void testMunicipalBondSecurity() {
     _testCase.testMunicipalBondSecurity();
   }
 
   @Override
-  @Test
   public void testStockFutureSecurity() {
     _testCase.testStockFutureSecurity();
   }
 
   @Override
-  @Test
   public void testSwaptionSecurity() {
     _testCase.testSwaptionSecurity();
   }
 
   @Override
-  @Test
   public void testSwapSecurity() {
     _testCase.testSwapSecurity();
   }
 
   @Override
-  @Test
   public void testEquityIndexOptionSecurity() {
     _testCase.testEquityIndexOptionSecurity();
   }
 
   @Override
-  @Test
   public void testFXDigitalOptionSecurity() {
     _testCase.testFXDigitalOptionSecurity();
   }
 
   @Override
-  @Test
   public void testFXForwardSecurity() {
     _testCase.testFXForwardSecurity();
   }
 
   @Override
-  @Test
   public void testNonDeliverableFXForwardSecurity() {
     _testCase.testNonDeliverableFXOptionSecurity();
   }
   
   @Override
-  @Test
   public void testCapFloorSecurity() {
     _testCase.testCapFloorSecurity();
   }
 
   @Override
-  @Test
   public void testCapFloorCMSSpreadSecurity() {
     _testCase.testCapFloorCMSSpreadSecurity();
   }
   
   @Override
-  @Test
   public void testRawSecurity() {
     _testCase.testRawSecurity();
   }
 
   @Override
-  @Test
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
 
   @Override
-  @Test
   public void testSimpleZeroDepositSecurity() {
     return;
   }
   
   @Override
-  @Test
   public void testPeriodicZeroDepositSecurity() {
     return;
   }
   
   @Override
-  @Test
   public void testContinuousZeroDepositSecurity() {
     return;
   }
   
   @Override
-  @Test
   public void testCDSSecurity() {
     _testCase.testCDSSecurity();
   }
+
+  @Override
+  public void testStandardFixedRecoveryCDSSecurity() {
+    _testCase.testStandardFixedRecoveryCDSSecurity();
+  }
+
+  @Override
+  public void testStandardRecoveryLockCDSSecurity() {
+    _testCase.testStandardRecoveryLockCDSSecurity();
+  }
+
+  @Override
+  public void testStandardVanillaCDSSecurity() {
+    _testCase.testStandardVanillaCDSSecurity();
+  }
+
+  @Override
+  public void testLegacyFixedRecoveryCDSSecurity() {
+    _testCase.testLegacyFixedRecoveryCDSSecurity();
+  }
+
+  @Override
+  public void testLegacyRecoveryLockCDSSecurity() {
+    _testCase.testLegacyRecoveryLockCDSSecurity();
+  }
+
+  @Override
+  public void testLegacyVanillaCDSSecurity() {
+    _testCase.testLegacyVanillaCDSSecurity();
+  }
+  
 }

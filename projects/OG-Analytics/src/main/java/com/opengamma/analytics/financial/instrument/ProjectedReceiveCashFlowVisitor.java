@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Returns all of the projected receive floating cash-flows of an instrument.
  */
-public final class ProjectedReceiveCashFlowVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, List<MultipleCurrencyAmount>> {
+public final class ProjectedReceiveCashFlowVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, List<MultipleCurrencyAmount>> {
   private static final ProjectedReceiveCashFlowVisitor INSTANCE = new ProjectedReceiveCashFlowVisitor();
 
   public static ProjectedReceiveCashFlowVisitor getInstance() {

@@ -29,7 +29,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
-    YieldCurveBundle curves = _curveBuilderFunction.evaluate(x);
+    final YieldCurveBundle curves = _curveBuilderFunction.evaluate(x);
 
     // set any known (i.e. fixed) curves
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
@@ -39,7 +39,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
     final double[] res = new double[_data.getNumInstruments()];
     for (int i = 0; i < _data.getNumInstruments(); i++) {
-      res[i] = _calculator.visit(_data.getDerivative(i), curves) - _data.getMarketValue(i);
+      res[i] = _data.getDerivative(i).accept(_calculator, curves) - _data.getMarketValue(i);
     }
 
     return new DoubleMatrix1D(res);

@@ -168,7 +168,7 @@ public class PV01CalculatorTest {
     for (int i = 0; i < n; i++) {
       coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME) });
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
     final BondFixedTransaction trade = new BondFixedTransaction(bond, 100, 100, bond, 90);
@@ -240,10 +240,10 @@ public class PV01CalculatorTest {
       final YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      final double upPV = PV.visit(ird, newCurves);
+      final double upPV = ird.accept(PV, newCurves);
       final YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      final double downPV = PV.visit(ird, newCurves);
+      final double downPV = ird.accept(PV, newCurves);
 
       final double res = (upPV - downPV) / 10000 / 2 / EPS;
       result.put(name, res);

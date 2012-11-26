@@ -39,6 +39,7 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
    */
   private static final OptionThetaBlackForexCalculator CALCULATOR = OptionThetaBlackForexCalculator.getInstance();
   private static final double DAYS_PER_YEAR = 252; //TODO get rid of this hard-coding
+
   public FXOptionBlackThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
@@ -47,7 +48,7 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final CurrencyAmount result = CALCULATOR.visit(forex, data);
+      final CurrencyAmount result = forex.accept(CALCULATOR, data);
       return Collections.singleton(new ComputedValue(spec, result.getAmount() / DAYS_PER_YEAR));
     }
     throw new OpenGammaRuntimeException("Can only calculate theta for surfaces with smiles");

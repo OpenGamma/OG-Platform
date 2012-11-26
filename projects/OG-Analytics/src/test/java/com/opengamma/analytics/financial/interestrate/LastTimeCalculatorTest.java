@@ -54,7 +54,7 @@ public class LastTimeCalculatorTest {
   public void testCash() {
     final double t = 7 / 365.0;
     final Cash cash = new Cash(CUR, 1 / 365.0, t, 100, 0.0445, 5.0 / 365, "t");
-    assertEquals(t, LDC.visit(cash), 1e-12);
+    assertEquals(t, cash.accept(LDC), 1e-12);
   }
 
   @Test
@@ -70,7 +70,7 @@ public class LastTimeCalculatorTest {
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, "Funding", paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction,
         0.05, "Forward");
 
-    assertEquals(fixingPeriodEndTime, LDC.visit(fra), 1e-12);
+    assertEquals(fixingPeriodEndTime, fra.accept(LDC), 1e-12);
   }
 
   @Test
@@ -85,13 +85,13 @@ public class LastTimeCalculatorTest {
     final double refrencePrice = 0.0;
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1, paymentAccrualFactor, 1,
         "S", "Funding", "Forward");
-    assertEquals(fixingPeriodEndTime, LDC.visit(ir, fixingPeriodStartTime), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
+    assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
 
   @Test
   public void testFixedCouponAnnuity() {
-    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "", true);
-    assertEquals(10, LDC.visit(annuity), 1e-12);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1.0, 1.0, "", true);
+    assertEquals(10, annuity.accept(LDC), 1e-12);
   }
 
   @Test
@@ -113,16 +113,16 @@ public class LastTimeCalculatorTest {
       spreads[i] = spread;
     }
     final AnnuityCouponIborSpread annuity = new AnnuityCouponIborSpread(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben", true);
-    assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
+    assertEquals(n * alpha + 0.1, annuity.accept(LDC), 1e-12);
   }
 
   @Test
   public void testBond() {
     final double mat = 1.0;
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0, "a")});
-    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat}, 0.03, "a", false);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0, "a") });
+    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat }, 0.03, "a", false);
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "a", "b");
-    assertEquals(mat, LDC.visit(bond), 1e-12);
+    assertEquals(mat, bond.accept(LDC), 1e-12);
   }
 
   @Test
@@ -140,7 +140,7 @@ public class LastTimeCalculatorTest {
     final double swapRate = 0.045;
 
     final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, "", "", true);
-    assertEquals(n * 0.5, LDC.visit(swap), 1e-12);
+    assertEquals(n * 0.5, swap.accept(LDC), 1e-12);
   }
 
   @Test
@@ -168,7 +168,7 @@ public class LastTimeCalculatorTest {
 
     final Swap<?, ?> swap = new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
 
-    assertEquals(n * tau, LDC.visit(swap, swap), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
+    assertEquals(n * tau, swap.accept(LDC), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
 
   }
 
@@ -176,6 +176,6 @@ public class LastTimeCalculatorTest {
   public void testDepositZero() {
     final double endTime = 0.03;
     final DepositZero deposit = new DepositZero(Currency.USD, 0, endTime, 100, 100, 0.25, new ContinuousInterestRate(0.03), 2, "FUNDING");
-    assertEquals(LDC.visit(deposit), endTime, 0);
+    assertEquals(deposit.accept(LDC), endTime, 0);
   }
 }

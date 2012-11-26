@@ -38,8 +38,9 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   private DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
                               String calcConfigName,
                               String callbackId,
-                              ViewCycle cycle) {
-    super(callbackId);
+                              ViewCycle cycle,
+                              ViewportListener viewportListener) {
+    super(viewportListener, callbackId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(callbackId, "callbackId");
@@ -51,12 +52,14 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
 
   /**
    * Creates a new grid for displaying a dependency graph of calculations.
+   *
    * @param compiledViewDef The view definition from which the graph and calculations were derived
    * @param target The object whose dependency graph is being displayed
    * @param calcConfigName The calculation configuration used for the calculations
    * @param cycle The view cycle that calculated the results
    * @param callbackId ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver For looking up the target of the calculation given its specification
+   * @param viewportListener
    * @return The grid
    */
   /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
@@ -64,15 +67,26 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                                   String calcConfigName,
                                                   ViewCycle cycle,
                                                   String callbackId,
-                                                  ComputationTargetResolver targetResolver) {
+                                                  ComputationTargetResolver targetResolver,
+                                                  ViewportListener viewportListener) {
     DependencyGraphStructureBuilder builder =
         new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver);
-    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle);
+    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener);
   }
 
   @Override
   public DependencyGraphGridStructure getGridStructure() {
     return _gridStructure;
+  }
+
+  @Override
+  protected ViewCycle getViewCycle() {
+    return _latestCycle;
+  }
+
+  @Override
+  protected ResultsCache getResultsCache() {
+    return _cache;
   }
 
   @Override
@@ -92,7 +106,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle) {
-    return getViewport(viewportId).update(viewportDefinition, cycle, _cache);
-  }
+  /* package */ /*String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+    return getViewport(viewportId).update(viewportDefinition, _latestCycle, _cache);
+  }*/
 }

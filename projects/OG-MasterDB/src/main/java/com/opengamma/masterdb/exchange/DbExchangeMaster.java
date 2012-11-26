@@ -291,5 +291,4 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     return history(exchangeHistoryRequest);
   }
 
-  
 }

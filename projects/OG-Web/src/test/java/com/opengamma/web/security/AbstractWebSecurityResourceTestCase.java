@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -37,7 +38,7 @@ import freemarker.template.Configuration;
 /**
  * 
  */
-public abstract class AbstractWebSecurityResourceTestCase {
+public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecurityTestCaseAdapter {
 
   protected HistoricalTimeSeriesSource _htsSource;
   protected SecurityMaster _secMaster;

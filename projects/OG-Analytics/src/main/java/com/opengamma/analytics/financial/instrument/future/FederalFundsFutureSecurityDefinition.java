@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -23,6 +22,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -80,13 +80,13 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    * @param name The future name.
    */
   public FederalFundsFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IndexON index, final ZonedDateTime[] fixingPeriodDate, final double[] fixingPeriodAccrualFactor,
-      final double notional, double paymentAccrualFactor, String name) {
-    Validate.notNull(lastTradingDate, "Last trading date");
-    Validate.notNull(index, "Index overnight");
-    Validate.notNull(fixingPeriodDate, "Fixing period dates");
-    Validate.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
-    Validate.notNull(name, "Name");
-    Validate.isTrue(fixingPeriodDate.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
+      final double notional, final double paymentAccrualFactor, final String name) {
+    ArgumentChecker.notNull(lastTradingDate, "Last trading date");
+    ArgumentChecker.notNull(index, "Index overnight");
+    ArgumentChecker.notNull(fixingPeriodDate, "Fixing period dates");
+    ArgumentChecker.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.isTrue(fixingPeriodDate.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
     _lastTradingDate = lastTradingDate;
     _index = index;
     _fixingPeriodDate = fixingPeriodDate;
@@ -95,13 +95,13 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     _marginAccrualFactor = paymentAccrualFactor;
     _name = name;
     _fixingTotalAccrualFactor = 0.0;
-    for (int loopfix = 0; loopfix < _fixingPeriodAccrualFactor.length; loopfix++) {
-      _fixingTotalAccrualFactor += _fixingPeriodAccrualFactor[loopfix];
+    for (final double element : _fixingPeriodAccrualFactor) {
+      _fixingTotalAccrualFactor += element;
     }
   }
 
   /**
-   * Builder for a given month. The future start on the first business day of the month and ends on the first business day of the next month. 
+   * Builder for a given month. The future start on the first business day of the month and ends on the first business day of the next month.
    * The last trading date is the last good business day of the month.
    * @param monthDate Any date in the future month.
    * @param index The overnight index.
@@ -110,20 +110,20 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    * @param name The future name.
    * @return The future.
    */
-  public static FederalFundsFutureSecurityDefinition from(final ZonedDateTime monthDate, final IndexON index, final double notional, double paymentAccrualFactor, String name) {
-    Validate.notNull(monthDate, "Reference date");
-    Validate.notNull(index, "Index overnight");
-    ZonedDateTime periodFirstDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1));
-    ZonedDateTime periodLastDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1).plusMonths(1));
-    ZonedDateTime last = BUSINESS_DAY_PRECEDING.adjustDate(index.getCalendar(), periodLastDate.minusDays(1));
-    List<ZonedDateTime> fixingList = new ArrayList<ZonedDateTime>();
+  public static FederalFundsFutureSecurityDefinition from(final ZonedDateTime monthDate, final IndexON index, final double notional, final double paymentAccrualFactor, final String name) {
+    ArgumentChecker.notNull(monthDate, "Reference date");
+    ArgumentChecker.notNull(index, "Index overnight");
+    final ZonedDateTime periodFirstDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1));
+    final ZonedDateTime periodLastDate = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), monthDate.withDayOfMonth(1).plusMonths(1));
+    final ZonedDateTime last = BUSINESS_DAY_PRECEDING.adjustDate(index.getCalendar(), periodLastDate.minusDays(1));
+    final List<ZonedDateTime> fixingList = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = periodFirstDate;
     while (!date.isAfter(periodLastDate)) {
       fixingList.add(date);
       date = BUSINESS_DAY_FOLLOWING.adjustDate(index.getCalendar(), date.plusDays(1));
     }
-    ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[0]);
-    double[] fixingAccrualFactor = new double[fixingDate.length - 1];
+    final ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[0]);
+    final double[] fixingAccrualFactor = new double[fixingDate.length - 1];
     for (int loopfix = 0; loopfix < fixingDate.length - 1; loopfix++) {
       fixingAccrualFactor[loopfix] = index.getDayCount().getDayCountFraction(fixingDate[loopfix], fixingDate[loopfix + 1]);
     }
@@ -131,7 +131,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   /**
-   * Builder of the CBOT Federal Funds futures for a given month. The future start on the first business day of the month and ends on the first business day of the next month. 
+   * Builder of the CBOT Federal Funds futures for a given month. The future start on the first business day of the month and ends on the first business day of the next month.
    * The last trading date is the last good business day of the month. The notional is 5m. The payment accrual fraction is 1/12. The name is "FF" + month in format "MMMYY".
    * @param monthDate Any date in the future month.
    * @param index The overnight index.
@@ -221,10 +221,10 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.notNull(date, "Date");
-    Validate.isTrue(!date.isAfter(_fixingPeriodDate[_index.getPublicationLag()]), "Date should not be after the fixing period start date");
-    double[] fixingPeriodTime = new double[_fixingPeriodDate.length];
+  public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Date");
+    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodDate[_index.getPublicationLag()]), "Date should not be after the fixing period start date");
+    final double[] fixingPeriodTime = new double[_fixingPeriodDate.length];
     for (int loopfix = 0; loopfix < _fixingPeriodDate.length; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix]);
     }
@@ -233,11 +233,11 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
 
   @Override
   /**
-   * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month. 
+   * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month.
    * The date of the time series is the publication date (for Fed Funds, it is the end date of the period).
    */
-  public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, String... yieldCurveNames) {
-    Validate.notNull(date, "Date");
+  public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Date");
     if (date.isBefore(_fixingPeriodDate[1])) { // Fixing period not started
       return toDerivative(date, yieldCurveNames);
     }
@@ -259,8 +259,8 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some FF period left
-        double[] fixingPeriodTime = new double[_fixingPeriodDate.length - fixedPeriod];
-        double[] fixingPeriodAccrualFactor = new double[_fixingPeriodDate.length - 1 - fixedPeriod];
+        final double[] fixingPeriodTime = new double[_fixingPeriodDate.length - fixedPeriod];
+        final double[] fixingPeriodAccrualFactor = new double[_fixingPeriodDate.length - 1 - fixedPeriod];
         for (int loopfix = 0; loopfix < _fixingPeriodDate.length - fixedPeriod; loopfix++) {
           fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix + fixedPeriod]);
         }
@@ -276,12 +276,14 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureSecurityDefinition(this);
   }
 
@@ -303,7 +305,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -313,7 +315,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FederalFundsFutureSecurityDefinition other = (FederalFundsFutureSecurityDefinition) obj;
+    final FederalFundsFutureSecurityDefinition other = (FederalFundsFutureSecurityDefinition) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactor, other._fixingPeriodAccrualFactor)) {
       return false;
     }

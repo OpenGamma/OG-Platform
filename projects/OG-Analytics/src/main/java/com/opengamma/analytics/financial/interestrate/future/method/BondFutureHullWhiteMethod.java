@@ -109,7 +109,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     final double[][] pv = new double[nbPoint][nbBond];
     final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      cf[loopbnd] = CFEC.visit(future.getDeliveryBasket()[loopbnd], hwData);
+      cf[loopbnd] = future.getDeliveryBasket()[loopbnd].accept(CFEC, hwData);
       final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
@@ -272,7 +272,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     final double[][] pv = new double[nbPoint][nbBond];
     final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      cf[loopbnd] = CFEC.visit(future.getDeliveryBasket()[loopbnd], hwData);
+      cf[loopbnd] = future.getDeliveryBasket()[loopbnd].accept(CFEC, hwData);
       final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];

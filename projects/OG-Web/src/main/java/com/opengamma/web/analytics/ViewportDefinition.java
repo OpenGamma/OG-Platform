@@ -49,14 +49,16 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
    * cells is non-empty
    * @param cells Cells in the viewport. Must be non-empty if rows and columns are empty. Must be empty if rows and
    * columns are non-empty.
-   * @param expanded Whether the cell data should show all the data (true) or be formatted to fit in a single cell (false)
+   * @param format The format for the viewport's data
+   * @param enableLogging Whether full logging info should be collected for the viewport's cells
    * @return A new viewport definition
    */
   public static ViewportDefinition create(int version,
                                           List<Integer> rows,
                                           List<Integer> columns,
                                           List<GridCell> cells,
-                                          TypeFormatter.Format format) {
+                                          TypeFormatter.Format format,
+                                          Boolean enableLogging) {
     ArgumentChecker.notNull(cells, "cells");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
@@ -64,7 +66,8 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
       if (rows.size() != 0 || columns.size() != 0) {
         throw new IllegalArgumentException("rows and columns must be empty if cells are specified");
       }
-      return new ArbitraryViewportDefinition(version, cells, format);
+      boolean logging = enableLogging == null ? false : enableLogging;
+      return new ArbitraryViewportDefinition(version, cells, format, logging);
     } else {
       if (rows.size() == 0 || columns.size() == 0) {
         throw new IllegalArgumentException("rows and columns must not be empty if no cells are specified");
@@ -83,4 +86,6 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
   /* package */ int getVersion() {
     return _version;
   }
+
+  /* package */ abstract boolean enableLogging();
 }

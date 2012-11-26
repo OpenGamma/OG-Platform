@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,6 +29,13 @@ import com.opengamma.util.ArgumentChecker;
  * the value.
  */
 public class DependencyGraphGridStructure implements GridStructure {
+
+  private static final int TARGET_COL = 0;
+  private static final int TARGET_TYPE_COL = 1;
+  private static final int VALUE_NAME_COL = 2;
+  private static final int VALUE_COL = 3;
+  private static final int FN_NAME_COL = 4;
+  private static final int PROPERTIES_COL = 5;
 
   /** The fixed set of columns used in all dependency graph grids. */
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
@@ -87,44 +95,45 @@ public class DependencyGraphGridStructure implements GridStructure {
     List<ViewportResults.Cell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       int rowIndex = cell.getRow();
-      ResultsCache.Result cacheResult = cache.getResult(calcConfigName, _valueSpecs.get(rowIndex), null);
-      Object value = cacheResult.getValue();
       ValueSpecification spec = _valueSpecs.get(rowIndex);
+      ResultsCache.Result cacheResult = cache.getResult(calcConfigName, spec, null);
+      Collection<Object> history = cacheResult.getHistory();
+      Object value = cacheResult.getValue();
+      ExecutionLog executionLog = cacheResult.getExecutionLog();
       String fnName = _fnNames.get(rowIndex);
-      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, cache, calcConfigName));
+      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, history, executionLog));
     }
     return results;
   }
 
   /**
    * Builds a the result for a single grid cell.
+   *
    * @param colIndex Index of the column in the grid
    * @param valueSpec The specifications of the cell's value
    * @param fnName The name of the function that calculated the cell's value
    * @param value The cell's value
-   * @param cache Cache of results for the grid, used for building the history of values for the cell
-   * @param calcConfigName Calculation configuration used when calculating the dependency graph
+   * @param executionLog Log generated when the value was calculated
    * @return Cell containing the result and possibly history
    */
   /* package */ ViewportResults.Cell createValueForColumn(int colIndex,
                                                           ValueSpecification valueSpec,
                                                           String fnName,
                                                           Object value,
-                                                          ResultsCache cache,
-                                                          String calcConfigName) {
+                                                          Collection<Object> history,
+                                                          ExecutionLog executionLog) {
     switch (colIndex) {
-      case 0: // target
+      case TARGET_COL:
         return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
-      case 1: // target type
+      case TARGET_TYPE_COL:
         return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
-      case 2: // value name
+      case VALUE_NAME_COL:
         return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
-      case 3: // value
-        Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
-        return ViewportResults.valueCell(value, valueSpec, cellHistory, colIndex);
-      case 4: // function name
+      case VALUE_COL:
+        return ViewportResults.valueCell(value, valueSpec, history, executionLog, colIndex);
+      case FN_NAME_COL:
         return ViewportResults.stringCell(fnName, colIndex);
-      case 5: // properties
+      case PROPERTIES_COL:
         return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
@@ -236,6 +245,15 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public AnalyticsColumnGroups getColumnStructure() {
     return COLUMN_GROUPS;
+  }
+
+  @Override
+  public ValueSpecification getValueSpecificationForCell(int row, int col) {
+    if (col != VALUE_COL) {
+      return null;
+    } else {
+      return _valueSpecs.get(row);
+    }
   }
 
   /**

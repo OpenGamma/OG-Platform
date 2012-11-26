@@ -34,7 +34,7 @@ public class FXOptionBlackVegaMatrixFunctionDeprecated extends FXOptionBlackSing
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = fxOption.accept(CALCULATOR, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();

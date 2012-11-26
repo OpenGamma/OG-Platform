@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a Ibor floating coupon bond (Floating Rate Note) issue.
@@ -23,17 +24,19 @@ public class BondIborSecurity extends BondSecurity<PaymentFixed, Coupon> {
    * @param settlementTime The time (in years) to settlement date. 
    * @param discountCurveName The name of the curve used for settlement amount discounting.
    */
-  public BondIborSecurity(AnnuityPaymentFixed nominal, Annuity<Coupon> coupon, double settlementTime, String discountCurveName) {
+  public BondIborSecurity(final AnnuityPaymentFixed nominal, final Annuity<Coupon> coupon, final double settlementTime, final String discountCurveName) {
     super(nominal, coupon, settlementTime, discountCurveName, "");
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborSecurity(this);
   }
 

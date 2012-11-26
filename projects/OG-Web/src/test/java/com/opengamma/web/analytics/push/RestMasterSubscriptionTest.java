@@ -28,7 +28,7 @@ public class RestMasterSubscriptionTest {
 
   @BeforeClass
   public void createServer() throws Exception {
-    Pair<Server,WebApplicationContext> serverAndContext = _webPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/rest-subscription-test.xml");
+    Pair<Server,WebApplicationContext> serverAndContext = _webPushTestUtils.createJettyServer("classpath:/com/opengamma/web/analytics/push/rest-subscription-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _positionChangeManager = context.getBean("positionChangeManager", TestChangeManager.class);

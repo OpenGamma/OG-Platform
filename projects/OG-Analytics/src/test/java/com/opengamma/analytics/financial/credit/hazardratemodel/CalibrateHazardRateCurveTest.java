@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -325,7 +325,7 @@ public class CalibrateHazardRateCurveTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
+  // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -338,7 +338,6 @@ public class CalibrateHazardRateCurveTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -349,7 +348,6 @@ public class CalibrateHazardRateCurveTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -368,7 +366,7 @@ public class CalibrateHazardRateCurveTest {
 
     // -----------------------------------------------------------------------------------------------
 
-    int numberOfCalibrationCDS = 1;
+    final int numberOfCalibrationCDS = 1;
 
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
@@ -384,7 +382,7 @@ public class CalibrateHazardRateCurveTest {
 
     final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
 
-    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
@@ -413,7 +411,7 @@ public class CalibrateHazardRateCurveTest {
     // Define the market data to calibrate to
 
     // The number of CDS instruments used to calibrate against
-    int numberOfCalibrationCDS = 8;
+    final int numberOfCalibrationCDS = 8;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
@@ -468,7 +466,7 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[5] = 896.0;
     marketSpreads[6] = 868.0;
     marketSpreads[7] = 838.0;
-    */
+     */
 
     // The recovery rate assumption used in the PV calculations when calibrating
     final double calibrationRecoveryRate = 0.40;
@@ -487,7 +485,7 @@ public class CalibrateHazardRateCurveTest {
     final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    final double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {

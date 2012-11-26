@@ -138,7 +138,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           final InstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
           final String bondStringName = PROPERTY_PREFIX + "_" + CURRENCY.getCode();
           final InstrumentDerivative bond = definition.toDerivative(now, bondStringName);
-          t[i] = LAST_DATE.visit(bond);
+          t[i] = bond.accept(LAST_DATE);
           ytm[i++] = ((Double) ytmObject / 100);
         }
         final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3 });

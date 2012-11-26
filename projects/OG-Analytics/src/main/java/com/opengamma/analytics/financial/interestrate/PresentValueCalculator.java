@@ -58,7 +58,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to)
  */
-public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The method unique instance.
@@ -96,24 +96,24 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final CouponCMSDiscountingMethod METHOD_CMS_DISCOUNTING = CouponCMSDiscountingMethod.getInstance();
 
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
-
-  @Override
-  public Double[] visit(final InstrumentDerivative[] derivative, final YieldCurveBundle curves) {
-    Validate.notNull(derivative, "derivative");
-    Validate.noNullElements(derivative, "derivative");
-    Validate.notNull(curves, "curves");
-    final Double[] output = new Double[derivative.length];
-    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
-      output[loopderivative] = derivative[loopderivative].accept(this, curves);
-    }
-    return output;
-  }
+  //  @Override
+  //  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
+  //    Validate.notNull(curves);
+  //    Validate.notNull(derivative);
+  //    return derivative.accept(this, curves);
+  //  }
+  //
+  //  @Override
+  //  public Double[] visit(final InstrumentDerivative[] derivative, final YieldCurveBundle curves) {
+  //    Validate.notNull(derivative, "derivative");
+  //    Validate.noNullElements(derivative, "derivative");
+  //    Validate.notNull(curves, "curves");
+  //    final Double[] output = new Double[derivative.length];
+  //    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
+  //      output[loopderivative] = derivative[loopderivative].accept(this, curves);
+  //    }
+  //    return output;
+  //  }
 
   // -----     Deposit     ------
 
@@ -229,8 +229,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final double pvFirst = visit(swap.getFirstLeg(), curves);
-    final double pvSecond = visit(swap.getSecondLeg(), curves);
+    final double pvFirst = swap.getFirstLeg().accept(this, curves);
+    final double pvSecond = swap.getSecondLeg().accept(this, curves);
     return pvSecond + pvFirst;
   }
 
@@ -260,7 +260,7 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     Validate.notNull(annuity);
     double pv = 0;
     for (final Payment p : annuity.getPayments()) {
-      pv += visit(p, curves);
+      pv += p.accept(this, curves);
     }
     return pv;
   }
@@ -272,8 +272,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
 
   @Override
   public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle data) {
-    final double domesticValue = visit(ccs.getDomesticLeg(), data);
-    final double foreignValue = visit(ccs.getForeignLeg(), data);
+    final double domesticValue = ccs.getDomesticLeg().accept(this, data);
+    final double foreignValue = ccs.getForeignLeg().accept(this, data);
     final double fx = ccs.getSpotFX();
     return domesticValue - fx * foreignValue;
   }

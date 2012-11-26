@@ -14,14 +14,14 @@ import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMet
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
  * Calculator of the present value volatility sensitivity for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  */
 public final class PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator extends
-    AbstractInstrumentDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueForexBlackVolatilityNodeSensitivityDataBundle> {
+    InstrumentDerivativeVisitorAdapter<SmileDeltaTermStructureDataBundle, PresentValueForexBlackVolatilityNodeSensitivityDataBundle> {
 
   /**
    * The unique instance of the calculator.

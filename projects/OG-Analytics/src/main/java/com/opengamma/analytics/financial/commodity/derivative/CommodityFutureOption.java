@@ -5,19 +5,18 @@
  */
 package com.opengamma.analytics.financial.commodity.derivative;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.CommodityFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
+
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * Abstract commodity future derivative.
  *
  * @param <T>
  */
-public abstract class CommodityFutureOption<T extends CommodityFutureDefinition<?>> implements InstrumentDerivative {
+public abstract class CommodityFutureOption<T extends CommodityFuture> implements InstrumentDerivative {
   /** Time (in years as a double) until the date-time at which the future expires */
   private final double _expiry;
   /** Identifier of the underlying commodity */

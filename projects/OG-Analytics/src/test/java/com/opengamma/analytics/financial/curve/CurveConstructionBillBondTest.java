@@ -36,8 +36,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
@@ -88,7 +88,7 @@ public class CurveConstructionBillBondTest {
   private static final YieldConvention YIELD_BILL_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
   private static final DayCount DAY_COUNT_BILL_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int SPOT_LAG_BILL = 1;
-  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2013, 2, 28)};
+  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2013, 2, 28) };
   private static final int NB_BILL = BILL_MATURITY.length;
   private static final BillSecurityDefinition[] BILL_SECURITY = new BillSecurityDefinition[NB_BILL];
   private static final GeneratorBill[] GENERATOR_BILL = new GeneratorBill[NB_BILL];
@@ -103,12 +103,13 @@ public class CurveConstructionBillBondTest {
 
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_EMPTY = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_USD_WITH_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 21),
-      DateUtils.getUTCDate(2012, 8, 22)}, new double[] {0.07, 0.08});
-  private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 21)}, new double[] {0.07});
+      DateUtils.getUTCDate(2012, 8, 22) }, new double[] {0.07, 0.08 });
+  private static final ArrayZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 21) },
+      new double[] {0.07 });
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_USD_WITH_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITH_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_OIS_USD_WITH_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITH_TODAY };
   @SuppressWarnings("rawtypes")
-  private static final DoubleTimeSeries[] TS_FIXED_OIS_USD_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY};
+  private static final DoubleTimeSeries[] TS_FIXED_OIS_USD_WITHOUT_TODAY = new DoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_USD = "USD Dsc";
   private static final String CURVE_NAME_GOVTUS_USD = "USD GOVT US";
@@ -119,27 +120,27 @@ public class CurveConstructionBillBondTest {
   }
 
   /** Market values for the dsc USD curve */
-  public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0015, 0.0008, 0.0010, 0.0010, 0.0010, 0.0010, 0.0020, 0.0030, 0.0040, 0.0050, 0.0130};
+  public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0015, 0.0008, 0.0010, 0.0010, 0.0010, 0.0010, 0.0020, 0.0030, 0.0040, 0.0050, 0.0130 };
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
+      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
 
   /** Market values for the govt USD curve */
-  public static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015};
+  public static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015 };
   /** Generators for the govt USD curve */
-  public static final GeneratorInstrument[] GOVTUS_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2]};
+  public static final GeneratorInstrument[] GOVTUS_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2] };
   /** Tenors for the govt USD curve */
-  public static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0)};
+  public static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
 
   /** Standard USD discounting curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
   /** Standard USD Forward 3M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_GOVTUS_USD;
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2};
+  public static final int[] NB_UNITS = new int[] {2 };
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -154,13 +155,13 @@ public class CurveConstructionBillBondTest {
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_GOVTUS_USD};
-    GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin};
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin};
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_GOVTUS_USD};
+    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD };
+    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_GOVTUS_USD };
+    final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
+    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
+    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_GOVTUS_USD };
   }
 
   // Calculators
@@ -189,15 +190,15 @@ public class CurveConstructionBillBondTest {
     t++;
   }
 
-  public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday) {
-    int nbBlocks = definitions.length;
+  public void curveConstructionTest(final String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday) {
+    final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
-      InstrumentDerivative[][] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday);
-      double[][] pv = new double[instruments.length][];
+      final InstrumentDerivative[][] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday);
+      final double[][] pv = new double[instruments.length][];
       for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
-          pv[loopcurve][loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopcurve][loopins], curves), CCY_USD).getAmount();
+          pv[loopcurve][loopins] = curves.getFxRates().convert(instruments[loopcurve][loopins].accept(PV_CALCULATOR, curves), CCY_USD).getAmount();
           assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_PV);
         }
       }
@@ -209,24 +210,24 @@ public class CurveConstructionBillBondTest {
    * Code used to graph the curves
    */
   public void analysis() {
-    int nbPoints = 210;
-    double endTime = 21.0;
-    double[] x = new double[nbPoints + 1];
+    final int nbPoints = 210;
+    final double endTime = 21.0;
+    final double[] x = new double[nbPoints + 1];
     for (int looppt = 0; looppt <= nbPoints; looppt++) {
       x[looppt] = looppt * endTime / nbPoints;
     }
-    int nbAnalysis = NB_BLOCKS;
-    YieldCurveBundle[] bundle = new YieldCurveBundle[nbAnalysis];
-    double[][][] rate = new double[nbAnalysis][][];
+    final int nbAnalysis = NB_BLOCKS;
+    final YieldCurveBundle[] bundle = new YieldCurveBundle[nbAnalysis];
+    final double[][][] rate = new double[nbAnalysis][][];
     for (int loopblock = 0; loopblock < nbAnalysis; loopblock++) {
       bundle[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
     }
     for (int loopbundle = 0; loopbundle < nbAnalysis; loopbundle++) {
-      Set<String> curveNames = bundle[loopbundle].getAllNames();
-      int nbCurve = curveNames.size();
+      final Set<String> curveNames = bundle[loopbundle].getAllNames();
+      final int nbCurve = curveNames.size();
       int loopc = 0;
       rate[loopbundle] = new double[nbCurve][nbPoints + 1];
-      for (String name : curveNames) {
+      for (final String name : curveNames) {
         for (int looppt = 0; looppt <= nbPoints; looppt++) {
           rate[loopbundle][loopc][looppt] = bundle[loopbundle].getCurve(name).getInterestRate(x[looppt]);
         }
@@ -245,13 +246,14 @@ public class CurveConstructionBillBondTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
-      YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday) {
-    int nbUnits = curveGenerators.length;
-    double[][] parametersGuess = new double[nbUnits][];
-    GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];
-    InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
+      final String[][] curveNames,
+      final YieldCurveBundle knownData, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator,
+      final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, final boolean withToday) {
+    final int nbUnits = curveGenerators.length;
+    final double[][] parametersGuess = new double[nbUnits][];
+    final GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];
+    final InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
       generatorFinal[loopunit] = new GeneratorYDCurve[curveGenerators[loopunit].length];
       int nbInsUnit = 0;
@@ -263,7 +265,7 @@ public class CurveConstructionBillBondTest {
       instruments[loopunit] = convert(curveNames, definitions[loopunit], loopunit, withToday);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(rate(definitions[loopunit][loopcurve]));
+        final double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(rate(definitions[loopunit][loopcurve]));
         System.arraycopy(guessCurve, 0, parametersGuess[loopunit], startCurve, instruments[loopunit][loopcurve].length);
         startCurve += instruments[loopunit][loopcurve].length;
       }
@@ -272,10 +274,10 @@ public class CurveConstructionBillBondTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static InstrumentDerivative[][] convert(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday) {
+  private static InstrumentDerivative[][] convert(final String[][] curveNames, final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
     int nbDef = 0;
-    for (int loopdef1 = 0; loopdef1 < definitions.length; loopdef1++) {
-      nbDef += definitions[loopdef1].length;
+    for (final InstrumentDefinition<?>[] definition : definitions) {
+      nbDef += definition.length;
     }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
@@ -303,7 +305,7 @@ public class CurveConstructionBillBondTest {
     return instruments;
   }
 
-  private static double rate(InstrumentDefinition<?> instrument) {
+  private static double rate(final InstrumentDefinition<?> instrument) {
     if (instrument instanceof SwapFixedONDefinition) {
       return ((SwapFixedONDefinition) instrument).getFixedLeg().getNthPayment(0).getRate();
     }
@@ -316,36 +318,36 @@ public class CurveConstructionBillBondTest {
     return 0.01;
   }
 
-  private static double[] rate(InstrumentDefinition<?>[] definitions) {
-    double[] result = new double[definitions.length];
+  private static double[] rate(final InstrumentDefinition<?>[] definitions) {
+    final double[] result = new double[definitions.length];
     int loopr = 0;
-    for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
-      result[loopr++] = rate(definitions[loopcurve]);
+    for (final InstrumentDefinition<?> definition : definitions) {
+      result[loopr++] = rate(definition);
     }
     return result;
   }
 
-  private static String[] getCurvesNameSwapFixedON(String[][] curveNames) {
-    return new String[] {curveNames[0][0], curveNames[0][0]};
+  private static String[] getCurvesNameSwapFixedON(final String[][] curveNames) {
+    return new String[] {curveNames[0][0], curveNames[0][0] };
   }
 
-  private static String[] getCurvesNameBill(String[][] curveNames) {
-    return new String[] {curveNames[0][0], curveNames[1][0]};
+  private static String[] getCurvesNameBill(final String[][] curveNames) {
+    return new String[] {curveNames[0][0], curveNames[1][0] };
   }
 
-  private static String[] getCurvesNameCash(String[][] curveNames, Integer unit) {
+  private static String[] getCurvesNameCash(final String[][] curveNames, final Integer unit) {
     switch (unit) {
       case 0:
-        return new String[] {curveNames[0][0]};
+        return new String[] {curveNames[0][0] };
       case 1:
-        return new String[] {curveNames[1][0]};
+        return new String[] {curveNames[1][0] };
       default:
         throw new IllegalArgumentException(unit.toString());
     }
   }
 
   @SuppressWarnings("rawtypes")
-  private static DoubleTimeSeries[] getTSSwapFixedON(Boolean withToday, Integer unit) {
+  private static DoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday, final Integer unit) {
     switch (unit) {
       case 0:
         return withToday ? TS_FIXED_OIS_USD_WITH_TODAY : TS_FIXED_OIS_USD_WITHOUT_TODAY;

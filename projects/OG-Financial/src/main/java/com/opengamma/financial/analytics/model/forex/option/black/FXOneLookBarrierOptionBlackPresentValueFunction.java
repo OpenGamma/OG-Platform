@@ -27,18 +27,17 @@ public class FXOneLookBarrierOptionBlackPresentValueFunction extends FXOneLookBa
   }
 
   @Override
-  protected Object computeValues(Set<ForexOptionVanilla> vanillas, ForexOptionDataBundle<?> market) {
+  protected Object computeValues(final Set<ForexOptionVanilla> vanillas, final ForexOptionDataBundle<?> market) {
     if (!(market instanceof SmileDeltaTermStructureDataBundle)) {
       throw new OpenGammaRuntimeException("FXOneLookBarrierOptionBlackPresentValueFunction requires a Vol surface with a smile.");
     }
     double sum = 0.0;
-    for (ForexOptionVanilla derivative : vanillas) {
-      final MultipleCurrencyAmount result = SMILE_CALCULATOR.visit(derivative, market);
+    for (final ForexOptionVanilla derivative : vanillas) {
+      final MultipleCurrencyAmount result = derivative.accept(SMILE_CALCULATOR, market);
       ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
       final CurrencyAmount ca = result.getCurrencyAmounts()[0];
-      sum +=  ca.getAmount();
+      sum += ca.getAmount();
     }
     return sum;
   }
-
 }

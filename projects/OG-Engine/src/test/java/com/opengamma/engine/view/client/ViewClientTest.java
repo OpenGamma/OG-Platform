@@ -578,9 +578,9 @@ public class ViewClientTest {
     
     ExecutionLog log1 = result1Value.getExecutionLog();
     assertNotNull(log1);
-    assertTrue(log1.hasError());
-    assertTrue(log1.hasWarn());
-    assertFalse(log1.hasInfo());
+    assertTrue(log1.getLogLevels().contains(LogLevel.ERROR));
+    assertTrue(log1.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(log1.getLogLevels().contains(LogLevel.INFO));
     assertNull(log1.getEvents());
     assertNull(log1.getExceptionClass());
     assertNull(log1.getExceptionMessage());
@@ -602,9 +602,9 @@ public class ViewClientTest {
     
     ExecutionLog log2 = result2Value.getExecutionLog();
     assertNotNull(log2);
-    assertTrue(log2.hasError());
-    assertTrue(log2.hasWarn());
-    assertFalse(log2.hasInfo());
+    assertTrue(log2.getLogLevels().contains(LogLevel.ERROR));
+    assertTrue(log2.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(log2.getLogLevels().contains(LogLevel.INFO));
     assertNotNull(log2.getEvents());
     assertEquals(2, log2.getEvents().size());
     LogEvent log2Event1 = log2.getEvents().get(0);

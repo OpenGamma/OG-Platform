@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -42,7 +43,8 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedIbor(double expiryTime, double strike, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime, boolean isCall, boolean isLong) {
+  private SwaptionPhysicalFixedIbor(final double expiryTime, final double strike, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isCall,
+      final boolean isLong) {
     super(strike, expiryTime, isCall);
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
@@ -60,9 +62,9 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedIbor from(double expiryTime, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime, boolean isLong) {
+  public static SwaptionPhysicalFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isLong) {
     Validate.notNull(underlyingSwap, "underlying swap");
-    double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
+    final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
     return new SwaptionPhysicalFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
@@ -113,12 +115,14 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionPhysicalFixedIbor(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionPhysicalFixedIbor(this);
   }
 
@@ -135,14 +139,14 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (!super.equals(obj)) {
       return false;
     }
-    SwaptionPhysicalFixedIbor other = (SwaptionPhysicalFixedIbor) obj;
+    final SwaptionPhysicalFixedIbor other = (SwaptionPhysicalFixedIbor) obj;
     if (_isLong != other._isLong) {
       return false;
     }

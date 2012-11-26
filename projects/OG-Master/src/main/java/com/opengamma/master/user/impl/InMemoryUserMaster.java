@@ -5,15 +5,9 @@
  */
 package com.opengamma.master.user.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -27,8 +21,11 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
+import com.opengamma.master.user.UserHistoryRequest;
+import com.opengamma.master.user.UserHistoryResult;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
@@ -43,25 +40,14 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryUserMaster implements UserMaster {
+public class InMemoryUserMaster
+    extends SimpleAbstractInMemoryMaster<UserDocument>
+    implements UserMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemUsr";
-
-  /**
-   * A cache of exchanges by identifier.
-   */
-  private final ConcurrentMap<ObjectId, UserDocument> _store = new ConcurrentHashMap<ObjectId, UserDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -72,7 +58,7 @@ public class InMemoryUserMaster implements UserMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemoryUserMaster(final ChangeManager changeManager) {
@@ -81,7 +67,7 @@ public class InMemoryUserMaster implements UserMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryUserMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -90,15 +76,19 @@ public class InMemoryUserMaster implements UserMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemoryUserMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void validateDocument(UserDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUser(), "document.user");
   }
 
   //-------------------------------------------------------------------------
@@ -111,6 +101,8 @@ public class InMemoryUserMaster implements UserMaster {
         list.add(doc);
       }
     }
+    Collections.sort(list, request.getSortOrder());
+    
     UserSearchResult result = new UserSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
@@ -147,9 +139,7 @@ public class InMemoryUserMaster implements UserMaster {
     user.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
-    final UserDocument doc = new UserDocument();
-    doc.setUser(user);
-    doc.setUniqueId(uniqueId);
+    final UserDocument doc = new UserDocument(user);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
@@ -174,12 +164,11 @@ public class InMemoryUserMaster implements UserMaster {
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
+    document.setUniqueId(uniqueId.withVersion(""));
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    Instant versionFrom = storedDocument.getVersionFromInstant().isAfter(document.getVersionFromInstant()) ? document.getVersionFromInstant() : storedDocument.getVersionFromInstant();
-    Instant versionTo = storedDocument.getVersionToInstant().isBefore(document.getVersionToInstant()) ? document.getVersionToInstant() : storedDocument.getVersionToInstant();
-    _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), versionFrom, versionTo, now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -187,11 +176,10 @@ public class InMemoryUserMaster implements UserMaster {
   @Override
   public void remove(ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-    UserDocument removed = _store.remove(objectIdentifiable.getObjectId());
-    if (removed == null) {
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
       throw new DataNotFoundException("User not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, removed.getObjectId(), removed.getVersionFromInstant(), removed.getVersionToInstant(), Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -202,93 +190,17 @@ public class InMemoryUserMaster implements UserMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
+  public UserHistoryResult history(final UserHistoryRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-
-  @Override
-  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<UserDocument> replacementDocuments) {
-
-    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
-
-    if (replacementDocuments.isEmpty()) {
-      //removing a version
-      UserDocument removed = _store.remove(uniqueId.getObjectId());
-      if (removed == null) {
-        throw new DataNotFoundException("User not found: " + uniqueId);
-      }
-      _changeManager.entityChanged(ChangeType.REMOVED, removed.getObjectId(), removed.getVersionFromInstant(), removed.getVersionToInstant(), Instant.now());
-      return Collections.emptyList();
-    } else {
-      UserDocument document = replacementDocuments.get(replacementDocuments.size() - 1);
-      ArgumentChecker.notNull(document, "document");
-      ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-      ArgumentChecker.notNull(document.getUser(), "document.user");
-
-      final Instant now = Instant.now();
-      final UserDocument storedDocument = _store.get(uniqueId.getObjectId());
-      if (storedDocument == null) {
-        throw new DataNotFoundException("User not found: " + uniqueId);
-      }
-      document.setUniqueId(uniqueId.toLatest());
-      document.setVersionFromInstant(now);
-      document.setVersionToInstant(null);
-      document.setCorrectionFromInstant(now);
-      document.setCorrectionToInstant(null);
-      if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
-        throw new IllegalArgumentException("Concurrent modification");
-      }
-      Instant versionFrom = storedDocument.getVersionFromInstant().isAfter(document.getVersionFromInstant()) ? document.getVersionFromInstant() : storedDocument.getVersionFromInstant();
-      Instant versionTo = storedDocument.getVersionToInstant().isBefore(document.getVersionToInstant()) ? document.getVersionToInstant() : storedDocument.getVersionToInstant();
-      _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), versionFrom, versionTo, now);
-      return Collections.singletonList(document.getUniqueId());
+    final UserHistoryResult result = new UserHistoryResult();
+    final UserDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
+    if (doc != null) {
+      result.getDocuments().add(doc);
     }
+    result.setPaging(Paging.ofAll(result.getDocuments()));
+    return result;
   }
 
-  @Override
-  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
-    return replaceVersion(objectId.getObjectId().atLatestVersion(), replacementDocuments);
-  }
-
-  @Override
-  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
-    return replaceVersion(objectId.getObjectId().atLatestVersion(), replacementDocuments);
-  }
-
-  @Override
-  public UniqueId addVersion(ObjectIdentifiable objectId, UserDocument documentToAdd) {
-    List<UniqueId> result = replaceVersion(objectId.getObjectId().atLatestVersion(), Collections.singletonList(documentToAdd));
-    if (result.isEmpty()) {
-      return null;
-    } else {
-      return result.get(0);
-    }
-  }
-
-  @Override
-  public UniqueId replaceVersion(UserDocument replacementDocument) {
-    List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
-    if (result.isEmpty()) {
-      return null;
-    } else {
-      return result.get(0);
-    }
-  }
-
-  @Override
-  public void removeVersion(UniqueId uniqueId) {
-    replaceVersion(uniqueId, Collections.<UserDocument>emptyList());
-  }
-  
-  @Override
-  public Map<UniqueId, UserDocument> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, UserDocument> resultMap = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      UserDocument doc = get(uniqueId);
-      resultMap.put(uniqueId, doc);
-    }
-    return resultMap;
-  }
 }

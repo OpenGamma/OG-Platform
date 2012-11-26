@@ -149,7 +149,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
             derivatives.add(derivative);
             initialRatesGuess.add(marketValue);
           }
-          nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
+          nodeTimes.add(derivative.accept(LAST_TIME_CALCULATOR));
           marketValues.add(0.0);
           nInstruments++;
         }

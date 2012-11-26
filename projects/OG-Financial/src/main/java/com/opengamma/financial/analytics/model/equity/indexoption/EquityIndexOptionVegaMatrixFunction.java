@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
@@ -38,7 +40,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
  * We can rework so that the requirement is VALUE_VEGA and the Initial Vol Matrix, which still has X-Y nodes, and each option shows risk only in itself.
  * UPDATE: What has been done is to bundle the Interpolator and the Initial Vol Matrix into the BlackVolSurface as extended class BlackVolatilitySurfaceMoneynessFcnBackedByGrid...
  */
-public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunction {
   private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance();
   private static final DerivativeSensitivityCalculator CALCULATOR = new DerivativeSensitivityCalculator(PVC);
   private static final double SHIFT = 0.0001; // FIXME This really should be configurable by the user!
@@ -68,7 +70,13 @@ public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFuncti
 
     final Set<Double> xSet = new HashSet<Double>(Arrays.asList(xValues));
     final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
-    final Double[] uniqueX = xSet.toArray(new Double[0]);
+    Double[] uniqueX = xSet.toArray(new Double[0]);
+    String[] expLabels = new String[uniqueX.length];
+    // Format the expiries for display
+    for (int i = 0; i < uniqueX.length; i++) {
+      uniqueX[i] = roundTwoDecimals(uniqueX[i]);
+      expLabels[i] = VegaMatrixHelper.getFXVolatilityFormattedExpiry(uniqueX[i]);
+    }
     final Double[] uniqueY = ySet.toArray(new Double[0]);
     final double[][] values = new double[ySet.size()][xSet.size()];
     int i = 0;
@@ -85,9 +93,14 @@ public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFuncti
       }
       i++;
     }
-    final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
+    final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, expLabels, uniqueY, uniqueY, values);
     return matrix;
   }
+
+  private double roundTwoDecimals(double d) {
+    DecimalFormat twoDForm = new DecimalFormat("#.##");
+    return Double.valueOf(twoDForm.format(d));
+}
 
   @Override
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */

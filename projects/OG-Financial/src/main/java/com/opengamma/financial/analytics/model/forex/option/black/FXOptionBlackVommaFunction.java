@@ -39,12 +39,11 @@ public class FXOptionBlackVommaFunction extends FXOptionBlackSingleValuedFunctio
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final CurrencyAmount result = CALCULATOR.visit(forex, data);
+      final CurrencyAmount result = forex.accept(CALCULATOR, data);
       final double vommaValue = result.getAmount();
       return Collections.singleton(new ComputedValue(spec, vommaValue));
     }
     throw new OpenGammaRuntimeException("Can only calculate vomma for surfaces with smiles");
   }
-
 
 }

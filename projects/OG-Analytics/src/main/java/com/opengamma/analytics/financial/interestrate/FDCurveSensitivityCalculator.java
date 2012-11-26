@@ -34,7 +34,7 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator,
       final YieldCurveBundle curves, final String curveName, final double[] times, final double absTol) {
 
     Validate.notNull(times, "null times");
@@ -44,16 +44,16 @@ public abstract class FDCurveSensitivityCalculator {
     Validate.isTrue(times[0] >= 0.0, "t less than 0");
     Validate.isTrue(curves.containsName(curveName), "curveName not in curves");
 
-    List<DoublesPair> res = new ArrayList<DoublesPair>();
+    final List<DoublesPair> res = new ArrayList<DoublesPair>();
     double oldT = times[0];
     boolean first = true;
-    for (double t : times) {
+    for (final double t : times) {
       if (!first) {
         Validate.isTrue(t > oldT, "times not strictly assending");
       } else {
         first = false;
       }
-      double sense = impFDCalculator(ird, calculator, curves, curveName, t);
+      final double sense = impFDCalculator(ird, calculator, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
         res.add(new DoublesPair(t, sense));
       }
@@ -78,7 +78,8 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double[] times,
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, final PricingMethod method, final YieldCurveBundle curves, final String curveName,
+      final double[] times,
       final double absTol) {
 
     Validate.notNull(times, "null times");
@@ -88,16 +89,16 @@ public abstract class FDCurveSensitivityCalculator {
     Validate.isTrue(times[0] >= 0.0, "t less than 0");
     Validate.isTrue(curves.containsName(curveName), "curveName not in curves");
 
-    List<DoublesPair> res = new ArrayList<DoublesPair>();
+    final List<DoublesPair> res = new ArrayList<DoublesPair>();
     double oldT = times[0];
     boolean first = true;
-    for (double t : times) {
+    for (final double t : times) {
       if (!first) {
         Validate.isTrue(t > oldT, "times not strictly assending");
       } else {
         first = false;
       }
-      double sense = impFDCalculator(ird, method, curves, curveName, t);
+      final double sense = impFDCalculator(ird, method, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
         res.add(new DoublesPair(t, sense));
       }
@@ -115,7 +116,7 @@ public abstract class FDCurveSensitivityCalculator {
    * @param t The time along the curve. <b>Note</b> This should be a known sensitivity point or the result will be zero 
    * @return Sensitivity at a given point 
    */
-  public static final double curveSensitvityFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+  public static final double curveSensitvityFDCalculator(final InstrumentDerivative ird, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
       final String curveName, final double t) {
     Validate.notNull(ird, "null ird");
     Validate.notNull(calculator, "null calculator");
@@ -126,52 +127,52 @@ public abstract class FDCurveSensitivityCalculator {
     return impFDCalculator(ird, calculator, curves, curveName, t);
   }
 
-  private static double impFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+  private static double impFDCalculator(final InstrumentDerivative ird, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
       final String curveName, final double t) {
 
     final double eps = 1e-6;
 
-    Function1D<Double, Double> blip = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> blip = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance 
       }
     };
 
-    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
-    YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
-    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
+    final YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
+    final YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
+    final YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    final YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
-    double up = calculator.visit(ird, curves);
+    final double up = ird.accept(calculator, curves);
     curves.replaceCurve(curveName, downCurve);
-    double down = calculator.visit(ird, curves);
+    final double down = ird.accept(calculator, curves);
     curves.replaceCurve(curveName, originalCurve);
 
     return (up - down) / 2 / eps;
   }
 
-  private static double impFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double t) {
+  private static double impFDCalculator(final InstrumentDerivative ird, final PricingMethod method, final YieldCurveBundle curves, final String curveName, final double t) {
 
     final double eps = 1e-6;
 
-    Function1D<Double, Double> blip = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> blip = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance 
       }
     };
 
-    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
-    YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
-    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
+    final YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
+    final YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
+    final YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    final YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
-    double up = method.presentValue(ird, curves).getAmount();
+    final double up = method.presentValue(ird, curves).getAmount();
     curves.replaceCurve(curveName, downCurve);
-    double down = method.presentValue(ird, curves).getAmount();
+    final double down = method.presentValue(ird, curves).getAmount();
     curves.replaceCurve(curveName, originalCurve);
 
     return (up - down) / 2 / eps;
