@@ -262,6 +262,7 @@
       <fragment>/scripts/og/api/og.api.common.js</fragment>
       <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
       <fragment>/scripts/og/common/og.common.routes.js</fragment>
+      <fragment>/scripts/og/common/og.common.id.js</fragment>
       <fragment>/scripts/og/common/og.common.lang.js</fragment>
       <fragment>/scripts/og/common/og.common.events.js</fragment>
   </bundle>

@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, id_count = 0, api_text = og.api.text, numbers = {},
+        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text, numbers = {},
             has = 'hasOwnProperty', form_template = Handlebars.compile('<form action="." id="{{id}}">' +
                 '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
         /** @private */
@@ -86,7 +86,7 @@ $.register_module({
             form.Block = og.common.util.ui.Block.partial(form);
             form.data = config.data;
             form.dom_events = {};
-            form.id = 'gen_form_' + id_count++;
+            form.id = og.common.id('form');
             form.parent = $(config.selector).unbind(); // no listeners on the selector
             form.root = null;
             /**

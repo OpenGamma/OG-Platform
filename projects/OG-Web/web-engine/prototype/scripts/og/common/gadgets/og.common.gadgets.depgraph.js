@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.Depgraph',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var module = this, prefix = 'og_depgraph_gadget_', counter = 1, menu;
+        var module = this, menu;
         return function (config) {
-            var gadget = this, alive = prefix + counter++,
+            var gadget = this, alive = og.common.id('gadget_depgraph'),
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
             gadget.alive = function () {return grid.alive();};
             gadget.load = function () {

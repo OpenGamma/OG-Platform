@@ -6,13 +6,13 @@ $.register_module({
     name: 'og.common.util.ui.Dropdown',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'dropdown_widget_', Block = og.common.util.ui.Block;
+        var module = this, Block = og.common.util.ui.Block;
         var Dropdown = function (config) {
             var block = this, name = config.index, resource = config.resource, form = config.form, value = config.value,
                 placeholder = config.placeholder, fields = config.fields || [0], values = fields[0],
                 rest_options = config.rest_options || {}, data_generator = config.data_generator,
                 texts = typeof fields[1] !== 'undefined' ? fields[1] : values, processor = config.processor,
-                id = prefix + id_count++, meta = rest_options && rest_options.meta, classes = config.classes;
+                id = og.common.id('dropdown'), meta = rest_options && rest_options.meta, classes = config.classes;
             var generator = function (handler) {
                 var $select = $('<select/>').attr('id', id);
                 var rest_handler = function (result) {

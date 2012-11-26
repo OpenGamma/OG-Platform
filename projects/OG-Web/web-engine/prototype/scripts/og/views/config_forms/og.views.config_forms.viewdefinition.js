@@ -78,8 +78,7 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id,
-                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                id_count = 0, prefix = 'viewdef_',
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler, prefix = 'viewdef',
                 master = config.data.template_data.configJSON.data,
                 column_set_tabs,
                 config_type = config.type,
@@ -174,7 +173,7 @@ $.register_module({
                 (function () { // form item_1
                     var result_def = master[RMDF], ids = [], fields;
                     fields = ['primitive', 'security', 'position', 'aggregatePosition', 'trade'].map(function (val) {
-                        return ids.push(prefix + id_count++), val + 'OutputMode';
+                        return ids.push(og.common.id(prefix)), val + 'OutputMode';
                     });
                     return new form.Block({
                         module: 'og.views.forms.view-definition-result-model-definition_tash',
@@ -223,7 +222,7 @@ $.register_module({
                     return false;
                 });
                 var new_col_set = function (set, set_idx) {
-                    var set_id = '#' + prefix + id_count++,
+                    var set_id = '#' + og.common.id(prefix),
                         spec_vals = new form.Block({wrap: '<ul class="og-js-spec-holder">{{{html}}}</ul>'}),
                         col_vals = new form.Block({wrap: '{{{html}}}'}),
                         col_tabs = new form.Block({wrap: '{{{html}}}'}),
@@ -331,7 +330,7 @@ $.register_module({
                         });
                     };
                     var new_col_val = function (col, col_idx) {
-                        var col_id = prefix + id_count++,
+                        var col_id = og.common.id(prefix),
                             dropdown_name = [SETS, set_idx, COLS, col_idx, SECU].join('.'),
                             reqs_block = new form.Block({wrap: '<ul class="og-js-port-req">{{{html}}}</ul>'});
                         var new_port_req = function (req, req_idx) {

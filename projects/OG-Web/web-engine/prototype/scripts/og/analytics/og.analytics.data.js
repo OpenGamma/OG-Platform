@@ -6,12 +6,12 @@ $.register_module({
     name: 'og.analytics.Data',
     dependencies: ['og.api.rest'],
     obj: function () {
-        var module = this, counter = 1, connections = {};
+        var module = this, connections = {};
         $(window).on('unload', function () {
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
         var constructor = function (source, config, label) {
-            var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
+            var data = this, api = og.api.rest.views, id = og.common.id('data'), meta,
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,

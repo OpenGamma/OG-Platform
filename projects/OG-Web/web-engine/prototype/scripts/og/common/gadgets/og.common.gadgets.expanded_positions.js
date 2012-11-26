@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.ExpandedPositions',
     dependencies: [],
     obj: function () {
-        var prefix = 'og_expanded_positions_gadget_', counter = 1, loading_template;
+        var loading_template;
         return function (config) {
-            var gadget = this, alive = prefix + counter++;
+            var gadget = this, alive = og.common.id('gadget_expanded_positions');
             gadget.alive = function () {return $('.' + alive).length ? true : false;};
             gadget.resize = function () {gadget.load();};
             gadget.load = function () {

@@ -6,37 +6,34 @@ $.register_module({
     name: 'og.views.config_blocks.RuleTransform',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'ruletransform_widget_', Block = og.common.util.ui.Block;
+        var module = this, Block = og.common.util.ui.Block;
         var RuleTransform = function (config) {
-            var block = this, id = prefix + id_count++,
-                data_index = config.index, form = config.form, value = config.value,
-                data = config.data, block_options, $rules, $rule;
+            var block = this, id = og.common.id('ruletransform'), data_index = config.index, form = config.form,
+                value = config.value, data = config.data, $rules, $rule, extras = {
+                    id: id, class_value: (data && data[0]) ||
+                        'com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform'
+                };
+            var processor = function (data) {
+                if (!$('#' + id).length) return;
+                var indices = data_index.split('.'), last = indices.pop(), result = {};
+                $('#' + id + ' .og-js-res-rule').each(function (idx, el) {
+                    var $el = $(el), key = $el.find('.og-js-key').val(),
+                        val = $(el).find('.og-js-val').val() || null;
+                    if (key) result[key] = val === 'null' ? null : val;
+                });
+                result[0] = $('#' + id + ' .og-js-class').val();
+                indices.reduce(function (acc, level) {
+                    return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                }, data)[last] = result;
+            };
             var render_rule = function (key, value) {
                 var $el = $rule.clone();
                 $el.find('.og-js-key').val(key);
                 $el.find('.og-js-val').val(value);
                 $rules.append($el);
             };
-            block_options = {
-                extras: {
-                    id: id, class_value: (data && data[0]) ||
-                        'com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform'
-                },
-                processor: function (data) {
-                    if (!$('#' + id).length) return;
-                    var indices = data_index.split('.'), last = indices.pop(), result = {};
-                    $('#' + id + ' .og-js-res-rule').each(function (idx, el) {
-                        var $el = $(el), key = $el.find('.og-js-key').val(),
-                            val = $(el).find('.og-js-val').val() || null;
-                        if (key) result[key] = val === 'null' ? null : val;
-                    });
-                    result[0] = $('#' + id + ' .og-js-class').val();
-                    indices.reduce(function (acc, level) {
-                        return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
-                    }, data)[last] = result;
-                }
-            };
-            form.Block.call(block, block_options); // create a Block instance and assign it to this (block)
+            // create a Block instance and assign it to this (block)
+            form.Block.call(block, {extras: extras, processor: processor});
             block.on('form:load', function () {
                 var rule;
                 $rules = $('#' + id + ' .og-js-res-rule-holder');

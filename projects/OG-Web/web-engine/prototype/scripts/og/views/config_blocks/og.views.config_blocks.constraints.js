@@ -6,11 +6,11 @@ $.register_module({
     name: 'og.views.config_blocks.Constraints',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, counter = 0, prefix = 'constraints_widget_', Block = og.common.util.ui.Block;
+        var module = this, prefix = 'constraints', Block = og.common.util.ui.Block;
         var Constraints = function (config) {
             var block = this, render, classes = config.classes || '', ids = {
-                container: prefix + counter++, widget: prefix + counter++,
-                row_with: prefix + counter++, row_without: prefix + counter++
+                container: og.common.id(prefix), widget: og.common.id(prefix),
+                row_with: og.common.id(prefix), row_without: og.common.id(prefix)
             }, data = config.data, data_index = config.index;
             var convert = function (datum) {
                 var length = 0, item, data = [], lcv;

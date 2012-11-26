@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.Surface',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var prefix = 'og_surface_gadget_', counter = 1, loading_template;
+        var loading_template;
         return function (config) {
-            var gadget = this, surface, alive = prefix + counter++, $selector = $(config.selector),
+            var gadget = this, surface, alive = og.common.id('gadget_surface'), $selector = $(config.selector),
                 surface_options = {selector: config.selector, options: {}};
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
             gadget.alive = function () {

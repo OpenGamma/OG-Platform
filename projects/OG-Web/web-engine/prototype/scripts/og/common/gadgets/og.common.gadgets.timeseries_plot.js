@@ -9,7 +9,7 @@ $.register_module({
     name: 'og.common.gadgets.TimeseriesPlot',
     dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
     obj: function () {
-        var api = og.api, prefix = 'timeseries_', counter = 1;
+        var api = og.api;
         /**
          * @param {object} config
          * @param {String} config.selector
@@ -22,8 +22,9 @@ $.register_module({
          * @param {Object} config.data Spoffed Data - temporary solution
          */
         return function (config) {
-            var timeseries = this, handler, x_max, alive = prefix + counter++, selector = config.selector,
-                load_plots, initial_preset, meta = {}, // object that stores the structure and data of the plots
+            var timeseries = this, handler, x_max, alive = og.common.id('gadget_timeseries_plot'),
+                selector = config.selector, load_plots, initial_preset,
+                meta = {}, // object that stores the structure and data of the plots
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
                 colors_arr_p2 = ['#fff', '#fff', '#fff', '#fff']; // line colors for plot 2 data sets

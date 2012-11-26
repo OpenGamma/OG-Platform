@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.Curve',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var prefix = 'og_curve_gadget_', counter = 1, module = this, loading_template;
+        var module = this, loading_template;
         return function (config) {
-            var gadget = this, $curve, alive = prefix + counter++;
+            var gadget = this, $curve, alive = og.common.id('gadget_curve');
             gadget.dataman = new og.analytics
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'curve')
                 .on('data', function (data) {
