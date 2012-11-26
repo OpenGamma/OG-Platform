@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -56,7 +56,7 @@ public class HistoricalTimeSeriesSecurityFunction extends AbstractFunction.NonCo
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return getTargetType().equals(target.getType());
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties props = createValueProperties()
@@ -75,17 +75,17 @@ public class HistoricalTimeSeriesSecurityFunction extends AbstractFunction.NonCo
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final Set<String> dataFieldConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
-    if (dataFieldConstraints.size() > 1) {
+    if ((dataFieldConstraints != null) && (dataFieldConstraints.size() > 1)) {
       return null;
     }
-    final String dataField = dataFieldConstraints.isEmpty() ? null : Iterables.getOnlyElement(dataFieldConstraints);
-    HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, dataField, null);
+    final String dataField = ((dataFieldConstraints == null) || dataFieldConstraints.isEmpty()) ? null : Iterables.getOnlyElement(dataFieldConstraints);
+    final HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, dataField, null);
     if (resolutionResult == null) {
       return null;
     }
-    UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
-    ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, htsId, desiredValue.getConstraints());
+    final UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
+    final ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, htsId, desiredValue.getConstraints());
     return Collections.singleton(valueRequirement);
   }
-  
+
 }
