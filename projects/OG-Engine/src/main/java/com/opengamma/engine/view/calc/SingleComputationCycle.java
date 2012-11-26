@@ -303,11 +303,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       ValueSpecification valueSpec = cacheEntry.getFirst();
       Object cachedValue = cacheEntry.getSecond();
       Object value = cachedValue != null ? cachedValue : NotCalculatedSentinel.EVALUATION_ERROR;
-      DependencyNodeJobExecutionResult jobExecutionResult = jobExecutionResultCache.get(valueSpec);
-      if (jobExecutionResult == null) {
-        continue;
-      }
-      resultMap.put(valueSpec, createComputedValueResult(valueSpec, value, jobExecutionResult));
+      resultMap.put(valueSpec, createComputedValueResult(valueSpec, value, jobExecutionResultCache.get(valueSpec)));
     }
     ComputationResultsResponse response = new ComputationResultsResponse();
     response.setResults(resultMap);
@@ -677,9 +673,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   private ComputedValueResult createComputedValueResult(ValueSpecification valueSpec, Object calculatedValue, DependencyNodeJobExecutionResult jobExecutionResult) {
-    CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
-    return new ComputedValueResult(valueSpec, calculatedValue, jobResultItem.getExecutionLog(), jobExecutionResult.getComputeNodeId(),
-        jobResultItem.getMissingInputs(), jobResultItem.getResult());
+    if (jobExecutionResult == null) {
+      return new ComputedValueResult(valueSpec, calculatedValue, ExecutionLog.EMPTY, null, null, null);
+    } else {
+      CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
+      return new ComputedValueResult(valueSpec,
+                                     calculatedValue,
+                                     jobResultItem.getExecutionLog(),
+                                     jobExecutionResult.getComputeNodeId(),
+                                     jobResultItem.getMissingInputs(),
+                                     jobResultItem.getResult());
+    }
   }
 
   //-------------------------------------------------------------------------

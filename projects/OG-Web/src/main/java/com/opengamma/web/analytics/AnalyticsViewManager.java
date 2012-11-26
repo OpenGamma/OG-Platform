@@ -87,7 +87,8 @@ public class AnalyticsViewManager {
     ViewportListener viewportListener = new LoggingViewportListener(viewClient);
     AnalyticsView view = new SimpleAnalyticsView(viewId, portfolioGridId, primitivesGridId, _targetResolver, viewportListener);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
-    AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
+    AnalyticsView timingView = new TimingAnalyticsView(lockingView);
+    AnalyticsView notifyingView = new NotifyingAnalyticsView(timingView, clientConnection);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,
                                                                                  notifyingView,
