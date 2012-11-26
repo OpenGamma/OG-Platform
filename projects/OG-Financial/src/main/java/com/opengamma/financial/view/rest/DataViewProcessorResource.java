@@ -150,7 +150,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
   }
 
   @Path(PATH_CONFIG_SOURCE)
-  public DataConfigSourceResource getViewDefinitionRepository() {
+  public DataConfigSourceResource getConfigSource() {
     return new DataConfigSourceResource(_viewProcessor.getConfigSource());
   }
 
