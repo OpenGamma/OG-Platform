@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -31,7 +33,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test {@link HistoricalTimeSeriesSource}.
+ * Test.
  */
 @Test
 public class HistoricalTimeSeriesSourceTest {
@@ -155,16 +157,23 @@ public class HistoricalTimeSeriesSourceTest {
     buildAndTestInMemoryProvider();
   }
 
-  // Should this be in EHCachingHistoricalTimeSeriesSourceTest instead of here?
+  //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    
+    CacheManager cacheManager = new CacheManager();
+    try {
+      doTestCaching(cacheManager);
+    } finally {
+      EHCacheUtils.shutdownQuiet(cacheManager);
+    }
+  }
+
+  private void doTestCaching(CacheManager cacheManager) {
     // Populate an in-memory mock source (inMemoryHistoricalSource)
     Pair<HistoricalTimeSeriesSource, Set<ExternalIdBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalTimeSeriesSource inMemoryHistoricalSource = providerAndDsids.getFirst();
     
     // Set up a caching hts source with the mock underlying it (cachedProvider)
-    EHCachingHistoricalTimeSeriesSource cachedProvider = 
-        new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, EHCacheUtils.createCacheManager());
+    EHCachingHistoricalTimeSeriesSource cachedProvider = new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, cacheManager);
     
     // Obtain the id bundles it contains (dsids)
     Set<ExternalIdBundle> identifiers = providerAndDsids.getSecond();
@@ -271,4 +280,5 @@ public class HistoricalTimeSeriesSourceTest {
       assertEquals(ids, cachedProvider.getExternalIdBundle(historicalTimeSeries.getUniqueId()));
     }
   }
+
 }

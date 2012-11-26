@@ -42,10 +42,6 @@ public class EHCachingRegionSource implements RegionSource {
    * The cache name.
    */
   private static final String CACHE_NAME = "RegionCache";
-  /**
-   * The cache manager.
-   */
-  private final CacheManager _cacheManager;
 
   /**
    * The underlying source.
@@ -73,7 +69,6 @@ public class EHCachingRegionSource implements RegionSource {
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, CACHE_NAME);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
-    _cacheManager = cacheManager;
   }
 
   //-------------------------------------------------------------------------
@@ -228,14 +223,6 @@ public class EHCachingRegionSource implements RegionSource {
       }
     }
     return result;
-  }
-
-  /**
-   * Call this at the end of a unit test run to clear the state of EHCache.
-   * It should not be part of a generic lifecycle method.
-   */
-  protected void shutdown() {
-    _cacheManager.removeCache(CACHE_NAME);
   }
 
   //-------------------------------------------------------------------------

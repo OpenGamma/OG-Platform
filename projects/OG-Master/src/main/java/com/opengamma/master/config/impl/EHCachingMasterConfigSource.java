@@ -39,10 +39,6 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   /*package*/ static final String CONFIG_CACHE = "config";
 
   /**
-   * The cache manager.
-   */
-  private final CacheManager _cacheManager;
-  /**
    * The result cache.
    */
   private final Cache _configCache;
@@ -59,21 +55,11 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     underlying.changeManager().addChangeListener(new ConfigDocumentChangeListener());
 
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, CONFIG_CACHE);
     _configCache = EHCacheUtils.getCacheFromManager(cacheManager, CONFIG_CACHE);
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  public CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {

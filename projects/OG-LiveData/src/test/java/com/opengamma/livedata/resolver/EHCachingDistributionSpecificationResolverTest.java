@@ -17,6 +17,8 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -31,6 +33,19 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 @Test(groups = "unit")
 public class EHCachingDistributionSpecificationResolverTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeMethod
+  public void setUp() {
+    _cacheManager = new CacheManager();
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void testCaching() {
     ExternalId id = ExternalId.of("foo", "bar");
     
@@ -38,19 +53,14 @@ public class EHCachingDistributionSpecificationResolverTest {
         "TestNormalization",
         ExternalId.of("foo", "bar"));
     
-    DistributionSpecification distributionSpec = new DistributionSpecification(
-        id,
-        StandardRules.getNoNormalization(),
-        "testtopic");
+    DistributionSpecification distributionSpec = new DistributionSpecification(id, StandardRules.getNoNormalization(), "testtopic");
     Map<LiveDataSpecification, DistributionSpecification> returnValue = new HashMap<LiveDataSpecification, DistributionSpecification>();
     returnValue.put(request, distributionSpec);        
     
     DistributionSpecificationResolver underlying = mock(DistributionSpecificationResolver.class);
     when(underlying.resolve(Collections.singletonList(request))).thenReturn(returnValue);
     
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.clearAllStartingWith(EHCachingDistributionSpecificationResolver.DISTRIBUTION_SPEC_CACHE_PREFIX);
-    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, cm);
+    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, _cacheManager);
     assertEquals(distributionSpec, resolver.resolve(request));
     assertEquals(distributionSpec, resolver.resolve(request));
     

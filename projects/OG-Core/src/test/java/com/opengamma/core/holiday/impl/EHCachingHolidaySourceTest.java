@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertSame;
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,21 +29,27 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 @Test
 public class EHCachingHolidaySourceTest {
 
-  private HolidaySource _underlyingSource;
-  private EHCachingHolidaySource _cachingSource;
-
   private static final UniqueId UID = UniqueId.of("A", "B");
   private static final ObjectId OID = ObjectId.of("A", "B");
   private static final VersionCorrection VC = VersionCorrection.LATEST;
 
+  private HolidaySource _underlyingSource;
+  private EHCachingHolidaySource _cachingSource;
+  private CacheManager _cacheManager;
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    _cacheManager = new CacheManager();
     _underlyingSource = mock(HolidaySource.class);
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    EHCacheUtils.clear(cm, EHCachingHolidaySource.CACHE_NAME);
-    _cachingSource = new EHCachingHolidaySource(_underlyingSource, cm);
+    _cachingSource = new EHCachingHolidaySource(_underlyingSource, _cacheManager);
   }
 
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void getHoliday_uniqueId() {
     final Holiday h = new SimpleHoliday();
     when(_underlyingSource.get(UID)).thenReturn(h);
