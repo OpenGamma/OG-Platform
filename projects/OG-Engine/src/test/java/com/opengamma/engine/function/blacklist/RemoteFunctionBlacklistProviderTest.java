@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.blacklist;
@@ -54,7 +54,7 @@ public class RemoteFunctionBlacklistProviderTest {
           public Object answer(final InvocationOnMock invocation) throws Throwable {
             try {
               return answerGet(server, s).getEntity();
-            } catch (WebApplicationException e) {
+            } catch (final WebApplicationException e) {
               assertEquals(e.getResponse().getStatus(), 404);
               throw new UniformInterfaceException404NotFound(new ClientResponse(404, null, null, null), false);
             }
@@ -77,7 +77,7 @@ public class RemoteFunctionBlacklistProviderTest {
 
   public void testGetBlacklist () {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
+    final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector("RemoteFunctionBlacklistProviderTest.testGetBlacklist");
     try {
       final InMemoryFunctionBlacklistProvider underlying = new InMemoryFunctionBlacklistProvider(executor);
       final DataFunctionBlacklistProviderResource server = new DataFunctionBlacklistProviderResource(underlying, OpenGammaFudgeContext.getInstance(), jmsConnector);
@@ -145,7 +145,7 @@ public class RemoteFunctionBlacklistProviderTest {
 
   public void testReceiveUpdates() throws InterruptedException {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
+    final JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector("RemoteFunctionBlacklistProviderTest.testReceiveUpdates");
     try {
       final InMemoryFunctionBlacklistProvider underlying = new InMemoryFunctionBlacklistProvider(executor);
       final DataFunctionBlacklistProviderResource server = new DataFunctionBlacklistProviderResource(underlying, OpenGammaFudgeContext.getInstance(), jmsConnector);
