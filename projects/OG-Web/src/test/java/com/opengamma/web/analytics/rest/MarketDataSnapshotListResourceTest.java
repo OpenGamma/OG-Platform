@@ -102,7 +102,7 @@ public class MarketDataSnapshotListResourceTest {
   public void getJsonOverHttp() throws Exception {
     WebPushTestUtils _webPushTestUtils = new WebPushTestUtils();
     Pair<Server, WebApplicationContext> serverAndContext =
-        _webPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/marketdatasnapshotlist-test.xml");
+        _webPushTestUtils.createJettyServer("classpath:/com/opengamma/web/analytics/push/marketdatasnapshotlist-test.xml");
     Server server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     InMemorySnapshotMaster snapshotMaster = context.getBean(InMemorySnapshotMaster.class);
