@@ -58,7 +58,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
   // Hack until the dummy functions get removed
   private static Collection<CompiledFunctionDefinition> removeDummyFunctions(final Collection<CompiledFunctionDefinition> functions) {
     final Collection<CompiledFunctionDefinition> result = new ArrayList<CompiledFunctionDefinition>(functions.size());
-    for (CompiledFunctionDefinition function : functions) {
+    for (final CompiledFunctionDefinition function : functions) {
       if (function.getClass().getSimpleName().startsWith("Dummy")) {
         continue;
       }
@@ -96,7 +96,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   /**
    * Constructs a new output set.
-   * 
+   *
    * @param portfolio the portfolio (must be resolved), not null
    * @param functionRepository the functions, not null
    * @param functionExclusionGroups the function exclusion groups
@@ -122,7 +122,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       public void preOrderOperation(final Position position) {
         targetCache.put(position.getUniqueId(), position);
         targetCache.put(position.getSecurity().getUniqueId(), position.getSecurity());
-        for (Trade trade : position.getTrades()) {
+        for (final Trade trade : position.getTrades()) {
           targetCache.put(trade.getUniqueId(), trade);
           targetCache.put(trade.getSecurity().getUniqueId(), trade.getSecurity());
         }
@@ -142,9 +142,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         if (entries == null) {
           return null;
         }
-        for (Pair<List<ValueRequirement>, Set<ValueSpecification>> entry : entries) {
+        for (final Pair<List<ValueRequirement>, Set<ValueSpecification>> entry : entries) {
           boolean subset = true;
-          for (ValueRequirement entryKey : entry.getKey()) {
+          for (final ValueRequirement entryKey : entry.getKey()) {
             if (!visited.contains(entryKey)) {
               subset = false;
               break;
@@ -186,7 +186,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         Map<CompiledFunctionDefinition, Set<ValueSpecification>> functionResults = _resultsCache.get(target);
         if (functionResults == null) {
           functionResults = new HashMap<CompiledFunctionDefinition, Set<ValueSpecification>>();
-          for (CompiledFunctionDefinition function : functions) {
+          for (final CompiledFunctionDefinition function : functions) {
             try {
               if ((function.getTargetType() == target.getType()) && function.canApplyTo(_context, target)) {
                 final Set<ValueSpecification> results = function.getResults(_context, target);
@@ -194,9 +194,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                   functionResults.put(function, results);
                 }
               }
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
               s_logger.error("Error applying {} to {}", function, target);
-              s_logger.warn("Exception thrown", t);
+              s_logger.info("Exception thrown", t);
             }
           }
           _resultsCache.put(target, functionResults);
@@ -205,9 +205,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           // This shouldn't happen
           throw new IllegalStateException();
         }
-        for (Map.Entry<CompiledFunctionDefinition, Set<ValueSpecification>> functionResult : functionResults.entrySet()) {
+        for (final Map.Entry<CompiledFunctionDefinition, Set<ValueSpecification>> functionResult : functionResults.entrySet()) {
           final CompiledFunctionDefinition function = functionResult.getKey();
-          for (ValueSpecification result : functionResult.getValue()) {
+          for (final ValueSpecification result : functionResult.getValue()) {
             if (requirement.isSatisfiedBy(result)) {
               final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
               if ((group == null) || visitedFunctions.add(group)) {
@@ -238,21 +238,21 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           if (requirements == null) {
             return null;
           }
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
           s_logger.error("Error applying {} to {}", function, target);
-          s_logger.warn("Exception thrown", t);
+          s_logger.info("Exception thrown", t);
           return null;
         }
         if (requirements.isEmpty()) {
           return Collections.singleton(resolvedOutputValue);
         }
-        for (ValueRequirement requirement : requirements) {
+        for (final ValueRequirement requirement : requirements) {
           if (visitedRequirements.contains(requirement)) {
             return null;
           }
         }
         final Map<Iterator<ValueSpecification>, ValueRequirement> inputs = new HashMap<Iterator<ValueSpecification>, ValueRequirement>();
-        for (ValueRequirement requirement : requirements) {
+        for (final ValueRequirement requirement : requirements) {
           final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
           if (targetSpec.getUniqueId() != null) {
             if (MarketDataUtils.isAvailable(marketDataAvailabilityProvider, requirement)) {
@@ -281,9 +281,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           }
         }
         final Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
-        Map<ValueSpecification, ValueRequirement> inputSet = new HashMap<ValueSpecification, ValueRequirement>();
+        final Map<ValueSpecification, ValueRequirement> inputSet = new HashMap<ValueSpecification, ValueRequirement>();
         do {
-          for (Map.Entry<Iterator<ValueSpecification>, ValueRequirement> input : inputs.entrySet()) {
+          for (final Map.Entry<Iterator<ValueSpecification>, ValueRequirement> input : inputs.entrySet()) {
             if (!input.getKey().hasNext()) {
               inputSet.clear();
               break;
@@ -296,15 +296,15 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             try {
               final Set<ValueSpecification> results = function.getResults(_context, target, inputSet);
               if (results != null) {
-                for (ValueSpecification result : results) {
+                for (final ValueSpecification result : results) {
                   if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
                     outputs.add(result.compose(requiredOutputValue));
                   }
                 }
               }
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
               s_logger.error("Error applying {} to {}", function, target);
-              s_logger.warn("Exception thrown", t);
+              s_logger.info("Exception thrown", t);
             }
             inputSet.clear();
           }
@@ -329,11 +329,11 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
         final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
         final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
-        for (CompiledFunctionDefinition function : functions) {
+        for (final CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
-              for (ValueSpecification result : results) {
+              for (final ValueSpecification result : results) {
                 visitedRequirements.clear();
                 visitedFunctions.clear();
                 final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
@@ -344,7 +344,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                     .getTargetSpecification()), result);
                 if (resolved != null) {
                   s_logger.info("Resolved {} on {}", result.getValueName(), portfolioNode);
-                  for (ValueSpecification resolvedItem : resolved) {
+                  for (final ValueSpecification resolvedItem : resolved) {
                     portfolioNodeOutput(resolvedItem.getValueName(), resolvedItem.getProperties());
                   }
                 } else {
@@ -352,9 +352,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 }
               }
             }
-          } catch (Throwable t) {
+          } catch (final Throwable t) {
             s_logger.error("Error applying {} to {}", function, target);
-            s_logger.warn("Exception thrown", t);
+            s_logger.info("Exception thrown", t);
           }
         }
       }
@@ -364,11 +364,11 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
         final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
         final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
-        for (CompiledFunctionDefinition function : functions) {
+        for (final CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
-              for (ValueSpecification result : results) {
+              for (final ValueSpecification result : results) {
                 visitedRequirements.clear();
                 visitedFunctions.clear();
                 final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
@@ -379,7 +379,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                     new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
                 if (resolved != null) {
                   s_logger.info("Resolved {} on {}", result.getValueName(), position);
-                  for (ValueSpecification resolvedItem : resolved) {
+                  for (final ValueSpecification resolvedItem : resolved) {
                     positionOutput(resolvedItem.getValueName(), position.getSecurity().getSecurityType(), resolvedItem.getProperties());
                   }
                 } else {
@@ -387,9 +387,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 }
               }
             }
-          } catch (Throwable t) {
+          } catch (final Throwable t) {
             s_logger.error("Error applying {} to {}", function, target);
-            s_logger.warn("Exception thrown", t);
+            s_logger.info("Exception thrown", t);
           }
         }
       }
