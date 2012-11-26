@@ -62,7 +62,9 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    */
   public ComponentConfig load(final Resource resource, final int depth) {
     try {
-      return doLoad(resource, depth, new ComponentConfig());
+      ComponentConfig config = doLoad(resource, depth, new ComponentConfig());
+      return overrideProperties(config);
+      
     } catch (RuntimeException ex) {
       throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
     }
@@ -78,7 +80,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param config  the config being loaded, not null
    * @return the config, not null
    */
-  protected ComponentConfig doLoad(final Resource resource, final int depth, ComponentConfig config) {
+  private ComponentConfig doLoad(final Resource resource, final int depth, ComponentConfig config) {
     List<String> lines = readLines(resource);
     String group = null;
     int lineNum = 0;
@@ -123,8 +125,50 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         }
       }
     }
+    return config;
+  }
+
+  /**
+   * Handle the inclusion of another file.
+   * 
+   * @param baseResource  the base resource, not null
+   * @param includeFile  the resource to include, not null
+   * @param depth  the depth of the properties file, used for logging
+   * @param config  the config being loaded, not null
+   */
+  private void handleInclude(final Resource baseResource, String includeFile, final int depth, ComponentConfig config) {
+    // find resource
+    Resource include;
+    try {
+      include = ComponentManager.createResource(includeFile);
+    } catch (Exception ex) {
+      try {
+        include = baseResource.createRelative(includeFile);
+      } catch (Exception ex2) {
+        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
+      }
+    }
     
-    // override config with properties prefixed by INI
+    // load and merge
+    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
+    try {
+      doLoad(include, depth + 1, config);
+    } catch (RuntimeException ex) {
+      throw new OpenGammaRuntimeException("Unable to load INI file: " + include, ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Override config using the properties.
+   * <p>
+   * Any property that has a key of the form '[group].key' will replace the
+   * specified key within the group.
+   * 
+   * @param config  the config to update, not null
+   * @return the updated config, not null
+   */
+  private ComponentConfig overrideProperties(ComponentConfig config) {
     List<String[]> iniProperties = extractIniOverrideProperties();
     for (String[] array : iniProperties) {
       config.getGroup(array[0]);  // validate group (but returns a copy of the inner map)
@@ -153,36 +197,6 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       }
     }
     return extracted;
-  }
-
-  /**
-   * Handle the inclusion of another file.
-   * 
-   * @param baseResource  the base resource, not null
-   * @param includeFile  the resource to include, not null
-   * @param depth  the depth of the properties file, used for logging
-   * @param config  the config being loaded, not null
-   */
-  protected void handleInclude(final Resource baseResource, String includeFile, final int depth, ComponentConfig config) {
-    // find resource
-    Resource include;
-    try {
-      include = ComponentManager.createResource(includeFile);
-    } catch (Exception ex) {
-      try {
-        include = baseResource.createRelative(includeFile);
-      } catch (Exception ex2) {
-        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
-      }
-    }
-    
-    // load and merge
-    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
-    try {
-      doLoad(include, depth + 1, config);
-    } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load INI file: " + include, ex);
-    }
   }
 
 }

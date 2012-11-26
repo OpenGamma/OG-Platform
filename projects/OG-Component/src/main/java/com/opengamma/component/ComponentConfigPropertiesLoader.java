@@ -63,7 +63,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param depth  the depth of the properties file, used for logging
    * @return the combined set of properties, not null
    */
-  protected String doLoad(final Resource resource, final int depth) {
+  private String doLoad(final Resource resource, final int depth) {
     final Map<String, String> fileProperties = new HashMap<String, String>();
     final List<String> lines = readLines(resource);
     int lineNum = 0;
@@ -110,7 +110,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param includeFile  the resource to include, not null
    * @param depth  the depth of the properties file, used for logging
    */
-  protected void handleInclude(final Resource baseResource, String includeFile, final int depth) {
+  private void handleInclude(final Resource baseResource, String includeFile, final int depth) {
     // find resource
     Resource include;
     try {
