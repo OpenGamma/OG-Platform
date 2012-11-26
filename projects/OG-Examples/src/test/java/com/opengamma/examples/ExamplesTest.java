@@ -27,22 +27,23 @@ public class ExamplesTest {
 
   @BeforeMethod
   public void setUp() throws IOException {
-    DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
+    //DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
   }
 
   @AfterMethod
   public void runAfter() throws IOException {
-    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
+    //DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
   }
 
   //-------------------------------------------------------------------------
+  @Test(enabled = false)
   public void test() throws Exception {
-    ComponentManager manager = new ComponentManager("test");
+    final ComponentManager manager = new ComponentManager("test");
     manager.start(CONFIG_RESOURCE_LOCATION);
-    
-    RemoteComponentServer remoteServer = new RemoteComponentServer(URI.create("http://localhost:" + getJettyPort() + "/jax"));
+
+    final RemoteComponentServer remoteServer = new RemoteComponentServer(URI.create("http://localhost:" + getJettyPort() + "/jax"));
     assertTrue(remoteServer.getComponentServer().getComponentInfos().size() > 0);
-    
+
     manager.getRepository().stop();
   }
 
