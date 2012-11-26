@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -34,6 +34,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
 public class WriteBehindViewComputationCacheTest {
@@ -60,21 +61,21 @@ public class WriteBehindViewComputationCacheTest {
     private final CountDownLatch _allowPutValues = new CountDownLatch(1);
 
     @Override
-    public Object getValue(ValueSpecification specification) {
+    public Object getValue(final ValueSpecification specification) {
       _getValue = specification;
       return null;
     }
 
     @Override
-    public Collection<Pair<ValueSpecification, Object>> getValues(Collection<ValueSpecification> specifications) {
+    public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {
       _getValues = specifications;
       return Collections.emptyList();
     }
 
     private void putValueImpl(final ComputedValue value) {
       try {
-        _allowPutValue.await(2000L, TimeUnit.MILLISECONDS);
-      } catch (InterruptedException ex) {
+        _allowPutValue.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
+      } catch (final InterruptedException ex) {
         ex.printStackTrace();
       }
       if (_throwException) {
@@ -95,8 +96,8 @@ public class WriteBehindViewComputationCacheTest {
 
     private void putValuesImpl(final Collection<ComputedValue> values) {
       try {
-        _allowPutValues.await(2000L, TimeUnit.MILLISECONDS);
-      } catch (InterruptedException ex) {
+        _allowPutValue.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
+      } catch (final InterruptedException ex) {
         ex.printStackTrace();
       }
       if (_throwException) {
@@ -153,7 +154,7 @@ public class WriteBehindViewComputationCacheTest {
   private void flush(final WriteBehindViewComputationCache cache) {
     try {
       cache.flush();
-    } catch (AsynchronousExecution e) {
+    } catch (final AsynchronousExecution e) {
       AsynchronousOperation.getResult(e);
     }
     cache.clearBuffer();
@@ -229,10 +230,12 @@ public class WriteBehindViewComputationCacheTest {
     assertEquals(valueSpec, _underlying._getValues);
   }
 
+  private static final long PAUSE = 10;
+
   private void pause() {
     try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
+      Thread.sleep(PAUSE);
+    } catch (final InterruptedException e) {
     }
   }
 
@@ -241,7 +244,7 @@ public class WriteBehindViewComputationCacheTest {
     _underlying._allowPutValue.countDown();
     final ComputedValue value = new ComputedValue(s_valueSpec1, "foo");
     _cache.putValue(value, _filter);
-    for (int i = 0; i < 100; i++) {
+    for (long i = Timeout.standardTimeoutMillis(); i > 0; i -= PAUSE) {
       if (_underlying._putValue != null) {
         break;
       }
@@ -258,7 +261,7 @@ public class WriteBehindViewComputationCacheTest {
     _cache.putValue(value1, _filter);
     _cache.putValue(value2, _filter);
     _underlying._allowPutValues.countDown();
-    for (int i = 0; i < 100; i++) {
+    for (long i = Timeout.standardTimeoutMillis(); i > 0; i -= PAUSE) {
       if (_underlying._putValues != null) {
         break;
       }
@@ -273,7 +276,7 @@ public class WriteBehindViewComputationCacheTest {
     _underlying._allowPutValues.countDown();
     final List<ComputedValue> values = Arrays.asList(new ComputedValue(s_valueSpec1, "foo"), new ComputedValue(s_valueSpec2, "bar"));
     _cache.putValues(values, _filter);
-    for (int i = 0; i < 100; i++) {
+    for (long i = Timeout.standardTimeoutMillis(); i > 0; i -= PAUSE) {
       if (_underlying._putValues != null) {
         break;
       }
@@ -290,13 +293,13 @@ public class WriteBehindViewComputationCacheTest {
     _cache.putValues(values1, _filter);
     _cache.putValues(values2, _filter);
     _underlying._allowPutValues.countDown();
-    for (int i = 0; i < 100; i++) {
+    for (long i = Timeout.standardTimeoutMillis(); i > 0; i -= PAUSE) {
       if (_underlying._putValues != null) {
         break;
       }
       pause();
     }
-    Collection<ComputedValue> values = _underlying._putValues;
+    final Collection<ComputedValue> values = _underlying._putValues;
     assertEquals(3, values.size());
     assertTrue(values.containsAll(values1));
     assertTrue(values.containsAll(values2));
@@ -307,7 +310,7 @@ public class WriteBehindViewComputationCacheTest {
   public void synchronizeCacheNoPending() {
     _underlying._allowPutValue.countDown();
     _cache.putValue(new ComputedValue(s_valueSpec1, "foo"), _filter);
-    for (int i = 0; i < 100; i++) {
+    for (long i = Timeout.standardTimeoutMillis(); i > 0; i -= PAUSE) {
       if (_underlying._putValue != null) {
         break;
       }
@@ -324,13 +327,14 @@ public class WriteBehindViewComputationCacheTest {
       @Override
       public void run() {
         try {
-          Thread.sleep(1000L);
-        } catch (InterruptedException e) {
+          Thread.sleep(Timeout.standardTimeoutMillis() / 4);
+        } catch (final InterruptedException e) {
         }
         _underlying._allowPutValue.countDown();
       }
     }.start();
     flush(_cache);
+    System.out.println(Timeout.standardTimeoutMillis());
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -340,8 +344,8 @@ public class WriteBehindViewComputationCacheTest {
       @Override
       public void run() {
         try {
-          Thread.sleep(1000L);
-        } catch (InterruptedException e) {
+          Thread.sleep(Timeout.standardTimeoutMillis() / 4);
+        } catch (final InterruptedException e) {
         }
         _underlying._throwException = true;
         _underlying._allowPutValue.countDown();
