@@ -35,8 +35,7 @@ $.register_module({
                         .map(function (str) {return str.replace(/\0/g, ',');}) : [datum]
                     : [];
             };
-            config.form.Block.call(block, { // create a Block instance and assign it to this (block)
-                module: 'og.views.forms.constraints_tash',
+            config.form.Block.call(block, { // assign a Block instance to this (block)
                 extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
                     var indices = data_index.split('.'), last = indices.pop(), result = {},

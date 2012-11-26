@@ -77,7 +77,7 @@ $.register_module({
          */
         var Form = function (config) {
             var form = this;
-            og.common.util.ui.Block.call(form, null, config); // create a Block instance and extend it
+            og.common.util.ui.Block.call(form, null, config); // assign a Block instance to this (form)
             /**
              * creates Block instance whose parent is current Form instance
              * @function

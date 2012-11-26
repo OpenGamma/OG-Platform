@@ -32,13 +32,11 @@ $.register_module({
                 $el.find('.og-js-val').val(value);
                 $rules.append($el);
             };
-            // create a Block instance and assign it to this (block)
-            form.Block.call(block, {extras: extras, processor: processor});
+            form.Block.call(block, {extras: extras, processor: processor}); // assign a Block instance to this (block)
             block.on('form:load', function () {
-                var rule;
                 $rules = $('#' + id + ' .og-js-res-rule-holder');
                 $rule = $('#' + id + ' .og-js-res-rule').remove();
-                for (rule in data) if (rule !== '0') render_rule(rule, data[rule]);
+                Object.keys(data).forEach(function (rule) {if (rule !== '0') render_rule(rule, data[rule]);});
             }).on('click', '#' + id + ' .og-js-add-rule', function () {
                 return render_rule('', null), false;
             }).on('click', '#' + id + ' .og-js-rem-rule', function (event) {
