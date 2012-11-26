@@ -21,8 +21,8 @@ $.register_module({
          * @param {Function} config.generator function that will receive a handler into which it can send Block contents
          * whenever it is ready, useful for populating a block with async content (optional)
          * @param {Object} config.extras values plugged into the Handlerbars template (optional)
-         * @param {String} config.wrap simple Handlebars template with a blob named "html" that will be used to wrap
-         * children
+         * @param {String} config.wrap simple Handlebars template with a blob named "html" used to wrap children
+         * @property {Array} children collection of children within a Block instance, each child is itself a Block
          */
         var Block = function (form, config) {
             var block = this, config = block.config = config || {};
