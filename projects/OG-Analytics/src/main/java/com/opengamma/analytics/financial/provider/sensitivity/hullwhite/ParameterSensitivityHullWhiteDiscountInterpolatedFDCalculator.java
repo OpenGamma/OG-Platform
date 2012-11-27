@@ -47,7 +47,8 @@ public class ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
+  public ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> valueCalculator,
+      final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
     _shift = shift;
@@ -62,107 +63,110 @@ public class ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator {
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final HullWhiteOneFactorProviderDiscount hullWhite) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
-    final MultipleCurrencyAmount pvInit = _valueCalculator.visit(instrument, hullWhite);
-    int nbCcy = pvInit.size();
-    List<Currency> ccyList = new ArrayList<Currency>();
+    final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, hullWhite);
+    final int nbCcy = pvInit.size();
+    final List<Currency> ccyList = new ArrayList<Currency>();
     for (int loopccy = 0; loopccy < nbCcy; loopccy++) {
       ccyList.add(pvInit.getCurrencyAmounts()[loopccy].getCurrency());
     }
     // Discounting
-    Set<Currency> ccyDiscounting = hullWhite.getMulticurveProvider().getCurrencies();
-    for (Currency ccy : ccyDiscounting) {
-      YieldAndDiscountCurve curve = hullWhite.getCurve(ccy);
+    final Set<Currency> ccyDiscounting = hullWhite.getMulticurveProvider().getCurrencies();
+    for (final Currency ccy : ccyDiscounting) {
+      final YieldAndDiscountCurve curve = hullWhite.getCurve(ccy);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketDscBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus),
+        final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketDscBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedPlus = _valueCalculator.visit(instrument, marketDscBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketDscBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus),
+        final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketDscBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedMinus = _valueCalculator.visit(instrument, marketDscBumpedMinus);
-        MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
+        final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
+        final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / (2 * _shift);
         }
       }
-      String name = hullWhite.getMulticurveProvider().getName(ccy);
+      final String name = hullWhite.getMulticurveProvider().getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
-    Set<IndexON> indexON = hullWhite.getMulticurveProvider().getIndexesON();
-    for (IndexON index : indexON) {
-      YieldAndDiscountCurve curve = hullWhite.getCurve(index);
+    final Set<IndexON> indexON = hullWhite.getMulticurveProvider().getIndexesON();
+    for (final IndexON index : indexON) {
+      final YieldAndDiscountCurve curve = hullWhite.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketFwdBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedPlus),
+        final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketFwdBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedPlus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedPlus = _valueCalculator.visit(instrument, marketFwdBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketFwdBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedMinus),
+        final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketFwdBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedMinus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedMinus = _valueCalculator.visit(instrument, marketFwdBumpedMinus);
-        MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
+        final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
+        final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / (2 * _shift);
         }
       }
-      String name = hullWhite.getMulticurveProvider().getName(index);
+      final String name = hullWhite.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
-    Set<IborIndex> indexForward = hullWhite.getMulticurveProvider().getIndexesIbor();
-    for (IborIndex index : indexForward) {
-      YieldAndDiscountCurve curve = hullWhite.getCurve(index);
+    final Set<IborIndex> indexForward = hullWhite.getMulticurveProvider().getIndexesIbor();
+    for (final IborIndex index : indexForward) {
+      final YieldAndDiscountCurve curve = hullWhite.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketFwdBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedPlus),
+        final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketFwdBumpedPlus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedPlus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedPlus = _valueCalculator.visit(instrument, marketFwdBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        HullWhiteOneFactorProviderDiscount marketFwdBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedMinus),
+        final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final HullWhiteOneFactorProviderDiscount marketFwdBumpedMinus = new HullWhiteOneFactorProviderDiscount(hullWhite.getMulticurveProvider().withForward(index, dscBumpedMinus),
             hullWhite.getHullWhiteParameters(), hullWhite.getHullWhiteCurrency());
-        MultipleCurrencyAmount pvBumpedMinus = _valueCalculator.visit(instrument, marketFwdBumpedMinus);
-        MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
+        final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
+        final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / (2 * _shift);
         }
       }
-      String name = hullWhite.getMulticurveProvider().getName(index);
+      final String name = hullWhite.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }

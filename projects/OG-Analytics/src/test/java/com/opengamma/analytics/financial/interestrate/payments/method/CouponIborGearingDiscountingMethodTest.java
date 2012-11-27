@@ -82,8 +82,8 @@ public class CouponIborGearingDiscountingMethodTest {
     final CouponFixedDefinition couponFixedDefinition = new CouponFixedDefinition(couponIborDefinition, SPREAD);
     final Payment couponFixed = couponFixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     final PresentValueCalculator pvc = PresentValueCalculator.getInstance();
-    final double pvIbor = pvc.visit(couponIbor, CURVES_BUNDLE);
-    final double pvFixed = pvc.visit(couponFixed, CURVES_BUNDLE);
+    final double pvIbor = couponIbor.accept(pvc, CURVES_BUNDLE);
+    final double pvFixed = couponFixed.accept(pvc, CURVES_BUNDLE);
     assertEquals("Present value by discounting", pvIbor * FACTOR + pvFixed, pv.getAmount());
   }
 
@@ -93,7 +93,7 @@ public class CouponIborGearingDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final CurrencyAmount pvMethod = METHOD.presentValue(COUPON, CURVES_BUNDLE);
-    final double pvCalculator = PVC.visit(COUPON, CURVES_BUNDLE);
+    final double pvCalculator = COUPON.accept(PVC, CURVES_BUNDLE);
     assertEquals("Coupon with gearing and spread - present value: Method vs Calculator", pvMethod.getAmount(), pvCalculator);
   }
 
@@ -109,8 +109,8 @@ public class CouponIborGearingDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final Payment couponBumpedForward = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAMES[0], bumpedCurveName});
-    final double[] nodeTimesForward = new double[] {COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime()};
+    final Payment couponBumpedForward = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAMES[0], bumpedCurveName });
+    final double[] nodeTimesForward = new double[] {COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime() };
     final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES_BUNDLE, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
     final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(CURVES_NAMES[1]);
@@ -120,8 +120,8 @@ public class CouponIborGearingDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
     }
     // 2. Discounting curve sensitivity
-    final Payment couponBumpedDisc = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {bumpedCurveName, CURVES_NAMES[1]});
-    final double[] nodeTimesDisc = new double[] {COUPON.getPaymentTime()};
+    final Payment couponBumpedDisc = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {bumpedCurveName, CURVES_NAMES[1] });
+    final double[] nodeTimesDisc = new double[] {COUPON.getPaymentTime() };
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedDisc, CURVES_BUNDLE, CURVES_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
     final List<DoublesPair> sensiPvDisc = pvsFuture.getSensitivities().get(CURVES_NAMES[0]);
@@ -137,8 +137,8 @@ public class CouponIborGearingDiscountingMethodTest {
    * Tests the present value curve sensitivity in method vs calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
-    Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(COUPON, CURVES_BUNDLE);
+    final InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    final Map<String, List<DoublesPair>> pvcsCalculator = COUPON.accept(PVCSC, CURVES_BUNDLE);
     assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivities(), pvcsCalculator);
   }
 

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -22,9 +23,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaults;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -90,8 +91,7 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
 
   @Override
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
-    final EquityFutureSecurity eqSec = (EquityFutureSecurity) target.getTrade().getSecurity();
-    final Currency ccy = eqSec.getCurrency();
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(ccy)) {
       s_logger.error("Could not get config for currency " + ccy + "; should never happen");
       return null;
@@ -113,11 +113,11 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    if (!(target.getTrade().getSecurity() instanceof EquityFutureSecurity)) {
+    final Security sec = target.getTrade().getSecurity();
+    if (!(sec instanceof FutureSecurity)) { // was Equity
       return false;
     }
-    final EquityFutureSecurity eqSec = (EquityFutureSecurity) target.getTrade().getSecurity();
-    final Currency ccy = eqSec.getCurrency();
+    final Currency ccy = FinancialSecurityUtils.getCurrency(sec);
     final boolean applies = _currencyCurveConfigAndDiscountingCurveNames.containsKey(ccy);
     return applies;
   }
@@ -132,5 +132,5 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
     return OpenGammaFunctionExclusions.EQUITY_FUTURE_DEFAULTS;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityFuturesDefaultPropertiesFunction.class);
 }

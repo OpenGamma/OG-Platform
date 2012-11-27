@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -104,7 +105,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * If so, the existing position is reused.
    * @param position    the position to be written
    * @param securities  the security(ies) related to the above position, also to be written; index 1 onwards are underlyings
-   * @return            the positions/securities in the masters after writing
+   * @return            the positions/securities in the masters after writing, null on failure
    */
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
@@ -119,6 +120,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (writtenSecurity != null) {
         writtenSecurities.add(writtenSecurity);
       }
+    }
+
+    // If no securities were actually written successfully, just skip writing this position entirely
+    if (writtenSecurities.isEmpty()) {
+      return null;
     }
 
     // If merging positions, check if any of the positions in the current node reference the same security id
@@ -244,9 +250,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           return foundSecurity;
         } else {
           SecurityDocument updateDoc = new SecurityDocument(security);
-          updateDoc.setUniqueId(foundSecurity.getUniqueId());
+          updateDoc.setVersionFromInstant(Instant.now());
           try {
-            return _securityMaster.update(updateDoc).getSecurity();
+            //updateDoc.setUniqueId(foundSecurity.getUniqueId());
+            //return _securityMaster.update(updateDoc).getSecurity();
+            UniqueId newId = _securityMaster.addVersion(foundSecurity.getUniqueId().getObjectId(), updateDoc);
+            security.setUniqueId(newId);
+            return security;
           } catch (Throwable t) {
             s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage());
             return null;

@@ -50,7 +50,7 @@ public abstract class ParameterSensitivityCalculatorTest {
 
   protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
   protected static final YieldAndDiscountCurve DISCOUNTING_CURVE_YIELD;
@@ -85,24 +85,24 @@ public abstract class ParameterSensitivityCalculatorTest {
     CCY_MAP.put(DISCOUNTING_CURVE_NAME, USD);
     CCY_MAP.put(FORWARD_CURVE_NAME, USD);
 
-    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0};
-    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0};
+    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
+    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0 };
 
-    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03};
-    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032};
+    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03 };
+    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032 };
 
     DISCOUNTING_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
     FORWARD_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_YIELD);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_CURVE_YIELD);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY, FX_MATRIX, CCY_MAP);
 
-    double spread = 0.01;
-    YieldAndDiscountCurve spreadCurve = YieldCurve.from(new ConstantDoublesCurve(spread));
+    final double spread = 0.01;
+    final YieldAndDiscountCurve spreadCurve = YieldCurve.from(new ConstantDoublesCurve(spread));
     DISCOUNTING_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Dsc+Spread", false, DISCOUNTING_CURVE_YIELD, spreadCurve);
     FORWARD_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Fwd+Spread", false, FORWARD_CURVE_YIELD, spreadCurve);
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
     CURVE_BUNDLE_SPREAD = new YieldCurveBundle(curvesDF, FX_MATRIX, CCY_MAP);
@@ -133,7 +133,7 @@ public abstract class ParameterSensitivityCalculatorTest {
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_YIELD);
     final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_YIELD);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
 
     final Set<String> fixedCurveSet = new HashSet<String>();
     fixedCurveSet.add(DISCOUNTING_CURVE_NAME);
@@ -149,7 +149,7 @@ public abstract class ParameterSensitivityCalculatorTest {
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
     final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
 
     final Set<String> fixedCurveSet = new HashSet<String>();
     fixedCurveSet.add(DISCOUNTING_CURVE_NAME);
@@ -194,7 +194,7 @@ public abstract class ParameterSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 
@@ -209,19 +209,19 @@ public abstract class ParameterSensitivityCalculatorTest {
       final YieldCurveBundle fixedCurves, final YieldCurveBundle spreadCurves) {
     int nNodes = 0;
     for (final String curveName : spreadCurves.getAllNames()) {
-      YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[0];
+      final YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[0];
       final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) yieldCurve.getCurve()).getDataBundle();
       nNodes += dataBundle.size() + 1; // +1 for spread
     }
     final double[] param = new double[nNodes];
     int index = 0;
     for (final String curveName : spreadCurves.getAllNames()) {
-      YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[0];
+      final YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[0];
       final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) yieldCurve.getCurve()).getDataBundle();
       for (final double y : dataBundle.getValues()) {
         param[index++] = y;
       }
-      YieldCurve spreadCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[1];
+      final YieldCurve spreadCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[1];
       param[index++] = ((ConstantDoublesCurve) (spreadCurve.getCurve())).getYData()[0];
     }
 
@@ -231,7 +231,7 @@ public abstract class ParameterSensitivityCalculatorTest {
         final YieldCurveBundle curves = spreadCurves.copy();
         int index2 = 0;
         for (final String name : spreadCurves.getAllNames()) {
-          YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(name)).getCurves()[0];
+          final YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(name)).getCurves()[0];
           final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) yieldCurve.getCurve()).getDataBundle();
           final int numberOfNodes = dataBundle.size();
           final double[] yields1 = Arrays.copyOfRange(x.getData(), index2, index2 + numberOfNodes);
@@ -245,7 +245,7 @@ public abstract class ParameterSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 

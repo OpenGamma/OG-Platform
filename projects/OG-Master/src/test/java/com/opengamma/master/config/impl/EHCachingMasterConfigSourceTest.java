@@ -16,6 +16,7 @@ import javax.time.Instant;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,18 +32,14 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Test {@link EHCachingMasterConfigSource}.
+ * Test.
  */
 @Test
 public class EHCachingMasterConfigSourceTest {
-  
+
   private static final VersionCorrection VC = VersionCorrection.LATEST;
   private static final ExternalId CONFIG = ExternalId.of("Test", "sec1");
   private static final String CONFIG_NAME = "Test";
-  
-  private UnitTestConfigMaster _underlyingConfigMaster;
-  private EHCachingMasterConfigSource _cachingSource;
-  
   private static final ConfigItem<ExternalId> ITEM;
   static {
     ConfigItem<ExternalId> item = ConfigItem.of(CONFIG);
@@ -50,15 +47,24 @@ public class EHCachingMasterConfigSourceTest {
     item.setType(ExternalId.class);
     ITEM = item;
   }
- 
+
+  private UnitTestConfigMaster _underlyingConfigMaster;
+  private EHCachingMasterConfigSource _cachingSource;
+  private CacheManager _cacheManager;
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    _cacheManager = new CacheManager();
     _underlyingConfigMaster = new UnitTestConfigMaster();
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    EHCacheUtils.clear(cm, EHCachingMasterConfigSource.CONFIG_CACHE);
-    _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
+    _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, _cacheManager);
   }
 
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void getConfig_uniqueId() {
     UniqueId uniqueId = _underlyingConfigMaster.add(new ConfigDocument(ITEM)).getUniqueId();
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);

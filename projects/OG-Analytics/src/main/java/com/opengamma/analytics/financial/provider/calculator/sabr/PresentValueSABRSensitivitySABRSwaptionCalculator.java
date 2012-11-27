@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.sabr;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueSABRSensitivitySABRSwaptionCalculator extends AbstractInstrumentDerivativeVisitor<SABRSwaptionProviderInterface, PresentValueSABRSensitivityDataBundle> {
+public final class PresentValueSABRSensitivitySABRSwaptionCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<SABRSwaptionProviderInterface, PresentValueSABRSensitivityDataBundle> {
 
   /**
    * The unique instance of the calculator.
@@ -82,6 +82,11 @@ public final class PresentValueSABRSensitivitySABRSwaptionCalculator extends Abs
       cs = cs.plus(visit(annuity.getNthPayment(loopp), sabr));
     }
     return cs;
+  }
+
+  @Override
+  public PresentValueSABRSensitivityDataBundle visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

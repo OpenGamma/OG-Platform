@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.calc;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -46,6 +45,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewTargetResultModel;
+import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -187,9 +187,15 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
     
+    Map<String, Object> resultValues = new HashMap<String, Object>();
     ViewComputationResultModel result = client.getLatestResult();
     ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitive1().getTargetSpecification());
-    assertNull(targetResult);
+    for (ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
+      resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+    }
+    
+    assertEquals(MissingMarketDataSentinel.getInstance(), resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(MissingMarketDataSentinel.getInstance(), resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
   }
   
   @Test

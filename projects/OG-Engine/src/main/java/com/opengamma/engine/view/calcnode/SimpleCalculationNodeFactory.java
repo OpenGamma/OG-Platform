@@ -18,6 +18,8 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.log.LogBridge;
+import com.opengamma.util.log.ThreadLocalLogEventListener;
 
 /**
  * Creates more-or-less identical nodes.
@@ -38,6 +40,12 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private FunctionBlacklistQuery _blacklistQuery;
   private FunctionBlacklistMaintainer _blacklistUpdate;
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
+  private final ThreadLocalLogEventListener _threadLocalLogListener;
+  
+  public SimpleCalculationNodeFactory() {
+    _threadLocalLogListener = new ThreadLocalLogEventListener();
+    LogBridge.getInstance().addListener(_threadLocalLogListener);
+  }
 
   private int _uid;
 
@@ -166,8 +174,9 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     } else {
       identifier = SimpleCalculationNode.createNodeId();
     }
+    final CalculationNodeLogEventListener logListener = new CalculationNodeLogEventListener(_threadLocalLogListener);
     final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer());
+          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer(), logListener);
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());

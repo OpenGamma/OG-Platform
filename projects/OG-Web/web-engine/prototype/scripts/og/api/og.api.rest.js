@@ -27,7 +27,7 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 15000 /* 15s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 10000 /* 10s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */
         var cache_get = function (key) {return common.cache_get(module.name + key);};
         var cache_set = function (key, value) {return common.cache_set(module.name + key, value);};
@@ -41,7 +41,7 @@ $.register_module({
                 throw new TypeError(params.bundle.method + ': config.to requires config.from');
             if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
                 params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
-            return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
+            return ['handler', 'loading', 'update', 'dependencies', 'cache_for', 'dry'].reduce(function (acc, val) {
                 return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
             }, {type: 'GET'});
         };
@@ -110,11 +110,12 @@ $.register_module({
             if (!req.config.meta.update) return true;
             if (!api.id) return false;
             if (registrations.reduce(function (acc, val) { // do not add duplicates
-                return acc || val.method.join('/') === req.method.join('/') && val.update === req.config.meta.update;
+                return val === null ? false
+                    : acc || val.method.join('/') === req.method.join('/') && val.update === req.config.meta.update;
             }, false)) return true;
             return !!registrations.push({
-                id: req.id, dependencies: req.config.meta.dependencies || [], config: req.config, method: req.method,
-                update: req.config.meta.update, url: req.url, current: req.current
+                id: req.id, dependencies: req.config.meta.dependencies || [], config: req.config, url: req.url,
+                method: req.method, update: req.config.meta.update, current: req.current
             });
         };
         var request = function (method, config, promise) {
@@ -134,9 +135,9 @@ $.register_module({
                     url: url,
                     type: is_get ? 'POST' : config.meta.type,
                     data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
-                    headers: {'Accept': 'application/json'},
+                    headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
                     dataType: 'json',
-                    timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
+                    timeout: config.meta.timeout || (is_get ? TIMEOUTSOON : TIMEOUTFOREVER),
                     beforeSend: function (xhr, req) {
                         var aborted = !(promise.id in outstanding_requests),
                             message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
@@ -145,11 +146,11 @@ $.register_module({
                         if (aborted) return false;
                     },
                     error: function (xhr, status, error) {
-                        // re-send requests that have timed out only if the are GETs
-                        if (error === 'timeout' && is_get) return send();
+                        // re-send requests that have timed out only if they are GETs (/updates requests don't time out)
+                        if (error === 'timeout' && is_get && !config.meta.is_update) return send();
                         var result = {
                             error: xhr.status || true, data: null,
-                            meta: {content_length: xhr.responseText.length, url: url},
+                            meta: {content_length: (xhr.responseText || '').length, url: url},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
@@ -159,6 +160,7 @@ $.register_module({
                         promise.deferred.resolve(result);
                     },
                     success: function (data, status, xhr) {
+                        if (promise.ignore) return;
                         var meta = {content_length: xhr.responseText.length, url: url},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
@@ -193,10 +195,12 @@ $.register_module({
                     return setTimeout(request.partial(method, config, promise), STALL), promise;
                 if (config.meta.cache_for) cache_set(url, true);
             }
-            outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+            outstanding_requests[promise.id] = {
+                current: current, dependencies: config.meta.dependencies, promise: promise
+            };
             if (is_delete) registrations = registrations
                 .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
-            return send(), promise;
+            return config.meta.dry ? promise : send(), promise;
         };
         var request_expired = function (request, current) {
             return (current.page !== request.current.page) || request.dependencies.some(function (field) {
@@ -304,13 +308,13 @@ $.register_module({
                 registrations = registrations.filter(function (val) {return val.id !== promise.id;});
             },
             disconnected: false,
-            events: {disconnect: [], reconnect: []},
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
                 get: default_get.partial(['name'], null),
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            fire: og.common.events.fire,
             handshake: { // all requests that begin with /handshake
                 root: 'handshake',
                 get: function (config) {
@@ -533,6 +537,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
+                    meta.timeout = 12500; meta.is_update = true; // back-end will timeout at 10s, so 12.5 should be fine
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
                 },
                 put: not_available.partial('put'),
@@ -567,7 +572,9 @@ $.register_module({
                     config = config || {};
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'],
+                        fields = [
+                            'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'
+                        ],
                         api_fields = [
                             'viewDefinitionId', 'aggregators', 'marketDataProviders',
                             'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
@@ -580,11 +587,13 @@ $.register_module({
                         required: [{all_of: ['viewdefinition', 'providers']}]
                     });
                     meta.type = 'POST';
+                    promise.ignore = true; // this request will be answered in fire_updates NOT in ajax handler
                     fields.forEach(function (val, idx) {
                         var is_object = typeof config[val] === 'object';
                         if (is_object ? val = JSON.stringify(config[val]) : val = str(config[val])) // is truthy
                             data[api_fields[idx]] = val;
                     });
+                    data['requestId'] = promise.id;
                     data['aggregators'] = config.aggregators; // send traditional form array and not JSON
                     data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta}, promise);
@@ -622,17 +631,19 @@ $.register_module({
                             del: not_available.partial('del')
                         },
                         put: function (config) {
-                            var root = this.root, method = root.split('/'), data = {}, meta,
+                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
                                 fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                             });
                             meta.type = 'POST';
+                            promise.ignore = true; // this request will be answered in fire_updates NOT in ajax handler
+                            data['requestId'] = promise.id;
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
                             fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
-                            return request(method, {data: data, meta: meta});
+                            return request(method, {data: data, meta: meta}, promise);
                         },
                         viewports: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports',
@@ -651,22 +662,23 @@ $.register_module({
                             },
                             put: function (config) {
                                 config = config || {};
-                                var root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['view_id', 'grid_type', 'graph_id', 'viewport_id', 'rows', 'columns'],
+                                var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns']}]
+                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns', 'format']}]
                                 });
                                 meta.type = 'POST';
-                                data.rows = config.rows;
-                                data.columns = config.columns;
-                                data.expanded = !!config.expanded;
+                                ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                                 data['clientId'] = api.id;
+                                data.version = promise.id;
                                 method[1] = config.view_id;
                                 method[2] = config.grid_type;
                                 method[4] = config.graph_id;
-                                if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
-                                return request(method, {data: data, meta: meta});
+                                if (config.viewport_id) // use the promise id as viewport_version
+                                    (meta.type = 'PUT'), method.push(config.viewport_id);
+                                else // the response will come back in fire_updates
+                                    (promise.ignore = true), (data['requestId'] = promise.id);
+                                return request(method, {data: data, meta: meta}, promise);
                             },
                             del: function (config) {
                                 config = config || {};
@@ -716,21 +728,22 @@ $.register_module({
                         },
                         put: function (config) {
                             config = config || {};
-                            var root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['view_id', 'grid_type', 'viewport_id', 'rows', 'columns'],
+                            var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
-                                required: [{all_of: ['view_id', 'rows', 'columns']}]
+                                required: [{all_of: ['view_id', 'rows', 'columns', 'format']}]
                             });
                             meta.type = 'POST';
-                            data.rows = config.rows;
-                            data.columns = config.columns;
-                            data.expanded = !!config.expanded;
+                            ['rows', 'columns', 'format'].forEach(function (key) {data[key] = config[key];});
                             data['clientId'] = api.id;
+                            data.version = promise.id;
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
-                            if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
-                            return request(method, {data: data, meta: meta});
+                            if (config.viewport_id) // use the promise id as viewport_version
+                                (meta.type = 'PUT'), method.push(config.viewport_id);
+                            else // the response will come back in fire_updates
+                                (promise.ignore = true), (data['requestId'] = promise.id);
+                            return request(method, {data: data, meta: meta}, promise);
                         },
                         del: function (config) {
                             config = config || {};
@@ -756,23 +769,31 @@ $.register_module({
                 return warn(module.name + ': handshake failed\n', result.message), setTimeout(subscribe, RESUBSCRIBE);
             api.id = result.data['clientId'];
             (fire_updates = function (reset, result) {
-                var current = routes.current(), handlers = [];
-                if (reset && api.disconnected) (api.disconnected = false), og.common.events.fire(api.events.reconnect);
-                registrations = registrations.filter(function (reg) {
-                    return request_expired(reg, current) ? false // purge expired requests
-                        // fire all updates if connection is reset (and clear registrations)
-                        : reset ? handlers.push($.extend({reset: true}, reg)) && false
-                            // otherwise fire matching URLs (and clear them from registrations)
-                            : ~result.data.updates.indexOf(reg.url) ? handlers.push(reg) && false
-                                // keep everything else registered
-                                : true;
+                var current = routes.current();
+                if (reset && api.disconnected) (api.disconnected = false), api.fire('reconnect');
+                registrations = registrations // throw out stale registrations
+                    .filter(function (reg) {return !request_expired(reg, current);});
+                if (reset) return registrations = registrations // fire all updates if connection is reset (and clear)
+                    .filter(function (reg) {return reg.update($.extend({reset: true}, reg)) && false;});
+                result.data.updates.filter(function (update) {
+                    var simple = typeof update === 'string', promise, request;
+                    if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)){
+                        promise.deferred
+                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        delete outstanding_requests[promise.id];
+                    }
+                    return simple;
+                }).forEach(function (update) {
+                    var lcv, len = registrations.length, reg;
+                    for (lcv = 0; lcv < len; lcv += 1)
+                        if ((reg = registrations[lcv]).url === update) (registrations[lcv] = null), reg.update(reg);
+                    registrations = registrations.filter(Boolean);
                 });
-                handlers.forEach(function (reg) {reg.update(reg);});
             })(true, null); // there are no registrations when subscribe() is called unless the connection's been reset
             (listen = function () {
                 api.updates.get({handler: function (result) {
                     if (result.error) {
-                        if (!api.disconnected) (api.disconnected = true), og.common.events.fire(api.events.disconnect);
+                        if (!api.disconnected) (api.disconnected = true), api.fire('disconnect'), (api.id = null);
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }

@@ -72,21 +72,14 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
   public void testCash() {
     final Cash c1 = new Cash(CUR, 0, 1, 1, R1, 1, N1);
     final Cash c2 = new Cash(CUR, 0, 1, 1, R2, 1, N1);
-    assertEquals(VISITOR.visit(c1, R2), c2);
+    assertEquals(c1.accept(VISITOR, R2), c2);
   }
-
-  //  @Test
-  //  public void testForwardLiborAnnuity() {
-  //    final AnnuityCouponIbor a1 = new AnnuityCouponIbor(CUR, new double[] {1, 2}, INDEX, N1, N2, true);
-  //    final AnnuityCouponIbor a2 = a1.withSpread(R2);
-  //    assertEquals(VISITOR.visit(a1, R2), a2);
-  //  }
 
   @Test
   public void testFixedCouponAnnuity() {
-    final AnnuityCouponFixed c1 = new AnnuityCouponFixed(CUR, new double[] {1, 2}, R1, N1, true);
-    final AnnuityCouponFixed c2 = new AnnuityCouponFixed(CUR, new double[] {1, 2}, R2, N1, true);
-    assertEquals(VISITOR.visit(c1, R2), c2);
+    final AnnuityCouponFixed c1 = new AnnuityCouponFixed(CUR, new double[] {1, 2 }, R1, N1, true);
+    final AnnuityCouponFixed c2 = new AnnuityCouponFixed(CUR, new double[] {1, 2 }, R2, N1, true);
+    assertEquals(c1.accept(VISITOR, R2), c2);
   }
 
   @Test
@@ -95,7 +88,7 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     final ForwardRateAgreement fra1 = new ForwardRateAgreement(CUR, 0.5, N1, 0.5, 1, index, 0.5, 0.5, 1, 0.5, R1, N2);
     final ForwardRateAgreement fra2 = new ForwardRateAgreement(CUR, 0.5, N1, 0.5, 1, index, 0.5, 0.5, 1, 0.5, R2, N2);
-    assertEquals(VISITOR.visit(fra1, R2), fra2);
+    assertEquals(fra1.accept(VISITOR, R2), fra2);
   }
 
   @Test
@@ -113,7 +106,7 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
         "K", N1, N2);
     final InterestRateFuture ir2 = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R2, 1, paymentAccrualFactor, quantity,
         "K", N1, N2);
-    assertEquals(VISITOR.visit(ir1, R2), ir2);
+    assertEquals(ir1.accept(VISITOR, R2), ir2);
   }
 
 }

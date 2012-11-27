@@ -24,6 +24,10 @@
     -webkit-box-shadow: 2px 2px 2px #ebebeb;
 }
 
+.OG-cell-options.og-frozen{
+    z-index:5;
+}
+
 .OG-cell-options.og-expanded .og-num {
     color: #555;
     background-color: #fff;
@@ -45,7 +49,8 @@
     display: block;
 }
 
-.OG-cell-options .OG-icon {
+.OG-cell-options .OG-icon.og-icon-down-chevron,
+.OG-cell-options .OG-icon.og-icon-ellipsis {
     background-color: #ccc;
     float: left;
     margin-left: 1px;
@@ -83,7 +88,6 @@
     position: relative;
     top: 3px;
 }
-
 .OG-cell-options .og-icon-new-window-2 {
     background-color: #c9cacb;
     padding: 5px 4px 4px 3px;

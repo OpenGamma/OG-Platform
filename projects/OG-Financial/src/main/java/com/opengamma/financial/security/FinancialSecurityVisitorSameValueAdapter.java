@@ -12,6 +12,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -58,222 +64,252 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   private final T _value;
 
-  public FinancialSecurityVisitorSameValueAdapter(T value) {
+  public FinancialSecurityVisitorSameValueAdapter(final T value) {
     _value = value;
   }
 
   @Override
-  public T visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+  public T visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitCorporateBondSecurity(CorporateBondSecurity security) {
+  public T visitCorporateBondSecurity(final CorporateBondSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+  public T visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+  public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
+  public T visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitCapFloorSecurity(CapFloorSecurity security) {
+  public T visitCapFloorSecurity(final CapFloorSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitCashSecurity(CashSecurity security) {
+  public T visitCashSecurity(final CashSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
+  public T visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+  public T visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
+  public T visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+  public T visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityOptionSecurity(EquityOptionSecurity security) {
+  public T visitEquityOptionSecurity(final EquityOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquitySecurity(EquitySecurity security) {
+  public T visitEquitySecurity(final EquitySecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+  public T visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFRASecurity(FRASecurity security) {
+  public T visitFRASecurity(final FRASecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+  public T visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+  public T visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFXForwardSecurity(FXForwardSecurity security) {
+  public T visitFXForwardSecurity(final FXForwardSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFXOptionSecurity(FXOptionSecurity security) {
+  public T visitFXOptionSecurity(final FXOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+  public T visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+  public T visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+  public T visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+  public T visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+  public T visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+  public T visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+  public T visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitForwardSwapSecurity(ForwardSwapSecurity security) {
+  public T visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitSwapSecurity(SwapSecurity security) {
+  public T visitSwapSecurity(final SwapSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitSwaptionSecurity(SwaptionSecurity security) {
+  public T visitSwaptionSecurity(final SwaptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitBondFutureSecurity(BondFutureSecurity security) {
+  public T visitBondFutureSecurity(final BondFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+  public T visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
+  public T visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+  public T visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityFutureSecurity(EquityFutureSecurity security) {
+  public T visitEquityFutureSecurity(final EquityFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+  public T visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitFXFutureSecurity(FXFutureSecurity security) {
+  public T visitFXFutureSecurity(final FXFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitIndexFutureSecurity(IndexFutureSecurity security) {
+  public T visitIndexFutureSecurity(final IndexFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitMetalFutureSecurity(MetalFutureSecurity security) {
+  public T visitMetalFutureSecurity(final MetalFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitStockFutureSecurity(StockFutureSecurity security) {
+  public T visitStockFutureSecurity(final StockFutureSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+  public T visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+  public T visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
     return _value;
   }
 
   @Override
-  public T visitMetalForwardSecurity(MetalForwardSecurity security) {
+  public T visitMetalForwardSecurity(final MetalForwardSecurity security) {
     return _value;
   }
-  
+
   @Override
-  public T visitCDSSecurity(CDSSecurity security) {
+  public T visitCDSSecurity(final CDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     return _value;
   }
 }

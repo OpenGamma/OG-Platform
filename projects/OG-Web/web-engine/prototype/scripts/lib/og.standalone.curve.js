@@ -4,7 +4,14 @@
         color_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], tooltip_font_color = '#fff',
         flot_options = {
             colors: [], zoom: {interactive: true}, selection: {mode: null},
-            grid: {borderWidth: 0, color: '#999', minBorderMargin: 0, labelMargin: 4, hoverable: true},
+            grid: {
+                borderWidth: 0, color: '#999', minBorderMargin: 0, labelMargin: 4, hoverable: true,
+                markings: [
+                    {xaxis: {from: -Number.MAX_VALUE, to: Number.MAX_VALUE}, yaxis: {from: 0, to: 0}},
+                    {xaxis: {from: 0, to: 0}, yaxis: {from: -Number.MAX_VALUE, to: Number.MAX_VALUE}}
+                ],
+                markingsLineWidth: 1, markingsColor: '#aaa'
+            },
             lines: {lineWidth: 1, fill: false, fillColor: '#f8fbfd'},
             pan: {interactive: true, cursor: "move", frameRate: 30},
             series: {shadowSize: 1, points: {radius: 2, lineWidth: 1, fill: true, fillColor: "#ffffff"}},
@@ -30,7 +37,7 @@
     // nodal points tooltip
     css.tooltip = {
         opacity: '0.5', position: 'absolute', background: '#000',
-        padding: '2px', display: 'none', border: '1px solid #fff'
+        padding: '2px', display: 'none', border: '1px solid #fff', zIndex: 5
     };
     html.tooltip = '<div><table>\
                         <tr><td>X:&nbsp;&nbsp;</td><td>{x}</td></tr><tr><td>Y:&nbsp;&nbsp;</td><td>{y}</td></tr>\
@@ -83,6 +90,7 @@
                 $init_msg = $('<div />').css(css.reset_container).html(html.init_msg);
                 $plot = $('<div />').css(css.plot);
                 $flot = $.plot($plot, data.data, data.options);
+                $flot.pan({left: -1, top: 1});
                 return $('<div />').html([$reset[0], $init_msg[0], $plot[0]]);
             }()));
             /**
@@ -103,10 +111,6 @@
              * Add axes, remove init message and add reset button on pan/zoom
              */
             $plot.bind('plotpan plotzoom', function () {
-                $flot.getOptions().grid.markings = [
-                    {xaxis: {from: 0, to: range.xmax}, yaxis: {from: 0, to: 0}, color: '#bbb'},
-                    {xaxis: {from: 0, to: 0}, yaxis: {from: 0, to: range.ymax}, color: '#bbb'}
-                ];
                 $reset.show(), $init_msg.hide();
                 curve.update(input);
             });
@@ -117,6 +121,7 @@
          */
         curve.reload = function () {
             $flot = $.plot($plot, data.data, data.options);
+            $flot.pan({left: -1, top: 1});
             $reset.hide();
         };
         /**

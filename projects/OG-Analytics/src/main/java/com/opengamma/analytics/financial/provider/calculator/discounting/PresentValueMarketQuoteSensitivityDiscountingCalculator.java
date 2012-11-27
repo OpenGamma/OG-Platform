@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * For swaps it is the pvbp of the first leg.
  * @author marc
  */
-public final class PresentValueMarketQuoteSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, Double> {
+public final class PresentValueMarketQuoteSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -91,7 +91,7 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
     ArgumentChecker.notNull(annuity, "Annuity");
     double pvbp = 0;
     for (final Payment p : annuity.getPayments()) {
-      pvbp += visit(p, multicurve);
+      pvbp += p.accept(this, multicurve);
     }
     return pvbp;
   }
@@ -107,7 +107,7 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
   public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(multicurve, "Market");
     ArgumentChecker.notNull(swap, "Swap");
-    return visit(swap.getFirstLeg(), multicurve);
+    return swap.getFirstLeg().accept(this, multicurve);
   }
 
   @Override

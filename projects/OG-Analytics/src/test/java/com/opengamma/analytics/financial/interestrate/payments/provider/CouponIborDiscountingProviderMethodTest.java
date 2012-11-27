@@ -43,7 +43,7 @@ public class CouponIborDiscountingProviderMethodTest {
   private static final CouponIborDefinition CPN_IBOR_DEFINITION = CouponIborDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, EURIBOR3M);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
   private static final CouponIbor CPN_IBOR = (CouponIbor) CPN_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final CouponIborDiscountingProviderMethod METHOD_CPN_IBOR = CouponIborDiscountingProviderMethod.getInstance();
@@ -57,17 +57,17 @@ public class CouponIborDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketDiscount() {
-    MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
-    double forward = PROVIDER.getForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
-    double df = PROVIDER.getDiscountFactor(EURIBOR3M.getCurrency(), CPN_IBOR.getPaymentTime());
-    double pvExpected = NOTIONAL * ACCRUAL_FACTOR * forward * df;
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
+    final double forward = PROVIDER.getForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
+    final double df = PROVIDER.getDiscountFactor(EURIBOR3M.getCurrency(), CPN_IBOR.getPaymentTime());
+    final double pvExpected = NOTIONAL * ACCRUAL_FACTOR * forward * df;
     assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
-    MultipleCurrencyAmount pvCalculator = PVDC.visit(CPN_IBOR, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = CPN_IBOR.accept(PVDC, PROVIDER);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -75,8 +75,8 @@ public class CouponIborDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_IBOR, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_IBOR.accept(PVCSDC, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

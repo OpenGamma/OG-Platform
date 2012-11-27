@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -33,7 +32,7 @@ public abstract class Coupon extends Payment {
    */
   public Coupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional) {
     super(currency, paymentTime, fundingCurveName);
-    Validate.isTrue(paymentYearFraction >= 0, "year fraction < 0");
+    ArgumentChecker.isTrue(paymentYearFraction >= 0, "year fraction < 0");
     _paymentYearFraction = paymentYearFraction;
     _notional = notional;
   }

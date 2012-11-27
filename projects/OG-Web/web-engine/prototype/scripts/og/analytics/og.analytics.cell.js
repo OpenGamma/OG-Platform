@@ -6,22 +6,31 @@ $.register_module({
     name: 'og.analytics.Cell',
     dependencies: ['og.api.rest', 'og.analytics.Data', 'og.common.events'],
     obj: function () {
-        var module = this, events = og.common.events, constructor = function (config) {
+        var module = this, events = og.common.events, constructor = function (config, label) {
             var cell = this;
-            cell.dataman = new og.analytics.Data(config.source, true /* bypass checking for primitives/portfolio */)
-                .viewport({rows: [config.row], cols: [config.col], expanded: true})
+            label = label ? '[' + label + ']' : '';
+            var fatal_handler = function (message) {
+                try {cell.fire('fatal', message);}
+                catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
+            };
+            cell.dataman = new og.analytics.Data(config.source, {bypass: true, label: 'cell' + label})
+                .on('meta', function (meta, raw) {
+                    cell.dataman.viewport({rows: [config.row], cols: [config.col], format: config.format});
+                })
                 .on('data', function (data) {
                     var cell_data = data[0];
-                    try {events.fire(cell.events.data, cell_data);}
-                    catch (error) {og.dev.warn(module.name + ': a data handler threw ', error);}
+                    try {cell.fire('data', cell_data);} catch (error) {
+                        cell.kill();
+                        fatal_handler(module.name + ': a data handler threw error: ' +
+                            (error.message || 'an unknown error') + ' (check console.$)');
+                        throw error; // let og.analytics.Data catch it
+                    }
                 })
-                .on('fatal', function (message) {
-                    try {events.fire(cell.events.fatal, message);}
-                    catch (error) {og.dev.warn(module.name + ': a fatal handler threw ', error);}
-                });
-            cell.events = {data: [], fatal: []};
+                .on('fatal', fatal_handler);
         };
+        constructor.prototype.fire = events.fire;
         constructor.prototype.kill = function () {this.dataman.kill();};
+        constructor.prototype.off = events.off;
         constructor.prototype.on = events.on;
         return constructor;
     }

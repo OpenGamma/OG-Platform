@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.time.calendar.Period;
@@ -28,6 +29,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVol
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *
@@ -43,8 +45,12 @@ public class BlackVolatilitySurfaceUtils {
     return uniqueExpiries;
   }
 
+  public static Object[] getUniqueExpiriesWithData(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    final SortedSet<Object> uniqueXValues = volatilitySurface.getUniqueXValues();
+    return uniqueXValues.toArray(new Object[uniqueXValues.size()]);
+  }
+
   public static double[] getUniqueStrikes(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
-    // Get Unique Strikes
     final double[] strikes = getArrayOfDoubles(volatilitySurface.getYs());
     final DoubleLinkedOpenHashSet strikeSet = new DoubleLinkedOpenHashSet(strikes);
     final double[] uniqueStrikes = strikeSet.toDoubleArray();
@@ -68,12 +74,35 @@ public class BlackVolatilitySurfaceUtils {
         }
       }
       if (availableVols.size() == 0) {
-        throw new OpenGammaRuntimeException("Unexpected error. No Vols found for an expiry."); // Use ArrayLists for fullStrikes (and Vols). But first, check input surface data
+        throw new OpenGammaRuntimeException("No volatility values found for expiry " + expiries[i]);
       }
       fullStrikes[i] = availableStrikes.toDoubleArray();
       fullValues[i] = availableVols.toDoubleArray();
     }
     return Pair.of(fullStrikes, fullValues);
+  }
+
+  public static Triple<double[], double[][], double[][]> getStrippedStrikesAndValues(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
+    final Object[] expiries = getUniqueExpiriesWithData(volatilitySurface);
+    final Object[] strikeValues = volatilitySurface.getYs();
+    final int nExpiries = expiries.length;
+    final int nStrikes = strikeValues.length;
+    final double[][] strikes = new double[nExpiries][];
+    final double[][] values = new double[nExpiries][];
+    for (int i = 0; i < nExpiries; i++) {
+      final DoubleList availableStrikes = new DoubleArrayList();
+      final DoubleList availableVols = new DoubleArrayList();
+      for (int j = 0; j < nStrikes; j++) {
+        final Double vol = volatilitySurface.getVolatility(expiries[i], strikeValues[j]);
+        if (vol != null) {
+          availableStrikes.add((Double) strikeValues[j]);
+          availableVols.add(vol);
+        }
+      }
+      strikes[i] = availableStrikes.toDoubleArray();
+      values[i] = availableVols.toDoubleArray();
+    }
+    return new Triple<double[], double[][], double[][]>(getArrayOfDoubles(expiries), strikes, values);
   }
 
   public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
@@ -162,7 +191,20 @@ public class BlackVolatilitySurfaceUtils {
     final int n = xData.length;
     expiries = new double[n];
     for (int i = 0; i < n; i++) {
-      expiries[i] = (Double) xData[i];
+      final Object data = xData[i];
+      if (data instanceof Double) {
+        expiries[i] = (Double) xData[i];
+      } else if (data instanceof Float) {
+        expiries[i] = ((Float) xData[i]).doubleValue();
+      } else if (data instanceof Long) {
+        expiries[i] = ((Long) xData[i]).doubleValue();
+      } else if (data instanceof Integer) {
+        expiries[i] = ((Integer) xData[i]).doubleValue();
+      } else if (data instanceof Byte) {
+        expiries[i] = ((Byte) xData[i]).doubleValue();
+      } else {
+        throw new OpenGammaRuntimeException("Cannot cast " + data.getClass() + " to double");
+      }
     }
     return expiries;
   }

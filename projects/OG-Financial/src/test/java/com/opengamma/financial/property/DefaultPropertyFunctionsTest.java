@@ -660,7 +660,7 @@ public class DefaultPropertyFunctionsTest {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
@@ -675,7 +675,7 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
         .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
@@ -690,7 +690,7 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
         .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();

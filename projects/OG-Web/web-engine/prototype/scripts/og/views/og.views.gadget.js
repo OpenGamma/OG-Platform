@@ -9,12 +9,14 @@ $.register_module({
         var module = this, view, common = og.common, routes = common.routes,
             gadgets = common.gadgets, content = '.OG-gadget-container', $content = $(content);
         return view = {
-            init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
+            init: function () {
+                for (var rule in view.rules) 
+                    routes.add(view.rules[rule]);
+            },
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
-                    // TODO this is a global ... remove it!
-                    grid = new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
+                    new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
                 });
             },
             gadgetscontainer: function (args) {
@@ -24,7 +26,7 @@ $.register_module({
             },
             positions: function (args) {
                 $content.html('\
-                    <section class="OG-details-positions og-js-positions"></section>\
+                    <section class="OG-gadgets-positions-container og-js-positions"></section>\
                     <section class="og-js-trades"></section>\
                 ');
                 gadgets.positions({
@@ -43,7 +45,7 @@ $.register_module({
                 if (args.id) options.id = args.id; else options.data = og.api.common.cache_get(args.key);
                 if (args.key) og.api.common.cache_del(args.key);
                 if (!options.data && !options.id) return $('#gadget_content').html('There is no data to load.');
-                new gadgets.Timeseries(options);
+                new gadgets.TimeseriesPlot(options);
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},

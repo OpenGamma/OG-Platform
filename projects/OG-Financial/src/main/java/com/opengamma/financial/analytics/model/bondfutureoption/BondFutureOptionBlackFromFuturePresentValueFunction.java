@@ -48,7 +48,7 @@ public class BondFutureOptionBlackFromFuturePresentValueFunction extends BondFut
     }
     final double futurePrice = (Double) underlyingValue;
     final YieldCurveWithBlackCubeAndForwardBundle dataWithFuture = YieldCurveWithBlackCubeAndForwardBundle.from(data, futurePrice);
-    final double pv = s_calculator.visit(bondFutureOption, dataWithFuture);
+    final double pv = bondFutureOption.accept(s_calculator, dataWithFuture);
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 

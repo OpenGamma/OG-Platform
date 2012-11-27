@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model.
- * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model. 
+ * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model.
  * International Journal of Theoretical and Applied Finance, 6(1):57--72.
  */
 public final class SwaptionPhysicalFixedIborHullWhiteMethod {
@@ -76,7 +76,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
    */
   public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hullWhite.getMulticurveProvider());
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hullWhite.getMulticurveProvider());
     return presentValue(swaption, cfe, hullWhite);
   }
 
@@ -90,17 +90,17 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
   public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
-    double expiryTime = swaption.getTimeToExpiry();
-    double[] alpha = new double[cfe.getNumberOfPayments()];
-    double[] df = new double[cfe.getNumberOfPayments()];
-    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    final double expiryTime = swaption.getTimeToExpiry();
+    final double[] alpha = new double[cfe.getNumberOfPayments()];
+    final double[] df = new double[cfe.getNumberOfPayments()];
+    final double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alpha[loopcf] = MODEL.alpha(hullWhite.getHullWhiteParameters(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
       df[loopcf] = hullWhite.getMulticurveProvider().getDiscountFactor(swaption.getCurrency(), cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
-    double kappa = MODEL.kappa(discountedCashFlow, alpha);
-    double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
+    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    final double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
     double pv = 0.0;
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
@@ -117,25 +117,25 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
   public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
-    int nbSigma = hullWhite.getHullWhiteParameters().getVolatility().length;
-    double[] sigmaBar = new double[nbSigma];
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hullWhite.getMulticurveProvider());
+    final int nbSigma = hullWhite.getHullWhiteParameters().getVolatility().length;
+    final double[] sigmaBar = new double[nbSigma];
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hullWhite.getMulticurveProvider());
     //Forward sweep
-    double expiryTime = swaption.getTimeToExpiry();
-    double[] alpha = new double[cfe.getNumberOfPayments()];
-    double[][] alphaDerivatives = new double[cfe.getNumberOfPayments()][nbSigma];
-    double[] df = new double[cfe.getNumberOfPayments()];
-    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    final double expiryTime = swaption.getTimeToExpiry();
+    final double[] alpha = new double[cfe.getNumberOfPayments()];
+    final double[][] alphaDerivatives = new double[cfe.getNumberOfPayments()][nbSigma];
+    final double[] df = new double[cfe.getNumberOfPayments()];
+    final double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alpha[loopcf] = MODEL.alpha(hullWhite.getHullWhiteParameters(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), alphaDerivatives[loopcf]);
       df[loopcf] = hullWhite.getMulticurveProvider().getDiscountFactor(swaption.getCurrency(), cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
-    double kappa = MODEL.kappa(discountedCashFlow, alpha);
-    double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
+    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    final double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
     //Backward sweep
-    double pvBar = 1.0;
-    double[] alphaBar = new double[cfe.getNumberOfPayments()];
+    final double pvBar = 1.0;
+    final double[] alphaBar = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alphaBar[loopcf] = discountedCashFlow[loopcf] * NORMAL.getPDF(omega * (kappa + alpha[loopcf])) * omega * pvBar;
     }
@@ -161,46 +161,46 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
-    Currency ccy = swaption.getCurrency();
-    int nbSigma = hullWhite.getHullWhiteParameters().getVolatility().length;
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hullWhite.getMulticurveProvider());
+    final Currency ccy = swaption.getCurrency();
+    final int nbSigma = hullWhite.getHullWhiteParameters().getVolatility().length;
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hullWhite.getMulticurveProvider());
     //Forward sweep
-    double expiryTime = swaption.getTimeToExpiry();
-    double[] alpha = new double[cfe.getNumberOfPayments()];
-    double[][] alphaDerivatives = new double[cfe.getNumberOfPayments()][nbSigma];
-    double[] df = new double[cfe.getNumberOfPayments()];
-    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    final double expiryTime = swaption.getTimeToExpiry();
+    final double[] alpha = new double[cfe.getNumberOfPayments()];
+    final double[][] alphaDerivatives = new double[cfe.getNumberOfPayments()][nbSigma];
+    final double[] df = new double[cfe.getNumberOfPayments()];
+    final double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alpha[loopcf] = MODEL.alpha(hullWhite.getHullWhiteParameters(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), alphaDerivatives[loopcf]);
       df[loopcf] = hullWhite.getMulticurveProvider().getDiscountFactor(swaption.getCurrency(), cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
-    double kappa = MODEL.kappa(discountedCashFlow, alpha);
-    double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
-    double[] ncdf = new double[cfe.getNumberOfPayments()];
+    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    final double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
+    final double[] ncdf = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       ncdf[loopcf] = NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
     }
     //Backward sweep
-    double pvBar = 1.0;
-    double[] discountedCashFlowBar = new double[cfe.getNumberOfPayments()];
-    double[] dfBar = new double[cfe.getNumberOfPayments()];
-    double[] cfeAmountBar = new double[cfe.getNumberOfPayments()];
+    final double pvBar = 1.0;
+    final double[] discountedCashFlowBar = new double[cfe.getNumberOfPayments()];
+    final double[] dfBar = new double[cfe.getNumberOfPayments()];
+    final double[] cfeAmountBar = new double[cfe.getNumberOfPayments()];
     final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       discountedCashFlowBar[loopcf] = ncdf[loopcf] * pvBar;
       dfBar[loopcf] = cfe.getNthPayment(loopcf).getAmount() * discountedCashFlowBar[loopcf];
       cfeAmountBar[loopcf] = df[loopcf] * discountedCashFlowBar[loopcf];
-      DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
+      final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
     pvsDF.put(hullWhite.getMulticurveProvider().getName(ccy), listDfSensi);
 
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);
-    Map<Double, MulticurveSensitivity> cfeCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap(), hullWhite.getMulticurveProvider());
+    final Map<Double, MulticurveSensitivity> cfeCurveSensi = swaption.getUnderlyingSwap().accept(CFECSC, hullWhite.getMulticurveProvider());
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      MulticurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
+      final MulticurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
         sensitivity = sensitivity.plus(sensiCfe.multipliedBy(cfeAmountBar[loopcf]));
       }

@@ -63,6 +63,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_TRIGGER_CYCLE = "triggerCycle";
+  public static final String PATH_SET_MINIMUM_LOG_MODE = "logMode";
 
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
   
@@ -311,6 +312,18 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
     }
     URI referenceUri = _viewCycleManagerResource.manageReference(reference);
     return responseCreated(referenceUri);
+  }
+  
+  //-------------------------------------------------------------------------
+  @POST
+  @Path(PATH_SET_MINIMUM_LOG_MODE)
+  @Consumes(FudgeRest.MEDIA)
+  public Response setMinimumLogMode(SetMinimumLogModeRequest request) {
+    updateLastAccessed();
+    ArgumentChecker.notNull(request.getMinimumLogMode(), "minimumLogMode");
+    ArgumentChecker.notNull(request.getResultSpecifications(), "resultSpecifications");
+    getViewClient().setMinimumLogMode(request.getMinimumLogMode(), request.getResultSpecifications());
+    return responseOk();
   }
   
   //-------------------------------------------------------------------------

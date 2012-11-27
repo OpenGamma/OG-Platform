@@ -45,13 +45,13 @@ public abstract class AbstractSearchIterator<D extends AbstractDocument, M exten
   /**
    * The index of the next object within the batch result.
    */
-  private int _batchIndex;
+  private int _currentBatchIndex;
   /**
    * The current document, null if not fetched, at end or removed.
    */
   private D _current;
   /**
-   * The overall index of the last retrived object.
+   * The overall index of the last retrieved object.
    */
   private int _overallIndex;
 
@@ -73,10 +73,10 @@ public abstract class AbstractSearchIterator<D extends AbstractDocument, M exten
   //-------------------------------------------------------------------------
   @Override
   public boolean hasNext() {
-    if (_currentBatch == null || _batchIndex >= _currentBatch.getDocuments().size()) {
+    if (_currentBatch == null || _currentBatchIndex >= _currentBatch.getDocuments().size()) {
       doFetch();
     }
-    return (_currentBatch != null && _batchIndex < _currentBatch.getDocuments().size());
+    return (_currentBatch != null && _currentBatchIndex < _currentBatch.getDocuments().size());
   }
 
   @Override
@@ -115,21 +115,7 @@ public abstract class AbstractSearchIterator<D extends AbstractDocument, M exten
       _currentBatch = doSearch(_request);
       
     } catch (RuntimeException ex) {
-      int totalItems = _overallIndex + 5;  // if we have never got results back, allow for 5 failures
-      if (_currentBatch != null) {
-        totalItems = _currentBatch.getPaging().getTotalItems();  // if we have results, use maximum count
-      }
-      while (_overallIndex <= totalItems) {
-        try {
-          _request.setPagingRequest(PagingRequest.ofIndex(_overallIndex, 1));
-          _currentBatch = doSearch(_request);
-        } catch (RuntimeException ex2) {
-          _overallIndex++;
-        }
-      }
-      if (_overallIndex >= totalItems) {
-        throw new OpenGammaRuntimeException("Multiple documents failed to load", ex);
-      }
+      doFetchOne(ex);
     }
     
     // ensure same vc for whole iterator
@@ -137,15 +123,41 @@ public abstract class AbstractSearchIterator<D extends AbstractDocument, M exten
     
     // check results
     if (_currentBatch.getPaging().getFirstItem() < _overallIndex) {
-      _batchIndex = (_overallIndex - _currentBatch.getPaging().getFirstItem());
+      _currentBatchIndex = (_overallIndex - _currentBatch.getPaging().getFirstItem());
     } else {
-      _batchIndex = 0;
+      _currentBatchIndex = 0;
     }
   }
 
+  /**
+   * Fetches the next one document.
+   * 
+   * @param ex  the original exception, not null
+   */
+  private void doFetchOne(RuntimeException ex) {
+    // try to load just the next document
+    int maxFailures = 5;
+    if (_currentBatch != null) {
+      maxFailures = _currentBatch.getPaging().getTotalItems() - _overallIndex;  // if we have results, use maximum count
+      maxFailures = Math.min(maxFailures, 20);
+    }
+    while (maxFailures > 0) {
+      try {
+        _request.setPagingRequest(PagingRequest.ofIndex(_overallIndex, 1));
+        _currentBatch = doSearch(_request);
+        return;
+        
+      } catch (RuntimeException ex2) {
+        _overallIndex++;  // abandon this document
+        maxFailures--;
+      }
+    }
+    throw new OpenGammaRuntimeException("Multiple documents failed to load", ex);
+  }
+
   private D doNext() {
-    _current = _currentBatch.getDocuments().get(_batchIndex);
-    _batchIndex++;
+    _current = _currentBatch.getDocuments().get(_currentBatchIndex);
+    _currentBatchIndex++;
     _overallIndex++;
     return _current;
   }

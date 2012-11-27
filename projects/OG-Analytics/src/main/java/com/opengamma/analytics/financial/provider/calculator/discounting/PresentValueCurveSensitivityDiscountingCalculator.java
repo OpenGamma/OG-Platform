@@ -9,8 +9,7 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -43,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
-public final class PresentValueCurveSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -79,11 +78,6 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Abs
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
-
-  @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurves) {
-    return instrument.accept(this, multicurves);
-  }
 
   // -----     Deposit     ------
 
@@ -145,9 +139,9 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Abs
   public MultipleCurrencyMulticurveSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
-    MultipleCurrencyMulticurveSensitivity cs = visit(annuity.getNthPayment(0), multicurve);
+    MultipleCurrencyMulticurveSensitivity cs = annuity.getNthPayment(0).accept(this, multicurve);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      cs = cs.plus(visit(annuity.getNthPayment(loopp), multicurve));
+      cs = cs.plus(annuity.getNthPayment(loopp).accept(this, multicurve));
     }
     return cs;
   }
@@ -161,8 +155,8 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Abs
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
-    final MultipleCurrencyMulticurveSensitivity sensitivity1 = visit(swap.getFirstLeg(), multicurve);
-    final MultipleCurrencyMulticurveSensitivity sensitivity2 = visit(swap.getSecondLeg(), multicurve);
+    final MultipleCurrencyMulticurveSensitivity sensitivity1 = swap.getFirstLeg().accept(this, multicurve);
+    final MultipleCurrencyMulticurveSensitivity sensitivity2 = swap.getSecondLeg().accept(this, multicurve);
     return sensitivity1.plus(sensitivity2);
   }
 

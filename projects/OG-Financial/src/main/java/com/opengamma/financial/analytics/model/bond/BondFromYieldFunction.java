@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -41,7 +41,7 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
-    return Sets.newHashSet(new ComputedValue(resultSpec, 100 * getCalculator().visit(bond, data)));
+    return Sets.newHashSet(new ComputedValue(resultSpec, 100 * bond.accept(getCalculator(), data)));
   }
 
   @Override
@@ -73,7 +73,7 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
     return Sets.newHashSet(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
-  protected abstract AbstractInstrumentDerivativeVisitor<Double, Double> getCalculator();
+  protected abstract InstrumentDerivativeVisitorAdapter<Double, Double> getCalculator();
 
   protected abstract String getValueRequirementName();
 

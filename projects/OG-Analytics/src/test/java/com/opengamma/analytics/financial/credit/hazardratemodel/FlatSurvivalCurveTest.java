@@ -14,6 +14,11 @@ public class FlatSurvivalCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
+
+  // ----------------------------------------------------------------------------------
+
   // Parameters to build the simple (flat) survival curve
   private static final double parSpread = 60.0;
   private static final double recoveryRate = 0.40;
@@ -26,15 +31,13 @@ public class FlatSurvivalCurveTest {
   @Test
   public void testFlatSurvivalCurve() {
 
-    final boolean outputSchedule = false;
-
     double hazardRate = survivalCurve.getFlatHazardRate();
 
     for (double t = 0.0; t <= 5.0; t += 0.25) {
 
       double survivalProbabilty = survivalCurve.getSurvivalProbability(hazardRate, t);
 
-      if (outputSchedule) {
+      if (outputResults) {
         System.out.println("t = " + t + "\t\t" + "S(0, t) = " + survivalProbabilty);
       }
     }

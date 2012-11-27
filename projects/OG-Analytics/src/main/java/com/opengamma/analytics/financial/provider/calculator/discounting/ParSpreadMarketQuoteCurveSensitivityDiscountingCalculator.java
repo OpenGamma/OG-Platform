@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
@@ -25,9 +25,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Compute the sensitivity of the spread to the curve; the spread is the number to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "spread" will depend of each instrument.
- * @author marc
  */
-public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -86,11 +85,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
     ArgumentChecker.notNull(multicurve, "multicurve");
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    final MultipleCurrencyMulticurveSensitivity pvcs = PVCSMC.visit(swap, multicurve);
+    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, multicurve);
     final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, multicurve.getFxRates()).getSensitivity(ccy1);
-    final MulticurveSensitivity pvmqscs = PVMQSCSMC.visit(swap.getFirstLeg(), multicurve);
-    final double pvmqs = PVMQSMC.visit(swap.getFirstLeg(), multicurve);
-    final double pv = multicurve.getFxRates().convert(PVMC.visit(swap, multicurve), ccy1).getAmount();
+    final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, multicurve);
+    final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, multicurve);
+    final double pv = multicurve.getFxRates().convert(swap.accept(PVMC, multicurve), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
     return pvcs1.multipliedBy(-1.0 / pvmqs).plus(pvmqscs.multipliedBy(pv / (pvmqs * pvmqs)));
   }

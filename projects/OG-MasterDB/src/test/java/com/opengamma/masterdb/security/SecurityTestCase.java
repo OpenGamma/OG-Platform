@@ -55,6 +55,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -113,6 +119,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -133,7 +140,7 @@ import com.opengamma.util.tuple.Pair;
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
-public abstract class SecurityTestCase implements SecurityTestCaseMethods {
+public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
 
@@ -471,6 +478,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(new CommodityNotional());
         values.addAll(permuteTestObjects(InterestRateNotional.class));
         values.addAll(permuteTestObjects(SecurityNotional.class));
+      }
+    });
+    s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
+      @Override
+      public void getValues(final Collection<Notional> values) {
+        values.addAll(permuteTestObjects(InterestRateNotional.class));
       }
     });
     s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
@@ -893,25 +906,38 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   
   @Override
   @Test
-  public void testSimpleZeroDepositSecurity() {
-	  return;
-  }
-  
-  @Override
-  @Test
-  public void testPeriodicZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override 
-  @Test
-  public void testContinuousZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
   }
+
+  @Override
+  public void testStandardFixedRecoveryCDSSecurity() {
+    assertSecurities(StandardFixedRecoveryCDSSecurity.class);
+  }
+  
+  @Override
+  public void testStandardRecoveryLockCDSSecurity() {
+    assertSecurities(StandardRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  public void testStandardVanillaCDSSecurity() {
+    assertSecurities(StandardVanillaCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyFixedRecoveryCDSSecurity() {
+    assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyRecoveryLockCDSSecurity() {
+    assertSecurities(LegacyRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyVanillaCDSSecurity() {
+    assertSecurities(LegacyVanillaCDSSecurity.class);
+  }
+   
 }

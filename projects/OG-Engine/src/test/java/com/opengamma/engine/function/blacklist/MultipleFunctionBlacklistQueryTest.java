@@ -23,6 +23,7 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
 
@@ -40,7 +41,8 @@ public class MultipleFunctionBlacklistQueryTest {
   private final ComputationTargetSpecification _targetSpecification = _target.toSpecification();
   private final Set<ValueSpecification> _inputs = Collections.<ValueSpecification>emptySet();
   private final Set<ValueSpecification> _outputs = Collections.<ValueSpecification>emptySet();
-  private final CalculationJobItem _jobItem = new CalculationJobItem(_functionIdentifier, _functionParameters, _targetSpecification, _inputs, _outputs);
+  private final CalculationJobItem _jobItem = new CalculationJobItem(
+      _functionIdentifier, _functionParameters, _targetSpecification, _inputs, _outputs, ExecutionLogMode.INDICATORS);
 
   public void testNone() {
     final MultipleFunctionBlacklistQuery q = new MultipleFunctionBlacklistQuery(Collections.<FunctionBlacklistQuery>emptySet());

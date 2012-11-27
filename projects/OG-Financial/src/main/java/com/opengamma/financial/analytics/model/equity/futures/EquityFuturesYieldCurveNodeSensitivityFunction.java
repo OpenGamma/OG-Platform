@@ -23,11 +23,11 @@ import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivit
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -39,12 +39,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -52,6 +53,8 @@ import com.opengamma.util.tuple.DoublesPair;
  *
  */
 public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuturesFunction {
+
+  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
 
   public EquityFuturesYieldCurveNodeSensitivityFunction(String pricingMethodName) {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, pricingMethodName);
@@ -76,7 +79,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
       return null;
     }
     // Add Funding Curve Requirement, which may not have been in super's requirements
-    final EquityFutureSecurity security = (EquityFutureSecurity)  target.getTrade().getSecurity();
+    final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     requirements.add(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
     // Add Funding Curve Spec, to get labels correct in result
     requirements.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(security), fundingCurveName));
@@ -87,15 +90,22 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     // 1. Build the analytic derivative to be priced
     final Trade trade = target.getTrade();
-    final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
+    final FutureSecurity security = (FutureSecurity) trade.getSecurity();
+
+    // TODO: Clean up
+    // lastMarginPrice is unnecessary, but the timeSeriesBundle would be for DIVIDEND_YIELD if we are estimating the Futures Price instead of taking its marked price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    final EquityFutureDefinition definition = getFinancialToAnalyticConverter().visitEquityFutureTrade(trade, lastMarginPrice);
+    //final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+    //final Double lastMarginPrice = 0.0;
+    //final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
+    final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
+    // TODO: Refactor and hence remove the following line
+    final EquityFutureDefinition definition = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(), simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 
     // 2. Build up the market data bundle
-    final SimpleFutureDataBundle market = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValues.iterator().next());
+    final SimpleFutureDataBundle market = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValues.iterator().next());
 
     // 3. Create specification that matches the properties promised in getResults
     // For the curve we're bumping, create a bundle

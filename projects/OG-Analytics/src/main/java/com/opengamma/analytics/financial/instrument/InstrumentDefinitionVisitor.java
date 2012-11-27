@@ -5,6 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
+import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -68,14 +77,10 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 
 /**
  * 
- * @param <DATA_TYPE> Type of the data 
+ * @param <DATA_TYPE> Type of the data
  * @param <RESULT_TYPE> Type of the result
  */
 public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
-
-  RESULT_TYPE visit(InstrumentDefinition<?> definition, DATA_TYPE data);
-
-  RESULT_TYPE visit(InstrumentDefinition<?> definition);
 
   // -----     Bond and bill     -----
 
@@ -331,5 +336,43 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, DATA_TYPE data);
 
   RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx);
+
+  // -----     Commodity    -----
+
+  RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition forward, DATA_TYPE data);
+
+  RESULT_TYPE visitMetalForwardDefinition(MetalForwardDefinition forward);
+
+  RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future, DATA_TYPE data);
+
+  RESULT_TYPE visitMetalFutureDefinition(MetalFutureDefinition future);
+
+  RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition option, DATA_TYPE data);
+
+  RESULT_TYPE visitMetalFutureOptionDefinition(MetalFutureOptionDefinition option);
+
+  RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition forward, DATA_TYPE data);
+
+  RESULT_TYPE visitAgricultureForwardDefinition(AgricultureForwardDefinition forward);
+
+  RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future, DATA_TYPE data);
+
+  RESULT_TYPE visitAgricultureFutureDefinition(AgricultureFutureDefinition future);
+
+  RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition option, DATA_TYPE data);
+
+  RESULT_TYPE visitAgricultureFutureOptionDefinition(AgricultureFutureOptionDefinition option);
+
+  RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition forward, DATA_TYPE data);
+
+  RESULT_TYPE visitEnergyForwardDefinition(EnergyForwardDefinition forward);
+
+  RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future, DATA_TYPE data);
+
+  RESULT_TYPE visitEnergyFutureDefinition(EnergyFutureDefinition future);
+
+  RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition option, DATA_TYPE data);
+
+  RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition option);
 
 }

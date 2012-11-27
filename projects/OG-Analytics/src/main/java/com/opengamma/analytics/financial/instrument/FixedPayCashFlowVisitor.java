@@ -31,10 +31,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Returns all of the known pay cash-flows, including floating payments that have fixed. 
+ * Returns all of the known pay cash-flows, including floating payments that have fixed.
  * The payments are always positive.
  */
-public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class FixedPayCashFlowVisitor extends InstrumentDefinitionVisitorSameValueAdapter<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final Logger s_logger = LoggerFactory.getLogger(FixedPayCashFlowVisitor.class);
   private static final FixedPayCashFlowVisitor INSTANCE = new FixedPayCashFlowVisitor();
 
@@ -43,6 +43,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
   }
 
   private FixedPayCashFlowVisitor() {
+    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
   }
 
   /**
@@ -132,10 +133,15 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     return visitCouponFixedDefinition(coupon);
   }
 
+  @Override
+  public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborDefinition(final CouponIborDefinition coupon) {
+    return visitCouponIborDefinition(coupon, null);
+  }
+
   /**
    * If the notional is positive (i.e. the coupon will be received), returns an empty map.
    * If the fixing date is before the last date in the index fixing time series (i.e. the fixing has taken place),
-   * returns a map containing a simple payment date and amount to be paid. Otherwise, returns 
+   * returns a map containing a simple payment date and amount to be paid. Otherwise, returns
    * an empty map.
    * @param coupon The floating coupon, not null
    * @param indexFixingTimeSeries The fixing time series, not null if the coupon is to be paid.
@@ -161,10 +167,14 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     return Collections.emptyMap();
   }
 
+  @Override
+  public Map<LocalDate, MultipleCurrencyAmount> visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition coupon) {
+    return visitCouponIborSpreadDefinition(coupon, null);
+  }
   /**
    * If the notional is positive (i.e. the coupon will be received), returns an empty map.
    * If the fixing date is before the last date in the index fixing time series (i.e. the fixing has taken place),
-   * returns a map containing a simple payment date and amount to be paid. Otherwise, returns 
+   * returns a map containing a simple payment date and amount to be paid. Otherwise, returns
    * an empty map.
    * @param coupon The floating coupon, not null
    * @param indexFixingTimeSeries The fixing time series, not null if the coupon is to be paid.
@@ -204,7 +214,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
   }
 
   /**
-   * If the FRA is a payer, or if the FRA is a receiver and the fixing date is before the last date in the index fixing time series 
+   * If the FRA is a payer, or if the FRA is a receiver and the fixing date is before the last date in the index fixing time series
    * (i.e. the fixing has taken place), returns a map containing a single payment.
    * @param forwardRateAgreement The FRA, not null
    * @param indexFixingTimeSeries The fixing time series for the floating index, not null if the FRA is a receiver
@@ -332,7 +342,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
 
   /**
    * If the cash settlement amount is negative (i.e. it must be paid), returns a map containing a single date and payment. Otherwise, returns
-   * an empty map. 
+   * an empty map.
    * @param ndf The NDF, not null
    * @return A map containing the (single) payment date and amount
    */
@@ -348,7 +358,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
 
   /**
    * If the cash settlement amount is negative (i.e. it must be paid), returns a map containing a single date and payment. Otherwise, returns
-   * an empty map. 
+   * an empty map.
    * @param ndf The NDF, not null
    * @param indexFixingTimeSeries Not used
    * @return A map containing the (single) payment date and amount

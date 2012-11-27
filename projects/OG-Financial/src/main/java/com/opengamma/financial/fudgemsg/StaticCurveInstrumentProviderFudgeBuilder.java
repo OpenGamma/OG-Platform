@@ -17,27 +17,22 @@ import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.id.ExternalId;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting StaticCurveInstrumentProvider instances to/from Fudge messages.
  */
 @FudgeBuilderFor(StaticCurveInstrumentProvider.class)
 public class StaticCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<StaticCurveInstrumentProvider> {
-  /**
-   * type used as a human readable subclass discriminator for mongo (which strips out type information).
-   */
-  public static final String TYPE = "Static";
+
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, StaticCurveInstrumentProvider object) {
-    MutableFudgeMsg message = serializer.newMessage();
-    FudgeSerializer.addClassHeader(message, StaticCurveInstrumentProvider.class);
-    message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final StaticCurveInstrumentProvider object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     serializer.addToMessage(message, "instrument", null, object.getInstrument(null, null));
-    return message; 
+    return message;
   }
 
   @Override
-  public StaticCurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    FudgeField instrumentIdentifier = message.getByName("instrument");
-    ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, instrumentIdentifier);
+  public StaticCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final FudgeField instrumentIdentifier = message.getByName("instrument");
+    final ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, instrumentIdentifier);
     return new StaticCurveInstrumentProvider(identifier);
   }
 

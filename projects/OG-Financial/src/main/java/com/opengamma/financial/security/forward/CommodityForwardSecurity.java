@@ -69,23 +69,23 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private String _contractCategory;
-  
+
   /**
-     * The underlying identifier.
-     */
-    @PropertyDefinition
-    private ExternalId _underlyingId;
+   * The underlying identifier.
+   */
+  @PropertyDefinition
+  private ExternalId _underlyingId;
 
 
   CommodityForwardSecurity() { //For builder
     super(SECURITY_TYPE);
   }
 
-  public CommodityForwardSecurity(String unitName, Double unitNumber, Expiry expiry, Currency currency, double unitAmount, String category) {    
+  public CommodityForwardSecurity(final String unitName, final Double unitNumber, final Expiry expiry, final Currency currency, final double unitAmount, final String category) {
     super(SECURITY_TYPE);
     ArgumentChecker.notNull(category, "category");
     setUnitName(unitName);
-    setUnitAmount(unitNumber);
+    setUnitNumber(unitNumber);
     setExpiry(expiry);
     setCurrency(currency);
     setUnitAmount(unitAmount);

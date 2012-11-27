@@ -44,7 +44,7 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
       final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName, final String surfaceName, final String curveCalculationMethod) {
-    final PresentValueSABRSensitivityDataBundle sensitivities = CALCULATOR.visit(irFutureOption, data);
+    final PresentValueSABRSensitivityDataBundle sensitivities = irFutureOption.accept(CALCULATOR, data);
     final Map<DoublesPair, Double> result = getSensitivity(sensitivities);
     if (result.size() != 1) {
       throw new OpenGammaRuntimeException("Can only handle sensitivities at one (t, T) point for now");
@@ -96,9 +96,10 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
     requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
+
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
+    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first }, new Double[] {entry.getKey().second }, new double[][] {new double[] {entry.getValue() } });
   }
 
   private ValueSpecification getResultSpec(final ComputationTarget target, final String valueRequirementName) {

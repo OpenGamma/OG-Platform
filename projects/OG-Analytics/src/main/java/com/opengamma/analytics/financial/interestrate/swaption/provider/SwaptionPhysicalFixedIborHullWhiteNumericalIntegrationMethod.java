@@ -62,12 +62,12 @@ public final class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod 
   public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
-    Currency ccy = swaption.getCurrency();
-    double expiryTime = swaption.getTimeToExpiry();
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hullWhite.getMulticurveProvider());
-    double[] alpha = new double[cfe.getNumberOfPayments()];
-    double[] df = new double[cfe.getNumberOfPayments()];
-    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    final Currency ccy = swaption.getCurrency();
+    final double expiryTime = swaption.getTimeToExpiry();
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hullWhite.getMulticurveProvider());
+    final double[] alpha = new double[cfe.getNumberOfPayments()];
+    final double[] df = new double[cfe.getNumberOfPayments()];
+    final double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alpha[loopcf] = MODEL.alpha(hullWhite.getHullWhiteParameters(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
       df[loopcf] = hullWhite.getMulticurveProvider().getDiscountFactor(ccy, cfe.getNthPayment(loopcf).getPaymentTime());

@@ -19,7 +19,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -37,24 +40,34 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   private long[] _inputIdentifiers;
   private final Set<ValueSpecification> _outputs = new HashSet<ValueSpecification>();
   private long[] _outputIdentifiers;
+  
+  private final ExecutionLogMode _logMode;
 
-  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification,
-      Collection<ValueSpecification> inputs, Collection<ValueSpecification> outputs) {
+  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
+      ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs,
+      Collection<ValueSpecification> outputs, ExecutionLogMode logMode) {
+    ArgumentChecker.notNull(logMode, "logMode");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
     _outputs.addAll(outputs);
+    _logMode = logMode;
   }
 
-  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification, long[] inputs, long[] outputs) {
+  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters,
+      ComputationTargetSpecification computationTargetSpecification, long[] inputs, long[] outputs,
+      ExecutionLogMode logMode) {
+    ArgumentChecker.notNull(logMode, "logMode");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
     _inputIdentifiers = inputs;
     _outputIdentifiers = outputs;
+    _logMode = logMode;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * @return the functionUniqueIdentifier
    */
@@ -101,7 +114,24 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
   public Set<ValueSpecification> getOutputs() {
     return Collections.unmodifiableSet(_outputs);
   }
+  
+  /**
+   * @return the computationTargetSpecification
+   */
+  public ComputationTargetSpecification getComputationTargetSpecification() {
+    return _computationTargetSpecification;
+  }
+  
+  /**
+   * Gets the execution log mode, controlling the level of detail in the {@link ExecutionLog} present in the results.
+   * 
+   * @return the execution log mode, not null
+   */
+  public ExecutionLogMode getLogMode() {
+    return _logMode;
+  }
 
+  //-------------------------------------------------------------------------
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_inputs.isEmpty() && (_inputIdentifiers.length > 0)) {
@@ -158,18 +188,13 @@ public final class CalculationJobItem implements IdentifierEncodedValueSpecifica
     valueSpecifications.addAll(_outputs);
   }
 
-  /**
-   * @return the computationTargetSpecification
-   */
-  public ComputationTargetSpecification getComputationTargetSpecification() {
-    return _computationTargetSpecification;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("Function unique ID", getFunctionUniqueIdentifier()).append("Computation target", getComputationTargetSpecification()).toString();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object o) {
     if (!(o instanceof CalculationJobItem)) {

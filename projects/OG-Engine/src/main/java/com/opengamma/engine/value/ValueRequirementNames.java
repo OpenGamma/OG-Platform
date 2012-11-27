@@ -129,8 +129,8 @@ public final class ValueRequirementNames {
    * The projected cash-flows of a security or portfolio
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
-  
-  ///// Curves  
+
+  ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
    */
@@ -147,6 +147,10 @@ public final class ValueRequirementNames {
    * Curve containing (time, rate) pairs.
    */
   public static final String YIELD_CURVE = "YieldCurve";
+  /**
+   * Hazard rate curve for credit instruments.
+   */
+  public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
   /**
    * The bundle of historical time series objects for instruments on a curve.
    */
@@ -230,6 +234,10 @@ public final class ValueRequirementNames {
    * Surface containing (x, y, volatility) triples that are the outer join of the values on the x and y axes.
    */
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
+  /**
+   * Surface containing (x, y, volatility) triples for the vanna-volga FX volatility model
+   */
+  public static final String VANNA_VOLGA_VOLATILITY_SURFACE_DATA = "VannaVolgaVolatilitySurfaceData";
   /**
    * Surface containing (x, y, volatility) triples (where (x, y) can be (expiry, strike) (equity options) or (expiry, tenor) (swaptions).
    */
@@ -802,6 +810,14 @@ public final class ValueRequirementNames {
    * The return series of the underlying of a security (usually an option).
    */
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
+  /**
+   * The notional of a security
+   */
+  public static final String NOTIONAL = "Notional";
+  /**
+   * The attributes of a security
+   */
+  public static final String ATTRIBUTES = "Attributes";
 
   ///// Value At Risk
 
@@ -1211,6 +1227,11 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
+
+  /**
+   * The affine dividends of an index or equity
+   */
+  public static final String AFFINE_DIVIDENDS = "Affine Dividends";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

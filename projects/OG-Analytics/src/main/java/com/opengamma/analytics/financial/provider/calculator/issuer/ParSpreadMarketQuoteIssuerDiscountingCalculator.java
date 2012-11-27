@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.provider.description.IssuerProviderInte
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<IssuerProviderInterface, Double> {
+public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -52,7 +52,7 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Abstr
   public Double visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
     try {
       return derivative.accept(this, issuercurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDC, issuercurves.getMulticurveProvider());
     }
   }
@@ -69,6 +69,11 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Abstr
   @Override
   public Double visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.parSpread(bill, issuercurves);
+  }
+
+  @Override
+  public Double visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

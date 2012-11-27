@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -16,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -31,10 +30,10 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 
 /**
- * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. 
+ * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc.
  * For instruments that cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
-public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -66,13 +65,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   // TODO: review
   @Override
@@ -120,8 +112,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
-    final double pvbp = PVC.visit(swap.getFixedLeg().withUnitCoupon(), curves);
+    final double pvSecond = swap.getSecondLeg().accept(PVC, curves);
+    final double pvbp = swap.getFixedLeg().withUnitCoupon().accept(PVC, curves);
     return -pvSecond / pvbp;
   }
 
@@ -147,8 +139,18 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    * @return The modified rate.
    */
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final YieldCurveBundle curves) {
-    final double pvSecond = -PVC.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = -swap.getSecondLeg().accept(PVC, curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return -pvSecond / pvbp;
+  }
+
+  // TODO: review
+  @Override
+  public Double visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
+    //TODO this is not a par rate, it is a forward FX rate
+    final YieldAndDiscountCurve curve1 = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName());
+    final YieldAndDiscountCurve curve2 = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName());
+    final double t = fx.getPaymentTime();
+    return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
   }
 
   // TODO: review
@@ -168,8 +170,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
     final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
-    final double pvann = PVC.visit(unitCouponAnnuity, curves);
-    final double matPV = PVC.visit(bond.getNominal(), curves);
+    final double pvann = unitCouponAnnuity.accept(PVC, curves);
+    final double matPV = bond.getNominal().accept(PVC, curves);
     return (1 - matPV) / pvann;
   }
 

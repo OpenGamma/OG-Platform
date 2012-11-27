@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, counter = 1,
-            header = ' .ui-layout-header';
+        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template,
+        counter = 1, header = ' .ui-layout-header';
         var constructor = function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, highlight_timer,
                 selector = selector_prefix + pane, $selector = $(selector),
@@ -65,7 +65,7 @@ $.register_module({
                         new_window = function (i, dropped) {
                             var index = extract_index(extract_id($(this).attr('class')));
                             if (!dropped) {
-                                og.common.events.fire(container.events.launch, gadgets[index].config);
+                                container.fire('launch', gadgets[index].config);
                                 setTimeout(container.del.partial(gadgets[i]));
                             }
                         };
@@ -126,17 +126,17 @@ $.register_module({
                             iframeFix: true, appendTo: 'body', distance: 20,
                             revert: new_window.partial(i),
                             stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
-                            helper: function() {return dropbox_template({label: $(this).text().trim()});}
-                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
+                            helper: function () {return dropbox_template({label: $(this).text().trim()});}
+                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}, source: pane});
                     });
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
-                    if (id === void 0) id = live_id;                  
+                    if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val, i) {
                         return acc.push({
-                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 
-                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id, 'delete': true, 
+                            'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
+                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id,
                             'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
                             'gadget': val, 'gadget_index': i
                         }) && acc;
@@ -148,8 +148,8 @@ $.register_module({
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
-                        menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
-                        radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
+                        menu.$dom.toggle.on('click', null/*menu.toggle_handler.bind(menu)*/);
+                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
                                 gadget: "og.common.gadgets." + $(this).attr('value'),
@@ -160,15 +160,14 @@ $.register_module({
                             container.add([swap_config], val.gadget_index);
                             menu.close();
                         });
-
-                        for(var i = 0; i < radios.length; i++) {
+                        for (var i = 0; i < radios.length; i++) {
                             radios[i].checked = false;
-                            if(radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
+                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
                                 radios[i].checked = true;
                                 menu.$dom.toggle.html(val.gadget_name);
                             }
                         }
-                        if(radios.length === 1) radios[0].disabled=true;
+                        if (radios.length === 1) radios[0].disabled=true;
                     });
                     reflow();
                     show_gadget(id);
@@ -192,7 +191,7 @@ $.register_module({
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
-                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, 
+                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
@@ -201,19 +200,17 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};   
+                    gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
-
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
-                
-                if(!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
                 gadgets.forEach(function (obj) {obj.gadget.alive();});
-                return !!$selector.length;
+                return $(selector).length ? true : !$('.og-js-overflow-' + pane).remove(); // clean up overflow panel
             };
             container.del = function (obj, silent) {
                 var id, index = gadgets.indexOf(obj);
@@ -225,9 +222,8 @@ $.register_module({
                     : null;
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
-                if (!silent) og.common.events.fire(container.events.del, index);
+                if (!silent) container.fire('del', index);
             };
-            container.events = {del: [], drop: [], launch: []};
             container.gadgets = function () {return gadgets;};
             /**
              * Highlight gadget panel with number
@@ -254,7 +250,7 @@ $.register_module({
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
                     api.text({module: 'og.analytics.dropbox_tash'}),
                     api.text({module: 'og.analytics.typemenu_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl) {
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, gadget_tmpl) {
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
@@ -281,7 +277,7 @@ $.register_module({
                         tolerance: 'pointer',
                         over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
-                        drop: function(e, ui) {
+                        drop: function (e, ui) {
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
@@ -293,7 +289,7 @@ $.register_module({
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                if (false !== og.common.events.fire(container.events.drop, data.gadget.config))
+                                if (false !== container.fire('drop', data.gadget.config, data.source))
                                     container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
@@ -324,6 +320,8 @@ $.register_module({
                 return container;
             };
         };
+        constructor.prototype.fire = og.common.events.fire;
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         return constructor;
     }

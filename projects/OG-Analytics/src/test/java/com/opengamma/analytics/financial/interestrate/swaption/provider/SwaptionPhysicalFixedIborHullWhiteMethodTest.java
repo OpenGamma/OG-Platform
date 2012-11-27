@@ -125,23 +125,23 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Test the present value.
    */
   public void presentValueExplicit() {
-    MultipleCurrencyAmount pv = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    double timeToExpiry = SWAPTION_LONG_PAYER.getTimeToExpiry();
-    AnnuityPaymentFixed cfe = CFEC.visitSwap(SWAPTION_LONG_PAYER.getUnderlyingSwap(), MULTICURVES);
-    int numberOfPayments = cfe.getNumberOfPayments();
-    double alpha[] = new double[numberOfPayments];
-    double disccf[] = new double[numberOfPayments];
+    final MultipleCurrencyAmount pv = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final double timeToExpiry = SWAPTION_LONG_PAYER.getTimeToExpiry();
+    final AnnuityPaymentFixed cfe = CFEC.visitSwap(SWAPTION_LONG_PAYER.getUnderlyingSwap(), MULTICURVES);
+    final int numberOfPayments = cfe.getNumberOfPayments();
+    final double alpha[] = new double[numberOfPayments];
+    final double disccf[] = new double[numberOfPayments];
     for (int loopcf = 0; loopcf < numberOfPayments; loopcf++) {
       alpha[loopcf] = MODEL.alpha(HW_PARAMETERS, 0.0, timeToExpiry, timeToExpiry, cfe.getNthPayment(loopcf).getPaymentTime());
       disccf[loopcf] = MULTICURVES.getDiscountFactor(CUR, cfe.getNthPayment(loopcf).getPaymentTime()) * cfe.getNthPayment(loopcf).getAmount();
     }
-    double kappa = MODEL.kappa(disccf, alpha);
+    final double kappa = MODEL.kappa(disccf, alpha);
     double pvExpected = 0.0;
     for (int loopcf = 0; loopcf < numberOfPayments; loopcf++) {
       pvExpected += disccf[loopcf] * NORMAL.getCDF(-kappa - alpha[loopcf]);
     }
     assertEquals("Swaption physical - Hull-White - present value", pvExpected, pv.getAmount(CUR), 1E-2);
-    MultipleCurrencyAmount pv2 = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, cfe, HW_MULTICURVES);
+    final MultipleCurrencyAmount pv2 = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, cfe, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value", pv, pv2);
   }
 
@@ -150,8 +150,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests long/short parity.
    */
   public void longShortParityExplicit() {
-    MultipleCurrencyAmount pvLong = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvShort = METHOD_HW.presentValue(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLong = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShort = METHOD_HW.presentValue(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - long/short parity", pvLong.getAmount(CUR), -pvShort.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -160,9 +160,9 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests payer/receiver/swap parity.
    */
   public void payerReceiverParityExplicit() {
-    MultipleCurrencyAmount pvReceiverLong = METHOD_HW.presentValue(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvPayerShort = METHOD_HW.presentValue(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvSwap = PVDC.visit(SWAP_RECEIVER, MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLong = METHOD_HW.presentValue(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShort = METHOD_HW.presentValue(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvSwap = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - payer/receiver/swap parity", pvReceiverLong.getAmount(CUR) + pvPayerShort.getAmount(CUR), pvSwap.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -181,17 +181,17 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Compare explicit formula with numerical integration.
    */
   public void presentValueNumericalIntegration() {
-    MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvPayerLongExplicit.getAmount(CUR), pvPayerLongIntegration.getAmount(CUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvPayerShortExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvPayerShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShortExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvPayerShortExplicit.getAmount(CUR), pvPayerShortIntegration.getAmount(CUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvReceiverLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvReceiverLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvReceiverLongExplicit.getAmount(CUR), pvReceiverLongIntegration.getAmount(CUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvReceiverShortExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvReceiverShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverShortExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvReceiverShortExplicit.getAmount(CUR), pvReceiverShortIntegration.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -200,18 +200,18 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Compare explicit formula with approximated formula.
    */
   public void presentValueApproximation() {
-    BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
-    double forward = ParRateDiscountingCalculator.getInstance().visit(SWAPTION_LONG_PAYER.getUnderlyingSwap(), MULTICURVES);
-    double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAPTION_LONG_PAYER.getUnderlyingSwap(), MULTICURVES);
-    MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvPayerLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
-    double volExplicit = implied.getImpliedVolatility(data, SWAPTION_LONG_PAYER, pvPayerLongExplicit.getAmount(CUR));
-    double volApprox = implied.getImpliedVolatility(data, SWAPTION_LONG_PAYER, pvPayerLongApproximation.getAmount(CUR));
+    final BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
+    final double forward = SWAPTION_LONG_PAYER.getUnderlyingSwap().accept(ParRateDiscountingCalculator.getInstance(), MULTICURVES);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAPTION_LONG_PAYER.getUnderlyingSwap(), MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
+    final double volExplicit = implied.getImpliedVolatility(data, SWAPTION_LONG_PAYER, pvPayerLongExplicit.getAmount(CUR));
+    final double volApprox = implied.getImpliedVolatility(data, SWAPTION_LONG_PAYER, pvPayerLongApproximation.getAmount(CUR));
     assertEquals("Swaption physical - Hull-White - present value - explicit/approximation", pvPayerLongExplicit.getAmount(CUR), pvPayerLongApproximation.getAmount(CUR), 5.0E+2);
     assertEquals("Swaption physical - Hull-White - present value - explicit/approximation", volExplicit, volApprox, 2.5E-4); // 0.025%
-    MultipleCurrencyAmount pvReceiverLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvReceiverLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvReceiverLongExplicit.getAmount(CUR), pvReceiverLongApproximation.getAmount(CUR), 5.0E+2);
   }
 
@@ -272,17 +272,17 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests the Hull-White parameters sensitivity for the explicit formula.
    */
   public void presentValueHullWhiteSensitivityExplicit() {
-    double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    int nbVolatility = HW_PARAMETERS.getVolatility().length;
-    double shiftVol = 1.0E-6;
-    double[] volatilityBumped = new double[nbVolatility];
+    final double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final int nbVolatility = HW_PARAMETERS.getVolatility().length;
+    final double shiftVol = 1.0E-6;
+    final double[] volatilityBumped = new double[nbVolatility];
     System.arraycopy(HW_PARAMETERS.getVolatility(), 0, volatilityBumped, 0, nbVolatility);
-    double[] volatilityTime = new double[nbVolatility - 1];
+    final double[] volatilityTime = new double[nbVolatility - 1];
     System.arraycopy(HW_PARAMETERS.getVolatilityTime(), 1, volatilityTime, 0, nbVolatility - 1);
-    double[] pvBumpedPlus = new double[nbVolatility];
-    double[] pvBumpedMinus = new double[nbVolatility];
-    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(HW_PARAMETERS.getMeanReversion(), volatilityBumped, volatilityTime);
-    HullWhiteOneFactorProviderDiscount bundleBumped = new HullWhiteOneFactorProviderDiscount(MULTICURVES, parametersBumped, CUR);
+    final double[] pvBumpedPlus = new double[nbVolatility];
+    final double[] pvBumpedMinus = new double[nbVolatility];
+    final HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(HW_PARAMETERS.getMeanReversion(), volatilityBumped, volatilityTime);
+    final HullWhiteOneFactorProviderDiscount bundleBumped = new HullWhiteOneFactorProviderDiscount(MULTICURVES, parametersBumped, CUR);
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
       parametersBumped.setVolatility(volatilityBumped);
@@ -302,8 +302,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests long/short parity.
    */
   public void presentValueHullWhiteSensitivitylongShortParityExplicit() {
-    double[] pvhwsLong = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    double[] pvhwsShort = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final double[] pvhwsLong = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final double[] pvhwsShort = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
     for (int loophw = 0; loophw < pvhwsLong.length; loophw++) {
       assertEquals("Swaption physical - Hull-White - presentValueHullWhiteSensitivity - long/short parity", pvhwsLong[loophw], -pvhwsShort[loophw], TOLERANCE_PV_DELTA);
     }
@@ -314,8 +314,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests payer/receiver/swap parity.
    */
   public void presentValueHullWhiteSensitivitypayerReceiverParityExplicit() {
-    double[] pvhwsReceiverLong = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
-    double[] pvhwsPayerShort = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final double[] pvhwsReceiverLong = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
+    final double[] pvhwsPayerShort = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
     for (int loophw = 0; loophw < pvhwsReceiverLong.length; loophw++) {
       assertEquals("Swaption physical - Hull-White - present value - payer/receiver/swap parity", 0, pvhwsReceiverLong[loophw] + pvhwsPayerShort[loophw], TOLERANCE_PV_DELTA);
     }
@@ -326,8 +326,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
@@ -336,8 +336,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests long/short parity.
    */
   public void presentValueCurveSensitivityLongShortParityExplicit() {
-    MultipleCurrencyMulticurveSensitivity pvhwsLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvhwsShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvhwsLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvhwsShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - long/short parity", pvhwsLong, pvhwsShort.multipliedBy(-1.0), TOLERANCE_PV_DELTA);
   }
 
@@ -346,9 +346,9 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests payer/receiver/swap parity.
    */
   public void presentValueCurveSensitivityPayerReceiverParityExplicit() {
-    MultipleCurrencyMulticurveSensitivity pvhwsReceiverLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvhwsPayerShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvSwap = PVCSDC.visit(SWAP_RECEIVER, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvhwsReceiverLong = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_RECEIVER, HW_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvhwsPayerShort = METHOD_HW.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvSwap = SWAP_RECEIVER.accept(PVCSDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvSwap.cleaned(TOLERANCE_PV_DELTA),
         pvhwsReceiverLong.plus(pvhwsPayerShort).cleaned(TOLERANCE_PV_DELTA), TOLERANCE_PV_DELTA);
   }
@@ -377,7 +377,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   //      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopfwd + ")", 0.0, sensiFwd.get(loopfwd).second, toleranceDelta);
   //    }
   //
-  //    // From previous run 
+  //    // From previous run
   //    final List<DoublesPair> sensiDscMC = pvcsMC.getSensitivities().get(FUNDING_CURVE_NAME);
   //    final List<DoublesPair> sensiFwdMC = pvcsMC.getSensitivities().get(FORWARD_CURVE_NAME);
   //    double[] sensiDscExpected = new double[] {0.0000, 0.0000, -3637714.1984, 557942.4840, -3787541.0789, 613898.2842, -4080860.4679, 589073.7077, -4178299.1839, 652156.5042, -4447809.9953,
@@ -461,8 +461,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     //      System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms");
     //      // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 9200 ms for 1000 swaptions (12500 paths).
 
-    double difference = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongIntegration.getAmount(CUR);
-    double difference2 = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongApproximation.getAmount(CUR);
+    final double difference = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongIntegration.getAmount(CUR);
+    final double difference2 = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongApproximation.getAmount(CUR);
     //      double difference3 = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongMC.getAmount(CUR);
     System.out.println("Difference explicit-integration: " + difference);
     System.out.println("Difference explicit-approximation: " + difference2);

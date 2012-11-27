@@ -52,7 +52,7 @@ public class CouponOISDiscountingMarketMethodTest {
       GENERATOR_SWAP_EONIA.isEndOfMonth());
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
   private static final CouponOIS CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final CouponOISDiscountingProviderMethod METHOD_CPN_OIS = CouponOISDiscountingProviderMethod.getInstance();
@@ -69,32 +69,32 @@ public class CouponOISDiscountingMarketMethodTest {
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(CPN_OIS, PROVIDER);
-    double forward = PROVIDER.getForwardRate(EONIA, CPN_OIS.getFixingPeriodStartTime(), CPN_OIS.getFixingPeriodEndTime(), CPN_OIS.getFixingPeriodAccrualFactor());
-    double pvExpected = NOTIONAL * CPN_OIS.getFixingPeriodAccrualFactor() * forward * PROVIDER.getDiscountFactor(CPN_OIS.getCurrency(), CPN_OIS.getPaymentTime());
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(CPN_OIS, PROVIDER);
+    final double forward = PROVIDER.getForwardRate(EONIA, CPN_OIS.getFixingPeriodStartTime(), CPN_OIS.getFixingPeriodEndTime(), CPN_OIS.getFixingPeriodAccrualFactor());
+    final double pvExpected = NOTIONAL * CPN_OIS.getFixingPeriodAccrualFactor() * forward * PROVIDER.getDiscountFactor(CPN_OIS.getCurrency(), CPN_OIS.getPaymentTime());
     assertEquals("CouponOISDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EONIA.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueStarted() {
     final double fixing = 0.0015;
-    final ArrayZonedDateTimeDoubleTimeSeries TS_ON = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23)}, new double[] {
-        0.0010, fixing});
+    final ArrayZonedDateTimeDoubleTimeSeries TS_ON = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
+        0.0010, fixing });
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
     final CouponOIS cpnOISStarted = (CouponOIS) CPN_OIS_DEFINITION.toDerivative(referenceDate, TS_ON, NOT_USED);
-    double notionalAccrued = NOTIONAL * (1 + fixing * EONIA.getDayCount().getDayCountFraction(EFFECTIVE_DATE, referenceDate));
+    final double notionalAccrued = NOTIONAL * (1 + fixing * EONIA.getDayCount().getDayCountFraction(EFFECTIVE_DATE, referenceDate));
     assertEquals("CouponOISDiscountingMarketMethod: present value", notionalAccrued, cpnOISStarted.getNotionalAccrued(), TOLERANCE_PV);
-    MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(cpnOISStarted, PROVIDER);
-    double forward = PROVIDER.getForwardRate(EONIA, cpnOISStarted.getFixingPeriodStartTime(), cpnOISStarted.getFixingPeriodEndTime(), cpnOISStarted.getFixingPeriodAccrualFactor());
-    double pvExpected = (cpnOISStarted.getNotionalAccrued() * (1 + cpnOISStarted.getFixingPeriodAccrualFactor() * forward) - NOTIONAL)
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(cpnOISStarted, PROVIDER);
+    final double forward = PROVIDER.getForwardRate(EONIA, cpnOISStarted.getFixingPeriodStartTime(), cpnOISStarted.getFixingPeriodEndTime(), cpnOISStarted.getFixingPeriodAccrualFactor());
+    final double pvExpected = (cpnOISStarted.getNotionalAccrued() * (1 + cpnOISStarted.getFixingPeriodAccrualFactor() * forward) - NOTIONAL)
         * PROVIDER.getDiscountFactor(cpnOISStarted.getCurrency(), cpnOISStarted.getPaymentTime());
     assertEquals("CouponOISDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_CPN_OIS.presentValue(CPN_OIS, PROVIDER);
-    MultipleCurrencyAmount pvCalculator = PVDC.visit(CPN_OIS, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_OIS.presentValue(CPN_OIS, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = CPN_OIS.accept(PVDC, PROVIDER);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -103,15 +103,15 @@ public class CouponOISDiscountingMarketMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(CPN_OIS, PROVIDER, PROVIDER.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(CPN_OIS, PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(CPN_OIS, PROVIDER, PROVIDER.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(CPN_OIS, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_OIS.presentValueCurveSensitivity(CPN_OIS, PROVIDER);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_OIS, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_OIS.presentValueCurveSensitivity(CPN_OIS, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_OIS.accept(PVCSDC, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
@@ -17,7 +17,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationIssuerCalculator extends AbstractInstrumentDerivativeVisitor<InflationIssuerProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingInflationIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<InflationIssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -50,7 +50,7 @@ public final class PresentValueDiscountingInflationIssuerCalculator extends Abst
   public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final InflationIssuerProviderInterface market) {
     try {
       return derivative.accept(this, market);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDIC, market.getInflationProvider());
     }
   }
@@ -63,6 +63,11 @@ public final class PresentValueDiscountingInflationIssuerCalculator extends Abst
   @Override
   public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface market) {
     return METHOD_BOND_TR.presentValue(bond, market);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

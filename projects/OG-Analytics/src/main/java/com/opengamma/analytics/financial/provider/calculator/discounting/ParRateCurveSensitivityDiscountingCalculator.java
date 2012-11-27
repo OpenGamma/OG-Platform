@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Get the single fixed rate that makes the PV of the instrument zero.
  */
-public final class ParRateCurveSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> {
+public final class ParRateCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -53,12 +53,12 @@ public final class ParRateCurveSensitivityDiscountingCalculator extends Abstract
   @Override
   public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
     final Currency ccy = swap.getSecondLeg().getCurrency();
-    final double pvSecond = PVDC.visit(swap.getSecondLeg(), multicurves).getAmount(ccy) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = swap.getSecondLeg().accept(PVDC, multicurves).getAmount(ccy) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves);
     final double pvbpBar = -pvSecond / (pvbp * pvbp);
     final double pvSecondBar = 1.0 / pvbp;
     final MulticurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, multicurves);
-    final MulticurveSensitivity pvSecondDr = PVCSDC.visit(swap.getSecondLeg(), multicurves).getSensitivity(ccy).multipliedBy(Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
+    final MulticurveSensitivity pvSecondDr = swap.getSecondLeg().accept(PVCSDC, multicurves).getSensitivity(ccy).multipliedBy(Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
     final MulticurveSensitivity result = pvSecondDr.multipliedBy(pvSecondBar).plus(pvbpDr.multipliedBy(pvbpBar));
     return result;
   }
@@ -73,12 +73,12 @@ public final class ParRateCurveSensitivityDiscountingCalculator extends Abstract
    */
   public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final MulticurveProviderInterface multicurves) {
     final Currency ccy = swap.getSecondLeg().getCurrency();
-    final double pvSecond = PVDC.visit(swap.getSecondLeg(), multicurves).getAmount(ccy) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = swap.getSecondLeg().accept(PVDC, multicurves).getAmount(ccy) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, multicurves);
     final double pvbpBar = -pvSecond / (pvbp * pvbp);
     final double pvSecondBar = 1.0 / pvbp;
     final MulticurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, dayCount, multicurves);
-    final MulticurveSensitivity pvSecondDr = PVCSDC.visit(swap.getSecondLeg(), multicurves).getSensitivity(ccy).multipliedBy(Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
+    final MulticurveSensitivity pvSecondDr = swap.getSecondLeg().accept(PVCSDC, multicurves).getSensitivity(ccy).multipliedBy(Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
     final MulticurveSensitivity result = pvSecondDr.multipliedBy(pvSecondBar).plus(pvbpDr.multipliedBy(pvbpBar));
     return result;
   }

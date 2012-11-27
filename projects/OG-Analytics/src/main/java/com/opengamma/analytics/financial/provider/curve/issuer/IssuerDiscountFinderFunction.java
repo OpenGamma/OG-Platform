@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Function computing the error of valuation produce by an array representing the curve parameters. 
+ * Function computing the error of valuation produce by an array representing the curve parameters.
  * @author marc
  */
 public class IssuerDiscountFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
@@ -28,11 +28,11 @@ public class IssuerDiscountFinderFunction extends Function1D<DoubleMatrix1D, Dou
   private final IssuerDiscountBuildingData _data;
 
   /**
-   * Constructor. 
+   * Constructor.
    * @param calculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public IssuerDiscountFinderFunction(final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator, IssuerDiscountBuildingData data) {
+  public IssuerDiscountFinderFunction(final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator, final IssuerDiscountBuildingData data) {
     ArgumentChecker.notNull(calculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
     _calculator = calculator;
@@ -40,13 +40,13 @@ public class IssuerDiscountFinderFunction extends Function1D<DoubleMatrix1D, Dou
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     final IssuerProviderDiscount provider = _data.getKnownData().copy();
-    IssuerProviderDiscount newCurves = _data.getGeneratorMarket().evaluate(x);
+    final IssuerProviderDiscount newCurves = _data.getGeneratorMarket().evaluate(x);
     provider.setAll(newCurves);
     final double[] res = new double[_data.getNumberOfInstruments()];
     for (int i = 0; i < _data.getNumberOfInstruments(); i++) {
-      res[i] = _calculator.visit(_data.getInstrument(i), provider);
+      res[i] = _data.getInstrument(i).accept(_calculator, provider);
     }
     return new DoubleMatrix1D(res);
   }

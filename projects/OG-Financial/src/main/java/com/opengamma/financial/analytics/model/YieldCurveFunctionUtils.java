@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
@@ -13,6 +13,7 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -23,7 +24,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- * 
+ *
  */
 public class YieldCurveFunctionUtils {
 
@@ -59,6 +60,17 @@ public class YieldCurveFunctionUtils {
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, id.getUniqueId(), properties);
+  }
+
+  public static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName) {
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, yieldCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, id.getUniqueId(), properties);
+  }
+
+  public static ValueRequirement getCurveRequirement(final UniqueIdentifiable id) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, id.getUniqueId(), ValueProperties.builder().get());
   }
 
   //TODO won't work if curves have different currencies

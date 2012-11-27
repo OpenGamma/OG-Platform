@@ -8,9 +8,9 @@ package com.opengamma.bbg.util;
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,66 +21,79 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author yomi
+ * Utility to assist with resolving Bloomberg codes.
  */
 public final class BloombergDomainIdentifierResolver {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergDomainIdentifierResolver.class);
-  private static final Map<ExternalScheme, String> DOMAIN_PREFERENCES = new LinkedHashMap<ExternalScheme, String>();
-  
+  /**
+   * Prefixes used by Bloomberg.
+   */
+  private static final Map<ExternalScheme, String> SCHEME_MAP = new LinkedHashMap<ExternalScheme, String>();
   static {
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER, null);
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
-    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TCM, null);
-    DOMAIN_PREFERENCES.put(ExternalSchemes.ISIN, "/isin/");
-    DOMAIN_PREFERENCES.put(ExternalSchemes.CUSIP, "/cusip/");
+    SCHEME_MAP.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
+    SCHEME_MAP.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
+    SCHEME_MAP.put(ExternalSchemes.BLOOMBERG_TICKER, null);
+    SCHEME_MAP.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
+    SCHEME_MAP.put(ExternalSchemes.BLOOMBERG_TCM, null);
+    SCHEME_MAP.put(ExternalSchemes.ISIN, "/isin/");
+    SCHEME_MAP.put(ExternalSchemes.CUSIP, "/cusip/");
   };
- 
+
+  /**
+   * Restricted constructor.
+   */
   private BloombergDomainIdentifierResolver() {
   }
-  
-  public static String toBloombergKey(ExternalId identifier) {
-    ArgumentChecker.notNull(identifier, "DomainSpecificIdentifier");
-    String result = null;
-    ExternalScheme domain = identifier.getScheme();
-    if (DOMAIN_PREFERENCES.containsKey(domain)) {
-      String prefix = DOMAIN_PREFERENCES.get(domain);
-      result = prefix != null ? prefix + identifier.getValue() : identifier.getValue();
-    } else {
-      s_logger.warn("Unknown domainIdentifier {}", identifier);
-      result = identifier.getValue();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts an external ID to a bloomberg key.
+   * 
+   * @param externalId  the external ID to convert, not null
+   * @return the Bloomberg key, not null
+   */
+  public static String toBloombergKey(ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    
+    ExternalScheme scheme = externalId.getScheme();
+    if (SCHEME_MAP.containsKey(scheme)) {
+      String prefix = SCHEME_MAP.get(scheme);
+      String id  = externalId.getValue();
+      return prefix != null ? prefix + id : id;
     }
-    return result;
+    s_logger.warn("Unknown ExternalScheme {}", externalId);
+    return externalId.getValue();
   }
-  
-  public static String toBloombergKeyWithDataProvider(ExternalId identifier, String dataProvider) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    
+
+  /**
+   * Converts an external ID to a bloomberg key.
+   * 
+   * @param externalId  the external ID to convert, not null
+   * @param dataProvider  the data provider, null or unknown calls {@link #toBloombergKey(ExternalId)}
+   * @return the Bloomberg key, not null
+   */
+  public static String toBloombergKeyWithDataProvider(ExternalId externalId, String dataProvider) {
+    ArgumentChecker.notNull(externalId, "externalId");
     if (dataProvider == null || dataProvider.contains(DATA_PROVIDER_UNKNOWN)) {
-      return toBloombergKey(identifier);
+      return toBloombergKey(externalId);
     }
     
-    ExternalScheme domain = identifier.getScheme();
-    String result = null;
-    StringBuilder buf = new StringBuilder();
-    
-    if (DOMAIN_PREFERENCES.containsKey(domain)) {
-      String prefix = DOMAIN_PREFERENCES.get(domain);
+    ExternalScheme scheme = externalId.getScheme();
+    if (SCHEME_MAP.containsKey(scheme)) {
+      String prefix = SCHEME_MAP.get(scheme);
+      StringBuilder buf = new StringBuilder();
       if (prefix != null) {
         buf.append(prefix);
       }
-      if (domain.equals(ExternalSchemes.BLOOMBERG_TICKER)) {
-        String id  = identifier.getValue().toUpperCase();
+      if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER)) {
+        String id  = externalId.getValue().toUpperCase(Locale.US);
         if (id.endsWith("EQUITY")) {
           buf.append(id);
         } else {
           String[] splits = id.split(" ");
-          if (id.endsWith("CURNCY")) {
+          if (id.endsWith("CURNCY") || id.endsWith("INDEX")) {
             buf.append(splits[0]).append(" ").append(dataProvider);
           } else {
             buf.append(splits[0]).append("@").append(dataProvider);
@@ -89,23 +102,27 @@ public final class BloombergDomainIdentifierResolver {
             buf.append(" ").append(splits[i]);
           }
         }
-        result =  buf.toString();
       } else {
-        buf.append(identifier.getValue()).append("@").append(dataProvider);
-        result = buf.toString();
+        buf.append(externalId.getValue()).append("@").append(dataProvider);
       }
-    } else {
-      s_logger.warn("Unknown domainIdentifier {}", identifier);
-      result = identifier.getValue();
+      return buf.toString();
     }
-    return result;
+    s_logger.warn("Unknown ExternalScheme {}", externalId);
+    return externalId.getValue();
   }
 
+  /**
+   * Selects the preferred external ID from a bundle.
+   * 
+   * @param bundle  the bundle, not null
+   * @return the preferred external ID, not null
+   */
   public static ExternalId resolvePreferredIdentifier(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    Validate.isTrue(bundle.size() > 0, "Bundle is empty");
-    for (ExternalScheme preferredDomain : DOMAIN_PREFERENCES.keySet()) {
-      ExternalId preferredIdentifier = bundle.getExternalId(preferredDomain);
+    ArgumentChecker.isTrue(bundle.size() > 0, "Bundle must not be empty");
+    
+    for (ExternalScheme preferredScheme : SCHEME_MAP.keySet()) {
+      ExternalId preferredIdentifier = bundle.getExternalId(preferredScheme);
       if (preferredIdentifier != null) {
         return preferredIdentifier;
       }

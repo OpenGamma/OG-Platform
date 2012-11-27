@@ -63,16 +63,30 @@ public interface ViewCycle extends UniqueIdentifiable {
   ViewComputationResultModel getResultModel();
 
   /**
-   * Queries the view cycle for values.
+   * Queries the view cycle for values. This is a low-level query which can return only the computed object itself.
    * <p>
    * For efficiency, the result object contains only terminal outputs, i.e. values explicitly requested in the view
    * definition at the time of the computation. A computation cycle may be queried in order to obtain any values which
    * were calculated during the cycle, including intermediate values corresponding to inputs as well as terminal output
    * values already present in the result object.
    * 
-   * @param computationCacheQuery  the query, not null
+   * @param query  the query, not null
    * @return  the result of performing the query against the computation caches, not null
    */
-  ComputationCacheResponse queryComputationCaches(ComputationCacheQuery computationCacheQuery);
+  ComputationCacheResponse queryComputationCaches(ComputationCycleQuery query);
+  
+  /**
+   * Queries the view cycle for results. Results contain the computed value itself together with execution details, as
+   * seen in the result object.
+   * <p>
+   * For efficiency, the result object contains only terminal outputs, i.e. values explicitly requested in the view
+   * definition at the time of the computation. A computation cycle may be queried in order to obtain any results which
+   * were calculated during the cycle, including intermediate results corresponding to inputs as well as terminal
+   * outputs already present in the result object.
+   * 
+   * @param query  the query, not null
+   * @return  the result of performing the query, not null
+   */
+  ComputationResultsResponse queryResults(ComputationCycleQuery query);
   
 }

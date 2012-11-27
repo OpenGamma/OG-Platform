@@ -68,7 +68,7 @@ public class BondSecurityDiscountingMethodTest {
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurvesBond1();
   // Spot: middle coupon
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
@@ -90,8 +90,8 @@ public class BondSecurityDiscountingMethodTest {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupons().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_1);
-    final double pvNominal = PVC.visit(nominal, CURVES);
-    final double pvCoupon = PVC.visit(coupon, CURVES);
+    final double pvNominal = nominal.accept(PVC, CURVES);
+    final double pvCoupon = coupon.accept(PVC, CURVES);
     final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: present value", pvNominal + pvCoupon, pv);
   }
@@ -101,8 +101,8 @@ public class BondSecurityDiscountingMethodTest {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupons().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_2);
-    final double pvNominal = PVC.visit(nominal, CURVES);
-    final double pvCoupon = PVC.visit(coupon, CURVES);
+    final double pvNominal = nominal.accept(PVC, CURVES);
+    final double pvCoupon = coupon.accept(PVC, CURVES);
     final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_2, CURVES);
     assertEquals("Fixed coupon bond security: present value", pvNominal + pvCoupon, pv);
   }
@@ -110,7 +110,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void presentValueFixedMethodVsCalculator() {
     final double pvMethod = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
-    final double pvCalculator = PVC.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double pvCalculator = BOND_FIXED_SECURITY_1.accept(PVC, CURVES);
     assertEquals("Fixed coupon bond security: present value Method vs Calculator", pvMethod, pvCalculator);
   }
 
@@ -123,7 +123,7 @@ public class BondSecurityDiscountingMethodTest {
     double zSpread = 0.0;
     final double pvZ0 = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", pv, pvZ0, 1E-8);
-    YieldCurveBundle shiftedBundle = new YieldCurveBundle();
+    final YieldCurveBundle shiftedBundle = new YieldCurveBundle();
     shiftedBundle.addAll(CURVES);
     YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpread);
     shiftedBundle.replaceCurve(CREDIT_CURVE_NAME, shiftedCredit);
@@ -136,7 +136,7 @@ public class BondSecurityDiscountingMethodTest {
     pvZ = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     pvZExpected = METHOD.presentValue(BOND_FIXED_SECURITY_1, shiftedBundle);
     assertEquals("Fixed coupon bond security: present value from z-spread", pvZExpected, pvZ, 1E-8);
-    double pvZ2 = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double pvZ2 = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", pvZ, pvZ2, 1E-8);
   }
 
@@ -145,9 +145,9 @@ public class BondSecurityDiscountingMethodTest {
    * Tests the present value z-spread sensitivity.
    */
   public void presentValueZSpreadSensitivity() {
-    double zSpread = 0.0050; // 50bps
-    double shift = 0.00001;
-    double pvzs = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double zSpread = 0.0050; // 50bps
+    final double shift = 0.00001;
+    final double pvzs = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     final double pvZUp = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread + shift);
     final double pvZDown = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread - shift);
     assertEquals("Fixed coupon bond security: present value z-spread sensitivity", (pvZUp - pvZDown) / (2 * shift), pvzs, 1E-6);
@@ -158,9 +158,9 @@ public class BondSecurityDiscountingMethodTest {
    * Tests the bond security present value from clean price.
    */
   public void presentValueFromCleanPrice() {
-    double cleanPrice = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    double pvClean = METHOD.presentValueFromCleanPrice(BOND_FIXED_SECURITY_1, CURVES, cleanPrice);
-    double pvCleanExpected = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
+    final double cleanPrice = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double pvClean = METHOD.presentValueFromCleanPrice(BOND_FIXED_SECURITY_1, CURVES, cleanPrice);
+    final double pvCleanExpected = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: present value", pvCleanExpected, pvClean, 1.0E-8);
   }
 
@@ -170,15 +170,15 @@ public class BondSecurityDiscountingMethodTest {
    */
   public void zSpreadFromPresentValue() {
     final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
-    double zSpread = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pv);
+    final double zSpread = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pv);
     assertEquals("Fixed coupon bond security: present value from z-spread", 0.0, zSpread, 1E-8);
-    double zSpreadExpected = 0.0025; // 25bps
-    double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpreadExpected);
-    double zSpread2 = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
+    final double zSpreadExpected = 0.0025; // 25bps
+    final double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpreadExpected);
+    final double zSpread2 = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", zSpreadExpected, zSpread2, 1E-8);
-    double zSpreadExpected3 = 0.0250; // 2.50%
-    double pvZSpread3 = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpreadExpected3);
-    double zSpread3 = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread3);
+    final double zSpreadExpected3 = 0.0250; // 2.50%
+    final double pvZSpread3 = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpreadExpected3);
+    final double zSpread3 = METHOD.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread3);
     assertEquals("Fixed coupon bond security: present value from z-spread", zSpreadExpected3, zSpread3, 1E-8);
   }
 
@@ -187,10 +187,10 @@ public class BondSecurityDiscountingMethodTest {
    * Tests the z-spread sensitivity computation from the present value.
    */
   public void zSpreadSensitivityFromPresentValue() {
-    double zSpread = 0.0025; // 25bps
-    double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
-    double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
-    double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double zSpread = 0.0025; // 25bps
+    final double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
+    final double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
   }
 
@@ -199,13 +199,13 @@ public class BondSecurityDiscountingMethodTest {
    * Tests the z-spread computation from the clean price.
    */
   public void zSpreadFromCleanPrice() {
-    double zSpreadExpected = 0.0025; // 25bps
-    YieldCurveBundle shiftedBundle = new YieldCurveBundle();
+    final double zSpreadExpected = 0.0025; // 25bps
+    final YieldCurveBundle shiftedBundle = new YieldCurveBundle();
     shiftedBundle.addAll(CURVES);
-    YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpreadExpected);
+    final YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpreadExpected);
     shiftedBundle.replaceCurve(CREDIT_CURVE_NAME, shiftedCredit);
-    double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
-    double zSpread = METHOD.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
+    final double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
+    final double zSpread = METHOD.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", zSpreadExpected, zSpread, 1E-8);
   }
 
@@ -214,14 +214,14 @@ public class BondSecurityDiscountingMethodTest {
    * Tests the z-spread sensitivity computation from the present value.
    */
   public void zSpreadSensitivityFromCleanPrice() {
-    double zSpread = 0.0025; // 25bps
-    YieldCurveBundle shiftedBundle = new YieldCurveBundle();
+    final double zSpread = 0.0025; // 25bps
+    final YieldCurveBundle shiftedBundle = new YieldCurveBundle();
     shiftedBundle.addAll(CURVES);
-    YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpread);
+    final YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpread);
     shiftedBundle.replaceCurve(CREDIT_CURVE_NAME, shiftedCredit);
-    double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
-    double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
-    double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
+    final double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
+    final double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
   }
 
@@ -238,7 +238,7 @@ public class BondSecurityDiscountingMethodTest {
   public void dirtyPriceFixedMethodVsCalculator() {
     final double dirtyMethod = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     final DirtyPriceFromCurvesCalculator calculator = DirtyPriceFromCurvesCalculator.getInstance();
-    final double dirtyCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double dirtyCalculator = BOND_FIXED_SECURITY_1.accept(calculator, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves Method vs Calculator", dirtyMethod, dirtyCalculator);
   }
 
@@ -253,7 +253,7 @@ public class BondSecurityDiscountingMethodTest {
   public void cleanPriceFixedMethodVsCalculator() {
     final double cleanMethod = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     final CleanPriceFromCurvesCalculator calculator = CleanPriceFromCurvesCalculator.getInstance();
-    final double cleanCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double cleanCalculator = BOND_FIXED_SECURITY_1.accept(calculator, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves Method vs Calculator", cleanMethod, cleanCalculator);
   }
 
@@ -366,7 +366,7 @@ public class BondSecurityDiscountingMethodTest {
   public void modifiedDurationFromCurvesUSStreetMethodVsCalculator() {
     final double mdMethod = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     final ModifiedDurationFromCurvesCalculator calculator = ModifiedDurationFromCurvesCalculator.getInstance();
-    final double mdCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double mdCalculator = BOND_FIXED_SECURITY_1.accept(calculator, CURVES);
     assertEquals("Fixed coupon bond security: modified duration from curves US Street : Method vs Calculator", mdMethod, mdCalculator, 1E-8);
   }
 
@@ -377,8 +377,8 @@ public class BondSecurityDiscountingMethodTest {
   public void macauleyDurationFromYieldUSStreet() {
     final double yield = 0.04;
     final double mc = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double mcExpected = 4.851906106 / dirty;
+    final double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double mcExpected = 4.851906106 / dirty;
     assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: harcoded value", mcExpected, mc, 1E-8);
     final double md = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
     assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: vs modified duration", md * (1 + yield / COUPON_PER_YEAR), mc, 1E-8);
@@ -414,7 +414,7 @@ public class BondSecurityDiscountingMethodTest {
   public void macauleyDurationFromCurvesUSStreetMethodVsCalculator() {
     final double mcMethod = METHOD.macaulayDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     final MacaulayDurationFromCurvesCalculator calculator = MacaulayDurationFromCurvesCalculator.getInstance();
-    final double mcCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double mcCalculator = BOND_FIXED_SECURITY_1.accept(calculator, CURVES);
     assertEquals("Fixed coupon bond security: Macauley duration from curves US Street : Method vs Calculator", mcMethod, mcCalculator, 1E-8);
   }
 
@@ -425,8 +425,8 @@ public class BondSecurityDiscountingMethodTest {
   public void convexityDurationFromYieldUSStreet() {
     final double yield = 0.04;
     final double cv = METHOD.convexityFromYield(BOND_FIXED_SECURITY_1, yield);
-    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double cvExpected = 25.75957016 / dirty;
+    final double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double cvExpected = 25.75957016 / dirty;
     assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: harcoded value", cvExpected, cv, 1E-8);
     final double shift = 1.0E-6;
     final double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift);
@@ -535,7 +535,7 @@ public class BondSecurityDiscountingMethodTest {
     final BondFixedSecurity BondNoEx = bondNoExDefinition.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
     final double pvNoEx = METHOD.presentValue(BondNoEx, CURVES);
     final CouponFixedDefinition couponDefinitionEx = BOND_FIXED_SECURITY_DEFINITION_G.getCoupons().getNthPayment(17);
-    final double pvCpn = PVC.visit(couponDefinitionEx.toDerivative(REFERENCE_DATE_3, CURVES_NAME), CURVES);
+    final double pvCpn = couponDefinitionEx.toDerivative(REFERENCE_DATE_3, CURVES_NAME).accept(PVC, CURVES);
     assertEquals("Fixed coupon bond security: present value ex dividend", pvNoEx - pvCpn, pv, 1.0E-6);
   }
 

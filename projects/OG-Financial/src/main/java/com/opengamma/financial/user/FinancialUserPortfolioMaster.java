@@ -59,6 +59,7 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserMaster<Po
     super(client, FinancialUserDataType.PORTFOLIO);
     _underlying = underlying;
     _changeProvidingMaster = ChangeProvidingDecorator.wrap(underlying);
+    init();
   }
 
   public PortfolioDocument add(PortfolioDocument document) {

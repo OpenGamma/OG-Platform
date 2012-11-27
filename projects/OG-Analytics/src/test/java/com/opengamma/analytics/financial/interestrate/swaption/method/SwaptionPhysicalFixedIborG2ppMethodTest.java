@@ -78,7 +78,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -102,14 +102,14 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value vs a external system. "enabled = false" for the standard testing: the external system is using a TimeCalculator with ACT/365.
    */
   public void presentValueExternal() {
-    G2ppPiecewiseConstantParameters parametersCst = TestsDataSetG2pp.createG2ppCstParameters();
+    final G2ppPiecewiseConstantParameters parametersCst = TestsDataSetG2pp.createG2ppCstParameters();
     final YieldAndDiscountCurve curve5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(FUNDING_CURVE_NAME, curve5);
     curves.setCurve(FORWARD_CURVE_NAME, curve5);
-    G2ppPiecewiseConstantDataBundle bundleCst = new G2ppPiecewiseConstantDataBundle(parametersCst, curves);
-    CurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, bundleCst);
-    double pvExternal = 6885626.28245924; // ! TimeCalculator with ACT/365
+    final G2ppPiecewiseConstantDataBundle bundleCst = new G2ppPiecewiseConstantDataBundle(parametersCst, curves);
+    final CurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, bundleCst);
+    final double pvExternal = 6885626.28245924; // ! TimeCalculator with ACT/365
     assertEquals("Swaption physical - G2++ - present value - external system", pvExternal, pv.getAmount(), 1E-2);
   }
 
@@ -118,8 +118,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value vs a hard-coded value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    double pvExpected = 4893110.87;
+    final CurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final double pvExpected = 4893110.87;
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(), 1E-2);
   }
 
@@ -128,11 +128,11 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Tests long/short parity.
    */
   public void longShortParity() {
-    CurrencyAmount pvPayerLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
+    final CurrencyAmount pvPayerLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(), -pvPayerShort.getAmount(), 1E-2);
-    CurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvReceiverShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_SHORT, BUNDLE_G2PP);
+    final CurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvReceiverShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_SHORT, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(), -pvReceiverShort.getAmount(), 1E-2);
   }
 
@@ -141,9 +141,9 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Tests payer/receiver/swap parity.
    */
   public void payerReceiverParity() {
-    CurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
-    double pvSwap = PVC.visit(SWAP_RECEIVER, CURVES);
+    final CurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
+    final double pvSwap = SWAP_RECEIVER.accept(PVC, CURVES);
     assertEquals("Swaption physical - G2++ - present value - payer/receiver/swap parity", pvReceiverLong.getAmount() + pvPayerShort.getAmount(), pvSwap, 1E-2);
   }
 
@@ -152,8 +152,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs by numerical integration.
    */
   public void approximationNumericalIntegration() {
-    CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvNI = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvNI = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - approximation vs Numerical integration", pvApproximation.getAmount(), pvNI.getAmount(), 2.0E+3);
   }
 
@@ -162,10 +162,10 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs Monte Carlo.
    */
   public void presentValueMonteCarlo() {
-    int nbPath = 12500;
-    G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    CurrencyAmount pvMC = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_G2PP);
-    CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final int nbPath = 12500;
+    final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    final CurrencyAmount pvMC = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_G2PP);
+    final CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - approximation vs Monte Carlo", pvApproximation.getAmount(), pvMC.getAmount(), 2.5E+4);
   }
 
@@ -174,11 +174,11 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs Monte Carlo: convergence.
    */
   public void presentValueMonteCarloConvergence() {
-    CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    int[] nbPath = new int[] {12500, 100000, 1000000, 5000000};
-    CurrencyAmount[] pvMC = new CurrencyAmount[nbPath.length];
+    final CurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final int[] nbPath = new int[] {12500, 100000, 1000000, 5000000 };
+    final CurrencyAmount[] pvMC = new CurrencyAmount[nbPath.length];
     for (int loopmc = 0; loopmc < nbPath.length; loopmc++) {
-      G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath[loopmc]);
+      final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath[loopmc]);
       pvMC[loopmc] = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_G2PP);
     }
     assertEquals("Swaption physical - G2++ - present value - approximation vs Monte Carlo", pvApproximation.getAmount(), pvMC[nbPath.length - 1].getAmount(), 1.0E+3);
@@ -297,8 +297,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     long startTime, endTime;
     final int nbTest = 10;
 
-    int nbPath = 12500;
-    G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    final int nbPath = 12500;
+    final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     @SuppressWarnings("unused")
     CurrencyAmount pvMC;
 

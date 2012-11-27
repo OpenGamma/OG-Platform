@@ -32,6 +32,7 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistRule;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklist;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklistProvider;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistMaintainerProvider;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistMaintainerProviderBean;
 import com.opengamma.engine.view.calcnode.RemoteNodeServer.FunctionBlacklistQueryProvider;
@@ -49,7 +50,7 @@ import com.opengamma.id.UniqueId;
 public class RemoteNodeServerTest {
 
   private final CalculationJobItem JOB_ITEM = new CalculationJobItem("1", new EmptyFunctionParameters(), new ComputationTargetSpecification(""),
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   // Blacklisting subclasses
 

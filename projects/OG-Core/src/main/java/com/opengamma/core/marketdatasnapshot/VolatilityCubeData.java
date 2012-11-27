@@ -246,11 +246,11 @@ public class VolatilityCubeData {
 
       @Override
       public int compare(Entry<VolatilityPoint, Double> o1, Entry<VolatilityPoint, Double> o2) {
-        int compareTo = compare(o1.getKey().getSwapTenor(), o2.getKey().getSwapTenor());
+        int compareTo = o1.getKey().getSwapTenor().compareTo(o2.getKey().getSwapTenor());
         if (compareTo != 0) {
           return compareTo;
         }
-        compareTo = compare(o1.getKey().getOptionExpiry(), o2.getKey().getOptionExpiry());
+        compareTo = o1.getKey().getOptionExpiry().compareTo(o2.getKey().getOptionExpiry());
         if (compareTo != 0) {
           return compareTo;
         }
@@ -258,11 +258,6 @@ public class VolatilityCubeData {
         return Double.compare(o1.getKey().getRelativeStrike(), o2.getKey().getRelativeStrike());
       }
 
-      private int compare(Tenor a, Tenor b) {
-        //TODO [PLAT-1013] Tenors should be comparable, but they're not
-        int compareTo = a.getPeriod().toString().compareTo(b.getPeriod().toString());
-        return compareTo;
-      }
     });
     
     SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = new TreeMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>();
@@ -333,22 +328,16 @@ public class VolatilityCubeData {
 
       @Override
       public int compare(Entry<VolatilityPoint, Double> o1, Entry<VolatilityPoint, Double> o2) {
-        int compareTo = compare(o1.getKey().getSwapTenor(), o2.getKey().getSwapTenor());
+        int compareTo = o1.getKey().getSwapTenor().compareTo(o2.getKey().getSwapTenor());
         if (compareTo != 0) {
           return compareTo;
         }
-        compareTo = compare(o1.getKey().getOptionExpiry(), o2.getKey().getOptionExpiry());
+        compareTo = o1.getKey().getOptionExpiry().compareTo(o2.getKey().getOptionExpiry());
         if (compareTo != 0) {
           return compareTo;
         }
 
         return Double.compare(o1.getKey().getRelativeStrike(), o2.getKey().getRelativeStrike());
-      }
-
-      private int compare(Tenor a, Tenor b) {
-        //TODO [PLAT-1013] Tenors should be comparable, but they're not
-        int compareTo = a.getPeriod().toString().compareTo(b.getPeriod().toString());
-        return compareTo;
       }
     });
     

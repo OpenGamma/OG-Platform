@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -29,11 +28,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>. 
- * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the 
+ * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>.
+ * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the
  * cash flow at that date.
  */
-public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, Map<Double, MulticurveSensitivity>> {
+public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Map<Double, MulticurveSensitivity>> {
 
   /**
    * The unique instance of the calculator.
@@ -55,11 +54,6 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
   }
 
   @Override
-  public Map<Double, MulticurveSensitivity> visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurves) {
-    return derivative.accept(this, multicurves);
-  }
-
-  @Override
   public Map<Double, MulticurveSensitivity> visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     return new HashMap<Double, MulticurveSensitivity>();
   }
@@ -74,16 +68,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
     ArgumentChecker.notNull(payment, "Payment");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
     final Currency ccy = payment.getCurrency();
-    double fixingStartTime = payment.getFixingPeriodStartTime();
-    double fixingEndTime = payment.getFixingPeriodEndTime();
-    double paymentTime = payment.getPaymentTime();
-    double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
-    double af = payment.getFixingAccrualFactor();
+    final double fixingStartTime = payment.getFixingPeriodStartTime();
+    final double fixingEndTime = payment.getFixingPeriodEndTime();
+    final double paymentTime = payment.getPaymentTime();
+    final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
+    final double af = payment.getFixingAccrualFactor();
     final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
-    double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
-    double forwardBar = af * dfRatio * betaBar;
+    final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
+    final double forwardBar = af * dfRatio * betaBar;
 
-    Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
+    final Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<String, List<ForwardSensitivity>>();
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
@@ -91,9 +85,9 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDisc = new ArrayList<DoublesPair>();
-    DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 
@@ -106,16 +100,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
     ArgumentChecker.notNull(payment, "Payment");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
     final Currency ccy = payment.getCurrency();
-    double fixingStartTime = payment.getFixingPeriodStartTime();
-    double fixingEndTime = payment.getFixingPeriodEndTime();
-    double paymentTime = payment.getPaymentTime();
-    double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
-    double af = payment.getFixingAccrualFactor();
+    final double fixingStartTime = payment.getFixingPeriodStartTime();
+    final double fixingEndTime = payment.getFixingPeriodEndTime();
+    final double paymentTime = payment.getPaymentTime();
+    final double dfRatio = multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
+    final double af = payment.getFixingAccrualFactor();
     final double beta = (1.0 + af * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor())) * dfRatio;
-    double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
-    double forwardBar = af * dfRatio * betaBar;
+    final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / af;
+    final double forwardBar = af * dfRatio * betaBar;
 
-    Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
+    final Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
     final Map<String, List<ForwardSensitivity>> resultFwd = new HashMap<String, List<ForwardSensitivity>>();
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(fixingStartTime, fixingEndTime, af, forwardBar));
@@ -123,9 +117,9 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDisc = new ArrayList<DoublesPair>();
-    DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 
@@ -137,9 +131,9 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
   public Map<Double, MulticurveSensitivity> visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
-    Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
+    final Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
     for (final Payment p : annuity.getPayments()) {
-      Map<Double, MulticurveSensitivity> paymentSensi = visit(p, multicurves);
+      final Map<Double, MulticurveSensitivity> paymentSensi = p.accept(this, multicurves);
       result.putAll(paymentSensi);
       // It is suppose that no two coupons have the same cfe sensitivity date.
     }
@@ -155,10 +149,10 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstru
   public Map<Double, MulticurveSensitivity> visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(swap, "Swap");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
-    Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
-    Map<Double, MulticurveSensitivity> legSensi1 = visit(swap.getFirstLeg(), multicurves);
+    final Map<Double, MulticurveSensitivity> result = new HashMap<Double, MulticurveSensitivity>();
+    final Map<Double, MulticurveSensitivity> legSensi1 = swap.getFirstLeg().accept(this, multicurves);
     result.putAll(legSensi1);
-    Map<Double, MulticurveSensitivity> legSensi2 = visit(swap.getSecondLeg(), multicurves);
+    final Map<Double, MulticurveSensitivity> legSensi2 = swap.getSecondLeg().accept(this, multicurves);
     result.putAll(legSensi2);
     // It is suppose that the two legs have different cfe sensitivity date.
     return result;

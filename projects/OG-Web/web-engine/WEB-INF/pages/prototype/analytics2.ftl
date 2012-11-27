@@ -4,15 +4,15 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
 <div class="OG-layout-analytics-container">
-  <div class="ui-layout-north"></div>
+  <div class="ui-layout-north">
+      <#include "modules/common/og.common.masthead.ftl">
+      <div class="og-form"></div>
+  </div>
   <div class="ui-layout-center">
-    <div class="OG-layout-analytics-center">main grid</div>
+    <div class="OG-layout-analytics-center"></div>
     <div class="OG-layout-analytics-south">
       <#include "modules/common/og.common.gadget_container.ftl">
     </div>
-  </div>
-  <div class="ui-layout-south OG-analytics-footer">
-    <a href="/"><div class="OG-logo-light-small"><small>Analytics</small></div></a>
   </div>
   <div class="ui-layout-east">
       <div class="OG-layout-analytics-dock-north"><#include "modules/common/og.common.gadget_container.ftl"></div>

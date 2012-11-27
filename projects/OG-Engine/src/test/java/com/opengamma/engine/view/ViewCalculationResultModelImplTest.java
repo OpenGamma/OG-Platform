@@ -20,12 +20,15 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.MutableExecutionLog;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.log.LogLevel;
+import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -36,7 +39,7 @@ public class ViewCalculationResultModelImplTest {
 
   public static final Position POSITION = new SimplePosition(UniqueId.of("PositionIdentifier", "testPosition"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   public static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
-  public static final ComputedValue COMPUTED_VALUE = new ComputedValue(new ValueSpecification(new ValueRequirement("DATA", SPEC), "mockFunctionId"), "12345");
+  public static final ComputedValueResult COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification(new ValueRequirement("DATA", SPEC), "mockFunctionId"), "12345", MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL));
   public static final SimplePortfolio PORTFOLIO;
   public static final SimplePortfolioNode PORTFOLIO_ROOT_NODE;
 
@@ -54,15 +57,15 @@ public class ViewCalculationResultModelImplTest {
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNull(calcResult);
 
-    resultModel.addValue("Default", COMPUTED_VALUE);
-    resultModel.addValue("Default", COMPUTED_VALUE);
+    resultModel.addValue("Default", COMPUTED_VALUE_RESULT);
+    resultModel.addValue("Default", COMPUTED_VALUE_RESULT);
 
     calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNotNull(calcResult);
-    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResult.getValues(SPEC);
+    Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResult.getValues(SPEC);
     assertEquals(1, targetResults.size());
     assertEquals("DATA", targetResults.keySet().iterator().next().getFirst());
-    assertEquals(COMPUTED_VALUE, targetResults.values().iterator().next());
+    assertEquals(COMPUTED_VALUE_RESULT, targetResults.values().iterator().next());
     assertEquals(Sets.newHashSet(SPEC), Sets.newHashSet(calcResult.getAllTargets()));
 
     assertNull(calcResult.getValues(new ComputationTargetSpecification("nonexistent")));

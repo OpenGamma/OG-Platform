@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
+import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -166,11 +169,11 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putCurrency, putCurveCalculationConfigName);
-    final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfigName);
+    final ValueRequirement putFundingCurve = getCurveRequirement(putCurrency, putCurveName, putCurveCalculationConfigName);
+    final ValueRequirement callFundingCurve = getCurveRequirement(callCurrency, callCurveName, callCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
-      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
+      s_logger.info("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
       return null;
     }
     if (currency.equals(putCurrency.getCode())) {

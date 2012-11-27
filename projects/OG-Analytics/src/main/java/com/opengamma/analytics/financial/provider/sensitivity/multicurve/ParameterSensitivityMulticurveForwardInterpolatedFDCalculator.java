@@ -47,7 +47,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityMulticurveForwardInterpolatedFDCalculator(InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
+  public ParameterSensitivityMulticurveForwardInterpolatedFDCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
     _shift = shift;
@@ -62,85 +62,85 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final MulticurveProviderForward market) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
-    final MultipleCurrencyAmount pvInit = _valueCalculator.visit(instrument, market);
+    final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, market);
     final MultipleCurrencyAmount pvInitMinus = pvInit.multipliedBy(-1.0);
-    int nbCcy = pvInit.size();
-    List<Currency> ccyList = new ArrayList<Currency>();
+    final int nbCcy = pvInit.size();
+    final List<Currency> ccyList = new ArrayList<Currency>();
     for (int loopccy = 0; loopccy < nbCcy; loopccy++) {
       ccyList.add(pvInit.getCurrencyAmounts()[loopccy].getCurrency());
     }
     // Discounting
-    Set<Currency> ccyDiscounting = market.getCurrencies();
-    for (Currency ccy : ccyDiscounting) {
-      YieldAndDiscountCurve curve = market.getCurve(ccy);
+    final Set<Currency> ccyDiscounting = market.getCurrencies();
+    for (final Currency ccy : ccyDiscounting) {
+      final YieldAndDiscountCurve curve = market.getCurve(ccy);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
-        YieldAndDiscountCurve dscBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        MulticurveProviderForward marketDscBumped = market.withDiscountFactor(ccy, dscBumped);
-        MultipleCurrencyAmount pvBumped = _valueCalculator.visit(instrument, marketDscBumped);
-        MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
+        final YieldAndDiscountCurve dscBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
+        final MulticurveProviderForward marketDscBumped = market.withDiscountFactor(ccy, dscBumped);
+        final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, marketDscBumped);
+        final MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / _shift;
         }
       }
-      String name = market.getName(ccy);
+      final String name = market.getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
-    Set<IndexON> indexON = market.getIndexesON();
-    for (IndexON index : indexON) {
-      YieldAndDiscountCurve curve = market.getCurve(index);
+    final Set<IndexON> indexON = market.getIndexesON();
+    for (final IndexON index : indexON) {
+      final YieldAndDiscountCurve curve = market.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
-        YieldAndDiscountCurve fwdBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        MulticurveProviderForward marketFwdBumped = market.withForward(index, fwdBumped);
-        MultipleCurrencyAmount pvBumped = _valueCalculator.visit(instrument, marketFwdBumped);
-        MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
+        final YieldAndDiscountCurve fwdBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
+        final MulticurveProviderForward marketFwdBumped = market.withForward(index, fwdBumped);
+        final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, marketFwdBumped);
+        final MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / _shift;
         }
       }
-      String name = market.getName(index);
+      final String name = market.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
-    Set<IborIndex> indexForward = market.getIndexesIbor();
-    for (IborIndex index : indexForward) {
-      DoublesCurve curve = market.getCurve(index);
+    final Set<IborIndex> indexForward = market.getIndexesIbor();
+    for (final IborIndex index : indexForward) {
+      final DoublesCurve curve = market.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof InterpolatedDoublesCurve, "Forward curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curve;
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[][] sensitivity = new double[nbCcy][nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curve;
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
-        DoublesCurve fwdBumped = new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true);
-        MulticurveProviderForward marketFwdBumped = market.withForward(index, fwdBumped);
-        MultipleCurrencyAmount pvBumped = _valueCalculator.visit(instrument, marketFwdBumped);
-        MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
+        final DoublesCurve fwdBumped = new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true);
+        final MulticurveProviderForward marketFwdBumped = market.withForward(index, fwdBumped);
+        final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, marketFwdBumped);
+        final MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
           sensitivity[loopccypv][loopnode] = pvDiff.getAmount(ccyList.get(loopccypv)) / _shift;
         }
       }
-      String name = market.getName(index);
+      final String name = market.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
         result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }

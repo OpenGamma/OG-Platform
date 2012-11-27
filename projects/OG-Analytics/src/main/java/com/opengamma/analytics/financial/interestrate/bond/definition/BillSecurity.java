@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -69,7 +70,7 @@ public class BillSecurity implements InstrumentDerivative {
    * @param creditCurveName The name of the curve used for the bill cash flows (issuer credit).
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
    */
-  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, double notional, final YieldConvention yieldConvention, final double accrualFactor,
+  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention, final double accrualFactor,
       final String issuer, final String creditCurveName, final String discountingCurveName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(yieldConvention, "Yield convention");
@@ -176,12 +177,14 @@ public class BillSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBillSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBillSecurity(this);
   }
 
@@ -207,7 +210,7 @@ public class BillSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -217,7 +220,7 @@ public class BillSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BillSecurity other = (BillSecurity) obj;
+    final BillSecurity other = (BillSecurity) obj;
     if (Double.doubleToLongBits(_accrualFactor) != Double.doubleToLongBits(other._accrualFactor)) {
       return false;
     }

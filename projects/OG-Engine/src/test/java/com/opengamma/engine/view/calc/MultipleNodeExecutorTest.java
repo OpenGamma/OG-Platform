@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
@@ -14,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,6 +36,8 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -154,8 +160,11 @@ public class MultipleNodeExecutorTest {
     };
   }
 
+  @SuppressWarnings("unchecked")
   private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
-    final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE, logModeSource);
     return (RootGraphFragmentFuture) future;
   }
 

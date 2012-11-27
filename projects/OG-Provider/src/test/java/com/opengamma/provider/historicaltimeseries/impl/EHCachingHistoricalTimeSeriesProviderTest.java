@@ -15,6 +15,7 @@ import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -32,9 +33,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test(groups="unit")
 public class EHCachingHistoricalTimeSeriesProviderTest {
 
-  private HistoricalTimeSeriesProvider _underlyingProvider;
-  private EHCachingHistoricalTimeSeriesProvider _cachingProvider;
-
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
   private static final LocalDateDoubleTimeSeries BIG_HTS;
   private static final LocalDateDoubleTimeSeries SMALL_HTS;
@@ -48,12 +46,20 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
     SMALL_HTS = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
   }
 
+  private HistoricalTimeSeriesProvider _underlyingProvider;
+  private EHCachingHistoricalTimeSeriesProvider _cachingProvider;
+  private CacheManager _cacheManager;
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    _cacheManager = new CacheManager();
     _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.clearAll();
-    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, cm);
+    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------

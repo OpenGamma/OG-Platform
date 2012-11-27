@@ -6,20 +6,80 @@
 */
 
 .OG-masthead {
-  top: 5px;
-  position: absolute!important;
-  height: 3em;
+    background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2MUFxf/b2BkzAADjO6eXv8vnDvLABMEC4BkYYJwAZggAPOTD9RNbjElAAAAAElFTkSuQmCC);
+    border-top: 1px solid #555;
+    color: #ededed;
+    height: 22px;
+    line-height: 23px;
+    position: relative;
+}
+
+.OG-masthead li {
+  display: inline-block;
 }
 
 .OG-masthead a {
-    text-shadow: 0 1px 0 #fff;
-}
-
-.OG-masthead a.og-active {
-    text-shadow: inherit;
+    border: none;
+    color: #ededed;
+    margin: 0 10px;
 }
 
 .OG-masthead a:hover {
-  text-shadow: inherit;
-  color: #fff;
+    color: #909293;
+}
+
+.OG-masthead .OG-logo-light-small {
+    display: inline-block;
+    left: 0;
+    position: relative;
+    top: 0;
+    width: 19px;
+}
+
+.OG-masthead .OG-logo-light-small:before {
+    left: 3px;
+    top: -11px;
+    width: 14px;
+}
+
+.OG-masthead .og-analytics-beta {
+    color: #e8d71c;
+}
+
+.OG-masthead .og-home {
+    cursor: default;
+    margin-left: 0;
+}
+
+.OG-masthead .og-home:hover {
+    color: inherit;
+}
+
+.OG-masthead .og-active {
+    -webkit-border-top-left-radius: 2px;
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topleft: 2px;
+    -moz-border-radius-topright: 2px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    background: #fff;
+    color: #555;
+    padding: 3px;
+    border-bottom: 1px solid #fff;
+}
+
+.OG-masthead .og-icon-divider {
+    position: relative;
+    margin: 0 10px;
+    top: -2px;
+    cursor: default;
+}
+
+.OG-masthead .OG-icon.og-icon-divider:after {
+    position: relative;
+}
+
+.OG-masthead .OG-icon.og-icon-speech:after {
+    position: relative;
+    left: -4px;
 }

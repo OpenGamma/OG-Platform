@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
+import static com.opengamma.financial.analytics.model.YieldCurveFunctionUtils.getCurveRequirement;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -87,16 +91,6 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
-      return null;
-    }
-    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-    if (currencies == null || currencies.size() != 1) {
-      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
-      return null;
-    }
     final Set<String> putCurveNames = constraints.getValues(PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
@@ -129,6 +123,16 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
+    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
+    if (curveNames == null || curveNames.size() != 1) {
+      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
+      return null;
+    }
+    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (currencies == null || currencies.size() != 1) {
+      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
+      return null;
+    }
     final String putCurveName = putCurveNames.iterator().next();
     final String callCurveName = callCurveNames.iterator().next();
     final String putCurveCalculationConfigName = putCurveConfigNames.iterator().next();
@@ -142,8 +146,8 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putCurrency, putCurveCalculationConfigName);
-    final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfigName);
+    final ValueRequirement putFundingCurve = getCurveRequirement(putCurrency, putCurveName, putCurveCalculationConfigName);
+    final ValueRequirement callFundingCurve = getCurveRequirement(callCurrency, callCurveName, callCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
       s_logger.info("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName});
@@ -172,10 +176,10 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     }
     requirements.add(getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName));
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, resultCurveName, target));
     requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
     return requirements;
   }
 

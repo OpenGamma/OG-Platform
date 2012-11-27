@@ -205,10 +205,25 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
-        ExternalId preferredId = identifiers.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
-        if (preferredId == null) {
+        Set<ExternalId> preferredIds = identifiers.getExternalIds(ExternalSchemes.BLOOMBERG_TICKER);
+        ExternalId preferredId = null;
+        if (preferredIds == null || preferredIds.size() == 0) {
           preferredId = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
+        } else if (preferredIds.size() == 1) {
+          preferredId = preferredIds.iterator().next();
+        } else { // multiple matches, find the shortest code and use that.
+          int minLength = Integer.MAX_VALUE;
+          for (ExternalId id : preferredIds) {
+            if (id.getValue().length() <= minLength) {
+              preferredId = id;
+              minLength = id.getValue().length();
+            }
+          }
         }
+        if (preferredId == null) {
+          throw new OpenGammaRuntimeException("Couldn't establish preferred identifier, this should not happen and indicates a code logic error");
+        }
+        
         s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);

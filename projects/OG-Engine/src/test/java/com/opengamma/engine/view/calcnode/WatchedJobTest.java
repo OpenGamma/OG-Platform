@@ -29,6 +29,7 @@ import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.JobIdSource;
 import com.opengamma.engine.view.calcnode.StandardJob.WholeWatchedJob;
@@ -46,11 +47,11 @@ public class WatchedJobTest {
   private final ValueSpecification VS_B = new ValueSpecification("B", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "B").get());
   private final ValueSpecification VS_C = new ValueSpecification("C", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "C").get());
   private final ValueSpecification VS_D = new ValueSpecification("D", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "D").get());
-  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), TARGET, Collections.<ValueSpecification>emptySet(), Arrays.asList(VS_A));
-  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_B));
-  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B), Arrays.asList(VS_C));
-  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_C));
-  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D));
+  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), TARGET, Collections.<ValueSpecification>emptySet(), Arrays.asList(VS_A), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_B), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B), Arrays.asList(VS_C), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_C), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D), ExecutionLogMode.INDICATORS);
 
   private static CalculationJobSpecification createJobSpecification() {
     return new CalculationJobSpecification(UniqueId.of("Cycle", "1"), "Default", Instant.now(), JobIdSource.getId());

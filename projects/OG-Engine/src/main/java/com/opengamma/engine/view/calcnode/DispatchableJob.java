@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.util.async.Cancelable;
 
 /**
@@ -218,7 +219,10 @@ import com.opengamma.util.async.Cancelable;
       } else {
         s_logger.error("Aborted job {} with {}", this, exception);
       }
-      fail(getJob(), CalculationJobResultItem.failure(exception));
+      // REVIEW jonathan 2012-11-01 -- where's the 'real' execution log here?
+      MutableExecutionLog executionLog = new MutableExecutionLog(ExecutionLogMode.INDICATORS);
+      executionLog.setException(exception);
+      fail(getJob(), CalculationJobResultItemBuilder.of(executionLog).toResultItem());
     } else {
       s_logger.warn("Job {} aborted but we've already completed or aborted from another node", this);
     }

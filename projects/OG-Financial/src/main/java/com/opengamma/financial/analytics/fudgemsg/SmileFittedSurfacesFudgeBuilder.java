@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fudgemsg;
@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 
 /* package */final class SmileFittedSurfacesBuilder {
@@ -152,7 +152,6 @@ import com.opengamma.util.tuple.Pair;
     /** Field name */
     public static final String RELATIVE_STRIKES_ARRAY_FIELD_NAME = "Relative strikes";
 
-    @SuppressWarnings("unchecked")
     @Override
     public FittedSmileDataPoints buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final List<FudgeField> tenorPairFields = message.getAllByName(TENOR_PAIR_FIELD_NAME);
@@ -197,7 +196,6 @@ import com.opengamma.util.tuple.Pair;
       final Map<Double, List<Double>> map = new HashMap<Double, List<Double>>();
       for (int i = 0; i < tFields.size(); i++) {
         final Double t = deserializer.fieldValueToObject(Double.class, tFields.get(i));
-        @SuppressWarnings("unchecked")
         final List<Double> ks = deserializer.fieldValueToObject(List.class, kFields.get(i));
         map.put(t, ks);
       }

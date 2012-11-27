@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -14,9 +13,8 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 /**
  * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
- * @author marc
  */
-public final class PresentValueBasisPointDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, Double> {
+public final class PresentValueBasisPointDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -41,11 +39,6 @@ public final class PresentValueBasisPointDiscountingCalculator extends AbstractI
    * The methods and calculators.
    */
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurve) {
-    return derivative.accept(this, multicurve);
-  }
 
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {

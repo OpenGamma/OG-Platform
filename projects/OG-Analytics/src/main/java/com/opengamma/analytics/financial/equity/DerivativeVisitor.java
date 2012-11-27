@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.equity;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
  * 
@@ -36,13 +36,4 @@ public interface DerivativeVisitor<S, T> {
   T visitEquityIndexOption(EquityIndexOption equityIndexOption, S data);
 
   T visitEquityIndexOption(EquityIndexOption equityIndexOption);
-
-  /*
-   * TODO:  
-   *  a) Include here the initial list of equity derivatives that we wish to handle
-   *  b) Build the functionality for them
-   *  T visitEquitySingleStockDividendFuture(EquitySingleStockDividendFuture equitySingleStockDividendFuture, S data);
-   *  (DONE) T visitVarianceSwap(VarianceSwap derivative, S data);
-   */
-
 }

@@ -85,7 +85,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final SwaptionCashFixedIbor SWAPTION_LONG_PAYER = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_DEFINITION_LONG_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_DEFINITION_SHORT_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -110,10 +110,10 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     final double priceShortPayer = method.presentValue(SWAPTION_SHORT_PAYER, sabrBundle);
     final double priceLongReceiver = method.presentValue(SWAPTION_LONG_RECEIVER, sabrBundle);
     final double priceShortReceiver = method.presentValue(SWAPTION_SHORT_RECEIVER, sabrBundle);
-    final double priceLongPayerNoExtra = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    final double priceShortPayerNoExtra = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    final double priceLongReceiverNoExtra = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    final double priceShortReceiverNoExtra = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    final double priceLongPayerNoExtra = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
+    final double priceShortPayerNoExtra = SWAPTION_SHORT_PAYER.accept(PVC, sabrBundle);
+    final double priceLongReceiverNoExtra = SWAPTION_LONG_RECEIVER.accept(PVC, sabrBundle);
+    final double priceShortReceiverNoExtra = SWAPTION_SHORT_RECEIVER.accept(PVC, sabrBundle);
     assertEquals("Swaption cash SABR extrapolation: below cut-off strike", priceLongPayerNoExtra, priceLongPayer, 1E-2);
     assertEquals("Swaption cash SABR extrapolation: below cut-off strike", priceShortPayerNoExtra, priceShortPayer, 1E-2);
     assertEquals("Swaption cash SABR extrapolation: below cut-off strike", priceLongReceiverNoExtra, priceLongReceiver, 1E-2);
@@ -179,7 +179,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     final double pv = methodExtra.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final SwaptionCashFixedIbor swaptionBumpedForward = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -215,7 +215,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
       assertEquals("Sensitivity to forward curve: Node " + i, resFwd[i], pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
     final SwaptionCashFixedIbor swaptionBumpedFunding = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = swaptionDefinitionLongPayerHighStrike.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);

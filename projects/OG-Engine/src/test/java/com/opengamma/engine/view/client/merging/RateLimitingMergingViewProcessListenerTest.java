@@ -19,9 +19,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.TestViewResultListener;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -148,14 +149,14 @@ public class RateLimitingMergingViewProcessListenerTest {
   
   private ViewDeltaResultModel getDeltaResult(int value) {
     InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
-    deltaResult.addValue("DEFAULT", getComputedValue("value" + value, value));
+    deltaResult.addValue("DEFAULT", getComputedValueResult("value" + value, value));
     return deltaResult;
   }
   
-  private ComputedValue getComputedValue(String valueName, Object value) {
+  private ComputedValueResult getComputedValueResult(String valueName, Object value) {
     UniqueId uniqueId = UniqueId.of("Scheme", valueName);
     ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
-    return new ComputedValue(new ValueSpecification(valueRequirement, "FunctionId"), value);
+    return new ComputedValueResult(new ValueSpecification(valueRequirement, "FunctionId"), value, ExecutionLog.EMPTY);
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingViewProcessListener mergingListener, TestViewResultListener testListener, int period) throws InterruptedException {

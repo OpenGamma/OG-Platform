@@ -60,9 +60,9 @@ public class CouponIborCompoundedDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
   private static final CouponIborCompounded CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES);
 
-  private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012};
+  private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012 };
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 23), DateUtils.getUTCDate(2012, 8, 24),
-      DateUtils.getUTCDate(2012, 9, 20)}, FIXING_RATES);
+      DateUtils.getUTCDate(2012, 9, 20) }, FIXING_RATES);
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2012, 8, 28);
   private static final CouponIborCompounded CPN_1 = (CouponIborCompounded) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS, CURVES_NAMES);
 
@@ -75,36 +75,36 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   @Test
   public void presentValueBeforeFirstFixing() {
-    CurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, CURVES_BUNDLE);
+    final CurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, CURVES_BUNDLE);
     double notionalAccrued = CPN_BEFORE.getNotional();
-    int nbSub = CPN_BEFORE.getFixingTimes().length;
+    final int nbSub = CPN_BEFORE.getFixingTimes().length;
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
       notionalAccrued *= CURVES_BUNDLE.getCurve(CURVES_NAMES[1]).getDiscountFactor(CPN_BEFORE.getFixingPeriodStartTimes()[loopsub])
           / CURVES_BUNDLE.getCurve(CURVES_NAMES[1]).getDiscountFactor(CPN_BEFORE.getFixingPeriodEndTimes()[loopsub]);
     }
-    double dfPayment = CURVES_BUNDLE.getCurve(CURVES_NAMES[0]).getDiscountFactor(CPN_BEFORE.getPaymentTime());
-    double pvExpected = (notionalAccrued - NOTIONAL) * dfPayment;
+    final double dfPayment = CURVES_BUNDLE.getCurve(CURVES_NAMES[0]).getDiscountFactor(CPN_BEFORE.getPaymentTime());
+    final double pvExpected = (notionalAccrued - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, CURVES_BUNDLE);
-    MultipleCurrencyAmount pvCalculatorMCA = PVC_MCA.visit(CPN_BEFORE, CURVES_BUNDLE);
+    final CurrencyAmount pvMethod = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, CURVES_BUNDLE);
+    final MultipleCurrencyAmount pvCalculatorMCA = CPN_BEFORE.accept(PVC_MCA, CURVES_BUNDLE);
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvMethod.getAmount(), pvCalculatorMCA.getAmount(CDOR3M.getCurrency()), TOLERANCE_PV);
-    Double pvCalculator = PVC.visit(CPN_BEFORE, CURVES_BUNDLE);
+    final Double pvCalculator = CPN_BEFORE.accept(PVC, CURVES_BUNDLE);
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PV);
 
   }
 
   @Test
   public void presentValueAfter1Fixing() {
-    CurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, CURVES_BUNDLE);
+    final CurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, CURVES_BUNDLE);
     double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * FIXING_RATES[1]) * NOTIONAL;
     accruedNotional *= CURVES_BUNDLE.getCurve(CURVES_NAMES[1]).getDiscountFactor(CPN_1.getFixingPeriodStartTimes()[0])
         / CURVES_BUNDLE.getCurve(CURVES_NAMES[1]).getDiscountFactor(CPN_1.getFixingPeriodEndTimes()[0]);
-    double dfPayment = CURVES_BUNDLE.getCurve(CURVES_NAMES[0]).getDiscountFactor(CPN_1.getPaymentTime());
-    double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
+    final double dfPayment = CURVES_BUNDLE.getCurve(CURVES_NAMES[0]).getDiscountFactor(CPN_1.getPaymentTime());
+    final double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
@@ -121,13 +121,13 @@ public class CouponIborCompoundedDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    CouponIborCompounded cpnBumped = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES[0], bumpedCurveName);
-    final double[] nodeTimesDsc = new double[] {cpnBumped.getPaymentTime()};
+    final CouponIborCompounded cpnBumped = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES[0], bumpedCurveName);
+    final double[] nodeTimesDsc = new double[] {cpnBumped.getPaymentTime() };
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(CPN_BEFORE, PVC, CURVES_BUNDLE, CURVES_NAMES[0], nodeTimesDsc, deltaShift);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(CURVES_NAMES[0]);
     assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SENSI_2));
-    Set<Double> nodeTimesFwdSet = new TreeSet<Double>();
-    int nbSub = CPN_BEFORE.getFixingTimes().length;
+    final Set<Double> nodeTimesFwdSet = new TreeSet<Double>();
+    final int nbSub = CPN_BEFORE.getFixingTimes().length;
     nodeTimesFwdSet.add(CPN_BEFORE.getFixingPeriodStartTimes()[0]);
     for (int loopsub = 1; loopsub < nbSub; loopsub++) {
       nodeTimesFwdSet.add(CPN_BEFORE.getFixingPeriodEndTimes()[loopsub - 1]);
@@ -142,8 +142,8 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, CURVES_BUNDLE);
-    InterestRateCurveSensitivity pvcsCalculator = PVCSC.visit(CPN_BEFORE, CURVES_BUNDLE);
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, CURVES_BUNDLE);
+    final InterestRateCurveSensitivity pvcsCalculator = PVCSC.visit(CPN_BEFORE, CURVES_BUNDLE);
     AssertSensivityObjects.assertEquals("CouponIborCompoundedDiscounting: Present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_SENSI);
   }
 

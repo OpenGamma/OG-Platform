@@ -15,10 +15,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -40,33 +41,33 @@ public class ViewResultModelMergerTest {
     assertNull(merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult1 = new InMemoryViewDeltaResultModel();
-    deltaResult1.addValue(CONFIG_1, getComputedValue("value1", 1));
-    deltaResult1.addValue(CONFIG_1, getComputedValue("value2", 2));
+    deltaResult1.addValue(CONFIG_1, getComputedValueResult("value1", 1));
+    deltaResult1.addValue(CONFIG_1, getComputedValueResult("value2", 2));
     merger.merge(deltaResult1);
     assertResultsEqual(deltaResult1, merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult2 = new InMemoryViewDeltaResultModel();
-    deltaResult2.addValue(CONFIG_1, getComputedValue("value1", 3));
+    deltaResult2.addValue(CONFIG_1, getComputedValueResult("value1", 3));
     
     merger.merge(deltaResult1);
     merger.merge(deltaResult2);
     
     InMemoryViewDeltaResultModel expectedMergedResult = new InMemoryViewDeltaResultModel();
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 3));
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value1", 3));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value2", 2));
     
     assertResultsEqual(expectedMergedResult, merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult3 = new InMemoryViewDeltaResultModel();
-    deltaResult3.addValue(CONFIG_2, getComputedValue("value3", 4));    
+    deltaResult3.addValue(CONFIG_2, getComputedValueResult("value3", 4));    
     
     merger.merge(deltaResult1);
     merger.merge(deltaResult3);
     
     expectedMergedResult = new InMemoryViewDeltaResultModel();
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 1));
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
-    expectedMergedResult.addValue(CONFIG_2, getComputedValue("value3", 4));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value1", 1));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value2", 2));
+    expectedMergedResult.addValue(CONFIG_2, getComputedValueResult("value3", 4));
     
     assertResultsEqual(expectedMergedResult, merger.getLatestResult());
   }
@@ -82,7 +83,7 @@ public class ViewResultModelMergerTest {
     deltaResult = new InMemoryViewDeltaResultModel();
     // Tests coping with expanding calculation configurations (e.g. if a new one has been added between computation
     // cycles)
-    deltaResult.addValue(CONFIG_1, getComputedValue("value1", 1));
+    deltaResult.addValue(CONFIG_1, getComputedValueResult("value1", 1));
     merger.merge(deltaResult);
   }
   
@@ -99,46 +100,46 @@ public class ViewResultModelMergerTest {
     assertNull(merger.getLatestResult());
     
     InMemoryViewComputationResultModel result1 = new InMemoryViewComputationResultModel();
-    result1.addValue(CONFIG_1, getComputedValue("value1", 1));
-    result1.addValue(CONFIG_1, getComputedValue("value2", 2));
-    result1.addMarketData(getComputedValue("vod", 250));
+    result1.addValue(CONFIG_1, getComputedValueResult("value1", 1));
+    result1.addValue(CONFIG_1, getComputedValueResult("value2", 2));
+    result1.addMarketData(getComputedValueResult("vod", 250));
     merger.merge(result1);
     assertResultsEqual(result1, merger.getLatestResult());
     
     InMemoryViewComputationResultModel result2 = new InMemoryViewComputationResultModel();
-    result2.addValue(CONFIG_1, getComputedValue("value1", 3));
-    result2.addMarketData(getComputedValue("aapl", 400));
+    result2.addValue(CONFIG_1, getComputedValueResult("value1", 3));
+    result2.addMarketData(getComputedValueResult("aapl", 400));
     merger.merge(result2);
     
     InMemoryViewComputationResultModel expectedMergedResult = new InMemoryViewComputationResultModel();
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 3));
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
-    expectedMergedResult.addMarketData(getComputedValue("vod", 250));
-    expectedMergedResult.addMarketData(getComputedValue("aapl", 400));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value1", 3));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value2", 2));
+    expectedMergedResult.addMarketData(getComputedValueResult("vod", 250));
+    expectedMergedResult.addMarketData(getComputedValueResult("aapl", 400));
     
     assertResultsEqual(expectedMergedResult, merger.getLatestResult());
     
     InMemoryViewComputationResultModel result3 = new InMemoryViewComputationResultModel();
-    result3.addValue(CONFIG_2, getComputedValue("value3", 4));
-    result3.addMarketData(getComputedValue("vod", 300));
+    result3.addValue(CONFIG_2, getComputedValueResult("value3", 4));
+    result3.addMarketData(getComputedValueResult("vod", 300));
     
     merger.merge(result1);
     merger.merge(result3);
     
     expectedMergedResult = new InMemoryViewComputationResultModel();
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 1));
-    expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
-    expectedMergedResult.addValue(CONFIG_2, getComputedValue("value3", 4));
-    result3.addMarketData(getComputedValue("vod", 300));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value1", 1));
+    expectedMergedResult.addValue(CONFIG_1, getComputedValueResult("value2", 2));
+    expectedMergedResult.addValue(CONFIG_2, getComputedValueResult("value3", 4));
+    result3.addMarketData(getComputedValueResult("vod", 300));
     
     assertResultsEqual(expectedMergedResult, merger.getLatestResult());
   }
   
   //-------------------------------------------------------------------------
-  private ComputedValue getComputedValue(String valueName, Object value) {
+  private ComputedValueResult getComputedValueResult(String valueName, Object value) {
     UniqueId uniqueId = UniqueId.of("Scheme", valueName);
     ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
-    return new ComputedValue(new ValueSpecification(valueRequirement, "FunctionId"), value);
+    return new ComputedValueResult(new ValueSpecification(valueRequirement, "FunctionId"), value, ExecutionLog.EMPTY);
   }
   
   private void assertResultsEqual(ViewResultModel expected, ViewResultModel actual) {
@@ -149,8 +150,8 @@ public class ViewResultModelMergerTest {
       ViewCalculationResultModel expectedCalcResult = expected.getCalculationResult(calcConfigName);
       ViewCalculationResultModel actualCalcResult = actual.getCalculationResult(calcConfigName);
       for (ComputationTargetSpecification targetSpec : expected.getAllTargets()) {
-        Map<Pair<String, ValueProperties>, ComputedValue> expectedTargetValues = expectedCalcResult.getValues(targetSpec);
-        Map<Pair<String, ValueProperties>, ComputedValue> actualTargetValues = actualCalcResult.getValues(targetSpec);
+        Map<Pair<String, ValueProperties>, ComputedValueResult> expectedTargetValues = expectedCalcResult.getValues(targetSpec);
+        Map<Pair<String, ValueProperties>, ComputedValueResult> actualTargetValues = actualCalcResult.getValues(targetSpec);
         assertEquals(expectedTargetValues, actualTargetValues);
       }
     }

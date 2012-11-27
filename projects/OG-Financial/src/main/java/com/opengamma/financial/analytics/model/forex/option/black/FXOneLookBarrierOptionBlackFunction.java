@@ -57,7 +57,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   /**
    * @param valueRequirementName The desired output
    */
-  public FXOneLookBarrierOptionBlackFunction(String valueRequirementName) {
+  public FXOneLookBarrierOptionBlackFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
@@ -98,7 +98,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
 
     // 3. Build up the market data bundle
-    final ForexOptionDataBundle<?> market = buildMarketBundle(now, inputs, target, desiredValues);
+    final ForexOptionDataBundle<?> market = FXOptionFunctionUtils.buildMarketBundle(now, inputs, target, desiredValues);
 
     // TODO Confirm whether we need to support both types of dataBundles: SmileDeltaTermStructureParametersStrikeInterpolation AND BlackForexTermStructureParameters
 
@@ -131,19 +131,19 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   }
 
   @Override
-  protected Builder getResultProperties(ComputationTarget target) {
-    Builder properties = super.getResultProperties(target);
+  protected Builder getResultProperties(final ComputationTarget target) {
+    final Builder properties = super.getResultProperties(target);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
-    Builder properties = super.getResultProperties(target, baseQuotePair);
+    final Builder properties = super.getResultProperties(target, baseQuotePair);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
@@ -152,6 +152,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     return properties.with(ValuePropertyNames.BINARY_OVERHEDGE, binaryOverhead)
                      .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
   }
+
   /**
    * This method is defined by extending Functions
    * @param vanillas Set of ForexOptionVanilla that European Barrier is composed of. Binaries are modelled as spreads
@@ -181,8 +182,9 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     }
     return commonReqs;
   }
+
   // TODO: Consider whether to interpret overhedge so that a positive value always reduces the price, i.e. incorporate isLong
-  private Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
+  private static Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
       final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
     final HashSet<ForexOptionVanilla> vanillas = new HashSet<ForexOptionVanilla>();
@@ -281,9 +283,9 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     // The relative size of the payments implicitly defines the option's strike. So we will build a number of ForexDefinition's below
     final PaymentFixedDefinition quoteCcyPayment = new PaymentFixedDefinition(quoteCcy, settlement, -1 * quoteAmt);
     final PaymentFixedDefinition baseCcyPayment = new PaymentFixedDefinition(baseCcy, settlement, baseAmt);
-    ForexDefinition fxFwd = new ForexDefinition(baseCcyPayment, quoteCcyPayment); // This is what defines the strike, K = quoteAmt / baseAmt
+    final ForexDefinition fxFwd = new ForexDefinition(baseCcyPayment, quoteCcyPayment); // This is what defines the strike, K = quoteAmt / baseAmt
     // We restrike an option by changing the underlying Forex, adjusting the Payments to match the formulae: k = A2/A1, N = A1.
-    ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, settlement, -1 * barrier * baseAmt));
+    final ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, settlement, -1 * barrier * baseAmt));
 
     // For the binaries, we do this by adjusting A1' = size * A1; A2' = A1' * newStrike as A1 is the Notional in this interpretation
     final double baseAmtForSpread = size * baseAmt;
@@ -327,8 +329,8 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative forex, ForexOptionDataBundle<?> data, ComputationTarget target, Set<ValueRequirement> desiredValues, FunctionInputs inputs,
-      ValueSpecification spec, FunctionExecutionContext executionContext) {
-    throw new OpenGammaRuntimeException("Unexpectedly called FXVanillaBarrierOptionBlackFunction.getResult. Contact Quants.");
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
+      final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    throw new OpenGammaRuntimeException("Unexpectedly called FXVanillaBarrierOptionBlackFunction.getResult");
   }
 }

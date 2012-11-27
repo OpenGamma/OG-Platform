@@ -24,6 +24,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
 
@@ -40,8 +41,8 @@ public class DefaultFunctionBlacklistMaintainerTest {
   private final ComputationTargetSpecification _targetSpecification = _target.toSpecification();
   private final Set<ValueSpecification> _inputs = Collections.<ValueSpecification>emptySet();
   private final Set<ValueSpecification> _outputs = Collections.<ValueSpecification>emptySet();
-  private final CalculationJobItem _jobItem1 = new CalculationJobItem(_functionIdentifier1, _functionParameters, _targetSpecification, _inputs, _outputs);
-  private final CalculationJobItem _jobItem2 = new CalculationJobItem(_functionIdentifier2, _functionParameters, _targetSpecification, _inputs, _outputs);
+  private final CalculationJobItem _jobItem1 = new CalculationJobItem(_functionIdentifier1, _functionParameters, _targetSpecification, _inputs, _outputs, ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem _jobItem2 = new CalculationJobItem(_functionIdentifier2, _functionParameters, _targetSpecification, _inputs, _outputs, ExecutionLogMode.INDICATORS);
 
   public void testEmptyPolicy() {
     final FunctionBlacklistPolicy policy = new EmptyFunctionBlacklistPolicy();

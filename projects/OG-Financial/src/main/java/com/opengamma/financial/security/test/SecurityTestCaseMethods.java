@@ -81,5 +81,17 @@ public interface SecurityTestCaseMethods {
   void testContinuousZeroDepositSecurity();
   
   void testCDSSecurity();
+  
+  void testStandardFixedRecoveryCDSSecurity();
+  
+  void testStandardRecoveryLockCDSSecurity();
+  
+  void testStandardVanillaCDSSecurity();
+  
+  void testLegacyFixedRecoveryCDSSecurity();
+  
+  void testLegacyRecoveryLockCDSSecurity();
+  
+  void testLegacyVanillaCDSSecurity();
 
 }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueCurveSensitivityIssuerCalculator extends AbstractInstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -56,7 +56,7 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Abstract
   public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
     try {
       return derivative.accept(this, issuercurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVCSDC, issuercurves.getMulticurveProvider());
     }
   }
@@ -78,6 +78,11 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Abstract
   @Override
   public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

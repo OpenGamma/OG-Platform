@@ -80,7 +80,7 @@ public class ForexDiscountingProviderMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_FX.presentValue(FX, PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = PVDC.visit(FX, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = FX.accept(PVDC, PROVIDER);
     assertEquals("ForexDiscountingMethod: presentValue: Method vs Calculator", pvMethod, pvCalculator);
   }
 
@@ -90,8 +90,8 @@ public class ForexDiscountingProviderMethodTest {
    */
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyMulticurveSensitivity pvcs = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvs1 = PVSCDC.visit(PAY_1, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvs2 = PVSCDC.visit(PAY_2, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvs1 = PAY_1.accept(PVSCDC, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvs2 = PAY_2.accept(PVSCDC, PROVIDER);
     AssertSensivityObjects.assertEquals("ForexDiscountingMethod: presentValueCurveSensitivity", pvs1.plus(pvs2).cleaned(), pvcs.cleaned(), TOLERANCE_PV_DELTA);
   }
 
@@ -101,7 +101,7 @@ public class ForexDiscountingProviderMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVSCDC.visit(FX, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FX.accept(PVSCDC, PROVIDER);
     AssertSensivityObjects.assertEquals("", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

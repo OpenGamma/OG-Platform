@@ -55,24 +55,24 @@ public class Obligor {
   // The country of domicile of the obligor
   private final String _country;
 
-  // ---------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Obligor constructor
 
-  public Obligor(String obligorTicker,
-      String obligorShortName,
-      String obligorREDCode,
-      CreditRating compositeRating,
-      CreditRating impliedRating,
-      CreditRatingMoodys moodysCreditRating,
-      CreditRatingStandardAndPoors standardAndPoorsCreditRating,
-      CreditRatingFitch fitchCreditRating,
-      boolean hasDefaulted,
-      Sector sector,
-      Region region,
-      String country) {
+  public Obligor(final String obligorTicker,
+      final String obligorShortName,
+      final String obligorREDCode,
+      final CreditRating compositeRating,
+      final CreditRating impliedRating,
+      final CreditRatingMoodys moodysCreditRating,
+      final CreditRatingStandardAndPoors standardAndPoorsCreditRating,
+      final CreditRatingFitch fitchCreditRating,
+      final boolean hasDefaulted,
+      final Sector sector,
+      final Region region,
+      final String country) {
 
-    // ---------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
 
@@ -98,7 +98,7 @@ public class Obligor {
     ArgumentChecker.notNull(country, "Country field");
     ArgumentChecker.isFalse(country.isEmpty(), "Country field");
 
-    // ---------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Assign the member variables for the obligor object
 
@@ -119,7 +119,7 @@ public class Obligor {
     _region = region;
     _country = country;
 
-    // ---------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -197,51 +197,68 @@ public class Obligor {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    Obligor other = (Obligor) obj;
-    if (_compositeRating != other._compositeRating)
+    }
+    final Obligor other = (Obligor) obj;
+    if (_compositeRating != other._compositeRating) {
       return false;
+    }
     if (_country == null) {
-      if (other._country != null)
+      if (other._country != null) {
         return false;
-    } else if (!_country.equals(other._country))
+      }
+    } else if (!_country.equals(other._country)) {
       return false;
-    if (_fitchCreditRating != other._fitchCreditRating)
+    }
+    if (_fitchCreditRating != other._fitchCreditRating) {
       return false;
-    if (_impliedRating != other._impliedRating)
+    }
+    if (_impliedRating != other._impliedRating) {
       return false;
-    if (_moodysCreditRating != other._moodysCreditRating)
+    }
+    if (_moodysCreditRating != other._moodysCreditRating) {
       return false;
+    }
     if (_obligorREDCode == null) {
-      if (other._obligorREDCode != null)
+      if (other._obligorREDCode != null) {
         return false;
-    } else if (!_obligorREDCode.equals(other._obligorREDCode))
+      }
+    } else if (!_obligorREDCode.equals(other._obligorREDCode)) {
       return false;
+    }
     if (_obligorShortName == null) {
-      if (other._obligorShortName != null)
+      if (other._obligorShortName != null) {
         return false;
-    } else if (!_obligorShortName.equals(other._obligorShortName))
+      }
+    } else if (!_obligorShortName.equals(other._obligorShortName)) {
       return false;
+    }
     if (_obligorTicker == null) {
-      if (other._obligorTicker != null)
+      if (other._obligorTicker != null) {
         return false;
-    } else if (!_obligorTicker.equals(other._obligorTicker))
+      }
+    } else if (!_obligorTicker.equals(other._obligorTicker)) {
       return false;
-    if (_region != other._region)
+    }
+    if (_region != other._region) {
       return false;
-    if (_sector != other._sector)
+    }
+    if (_sector != other._sector) {
       return false;
-    if (_standardAndPoorsCreditRating != other._standardAndPoorsCreditRating)
+    }
+    if (_standardAndPoorsCreditRating != other._standardAndPoorsCreditRating) {
       return false;
+    }
     return true;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
 }

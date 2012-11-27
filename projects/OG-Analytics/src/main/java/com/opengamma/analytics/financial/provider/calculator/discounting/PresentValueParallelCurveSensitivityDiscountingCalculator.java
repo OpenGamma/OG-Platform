@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -20,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the present value sensitivity to parallel curve movements.
  */
-public final class PresentValueParallelCurveSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, StringValue> {
+public final class PresentValueParallelCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, StringValue> {
   // TODO: This calculator is similar (equivalent?) to the PV01Calculator. Should they be merged?
 
   /**
@@ -47,11 +46,6 @@ public final class PresentValueParallelCurveSensitivityDiscountingCalculator ext
    */
   private static final PaymentFixedDiscountingProviderMethod METHOD_PAYMENTFIXED = PaymentFixedDiscountingProviderMethod.getInstance();
 
-  @Override
-  public StringValue visit(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurves) {
-    return instrument.accept(this, multicurves);
-  }
-
   // -----     Payment/Coupon     ------
 
   @Override
@@ -72,7 +66,7 @@ public final class PresentValueParallelCurveSensitivityDiscountingCalculator ext
     ArgumentChecker.notNull(multicurves, "multicurve");
     StringValue pvpcs = new StringValue();
     for (final Payment p : annuity.getPayments()) {
-      pvpcs = StringValue.plus(pvpcs, visit(p, multicurves));
+      pvpcs = StringValue.plus(pvpcs, p.accept(this, multicurves));
     }
     return pvpcs;
   }

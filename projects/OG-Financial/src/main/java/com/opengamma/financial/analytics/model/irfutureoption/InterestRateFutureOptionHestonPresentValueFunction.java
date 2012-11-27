@@ -16,7 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -164,7 +164,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding);
   }
 
-  private class MyDerivativeVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+  private class MyDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
     private final double _alpha = -0.5;
     private final double _tolerance = 0.001;
     private final InterestRateFutureDiscountingMethod _futurePricer = InterestRateFutureDiscountingMethod.getInstance();

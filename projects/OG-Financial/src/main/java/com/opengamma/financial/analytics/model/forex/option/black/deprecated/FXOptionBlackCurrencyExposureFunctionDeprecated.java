@@ -32,7 +32,7 @@ public class FXOptionBlackCurrencyExposureFunctionDeprecated extends FXOptionBla
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
+    final MultipleCurrencyAmount result = fxOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 }

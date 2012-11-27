@@ -148,18 +148,18 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettlePast() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_1, ISSUER_MULTICURVES);
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
-    final MultipleCurrencyAmount pvNominal = PVDC.visit(NOMINAL_TR_FIXED_1, multicurvesDecorated);
-    final MultipleCurrencyAmount pvCoupon = PVDC.visit(COUPON_TR_FIXED_1, multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_1.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_1.accept(PVDC, multicurvesDecorated);
     assertEquals("Fixed bond present value", (pvNominal.getAmount(CUR) + pvCoupon.getAmount(CUR)) * QUANTITY_FIXED, pv.getAmount(CUR));
   }
 
   @Test
   public void testPVFixedBondSettleToday() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_2, ISSUER_MULTICURVES);
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
-    final MultipleCurrencyAmount pvNominal = PVDC.visit(NOMINAL_TR_FIXED_2, multicurvesDecorated);
-    final MultipleCurrencyAmount pvCoupon = PVDC.visit(COUPON_TR_FIXED_2, multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_2.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_2.accept(PVDC, multicurvesDecorated);
     final double pvSettlement = BOND_SETTLEMENT_FIXED_2.getAmount();
     assertEquals("Fixed bond present value", (pvNominal.getAmount(CUR) + pvCoupon.getAmount(CUR)) * QUANTITY_FIXED + pvSettlement, pv.getAmount(CUR));
   }
@@ -167,20 +167,20 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettleFuture() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
-    final MultipleCurrencyAmount pvNominal = PVDC.visit(NOMINAL_TR_FIXED_3, multicurvesDecorated);
-    final MultipleCurrencyAmount pvCoupon = PVDC.visit(COUPON_TR_FIXED_3, multicurvesDecorated);
-    final MultipleCurrencyAmount pvSettlement = PVDC.visit(BOND_SETTLEMENT_FIXED_3, ISSUER_MULTICURVES.getMulticurveProvider());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_3.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_3.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvSettlement = BOND_SETTLEMENT_FIXED_3.accept(PVDC, ISSUER_MULTICURVES.getMulticurveProvider());
     assertEquals("Fixed bond present value", (pvNominal.getAmount(CUR) + pvCoupon.getAmount(CUR)) * QUANTITY_FIXED + pvSettlement.getAmount(CUR), pv.getAmount(CUR));
   }
 
   @Test
   public void testPVSFixedBond() {
     final MultipleCurrencyMulticurveSensitivity pvs = METHOD_BOND_TR.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
-    final MultipleCurrencyMulticurveSensitivity pvsNominal = PVCSDC.visit(NOMINAL_TR_FIXED_3, multicurvesDecorated);
-    final MultipleCurrencyMulticurveSensitivity pvsCoupon = PVCSDC.visit(COUPON_TR_FIXED_3, multicurvesDecorated);
-    final MultipleCurrencyMulticurveSensitivity pvsSettlement = PVCSDC.visit(BOND_SETTLEMENT_FIXED_3, ISSUER_MULTICURVES.getMulticurveProvider());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MultipleCurrencyMulticurveSensitivity pvsNominal = NOMINAL_TR_FIXED_3.accept(PVCSDC, multicurvesDecorated);
+    final MultipleCurrencyMulticurveSensitivity pvsCoupon = COUPON_TR_FIXED_3.accept(PVCSDC, multicurvesDecorated);
+    final MultipleCurrencyMulticurveSensitivity pvsSettlement = BOND_SETTLEMENT_FIXED_3.accept(PVCSDC, ISSUER_MULTICURVES.getMulticurveProvider());
     final MultipleCurrencyMulticurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("Fixed bond present value sensitivity", expectedPvs, pvs.cleaned());
   }
@@ -200,10 +200,10 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVIborBond() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FRN, ISSUER_MULTICURVES);
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
-    final MultipleCurrencyAmount pvNominal = PVDC.visit(NOMINAL_TR_1_FRN, multicurvesDecorated);
-    final MultipleCurrencyAmount pvCoupon = PVDC.visit(COUPON_TR_1_FRN, multicurvesDecorated);
-    final MultipleCurrencyAmount pvSettlement = PVDC.visit(BOND_SETTLEMENT_FRN, multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MultipleCurrencyAmount pvNominal = NOMINAL_TR_1_FRN.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCoupon = COUPON_TR_1_FRN.accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvSettlement = BOND_SETTLEMENT_FRN.accept(PVDC, multicurvesDecorated);
     assertEquals("FRN present value", (pvNominal.getAmount(CUR) + pvCoupon.getAmount(CUR)) * QUANTITY_FRN + pvSettlement.getAmount(CUR), pv.getAmount(CUR));
   }
 

@@ -48,7 +48,7 @@ public abstract class AbstractParameterSensitivitySABRSwaptionProviderCalculator
     ArgumentChecker.notNull(instrument, "null InterestRateDerivative");
     ArgumentChecker.notNull(multicurves, "null multicurve");
     ArgumentChecker.notNull(curvesSet, "null curves set");
-    MultipleCurrencyMulticurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, multicurves);
+    MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, multicurves);
     sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, multicurves, curvesSet);
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -73,6 +77,8 @@ public class ViewClientImpl implements ViewClient {
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
 
   private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<ViewResultListener>();
+  
+  private final Set<ValueSpecification> _elevatedLogSpecs = new HashSet<ValueSpecification>();
 
   /**
    * Constructs an instance.
@@ -460,6 +466,31 @@ public class ViewClientImpl implements ViewClient {
       throw new UnsupportedOperationException("Access to computation cycles is not supported from this client");
     }
     return _viewProcessor.getViewCycleManager().createReference(cycleId);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+    _clientLock.lock();
+    try {
+      checkAttached();
+      Set<ValueSpecification> affected = new HashSet<ValueSpecification>(resultSpecifications);
+      switch (minimumLogMode) {
+        case INDICATORS:
+          affected.retainAll(_elevatedLogSpecs);
+          _elevatedLogSpecs.removeAll(affected);
+          break;
+        case FULL:
+          affected.removeAll(_elevatedLogSpecs);
+          _elevatedLogSpecs.addAll(affected);
+          break;
+      }
+      if (!affected.isEmpty()) {
+        getViewProcessor().getViewProcessForClient(getUniqueId()).setMinimumLogMode(minimumLogMode, affected);
+      }
+    } finally {
+      _clientLock.unlock();
+    }
   }
 
   //-------------------------------------------------------------------------

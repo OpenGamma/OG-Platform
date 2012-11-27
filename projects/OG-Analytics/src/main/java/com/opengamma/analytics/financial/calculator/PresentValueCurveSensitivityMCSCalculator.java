@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -39,7 +39,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
-public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityMCSCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -125,7 +125,7 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
   public MultipleCurrencyInterestRateCurveSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
     MultipleCurrencyInterestRateCurveSensitivity sensi = new MultipleCurrencyInterestRateCurveSensitivity();
     for (final Payment p : annuity.getPayments()) {
-      sensi = sensi.plus(visit(p, data));
+      sensi = sensi.plus(p.accept(this, data));
     }
     return sensi;
   }
@@ -139,8 +139,8 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
 
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    final MultipleCurrencyInterestRateCurveSensitivity sensi1 = visit(swap.getFirstLeg(), curves);
-    final MultipleCurrencyInterestRateCurveSensitivity sensi2 = visit(swap.getSecondLeg(), curves);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi1 = swap.getFirstLeg().accept(this, curves);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi2 = swap.getSecondLeg().accept(this, curves);
     return sensi1.plus(sensi2);
   }
 

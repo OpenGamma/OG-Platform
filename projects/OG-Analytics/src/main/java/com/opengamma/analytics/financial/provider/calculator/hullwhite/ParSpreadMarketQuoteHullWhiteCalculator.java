@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactor
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteHullWhiteCalculator extends AbstractInstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> {
+public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -49,7 +49,7 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends AbstractInstr
   public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
     try {
       return derivative.accept(this, multicurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PSMQDC, multicurves.getMulticurveProvider());
     }
   }
@@ -65,6 +65,11 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends AbstractInstr
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_IRFUT_HW.price(future, multicurves) - future.getReferencePrice();
+  }
+
+  @Override
+  public Double visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

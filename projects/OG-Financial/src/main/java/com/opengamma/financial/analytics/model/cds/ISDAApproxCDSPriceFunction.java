@@ -37,7 +37,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
   
-  protected abstract String getHazardRateStructre();
+  protected abstract String getHazardRateStructure();
 
   protected abstract DoublesPair executeImpl(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues);
 
@@ -71,7 +71,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId());
       
@@ -81,7 +81,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId());
       
@@ -91,7 +91,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId());
       
@@ -124,7 +124,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId()),
       cleanPrice);
@@ -136,7 +136,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId()),
       dirtyPrice);
@@ -151,7 +151,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructure())
             .get()),
         getUniqueId()),
       cleanPrice);

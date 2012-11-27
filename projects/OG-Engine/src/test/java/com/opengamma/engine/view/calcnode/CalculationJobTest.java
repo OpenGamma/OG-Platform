@@ -25,6 +25,7 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
@@ -42,8 +43,9 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
-    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
-        .<ValueSpecification>emptySet()));
+    List<CalculationJobItem> items = Collections.singletonList(
+        new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec,
+            Collections.<ValueSpecification> emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS));
     CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(identifierMap, inputJob);
     CalculationJob outputJob = cycleObject(CalculationJob.class, inputJob);
@@ -71,7 +73,9 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
         .get());
     ValueSpecification inputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
         .get());
-    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(outputSpec)));
+    List<CalculationJobItem> items = Collections.singletonList(
+        new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec),
+            Sets.newHashSet(outputSpec), ExecutionLogMode.INDICATORS));
     CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(identifierMap, inputJob);
     CalculationJob outputJob = cycleObject(CalculationJob.class, inputJob);
@@ -94,9 +98,9 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final ComputationTargetSpecification target1 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "1"));
     final ComputationTargetSpecification target2 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "2"));
     CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, null, Arrays.asList(
-        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
-        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
-        new CalculationJobItem("Cow", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet())), CacheSelectHint.allShared());
+        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
+        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
+        new CalculationJobItem("Cow", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)), CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(new InMemoryIdentifierMap(), job);
     job = cycleObject(CalculationJob.class, job);
     assertNotNull(job);
@@ -111,9 +115,9 @@ public class CalculationJobTest extends AbstractFudgeBuilderTestCase {
     final ComputationTargetSpecification target1 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "1"));
     final ComputationTargetSpecification target2 = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "2"));
     CalculationJob job = new CalculationJob(jobSpec, Long.MAX_VALUE, null, Arrays.asList(
-        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
-        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet()),
-        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet())), CacheSelectHint.allShared());
+        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
+        new CalculationJobItem("Foo", new EmptyFunctionParameters(), target1, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS),
+        new CalculationJobItem("Bar", new EmptyFunctionParameters(), target2, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS)), CacheSelectHint.allShared());
     AbstractIdentifierMap.convertIdentifiers(new InMemoryIdentifierMap(), job);
     job = cycleObject(CalculationJob.class, job);
     assertNotNull(job);

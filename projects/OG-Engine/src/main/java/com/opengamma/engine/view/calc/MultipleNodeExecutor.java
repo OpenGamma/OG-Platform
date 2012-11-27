@@ -28,6 +28,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -187,14 +188,16 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   /**
    * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built it is cached for future use.
    * 
-   * @param graph the graph to execute, not null
-   * @param executionResultQueue a queue to feed intermediate job result notifications to, not null
-   * @param statistics the statistics reporter, not null
+   * @param graph  the graph to execute, not null
+   * @param executionResultQueue  a queue to feed intermediate job result notifications to, not null
+   * @param statistics  the statistics reporter, not null
+   * @param logModeSource  the execution log mode source, not null
    * @return a future that indicates complete execution of the graph
    */
-  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph,
+      final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
-    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, executionResultQueue);
+    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, executionResultQueue, logModeSource);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
@@ -210,21 +213,16 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     }
   }
 
-  /**
-   * @param graph the graph to execute, not null
-   * @param executionResultQueue the queue to report partial results to, not null
-   * @param statistics the statistics gathering object, not null
-   * @return a future that the caller can block on until the execution is complete. The future holds the graph (as passed to this method) that has been executed
-   */
   @Override
-  public Future<DependencyGraph> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<DependencyGraph> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue,
+      final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     final ExecutionPlan plan = getCache().getCachedPlan(graph, getCycle().getFunctionInitId());
     if (plan != null) {
       s_logger.info("Using cached execution plan for {}", graph);
-      return plan.run(new GraphFragmentContext(this, graph, executionResultQueue), statistics);
+      return plan.run(new GraphFragmentContext(this, graph, executionResultQueue, logModeSource), statistics);
     } else {
       s_logger.debug("Creating new execution plan for {}", graph);
-      return executeImpl(graph, executionResultQueue, statistics);
+      return executeImpl(graph, executionResultQueue, statistics, logModeSource);
     }
   }
 

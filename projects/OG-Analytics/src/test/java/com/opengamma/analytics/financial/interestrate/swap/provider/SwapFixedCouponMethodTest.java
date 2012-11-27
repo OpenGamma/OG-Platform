@@ -76,8 +76,8 @@ public class SwapFixedCouponMethodTest {
    */
   public void parRatePayerReceiver() {
     // Payer and receiver have same par rate.
-    double parRateRec = PRDC.visit(SWAP_RECEIVER, MULTICURVES);
-    double parRatePay = PRDC.visit(SWAP_PAYER, MULTICURVES);
+    final double parRateRec = SWAP_RECEIVER.accept(PRDC, MULTICURVES);
+    final double parRatePay = SWAP_PAYER.accept(PRDC, MULTICURVES);
     assertEquals("ParRateDiscountingCalculator: swap", parRateRec, parRatePay, TOLERANCE_RATE);
   }
 
@@ -86,19 +86,19 @@ public class SwapFixedCouponMethodTest {
    * Tests the par rate calculator for the swaps.
    */
   public void parRate() {
-    double ratePayer = PRDC.visit(SWAP_PAYER, MULTICURVES);
-    double rateReceiver = PRDC.visit(SWAP_RECEIVER, MULTICURVES);
+    final double ratePayer = SWAP_PAYER.accept(PRDC, MULTICURVES);
+    final double rateReceiver = SWAP_RECEIVER.accept(PRDC, MULTICURVES);
     assertEquals("Par Rate swap", ratePayer, rateReceiver, TOLERANCE_RATE);
-    double ratePayer2 = PRDC.visitFixedCouponSwap(SWAP_PAYER, EUR1YEURIBOR6M.getFixedLegDayCount(), MULTICURVES);
-    double rateReceiver2 = PRDC.visitFixedCouponSwap(SWAP_RECEIVER, EUR1YEURIBOR6M.getFixedLegDayCount(), MULTICURVES);
+    final double ratePayer2 = PRDC.visitFixedCouponSwap(SWAP_PAYER, EUR1YEURIBOR6M.getFixedLegDayCount(), MULTICURVES);
+    final double rateReceiver2 = PRDC.visitFixedCouponSwap(SWAP_RECEIVER, EUR1YEURIBOR6M.getFixedLegDayCount(), MULTICURVES);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver2, TOLERANCE_RATE);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver, TOLERANCE_RATE);
   }
 
   @Test
   public void parRateCurveSensitivity() {
-    SimpleParameterSensitivity psComputed = PS_PR_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
-    SimpleParameterSensitivity psFD = PS_PR_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
+    final SimpleParameterSensitivity psComputed = PS_PR_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
+    final SimpleParameterSensitivity psFD = PS_PR_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
   }
 
@@ -109,14 +109,14 @@ public class SwapFixedCouponMethodTest {
       pvbpExpected += Math.abs(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentYearFraction())
           * MULTICURVES.getDiscountFactor(EUR, SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime()) * NOTIONAL;
     }
-    double pvbpComputed = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, MULTICURVES);
+    final double pvbpComputed = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, MULTICURVES);
     assertEquals("SwapFixedCouponMethod: present value basis point", pvbpExpected, pvbpComputed, TOLERANCE_PV); // one cent out of 100m
   }
 
   @Test
   public void presentValueBasisPointCurveSensitivity() {
-    SimpleParameterSensitivity psComputed = PS_PVBP_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
-    SimpleParameterSensitivity psFD = PS_PVBP_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
+    final SimpleParameterSensitivity psComputed = PS_PVBP_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
+    final SimpleParameterSensitivity psFD = PS_PVBP_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_PV_DELTA);
   }
 

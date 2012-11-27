@@ -29,21 +29,17 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Returns all of the floating cash-flows of an instrument. The notionals returned are adjusted for the year fraction
  * (i.e. a semi-annual swap with a notional of $1MM will return notionals of ~$0.5MM)
  */
-public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class FloatingPayCashFlowVisitor extends InstrumentDefinitionVisitorAdapter<Object, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FloatingPayCashFlowVisitor INSTANCE = new FloatingPayCashFlowVisitor();
 
   public static FloatingPayCashFlowVisitor getInstance() {
     return INSTANCE;
   }
 
-  private FloatingPayCashFlowVisitor() {
-    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
-  }
-
   /**
    * If the notional is positive (i.e. the amount is to be received) returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
-   * multiplied by the accrual period. 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
+   * multiplied by the accrual period.
    * @param deposit The deposit instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
    */
@@ -60,8 +56,8 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received) returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
-   * multiplied by the accrual period. 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
+   * multiplied by the accrual period.
    * @param deposit The deposit instrument, not null
    * @param data Not used
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -73,7 +69,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -85,13 +81,13 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
     if (coupon.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    final double amount = -coupon.getNotional() * coupon.getFixingPeriodAccrualFactor();
+    final double amount = -coupon.getNotional() * coupon.getPaymentYearFraction();
     return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(CurrencyAmount.of(coupon.getCurrency(), amount)));
   }
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -104,7 +100,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -122,7 +118,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -135,7 +131,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -153,7 +149,7 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
 
   /**
    * If the notional is positive (i.e. the amount is to be received), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -177,10 +173,8 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
     if (forwardRateAgreement.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(
-        endDate,
-        MultipleCurrencyAmount.of(CurrencyAmount.of(forwardRateAgreement.getCurrency(),
-            -forwardRateAgreement.getNotional() * forwardRateAgreement.getFixingPeriodAccrualFactor())));
+    final double amount = -forwardRateAgreement.getNotional() * forwardRateAgreement.getPaymentYearFraction();
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(CurrencyAmount.of(forwardRateAgreement.getCurrency(), amount)));
   }
 
   /**
@@ -196,10 +190,10 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
   }
 
   /**
-   * Returns a map containing all of the floating payments to be made in an annuity. If there are no floating payments to be made, 
+   * Returns a map containing all of the floating payments to be made in an annuity. If there are no floating payments to be made,
    * an empty map is returned
    * @param annuity The annuity, not null
-   * @return A map containing the payment dates and amounts 
+   * @return A map containing the payment dates and amounts
    */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
@@ -208,11 +202,11 @@ public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefiniti
   }
 
   /**
-   * Returns a map containing all of the floating payments to be made in an annuity. If there are no floating payments to be made, 
+   * Returns a map containing all of the floating payments to be made in an annuity. If there are no floating payments to be made,
    * an empty map is returned
    * @param annuity The annuity, not null
    * @param data Not used
-   * @return A map containing the payment dates and amounts 
+   * @return A map containing the payment dates and amounts
    */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final Object data) {

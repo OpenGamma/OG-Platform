@@ -83,7 +83,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   @Test
   public void presentValue() {
     final MultipleCurrencyAmount pvMethod = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, BLACK_MULTICURVES);
-    final double forward = PRC.visit(SWAPTION_LONG_REC.getUnderlyingSwap(), MULTICURVES);
+    final double forward = SWAPTION_LONG_REC.getUnderlyingSwap().accept(PRC, MULTICURVES);
     final double pvbp = METHOD_SWAP.getAnnuityCash(SWAPTION_LONG_REC.getUnderlyingSwap(), forward);
     final double discountFactorSettle = MULTICURVES.getDiscountFactor(SWAPTION_LONG_REC.getCurrency(), SWAPTION_LONG_REC.getSettlementTime());
     final double volatility = BLACK.getVolatility(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());

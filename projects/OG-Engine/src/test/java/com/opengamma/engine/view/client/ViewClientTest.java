@@ -8,6 +8,7 @@ package com.opengamma.engine.view.client;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
@@ -23,7 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -34,14 +42,20 @@ import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -53,6 +67,11 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.log.LogBridge;
+import com.opengamma.util.log.LogEvent;
+import com.opengamma.util.log.LogLevel;
+import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
@@ -225,8 +244,8 @@ public class ViewClientTest {
     assertNotNull(result1);
 
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
-    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 1);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive2(), 2);
     assertComputationResult(expected, env.getCalculationResult(result1));
     
     client.pause();
@@ -246,7 +265,7 @@ public class ViewClientTest {
 
     
     expected = new HashMap<ValueRequirement, Object>();
-    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
+    expected.put(ViewProcessorTestEnvironment.getPrimitive1(), 3);
     assertComputationResult(expected, env.getCalculationResult(result2));
   }
   
@@ -503,14 +522,141 @@ public class ViewClientTest {
     
     assertTrue(recalcJob2.isTerminated());
   }
- 
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void testSetMinimumLogMode() throws InterruptedException {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 0);
+    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
+    InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
+    
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    MockFunction fn = new MockFunction(MockFunction.UNIQUE_ID, target) {
+      
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        LogBridge.getInstance().log(new SimpleLogEvent(LogLevel.WARN, "Warning during execution"));
+        LogBridge.getInstance().log(new SimpleLogEvent(LogLevel.ERROR, "Error during execution"));
+        return super.execute(executionContext, inputs, target, desiredValues);
+      }
+      
+    };
+    ValueRequirement requirement = new ValueRequirement("OUTPUT", target.toSpecification());
+    fn.addResult(requirement, "Result");
+    functionRepository.addFunction(fn);
+    env.setFunctionRepository(functionRepository);
+    
+    ViewDefinition vd = new ViewDefinition(UniqueId.of("test", "vd1"), "Test view", UserPrincipal.getLocalUser());
+    ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(vd, "Default");
+    calcConfig.addSpecificRequirement(requirement);
+    vd.addViewCalculationConfiguration(calcConfig);
+    vd.setMinFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
+    vd.setMaxFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
+    env.setViewDefinition(vd);
+    
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    ViewComputationResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertEquals(0, resultListener.getQueueSize());
+    
+    assertEquals(1, result1.getAllResults().size());
+    ComputedValueResult result1Value = Iterables.getOnlyElement(result1.getAllResults()).getComputedValue();
+    assertEquals("Result", result1Value.getValue());
+    
+    ExecutionLog log1 = result1Value.getExecutionLog();
+    assertNotNull(log1);
+    assertTrue(log1.getLogLevels().contains(LogLevel.ERROR));
+    assertTrue(log1.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(log1.getLogLevels().contains(LogLevel.INFO));
+    assertNull(log1.getEvents());
+    assertNull(log1.getExceptionClass());
+    assertNull(log1.getExceptionMessage());
+    assertNull(log1.getExceptionStackTrace());
+    
+    ValueSpecification resultSpec = Iterables.getOnlyElement(client.getLatestCompiledViewDefinition().getTerminalValuesRequirements().keySet());
+    client.setMinimumLogMode(ExecutionLogMode.FULL, ImmutableSet.of(resultSpec));
+    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
+    recalcJob.triggerCycle();
+    
+    ViewComputationResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertEquals(0, resultListener.getQueueSize());
+    
+    assertEquals(1, result2.getAllResults().size());
+    ComputedValueResult result2Value = Iterables.getOnlyElement(result2.getAllResults()).getComputedValue();
+    assertEquals("Result", result2Value.getValue());
+    
+    ExecutionLog log2 = result2Value.getExecutionLog();
+    assertNotNull(log2);
+    assertTrue(log2.getLogLevels().contains(LogLevel.ERROR));
+    assertTrue(log2.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(log2.getLogLevels().contains(LogLevel.INFO));
+    assertNotNull(log2.getEvents());
+    assertEquals(2, log2.getEvents().size());
+    LogEvent log2Event1 = log2.getEvents().get(0);
+    assertEquals(LogLevel.WARN, log2Event1.getLevel());
+    assertEquals("Warning during execution", log2Event1.getMessage());
+    LogEvent log2Event2 = log2.getEvents().get(1);
+    assertEquals(LogLevel.ERROR, log2Event2.getLevel());
+    assertEquals("Error during execution", log2Event2.getMessage());
+    assertNull(log2.getExceptionClass());
+    assertNull(log2.getExceptionMessage());
+    assertNull(log2.getExceptionStackTrace());
+    
+    client.setMinimumLogMode(ExecutionLogMode.INDICATORS, ImmutableSet.of(resultSpec));
+    recalcJob.triggerCycle();
+    
+    ViewComputationResultModel result3 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertEquals(0, resultListener.getQueueSize());
+    
+    assertEquals(1, result3.getAllResults().size());
+    ComputedValueResult result3Value = Iterables.getOnlyElement(result3.getAllResults()).getComputedValue();
+    assertEquals("Result", result3Value.getValue());
+    
+    ExecutionLog log3 = result3Value.getExecutionLog();
+    assertNotNull(log3);
+    // Delta cycle - should reuse the previous result which *does* include logs. 
+    assertNotNull(log3.getEvents());
+    
+    // Force a full cycle - should *not* reuse any previous result, so back to indicators only
+    recalcJob.dirtyViewDefinition();
+    recalcJob.triggerCycle();
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    ViewComputationResultModel result4 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertEquals(0, resultListener.getQueueSize());
+    
+    assertEquals(1, result4.getAllResults().size());
+    ComputedValueResult result4Value = Iterables.getOnlyElement(result4.getAllResults()).getComputedValue();
+    assertEquals("Result", result4Value.getValue());
+    
+    ExecutionLog log4 = result4Value.getExecutionLog();
+    assertNotNull(log4); 
+    assertNull(log4.getEvents());
+  }
+
+  //-------------------------------------------------------------------------
   private void assertComputationResult(Map<ValueRequirement, Object> expected, ViewCalculationResultModel result) {
     assertNotNull(result);
     Set<ValueRequirement> remaining = new HashSet<ValueRequirement>(expected.keySet());
     Collection<ComputationTargetSpecification> targets = result.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
-      Map<Pair<String, ValueProperties>, ComputedValue> values = result.getValues(target);
-      for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> value : values.entrySet()) {
+      Map<Pair<String, ValueProperties>, ComputedValueResult> values = result.getValues(target);
+      for (Map.Entry<Pair<String, ValueProperties>, ComputedValueResult> value : values.entrySet()) {
         String valueName = value.getKey().getFirst();
         ValueRequirement requirement = new ValueRequirement(valueName, target.getType(), target.getUniqueId());
         assertTrue(expected.containsKey(requirement));

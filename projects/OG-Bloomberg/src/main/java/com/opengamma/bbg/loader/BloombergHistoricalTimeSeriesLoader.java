@@ -109,7 +109,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
       startDate = DEFAULT_START_DATE;
     }
     if (endDate == null) {
-      endDate = DateUtils.previousWeekDay();
+      endDate = LocalDate.now();
     }
     
     // finds the time-series that need loading
@@ -300,7 +300,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
     String dataProvider = info.getDataProvider();
     String dataField = info.getDataField();
     LocalDateDoubleTimeSeries series = _underlyingHtsProvider.getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField);
-    if (series == null) {
+    if (series == null || series.isEmpty()) {
       return false;
     }
     _htsMaster.correctTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), series);

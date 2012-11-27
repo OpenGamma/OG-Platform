@@ -116,8 +116,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value vs a hard-coded value.
    */
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    double pvExpected = 4276532.681;
+    final MultipleCurrencyAmount pv = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final double pvExpected = 4276532.681;
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -126,11 +126,11 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Tests long/short parity.
    */
   public void longShortParity() {
-    MultipleCurrencyAmount pvPayerLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(CUR), -pvPayerShort.getAmount(CUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvReceiverShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_RECEIVER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_RECEIVER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(CUR), -pvReceiverShort.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -139,9 +139,9 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Tests payer/receiver/swap parity.
    */
   public void payerReceiverParity() {
-    MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvSwap = PVDC.visit(SWAP_RECEIVER, MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvSwap = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - payer/receiver/swap parity", pvReceiverLong.getAmount(CUR) + pvPayerShort.getAmount(CUR), pvSwap.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -150,8 +150,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs by numerical integration.
    */
   public void approximationNumericalIntegration() {
-    MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvNI = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvNI = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - approximation vs Numerical integration", pvApproximation.getAmount(CUR), pvNI.getAmount(CUR), 2.0E+3);
   }
 
@@ -188,45 +188,45 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * To check the precision, increase the NB_INTEGRATION to 50 (slower but more precise).
    */
   public void approximationNumericalIntegrationGrid() {
-    G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters3();
-    G2ppProviderDiscount bundleG2pp = new G2ppProviderDiscount(MULTICURVES, parametersG2pp, CUR);
-    GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
-    Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
-    int nbExpiry = expiry.length;
-    Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
-    int nbTenor = tenor.length;
-    double[] fixedRate = new double[] {0.01, 0.02, 0.025, 0.03, 0.04};
-    int nbStrike = fixedRate.length;
-    SwaptionPhysicalFixedIbor[][][] swaption = new SwaptionPhysicalFixedIbor[nbExpiry][nbTenor][nbStrike];
-    ZonedDateTime[] expiryDate = new ZonedDateTime[nbExpiry];
-    ZonedDateTime[] settleDate = new ZonedDateTime[nbExpiry];
+    final G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters3();
+    final G2ppProviderDiscount bundleG2pp = new G2ppProviderDiscount(MULTICURVES, parametersG2pp, CUR);
+    final GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
+    final Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+    final int nbExpiry = expiry.length;
+    final Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+    final int nbTenor = tenor.length;
+    final double[] fixedRate = new double[] {0.01, 0.02, 0.025, 0.03, 0.04};
+    final int nbStrike = fixedRate.length;
+    final SwaptionPhysicalFixedIbor[][][] swaption = new SwaptionPhysicalFixedIbor[nbExpiry][nbTenor][nbStrike];
+    final ZonedDateTime[] expiryDate = new ZonedDateTime[nbExpiry];
+    final ZonedDateTime[] settleDate = new ZonedDateTime[nbExpiry];
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiry[loopexp], generator.getIborIndex());
       settleDate[loopexp] = ScheduleCalculator.getAdjustedDate(expiryDate[loopexp], generator.getSpotLag(), CALENDAR);
       for (int loopten = 0; loopten < nbTenor; loopten++) {
         for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
-          SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate[loopexp], tenor[loopten], generator, 10000.0, fixedRate[loopstrike], true);
-          SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate[loopexp], swapDefinition, true);
+          final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate[loopexp], tenor[loopten], generator, 10000.0, fixedRate[loopstrike], true);
+          final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate[loopexp], swapDefinition, true);
           swaption[loopexp][loopten][loopstrike] = swaptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
         }
       }
     }
-    double[][][] pvApprox = new double[nbExpiry][nbTenor][nbStrike];
-    double[][][] volApprox = new double[nbExpiry][nbTenor][nbStrike];
-    double[][][] pvNI = new double[nbExpiry][nbTenor][nbStrike];
-    double[][][] volNI = new double[nbExpiry][nbTenor][nbStrike];
-    double[][][] pvDiff = new double[nbExpiry][nbTenor][nbStrike];
-    double[][][] volDiff = new double[nbExpiry][nbTenor][nbStrike];
-    NormalImpliedVolatilityFormula implied = new NormalImpliedVolatilityFormula(); // Normal vol: LogNormal vol not always well defined with G2++ prices
+    final double[][][] pvApprox = new double[nbExpiry][nbTenor][nbStrike];
+    final double[][][] volApprox = new double[nbExpiry][nbTenor][nbStrike];
+    final double[][][] pvNI = new double[nbExpiry][nbTenor][nbStrike];
+    final double[][][] volNI = new double[nbExpiry][nbTenor][nbStrike];
+    final double[][][] pvDiff = new double[nbExpiry][nbTenor][nbStrike];
+    final double[][][] volDiff = new double[nbExpiry][nbTenor][nbStrike];
+    final NormalImpliedVolatilityFormula implied = new NormalImpliedVolatilityFormula(); // Normal vol: LogNormal vol not always well defined with G2++ prices
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       for (int loopten = 0; loopten < nbTenor; loopten++) {
         for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
           pvApprox[loopexp][loopten][loopstrike] = METHOD_G2PP_APPROXIMATION.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount(CUR);
           pvNI[loopexp][loopten][loopstrike] = METHOD_G2PP_NI.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount(CUR);
           pvDiff[loopexp][loopten][loopstrike] = pvApprox[loopexp][loopten][loopstrike] - pvNI[loopexp][loopten][loopstrike];
-          double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), MULTICURVES);
-          double forward = PRDC.visit(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), MULTICURVES);
-          NormalFunctionData data = new NormalFunctionData(forward, pvbp, 0.01);
+          final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), MULTICURVES);
+          final double forward = swaption[loopexp][loopten][loopstrike].getUnderlyingSwap().accept(PRDC, MULTICURVES);
+          final NormalFunctionData data = new NormalFunctionData(forward, pvbp, 0.01);
           volApprox[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvApprox[loopexp][loopten][loopstrike]);
           volNI[loopexp][loopten][loopstrike] = implied.getImpliedVolatility(data, swaption[loopexp][loopten][loopstrike], pvNI[loopexp][loopten][loopstrike]);
           volDiff[loopexp][loopten][loopstrike] = (volApprox[loopexp][loopten][loopstrike] - volNI[loopexp][loopten][loopstrike]) / BP1; // In bp

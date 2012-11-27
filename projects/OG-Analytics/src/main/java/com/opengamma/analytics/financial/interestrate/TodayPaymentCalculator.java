@@ -34,9 +34,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the payment amounts due on the valuation date (|time to payment|<small). 
+ * Calculates the payment amounts due on the valuation date (|time to payment|<small).
  */
-public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVisitor<Object, MultipleCurrencyAmount> {
+public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAdapter<Object, MultipleCurrencyAmount> {
   /**
    * The default time limit below which the payment is consider as being today.
    */
@@ -80,12 +80,6 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
    */
   private boolean isWithinLimit(final double paymentTime) {
     return (Math.abs(paymentTime) < Math.abs(_timeLimit) && _timeLimit * paymentTime >= 0);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
-    ArgumentChecker.notNull(derivative, "derivative");
-    return derivative.accept(this);
   }
 
   //     -----     Deposit     -----
@@ -196,7 +190,7 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
     ArgumentChecker.notNull(annuity, "instrument");
     MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
     for (final Payment p : annuity.getPayments()) {
-      pv = pv.plus(visit(p));
+      pv = pv.plus(p.accept(this));
     }
     return pv;
   }
@@ -209,8 +203,8 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   @Override
   public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap) {
     ArgumentChecker.notNull(swap, "instrument");
-    final MultipleCurrencyAmount cash = visit(swap.getFirstLeg());
-    return cash.plus(visit(swap.getSecondLeg()));
+    final MultipleCurrencyAmount cash = swap.getFirstLeg().accept(this);
+    return cash.plus(swap.getSecondLeg().accept(this));
   }
 
   @Override

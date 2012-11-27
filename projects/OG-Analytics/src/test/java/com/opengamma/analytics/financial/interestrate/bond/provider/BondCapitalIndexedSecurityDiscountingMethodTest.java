@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGea
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
@@ -74,7 +73,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION_GILT_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_GILT_1 = 8;
-  private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
+  private static final double INDEX_START_GILT_1 = 173.60; // November 2001
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
   private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
@@ -91,16 +90,16 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValueGilt1() {
-    InflationProviderDiscount marketUKGovt = new InflationProviderDiscount();
+    final InflationProviderDiscount marketUKGovt = new InflationProviderDiscount();
     marketUKGovt.setCurve(BOND_SECURITY_GILT_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_GILT_1.getIssuerCurrency()));
     marketUKGovt.setCurve(PRICE_INDEX_UKRPI, MARKET.getCurve(PRICE_INDEX_UKRPI));
-    MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue((CouponInflationZeroCouponMonthlyGearing) BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
+    final MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue((CouponInflationZeroCouponMonthlyGearing) BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
     MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_GILT_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_GILT_1.getCoupon().getNumberOfPayments(); loopcpn++) {
       pvCoupon = pvCoupon.plus(PVDIC.visit(BOND_SECURITY_GILT_1.getCoupon().getNthPayment(loopcpn), marketUKGovt));
     }
-    MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
-    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
+    final MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
+    final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
     assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_GILT_1.getCurrency()), pv.getAmount(BOND_SECURITY_GILT_1.getCurrency()), 1.0E-2);
   }
 
@@ -109,8 +108,8 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_SECURITY_GILT_1, MARKET);
+    final MultipleCurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
+    final MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_SECURITY_GILT_1, MARKET);
     assertEquals("Inflation Capital Indexed bond: present value", pvMethod, pvCalculator);
   }
 
@@ -123,7 +122,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtils.getUTCDate(2016, 1, 15);
   private static final YieldConvention YIELD_CONVENTION_TIPS_1 = SimpleYieldConvention.US_IL_REAL;
   private static final int MONTH_LAG_TIPS_1 = 3;
-  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
+  private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
   private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
@@ -140,16 +139,16 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValueTips1() {
-    InflationProviderDiscount marketUSGovt = new InflationProviderDiscount();
+    final InflationProviderDiscount marketUSGovt = new InflationProviderDiscount();
     marketUSGovt.setCurve(BOND_SECURITY_TIPS_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_TIPS_1.getIssuerCurrency()));
     marketUSGovt.setCurve(PRICE_INDEX_USCPI, MARKET.getCurve(PRICE_INDEX_USCPI));
-    MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue((CouponInflationZeroCouponInterpolationGearing) BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
+    final MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue((CouponInflationZeroCouponInterpolationGearing) BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
     MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_TIPS_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_TIPS_1.getCoupon().getNumberOfPayments(); loopcpn++) {
       pvCoupon = pvCoupon.plus(PVDIC.visit(BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn), marketUSGovt));
     }
-    MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
-    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    final MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
+    final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_TIPS_1, MARKET);
     assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
   }
 
@@ -158,25 +157,25 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValueFromCleanPriceRealTips1() {
-    double cleanPriceReal = 1.05;
-    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
+    final double cleanPriceReal = 1.05;
+    final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
 
-    double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
-    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
-    ZonedDateTime refInterpolatedDate = spot.minusMonths(MONTH_LAG_TIPS_1);
-    ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
+    final double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
+    final ZonedDateTime refInterpolatedDate = spot.minusMonths(MONTH_LAG_TIPS_1);
+    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
     referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
-    double[] referenceEndTime = new double[2];
+    final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[1]);
-    double estimatedIndexMonth0 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[0]);
-    double estimatedIndexMonth1 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[1]);
-    double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.getMonthOfYear().getLastDayOfMonth(spot.isLeapYear());
-    double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
-    double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
-    double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
-    double pvExpected = pvAtSettle * dfSettle;
+    final double estimatedIndexMonth0 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[0]);
+    final double estimatedIndexMonth1 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[1]);
+    final double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.getMonthOfYear().getLastDayOfMonth(spot.isLeapYear());
+    final double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
+    final double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
+    final double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
+    final double pvExpected = pvAtSettle * dfSettle;
     assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-6);
   }
 
@@ -185,9 +184,9 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean real price from the dirty real price.
    */
   public void cleanRealFromDirtyRealTips1() {
-    double dirtyReal = 1.01;
-    double cleanReal = METHOD_BOND_INFLATION.cleanRealPriceFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyReal);
-    double cleanRealExpected = dirtyReal - BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
+    final double dirtyReal = 1.01;
+    final double cleanReal = METHOD_BOND_INFLATION.cleanRealPriceFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyReal);
+    final double cleanRealExpected = dirtyReal - BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
     assertEquals("Inflation Capital Indexed bond: clean from dirty", cleanRealExpected, cleanReal, 1.0E-8);
   }
 
@@ -196,10 +195,10 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the dirty real price computation from the real yield in the "US I/L real" convention.
    */
   public void dirtyRealPriceFromRealYieldTips1() {
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
     final int nbCoupon = BOND_SECURITY_TIPS_1.getCoupon().getNumberOfPayments();
-    double[] dirtyRealPrice = new double[yield.length];
-    double[] dirtyRealPriceExpected = new double[yield.length];
+    final double[] dirtyRealPrice = new double[yield.length];
+    final double[] dirtyRealPriceExpected = new double[yield.length];
     for (int loopyield = 0; loopyield < yield.length; loopyield++) {
       dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyRealPriceFromYieldReal(BOND_SECURITY_TIPS_1, yield[loopyield]);
 
@@ -220,9 +219,9 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean real price from the dirty real price.
    */
   public void yieldRealFromDirtyRealTips1() {
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
-    double[] dirtyRealPrice = new double[yield.length];
-    double[] yieldComputed = new double[yield.length];
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
+    final double[] dirtyRealPrice = new double[yield.length];
+    final double[] yieldComputed = new double[yield.length];
     for (int loopyield = 0; loopyield < yield.length; loopyield++) {
       dirtyRealPrice[loopyield] = METHOD_BOND_INFLATION.dirtyRealPriceFromYieldReal(BOND_SECURITY_TIPS_1, yield[loopyield]);
       yieldComputed[loopyield] = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyRealPrice[loopyield]);
@@ -235,28 +234,28 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean, dirty and yield vs external hard-coded values.
    */
   public void priceYieldExternalValues1() {
-    double m1 = 1000000; // Notional of the external figures.
+    final double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
-    double cleanRealPrice = 1.00;
+    final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    double referenceIndexExpected = 225.83129;
-    double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
+    final double referenceIndexExpected = 225.83129;
+    final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
     assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);
-    double indexRatioExpected = 1.13782;
+    final double indexRatioExpected = 1.13782;
     assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex / INDEX_START_TIPS_1, 1.0E-5);
-    double yieldExpected = 1.999644 / 100.0;
-    double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
-    double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
+    final double yieldExpected = 1.999644 / 100.0;
+    final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
+    final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
     assertEquals("Inflation Capital Indexed bond: yield ", yieldExpected, yieldComputed, 1.0E-8);
-    double accruedExpected = 2102.49;
-    double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
-    double accruedReal = bond_110817.getAccruedInterest();
+    final double accruedExpected = 2102.49;
+    final double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
+    final double accruedReal = bond_110817.getAccruedInterest();
     assertEquals("Inflation Capital Indexed bond: accrued", accruedRealExpected, accruedReal / NOTIONAL_TIPS_1, 1.0E-8);
-    double netAmountExpected = 1139922.49; // For 1m; uses the rounding rules.
-    double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
+    final double netAmountExpected = 1139922.49; // For 1m; uses the rounding rules.
+    final double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount2, 1.0E-2);
-    double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
+    final double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount * m1 / NOTIONAL_TIPS_1, 2.0E+0); // The difference is due to rounding.
   }
 
@@ -265,28 +264,28 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean, dirty and yield vs external hard-coded values.
    */
   public void priceYieldExternalValues2() {
-    double m1 = 1000000; // Notional of the external figures.
+    final double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
-    double cleanRealPrice = 1.13 + 0.01 / 32;
+    final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    final double cleanRealPrice = 1.13 + 0.01 / 32;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    double referenceIndexExpected = 225.83129;
-    double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
+    final double referenceIndexExpected = 225.83129;
+    final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
     assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);
-    double indexRatioExpected = 1.13782;
+    final double indexRatioExpected = 1.13782;
     assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex / INDEX_START_TIPS_1, 1.0E-5);
-    double yieldExpected = -0.892152 / 100.0;
-    double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
-    double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
+    final double yieldExpected = -0.892152 / 100.0;
+    final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
+    final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
     assertEquals("Inflation Capital Indexed bond: yield ", yieldExpected, yieldComputed, 1.0E-8);
-    double accruedExpected = 2102.49;
-    double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
-    double accruedReal = bond_110817.getAccruedInterest();
+    final double accruedExpected = 2102.49;
+    final double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
+    final double accruedReal = bond_110817.getAccruedInterest();
     assertEquals("Inflation Capital Indexed bond: accrued", accruedRealExpected, accruedReal / NOTIONAL_TIPS_1, 1.0E-8);
-    double netAmountExpected = 1288194.66; // For 1m; uses the rounding rules.
-    double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
+    final double netAmountExpected = 1288194.66; // For 1m; uses the rounding rules.
+    final double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount2, 1.0E-2);
-    double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
+    final double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount * m1 / NOTIONAL_TIPS_1, 2.0E+0); // The difference is due to rounding.
   }
 
@@ -295,28 +294,28 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the clean, dirty and yield vs external hard-coded values.
    */
   public void priceYieldExternalValues3() {
-    double m1 = 1000000; // Notional of the external figures.
+    final double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 18); // Spot 19-Aug-2011
-    InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
-    double cleanRealPrice = 1.00;
+    final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
+    final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
-    double referenceIndexExpected = 225.82348;
-    double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
+    final double referenceIndexExpected = 225.82348;
+    final double referenceIndex = bond_110817.getSettlement().estimatedIndex(market.getInflationProvider());
     assertEquals("Inflation Capital Indexed bond: index", referenceIndexExpected, referenceIndex, 1.0E-5);
-    double indexRatioExpected = 1.13778;
+    final double indexRatioExpected = 1.13778;
     assertEquals("Inflation Capital Indexed bond: indexRatio", indexRatioExpected, referenceIndex / INDEX_START_TIPS_1, 1.0E-5);
-    double yieldExpected = 1.999636 / 100.0;
-    double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
-    double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
+    final double yieldExpected = 1.999636 / 100.0;
+    final double dirtyRealPriceComputed = METHOD_BOND_INFLATION.dirtyRealPriceFromCleanRealPrice(bond_110817, cleanRealPrice);
+    final double yieldComputed = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(bond_110817, dirtyRealPriceComputed);
     assertEquals("Inflation Capital Indexed bond: yield ", yieldExpected, yieldComputed, 1.0E-8);
-    double accruedExpected = 2164.26;
-    double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
-    double accruedReal = bond_110817.getAccruedInterest();
+    final double accruedExpected = 2164.26;
+    final double accruedRealExpected = accruedExpected / m1 / indexRatioExpected;
+    final double accruedReal = bond_110817.getAccruedInterest();
     assertEquals("Inflation Capital Indexed bond: accrued", accruedRealExpected, accruedReal / NOTIONAL_TIPS_1, 1.0E-8);
-    double netAmountExpected = 1139944.26; // For 1m; uses the rounding rules.
-    double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
+    final double netAmountExpected = 1139944.26; // For 1m; uses the rounding rules.
+    final double netAmount2 = indexRatioExpected * m1 * cleanRealPrice + accruedExpected;
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount2, 1.0E-2);
-    double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
+    final double netAmount = METHOD_BOND_INFLATION.netAmount(bond_110817, market, cleanRealPrice);
     assertEquals("Inflation Capital Indexed bond: net amount", netAmountExpected, netAmount * m1 / NOTIONAL_TIPS_1, 2.0E+0); // The difference is due to rounding.
   }
 
@@ -329,9 +328,9 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     long startTime, endTime;
     final int nbTest = 10000;
 
-    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03};
+    final double[] yield = new double[] {-0.01, 0.00, 0.01, 0.02, 0.03 };
 
-    double[] dirtyRealPrice = new double[yield.length];
+    final double[] dirtyRealPrice = new double[yield.length];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loopyield = 0; loopyield < yield.length; loopyield++) {
@@ -341,7 +340,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " price from yield for inflation bonds (TIPS): " + (endTime - startTime) + " ms");
 
-    double[] yieldComputed = new double[yield.length];
+    final double[] yieldComputed = new double[yield.length];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loopyield = 0; loopyield < yield.length; loopyield++) {

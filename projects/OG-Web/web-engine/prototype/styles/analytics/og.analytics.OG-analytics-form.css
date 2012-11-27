@@ -3,6 +3,11 @@
  * Please see distribution for license.
  */
 
+.OG-analytics-form {
+    border-top: 1px solid #fff;
+    position: relative;
+}
+
 .OG-analytics-form .og-view,
 .OG-analytics-form .og-aggregation,
 .OG-analytics-form .og-datasources,

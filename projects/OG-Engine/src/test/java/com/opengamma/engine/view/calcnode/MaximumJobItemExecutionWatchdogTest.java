@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -31,7 +32,7 @@ import com.opengamma.util.test.Timeout;
 public class MaximumJobItemExecutionWatchdogTest {
 
   private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), new ComputationTargetSpecification(""),
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNoAlert() throws Exception {
     final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();

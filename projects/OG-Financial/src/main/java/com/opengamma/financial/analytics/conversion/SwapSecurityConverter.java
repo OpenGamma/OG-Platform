@@ -145,9 +145,10 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get OIS index convention for " + currency + " using " + floatLeg.getFloatingReferenceRateId());
     }
-    final Integer publicationLag = indexConvention.getOvernightIndexSwapPublicationLag();
+    Integer publicationLag = indexConvention.getOvernightIndexSwapPublicationLag();
     if (publicationLag == null) {
-      throw new OpenGammaRuntimeException("Could not get ON Index publication lag for " + indexConvention.getIdentifiers());
+      publicationLag = 0;
+      //throw new OpenGammaRuntimeException("Could not get ON Index publication lag for " + indexConvention.getIdentifiers());
     }
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
     final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, indexConvention.getDayCount(), publicationLag, calendar);

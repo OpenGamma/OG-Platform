@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.instrument.swap;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
@@ -37,7 +35,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from the settlement date and a generator. The legs have different notionals. 
+   * Builder from the settlement date and a generator. The legs have different notionals.
    * The notionals are paid on the settlement date and final payment date of each leg.
    * @param settlementDate The settlement date.
    * @param tenor The swap tenor.
@@ -79,11 +77,13 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapXCcyIborIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapXCcyIborIborDefinition(this);
   }
 
@@ -92,23 +92,19 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);
   }
 
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
-    Validate.notNull(indexDataTS, "index data time series array");
-    Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    @SuppressWarnings("unchecked")
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
     return new Swap<Payment, Payment>(firstLeg, secondLeg);
   }

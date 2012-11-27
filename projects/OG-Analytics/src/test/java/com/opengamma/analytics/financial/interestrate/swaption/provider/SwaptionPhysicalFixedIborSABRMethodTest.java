@@ -129,7 +129,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final MultipleCurrencyAmount priceLongReceiver = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_RECEIVER, SABR_MULTICURVES);
     final MultipleCurrencyAmount priceShortReceiver = METHOD_SWPT_SABR.presentValue(SWAPTION_SHORT_RECEIVER, SABR_MULTICURVES);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, MULTICURVES);
-    final double forward = PRDC.visit(SWAP_PAYER, MULTICURVES);
+    final double forward = SWAP_PAYER.accept(PRDC, MULTICURVES);
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
     assertEquals(maturity, ANNUITY_TENOR_YEAR, 1E-2);
     final double volatility = SABR_PARAMETER.getVolatility(SWAPTION_LONG_PAYER.getTimeToExpiry(), maturity, RATE, forward);
@@ -141,8 +141,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongPayer.getAmount(CUR), -priceShortPayer.getAmount(CUR), TOLERANCE_PV);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongReceiver.getAmount(CUR), -priceShortReceiver.getAmount(CUR), TOLERANCE_PV);
     // Payer/Receiver parity
-    final MultipleCurrencyAmount priceSwapPayer = PVDC.visit(SWAP_PAYER, MULTICURVES);
-    final MultipleCurrencyAmount priceSwapReceiver = PVDC.visit(SWAP_RECEIVER, MULTICURVES);
+    final MultipleCurrencyAmount priceSwapPayer = SWAP_PAYER.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount priceSwapReceiver = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapPayer.getAmount(CUR), priceLongPayer.getAmount(CUR) + priceShortReceiver.getAmount(CUR), TOLERANCE_PV);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapReceiver.getAmount(CUR), priceLongReceiver.getAmount(CUR) + priceShortPayer.getAmount(CUR), TOLERANCE_PV);
   }
@@ -182,8 +182,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, SABR_MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, SABR_MULTICURVES);
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 

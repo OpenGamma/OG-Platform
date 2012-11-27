@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -59,7 +61,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
   }
 
   @Override
-  public Future<ExecutionResult> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<ExecutionResult> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue,
+      final GraphExecutorStatisticsGatherer statistics, final ExecutionLogModeSource logModeSource) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getUniqueId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime(), jobId);
     List<DependencyNode> order = graph.getExecutionOrder();
@@ -68,8 +71,9 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
+      ExecutionLogMode logMode = logModeSource.getLogMode(node.getOutputValues());
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputValues());
+          node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
       items.add(jobItem);
       // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values
       for (ValueSpecification specification : node.getOutputValues()) {

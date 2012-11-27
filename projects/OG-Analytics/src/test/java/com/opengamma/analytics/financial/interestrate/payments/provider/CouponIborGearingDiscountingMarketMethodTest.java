@@ -66,17 +66,17 @@ public class CouponIborGearingDiscountingMarketMethodTest {
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, PROVIDER);
-    double df = PROVIDER.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
-    double forward = PROVIDER.getForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingAccrualFactor());
-    double pvExpected = (forward * FACTOR + SPREAD) * COUPON.getPaymentYearFraction() * COUPON.getNotional() * df;
+    final MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, PROVIDER);
+    final double df = PROVIDER.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
+    final double forward = PROVIDER.getForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingAccrualFactor());
+    final double pvExpected = (forward * FACTOR + SPREAD) * COUPON.getPaymentYearFraction() * COUPON.getNotional() * df;
     assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD.presentValue(COUPON, PROVIDER);
-    MultipleCurrencyAmount pvCalculator = PVDC.visit(COUPON, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(COUPON, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = COUPON.accept(PVDC, PROVIDER);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -85,15 +85,15 @@ public class CouponIborGearingDiscountingMarketMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(COUPON, PROVIDER, PROVIDER.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(COUPON, PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(COUPON, PROVIDER, PROVIDER.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(COUPON, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, PROVIDER);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(COUPON, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = COUPON.accept(PVCSDC, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

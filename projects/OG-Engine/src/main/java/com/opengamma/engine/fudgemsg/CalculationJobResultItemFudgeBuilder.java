@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 
 /**
@@ -30,29 +31,19 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 @FudgeBuilderFor(CalculationJobResultItem.class)
 public class CalculationJobResultItemFudgeBuilder implements FudgeBuilder<CalculationJobResultItem> {
 
-  private static final String EXCEPTION_CLASS_FIELD_NAME = "exceptionClass";
-  private static final String EXCEPTION_MSG_FIELD_NAME = "exceptionMsg";
-  private static final String STACK_TRACE_FIELD_NAME = "stackTrace";
   private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
   private static final String MISSING_OUTPUTS_FIELD_NAME = "missingOutputs";
+  private static final String EXECUTION_LOG_FIELD_NAME = "executionLog";
 
   public static MutableFudgeMsg buildMessageImpl(final FudgeSerializer serializer, final CalculationJobResultItem object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    if (object.getExceptionClass() != null) {
-      msg.add(EXCEPTION_CLASS_FIELD_NAME, object.getExceptionClass());
-      if (object.getExceptionMsg() != null) {
-        msg.add(EXCEPTION_MSG_FIELD_NAME, object.getExceptionMsg());
-      }
-      if (object.getStackTrace() != null) {
-        msg.add(STACK_TRACE_FIELD_NAME, object.getStackTrace());
-      }
-    }
     if (object.getMissingInputIdentifiers() != null) {
       msg.add(MISSING_INPUTS_FIELD_NAME, object.getMissingInputIdentifiers());
     }
     if (object.getMissingOutputIdentifiers() != null) {
       msg.add(MISSING_OUTPUTS_FIELD_NAME, object.getMissingOutputIdentifiers());
     }
+    serializer.addToMessage(msg, EXECUTION_LOG_FIELD_NAME, null, object.getExecutionLog());
     return msg;
   }
 
@@ -61,18 +52,16 @@ public class CalculationJobResultItemFudgeBuilder implements FudgeBuilder<Calcul
     return buildMessageImpl(serializer, object);
   }
 
-  public static CalculationJobResultItem buildObjectImpl(final FudgeMsg message) {
-    String exceptionClass = message.getString(EXCEPTION_CLASS_FIELD_NAME);
-    String exceptionMsg = message.getString(EXCEPTION_MSG_FIELD_NAME);
-    String stackTrace = message.getString(STACK_TRACE_FIELD_NAME);
+  public static CalculationJobResultItem buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     long[] missingInputs = message.getValue(long[].class, MISSING_INPUTS_FIELD_NAME);
     long[] missingOutputs = message.getValue(long[].class, MISSING_OUTPUTS_FIELD_NAME);
-    return new CalculationJobResultItem(exceptionClass, exceptionMsg, stackTrace, missingInputs, missingOutputs);
+    ExecutionLog executionLog = deserializer.fieldValueToObject(ExecutionLog.class, message.getByName(EXECUTION_LOG_FIELD_NAME));
+    return new CalculationJobResultItem(missingInputs, missingOutputs, executionLog);
   }
 
   @Override
   public CalculationJobResultItem buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    return buildObjectImpl(message);
+    return buildObjectImpl(deserializer, message);
   }
 
 }

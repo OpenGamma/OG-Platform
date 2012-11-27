@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Get the single fixed rate that makes the PV of the instrument zero.
  */
-public final class ParRateDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, Double> {
+public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -49,7 +49,7 @@ public final class ParRateDiscountingCalculator extends AbstractInstrumentDeriva
    */
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
-    final double pvSecond = PVC.visit(swap.getSecondLeg(), multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves);
     return pvSecond / pvbp;
   }
@@ -76,7 +76,7 @@ public final class ParRateDiscountingCalculator extends AbstractInstrumentDeriva
    * @return The modified rate.
    */
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final MulticurveProviderInterface multicurves) {
-    final double pvSecond = PVC.visit(swap.getSecondLeg(), multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return pvSecond / pvbp;
   }
 

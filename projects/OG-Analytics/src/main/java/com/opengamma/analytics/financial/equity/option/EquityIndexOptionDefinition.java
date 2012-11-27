@@ -96,4 +96,20 @@ public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<D
   public <V> V accept(EquityInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitEquityIndexOptionDefinition(this);
   }
+
+  /**
+   * Gets the underlyingId.
+   * @return the underlyingId
+   */
+  public ExternalIdBundle getUnderlyingId() {
+    return _underlyingId;
+  }
+
+  /**
+   * Gets the exerciseType.
+   * @return the exerciseType
+   */
+  public ExerciseDecisionType getExerciseType() {
+    return _exerciseType;
+  }
 }

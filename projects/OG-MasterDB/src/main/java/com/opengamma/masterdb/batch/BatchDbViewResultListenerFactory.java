@@ -9,6 +9,9 @@ import com.opengamma.batch.BatchRunWriter;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.listener.ViewResultListener;
 
+/**
+ * 
+ */
 public class BatchDbViewResultListenerFactory implements ViewResultListenerFactory {
 
   private BatchRunWriter _batchRunWriter;

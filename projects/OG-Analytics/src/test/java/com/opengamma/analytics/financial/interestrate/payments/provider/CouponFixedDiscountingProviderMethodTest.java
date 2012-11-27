@@ -36,7 +36,7 @@ public class CouponFixedDiscountingProviderMethodTest {
   private static final CouponFixedDefinition CPN_FIXED_DEFINITION = new CouponFixedDefinition(EUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
   private static final CouponFixed CPN_FIXED = CPN_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -50,16 +50,16 @@ public class CouponFixedDiscountingProviderMethodTest {
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvComputed = METHOD_CPN_FIXED.presentValue(CPN_FIXED, PROVIDER);
-    double df = PROVIDER.getDiscountFactor(EUR, CPN_FIXED.getPaymentTime());
-    double pvExpected = CPN_FIXED.getAmount() * df;
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_FIXED.presentValue(CPN_FIXED, PROVIDER);
+    final double df = PROVIDER.getDiscountFactor(EUR, CPN_FIXED.getPaymentTime());
+    final double pvExpected = CPN_FIXED.getAmount() * df;
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_CPN_FIXED.presentValue(CPN_FIXED, PROVIDER);
-    MultipleCurrencyAmount pvCalculator = PVC.visit(CPN_FIXED, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_FIXED.presentValue(CPN_FIXED, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = CPN_FIXED.accept(PVC, PROVIDER);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -67,8 +67,8 @@ public class CouponFixedDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSC.visit(CPN_FIXED, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_FIXED.presentValueCurveSensitivity(CPN_FIXED, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_FIXED.accept(PVCSC, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an ...
  */
-public final class PresentValueIssuerCalculator extends AbstractInstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -60,7 +60,7 @@ public final class PresentValueIssuerCalculator extends AbstractInstrumentDeriva
   public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
     try {
       return derivative.accept(this, issuercurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDC, issuercurves.getMulticurveProvider());
     }
   }
@@ -92,6 +92,11 @@ public final class PresentValueIssuerCalculator extends AbstractInstrumentDeriva
   @Override
   public MultipleCurrencyAmount visitBondIborSecurity(final BondIborSecurity bond, final IssuerProviderInterface issuercurves) {
     return METHOD_BOND_SEC.presentValue(bond, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

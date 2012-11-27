@@ -64,6 +64,9 @@ public abstract class AbstractFinancialUserMaster<D extends AbstractDocument> im
     _clientName = clientName;
     _tracker = tracker;
     _type = type;
+  }
+  
+  protected void init() {
     setupChangeListener();
   }
 
@@ -78,7 +81,6 @@ public abstract class AbstractFinancialUserMaster<D extends AbstractDocument> im
     _clientName = client.getClientName();
     _tracker = client.getUserDataTracker();
     _type = type;
-    setupChangeListener();
   }
 
   //-------------------------------------------------------------------------

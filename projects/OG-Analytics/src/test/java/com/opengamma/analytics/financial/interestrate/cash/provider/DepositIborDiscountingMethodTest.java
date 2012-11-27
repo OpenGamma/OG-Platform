@@ -73,12 +73,12 @@ public class DepositIborDiscountingMethodTest {
    * Tests present value when the valuation date is on trade date.
    */
   public void presentValueTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
-    double dfEnd = PROVIDER_MULTICURVES.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    double forward = PROVIDER_MULTICURVES.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
-    double pvExpected = deposit.getAccrualFactor() * (deposit.getRate() - forward) * dfEnd;
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
+    final double dfEnd = PROVIDER_MULTICURVES.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double forward = PROVIDER_MULTICURVES.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double pvExpected = deposit.getAccrualFactor() * (deposit.getRate() - forward) * dfEnd;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -87,10 +87,10 @@ public class DepositIborDiscountingMethodTest {
    * Tests present value when the valuation date is on trade date. Compare Method to Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    MultipleCurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
-    MultipleCurrencyAmount pvCalculator = PVC.visit(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final MultipleCurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = deposit.accept(PVC, PROVIDER_MULTICURVES);
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvMethod, pvCalculator);
   }
 
@@ -99,22 +99,22 @@ public class DepositIborDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivityTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
     AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   /**
-   * Tests present value curve sensitivitywhen the valuation date is on trade date. Compare Method to Calculator.
+   * Tests present value curve sensitivity when the valuation date is on trade date. Compare Method to Calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, PROVIDER_MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSC.visit(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, PROVIDER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = deposit.accept(PVCSC, PROVIDER_MULTICURVES);
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvcsMethod, pvcsCalculator);
   }
 
@@ -123,12 +123,12 @@ public class DepositIborDiscountingMethodTest {
    * Tests parSpread when the present is before the deposit start date.
    */
   public void parSpreadBeforeStart() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_MULTICURVES);
-    DepositIborDefinition deposit0Definition = DepositIborDefinition.fromTrade(referenceDate, NOTIONAL, RATE + parSpread, EURIBOR3M);
-    DepositIbor deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
-    MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_MULTICURVES);
+    final DepositIborDefinition deposit0Definition = DepositIborDefinition.fromTrade(referenceDate, NOTIONAL, RATE + parSpread, EURIBOR3M);
+    final DepositIbor deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
+    final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER_MULTICURVES);
     assertEquals("DepositDefinition: present value", 0, pv0.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -137,10 +137,10 @@ public class DepositIborDiscountingMethodTest {
    * Tests parSpread.
    */
   public void parSpreadMethodVsCalculator() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    double parSpreadMethod = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_MULTICURVES);
-    double parSpreadCalculator = PSMQDC.visit(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final double parSpreadMethod = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_MULTICURVES);
+    final double parSpreadCalculator = deposit.accept(PSMQDC, PROVIDER_MULTICURVES);
     assertEquals("DepositDefinition: present value", parSpreadMethod, parSpreadCalculator, TOLERANCE_SPREAD);
   }
 
@@ -149,10 +149,10 @@ public class DepositIborDiscountingMethodTest {
    * Tests parSpread curve sensitivity.
    */
   public void parSpreadCurveSensitivity() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    SimpleParameterSensitivity pspsDepositExact = PS_PSMQ_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
-    SimpleParameterSensitivity pspsDepositFD = PS_PSMQ_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final SimpleParameterSensitivity pspsDepositExact = PS_PSMQ_C.calculateSensitivity(deposit, PROVIDER_MULTICURVES, PROVIDER_MULTICURVES.getAllNames());
+    final SimpleParameterSensitivity pspsDepositFD = PS_PSMQ_FDC.calculateSensitivity(deposit, PROVIDER_MULTICURVES);
     AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
   }
 
@@ -161,10 +161,10 @@ public class DepositIborDiscountingMethodTest {
    * Tests parSpread curve sensitivity.
    */
   public void parSpreadCurveSensitivityMethodVsCalculator() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
-    MulticurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, PROVIDER_MULTICURVES);
-    MulticurveSensitivity pscsCalculator = PSMQCSDC.visit(deposit, PROVIDER_MULTICURVES);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final MulticurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, PROVIDER_MULTICURVES);
+    final MulticurveSensitivity pscsCalculator = deposit.accept(PSMQCSDC, PROVIDER_MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_SPREAD);
   }
 

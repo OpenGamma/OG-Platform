@@ -1,0 +1,54 @@
+<section class="OG-mod-0 og-grid-last og-ex-params og-js-viewdef-2" style="display: none; height: 160px;">
+  <div class="og-mod-content">
+    <table>
+      <tr>
+        <td class="og-c1">Minimum</td>
+        <td>
+          <label for="minDeltaCalcPeriod">
+            <span class="og-c4">
+              <input name="minDeltaCalcPeriod" type="text" style="width: 50px;" /> (milliseconds)
+              <br />
+              The minimum time that must elapse since any previous cycle before a delta cycle may be executed,
+              to throttle the overall execution rate
+            </span>
+          </label>
+        </td>
+        <td class="og-c1">Minimum full</td>
+        <td>
+          <label for="minFullCalcPeriod">
+            <span class="og-c4">
+              <input name="minFullCalcPeriod" type="text" style="width: 50px;" /> (milliseconds)
+              <br />
+              The minimum time that must elapse since the previous full cycle before a further full cycle may
+              be executed, to throttle the full cycle execution rate
+            </span>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td class="og-c1">Maximum</td>
+        <td>
+          <label for="maxDeltaCalcPeriod">
+            <span class="og-c4">
+              <input name="maxDeltaCalcPeriod" type="text" style="width: 50px;" /> (milliseconds)
+              <br />
+              The maximum time that can elapse since any previous cycle before a delta cycle will be forced to
+              execute, to ensure a minimum execution rate
+            </span>
+          </label>
+        </td>
+        <td class="og-c1">Maximum full</td>
+        <td>
+          <label for="maxFullCalcPeriod">
+            <span class="og-c4">
+              <input name="maxFullCalcPeriod" type="text" style="width: 50px;" /> (milliseconds)
+              <br />
+              The maximum time that can elapse since the previous full cycle before a further full cycle will
+              be forced to execute, to ensure a minimum full cycle execution rate
+            </span>
+          </label>
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

@@ -18,15 +18,8 @@ $.register_module({
         generate_form_function = function (load_handler) {
             return function (css_class) {
                 $(css_class).html('Loading form...');
-                var form = new og.common.util.ui.Form({
-                    selector: css_class, data: {}, module: 'og.views.forms.add-trades',
-                    handlers: [{type: 'form:load', handler: function () {load_handler();}}]
-                });
-                form.children = [new form.Field({
-                    module: 'og.views.forms.currency',
-                    generator: function (handler, template) {handler(template);}
-                })];
-                form.dom();
+                new og.common.util.ui.Form({selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'})
+                    .on('form:load', load_handler).add({module: 'og.views.forms.currency_tash'}).dom();
             };
         };
         form_save = function (trade_id) {
@@ -181,7 +174,7 @@ $.register_module({
           <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th colspan="6"><span><em>Trades</em></span></th>\
+                <th colspan="6"><span><em>{TITLE}</em></span></th>\
               </tr>\
               <tr>\
                 <th><div><em>ID<em/></div></th>\
@@ -306,8 +299,11 @@ $.register_module({
                         : a['trade_date_time'] < b['trade_date_time'] ? 1
                             : 0;
                 });
-                if (!trades.length) return $(selector).html(html.og_table.replace('{TBODY}',
-                    '<tr><td colspan="6">No Trades</td></tr>')), attach_trades_link(selector, editable);
+                if (!trades.length) return $(selector).html(
+                    html.og_table
+                        .replace('{TBODY}', '<tr><td colspan="6">No Trades</td></tr>')
+                        .replace('{TITLE}', config.child ? '' : 'Trades')
+                ), attach_trades_link(selector, editable);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
                         var expander;
@@ -336,7 +332,8 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody));
+                $(selector).html(html.og_table.replace('{TBODY}', tbody).
+                    replace('{TITLE}', config.child ? '' : 'Trades'));
                 /*
                  * Remove expand links when no trade attributes are available
                  */
@@ -351,13 +348,15 @@ $.register_module({
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
                 if (!version && editable) attach_trades_link(selector);
-                $(selector + ' .OG-table').tablesorter({
-                    headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                }).awesometable({height: height, resize: function (resize) {
-                    og.common.gadgets.manager.register({
-                        alive: function () {return !!$(selector).length;}, resize: resize
-                    });
-                }});
+                (function () {
+                    var $table = $(selector + ' .OG-table');
+                    $table.tablesorter({headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}});
+                    if (!config.child) $table.awesometable({resize: function (resize) {
+                        og.common.gadgets.manager.register({
+                            alive: function () {return !!$(selector).length;}, resize: resize
+                        });
+                    }, height: height});
+                })();
                 /*
                  * Enable edit/delete trade
                  */

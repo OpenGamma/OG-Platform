@@ -50,14 +50,14 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<String, Currency>(bond.getIssuer(), bond.getCurrency()));
+    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<String, Currency>(bond.getIssuer(), bond.getCurrency()));
     final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
     final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   /**
-   * Computes the security present value from a quoted clean real price. The real accrued are added to the clean real price, 
+   * Computes the security present value from a quoted clean real price. The real accrued are added to the clean real price,
    * the result is multiplied by the inflation index ratio and then discounted from settlement time to 0 with the discounting curve.
    * @param bond The bond security.
    * @param market The market.
@@ -68,11 +68,11 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
-    double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
-    double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
-    double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
+    final double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
+    final double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
+    final double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
+    final double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
+    final double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
     return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
   }
 
@@ -107,9 +107,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
-    double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
-    double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
+    final double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
+    final double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
+    final double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
     return netAmount;
   }
 
@@ -127,7 +127,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       double pvAtFirstCoupon;
       if (Math.abs(yield) > 1.0E-8) {
         final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-        double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
+        final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
       } else {
         pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;

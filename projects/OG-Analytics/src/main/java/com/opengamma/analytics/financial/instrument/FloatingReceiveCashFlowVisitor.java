@@ -26,24 +26,20 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Returns all of the floating cash-flows of an instrument. The notionals returned are those that will be received 
+ * Returns all of the floating cash-flows of an instrument. The notionals returned are those that will be received
  * (i.e. a semi-annual swap with a notional of $1MM will return notionals of ~$0.5MM)
  */
-public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<Object, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class FloatingReceiveCashFlowVisitor extends InstrumentDefinitionVisitorAdapter<Object, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FloatingReceiveCashFlowVisitor INSTANCE = new FloatingReceiveCashFlowVisitor();
 
   public static FloatingReceiveCashFlowVisitor getInstance() {
     return INSTANCE;
   }
 
-  private FloatingReceiveCashFlowVisitor() {
-    super(Collections.<LocalDate, MultipleCurrencyAmount>emptyMap());
-  }
-
   /**
    * If the notional is negative (i.e. the amount is to be paid) returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
-   * multiplied by the accrual period. 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
+   * multiplied by the accrual period.
    * @param deposit The deposit instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
    */
@@ -60,8 +56,8 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid) returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
-   * multiplied by the accrual period. 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
+   * multiplied by the accrual period.
    * @param deposit The deposit instrument, not null
    * @param data Not used
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -73,7 +69,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -91,7 +87,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -104,7 +100,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -122,7 +118,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -135,7 +131,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
@@ -153,7 +149,7 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
 
   /**
    * If the notional is negative (i.e. the amount is to be paid), returns
-   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount 
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount
    * multiplied by the accrual period.
    * @param coupon The coupon instrument, not null
    * @param data Not used
@@ -196,10 +192,10 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
   }
 
   /**
-   * Returns a map containing all of the floating payments to be received in an annuity. If there are no floating payments to be reeeived, 
+   * Returns a map containing all of the floating payments to be received in an annuity. If there are no floating payments to be reeeived,
    * an empty map is returned
    * @param annuity The annuity, not null
-   * @return A map containing the payment dates and amounts 
+   * @return A map containing the payment dates and amounts
    */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
@@ -208,11 +204,11 @@ public final class FloatingReceiveCashFlowVisitor extends AbstractInstrumentDefi
   }
 
   /**
-   * Returns a map containing all of the floating payments to be received in an annuity. If there are no floating payments to be received, 
+   * Returns a map containing all of the floating payments to be received in an annuity. If there are no floating payments to be received,
    * an empty map is returned
    * @param annuity The annuity, not null
    * @param data Not used
-   * @return A map containing the payment dates and amounts 
+   * @return A map containing the payment dates and amounts
    */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final Object data) {

@@ -16,9 +16,19 @@
 {{id}} .OG-g-b-scroll .OG-g-row {width: {{scroll_width}}px}
 {{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px; overflow-y: scroll;}
 {{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
-{{id}} .OG-g-b {top: {{header_height}}px}
+{{id}} .OG-g-b {top: {{header_height}}px;}
 {{id}} .OG-g-h-cols {top: {{set_height}}px}
-{{#if row_height}}{{id}} .OG-g-cell {height: {{row_height}}px;}{{/if}}
+{{id}} .OG-g-row, .OG-g-cell {height: {{row_height}}px;}
+{{id}} .OG-g-rest {
+    position: absolute;
+    background: #fff;
+    top: {{rest_top}}px;
+    bottom: 0;
+    opacity: 0.55;
+    filter: alpha(opacity=55);
+}
+{{id}} .OG-g-b-fixed .OG-g-rest {width: {{fixed_width}}px;}
+{{id}} .OG-g-b-scroll .OG-g-rest {width: {{scroll_width}}px;}
 {{#each sets}}
     {{prefix}} .OG-g .s{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}

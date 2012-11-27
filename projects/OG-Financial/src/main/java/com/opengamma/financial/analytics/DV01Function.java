@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -27,14 +27,13 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.sensitivities.SecurityEntryData;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
  */
 public class DV01Function extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(DV01Function.class);
-  
+
   @Override
   public String getShortName() {
     return "DV01Function";
@@ -47,7 +46,7 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPosition().getSecurity().getSecurityType() != SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE;
+    return true;
   }
 
   @Override
@@ -83,12 +82,12 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
     ComputedValue scaledValue = null;
     if (value instanceof Double) {
       Double doubleValue = (Double) value;
-      String shiftStr = desiredValue.getConstraint(ValuePropertyNames.SHIFT);
+      final String shiftStr = desiredValue.getConstraint(ValuePropertyNames.SHIFT);
       double shift;
       if (shiftStr != null) {
         try {
           shift = Double.parseDouble(shiftStr);
-        } catch (NumberFormatException nfe) {
+        } catch (final NumberFormatException nfe) {
           s_logger.error("Constraint Shift on DV01 not a value double, defaulting to 1d");
           shift = 1d;
         }

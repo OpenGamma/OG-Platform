@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a transaction on a Ibor floating coupon bond (Floating Rate Note) issue.
@@ -20,17 +21,19 @@ public class BondIborTransaction extends BondTransaction<BondIborSecurity> {
    * @param bondStandard Description of the underlying bond with standard settlement date.
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondIborTransaction(BondIborSecurity bondTransaction, double quantity, double transactionPrice, BondIborSecurity bondStandard, double notionalStandard) {
+  public BondIborTransaction(final BondIborSecurity bondTransaction, final double quantity, final double transactionPrice, final BondIborSecurity bondStandard, final double notionalStandard) {
     super(bondTransaction, quantity, transactionPrice, bondStandard, notionalStandard);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborTransaction(this);
   }
 

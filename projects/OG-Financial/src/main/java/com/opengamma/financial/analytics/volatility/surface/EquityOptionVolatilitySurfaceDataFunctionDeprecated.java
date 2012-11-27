@@ -51,7 +51,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapStaticReplicationFunction;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationFunction;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 

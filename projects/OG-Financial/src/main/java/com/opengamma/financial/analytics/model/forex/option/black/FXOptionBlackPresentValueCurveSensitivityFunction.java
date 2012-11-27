@@ -38,11 +38,11 @@ public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionB
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
-      final MultipleCurrencyInterestRateCurveSensitivity result = FLAT_CALCULATOR.visit(forex, data);
+      final MultipleCurrencyInterestRateCurveSensitivity result = forex.accept(FLAT_CALCULATOR, data);
       ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
       return Collections.singleton(new ComputedValue(spec, result));
     }
-    final MultipleCurrencyInterestRateCurveSensitivity result = SMILE_CALCULATOR.visit(forex, data);
+    final MultipleCurrencyInterestRateCurveSensitivity result = forex.accept(SMILE_CALCULATOR, data);
     ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }

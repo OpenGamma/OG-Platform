@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Interpolates, for interest rate instruments using Black model, and returns the implied volatility required.
  */
-public final class ImpliedVolatilityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The method unique instance.

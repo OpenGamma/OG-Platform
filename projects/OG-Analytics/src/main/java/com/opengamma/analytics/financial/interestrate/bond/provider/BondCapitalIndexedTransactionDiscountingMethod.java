@@ -35,7 +35,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface provider) {
     final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValue(bond.getBondTransaction(), provider);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
+    final MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
@@ -50,8 +50,8 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
   public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final InflationIssuerProviderInterface provider, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(provider, "Provider");
-    MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), provider, cleanPriceReal);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), provider, cleanPriceReal);
+    final MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);
   }

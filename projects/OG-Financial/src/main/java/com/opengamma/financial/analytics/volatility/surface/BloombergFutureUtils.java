@@ -20,6 +20,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -105,7 +106,7 @@ public class BloombergFutureUtils {
    * @param futurePrefix 2 character string of future (eg US, FV)
    * @param nthFuture The n'th future following valuation date
    * @param curveDate Date curve is valid; valuation date
-   * @return e.g. M1 (for June 2010) or Z3 (for December 2013)
+   * @return e.g. M2 (for June 2012) or Z3 (for December 2013)
    */
   public static final String getExpiryCodeForBondFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     final StringBuilder futureCode = new StringBuilder();
@@ -133,6 +134,38 @@ public class BloombergFutureUtils {
     final LocalDate expiry  = FutureOptionUtils.getApproximateIRFutureOptionWithSerialOptionsExpiry(nthFuture, curveDate);
     return getMonthYearCode(expiry, expiry.minusYears(10));
   }
+
+  /**
+   * Produces the month-year string required to build ExternalId for Bloomberg ticker of Soybean Future Options,
+   * which have a different set of expiry months
+   * @param futurePrefix 2 character string of future (eg "S ", "GC")
+   * @param nthFuture The n'th future following valuation date
+   * @param curveDate Date curve is valid; valuation date
+   * @return e.g. M2 (for June 2012) or Z3 (for December 2013)
+   */
+  public static final String getExpiryCodeForSoybeanFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
+    final StringBuilder futureCode = new StringBuilder();
+    final LocalDate expiry = SoybeanFutureOptionExpiryCalculator.getInstance().getExpiryMonth(nthFuture, curveDate);
+    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
+    final int yearsNum = expiry.getYear() % 10;
+    futureCode.append(Integer.toString(yearsNum));
+    return futureCode.toString();
+  }
+
+  /**
+   * Given an expiry date, produces the month-year string required to build ExternalId for Bloomberg tickers
+   * @param expiry Date of expiry for which a code is required. Really only a date in the right month is required.
+   * @return e.g. M2 (for June 2012) or Z3 (for December 2013)
+   */
+  public static final String getShortExpiryCode(final LocalDate expiry) {
+    final StringBuilder futureCode = new StringBuilder();
+    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
+    final int yearsNum = expiry.getYear() % 10;
+    futureCode.append(Integer.toString(yearsNum));
+    return futureCode.toString();
+  }
+
+
 
   /**
    * Produces the month-year string required to build ExternalId for Bloomberg tickers of IRFutureSecurity and IRFutureOptionSecurity.

@@ -51,7 +51,7 @@ public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleI
 
   @Override
   public SimpleInstrumentDefinition<?> visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
-    throw new UnsupportedOperationException("Cannot use this converter for EquityIndexDividendFutureSecurity");
+    return getDefinition(security);
   }
 
   @Override

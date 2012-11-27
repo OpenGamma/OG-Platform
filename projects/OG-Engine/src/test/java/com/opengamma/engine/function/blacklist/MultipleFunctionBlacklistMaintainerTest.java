@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
 
@@ -23,10 +24,12 @@ import com.opengamma.id.UniqueId;
 @Test
 public class MultipleFunctionBlacklistMaintainerTest {
 
-  private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-  private final CalculationJobItem _item2 = new CalculationJobItem("F2", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
-      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+  private final CalculationJobItem _item1 = new CalculationJobItem(
+      "F1", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem _item2 = new CalculationJobItem(
+      "F2", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNone() {
     final MultipleFunctionBlacklistMaintainer m = new MultipleFunctionBlacklistMaintainer(Collections.<FunctionBlacklistMaintainer>emptySet());

@@ -22,12 +22,11 @@ import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The response that a Calculation Node will return to invokers.
- *
+ * Contains details about the result of a calculation job. The result can be correlated to the original
+ * {@link CalculationJob} through the {@link CalculationJobSpecification}.
  */
 public class CalculationJobResult implements IdentifierEncodedValueSpecifications {
 
-  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJobResult.class);
 
   private final CalculationJobSpecification _specification;
@@ -36,19 +35,24 @@ public class CalculationJobResult implements IdentifierEncodedValueSpecification
    * The set of result items in the same order as the items from the original job request.
    */
   private final List<CalculationJobResultItem> _resultItems;
-  // TODO: don't return all result items -- just the ones that were failures
+  
   private final long _durationNanos;
   private final String _nodeId;
   
-  public CalculationJobResult(
-      CalculationJobSpecification specification,
-      long durationNanos,
-      List<CalculationJobResultItem> resultItems,
-      String nodeId) {
-    ArgumentChecker.notNull(specification, "Calculation job spec");
-    ArgumentChecker.notNull(resultItems, "Result items");
+  /**
+   * Constructs an instance.
+   * 
+   * @param specification  the original calculation job specification, not null
+   * @param durationNanos  the duration of the job in nanoseconds
+   * @param resultItems  the results in the same order as the items in the original request, not null
+   * @param nodeId  the identifier of the calculation node used to perform the job
+   */
+  public CalculationJobResult(CalculationJobSpecification specification, long durationNanos,
+      List<CalculationJobResultItem> resultItems, String nodeId) {
+    ArgumentChecker.notNull(specification, "specification");
+    ArgumentChecker.notNull(resultItems, "resultItems");
     if (durationNanos < 0) {
-      // avoid failing for this, as nanoTime() may not work correctly
+      // Avoid failing for this, as nanoTime() may not work correctly
       s_logger.warn("Duration must be non-negative: " + durationNanos);
       durationNanos = 0;
     }
@@ -60,25 +64,44 @@ public class CalculationJobResult implements IdentifierEncodedValueSpecification
     _nodeId = nodeId;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the original calculation job specification.
+   * 
+   * @return the original calculation job specification, not null
+   */
   public CalculationJobSpecification getSpecification() {
     return _specification;
   }
 
+  /**
+   * Gets the results in the same order as the items in the original request.
+   * 
+   * @return the result items, not null
+   */
   public List<CalculationJobResultItem> getResultItems() {
     return Collections.unmodifiableList(_resultItems);
   }
 
   /**
-   * @return the duration, in nanoseconds
+   * Gets the duration of the job in nanoseconds.
+   * 
+   * @return the duration of the job in nanoseconds
    */
   public long getDuration() {
     return _durationNanos;
   }
   
+  /**
+   * Gets the identifier of the compute node used to perform the job.
+   * 
+   * @return the identifier of the compute node used to perform the job
+   */
   public String getComputeNodeId() {
     return _nodeId;
   }
-
+  
+  //-------------------------------------------------------------------------
   @Override
   public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     for (CalculationJobResultItem item : _resultItems) {

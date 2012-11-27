@@ -56,12 +56,12 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
    * Tests the present value.
    */
   public void presentValueInterpolation() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET.getInflationProvider());
-    double df = MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getDiscountFactor(ZERO_COUPON_1.getPaymentTime());
-    double indexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[0]);
-    double indexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[1]);
-    double finalIndex = ZERO_COUPON_1_DEFINITION.getWeight() * indexMonth0 + (1 - ZERO_COUPON_1_DEFINITION.getWeight()) * indexMonth1;
-    double pvExpected = FACTOR * (finalIndex / INDEX_MAY_2008_INT - 1) * df * NOTIONAL;
+    final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET.getInflationProvider());
+    final double df = MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getDiscountFactor(ZERO_COUPON_1.getPaymentTime());
+    final double indexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[0]);
+    final double indexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[1]);
+    final double finalIndex = ZERO_COUPON_1_DEFINITION.getWeight() * indexMonth0 + (1 - ZERO_COUPON_1_DEFINITION.getWeight()) * indexMonth1;
+    final double pvExpected = FACTOR * (finalIndex / INDEX_MAY_2008_INT - 1) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(ZERO_COUPON_1.getCurrency()), 1.0E-2);
   }
 
@@ -70,8 +70,8 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
    * Tests the present value: Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET.getInflationProvider());
-    MultipleCurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET.getInflationProvider());
+    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET.getInflationProvider());
+    final MultipleCurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET.getInflationProvider());
     assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
   }
 

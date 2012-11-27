@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getResultCurrency;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +28,6 @@ import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -122,19 +122,4 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 
-  protected static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (security instanceof FXDigitalOptionSecurity || security instanceof NonDeliverableFXDigitalOptionSecurity) {
-      return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
-    }
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    Currency ccy;
-    if (baseQuotePair.getBase().equals(putCurrency)) {
-      ccy = callCurrency;
-    } else {
-      ccy = putCurrency;
-    }
-    return ccy.getCode();
-  }
 }

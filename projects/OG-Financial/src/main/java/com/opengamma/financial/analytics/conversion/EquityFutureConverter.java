@@ -14,7 +14,7 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
  * Converts it to a EquityFutureDefinition (OG-Analytics)
  * TODO - Not sure this should extend from what looks to be an InterestRateFutureConverter
  */
-public class EquityFutureConverter extends AbstractFutureSecurityVisitor<EquityFutureDefinition> {
+public class EquityFutureConverter {
 
   /**
    * Converts an EquityFutureSecurity Trade to an EquityFutureDefinition

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator extends AbstractInstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -50,7 +50,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
   public MulticurveSensitivity visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
     try {
       return derivative.accept(this, multicurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDC, multicurves.getMulticurveProvider());
     }
   }
@@ -66,6 +66,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
   @Override
   public MulticurveSensitivity visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_IRFUT_HW.priceCurveSensitivity(futures, multicurves).getSensitivity(futures.getCurrency());
+  }
+
+  @Override
+  public MulticurveSensitivity visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

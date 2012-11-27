@@ -12,6 +12,34 @@
     position: relative;
 }
 
+.OG-g-loading-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: #fff;
+    opacity: .5;
+}
+
+.OG-g-loading {
+    font: 10px arial;
+    text-transform: uppercase;
+    display: block;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    margin-left: -75px;
+    margin-top: -40px;
+    z-index: 4;
+}
+
+.OG-g-loading .OG-loader {
+    display: block;
+    margin-top: 2px;
+}
+
 .OG-g-cell {
     position: absolute;
     overflow: hidden;
@@ -25,6 +53,8 @@
     cursor: default;
     white-space: nowrap;
 }
+
+.OG-g-cell.og-error {color: gray;}
 
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {
@@ -127,7 +157,7 @@
     background: #42669a;
 }
 
-/* Indicator arrows */
+/* Indicator area */
 .OG-g-cell .og-icon-tick-down,
 .OG-g-cell .og-icon-tick-up,
 .OG-g-cell .og-icon-tick-static {

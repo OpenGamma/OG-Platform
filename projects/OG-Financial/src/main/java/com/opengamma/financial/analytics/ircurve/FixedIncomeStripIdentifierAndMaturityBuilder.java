@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
@@ -69,7 +69,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<ExternalId, Double> marketValues) {
-    final Collection<FixedIncomeStripWithSecurity> securityStrips = new ArrayList<FixedIncomeStripWithSecurity>();
+    final Collection<FixedIncomeStripWithSecurity> securityStrips = new TreeSet<FixedIncomeStripWithSecurity>();
     final LocalDate curveDate = curveSpecification.getCurveDate();
     for (final FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
       final Security security = getSecurity(curveSpecification, marketValues, strip);
@@ -226,7 +226,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       }
       case FUTURE:
         final FutureSecurity futureSecurity = (FutureSecurity) security;
-        return futureSecurity.getExpiry().getExpiry();
+        return futureSecurity.getExpiry().getExpiry().plusMonths(3); //TODO shouldn't hard-code to 3 - find out why comparator in FixedIncomeStrip isn't working properly
       case LIBOR: {
         final CashSecurity rateSecurity = (CashSecurity) security;
         final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
@@ -348,7 +348,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private FutureSecurity getFuture(final FixedIncomeStripWithIdentifier strip) {
-    return (FutureSecurity) _secSource.get(ExternalIdBundle.of(strip.getSecurity()));
+    return (FutureSecurity) _secSource.getSingle(ExternalIdBundle.of(strip.getSecurity()));
   }
 
   private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, final Tenor resetTenor) {

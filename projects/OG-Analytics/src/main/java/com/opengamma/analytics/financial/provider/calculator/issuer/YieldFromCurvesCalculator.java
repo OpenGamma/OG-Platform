@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderInterface;
@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculate dirty price for bonds.
  */
-public final class YieldFromCurvesCalculator extends AbstractInstrumentDerivativeVisitor<IssuerProviderInterface, Double> {
+public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, Double> {
 
   /**
    * The calculator instance.

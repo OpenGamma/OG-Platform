@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -22,6 +20,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -65,9 +64,9 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @return The present value. The value is in the domestic currency (currency 2).
    */
   public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureVannaVolgaDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -98,8 +97,8 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
 
   @Override
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
     return presentValue((ForexOptionVanilla) instrument, (SmileDeltaTermStructureVannaVolgaDataBundle) curves);
   }
 
@@ -110,9 +109,9 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @return The currency exposure
    */
   public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureVannaVolgaDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -154,8 +153,8 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
 
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
     return currencyExposure((ForexOptionVanilla) instrument, (SmileDeltaTermStructureVannaVolgaDataBundle) curves);
   }
 
@@ -166,9 +165,9 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureVannaVolgaDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -218,9 +217,9 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @return The curve sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureVannaVolgaDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final String domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
@@ -287,8 +286,8 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
 
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureVannaVolgaDataBundle) curves);
   }
 

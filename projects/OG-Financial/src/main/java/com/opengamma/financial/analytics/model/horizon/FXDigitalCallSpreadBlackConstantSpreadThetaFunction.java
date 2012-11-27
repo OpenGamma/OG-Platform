@@ -102,11 +102,11 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve };
+      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName };
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve };
+      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName };
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -123,8 +123,7 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
-        leftExtrapolatorName, rightExtrapolatorName, spread, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
@@ -146,28 +145,27 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     throw new NotImplementedException("Should never get here");
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    return properties;
+    return super.getResultProperties(target).get().copy()
+        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
-      final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String spread, final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName,
-        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, spread, target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
-    return properties;
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    return super.getResultProperties(target, desiredValue).get().copy()
+        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
   }
 
-  private ValueSpecification addDaysForwardProperty(final ValueSpecification spec, final String daysForward) {
+  private static ValueSpecification addDaysForwardProperty(final ValueSpecification spec, final String daysForward) {
     final ValueProperties.Builder properties = spec.getProperties().copy();
     properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties.get());

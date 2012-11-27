@@ -34,8 +34,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ExecutorServiceFactoryBean;
 import com.opengamma.util.ExecutorServiceFactoryBean.Style;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.web.analytics.WebAnalyticsResource;
 import com.opengamma.web.server.LiveResultsServiceBean;
+import com.opengamma.web.server.WebAnalyticsResource;
 
 /**
  * Component factory for the main website.

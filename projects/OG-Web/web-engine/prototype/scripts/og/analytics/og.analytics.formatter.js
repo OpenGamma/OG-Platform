@@ -9,7 +9,10 @@ $.register_module({
         var module = this;
         $.fn.sparkline.defaults.common.disableHiddenCheck = true;
         return function (grid) {
-            var formatter = this;
+            var formatter = this, curves = false, sp_options = {
+                type: 'line', lineColor: '#b0b0b0', fillColor: '#ecedee', spotColor: '#b0b0b0',
+                minSpotColor: '#b0b0b0', maxSpotColor: '#b0b0b0', disableInteraction: true
+            };
             formatter.DOUBLE = function (value) {
                 var curr, last, indicator = !value || !value.h || !value.h.length ? null
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
@@ -20,21 +23,20 @@ $.register_module({
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
-                var type = value.t;
+                var type = value && value.t;
+                if (!type) return '';
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             formatter.CURVE = function (value) {
                 try {
+                    curves = true;
                     return '<span class="fl">[' + JSON.stringify($.isArray(value) ? value : value.v || []) + ']</span>';
                 } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
             };
             grid.on('render', function () {
-                var sp_options = {
-                    type: 'line', lineColor: '#b0b0b0', fillColor: '#ecedee', spotColor: '#b0b0b0',
-                    minSpotColor: '#b0b0b0', maxSpotColor: '#b0b0b0', disableInteraction: true
-                };
-                grid.elements.parent.find('.OG-g .sp').sparkline('html', sp_options);
-                grid.elements.parent.find('.OG-g .fl').each(function () {
+                if (grid.config.sparklines) grid.elements.parent.find('.OG-g .sp').sparkline('html', sp_options);
+                // only bother looking for flot elements if the grid has some curve values in the last render
+                if (curves) (curves = false), grid.elements.parent.find('.OG-g .fl').each(function () {
                     var $this = $(this), data;
                     try {
                         data = JSON.parse($this.text());

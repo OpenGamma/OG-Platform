@@ -36,12 +36,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
 public class NettedFixedCashFlowVisitorTest {
-  private static final NettedFixedCashFlowVisitor VISITOR = NettedFixedCashFlowVisitor.getInstance();
+  private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> VISITOR = NettedFixedCashFlowVisitor.getVisitor();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_RECEIVE_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_MULTIPLE_CASHFLOWS = new HashSet<InstrumentDefinition<?>>();
@@ -65,16 +66,6 @@ public class NettedFixedCashFlowVisitorTest {
     NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP);
     NO_NETTING_MULTIPLE_CASHFLOWS.add(PAYER_SWAP_WITH_SPREAD);
     NO_NETTING_MULTIPLE_CASHFLOWS.add(RECEIVER_SWAP_WITH_SPREAD);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullInstrument1() {
-    VISITOR.visit(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullInstrument2() {
-    VISITOR.visit(null, IBOR_FIXING_SERIES);
   }
 
   @Test

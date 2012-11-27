@@ -8,11 +8,15 @@ $.register_module({
     obj: function () {
         var GadgetsContainer = og.common.gadgets.GadgetsContainer, containers = {
             initialize: function () {
-                ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (panel) {
+                var panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
+                panels.forEach(function (panel) {
                     containers[panel] = new GadgetsContainer('.OG-layout-analytics-', panel)
                         .init()
                         .on('del', function (index) {og.analytics.url.remove(panel, index);})
-                        .on('drop', function (params) {return og.analytics.url.add(panel, params, true), false;})
+                        .on('drop', function (params, source) {
+                            og.analytics.url.add(panel, params, ~panels.indexOf(source)); 
+                            return false;
+                        })
                         .on('launch', og.analytics.url.launch);
                 });
                 delete containers.initialize;

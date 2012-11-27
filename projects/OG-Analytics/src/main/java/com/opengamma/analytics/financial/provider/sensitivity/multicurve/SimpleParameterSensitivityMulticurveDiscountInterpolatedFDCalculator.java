@@ -42,7 +42,7 @@ public class SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculato
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> valueCalculator, final double shift) {
+  public SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> valueCalculator, final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
     _shift = shift;
@@ -58,84 +58,87 @@ public class SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculato
   public SimpleParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final MulticurveProviderDiscount multicurve) {
     SimpleParameterSensitivity result = new SimpleParameterSensitivity();
     // Discounting
-    Set<Currency> ccyDiscounting = multicurve.getCurrencies();
-    for (Currency ccy : ccyDiscounting) {
-      YieldAndDiscountCurve curve = multicurve.getCurve(ccy);
+    final Set<Currency> ccyDiscounting = multicurve.getCurrencies();
+    for (final Currency ccy : ccyDiscounting) {
+      final YieldAndDiscountCurve curve = multicurve.getCurve(ccy);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[] sensitivity = new double[nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[] sensitivity = new double[nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketDscBumpedPlus = multicurve.withDiscountFactor(ccy, dscBumpedPlus);
-        Double valueBumpedPlus = _valueCalculator.visit(instrument, marketDscBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketDscBumpedPlus = multicurve.withDiscountFactor(ccy, dscBumpedPlus);
+        final Double valueBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketDscBumpedMinus = multicurve.withDiscountFactor(ccy, dscBumpedMinus);
-        Double valueBumpedMinus = _valueCalculator.visit(instrument, marketDscBumpedMinus);
-        Double valueDiff = valueBumpedPlus - valueBumpedMinus;
+        final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketDscBumpedMinus = multicurve.withDiscountFactor(ccy, dscBumpedMinus);
+        final Double valueBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
+        final Double valueDiff = valueBumpedPlus - valueBumpedMinus;
         sensitivity[loopnode] = valueDiff / (2 * _shift);
       }
-      String name = multicurve.getName(ccy);
+      final String name = multicurve.getName(ccy);
       result = result.plus(name, new DoubleMatrix1D(sensitivity));
     }
     // Forward ON
-    Set<IndexON> indexON = multicurve.getIndexesON();
-    for (IndexON index : indexON) {
-      YieldAndDiscountCurve curve = multicurve.getCurve(index);
+    final Set<IndexON> indexON = multicurve.getIndexesON();
+    for (final IndexON index : indexON) {
+      final YieldAndDiscountCurve curve = multicurve.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[] sensitivity = new double[nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[] sensitivity = new double[nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketFwdBumpedPlus = multicurve.withForward(index, fwdBumpedPlus);
-        Double valueBumpedPlus = _valueCalculator.visit(instrument, marketFwdBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketFwdBumpedPlus = multicurve.withForward(index, fwdBumpedPlus);
+        final Double valueBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketFwdBumpedMinus = multicurve.withForward(index, fwdBumpedMinus);
-        Double valueBumpedMinus = _valueCalculator.visit(instrument, marketFwdBumpedMinus);
-        Double valueDiff = valueBumpedPlus - valueBumpedMinus;
+        final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketFwdBumpedMinus = multicurve.withForward(index, fwdBumpedMinus);
+        final Double valueBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
+        final Double valueDiff = valueBumpedPlus - valueBumpedMinus;
         sensitivity[loopnode] = valueDiff / (2 * _shift);
       }
-      String name = multicurve.getName(index);
+      final String name = multicurve.getName(index);
       result = result.plus(name, new DoubleMatrix1D(sensitivity));
     }
     // Forward Ibor - symmetrical
-    Set<IborIndex> indexForward = multicurve.getIndexesIbor();
-    for (IborIndex index : indexForward) {
-      YieldAndDiscountCurve curve = multicurve.getCurve(index);
+    final Set<IborIndex> indexForward = multicurve.getIndexesIbor();
+    for (final IborIndex index : indexForward) {
+      final YieldAndDiscountCurve curve = multicurve.getCurve(index);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-      YieldCurve curveYield = (YieldCurve) curve;
+      final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[] sensitivity = new double[nbNodePoint];
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveYield.getCurve();
+      final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      final double[] sensitivity = new double[nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
+        final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
-        YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketFwdBumpedPlus = multicurve.withForward(index, fwdBumpedPlus);
-        Double valueBumpedPlus = _valueCalculator.visit(instrument, marketFwdBumpedPlus);
-        double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
+        final YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketFwdBumpedPlus = multicurve.withForward(index, fwdBumpedPlus);
+        final Double valueBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
+        final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        MulticurveProviderDiscount marketFwdBumpedMinus = multicurve.withForward(index, fwdBumpedMinus);
-        Double valueBumpedMinus = _valueCalculator.visit(instrument, marketFwdBumpedMinus);
-        Double valueDiff = valueBumpedPlus - valueBumpedMinus;
+        final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
+            curveInt.getInterpolator(), true));
+        final MulticurveProviderDiscount marketFwdBumpedMinus = multicurve.withForward(index, fwdBumpedMinus);
+        final Double valueBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
+        final Double valueDiff = valueBumpedPlus - valueBumpedMinus;
         sensitivity[loopnode] = valueDiff / (2 * _shift);
       }
-      String name = multicurve.getName(index);
+      final String name = multicurve.getName(index);
       result = result.plus(name, new DoubleMatrix1D(sensitivity));
     }
     return result;

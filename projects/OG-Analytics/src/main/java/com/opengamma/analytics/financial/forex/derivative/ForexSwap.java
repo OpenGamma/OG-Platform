@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a Forex swap transaction (with a near and far leg).
@@ -30,7 +31,7 @@ public class ForexSwap implements InstrumentDerivative {
    * @param nearLeg The near leg.
    * @param farLeg The far leg.
    */
-  public ForexSwap(Forex nearLeg, Forex farLeg) {
+  public ForexSwap(final Forex nearLeg, final Forex farLeg) {
     Validate.notNull(nearLeg, "Near leg");
     Validate.notNull(farLeg, "Far leg");
     this._nearLeg = nearLeg;
@@ -54,12 +55,14 @@ public class ForexSwap implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexSwap(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexSwap(this);
   }
 
@@ -73,7 +76,7 @@ public class ForexSwap implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -83,7 +86,7 @@ public class ForexSwap implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexSwap other = (ForexSwap) obj;
+    final ForexSwap other = (ForexSwap) obj;
     if (!ObjectUtils.equals(_farLeg, other._farLeg)) {
       return false;
     }

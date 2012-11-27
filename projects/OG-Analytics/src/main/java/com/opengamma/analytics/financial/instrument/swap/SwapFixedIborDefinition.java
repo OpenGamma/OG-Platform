@@ -184,7 +184,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Return the currency of the swap. 
+   * Return the currency of the swap.
    * @return The currency.
    */
   public Currency getCurrency() {
@@ -222,11 +222,13 @@ public class SwapFixedIborDefinition extends SwapDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapFixedIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapFixedIborDefinition(this);
   }
 

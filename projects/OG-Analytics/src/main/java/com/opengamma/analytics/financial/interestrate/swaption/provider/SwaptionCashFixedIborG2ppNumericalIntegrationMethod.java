@@ -44,11 +44,11 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod {
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   public MultipleCurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final G2ppProviderInterface g2Data) {
-    Currency ccy = swaption.getCurrency();
-    MulticurveProviderInterface multicurves = g2Data.getMulticurveProvider();
+    final Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = g2Data.getMulticurveProvider();
     final double notional = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getNotional();
     final double strike = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFixedRate();
-    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), g2Data.getMulticurveProvider());
+    final AnnuityPaymentFixed cfeIbor = swaption.getUnderlyingSwap().getSecondLeg().accept(CFEC, g2Data.getMulticurveProvider());
     final double theta = swaption.getTimeToExpiry();
     final double dft0 = multicurves.getDiscountFactor(ccy, swaption.getSettlementTime());
     final int nbCfFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
@@ -92,7 +92,7 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod {
       tau2Ibor[loopcf] = alphaIbor[0][loopcf] * alphaIbor[0][loopcf] + alphaIbor[1][loopcf] * alphaIbor[1][loopcf] + 2 * rhog2pp * gamma[0][1] * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
     }
 
-    final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, rhobar, 
+    final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, rhobar,
         swaption.getUnderlyingSwap(), strike);
     final double limit = 10.0;
     final double absoluteTolerance = 1.0E-0;

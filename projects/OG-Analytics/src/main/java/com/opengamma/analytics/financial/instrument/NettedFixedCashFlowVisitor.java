@@ -17,16 +17,13 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Returns the netted results of pay and receive cash-flows, where a negative value implies a net liability.
  */
-public final class NettedFixedCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
+public final class NettedFixedCashFlowVisitor extends InstrumentDefinitionVisitorSameMethodAdapter<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FixedPayCashFlowVisitor PAY_VISITOR = FixedPayCashFlowVisitor.getInstance();
   private static final FixedReceiveCashFlowVisitor RECEIVE_VISITOR = FixedReceiveCashFlowVisitor.getInstance();
   private static final NettedFixedCashFlowVisitor INSTANCE = new NettedFixedCashFlowVisitor();
 
-  public static NettedFixedCashFlowVisitor getInstance() {
+  public static InstrumentDefinitionVisitorSameMethodAdapter<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> getVisitor() {
     return INSTANCE;
-  }
-
-  private NettedFixedCashFlowVisitor() {
   }
 
   /**

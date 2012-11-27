@@ -7,7 +7,6 @@ package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -31,6 +30,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -46,11 +47,12 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -123,11 +125,7 @@ public class DbBatchWriterTest extends DbTest {
 
       @Override
       public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs(String calcConfName) {
-        return new HashMap<ValueSpecification, Set<ValueRequirement>>() {{
-          put(_specification, new HashSet<ValueRequirement>() {{
-            add(_requirement);
-          }});
-        }};
+        return ImmutableMap.<ValueSpecification, Set<ValueRequirement>>of(_specification, ImmutableSet.of(_requirement));
       }
 
       @Override
@@ -523,15 +521,12 @@ public class DbBatchWriterTest extends DbTest {
     RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    result.addValue("config_1",
-      new ComputedValue(
-        new ValueSpecification(
-          "value",
-          new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL")), ValueProperties.with(ValuePropertyNames.FUNCTION, "asd").get()),
-        1000.0) {{
-        this.setInvocationResult(InvocationResult.SUCCESS);
-        this.setRequirements(newHashSet(_requirement));
-      }});
+    ComputationTargetSpecification computationTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
+    ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "asd").get();
+    ValueSpecification valueSpec = new ValueSpecification("value", computationTargetSpec, properties);
+    ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, ExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
+    //cvr.setRequirements(newHashSet(_requirement));
+    result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
   }
 
@@ -541,14 +536,9 @@ public class DbBatchWriterTest extends DbTest {
     _batchMaster.createMarketData(marketDataUid);            
     RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    result.addValue("config_1",
-      new ComputedValue(
-        _specification,
-        1000.0) {{
-        this.setInvocationResult(InvocationResult.SUCCESS);
-        this.setRequirements(newHashSet(_requirement));
-        this.setComputeNodeId("someComputeNode");
-      }});
+    ComputedValueResult cvr = new ComputedValueResult(_specification, 1000.0, ExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
+    //cvr.setRequirements(newHashSet(_requirement));
+    result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
   }
 }

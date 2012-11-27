@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationCalculator extends AbstractInstrumentDerivativeVisitor<InflationProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingInflationCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<InflationProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -70,7 +70,7 @@ public final class PresentValueDiscountingInflationCalculator extends AbstractIn
   public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final InflationProviderInterface multicurves) {
     try {
       return derivative.accept(this, multicurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDC, multicurves.getMulticurveProvider());
     }
   }
@@ -80,7 +80,7 @@ public final class PresentValueDiscountingInflationCalculator extends AbstractIn
     Validate.notNull(annuity);
     MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
     for (final Payment p : annuity.getPayments()) {
-      pv = pv.plus(visit(p, market));
+      pv = pv.plus(p.accept(this, market));
     }
     return pv;
   }
@@ -105,14 +105,9 @@ public final class PresentValueDiscountingInflationCalculator extends AbstractIn
     return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
   }
 
-  //  @Override
-  //  public MultipleCurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final InflationProviderInterface market) {
-  //    return null; // TODO: method
-  //  }
-  //
-  //  @Override
-  //  public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationProviderInterface market) {
-  //    return null; // TODO: method
-  //  }
+  @Override
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
+  }
 
 }

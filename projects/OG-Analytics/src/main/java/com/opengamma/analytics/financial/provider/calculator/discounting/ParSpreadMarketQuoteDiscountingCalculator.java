@@ -7,8 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
@@ -25,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  * The notion of "market quote" will depend of each instrument.
  * @author marc
  */
-public final class ParSpreadMarketQuoteDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, Double> {
+public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -55,13 +54,6 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends AbstractIns
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(multicurve, "Multi-curves");
-    ArgumentChecker.notNull(derivative, "Derivatives");
-    return derivative.accept(this, multicurve);
-  }
 
   //     -----     Deposit     -----
 
@@ -96,7 +88,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends AbstractIns
   public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(multicurves, "Market");
     ArgumentChecker.notNull(swap, "Swap");
-    return -multicurves.getFxRates().convert(PVMC.visit(swap, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / PVMQSC.visit(swap.getFirstLeg(), multicurves);
+    return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
   }
 
   @Override

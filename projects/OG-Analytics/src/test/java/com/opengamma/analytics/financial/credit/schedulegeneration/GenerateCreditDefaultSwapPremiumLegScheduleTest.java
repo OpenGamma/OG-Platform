@@ -14,8 +14,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueLegacyCreditDefaultSwapTest.MyCalendar;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
@@ -26,6 +25,7 @@ import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -42,6 +42,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // TODO : Add all the tests (once the code has stabilised)
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
+
+  // ----------------------------------------------------------------------------------
 
   // CDS contract parameters (don't need the curves in this case as we are just testing the construction of the cashflow schedule)
 
@@ -103,7 +108,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
-  private static final Calendar calendar = new MyCalendar();
+  private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
@@ -175,7 +180,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
+  // Construct a CDS contract
   private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
@@ -188,7 +193,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -199,7 +203,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -208,17 +211,15 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   @Test
   public void testCDSCashflowScheduleGeneration() {
 
-    final boolean outputSchedule = false;
-
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
-    ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    final ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
-    if (outputSchedule) {
-      for (int i = 0; i < schedule.length; i++) {
-        System.out.println(schedule[i]);
+    if (outputResults) {
+      for (final ZonedDateTime element : schedule) {
+        System.out.println(element);
       }
     }
 

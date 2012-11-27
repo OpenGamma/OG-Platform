@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -57,7 +58,7 @@ public class DepositCounterpart extends Cash {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -67,7 +68,7 @@ public class DepositCounterpart extends Cash {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositCounterpart other = (DepositCounterpart) obj;
+    final DepositCounterpart other = (DepositCounterpart) obj;
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
@@ -76,11 +77,13 @@ public class DepositCounterpart extends Cash {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositCounterpart(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositCounterpart(this);
   }
 

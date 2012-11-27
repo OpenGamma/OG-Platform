@@ -64,6 +64,6 @@ $.register_module({
             if (skip_format) return str;
             return str.replace(/([a-z])([A-Z])/g, '$1 $2') // first add space between uppercase characters
                 .replace(/^[a-z]/, function (chr) {return chr.toUpperCase();}); // then uppercase first character
-        }
+        };
     }
 });

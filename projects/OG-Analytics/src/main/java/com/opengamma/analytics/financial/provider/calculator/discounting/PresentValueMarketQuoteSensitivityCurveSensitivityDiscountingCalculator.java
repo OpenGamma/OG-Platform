@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Computes the sensitivity to the curves (in the Market description of curve bundle) of the market quote sensitivity.
  * @author marc
  */
-public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> {
+public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -60,10 +60,10 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
   public MulticurveSensitivity visitCoupon(final Coupon coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(multicurve, "Market");
     ArgumentChecker.notNull(coupon, "Coupon");
-    double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
-    double mqsBar = 1.0;
-    double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * mqsBar;
+    final double mqsBar = 1.0;
+    final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * mqsBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
@@ -99,7 +99,7 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
     ArgumentChecker.notNull(annuity, "Annuity");
     MulticurveSensitivity pvbpSensi = new MulticurveSensitivity();
     for (final Payment p : annuity.getPayments()) {
-      pvbpSensi = pvbpSensi.plus(visit(p, multicurve));
+      pvbpSensi = pvbpSensi.plus(p.accept(this, multicurve));
     }
     return pvbpSensi;
   }

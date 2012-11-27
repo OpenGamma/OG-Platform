@@ -18,8 +18,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationIssuerCalculator;
@@ -62,7 +60,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtils.getUTCDate(2016, 1, 15);
   private static final YieldConvention YIELD_CONVENTION_TIPS_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_TIPS_1 = 3;
-  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
+  private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
   private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
@@ -83,9 +81,9 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueTips1() {
-    MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    MultipleCurrencyAmount pvSettlement = PVDIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET.getInflationProvider()).multipliedBy(
+    final MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    final MultipleCurrencyAmount pvSettlement = PVDIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET.getInflationProvider()).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
         pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
@@ -96,8 +94,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

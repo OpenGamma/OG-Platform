@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 /**
  * Calculates the present value of an ...
  */
-public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -53,7 +53,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   public MulticurveSensitivity visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
     try {
       return derivative.accept(this, issuercurves);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return derivative.accept(PVDC, issuercurves.getMulticurveProvider());
     }
   }
@@ -70,6 +70,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   @Override
   public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves);
+  }
+
+  @Override
+  public MulticurveSensitivity visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException();
   }
 
 }

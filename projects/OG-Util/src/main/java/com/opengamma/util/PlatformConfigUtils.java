@@ -35,14 +35,6 @@ public final class PlatformConfigUtils {
    * System property used to specify the OS type.
    */
   public static final String OS_TYPE_PROPERTY_NAME = PROPERTY_PREFIX + "os";
-  /**
-   * System property used to specify the run mode.
-   */
-  public static final String RUN_MODE_PROPERTY_NAME = PROPERTY_PREFIX + "runmode";
-  /**
-   * System property used to specify the market data source
-   */
-  public static final String MARKET_DATA_PROPERTY_NAME = PROPERTY_PREFIX + "marketdatasource";
 
   //-------------------------------------------------------------------------
   /**
@@ -59,25 +51,6 @@ public final class PlatformConfigUtils {
     POSIX;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Enumerates the valid market data sources.
-   */
-  public static enum MarketDataSource {
-    /**
-     * Establish a direct connection to a market data server using third-party libraries.
-     */
-    DIRECT,
-    /**
-     * Establish a connection to an OpenGamma Market Data Server which can provide the required data. 
-     */
-    OPENGAMMA,
-    /**
-     * Use a recording of the market data.
-     */
-    RECORDING;
-  }
-
   /**
    * Restricted constructor.
    */
@@ -86,33 +59,12 @@ public final class PlatformConfigUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets and/or validates the system properties generally necessary for the platform to run. 
+   * Sets and/or validates the system properties generally necessary for the platform to run.
+   * Argument values are only used if the corresponding system properties have not been set directly.
    * 
-   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
-   */
-  public static void configureSystemProperties() {
-    configureSystemProperties(MarketDataSource.OPENGAMMA.name());
-  }
-
-  /**
-   * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
-   * used if the corresponding system properties have not been set directly.
-   * 
-   * @param marketDataSource  the source of market data, not null
-   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
-   */
-  public static void configureSystemProperties(MarketDataSource marketDataSource) {
-    configureSystemProperties(toPropertyValue(marketDataSource));
-  }
-
-  /**
-   * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
-   * used if the corresponding system properties have not been set directly.
-   * 
-   * @param marketDataSource  the market data source, not null
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
-  public static void configureSystemProperties(String marketDataSource) {
+  public static void configureSystemProperties() {
     if (System.getProperty(OS_TYPE_PROPERTY_NAME) == null) {
       String os = System.getProperty("os.name").toLowerCase();
       System.setProperty(OS_TYPE_PROPERTY_NAME, toPropertyValue(os.startsWith("win") ? OsType.WIN : OsType.POSIX));
@@ -120,22 +72,11 @@ public final class PlatformConfigUtils {
       validateProperty(OsType.class, OS_TYPE_PROPERTY_NAME);
     }
     
-    if (System.getProperty(MARKET_DATA_PROPERTY_NAME) == null && marketDataSource != null) {
-      setFromEnumValue(MarketDataSource.class, MARKET_DATA_PROPERTY_NAME, marketDataSource);
-    } else {
-      validateProperty(MarketDataSource.class, MARKET_DATA_PROPERTY_NAME);
-    }
-    
     logPlatformConfiguration();
   }
 
   private static <T extends Enum<T>> String toPropertyValue(Enum<T> enumValue) {
     return enumValue.name().toLowerCase();
-  }
-
-  private static <T extends Enum<T>> void setFromEnumValue(Class<T> enumType, String propertyName, String propertyValue) {
-    validatePropertyValue(enumType, propertyName, propertyValue);
-    System.setProperty(propertyName, propertyValue);
   }
 
   private static <T extends Enum<T>> void validateProperty(Class<T> enumType, String propertyName) {

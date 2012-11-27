@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.curve.generator;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded). 
+ * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
  * One extra node with value zero is added at the mid point between the first and second point. This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
  * TODO Change to have the anchor point flexible.
@@ -25,7 +25,7 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
   /**
    * Calculator of the node associated to instruments.
    */
-  private final AbstractInstrumentDerivativeVisitor<Object, Double> _nodeTimeCalculator;
+  private final InstrumentDerivativeVisitorAdapter<Object, Double> _nodeTimeCalculator;
   /**
    * The interpolator used for the curve.
    */
@@ -36,7 +36,7 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
    * @param nodeTimeCalculator Calculator of the node associated to instruments.
    * @param interpolator The interpolator used for the curve.
    */
-  public GeneratorCurveYieldInterpolatedAnchor(AbstractInstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator, Interpolator1D interpolator) {
+  public GeneratorCurveYieldInterpolatedAnchor(final InstrumentDerivativeVisitorAdapter<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator) {
     _nodeTimeCalculator = nodeTimeCalculator;
     _interpolator = interpolator;
   }
@@ -47,17 +47,17 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
@@ -67,14 +67,14 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
    * @return The final generator.
    */
   @Override
-  public GeneratorYDCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(final Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
-    InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
-    double[] node = new double[instruments.length - 1];
+    final InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
+    final double[] node = new double[instruments.length - 1];
     for (int loopins = 0; loopins < instruments.length - 1; loopins++) {
-      node[loopins] = _nodeTimeCalculator.visit(instruments[loopins + 1]);
+      node[loopins] = instruments[loopins + 1].accept(_nodeTimeCalculator);
     }
-    double anchor = _nodeTimeCalculator.visit(instruments[0]);
+    final double anchor = instruments[0].accept(_nodeTimeCalculator);
     return new GeneratorCurveYieldInterpolatedAnchorNode(node, anchor, _interpolator);
   }
 

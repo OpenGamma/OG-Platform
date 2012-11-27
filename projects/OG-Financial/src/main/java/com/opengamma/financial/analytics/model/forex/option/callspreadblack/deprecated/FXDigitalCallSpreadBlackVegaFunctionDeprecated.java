@@ -33,7 +33,7 @@ public class FXDigitalCallSpreadBlackVegaFunctionDeprecated extends FXDigitalCal
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator(spread);
-    final PresentValueForexBlackVolatilitySensitivity result = calculator.visit(fxDigital, data);
+    final PresentValueForexBlackVolatilitySensitivity result = fxDigital.accept(calculator, data);
     final CurrencyAmount vegaValue = result.toSingleValue();
     return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
   }

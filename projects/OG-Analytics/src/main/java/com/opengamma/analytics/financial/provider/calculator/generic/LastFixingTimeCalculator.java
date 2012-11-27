@@ -5,10 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.generic;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -20,10 +17,10 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * Calculator of the last fixing time. 
+ * Calculator of the last fixing time.
  * For fixed coupon, it is 0.
  */
-public final class LastFixingTimeCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
+public final class LastFixingTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -42,12 +39,6 @@ public final class LastFixingTimeCalculator extends AbstractInstrumentDerivative
    * Constructor.
    */
   private LastFixingTimeCalculator() {
-  }
-
-  @Override
-  public Double visit(final InstrumentDerivative ird, final Object data) {
-    Validate.notNull(ird, "ird");
-    return ird.accept(this);
   }
 
   // -----     Deposit     ------
@@ -80,7 +71,7 @@ public final class LastFixingTimeCalculator extends AbstractInstrumentDerivative
   public Double visitGenericAnnuity(final Annuity<? extends Payment> annuity) {
     double result = 0.0;
     for (int loopp = 0; loopp < annuity.getNumberOfPayments(); loopp++) {
-      result = Math.max(result, visit(annuity.getNthPayment(loopp)));
+      result = Math.max(result, annuity.getNthPayment(loopp).accept(this));
     }
     return result;
   }
@@ -94,8 +85,8 @@ public final class LastFixingTimeCalculator extends AbstractInstrumentDerivative
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap) {
-    final double a = visit(swap.getFirstLeg());
-    final double b = visit(swap.getSecondLeg());
+    final double a = swap.getFirstLeg().accept(this);
+    final double b = swap.getSecondLeg().accept(this);
     return Math.max(a, b);
   }
 

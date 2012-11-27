@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.horizon;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD_YIELD_CURVES;
@@ -44,6 +45,7 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackMultiValuedFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -81,8 +83,8 @@ public class FXOptionBlackYieldCurvesConstantSpreadThetaFunction extends FXOptio
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
-    final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
-    final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName, callCurveConfig);
+    final YieldAndDiscountCurve putFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
+    final YieldAndDiscountCurve callFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
     curveCurrency.put(fullPutCurveName, putCurrency);

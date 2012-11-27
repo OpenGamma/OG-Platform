@@ -38,7 +38,7 @@ public class FinancialTestBase {
   @BeforeMethod
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
-    RegionMaster regionMaster = new InMemoryRegionMaster();
+    final RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.createPopulated(regionMaster);
     _regionSource = new MasterRegionSource(regionMaster);
   }
@@ -68,7 +68,7 @@ public class FinancialTestBase {
     final FudgeSerializer fudgeSerializationContext = new FudgeSerializer(getFudgeContext());
     final FudgeDeserializer fudgeDeserializationContext = new FudgeDeserializer(getFudgeContext());
     final MutableFudgeMsg messageIn = fudgeSerializationContext.newMessage();
-    fudgeSerializationContext.addToMessage(messageIn, "test", null, object);
+    fudgeSerializationContext.addToMessageWithClassHeaders(messageIn, "test", null, object, clazz);
     s_logger.info("message {}", messageIn);
     final FudgeMsg messageOut = cycleMessage(messageIn);
     s_logger.info("message {}", messageOut);

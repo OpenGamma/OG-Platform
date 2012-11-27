@@ -80,13 +80,13 @@ public class SwapFixedIborDiscountingMethodTest {
    * Tests the present value for a swap with the Ibor leg having different Ibor indexes (EURIBOR3M and EURIBOR6M).
    */
   public void presentValue2Iborindex() {
-    MultipleCurrencyAmount pvCalcCpn3 = PVDC.visit(CPN_IBOR_3, MULTICURVES);
-    MultipleCurrencyAmount pvMethCpn3 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_3, MULTICURVES);
-    MultipleCurrencyAmount pvCalcCpn6 = PVDC.visit(CPN_IBOR_6, MULTICURVES);
-    MultipleCurrencyAmount pvMethCpn6 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_6, MULTICURVES);
-    MultipleCurrencyAmount pvCalcAnnIbor = PVDC.visit(ANNUITY_IBOR, MULTICURVES);
-    MultipleCurrencyAmount pvCalcAnnFixed = PVDC.visit(ANNUITY_FIXED, MULTICURVES);
-    MultipleCurrencyAmount pvCalcSwap = PVDC.visit(SWAP, MULTICURVES);
+    final MultipleCurrencyAmount pvCalcCpn3 = CPN_IBOR_3.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount pvMethCpn3 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_3, MULTICURVES);
+    final MultipleCurrencyAmount pvCalcCpn6 = CPN_IBOR_6.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount pvMethCpn6 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_6, MULTICURVES);
+    final MultipleCurrencyAmount pvCalcAnnIbor = ANNUITY_IBOR.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount pvCalcAnnFixed = ANNUITY_FIXED.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount pvCalcSwap = SWAP.accept(PVDC, MULTICURVES);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvMethCpn3.getAmount(EUR), pvCalcCpn3.getAmount(EUR), TOLERANCE_PV);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvMethCpn6.getAmount(EUR), pvCalcCpn6.getAmount(EUR), TOLERANCE_PV);
     assertEquals("PresentValueDiscountingProviderCalculator: multiple Ibor index", pvCalcCpn3.plus(pvCalcCpn6).getAmount(EUR), pvCalcAnnIbor.getAmount(EUR), TOLERANCE_PV);

@@ -59,7 +59,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
           * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional();
     }
 
-    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
+    final AnnuityPaymentFixed cfeIbor = swaption.getUnderlyingSwap().getSecondLeg().accept(CFEC, hwData);
     final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
     final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
     final double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];

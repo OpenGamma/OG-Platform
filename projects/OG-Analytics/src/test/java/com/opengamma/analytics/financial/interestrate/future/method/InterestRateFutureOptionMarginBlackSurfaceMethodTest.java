@@ -120,7 +120,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double presentValue2Expected = (priceOption - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
     final CurrencyAmount presentValue2Computed = METHOD_TRANSACTION_OPTION_BLACK.presentValue(TRANSACTION_2, BLACK_BUNDLE);
     assertEquals("Future option with Black volatilities: option transaction pv", presentValue2Expected, presentValue2Computed.getAmount(), TOLERANCE_PRICE);
-    final double presentValue1Calculator = PVC_BLACK.visit(TRANSACTION_1, BLACK_BUNDLE);
+    final double presentValue1Calculator = TRANSACTION_1.accept(PVC_BLACK, BLACK_BUNDLE);
     assertEquals("Future option with Black volatilities: option transaction pv", presentValue1Computed.getAmount(), presentValue1Calculator, TOLERANCE_PRICE);
   }
 
@@ -133,9 +133,9 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     pvcsMethod.cleaned();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    String[] curvesBumpedForward = new String[] {CURVE_NAMES[0], bumpedCurveName};
-    InterestRateFutureOptionMarginTransaction transactionBumped = TRANSACTION_1_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE, curvesBumpedForward);
-    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
+    final String[] curvesBumpedForward = new String[] {CURVE_NAMES[0], bumpedCurveName };
+    final InterestRateFutureOptionMarginTransaction transactionBumped = TRANSACTION_1_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE, curvesBumpedForward);
+    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime() };
     final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(transactionBumped, BLACK_BUNDLE, CURVE_NAMES[1], bumpedCurveName, nodeTimesForward, DELTA_SHIFT,
         METHOD_TRANSACTION_OPTION_BLACK);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
@@ -145,7 +145,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
       assertEquals("Sensitivity future pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], TOLERANCE_DELTA);
     }
-    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_BLACK.visit(TRANSACTION_1, BLACK_BUNDLE));
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(TRANSACTION_1.accept(PVCSC_BLACK, BLACK_BUNDLE));
     AssertSensivityObjects.assertEquals("Future option with Black volatilities: option transaction curve sensi", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

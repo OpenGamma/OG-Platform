@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
@@ -48,13 +46,15 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * The key used to refer to repository in the servlet context.
    */
   public static final String SERVLET_CONTEXT_KEY = ComponentRepository.class.getName();
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ComponentRepository.class);
   /**
    * The thread-local instance.
    */
   private static final ThreadLocal<ComponentRepository> s_threadRepo = new InheritableThreadLocal<ComponentRepository>();
 
+  /**
+   * The logger to use.
+   */
+  private final ComponentLogger _logger;
   /**
    * The map of info by type.
    */
@@ -88,13 +88,32 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   private AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
 
+//  /**
+//   * Creates an instance with no logging.
+//   */
+//  public ComponentRepository() {
+//    this(null);
+//  }
+
   /**
    * Creates an instance.
+   * 
+   * @param logger  the logger, null means no logging
    */
-  public ComponentRepository() {
+  public ComponentRepository(ComponentLogger logger) {
+    _logger = (logger != null ? logger : ComponentLogger.Sink.INSTANCE);
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the logger.
+   * 
+   * @return the logger, not null
+   */
+  public ComponentLogger getLogger() {
+    return _logger;
+  }
+
   /**
    * Gets all the instances.
    * <p>
@@ -454,7 +473,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
       ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
-      registered(info, instance);
+      registeredComponent(info, instance);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
@@ -485,6 +504,20 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     ArgumentChecker.notNull(instance, "instance");
     ComponentInfo info = new ComponentInfo(type, classifier);
     registerComponent(info, instance);
+  }
+
+  /**
+   * Called whenever an instance is registered.
+   * 
+   * @param info  the key or info of the instance that was registered, null if not a component
+   * @param registeredObject  the instance that was registered, may be null
+   */
+  protected void registeredComponent(ComponentInfo info, Object registeredObject) {
+    if (info.getAttributes().isEmpty()) {
+      _logger.logDebug(" Registered component: " + info.toComponentKey());
+    } else {
+      _logger.logDebug(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
+    }
   }
 
   /**
@@ -566,7 +599,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
         return obj.getClass().getSimpleName() + ":" + obj.toString();
       }
     });
-    registered(null, obj);
+    _logger.logDebug(" Registered lifecycle-stop: " + obj);
   }
 
   /**
@@ -585,7 +618,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     try {
       initialize0(lifecycleObject);
       registerLifecycle0(lifecycleObject);
-      registered(null, lifecycleObject);
+      _logger.logDebug(" Registered lifecycle: " + lifecycleObject);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
@@ -619,7 +652,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     try {
       initialize0(servletContextAware);
       registerServletContextAware0(servletContextAware);
-      registered(null, servletContextAware);
+      _logger.logDebug(" Registered lifecycle-stop: " + servletContextAware);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
@@ -662,7 +695,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     try {
       initialize0(managedResource);
       registerMBean0(managedResource, name);
-      registered(null, managedResource);
+      _logger.logDebug(" Registered mbean: " + managedResource);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
@@ -693,22 +726,6 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       throw new OpenGammaRuntimeException("Could not generate object name for " + managedResource, ex);
     }
     return objectName;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Called whenever an instance is registered.
-   * 
-   * @param registeredKey  the key or info of the instance that was registered, null if not a component
-   * @param registeredObject  the instance that was registered, may be null
-   */
-  protected void registered(Object registeredKey, Object registeredObject) {
-    // override to handle event
-    if (registeredKey instanceof ComponentInfo) {
-      s_logger.info(" Registered component: {}", registeredKey);
-    } else {
-      s_logger.info(" Registered: {}", registeredObject);
-    }
   }
 
   //-------------------------------------------------------------------------

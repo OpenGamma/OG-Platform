@@ -86,9 +86,9 @@ public final class BondSecurityDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValue(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
-    final MultipleCurrencyAmount pvNominal = PVDC.visit(bond.getNominal(), multicurvesDecorated);
-    final MultipleCurrencyAmount pvCoupon = PVDC.visit(bond.getCoupon(), multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVDC, multicurvesDecorated);
     return pvNominal.plus(pvCoupon);
   }
 
@@ -129,7 +129,7 @@ public final class BondSecurityDiscountingMethod {
    */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
     final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerCcy(), zSpread);
-    StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
+    final StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
     return parallelSensi.getMap().get(issuerMulticurves.getName(bond.getIssuerCcy()));
   }
 
@@ -201,8 +201,8 @@ public final class BondSecurityDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
-    MulticurveProviderInterface multicurves = issuerMulticurves.getMulticurveProvider();
-    Currency ccy = bond.getCurrency();
+    final MulticurveProviderInterface multicurves = issuerMulticurves.getMulticurveProvider();
+    final Currency ccy = bond.getCurrency();
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     final MultipleCurrencyAmount pv = presentValue(bond, issuerMulticurves);
     final MultipleCurrencyMulticurveSensitivity sensiPv = presentValueCurveSensitivity(bond, issuerMulticurves);
@@ -398,8 +398,8 @@ public final class BondSecurityDiscountingMethod {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) && (nbCoupon == 1)) {
-      double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
-      double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      final double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
+      final double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
       return 2 * timeToPay * timeToPay / (disc * disc);
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD))) {
@@ -477,7 +477,7 @@ public final class BondSecurityDiscountingMethod {
       final MultipleCurrencyAmount pv) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
-    double zSpread = zSpreadFromCurvesAndPV(bond, issuerMulticurves, pv);
+    final double zSpread = zSpreadFromCurvesAndPV(bond, issuerMulticurves, pv);
     return presentValueZSpreadSensitivity(bond, issuerMulticurves, zSpread);
   }
 
@@ -499,7 +499,7 @@ public final class BondSecurityDiscountingMethod {
    * @param cleanPrice The target clean price.
    * @return The z-spread sensitivity.
    */
-  public double presentValueZSpreadSensitivityFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, 
+  public double presentValueZSpreadSensitivityFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves,
       final double cleanPrice) {
     return presentValueZSpreadSensitivityFromCurvesAndPV(bond, issuerMulticurves, presentValueFromCleanPrice(bond, issuerMulticurves.getMulticurveProvider(), cleanPrice));
   }
@@ -512,9 +512,9 @@ public final class BondSecurityDiscountingMethod {
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
-    final MultipleCurrencyMulticurveSensitivity pvcsNominal = PVCSDC.visit(bond.getNominal(), multicurvesDecorated);
-    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = PVCSDC.visit(bond.getCoupon(), multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
+    final MultipleCurrencyMulticurveSensitivity pvcsNominal = bond.getNominal().accept(PVCSDC, multicurvesDecorated);
+    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = bond.getCoupon().accept(PVCSDC, multicurvesDecorated);
     return pvcsNominal.plus(pvcsCoupon);
   }
 
@@ -526,9 +526,9 @@ public final class BondSecurityDiscountingMethod {
    */
   public StringValue presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
-    MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
-    StringValue pvpcsNominal = PVPCSDC.visit(bond.getNominal(), multicurvesDecorated);
-    StringValue pvpcsCoupon = PVPCSDC.visit(bond.getCoupon(), multicurvesDecorated);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, bond.getCurrency(), bond.getIssuer());
+    final StringValue pvpcsNominal = bond.getNominal().accept(PVPCSDC, multicurvesDecorated);
+    final StringValue pvpcsCoupon = bond.getCoupon().accept(PVPCSDC, multicurvesDecorated);
     return StringValue.plus(pvpcsNominal, pvpcsCoupon);
   }
 }

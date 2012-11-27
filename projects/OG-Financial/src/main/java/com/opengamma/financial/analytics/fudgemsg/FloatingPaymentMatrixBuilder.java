@@ -13,7 +13,6 @@ import javax.time.calendar.LocalDate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -28,28 +27,12 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 @FudgeBuilderFor(FloatingPaymentMatrix.class)
-public class FloatingPaymentMatrixBuilder implements FudgeBuilder<FloatingPaymentMatrix> {
+public class FloatingPaymentMatrixBuilder extends AbstractFudgeBuilder<FloatingPaymentMatrix> {
   private static final String DATES_FIELD = "dates";
   private static final String PAIRS_FIELD = "pairs";
   private static final String CA_FIELD = "ca";
   private static final String RESET_INDEX_FIELD = "resetIndex";
   private static final String MAX_AMOUNTS_FIELD = "maxAmounts";
-
-  @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FloatingPaymentMatrix object) {
-    final MutableFudgeMsg message = serializer.newMessage();
-    for (final Map.Entry<LocalDate, List<Pair<CurrencyAmount, String>>> entry : object.getValues().entrySet()) {
-      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
-      final MutableFudgeMsg perDateMessage = serializer.newMessage();
-      for (final Pair<CurrencyAmount, String> pair : entry.getValue()) {
-        serializer.addToMessageWithClassHeaders(perDateMessage, CA_FIELD, null, pair.getFirst());
-        perDateMessage.add(RESET_INDEX_FIELD, pair.getSecond());
-      }
-      message.add(PAIRS_FIELD, perDateMessage);
-    }
-    message.add(MAX_AMOUNTS_FIELD, object.getMaxEntries());
-    return message;
-  }
 
   @Override
   public FloatingPaymentMatrix buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -64,13 +47,27 @@ public class FloatingPaymentMatrixBuilder implements FudgeBuilder<FloatingPaymen
       final List<Pair<CurrencyAmount, String>> list = Lists.newArrayListWithCapacity(caMessage.size());
       for (int j = 0; j < caMessage.size(); j++) {
         final CurrencyAmount ca = deserializer.fieldValueToObject(CurrencyAmount.class, caMessage.get(j));
-        final String resetIndex = (String) resetIndexMessage.get(j).getValue();
+        final String resetIndex = (String) deserializer.fieldValueToObject(String.class, resetIndexMessage.get(j));
         list.add(Pair.of(ca, resetIndex));
       }
       values.put(date, list);
     }
     final int maxAmounts = message.getInt(MAX_AMOUNTS_FIELD);
     return new FloatingPaymentMatrix(values, maxAmounts);
+  }
+
+  @Override
+  protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FloatingPaymentMatrix object) {
+    for (final Map.Entry<LocalDate, List<Pair<CurrencyAmount, String>>> entry : object.getValues().entrySet()) {
+      serializer.addToMessageWithClassHeaders(message, DATES_FIELD, null, entry.getKey());
+      final MutableFudgeMsg perDateMessage = serializer.newMessage();
+      for (final Pair<CurrencyAmount, String> pair : entry.getValue()) {
+        serializer.addToMessageWithClassHeaders(perDateMessage, CA_FIELD, null, pair.getFirst());
+        perDateMessage.add(RESET_INDEX_FIELD, pair.getSecond());
+      }
+      message.add(PAIRS_FIELD, perDateMessage);
+    }
+    message.add(MAX_AMOUNTS_FIELD, object.getMaxEntries());
   }
 
 }

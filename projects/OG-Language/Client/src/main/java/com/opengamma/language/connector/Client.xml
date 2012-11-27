@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+  Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ 
+  Please see distribution for license.
+-->
+<beans>
+
+  <!-- System properties -->
+  <bean id="systemSettingsLoader" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="classpath:OpenGamma.properties" />
+    <property name="ignoreResourceNotFound" value="true" />
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+  </bean>
+  
+  <!-- Base system components -->
+  <bean id="engineFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  <bean id="functionMessageHandler" class="com.opengamma.language.function.FunctionHandler" /> <!-- Extension point - CustomFunctionVisitorRegistry -->
+  <bean id="liveDataMessageHandler" class="com.opengamma.language.livedata.LiveDataHandler" /> <!-- Extension point - CustomLiveDataVisitorRegistry -->
+  <bean id="procedureMessageHandler" class="com.opengamma.language.procedure.ProcedureHandler" /> <!-- Extension point - CustomProcedureVisitorRegistry -->
+  <bean id="clientMessageHandler" class="com.opengamma.language.connector.UserMessagePayloadHandler"> <!-- Extension point - CustomMessageVisitorRegistry -->
+    <property name="functionHandler" ref="functionMessageHandler" />
+    <property name="liveDataHandler" ref="liveDataMessageHandler" />
+    <property name="procedureHandler" ref="procedureMessageHandler" />
+  </bean>
+  <bean id="clientContextFactory" class="com.opengamma.language.connector.ClientContextFactoryBean"> <!-- Extension point - ClientContextFactoryBean -->
+    <property name="fudgeContext" ref="engineFudgeContext" />
+    <property name="messageHandler" ref="clientMessageHandler" />
+    <property name="maxThreadsPerClient" value="32" />
+  </bean>
+  <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
+    <property name="globalContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
+        <property name="systemSettings">
+          <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="location">
+              <value>classpath:OpenGamma.properties</value>
+            </property>
+            <property name="ignoreResourceNotFound" value="true" />
+          </bean>
+        </property>
+       </bean>
+    </property>
+  </bean>
+  <bean id="userContextFactory" class="com.opengamma.language.context.UserContextFactoryBean"> <!-- Extension point - UserContextFactoryBean -->
+    <property name="userContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultUserContextEventHandler" />
+    </property>
+    <property name="globalContextFactory" ref="globalContextFactory" />
+  </bean>
+  <bean id="sessionContextFactory" class="com.opengamma.language.context.SessionContextFactoryBean"> <!-- Extension point - SessionContextFactoryBean -->
+    <property name="sessionContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultSessionContextEventHandler" />
+    </property>
+    <property name="userContextFactory" ref="userContextFactory" />
+  </bean>
+
+  <!-- Remote configuration parameters -->
+  <bean id="defaultConfiguration" class="com.opengamma.language.config.ConfigurationFactoryBean">
+    <property name="configurationURI" value="${opengamma.configuration.url}" />
+    <property name="fudgeContext" ref="engineFudgeContext" />
+    <property name="failOnInvalidURI" value="${opengamma.configuration.failOnInvalid}" />
+    <property name="failOnMissingConfiguration" value="${opengamma.configuration.failOnMissing}" />
+  </bean>
+  
+  <!-- JMS infrastructure -->
+  <bean id="defaultJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
+    <property name="name" value="Language" />
+    <property name="connectionFactory" ref="defaultJmsConnectionFactory" />
+  </bean>
+  
+  <!-- Standard conditionals -->
+  <bean id="isDebugClient" class="com.opengamma.language.connector.Conditional" factory-method="isDebugClient" />
+  <bean id="isDebugStack" class="com.opengamma.language.connector.Conditional" factory-method="isDebugStack" />
+
+  <!-- Debug items for testing-->
+  <bean id="debugFunctionsLoader" class="com.opengamma.language.function.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="functionProvider">
+      <bean class="com.opengamma.language.function.FunctionProviderBean">
+        <property name="functions">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugFunctionDimension" />
+            <bean class="com.opengamma.language.debug.DebugFunctionIncrement" />
+            <bean class="com.opengamma.language.debug.DebugFunctionLiteral">
+              <constructor-arg value="DebugFunctionLiteral" />
+              <constructor-arg value="42" />
+            </bean>
+            <bean class="com.opengamma.language.debug.DebugFunctionMessage" />
+            <bean class="com.opengamma.language.debug.DebugFunctionMultipleTypes" />
+          </list>
+        </property>
+      </bean>
+    </property>
+    <property name="condition" ref="isDebugClient" />
+  </bean>
+  <bean id="debugLiveDataLoader" class="com.opengamma.language.livedata.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="liveDataProvider">
+      <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
+        <property name="liveData">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugLiveDataRandom" />
+          </list>
+        </property>
+      </bean>
+    </property>
+    <property name="condition" ref="isDebugClient" />
+  </bean>
+  <bean id="debugProceduresLoader" class="com.opengamma.language.procedure.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="procedureProvider">
+      <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
+        <property name="procedures">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugProcedureIncrement" />
+          </list>
+        </property>
+      </bean>
+    </property>
+    <property name="condition" ref="isDebugClient" />
+  </bean>
+  
+  <!-- Standard functions, procedures and livedata -->
+  <bean id="defaultFunctionsLoader" class="com.opengamma.language.function.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="functionProviders">
+      <list>
+        <bean class="com.opengamma.language.config.ConfigurationFunctionProvider" />
+        <bean class="com.opengamma.language.external.ExternalFunctionProvider" />
+        <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
+        <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
+        <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
+        <bean class="com.opengamma.language.function.FunctionProviderBean">
+          <property name="functions">
+            <list>
+              <bean class="com.opengamma.language.curve.GetCurveYValuesFunction" />
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+  <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="liveDataProvider">
+      <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
+        <property name="liveData">
+          <list>
+            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults -->
+            <bean class="com.opengamma.language.debug.DebugLiveDataRandom" />
+          </list>
+        </property> 
+      </bean>
+    </property>
+  </bean>
+  <bean id="defaultProceduresLoader" class="com.opengamma.language.procedure.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="procedureProvider">
+      <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
+        <property name="procedures">
+          <list>
+            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults --> 
+            <bean class="com.opengamma.language.debug.DebugProcedureIncrement" />
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <!-- Standard type conversions -->
+  <bean id="defaultTypeConversions" class="com.opengamma.language.invoke.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="typeConverterProviders">
+      <list>
+        <bean class="com.opengamma.language.convert.Converters">
+          <property name="fudgeContext" ref="engineFudgeContext" />
+        </bean>
+        <bean class="com.opengamma.language.identifier.Converters "/>
+        <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
+        <bean class="com.opengamma.language.invoke.TypeConverterProviderBean">
+          <property name="converters">
+            <list />
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+  
+  <!-- Client (shared) -->
+  <bean id="clientLoader" class="com.opengamma.language.client.Loader">
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="housekeepingScheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getHousekeepingScheduler" />
+    </property>
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+  </bean>
+
+  <!-- Currency pairs -->
+  <bean id="currencyPairsLoader" class="com.opengamma.language.currency.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Exchange -->
+  <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Holiday -->
+  <bean id="holidayLoader" class="com.opengamma.language.holiday.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Market data values -->
+  <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Position -->
+  <bean id="positionLoader" class="com.opengamma.language.position.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Region -->
+  <bean id="regionLoader" class="com.opengamma.language.region.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Security -->
+  <bean id="securityLoader" class="com.opengamma.language.security.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Time series -->
+  <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+
+  <!-- Trade -->
+  <bean id="tradeLoader" class="com.opengamma.language.trade.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+
+  <!-- Values -->
+  <bean id="valuesLoader" class="com.opengamma.language.value.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="fudgeContext" ref="engineFudgeContext" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- View processor -->
+  <bean id="viewProcessorLoader" class="com.opengamma.language.view.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="jmsConnector" ref="defaultJmsConnector" />
+    <property name="housekeepingScheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getHousekeepingScheduler" />
+    </property>
+  </bean>
+  
+  <!-- Volatility cube definition -->
+  <bean id="volatilityLoader" class="com.opengamma.language.volatility.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+</beans>

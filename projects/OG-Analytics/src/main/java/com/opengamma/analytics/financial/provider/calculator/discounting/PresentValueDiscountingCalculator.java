@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -42,7 +42,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -139,9 +139,9 @@ public final class PresentValueDiscountingCalculator extends AbstractInstrumentD
   public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
-    MultipleCurrencyAmount pv = visit(annuity.getNthPayment(0), multicurve);
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      pv = pv.plus(visit(annuity.getNthPayment(loopp), multicurve));
+      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, multicurve));
     }
     return pv;
   }
@@ -155,8 +155,8 @@ public final class PresentValueDiscountingCalculator extends AbstractInstrumentD
 
   @Override
   public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
-    final MultipleCurrencyAmount pv1 = visit(swap.getFirstLeg(), multicurve);
-    final MultipleCurrencyAmount pv2 = visit(swap.getSecondLeg(), multicurve);
+    final MultipleCurrencyAmount pv1 = swap.getFirstLeg().accept(this, multicurve);
+    final MultipleCurrencyAmount pv2 = swap.getSecondLeg().accept(this, multicurve);
     return pv1.plus(pv2);
   }
 

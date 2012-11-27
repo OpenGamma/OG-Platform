@@ -17,8 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
-import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -35,27 +34,30 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  *
  */
 public abstract class SimpleFutureFunction extends NonCompiledInvoker {
-  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
+  /** Calculation method name */
+  public static final String MARKET_METHOD = "Market";
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpleFutureFunction.class);
+  private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
   private final String _valueRequirementName;
 
   public SimpleFutureFunction(final String valueRequirementName) {
@@ -73,15 +75,16 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
 
     // Get reference price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+    final LocalDateDoubleTimeSeries timeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries();
+    if (timeSeries == null || timeSeries.isEmpty()) {
+      throw new OpenGammaRuntimeException("Time Series is null or empty for " + security.getExternalIdBundle());
+    }
+    final Double lastMarginPrice = timeSeries.getLatestValue();
     if (lastMarginPrice == null) {
       throw new OpenGammaRuntimeException("Could not find latest value in time series.");
     }
-    final SimpleFutureDefinition defn = (SimpleFutureDefinition) security.accept(CONVERTER);
-    final SimpleFuture derivative = defn.toDerivative(now, lastMarginPrice);
-    if (derivative.getSettlement() < 0.0) { // Check to see whether it has already settled
-      throw new OpenGammaRuntimeException("Future with expiry, " + security.getExpiry().getExpiry().toString() + ", has already settled.");
-    }
+
+    final InstrumentDerivative derivative = security.accept(CONVERTER).toDerivative(now, lastMarginPrice, new String[0]);
 
     // 2. Build up the (simple) market data bundle
     final SimpleFutureDataBundle market = new SimpleFutureDataBundle(null, getMarketPrice(security, inputs), null, null, null);
@@ -90,22 +93,21 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     final Object results = computeValues(derivative, market);
 
     // 4. Create result specification to match the properties promised and return
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue, executionContext).get());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get());
     return Collections.singleton(new ComputedValue(spec, results));
   }
 
-  protected abstract Object computeValues(SimpleFuture derivative, SimpleFutureDataBundle market);
+  protected abstract Object computeValues(InstrumentDerivative derivative, SimpleFutureDataBundle market);
 
   @Override
-  /** TODO This Function might apply generically to all FutureSecurities. We constrain to those without special handling. Worth testing behaviour on IR, BOND and FX **/
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
     final Security security = target.getTrade().getSecurity();
-    return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity
-        || security instanceof IndexFutureSecurity  || security instanceof EquityFutureSecurity;
+    return security instanceof EnergyFutureSecurity
+        || security instanceof MetalFutureSecurity
+        || security instanceof AgricultureFutureSecurity;
   }
 
   @Override
@@ -113,21 +115,10 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties(target).get()));
   }
 
-  private Builder createValueProperties(ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties.Builder properties = createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, ccy.getCode());
-    return properties;
-  }
-
-  protected Builder createValueProperties(ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    return createValueProperties(target);
-  }
-
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
+    final FutureSecurity security = (FutureSecurity) target.getTrade().getSecurity();
     // Live market price
     requirements.add(getMarketPriceRequirement(security));
     // Last day's closing price
@@ -173,5 +164,12 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     return _valueRequirementName;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SimpleFutureFunction.class);
+  private Builder createValueProperties(ComputationTarget target) {
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, MARKET_METHOD);
+    return properties;
+  }
+
 }

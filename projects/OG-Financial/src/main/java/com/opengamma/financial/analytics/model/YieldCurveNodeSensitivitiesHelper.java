@@ -75,6 +75,32 @@ public class YieldCurveNodeSensitivitiesHelper {
   public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
+    return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
+//    final int nSensitivities = curveSpec.getStrips().size();
+//    int startIndex = 0;
+//    for (final String name : bundle.getAllNames()) {
+//      if (curveName.equals(name)) {
+//        break;
+//      }
+//      if (!(bundle.getCurve(name) instanceof YieldCurve)) { //TODO: make it more generic
+//        throw new IllegalArgumentException("Can only handle YieldCurve");
+//      }
+//      startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
+//    }
+//    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
+//    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
+//    final double[] values = new double[nSensitivities];
+//    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
+//    for (int i = 0; i < nSensitivities; i++) {
+//      values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
+//    }
+//    final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
+//    return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
+  }
+  
+  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
+      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+      final ValueSpecification resultSpec) {
     final int nSensitivities = curveSpec.getStrips().size();
     int startIndex = 0;
     for (final String name : bundle.getAllNames()) {
@@ -89,7 +115,7 @@ public class YieldCurveNodeSensitivitiesHelper {
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
     final double[] values = new double[nSensitivities];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
+    final Object[] labels = YieldCurveLabelGenerator.getHybridLabels(curveSpec);
     for (int i = 0; i < nSensitivities; i++) {
       values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
     }

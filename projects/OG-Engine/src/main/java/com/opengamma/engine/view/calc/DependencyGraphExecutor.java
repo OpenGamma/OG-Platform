@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.concurrent.Future;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
 /**
@@ -21,12 +22,14 @@ public interface DependencyGraphExecutor<T> {
   /**
    * Evaluates a dependency graph.
    * 
-   * @param graph This may be a full graph or a subgraph. A subgraph may have some nodes whose child nodes are NOT part of that graph. The assumption is that such nodes have already been evaluated and
-   *          their values can already be found in the shared computation cache.
-   * @param statistics Details about the evaluation should be reported to this callback object
-   * @param executionResultQueue queue in to which the executor enqueues individual calculation job results
+   * @param graph  a full graph or a subgraph. A subgraph may have some nodes whose child nodes are NOT part of that
+   *               graph. The assumption is that such nodes have already been evaluated and their values can already be
+   *               found in the shared computation cache.
+   * @param statistics  a callback object to which details about the evaluation should be reported
+   * @param executionResultQueue  a queue in to which the executor should enqueues individual calculation job results
+   * @param logModeSource  the source of log mode information for the outputs, not null
    * @return An object you can call get() on to wait for completion
    */
-  Future<T> execute(DependencyGraph graph, Queue<ExecutionResult> executionResultQueue, GraphExecutorStatisticsGatherer statistics);
+  Future<T> execute(DependencyGraph graph, Queue<ExecutionResult> executionResultQueue, GraphExecutorStatisticsGatherer statistics, ExecutionLogModeSource logModeSource);
 
 }

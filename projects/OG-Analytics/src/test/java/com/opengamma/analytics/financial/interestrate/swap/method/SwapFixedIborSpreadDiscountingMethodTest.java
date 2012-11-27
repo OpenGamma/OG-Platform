@@ -73,38 +73,38 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
 
   @Test
   public void couponEquivalentSpreadModified() {
-    double pvbp3MMod = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, EURIBOR3M.getDayCount(), CURVES);
-    double pvbp3M = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double pvbp3MMod = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, EURIBOR3M.getDayCount(), CURVES);
+    final double pvbp3M = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueBasisPoint - modification", pvbp3M, pvbp3MMod, TOLERANCE_PV);
-    double cesm3M = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR3M3M, pvbp3M, CURVES);
-    double cesmExpected = FIXED_RATE - SPREAD; // The convention is the same on both legs.
+    final double cesm3M = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR3M3M, pvbp3M, CURVES);
+    final double cesmExpected = FIXED_RATE - SPREAD; // The convention is the same on both legs.
     assertEquals("SwapFixedIborSpreadDiscountingMethod: couponEquivalentSpreadModified", cesmExpected, cesm3M, TOLERANCE_RATE);
-    double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
-    double cesm1Y = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
-    double pvFixed = PVC.visit(SWAP_SPREAD_EUR1Y3M.getFixedLeg(), CURVES).getAmount(EUR);
-    double pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES).getAmount(EUR);
-    CurrencyAmount pvIborNoSpread = METHOD_SWAP_SPREAD.presentValueIborNoSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
-    double cesm1YExpected = (pvFixed + pvAnnuitySpread) / pvbp1Y;
+    final double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double cesm1Y = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
+    final double pvFixed = SWAP_SPREAD_EUR1Y3M.getFixedLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES).getAmount(EUR);
+    final CurrencyAmount pvIborNoSpread = METHOD_SWAP_SPREAD.presentValueIborNoSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
+    final double cesm1YExpected = (pvFixed + pvAnnuitySpread) / pvbp1Y;
     assertEquals("SwapFixedIborSpreadDiscountingMethod: couponEquivalentSpreadModified", cesm1YExpected, cesm1Y, TOLERANCE_RATE);
-    double pvIbor = PVC.visit(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES).getAmount(EUR);
-    double pvIborNoSpreadExpected = -(pvIbor - pvAnnuitySpread);
+    final double pvIbor = SWAP_SPREAD_EUR1Y3M.getSecondLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double pvIborNoSpreadExpected = -(pvIbor - pvAnnuitySpread);
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueIborNoSpreadPositiveNotional", pvIborNoSpreadExpected, pvIborNoSpread.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueIborNoSpreadPositiveNotional() {
-    CurrencyAmount pvs = METHOD_SWAP_SPREAD.presentValueSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
-    MultipleCurrencyAmount pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES); // Should be negative: pay float
+    final CurrencyAmount pvs = METHOD_SWAP_SPREAD.presentValueSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
+    final MultipleCurrencyAmount pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES); // Should be negative: pay float
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueIborNoSpreadPositiveNotional", -pvAnnuitySpread.getAmount(EUR), pvs.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void forwardSwapSpreadModified() {
-    double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
-    double forwardComputed = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
-    double pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES).getAmount(EUR);
-    double pvAnnuityIbor = PVC.visit(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES).getAmount(EUR);
-    double forwardExpected = -(pvAnnuityIbor - pvAnnuitySpread) / pvbp1Y;
+    final double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double forwardComputed = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
+    final double pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES).getAmount(EUR);
+    final double pvAnnuityIbor = SWAP_SPREAD_EUR1Y3M.getSecondLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double forwardExpected = -(pvAnnuityIbor - pvAnnuitySpread) / pvbp1Y;
     assertEquals("SwapFixedIborSpreadDiscountingMethod: forwardSwapSpreadModified", forwardExpected, forwardComputed, TOLERANCE_RATE);
   }
 

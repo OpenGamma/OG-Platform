@@ -5,19 +5,19 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * A present value curve sensitivity calculator that convert a multi-currency rate sensitivity into a given currency.
  */
-public class PresentValueCurveSensitivityConvertedCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityConvertedCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**
    * The currency in which the present value should be converted.
@@ -26,23 +26,29 @@ public class PresentValueCurveSensitivityConvertedCalculator extends AbstractIns
   /**
    * The present value curve sensitivity calculator (with MultiCurrencyAmount output)
    */
-  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> _pvcsCalculator;
+  private final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> _pvcsCalculator;
 
   /**
    * Constructor.
    * @param currency The currency in which the present value should be converted.
    * @param pvcsCalculator The present value curve sensitivity calculator (with MultipleCurrencyInterestRateCurveSensitivity output).
    */
-  public PresentValueCurveSensitivityConvertedCalculator(Currency currency, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> pvcsCalculator) {
+  public PresentValueCurveSensitivityConvertedCalculator(final Currency currency,
+      final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> pvcsCalculator) {
     _currency = currency;
     _pvcsCalculator = pvcsCalculator;
   }
 
   @Override
   public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return _pvcsCalculator.visit(derivative, curves).converted(_currency, curves.getFxRates()).getSensitivity(_currency);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(derivative, "derivative");
+    return derivative.accept(_pvcsCalculator, curves).converted(_currency, curves.getFxRates()).getSensitivity(_currency);
+  }
+
+  @Override
+  public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException("Need curves data");
   }
 
 }

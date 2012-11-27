@@ -58,9 +58,9 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.web.WebPaging;
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
+import com.opengamma.web.analytics.rest.MasterType;
+import com.opengamma.web.analytics.rest.Subscribe;
+import com.opengamma.web.analytics.rest.SubscribeMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

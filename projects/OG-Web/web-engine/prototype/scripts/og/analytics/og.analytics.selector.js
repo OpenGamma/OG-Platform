@@ -23,33 +23,32 @@ $.register_module({
                     auto_scroll(event, scroll_body.scrollTop(), scroll_body.scrollLeft(), start);
                 }, interval);
             };
-            (auto_scroll.timeout = null), (auto_scroll.scroll = false);
+            auto_scroll.timeout = auto_scroll.scroll = null;
             var clean_up = function () {
                 var selection = selector.selection();
                 $(document).off(namespace);
-                (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
-                if (selection) og.common.events.fire(selector.events.select, selection);
+                auto_scroll.timeout = auto_scroll.scroll = clearTimeout(auto_scroll.timeout), null;
+                if (selection) selector.fire('select', selection);
                 selector.busy(false);
             };
             var initialize = function () {
-                var meta = grid.meta, viewport = grid.meta.viewport;
+                var meta = grid.meta, inner = grid.meta.inner;
                 grid_offset = grid.offset;
-                grid_width = meta.columns.width.fixed + viewport.width;
-                grid_height = viewport.scroll_height + meta.header_height;
+                grid_width = meta.columns.width.fixed + inner.width;
+                grid_height = inner.scroll_height + meta.header_height;
                 fixed_width = meta.columns.width.fixed;
-                max_scroll_top = viewport.height - viewport.scroll_height + meta.scrollbar_size;
+                max_scroll_top = inner.height - inner.scroll_height + meta.scrollbar;
                 $(grid.id + ' ' + overlay).remove();
             };
-            var mousedown_observer = function (event) {
+            var mousedown = function (event) {
                 if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
-                var $target, is_overlay, x = event.pageX - grid_offset.left + (event.pageX > fixed_width ?
-                        grid.elements.scroll_body.scrollLeft() : 0),
-                    y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
-                if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
-                    .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
+                var $target = $(event.target), scroll_body = grid.elements.scroll_body,
+                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_body.scrollLeft() : 0),
+                    is_cell = ($target.is(cell) ? $target : $target.parents(cell + ':first')).length,
+                    y = event.pageY - grid_offset.top + scroll_body.scrollTop() - grid.meta.header_height;
                 selector.clear();
-                if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
+                if (!is_cell || $target.is(overlay)) return selector.fire('deselect');
                 selector.busy(true);
                 setTimeout(function () { // do this after the event has finished (and its parents have gotten it)
                     if (!selector.registered) selector.registered = !!grid.elements.parent
@@ -68,35 +67,32 @@ $.register_module({
                     if (reset) counter = 0;
                     if (counter++ % resolution) return;
                     if (counter > resolution) counter = 1;
-                    var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                        scroll_top = grid.elements.scroll_body.scrollTop(),
+                    var scroll_body = grid.elements.scroll_body, regions = [], rectangle = {},
+                        scroll_left = scroll_body.scrollLeft(), scroll_top = scroll_body.scrollTop(),
                         x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
-                        y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                        regions = [], rectangle = {};
+                        y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
                     auto_scroll(event, scroll_top, scroll_left, start);
                     rectangle.top_left = grid.nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
                     rectangle.bottom_right = grid.nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
                     rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                     rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
                     if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
-                        position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
+                        fixed: true, position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
                         dimensions: {
                             height: rectangle.height + 1,
                             width: (rectangle.width + rectangle.top_left.left > fixed_width ?
                                 fixed_width - rectangle.top_left.left : rectangle.width) + 1
-                        },
-                        fixed: true
+                        }
                     });
                     if (rectangle.bottom_right.right > fixed_width) regions.push({ // scroll overlay
-                        position: {
+                        fixed: false, position: {
                             top: rectangle.top_left.top,
                             left: (regions[0] ? 0 : rectangle.top_left.left - fixed_width) - 1
                         },
                         dimensions: {
                             height: rectangle.height + 1,
                             width: (regions[0] ? rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
-                        },
-                        fixed: false
+                        }
                     });
                     selector.render(regions.length ? regions : null, rectangle);
                 }
@@ -104,17 +100,17 @@ $.register_module({
             selector.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
-            selector.events = {select: []};
             selector.grid = grid;
-            selector.rectangle = null;
-            selector.regions = null;
-            grid.on('mousedown', mousedown_observer).on('render', selector.render, selector); // initialize
+            selector.rectangle = selector.regions = null;
+            grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
         constructor.prototype.clear = function () {
-            var selector = this;
+            var selector = this, grid = selector.grid;
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };
+        constructor.prototype.fire = og.common.events.fire;
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.render = function (regions, rectangle) {
             var selector = this, grid = selector.grid, data, copyable;
@@ -131,7 +127,7 @@ $.register_module({
         };
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
-            var selector = this, grid = this.grid, meta = grid.meta,
+            var selector = this, grid = selector.grid, meta = grid.meta,
                 bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
                 top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),

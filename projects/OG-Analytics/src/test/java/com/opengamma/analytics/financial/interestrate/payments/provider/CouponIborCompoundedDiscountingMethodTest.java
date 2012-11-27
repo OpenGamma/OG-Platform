@@ -72,35 +72,35 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   @Test
   public void presentValueBeforeFirstFixing() {
-    MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, MULTICURVES);
     double notionalAccrued = CPN_BEFORE.getNotional();
-    int nbSub = CPN_BEFORE.getFixingTimes().length;
+    final int nbSub = CPN_BEFORE.getFixingTimes().length;
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
       notionalAccrued *= (1.0 + CPN_BEFORE.getPaymentAccrualFactors()[loopsub]
           * MULTICURVES.getForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
               CPN_BEFORE.getFixingPeriodAccrualFactors()[loopsub]));
     }
-    double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_BEFORE.getPaymentTime());
-    double pvExpected = (notionalAccrued - NOTIONAL) * dfPayment;
+    final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_BEFORE.getPaymentTime());
+    final double pvExpected = (notionalAccrued - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(CAD), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, MULTICURVES);
-    MultipleCurrencyAmount pvCalculator = PVDC.visit(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyAmount pvMethod = METHOD_COMPOUNDED.presentValue(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = CPN_BEFORE.accept(PVDC, MULTICURVES);
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvMethod.getAmount(CAD), pvCalculator.getAmount(CADCDOR3M.getCurrency()), TOLERANCE_PV);
 
   }
 
   @Test
   public void presentValueAfter1Fixing() {
-    MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, MULTICURVES);
     double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * FIXING_RATES[1]) * NOTIONAL;
     accruedNotional *= (1.0 + CPN_1.getPaymentAccrualFactors()[0]
         * MULTICURVES.getForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
-    double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_1.getPaymentTime());
-    double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
+    final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_1.getPaymentTime());
+    final double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(CAD), TOLERANCE_PV);
   }
 
@@ -109,15 +109,15 @@ public class CouponIborCompoundedDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(CPN_BEFORE, MULTICURVES, MULTICURVES.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(CPN_BEFORE, MULTICURVES, MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(CPN_BEFORE, MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_BEFORE.accept(PVCSDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("CouponIborCompoundedDiscounting: Present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

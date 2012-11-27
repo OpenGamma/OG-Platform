@@ -30,7 +30,7 @@ public abstract class AbstractParameterSensitivityBlackSwaptionProviderCalculato
     ArgumentChecker.notNull(instrument, "derivative");
     ArgumentChecker.notNull(blackData, "Black data");
     ArgumentChecker.notNull(curvesSet, "curves");
-    MultipleCurrencyMulticurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, blackData);
+    MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, blackData);
     sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, blackData, curvesSet);
   }

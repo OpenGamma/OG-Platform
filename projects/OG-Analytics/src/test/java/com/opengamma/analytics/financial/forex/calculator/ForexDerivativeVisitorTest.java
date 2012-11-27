@@ -10,6 +10,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyForward;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -18,9 +27,9 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
@@ -52,6 +61,7 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
+import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
@@ -125,25 +135,9 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
     try {
-      VISITOR_ABSTRACT.visit(forexArray[0]);
-      assertTrue(false);
-    } catch (final UnsupportedOperationException e) {
-      assertTrue(true);
-    } catch (final Exception e) {
-      assertTrue(false);
-    }
-    try {
-      VISITOR_ABSTRACT.visit(forexArray);
-      assertTrue(false);
-    } catch (final UnsupportedOperationException e) {
-      assertTrue(true);
-    } catch (final Exception e) {
-      assertTrue(false);
-    }
-    try {
-      VISITOR_ABSTRACT.visit(forexArray, o);
+      forexArray[0].accept(VISITOR_ABSTRACT);
       assertTrue(false);
     } catch (final UnsupportedOperationException e) {
       assertTrue(true);
@@ -175,26 +169,6 @@ public class ForexDerivativeVisitorTest {
   }
 
   private static class MyVisitor<T, U> implements InstrumentDerivativeVisitor<T, String> {
-
-    @Override
-    public String visit(final InstrumentDerivative derivative, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visit(final InstrumentDerivative derivative) {
-      return null;
-    }
-
-    @Override
-    public String[] visit(final InstrumentDerivative[] derivative, final T data) {
-      return null;
-    }
-
-    @Override
-    public String[] visit(final InstrumentDerivative[] derivative) {
-      return null;
-    }
 
     @Override
     public String visitForex(final Forex derivative, final T data) {
@@ -237,392 +211,392 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitForexNonDeliverableForward(ForexNonDeliverableForward derivative, T data) {
+    public String visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final T data) {
       return "ForexNonDeliverableForward2";
     }
 
     @Override
-    public String visitForexNonDeliverableForward(ForexNonDeliverableForward derivative) {
+    public String visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative) {
       return "ForexNonDeliverableForward1";
     }
 
     @Override
-    public String visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, T data) {
+    public String visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final T data) {
       return "ForexNonDeliverableOption2";
     }
 
     @Override
-    public String visitForexNonDeliverableOption(ForexNonDeliverableOption derivative) {
+    public String visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative) {
       return "ForexNonDeliverableOption1";
     }
 
     @Override
-    public String visitBondFixedSecurity(BondFixedSecurity bond, T data) {
+    public String visitBondFixedSecurity(final BondFixedSecurity bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFixedTransaction(BondFixedTransaction bond, T data) {
+    public String visitBondFixedTransaction(final BondFixedTransaction bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondIborSecurity(BondIborSecurity bond, T data) {
+    public String visitBondIborSecurity(final BondIborSecurity bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondIborTransaction(BondIborTransaction bond, T data) {
+    public String visitBondIborTransaction(final BondIborTransaction bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitGenericAnnuity(Annuity<? extends Payment> genericAnnuity, T data) {
+    public String visitGenericAnnuity(final Annuity<? extends Payment> genericAnnuity, final T data) {
       return null;
     }
 
     @Override
-    public String visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity, T data) {
+    public String visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity, final T data) {
       return null;
     }
 
     @Override
-    public String visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, T data) {
+    public String visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwap(Swap<?, ?> swap, T data) {
+    public String visitSwap(final Swap<?, ?> swap, final T data) {
       return null;
     }
 
     @Override
-    public String visitFixedCouponSwap(SwapFixedCoupon<?> swap, T data) {
+    public String visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, T data) {
+    public String visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, T data) {
+    public String visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, T data) {
+    public String visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption, final T data) {
       return null;
     }
 
     @Override
-    public String visitCash(Cash cash, T data) {
+    public String visitCash(final Cash cash, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFuture(BondFuture bondFuture, T data) {
+    public String visitBondFuture(final BondFuture bondFuture, final T data) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFuture(InterestRateFuture future, T data) {
+    public String visitInterestRateFuture(final InterestRateFuture future, final T data) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, T data) {
+    public String visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option, final T data) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, T data) {
+    public String visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final T data) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, T data) {
+    public String visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final T data) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, T data) {
+    public String visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final T data) {
       return null;
     }
 
     @Override
-    public String visitFixedPayment(PaymentFixed payment, T data) {
+    public String visitFixedPayment(final PaymentFixed payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponFixed(CouponFixed payment, T data) {
+    public String visitCouponFixed(final CouponFixed payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborSpread payment, T data) {
+    public String visitCouponIborSpread(final CouponIborSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborGearing(CouponIborGearing payment, T data) {
+    public String visitCouponIborGearing(final CouponIborGearing payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(CouponOIS payment, T data) {
+    public String visitCouponOIS(final CouponOIS payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponCMS(CouponCMS payment, T data) {
+    public String visitCouponCMS(final CouponCMS payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorIbor(CapFloorIbor payment, T data) {
+    public String visitCapFloorIbor(final CapFloorIbor payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMS(CapFloorCMS payment, T data) {
+    public String visitCapFloorCMS(final CapFloorCMS payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMSSpread(CapFloorCMSSpread payment, T data) {
+    public String visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitForwardRateAgreement(ForwardRateAgreement fra, T data) {
+    public String visitForwardRateAgreement(final ForwardRateAgreement fra, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, T data) {
+    public String visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, T data) {
+    public String visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, T data) {
+    public String visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, T data) {
+    public String visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, T data) {
+    public String visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, T data) {
+    public String visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFixedSecurity(BondFixedSecurity bond) {
+    public String visitBondFixedSecurity(final BondFixedSecurity bond) {
       return null;
     }
 
     @Override
-    public String visitBondFixedTransaction(BondFixedTransaction bond) {
+    public String visitBondFixedTransaction(final BondFixedTransaction bond) {
       return null;
     }
 
     @Override
-    public String visitBondIborSecurity(BondIborSecurity bond) {
+    public String visitBondIborSecurity(final BondIborSecurity bond) {
       return null;
     }
 
     @Override
-    public String visitBondIborTransaction(BondIborTransaction bond) {
+    public String visitBondIborTransaction(final BondIborTransaction bond) {
       return null;
     }
 
     @Override
-    public String visitGenericAnnuity(Annuity<? extends Payment> genericAnnuity) {
+    public String visitGenericAnnuity(final Annuity<? extends Payment> genericAnnuity) {
       return null;
     }
 
     @Override
-    public String visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity) {
+    public String visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity) {
       return null;
     }
 
     @Override
-    public String visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity) {
+    public String visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
       return null;
     }
 
     @Override
-    public String visitSwap(Swap<?, ?> swap) {
+    public String visitSwap(final Swap<?, ?> swap) {
       return null;
     }
 
     @Override
-    public String visitFixedCouponSwap(SwapFixedCoupon<?> swap) {
+    public String visitFixedCouponSwap(final SwapFixedCoupon<?> swap) {
       return null;
     }
 
     @Override
-    public String visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption) {
+    public String visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
       return null;
     }
 
     @Override
-    public String visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption) {
+    public String visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption) {
       return null;
     }
 
     @Override
-    public String visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption) {
+    public String visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption) {
       return null;
     }
 
     @Override
-    public String visitCash(Cash cash) {
+    public String visitCash(final Cash cash) {
       return null;
     }
 
     @Override
-    public String visitBondFuture(BondFuture future) {
+    public String visitBondFuture(final BondFuture future) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFuture(InterestRateFuture future) {
+    public String visitInterestRateFuture(final InterestRateFuture future) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option) {
+    public String visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option) {
+    public String visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option) {
+    public String visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
       return null;
     }
 
     @Override
-    public String visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
+    public String visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
       return null;
     }
 
     @Override
-    public String visitFixedPayment(PaymentFixed payment) {
+    public String visitFixedPayment(final PaymentFixed payment) {
       return null;
     }
 
     @Override
-    public String visitCouponFixed(CouponFixed payment) {
+    public String visitCouponFixed(final CouponFixed payment) {
       return null;
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborSpread payment) {
+    public String visitCouponIborSpread(final CouponIborSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponIborGearing(CouponIborGearing payment) {
+    public String visitCouponIborGearing(final CouponIborGearing payment) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(CouponOIS payment) {
+    public String visitCouponOIS(final CouponOIS payment) {
       return null;
     }
 
     @Override
-    public String visitCouponCMS(CouponCMS payment) {
+    public String visitCouponCMS(final CouponCMS payment) {
       return null;
     }
 
     @Override
-    public String visitCapFloorIbor(CapFloorIbor payment) {
+    public String visitCapFloorIbor(final CapFloorIbor payment) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMS(CapFloorCMS payment) {
+    public String visitCapFloorCMS(final CapFloorCMS payment) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMSSpread(CapFloorCMSSpread payment) {
+    public String visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
       return null;
     }
 
     @Override
-    public String visitForwardRateAgreement(ForwardRateAgreement fra) {
+    public String visitForwardRateAgreement(final ForwardRateAgreement fra) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon) {
+    public String visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon) {
+    public String visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon) {
+    public String visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon) {
+    public String visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond) {
+    public String visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond) {
+    public String visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond) {
       return null;
     }
 
     @Override
-    public String visitDepositIbor(DepositIbor deposit, T data) {
+    public String visitDepositIbor(final DepositIbor deposit, final T data) {
       return null;
     }
 
     @Override
-    public String visitDepositIbor(DepositIbor deposit) {
+    public String visitDepositIbor(final DepositIbor deposit) {
       return null;
     }
 
     @Override
-    public String visitDepositCounterpart(DepositCounterpart deposit, T data) {
+    public String visitDepositCounterpart(final DepositCounterpart deposit, final T data) {
       return null;
     }
 
     @Override
-    public String visitDepositCounterpart(DepositCounterpart deposit) {
+    public String visitDepositCounterpart(final DepositCounterpart deposit) {
       return null;
     }
 
@@ -637,122 +611,222 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitBillSecurity(BillSecurity bill, T data) {
+    public String visitBillSecurity(final BillSecurity bill, final T data) {
       return null;
     }
 
     @Override
-    public String visitBillSecurity(BillSecurity bill) {
+    public String visitBillSecurity(final BillSecurity bill) {
       return null;
     }
 
     @Override
-    public String visitBillTransaction(BillTransaction bill, T data) {
+    public String visitBillTransaction(final BillTransaction bill, final T data) {
       return null;
     }
 
     @Override
-    public String visitBillTransaction(BillTransaction bill) {
+    public String visitBillTransaction(final BillTransaction bill) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, T data) {
+    public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final T data) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future) {
+    public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, T data) {
+    public String visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final T data) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
+    public String visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
       return null;
     }
 
     @Override
-    public String visitDepositZero(DepositZero deposit, T data) {
+    public String visitDepositZero(final DepositZero deposit, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitDepositZero(DepositZero deposit) {
+    public String visitDepositZero(final DepositZero deposit) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option, T data) {
+    public String visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option) {
+    public String visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option, T data) {
+    public String visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option) {
+    public String visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
       return null;
     }
 
     @Override
-    public String visitCouponIbor(CouponIbor payment, T data) {
+    public String visitCouponIbor(final CouponIbor payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIbor(CouponIbor payment) {
+    public String visitCouponIbor(final CouponIbor payment) {
       return null;
     }
 
     @Override
-    public String visitCouponIborCompounded(CouponIborCompounded payment) {
+    public String visitCouponIborCompounded(final CouponIborCompounded payment) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborCompounded(CouponIborCompounded payment, T data) {
+    public String visitCouponIborCompounded(final CouponIborCompounded payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCDSDerivative(ISDACDSDerivative cds, T data) {
+    public String visitCDSDerivative(final ISDACDSDerivative cds, final T data) {
       return null;
     }
 
     @Override
-    public String visitCDSDerivative(ISDACDSDerivative cds) {
+    public String visitCDSDerivative(final ISDACDSDerivative cds) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, T data) {
+    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
+    public String visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalForward(final MetalForward future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalForward(final MetalForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFuture(final MetalFuture future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFuture(final MetalFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOption(final MetalFutureOption future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureOption(final MetalFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForward(final AgricultureForward future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureForward(final AgricultureForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFuture(final AgricultureFuture future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFuture(final AgricultureFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOption(final AgricultureFutureOption future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureOption(final AgricultureFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForward(final EnergyForward future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyForward(final EnergyForward future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFuture(final EnergyFuture future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFuture(final EnergyFuture future) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOption(final EnergyFutureOption future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureOption(final EnergyFutureOption future) {
+      return null;
+    }
+
+    @Override
+    public String visitForexForward(final ForexForward fx, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexForward(final ForexForward fx) {
       return null;
     }
 
   }
 
-  private static class MyAbstractVisitor<T, U> extends AbstractInstrumentDerivativeVisitor<T, String> {
+  private static class MyAbstractVisitor<T, U> extends InstrumentDerivativeVisitorAdapter<T, String> {
 
   }
 

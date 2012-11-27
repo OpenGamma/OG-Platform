@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePrice
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -40,12 +41,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
+import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -57,13 +59,12 @@ import com.opengamma.util.money.Currency;
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
-  // TODO: Refactor - this is a field name, like PX_LAST - Maybe we should reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
+  // TODO: Refactor - this is a field name, like PX_LAST - We can't reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
+  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();  // TODO: Had been EquityFutureConverter();
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
-  private EquityFutureConverter _financialToAnalyticConverter;
-  private final EquityFuturesPricer _pricer;
   private final String _pricingMethodName;
 
   /**
@@ -91,12 +92,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     _pricingMethod = EquityFuturesPricingMethod.valueOf(pricingMethodName);
     _pricingMethodName = pricingMethodName;
-    _pricer = EquityFuturePricerFactory.getMethod(pricingMethodName); // TODO: THIS FACTORY IS HOW ONE TAKES PRICER OUT OF THE CLASS. SEE YCNS
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    _financialToAnalyticConverter = new EquityFutureConverter();
   }
 
   @Override
@@ -106,11 +101,12 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final String calcMethod = getPricingMethodName();
     final ValueProperties.Builder properties = createValueProperties()
       .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+      .with(ValuePropertyNames.CALCULATION_METHOD, calcMethod)
       .withAny(ValuePropertyNames.CURVE)
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-      .withAny(ValuePropertyNames.CALCULATION_METHOD);
+      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     return properties;
   }
 
@@ -125,18 +121,23 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return properties;
   }
 
-  protected SimpleFutureDataBundle getEquityFutureDataBundle(final EquityFutureSecurity security, final FunctionInputs inputs,
+  protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
         final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
-    Double spotUnderlyer = getSpot(security, inputs);
+    Double spotUnderlyer = null;
     switch(getPricingMethodEnum()) {
       case MARK_TO_MARKET:
         Double marketPrice = getMarketPrice(security, inputs);
+        if (getValueRequirementName() == ValueRequirementNames.SPOT) {
+          spotUnderlyer = getSpot(security, inputs);
+        }
         return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
       case COST_OF_CARRY:
+        spotUnderlyer = getSpot(security, inputs);
         Double costOfCarry = getCostOfCarry(security, inputs);
         return new SimpleFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
       case DIVIDEND_YIELD:
-        Double dividendYield = timeSeriesBundle.get(DIVIDEND_YIELD_FIELD, security.getUnderlyingId()).getTimeSeries().getLatestValue();
+        spotUnderlyer = getSpot(security, inputs);
+        Double dividendYield = timeSeriesBundle.get(DIVIDEND_YIELD_FIELD, getSpotAssetId(security)).getTimeSeries().getLatestValue();
         dividendYield /= 100.0;
         final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -150,17 +151,20 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final Trade trade = target.getTrade();
-    final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
+    final FutureSecurity security = (FutureSecurity) trade.getSecurity();
     // Get reference price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Double lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade, lastMarginPrice);
-    final EquityFuture derivative = definition.toDerivative(valuationTime);
+    // final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice); // TODO: Clean this up
+    final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
+    final EquityFutureDefinition defn = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(),
+        simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
+    final EquityFuture derivative = defn.toDerivative(valuationTime, lastMarginPrice);
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final SimpleFutureDataBundle dataBundle = getEquityFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
+    final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
     // Call OG-Analytics
     final double value = getComputedValue(derivative, dataBundle, trade);
     final ValueSpecification specification = new ValueSpecification(_valueRequirementName, target.toSpecification(),
@@ -174,18 +178,19 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    */
   private double getComputedValue(EquityFuture derivative, SimpleFutureDataBundle bundle, Trade trade) {
     final double value;
+    EquityFuturesPricer pricer = EquityFuturePricerFactory.getMethod(getPricingMethodName());
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
-      value = _pricer.presentValue(derivative, bundle);
+      value = pricer.presentValue(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_DELTA)) {
-      value = _pricer.spotDelta(derivative, bundle);
+      value = pricer.spotDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)) {
-      value = _pricer.ratesDelta(derivative, bundle);
+      value = pricer.ratesDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.PV01)) {
-      value = _pricer.pv01(derivative, bundle);
+      value = pricer.pv01(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.SPOT)) {
-      value = _pricer.spotPrice(derivative, bundle);
+      value = pricer.spotPrice(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.FORWARD)) {
-      value = _pricer.forwardPrice(derivative, bundle);
+      value = pricer.forwardPrice(derivative, bundle);
     } else {
       throw new OpenGammaRuntimeException("_valueRequirementName," + _valueRequirementName + ", unexpected. Should have been recognized in the constructor.");
     }
@@ -202,39 +207,38 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof EquityFutureSecurity;
+    return target.getTrade().getSecurity() instanceof FutureSecurity;  // was: EquityFutureSecurity;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    final EquityFutureSecurity security = (EquityFutureSecurity)  target.getTrade().getSecurity();
+    final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     // Spot
-    final ValueRequirement marketValueReq = getMarketValueRequirement(context, security);
-    if (marketValueReq == null) {
+    final ValueRequirement refPriceReq = getReferencePriceRequirement(context, security);
+    if (refPriceReq == null) {
       return null;
     }
-    requirements.add(marketValueReq);
+    requirements.add(refPriceReq);
     // Funding curve
     final String fundingCurveName = getFundingCurveName(desiredValue);
     if (fundingCurveName == null) {
       return null;
     }
-
     // Curve configuration
     final String curveConfigName = getCurveConfigName(desiredValue);
     if (curveConfigName == null) {
       return null;
     }
-
-    // Spot underlying
-    requirements.add(getSpotAssetRequirement(security));
-
     switch (getPricingMethodEnum()) {
       case MARK_TO_MARKET:
         requirements.add(getMarketPriceRequirement(security));
+        if (getValueRequirementName() == ValueRequirementNames.SPOT) {
+          requirements.add(getSpotAssetRequirement(security));
+        }
         break;
       case COST_OF_CARRY:
+        requirements.add(getSpotAssetRequirement(security));
         requirements.add(getCostOfCarryRequirement(security));
         break;
       case DIVIDEND_YIELD:
@@ -248,6 +252,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
           return null;
         }
         requirements.add(dividendYieldReq);
+        requirements.add(getSpotAssetRequirement(security));
         break;
       default:
         throw new OpenGammaRuntimeException("Unhandled _pricingMethod=" + _pricingMethod);
@@ -275,7 +280,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return curveConfigName;
   }
 
-  protected ValueRequirement getDiscountCurveRequirement(String fundingCurveName, final String curveCalculationConfigName, EquityFutureSecurity security) {
+  protected ValueRequirement getDiscountCurveRequirement(String fundingCurveName, final String curveCalculationConfigName, FutureSecurity security) {
     ValueProperties properties = ValueProperties.builder()
       .with(ValuePropertyNames.CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -283,7 +288,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
-  protected YieldAndDiscountCurve getYieldCurve(final EquityFutureSecurity security, final FunctionInputs inputs, final String fundingCurveName, final String curveCalculationConfigName) {
+  protected YieldAndDiscountCurve getYieldCurve(final FutureSecurity security, final FunctionInputs inputs, final String fundingCurveName, final String curveCalculationConfigName) {
     final ValueRequirement curveRequirement = getDiscountCurveRequirement(fundingCurveName, curveCalculationConfigName, security);
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
@@ -292,13 +297,13 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return (YieldAndDiscountCurve) curveObject;
   }
 
-  private ValueRequirement getDividendYieldRequirement(EquityFutureSecurity security) {
-    ExternalId id = security.getUnderlyingId();
+  private ValueRequirement getDividendYieldRequirement(FutureSecurity security) {
+    ExternalId id = getSpotAssetId(security);
     return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, id);
   }
 
   @SuppressWarnings("unused")
-  private Double getDividendYield(EquityFutureSecurity security, FunctionInputs inputs) {
+  private Double getDividendYield(FutureSecurity security, FunctionInputs inputs) {
     ValueRequirement dividendRequirement = getDividendYieldRequirement(security);
     final Object dividendObject = inputs.getValue(dividendRequirement);
     if (dividendObject == null) {
@@ -307,12 +312,24 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return (Double) dividendObject;
   }
 
-  private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
-    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+  private ValueRequirement getSpotAssetRequirement(FutureSecurity security) {
+    ExternalId spotAssetId = getSpotAssetId(security);
+    ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotAssetId);
     return req;
   }
 
-  protected Double getSpot(EquityFutureSecurity security, FunctionInputs inputs) {
+  protected ExternalId getSpotAssetId(FutureSecurity sec) {
+    try {
+      ExternalId spotAssetId = ((EquityFutureSecurity) sec).getUnderlyingId();
+      return spotAssetId;
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException(sec.getContractCategory() + " failed to find spot asset. "
+          + "COST_OF_CARRY and DIVIDEND_YIELD models are only available to Futures where Spot asset prices are available. "
+          + "Contact Quant if spot asset should be available for this future.");
+    }
+  }
+
+  protected Double getSpot(FutureSecurity security, FunctionInputs inputs) {
     ValueRequirement spotRequirement = getSpotAssetRequirement(security);
     final Object spotObject = inputs.getValue(spotRequirement);
     if (spotObject == null) {
@@ -321,11 +338,12 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return (Double) spotObject;
   }
 
-  private ValueRequirement getCostOfCarryRequirement(EquityFutureSecurity security) {
-    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, security.getUnderlyingId());
+  private ValueRequirement getCostOfCarryRequirement(FutureSecurity security) {
+
+    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, getSpotAssetId(security));
   }
 
-  protected Double getCostOfCarry(EquityFutureSecurity security, FunctionInputs inputs) {
+  protected Double getCostOfCarry(FutureSecurity security, FunctionInputs inputs) {
     ValueRequirement costOfCarryRequirement = getCostOfCarryRequirement(security);
     final Object costOfCarryObject = inputs.getValue(costOfCarryRequirement);
     if (costOfCarryObject == null) {
@@ -347,7 +365,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return (Double) marketPriceObject;
   }
 
-  private ValueRequirement getMarketValueRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
+  private ValueRequirement getReferencePriceRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     ExternalIdBundle idBundle = security.getExternalIdBundle();
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
@@ -359,9 +377,9 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
-  private ValueRequirement getDividendYieldRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
+  private ValueRequirement getDividendYieldRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(ExternalIdBundle.of(security.getUnderlyingId()), null, null, null, DIVIDEND_YIELD_FIELD, null);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(ExternalIdBundle.of(getSpotAssetId(security)), null, null, null, DIVIDEND_YIELD_FIELD, null);
     if (timeSeries == null) {
       return null;
     }
@@ -375,14 +393,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    */
   protected final String getValueRequirementName() {
     return _valueRequirementName;
-  }
-
-  /**
-   * Gets the financialToAnalyticConverter.
-   * @return the financialToAnalyticConverter
-   */
-  protected final EquityFutureConverter getFinancialToAnalyticConverter() {
-    return _financialToAnalyticConverter;
   }
 
   /**

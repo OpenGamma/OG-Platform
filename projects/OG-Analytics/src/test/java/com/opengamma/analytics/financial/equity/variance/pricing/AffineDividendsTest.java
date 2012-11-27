@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
@@ -26,13 +27,13 @@ public class AffineDividendsTest {
 
   @Test
   public void zeroLengthTest() {
-    AffineDividends div = new AffineDividends(TAU0, ALPHA0, BETA0);
+    final AffineDividends div = new AffineDividends(TAU0, ALPHA0, BETA0);
     assertEquals(0, div.getNumberOfDividends());
   }
 
   @Test
   public void unitLengthTest() {
-    AffineDividends div = new AffineDividends(TAU1, ALPHA1, BETA1);
+    final AffineDividends div = new AffineDividends(TAU1, ALPHA1, BETA1);
     assertEquals(1, div.getNumberOfDividends());
     assertEquals(TAU1[0], div.getTau(0));
     assertEquals(ALPHA1[0], div.getAlpha(0));
@@ -94,4 +95,17 @@ public class AffineDividendsTest {
     new AffineDividends(TAU1, ALPHA1, new double[] {1.02 });
   }
 
+  @Test
+  public void testObject() {
+    final AffineDividends dividends = new AffineDividends(TAU1, ALPHA1, BETA1);
+    AffineDividends other = new AffineDividends(TAU1, ALPHA1, BETA1);
+    assertEquals(dividends, other);
+    assertEquals(dividends.hashCode(), other.hashCode());
+    other = new AffineDividends(new double[] {0.4}, ALPHA1, BETA1);
+    assertFalse(dividends.equals(other));
+    other = new AffineDividends(TAU1, new double[] {0.2345}, BETA1);
+    assertFalse(dividends.equals(other));
+    other = new AffineDividends(TAU1, ALPHA1, new double[] {0.123456});
+    assertFalse(dividends.equals(other));
+  }
 }

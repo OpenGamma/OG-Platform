@@ -96,7 +96,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = PVDC.visit(FRA, PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = FRA.accept(PVDC, PROVIDER);
     assertEquals("FRA discounting: present value calculator vs method", pvCalculator.getAmount(CUR), pvMethod.getAmount(CUR), 1.0E-2);
   }
 
@@ -115,32 +115,32 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FRA, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyMulticurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, PROVIDER);
-    MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSDC.visit(FRA, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FRA.accept(PVCSDC, PROVIDER);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void parSpread() {
     final double parSpread = FRA_METHOD.parSpread(FRA, PROVIDER);
-    ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
+    final ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
         FRA_RATE + parSpread);
-    ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, NOT_USED);
-    final MultipleCurrencyAmount pv0 = PVDC.visit(fra0, PROVIDER);
+    final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, NOT_USED);
+    final MultipleCurrencyAmount pv0 = fra0.accept(PVDC, PROVIDER);
     assertEquals("FRA discounting: par spread", pv0.getAmount(CUR), 0, TOLERANCE_PV);
   }
 
   @Test
   public void parSpreadMethodVsCalculator() {
     final double parSpreadMethod = FRA_METHOD.parSpread(FRA, PROVIDER);
-    final double parSpreadCalculator = PSMQDC.visit(FRA, PROVIDER);
+    final double parSpreadCalculator = FRA.accept(PSMQDC, PROVIDER);
     assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 
@@ -149,8 +149,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
    * Tests the par spread curve sensitivity versus a finite difference computation.
    */
   public void parSpreadCurveSensitivity() {
-    SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
-    SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FRA, PROVIDER);
+    final SimpleParameterSensitivity psComputed = PSPSC.calculateSensitivity(FRA, PROVIDER, PROVIDER.getAllNames());
+    final SimpleParameterSensitivity psFD = PSMQCS_FDC.calculateSensitivity(FRA, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_SPREAD_DELTA);
   }
 
@@ -160,7 +160,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
    */
   public void parSpreadCurveSensitivityMethodVsCalculator() {
     final MulticurveSensitivity pvcsMethod = FRA_METHOD.parSpreadCurveSensitivity(FRA, PROVIDER);
-    final MulticurveSensitivity pvcsCalculator = PSMQCSDC.visit(FRA, PROVIDER);
+    final MulticurveSensitivity pvcsCalculator = FRA.accept(PSMQCSDC, PROVIDER);
     assertEquals("Forex swap present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 

@@ -52,7 +52,7 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @param numberGenerator The random number generator.
    * @param nbPath The number of paths.
    */
-  public G2ppMonteCarloMethod(RandomNumberGenerator numberGenerator, int nbPath) {
+  public G2ppMonteCarloMethod(final RandomNumberGenerator numberGenerator, final int nbPath) {
     super(numberGenerator, nbPath);
   }
 
@@ -66,17 +66,17 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @param g2Data The G2++ data (curves and G2++ parameters).
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, Currency ccy, final String dscName, final G2ppPiecewiseConstantDataBundle g2Data) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final String dscName, final G2ppPiecewiseConstantDataBundle g2Data) {
     // TODO: remove currency and dsc curve name (should be available from the instrument)
-    YieldAndDiscountCurve dsc = g2Data.getCurve(dscName);
-    DecisionSchedule decision = DC.visit(instrument, g2Data);
-    double[] decisionTime = decision.getDecisionTime();
-    double[][] impactTime = decision.getImpactTime();
-    int nbJump = decisionTime.length;
-    double numeraireTime = decisionTime[nbJump - 1];
-    double pDN = dsc.getDiscountFactor(numeraireTime);
+    final YieldAndDiscountCurve dsc = g2Data.getCurve(dscName);
+    final DecisionSchedule decision = instrument.accept(DC, g2Data);
+    final double[] decisionTime = decision.getDecisionTime();
+    final double[][] impactTime = decision.getImpactTime();
+    final int nbJump = decisionTime.length;
+    final double numeraireTime = decisionTime[nbJump - 1];
+    final double pDN = dsc.getDiscountFactor(numeraireTime);
     // Discount factor to numeraire date for rebasing.
-    double[][] pDI = new double[nbJump][];
+    final double[][] pDI = new double[nbJump][];
     // Initial discount factors to each impact date.
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       pDI[loopjump] = new double[impactTime[loopjump].length];
@@ -85,9 +85,9 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
       }
     }
     final double rhog2pp = g2Data.getG2ppParameter().getCorrelation();
-    double[][][] h = MODEL.volatilityMaturityPart(g2Data.getG2ppParameter(), numeraireTime, impactTime); // factor/jump/cf
-    double[][][] gamma = new double[nbJump][2][2]; // jump/factor/factor
-    double[][] cov = new double[2 * nbJump][2 * nbJump]; // factor 0 - factor 1
+    final double[][][] h = MODEL.volatilityMaturityPart(g2Data.getG2ppParameter(), numeraireTime, impactTime); // factor/jump/cf
+    final double[][][] gamma = new double[nbJump][2][2]; // jump/factor/factor
+    final double[][] cov = new double[2 * nbJump][2 * nbJump]; // factor 0 - factor 1
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       gamma[loopjump] = MODEL.gamma(g2Data.getG2ppParameter(), 0.0, decisionTime[loopjump]);
       for (int j = loopjump; j < nbJump; j++) {
@@ -101,8 +101,8 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
         cov[nbJump + loopjump][j] = rhog2pp * gamma[loopjump][0][1];
       }
     }
-    double[][][] alpha = new double[2][nbJump][]; // factor/jump/cf
-    double[][] tau2 = new double[nbJump][];
+    final double[][][] alpha = new double[2][nbJump][]; // factor/jump/cf
+    final double[][] tau2 = new double[nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       tau2[loopjump] = new double[impactTime[loopjump].length];
       alpha[0][loopjump] = new double[impactTime[loopjump].length];
@@ -114,20 +114,20 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
             * h[0][loopjump][loopcf] * h[1][loopjump][loopcf];
       }
     }
-    CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
-    CholeskyDecompositionResult cdr = cd.evaluate(new DoubleMatrix2D(cov));
-    double[][] covCD = cdr.getL().getData();
-    int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
-    int[] nbPath2 = new int[nbBlock];
+    final CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
+    final CholeskyDecompositionResult cdr = cd.evaluate(new DoubleMatrix2D(cov));
+    final double[][] covCD = cdr.getL().getData();
+    final int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
+    final int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
       nbPath2[i] = BLOCK_SIZE;
     }
     nbPath2[nbBlock - 1] = getNbPath() - (nbBlock - 1) * BLOCK_SIZE;
-    double[][] impactAmount = decision.getImpactAmount();
+    final double[][] impactAmount = decision.getImpactAmount();
     double pv = 0;
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
-      double[][] x = getNormalArray(2 * nbJump, nbPath2[loopblock]);
-      double[][] y = new double[2 * nbJump][nbPath2[loopblock]]; // jump/path
+      final double[][] x = getNormalArray(2 * nbJump, nbPath2[loopblock]);
+      final double[][] y = new double[2 * nbJump][nbPath2[loopblock]]; // jump/path
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int i = 0; i < 2 * nbJump; i++) {
           for (int j = 0; j < 2 * nbJump; j++) {
@@ -135,15 +135,15 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
           }
         }
       }
-      Double[][][] pD = pathGeneratorDiscount(pDI, y, h, tau2);
-      pv += MCC.visit(instrument, new MonteCarloDiscountFactorDataBundle(pD, impactAmount)) * nbPath2[loopblock];
+      final Double[][][] pD = pathGeneratorDiscount(pDI, y, h, tau2);
+      pv += instrument.accept(MCC, new MonteCarloDiscountFactorDataBundle(pD, impactAmount)) * nbPath2[loopblock];
     }
     pv *= pDN / getNbPath(); // Multiply by the numeraire.
     return CurrencyAmount.of(ccy, pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return null;
   }
 
@@ -153,8 +153,8 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @param nbPath The number of paths.
    * @return The array of variables.
    */
-  private double[][] getNormalArray(int nbJump, int nbPath) {
-    double[][] result = new double[nbJump][nbPath];
+  private double[][] getNormalArray(final int nbJump, final int nbPath) {
+    final double[][] result = new double[nbJump][nbPath];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       result[loopjump] = getNumberGenerator().getVector(nbPath);
     }
@@ -169,12 +169,12 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @param tau2 The square of total volatilities. jump/cf 
    * @return The discount factor paths (path/jump/cf).
    */
-  private Double[][][] pathGeneratorDiscount(double[][] initDiscountFactor, double[][] y, double[][][] h, double[][] tau2) {
-    int nbJump = y.length / 2;
-    int nbPath = y[0].length;
-    Double[][][] pD = new Double[nbPath][nbJump][];
+  private Double[][][] pathGeneratorDiscount(final double[][] initDiscountFactor, final double[][] y, final double[][][] h, final double[][] tau2) {
+    final int nbJump = y.length / 2;
+    final int nbPath = y[0].length;
+    final Double[][][] pD = new Double[nbPath][nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      int nbCF = h[0][loopjump].length;
+      final int nbCF = h[0][loopjump].length;
       for (int looppath = 0; looppath < nbPath; looppath++) {
         pD[looppath][loopjump] = new Double[nbCF];
         for (int loopcf = 0; loopcf < nbCF; loopcf++) {

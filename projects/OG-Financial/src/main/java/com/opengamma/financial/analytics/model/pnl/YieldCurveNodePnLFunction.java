@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
@@ -329,17 +330,19 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final Object[] labels = curveSensitivities.getLabels();
     final List<Object> labelsList = Arrays.asList(labels);
     final double[] values = curveSensitivities.getValues();
-    final Set<FixedIncomeStripWithSecurity> strips = spec.getStrips();
+    final SortedSet<FixedIncomeStripWithSecurity> strips = (SortedSet<FixedIncomeStripWithSecurity>) spec.getStrips();
+    final FixedIncomeStripWithSecurity[] stripsArray = strips.toArray(new FixedIncomeStripWithSecurity[] {});
     final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
+    int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      final int index = labelsList.indexOf(strip.getSecurityIdentifier());
+      final int index = stripCount++; //labelsList.indexOf(strip.getSecurityIdentifier());
       if (index < 0) {
         throw new OpenGammaRuntimeException("Could not get index for " + strip);
       }
       stripList.add(index, strip.getInstrumentType());
     }
     for (int i = 0; i < n; i++) {
-      final ExternalId id = (ExternalId) labels[i];
+      final ExternalId id = stripsArray[i].getSecurityIdentifier();
       double sensitivity = values[i];
       if (stripList.get(i) == StripInstrumentType.FUTURE) {
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)

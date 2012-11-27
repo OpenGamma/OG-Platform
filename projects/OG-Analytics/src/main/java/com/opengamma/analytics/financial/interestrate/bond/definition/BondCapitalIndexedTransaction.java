@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a transaction on a capital indexed bond (inflation bond) issue.
@@ -22,17 +23,20 @@ public class BondCapitalIndexedTransaction<C extends Coupon> extends BondTransac
    * @param bondStandard Description of the underlying bond with standard settlement date.
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondCapitalIndexedTransaction(BondCapitalIndexedSecurity<C> bondPurchased, double quantity, double transactionPrice, BondCapitalIndexedSecurity<C> bondStandard, double notionalStandard) {
+  public BondCapitalIndexedTransaction(final BondCapitalIndexedSecurity<C> bondPurchased, final double quantity, final double transactionPrice, final BondCapitalIndexedSecurity<C> bondStandard,
+      final double notionalStandard) {
     super(bondPurchased, quantity, transactionPrice, bondStandard, notionalStandard);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedTransaction(this);
   }
 

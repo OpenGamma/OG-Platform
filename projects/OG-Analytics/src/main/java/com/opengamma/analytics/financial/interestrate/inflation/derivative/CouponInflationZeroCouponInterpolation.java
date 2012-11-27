@@ -10,10 +10,11 @@ import java.util.Arrays;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.InflationProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an zero-coupon inflation coupon. 
+ * Class describing an zero-coupon inflation coupon.
  * The start index value is known when the coupon is traded/issued.
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  */
@@ -24,7 +25,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    */
   private final double _indexStartValue;
   /**
-   * The reference times for the index at the coupon end.  Two months are required for the interpolation. 
+   * The reference times for the index at the coupon end.  Two months are required for the interpolation.
    * There is usually a difference of two or three month between the reference date and the payment date.
    * The time can be negative (when the price index for the current and last month is not yet published).
    */
@@ -34,7 +35,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    */
   private final double _weight;
   /**
-   * The time on which the end index is expected to be known. The index is usually known two week after the end of the reference month. 
+   * The time on which the end index is expected to be known. The index is usually known two week after the end of the reference month.
    * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
    */
   private final double _fixingEndTime;
@@ -57,8 +58,9 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param fixingEndTime The time on which the end index is expected to be known.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex,
-      double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional) {
+  public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
+      final IndexPrice priceIndex,
+      final double indexStartValue, final double[] referenceEndTime, final double weight, final double fixingEndTime, final boolean payNotional) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
@@ -108,26 +110,28 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   }
 
   @Override
-  public CouponInflationZeroCouponInterpolation withNotional(double notional) {
+  public CouponInflationZeroCouponInterpolation withNotional(final double notional) {
     return new CouponInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
         _weight, _fixingEndTime, _payNotional);
   }
 
   @Override
-  public double estimatedIndex(InflationProviderInterface market) {
-    double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
-    double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
-    double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
+  public double estimatedIndex(final InflationProviderInterface market) {
+    final double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
+    final double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
+    final double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
     return estimatedIndex;
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponInterpolation(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponInterpolation(this);
   }
 
@@ -150,7 +154,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -160,7 +164,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
+    final CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
     if (Double.doubleToLongBits(_fixingEndTime) != Double.doubleToLongBits(other._fixingEndTime)) {
       return false;
     }
