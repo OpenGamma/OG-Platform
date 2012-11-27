@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.pricing;
+package com.opengamma.analytics.financial.commodity.calculator;
 
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;

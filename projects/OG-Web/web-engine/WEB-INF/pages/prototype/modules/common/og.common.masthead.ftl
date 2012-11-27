@@ -14,7 +14,6 @@
   <li>
     <ul>
       <li><a href="admin.ftl#/portfolios/" class="og-portfolios">Portfolios</a></li>
-      <li><a href="blotter.ftl" class="og-blotter">Blotter</a></li>
       <li><a href="admin.ftl#/positions/" class="og-positions">Positions</a></li>
       <li><a href="admin.ftl#/securities/" class="og-securities">Securities</a></li>
       <li><a href="admin.ftl#/exchanges/" class="og-exchanges">Exchanges</a></li>

@@ -55,6 +55,14 @@
 }
 
 .OG-g-cell.og-error {color: gray;}
+.OG-g-cell.og-log:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-top: 5px solid #960000;
+    border-left: 5px solid transparent;
+}
 
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {

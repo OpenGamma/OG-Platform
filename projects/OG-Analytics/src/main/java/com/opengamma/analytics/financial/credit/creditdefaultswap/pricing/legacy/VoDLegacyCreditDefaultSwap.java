@@ -39,7 +39,7 @@ public class VoDLegacyCreditDefaultSwap {
 
   // Compute the VoD
 
-  public double getRecoveryRate01CreditDefaultSwap(
+  public double getValueOnDefaultCreditDefaultSwap(
       final ZonedDateTime valuationDate,
       final LegacyCreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,

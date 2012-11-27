@@ -35,7 +35,7 @@ public class CS01LegacyCreditDefaultSwap {
   // TODO : Need to get the times[] calculation correct
   // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
 
-  // NOTE : We enforce spreadBump > 0, therefore if the marketSpreads > 0 then bumpedMarketSpreads > 0 by construction
+  // NOTE : We enforce spreadBump > 0, therefore if the marketSpreads > 0 (an exception is thrown if this is not the case) then bumpedMarketSpreads > 0 by construction
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -109,9 +109,6 @@ public class CS01LegacyCreditDefaultSwap {
     final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    //System.out.println(presentValue);
-    //System.out.println(bumpedPresentValue);
 
     // Calculate the parallel CS01
     final double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;

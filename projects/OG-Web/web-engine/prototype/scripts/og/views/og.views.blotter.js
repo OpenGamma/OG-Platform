@@ -8,42 +8,14 @@ $.register_module({
     obj: function () {
         var view, module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
         $(window).load(function () { 
-            $('.van_swap').click(function (){
-                new og.blotter.forms.Vanilla_swap();
-            });
-            $('.var_swap').click(function (){
-                new og.blotter.forms.Variance_swap();
-            });
-            $('.swaption').click(function (){
-                new og.blotter.forms.Swaption();
-            });
-            $('.fx_for').click(function (){
-                new og.blotter.forms.Fx_forward();
-            });
-            $('.fx_bar_op').click(function (){
-                new og.blotter.forms.Fx_barrier_option();
-            });
-            $('.fx_op').click(function (){
-                new og.blotter.forms.Fx_option();
-            });
-            $('.nd_fx_op').click(function (){
-                new og.blotter.forms.Non_del_fx_option();
-            });
-            $('.bond_fut').click(function (){
-                new og.blotter.forms.Bond_future();
-            });
-            $('.bond').click(function (){
-                new og.blotter.forms.Bond();
-            });
-            $('.trade').click(function (){
-                new og.blotter.forms.Trade();
+            $('.new_trade').click(function (){
+                new og.blotter.Dialog();
             });
         });
         return view = {
             init: function () {
-                masthead.menu.set_tab(page_name);
-                new og.blotter.Dialog();
-            }
+                masthead.menu.set_tab(page_name);    
+            } 
         };
     }
 });

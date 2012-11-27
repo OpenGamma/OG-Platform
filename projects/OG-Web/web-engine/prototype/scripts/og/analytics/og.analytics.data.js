@@ -10,7 +10,7 @@ $.register_module({
         $(window).on('unload', function () {
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
-        var constructor = function (source, config, label) {
+        var Data = function (source, config, label) {
             var data = this, api = og.api.rest.views, id = og.common.id('data'), meta,
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
@@ -41,7 +41,7 @@ $.register_module({
                 }) : (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
-                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
+                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
                     })).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
@@ -169,7 +169,7 @@ $.register_module({
                 try { // viewport definitions come from outside, so try/catch
                     (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
-                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
+                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
                     })).pipe(function (result) {if (result.error) return; else viewport_version = promise.id;});
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
@@ -188,8 +188,8 @@ $.register_module({
                 setTimeout(initialize); // allow events to be attached
             }
         };
-        constructor.prototype.off = og.common.events.off;
-        constructor.prototype.on = og.common.events.on;
-        return constructor;
+        Data.prototype.off = og.common.events.off;
+        Data.prototype.on = og.common.events.on;
+        return Data;
     }
 });

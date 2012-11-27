@@ -24,6 +24,8 @@ public class IRSPFETest {
     return (int) q * (int) T + 1;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   private double[] generateTimeNodes(final double T, final double deltaT) {
 
     int numberOfTimeNodes = calculateNumberOfTimeNodes(T, 1.0 / deltaT);
@@ -52,23 +54,34 @@ public class IRSPFETest {
 
     final int numberOfPositions = 1;
 
-    final int numberOfSims = 10000;
+    final InterestRateProcess[] interestRateProcess = new InterestRateProcess[numberOfPositions];
+    final InterestRateSwap[] interestRateSwap = new InterestRateSwap[numberOfPositions];
 
-    final double T = 20.0;
-    final double deltaT = 0.5;
-
-    double[] timeNodes = generateTimeNodes(T, deltaT);
-
-    int numberOfTimeNodes = timeNodes.length;
-
+    final double notional = 10000000.0;
+    final double maturity = 5.0;
+    double maxMaturity = maturity;
     final double r0 = 0.05;
     final double a = 0.10;
     final double b = 0.05;
     final double sigma = 0.01;
-
     final double swapRate = 0.0496;
 
-    final double[] r = new double[numberOfTimeNodes];
+    for (int gamma = 0; gamma < numberOfPositions; gamma++) {
+
+      interestRateProcess[gamma] = new InterestRateProcess(r0, a, b, sigma);
+      interestRateSwap[gamma] = new InterestRateSwap(notional, swapRate, maturity, interestRateProcess[gamma]);
+    }
+
+    final int numberOfSims = 10000;
+
+    final double T = 20.0;
+    final double deltaT = 0.25;
+
+    double[] timeNodes = generateTimeNodes(maxMaturity, deltaT);
+
+    int numberOfTimeNodes = timeNodes.length;
+
+    final double[][] r = new double[numberOfTimeNodes][numberOfPositions];
 
     double Z = 0.0;
 
@@ -80,7 +93,9 @@ public class IRSPFETest {
 
     double[][] EE = new double[numberOfTimeNodes][numberOfSims];
 
-    r[0] = r0;
+    for (int gamma = 0; gamma < numberOfPositions; gamma++) {
+      r[0][gamma] = interestRateProcess[gamma].getR0();
+    }
 
     int counter = 1;
 
@@ -96,17 +111,21 @@ public class IRSPFETest {
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      epsilon = normRand.getVector(numberOfTimeNodes);
-
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
-      // First generate the simulated rates at each timenode for this simulation
+      // First generate the simulated rates at each timenode for each position for this simulation
 
       for (int j = 1; j < numberOfTimeNodes; j++) {
 
         double dt = timeNodes[j] - timeNodes[j - 1];
 
-        r[j] = r[j - 1] + a * (b - r[j - 1]) * dt + sigma * Math.sqrt(dt) * epsilon[j];
+        epsilon = normRand.getVector(numberOfPositions);
+
+        for (int gamma = 0; gamma < numberOfPositions; gamma++) {
+
+          r[j][gamma] = r[j - 1][gamma] + interestRateProcess[gamma].getA() * (interestRateProcess[gamma].getB() - r[j - 1][gamma]) * dt + interestRateProcess[gamma].getSigma() * Math.sqrt(dt) *
+              epsilon[gamma];
+        }
       }
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -114,6 +133,21 @@ public class IRSPFETest {
       counter = 0;
 
       int timeIndexCounter = 0;
+
+      // ----------------------------------------------------------------------------------------------------------------------------------------
+
+      for (int j = 0; j < timeNodes.length; j++) {
+
+        double t = timeNodes[j];
+
+        for (int gamma = 0; gamma < numberOfPositions; gamma++) {
+
+          if (interestRateSwap[gamma].getMaturity() > t) {
+
+          }
+        }
+
+      }
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -131,7 +165,7 @@ public class IRSPFETest {
           double A = Math.exp((b - sigma * sigma / (2 * a * a)) * (B - tPrime) + (-sigma * sigma * B * B / (4 * a)));
 
           // Calculate the discount factor
-          Z = A * Math.exp(-B * r[counter]);
+          Z = 0.0; //A * Math.exp(-B * r[counter]);
 
           // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.simpleinstrument;
 
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFuturePresentValueCalculator;
 import com.opengamma.analytics.financial.commodity.derivative.SimpleFutureConverter;
-import com.opengamma.analytics.financial.commodity.pricing.CommodityFuturePresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;

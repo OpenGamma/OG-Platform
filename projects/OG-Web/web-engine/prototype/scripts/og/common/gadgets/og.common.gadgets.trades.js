@@ -17,9 +17,12 @@ $.register_module({
          */
         generate_form_function = function (load_handler) {
             return function (css_class) {
+                var form = new og.common.util.ui.Form({
+                    selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'
+                }).on('form:load', load_handler);
+                form.children.push(new form.Block({module: 'og.views.forms.currency_tash'}));
                 $(css_class).html('Loading form...');
-                new og.common.util.ui.Form({selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'})
-                    .on('form:load', load_handler).add({module: 'og.views.forms.currency_tash'}).dom();
+                form.dom();
             };
         };
         form_save = function (trade_id) {
