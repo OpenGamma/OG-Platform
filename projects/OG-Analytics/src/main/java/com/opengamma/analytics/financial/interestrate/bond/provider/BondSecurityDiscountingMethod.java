@@ -198,7 +198,7 @@ public final class BondSecurityDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The price curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final IssuerProviderInterface issuerMulticurves) {
+  public MulticurveSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     MulticurveProviderInterface multicurves = issuerMulticurves.getMulticurveProvider();
@@ -211,9 +211,9 @@ public final class BondSecurityDiscountingMethod {
     final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(multicurves.getName(ccy), listDf);
-    MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(ccy, MulticurveSensitivity.ofYieldDiscounting(resultMap));
+    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(pv.getAmount(ccy) / notional);
-    result = result.plus(sensiPv.multipliedBy(1 / (df * notional)));
+    result = result.plus(sensiPv.getSensitivity(ccy).multipliedBy(1 / (df * notional)));
     return result;
   }
 

@@ -27,7 +27,6 @@ import com.opengamma.analytics.financial.provider.description.IssuerProviderIssu
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -459,23 +458,21 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void dirtyPriceCurveSensitivity() {
-    MultipleCurrencyMulticurveSensitivity sensi = METHOD_BOND_SECURITY.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, ISSUER_MULTICURVES);
-    MulticurveSensitivity sensiUSD = sensi.getSensitivity(CUR).cleaned();
+    MulticurveSensitivity sensi = METHOD_BOND_SECURITY.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, ISSUER_MULTICURVES).cleaned();
     sensi = sensi.cleaned();
     final MultipleCurrencyAmount pv = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_1, ISSUER_MULTICURVES);
     final double dfSettle = ISSUER_MULTICURVES.getMulticurveProvider().getDiscountFactor(CUR, BOND_FIXED_SECURITY_1.getSettlementTime());
     String DSC_CURVE_NAME = ISSUER_MULTICURVES.getMulticurveProvider().getName(CUR);
     String ISS_CURVE_NAME = ISSUER_MULTICURVES.getName(BOND_FIXED_SECURITY_1.getIssuerCcy());
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_1.getSettlementTime(),
-        sensiUSD.getYieldDiscountingSensitivities().get(DSC_CURVE_NAME).get(0).first, TOLERANCE_PV_DELTA);
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_1.getSettlementTime() / dfSettle * pv.getAmount(CUR) / NOTIONAL, sensiUSD
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_1.getSettlementTime(), sensi.getYieldDiscountingSensitivities().get(DSC_CURVE_NAME)
+        .get(0).first, TOLERANCE_PV_DELTA);
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_1.getSettlementTime() / dfSettle * pv.getAmount(CUR) / NOTIONAL, sensi
         .getYieldDiscountingSensitivities().get(DSC_CURVE_NAME).get(0).second, TOLERANCE_PV_DELTA);
     final double dfCpn0 = ISSUER_MULTICURVES.getMulticurveProvider().getDiscountFactor(BOND_FIXED_SECURITY_1.getCurrency(), BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime());
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime(), sensiUSD
-        .getYieldDiscountingSensitivities().get(ISS_CURVE_NAME).get(0).first, TOLERANCE_PV_DELTA);
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime(), sensi.getYieldDiscountingSensitivities()
+        .get(ISS_CURVE_NAME).get(0).first, TOLERANCE_PV_DELTA);
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", -BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime()
-        * BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensiUSD.getYieldDiscountingSensitivities().get(ISS_CURVE_NAME).get(0).second,
-        TOLERANCE_PV_DELTA);
+        * BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getYieldDiscountingSensitivities().get(ISS_CURVE_NAME).get(0).second, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -511,7 +508,7 @@ public class BondSecurityDiscountingMethodTest {
   }
 
   // UKT 5 09/07/14 - ISIN-GB0031829509 To check figures in the ex-dividend period
-  private static final String ISSUER_UK = ISSUER_NAMES[2];
+  private static final String ISSUER_UK = ISSUER_NAMES[3];
   private static final Currency GBP = Currency.GBP;
   private static final Period PAYMENT_TENOR_UK = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR_G = 2;

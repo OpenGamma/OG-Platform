@@ -29,6 +29,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
+@SuppressWarnings("unchecked")
 public class BondIborSecurityTest {
 
   //Quarterly Libor6m 2Y
@@ -47,7 +48,7 @@ public class BondIborSecurityTest {
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final AnnuityCouponIborDefinition COUPON_DEFINITION = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false);
   private static final AnnuityPaymentFixedDefinition NOMINAL_DEFINITION = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, BUSINESS_DAY.adjustDate(
-      CALENDAR, MATURITY_DATE), 1.0) });
+      CALENDAR, MATURITY_DATE), 1.0)});
   // to derivatives
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
@@ -57,7 +58,7 @@ public class BondIborSecurityTest {
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;

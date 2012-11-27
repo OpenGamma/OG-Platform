@@ -49,6 +49,8 @@ public final class PresentValueCurveSensitivityHullWhiteCalculator extends Abstr
     return derivative.accept(this, hullWhite);
   }
 
+  //     -----     Futures     -----
+
   @Override
   public MultipleCurrencyMulticurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_IRFUT.presentValueCurveSensitivity(future, hullWhite);

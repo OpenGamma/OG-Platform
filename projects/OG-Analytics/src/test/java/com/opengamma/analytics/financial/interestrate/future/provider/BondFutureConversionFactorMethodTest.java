@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.future.method;
+package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 

@@ -3,17 +3,16 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve;
+package com.opengamma.analytics.financial.provider.curve.multicurve;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Data required to build curves in the Multiple Curve on MarketDiscountBundle framework.
- * @author marc
+ * Data required to build curves in the Multiple Curve on MulticurvePrividerDiscount framework.
  */
-public class MulticurveProviderForwardBuildingData {
+public class MulticurveDiscountBuildingData {
 
   /**
    * The list of instruments. Not null.
@@ -22,7 +21,7 @@ public class MulticurveProviderForwardBuildingData {
   /**
    * The generator of the MarketDiscount.
    */
-  private final GeneratorMulticurveProviderForward _generator;
+  private final GeneratorMulticurveProviderDiscount _generator;
   /**
    * The number of instruments. The size of _instruments.
    */
@@ -33,7 +32,7 @@ public class MulticurveProviderForwardBuildingData {
    * @param instruments The list of instruments.
    * @param generator The market generator.
    */
-  public MulticurveProviderForwardBuildingData(final InstrumentDerivative[] instruments, final GeneratorMulticurveProviderForward generator) {
+  public MulticurveDiscountBuildingData(final InstrumentDerivative[] instruments, final GeneratorMulticurveProviderDiscount generator) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(generator, "Market generator");
     _instruments = instruments;
@@ -55,7 +54,7 @@ public class MulticurveProviderForwardBuildingData {
    * Gets the know curves.
    * @return The known curves.
    */
-  public MulticurveProviderForward getKnownData() {
+  public MulticurveProviderDiscount getKnownData() {
     return _generator.getKnownData();
   }
 
@@ -63,7 +62,7 @@ public class MulticurveProviderForwardBuildingData {
    * Gets the building function.
    * @return The building function.
    */
-  public GeneratorMulticurveProviderForward getGeneratorMarket() {
+  public GeneratorMulticurveProviderDiscount getGeneratorMarket() {
     return _generator;
   }
 

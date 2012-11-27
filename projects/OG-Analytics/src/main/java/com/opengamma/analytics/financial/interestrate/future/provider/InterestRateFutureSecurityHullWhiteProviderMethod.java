@@ -77,7 +77,7 @@ public final class InterestRateFutureSecurityHullWhiteProviderMethod extends Int
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price rate sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     double futureConvexityFactor = MODEL.futureConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
@@ -88,14 +88,8 @@ public final class InterestRateFutureSecurityHullWhiteProviderMethod extends Int
     final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
     listForward.add(new ForwardSensitivity(future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), future.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(hwMulticurves.getMulticurveProvider().getName(future.getIborIndex()), listForward);
-    final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(future.getCurrency(), MulticurveSensitivity.ofForward(mapFwd));
-    return result;
+    return MulticurveSensitivity.ofForward(mapFwd);
   }
-
-  //  @Override
-  //  public MultipleCurrencyCurveSensitivityMarket priceCurveSensitivity(final InterestRateFuture future, final MulticurveProviderInterface multicurve) {
-  //    return priceCurveSensitivity(future, curves);
-  //  }
 
   /**
    * Compute the present value sensitivity to rates of a interest rate future by discounting.
@@ -105,8 +99,9 @@ public final class InterestRateFutureSecurityHullWhiteProviderMethod extends Int
    * TODO: REVIEW: Should this method be in InterestRateFutureProviderMethod?
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
-    MultipleCurrencyMulticurveSensitivity priceSensi = priceCurveSensitivity(future, hwMulticurves);
-    MultipleCurrencyMulticurveSensitivity result = priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
+    MulticurveSensitivity priceSensi = priceCurveSensitivity(future, hwMulticurves);
+    MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(future.getCurrency(),
+        priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity()));
     return result;
   }
 

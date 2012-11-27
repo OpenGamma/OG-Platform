@@ -93,12 +93,12 @@ public class DeliverableSwapFuturesSecurity implements InstrumentDerivative {
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitDeliverableSwapFuturesSecurity(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitDeliverableSwapFuturesSecurity(this);
   }
 
   @Override

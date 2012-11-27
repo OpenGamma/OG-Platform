@@ -92,6 +92,8 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", expectedPrice, price, TOLERANCE_PRICE);
   }
 
+  // TODO: price curve sensitivity
+
   @Test
   /**
    * Test the present value computed from the curves and HW parameters.

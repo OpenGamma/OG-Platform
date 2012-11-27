@@ -26,17 +26,17 @@ public final class PresentValueHullWhiteCalculator extends AbstractInstrumentDer
   private static final PresentValueHullWhiteCalculator INSTANCE = new PresentValueHullWhiteCalculator();
 
   /**
+   * Constructor.
+   */
+  private PresentValueHullWhiteCalculator() {
+  }
+
+  /**
    * Gets the calculator instance.
    * @return The calculator.
    */
   public static PresentValueHullWhiteCalculator getInstance() {
     return INSTANCE;
-  }
-
-  /**
-   * Constructor.
-   */
-  private PresentValueHullWhiteCalculator() {
   }
 
   /**
@@ -57,6 +57,8 @@ public final class PresentValueHullWhiteCalculator extends AbstractInstrumentDer
       return derivative.accept(PVDC, multicurves.getMulticurveProvider());
     }
   }
+
+  //     -----     Futures     -----
 
   @Override
   public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hullWhite) {

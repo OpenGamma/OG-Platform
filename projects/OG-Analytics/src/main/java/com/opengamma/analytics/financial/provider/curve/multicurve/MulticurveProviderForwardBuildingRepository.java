@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve;
+package com.opengamma.analytics.financial.provider.curve.multicurve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,10 +17,12 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveUnderlyingMatrixCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveMatrixCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -36,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * Functions to build curves.
  * TODO: REVIEW: Embed in a better object.
  */
-public class MulticurveDiscountBuildingRepository {
+public class MulticurveProviderForwardBuildingRepository {
 
   /**
    * The absolute tolerance for the root finder.
@@ -65,13 +67,12 @@ public class MulticurveDiscountBuildingRepository {
    * @param toleranceRel The relative tolerance for the root finder.
    * @param stepMaximum The maximum number of step for the root finder.
    */
-  public MulticurveDiscountBuildingRepository(double toleranceAbs, double toleranceRel, int stepMaximum) {
+  public MulticurveProviderForwardBuildingRepository(double toleranceAbs, double toleranceRel, int stepMaximum) {
     _toleranceAbs = toleranceAbs;
     _toleranceRel = toleranceRel;
     _stepMaximum = stepMaximum;
     _rootFinder = new BroydenVectorRootFinder(_toleranceAbs, _toleranceRel, _stepMaximum, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
-    // TODO: make the root finder flexible. 
-    // TODO: create a way to select the SensitivityMatrixMulticurve calculator (with underlying curve or not)
+    // TODO: make the root finder flexible.
   }
 
   /**
@@ -87,20 +88,18 @@ public class MulticurveDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
-  private Pair<MulticurveProviderDiscount, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, final MulticurveProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
+  private Pair<MulticurveProviderForward, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, final MulticurveProviderForward knownData,
+      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap, final LinkedHashMap<String, IndexON> forwardONMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
-    final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
-    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
-                data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(
-    //                new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
+    final GeneratorMulticurveProviderForward generator = new GeneratorMulticurveProviderForward(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
+    final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveProviderForwardFinderFunction(calculator, data);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderForwardFinderJacobian(
+        new ParameterSensitivityMulticurveMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
-    final MulticurveProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<MulticurveProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    final MulticurveProviderForward newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
+    return new ObjectsPair<MulticurveProviderForward, Double[]>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -120,15 +119,13 @@ public class MulticurveDiscountBuildingRepository {
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
-  private DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instruments, int startBlock, int[] nbParameters, Double[] parameters, final MulticurveProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
+  private DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instruments, int startBlock, int[] nbParameters, Double[] parameters, final MulticurveProviderForward knownData,
+      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap, final LinkedHashMap<String, IndexON> forwardONMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
-    final GeneratorMulticurveProviderDiscount generator = new GeneratorMulticurveProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
-    final MulticurveDiscountBuildingData data = new MulticurveDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new ParameterSensitivityMulticurveUnderlyingMatrixCalculator(sensitivityCalculator),
-                data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator =
-    //                new MulticurveDiscountFinderJacobian(new ParameterSensitivityMatrixMulticurveCalculator(sensitivityCalculator), data); // TODO
+    final GeneratorMulticurveProviderForward generator = new GeneratorMulticurveProviderForward(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
+    final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderForwardFinderJacobian(
+        new ParameterSensitivityMulticurveMatrixCalculator(sensitivityCalculator), data);
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
     double[][] matrixTotal = inverseJacobian.getData();
@@ -159,12 +156,12 @@ public class MulticurveDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, GeneratorYDCurve[][] curveGenerators,
-      String[][] curveNames, double[][] parametersGuess, MulticurveProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
-      final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+  public Pair<MulticurveProviderForward, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
+      double[][] parametersGuess, MulticurveProviderForward knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap,
+      final LinkedHashMap<String, IndexON> forwardONMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     int nbUnits = curveGenerators.length;
-    MulticurveProviderDiscount knownSoFarData = knownData.copy();
+    MulticurveProviderForward knownSoFarData = knownData.copy();
     List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
     LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
@@ -194,19 +191,18 @@ public class MulticurveDiscountBuildingRepository {
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
         unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
       }
-      Pair<MulticurveProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap, forwardONMap, gen, calculator,
+      Pair<MulticurveProviderForward, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap, forwardONMap, gen, calculator,
           sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
       DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, discountingMap, forwardIborMap, forwardONMap, generatorsSoFar,
           sensitivityCalculator);
-      // TODO: should curve matrix be computed only once at the end? To save time
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<MulticurveProviderDiscount, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return new ObjectsPair<MulticurveProviderForward, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
 }
