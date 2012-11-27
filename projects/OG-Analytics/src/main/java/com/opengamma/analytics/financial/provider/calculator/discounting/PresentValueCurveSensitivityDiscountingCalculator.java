@@ -81,8 +81,8 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Abs
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurve) {
-    return instrument.accept(this, multicurve);
+  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative instrument, final MulticurveProviderInterface multicurves) {
+    return instrument.accept(this, multicurves);
   }
 
   // -----     Deposit     ------

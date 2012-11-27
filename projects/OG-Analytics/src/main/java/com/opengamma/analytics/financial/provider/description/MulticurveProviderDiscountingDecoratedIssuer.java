@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Forward
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a multi-curves provider created from a issuer provider where the discounting curve
@@ -34,6 +35,10 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
    * The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
   private final String _decoratingIssuer;
+  /**
+   * The issuer/currency pair.
+   */
+  private final Pair<String, Currency> _decoratingIssuerCcy;
 
   /**
    * Constructor.
@@ -45,6 +50,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
     _issuerProvider = issuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
+    _decoratingIssuerCcy = new ObjectsPair<String, Currency>(_decoratingIssuer, _decoratedCurrency);
   }
 
   @Override
@@ -55,7 +61,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   @Override
   public double getDiscountFactor(Currency ccy, Double time) {
     if (ccy.equals(_decoratedCurrency)) {
-      return _issuerProvider.getDiscountFactor(new ObjectsPair<String, Currency>(_decoratingIssuer, _decoratedCurrency), time);
+      return _issuerProvider.getDiscountFactor(_decoratingIssuerCcy, time);
     }
     return _issuerProvider.getMulticurveProvider().getDiscountFactor(ccy, time);
   }
@@ -97,6 +103,9 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
 
   @Override
   public String getName(Currency ccy) {
+    if (ccy.equals(_decoratedCurrency)) {
+      return _issuerProvider.getName(_decoratingIssuerCcy);
+    }
     return _issuerProvider.getMulticurveProvider().getName(ccy);
   }
 

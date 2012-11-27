@@ -18,6 +18,9 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDi
  */
 public class BondFutureConversionFactorMethod {
 
+  /**
+   * Method used to compute the bond yield.
+   */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   /**

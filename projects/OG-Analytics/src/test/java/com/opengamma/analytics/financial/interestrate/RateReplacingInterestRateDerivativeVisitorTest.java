@@ -61,9 +61,9 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
     final ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
     final String c1 = "a";
     final String c2 = "b";
-    final BondFixedSecurity b1 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R1, 0, calendar, dayCount, businessDay, yieldConvention, false).toDerivative(
+    final BondFixedSecurity b1 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R1, 0, calendar, dayCount, businessDay, yieldConvention, false, "I").toDerivative(
         date, c1, c2);
-    final BondFixedSecurity b2 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R2, 0, calendar, dayCount, businessDay, yieldConvention, false).toDerivative(
+    final BondFixedSecurity b2 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R2, 0, calendar, dayCount, businessDay, yieldConvention, false, "I").toDerivative(
         date, c1, c2);
     assertEquals(b2, VISITOR.visitBondFixedSecurity(b1, R2));
   }

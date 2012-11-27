@@ -73,7 +73,10 @@ public class IssuerProviderDiscount implements IssuerProviderInterface {
 
   @Override
   public double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time) {
-    return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
+    if (_issuerCurves.containsKey(issuerCcy)) {
+      return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
+    }
+    throw new IllegalArgumentException("Issuer discounting curve not found: " + issuerCcy);
   }
 
   @Override
