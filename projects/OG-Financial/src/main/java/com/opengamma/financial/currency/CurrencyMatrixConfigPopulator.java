@@ -56,7 +56,7 @@ public class CurrencyMatrixConfigPopulator {
   }
 
   private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyMatrix currencyMatrix) {
-    final ConfigItem<CurrencyMatrix> doc = ConfigItem.of(currencyMatrix);
+    final ConfigItem<CurrencyMatrix> doc = ConfigItem.of(currencyMatrix, name, CurrencyMatrix.class);
     doc.setName(name);
     ConfigMasterUtils.storeByName(cfgMaster, doc);
   }
