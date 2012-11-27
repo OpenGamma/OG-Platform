@@ -33,23 +33,18 @@ $.register_module({
                         if(inner) new inner();
                      });
                 return dropdown;
-
             },
             dialog.load = function () {
                 og.common.util.ui.dialog({
-                        type: 'input', 
-                        title: 'Add New Trade', 
-                        width: 800, 
-                        height: 700,
-                        form: dialog.generate(dialog.form_handler),
-                        buttons: {
-                            'Create': function () {$(this).dialog('close');},
-                            'Cancel': function () {$(this).dialog('close');}
+                    type: 'input', title: 'Add New Trade', width: 800, height: 700,
+                    form: dialog.generate(dialog.form_handler),
+                    buttons: {
+                        'Create': function () {$(this).dialog('close');},
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 });                  
             };
             dialog.form_handler = function() {
-
             };
             dialog.load();
         };
