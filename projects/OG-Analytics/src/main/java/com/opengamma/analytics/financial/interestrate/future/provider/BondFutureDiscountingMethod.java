@@ -10,9 +10,11 @@ import org.apache.commons.math.stat.descriptive.rank.Min;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Method to compute the price of bond future as the cheapest forward.
@@ -81,7 +83,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondFuture future, final IssuerProviderInterface issuerMulticurves) {
+  public MultipleCurrencyAmount presentValue(final BondFuture future, final IssuerProviderInterface issuerMulticurves) {
     return presentValueFromPrice(future, price(future, issuerMulticurves));
   }
 
@@ -92,7 +94,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @param netBasis The net basis associated to the future.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromNetBasis(final BondFuture future, final IssuerProviderInterface issuerMulticurves, final double netBasis) {
+  public MultipleCurrencyAmount presentValueFromNetBasis(final BondFuture future, final IssuerProviderInterface issuerMulticurves, final double netBasis) {
     return presentValueFromPrice(future, priceFromNetBasis(future, issuerMulticurves, netBasis));
   }
 
@@ -102,7 +104,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity priceCurveSensitivity(final BondFuture future, final IssuerProviderInterface issuerMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final BondFuture future, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];
@@ -115,7 +117,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
         indexCTD = loopbasket;
       }
     }
-    MultipleCurrencyMulticurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], issuerMulticurves);
+    MulticurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], issuerMulticurves);
     return result.multipliedBy(1.0 / future.getConversionFactor()[indexCTD]);
   }
 
@@ -126,8 +128,9 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @return The present value rate sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondFuture future, final IssuerProviderInterface issuerMulticurves) {
-    final MultipleCurrencyMulticurveSensitivity priceSensitivity = priceCurveSensitivity(future, issuerMulticurves);
-    final MultipleCurrencyMulticurveSensitivity transactionSensitivity = priceSensitivity.multipliedBy(future.getNotional());
+    Currency ccy = future.getCurrency();
+    final MulticurveSensitivity priceSensitivity = priceCurveSensitivity(future, issuerMulticurves);
+    final MultipleCurrencyMulticurveSensitivity transactionSensitivity = MultipleCurrencyMulticurveSensitivity.of(ccy, priceSensitivity.multipliedBy(future.getNotional()));
     return transactionSensitivity;
   }
 

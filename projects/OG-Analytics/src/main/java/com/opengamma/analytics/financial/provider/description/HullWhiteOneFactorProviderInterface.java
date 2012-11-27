@@ -32,7 +32,7 @@ public interface HullWhiteOneFactorProviderInterface {
   Currency getHullWhiteCurrency();
 
   /**
-   * Returns the MulticurveProvider from which the InflationProvider is composed.
+   * Returns the MulticurveProvider from which the HullWhiteOneFactorProvider is composed.
    * @return The multi-curves provider.
    */
   MulticurveProviderInterface getMulticurveProvider();

@@ -244,7 +244,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   //    }
   //  }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */

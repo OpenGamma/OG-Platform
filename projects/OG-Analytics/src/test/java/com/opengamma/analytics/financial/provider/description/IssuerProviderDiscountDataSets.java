@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -32,6 +33,7 @@ public class IssuerProviderDiscountDataSets {
 
   private static final String US_NAME = "US GOVT";
   private static final String BEL_NAME = "BELGIUM GOVT";
+  private static final String GER_NAME = "GERMANY GOVT";
   private static final String UK_NAME = "UK GOVT";
 
   private static final Currency USD = Currency.USD;
@@ -73,6 +75,13 @@ public class IssuerProviderDiscountDataSets {
   private static final String EUR_BEL_CURVE_NAME = "EUR " + BEL_NAME;
   private static final YieldAndDiscountCurve BEL_EUR_CURVE = new YieldCurve(EUR_BEL_CURVE_NAME, new InterpolatedDoublesCurve(EUR_BEL_TIME, EUR_BEL_RATE, LINEAR_FLAT, true, EUR_BEL_CURVE_NAME));
 
+  private static final Pair<String, Currency> GER_EUR = new ObjectsPair<String, Currency>(GER_NAME, EUR);
+  private static final double[] EUR_GER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] EUR_GER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
+  private static final String EUR_GER_CURVE_NAME = "EUR " + GER_NAME;
+  private static final YieldAndDiscountCurve GER_EUR_CURVE = new YieldCurve(EUR_GER_CURVE_NAME, new InterpolatedDoublesCurve(EUR_GER_TIME, EUR_GER_RATE, LINEAR_FLAT, true, EUR_GER_CURVE_NAME));
+  private static final YieldAndDiscountCurve GER_EUR_CURVE_6 = new YieldCurve(EUR_GER_CURVE_NAME, new ConstantDoublesCurve(0.06, EUR_GER_CURVE_NAME));
+
   private static final Pair<String, Currency> UK_GBP = new ObjectsPair<String, Currency>(UK_NAME, GBP);
   private static final double[] UK_GBP_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
   private static final double[] UK_GBP_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250};
@@ -90,21 +99,34 @@ public class IssuerProviderDiscountDataSets {
   static {
     ISSUER.put(US_USD, US_USD_CURVE);
     ISSUER.put(BEL_EUR, BEL_EUR_CURVE);
+    ISSUER.put(GER_EUR, GER_EUR_CURVE);
     ISSUER.put(UK_GBP, UK_GBP_CURVE);
+  }
+  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_6 = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+  static {
+    ISSUER_6.put(GER_EUR, GER_EUR_CURVE_6);
   }
 
   private static final IssuerProviderDiscount ISSUER_MULTICURVE = new IssuerProviderDiscount(MULTICURVE, ISSUER);
 
   /**
-   * Returns a multi-curves provider with two currencies (EUR, USD) and two issuers (BELGIUM GOVT, US GOVT).
+   * Returns a multi-curves provider with three currencies (USD, EUR, GBP), one Ibor (EURIBOR3M) and three issuers (US GOVT, BELGIUM GOVT, GERMAN GOVT, UK GOVT).
    * @return The provider.
    */
   public static IssuerProviderDiscount createIssuerProvider() {
     return ISSUER_MULTICURVE;
   }
 
+  /**
+   * Returns a multi-curves provider with one currency (EUR) and one issuer (GERMAN GOVT). The issuer curve is at 6% (useful for futures).
+   * @return The provider.
+   */
+  public static IssuerProviderDiscount createIssuerProvider6() {
+    return new IssuerProviderDiscount(MULTICURVE, ISSUER_6);
+  }
+
   public static String[] getIssuerNames() {
-    return new String[] {US_NAME, BEL_NAME, UK_NAME};
+    return new String[] {US_NAME, BEL_NAME, GER_NAME, UK_NAME};
   }
 
 }

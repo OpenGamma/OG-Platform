@@ -16,6 +16,8 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransact
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -51,6 +53,8 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
+  private static final BondFutureDiscountingMethod METHOD_BNDFUT_DSC = BondFutureDiscountingMethod.getInstance();
+
   /**
    * Composite calculator.
    */
@@ -94,9 +98,15 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
     return METHOD_BOND_SEC.presentValue(bond, issuercurves);
   }
 
+  //     -----     Futures     -----
+
+  @Override
+  public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final IssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves);
+  }
+
   @Override
   public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
     throw new UnsupportedOperationException();
   }
-
 }
