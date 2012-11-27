@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.loader;
@@ -21,7 +21,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- * 
+ *
  */
 @Scriptable
 public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolContext> {
@@ -31,8 +31,8 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
 
     new YieldCurveConfigPopulator(configMaster, false);
-    new CurrencyMatrixConfigPopulator(configMaster);
     CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(configMaster);
+    CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(configMaster);
     new SwaptionVolatilitySurfaceConfigPopulator(configMaster);
     new IRFutureOptionSurfaceConfigPopulator(configMaster);
     new ExampleFXOptionVolatilitySurfaceConfigPopulator(configMaster);
@@ -45,7 +45,7 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * 
+   *
    * @param args  the arguments, unused
    */
   public static void main(final String[] args) {  // CSIGNORE

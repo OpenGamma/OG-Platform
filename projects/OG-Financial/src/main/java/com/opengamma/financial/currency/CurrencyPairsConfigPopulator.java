@@ -30,7 +30,7 @@ public class CurrencyPairsConfigPopulator {
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyPairsConfigPopulator.class);
 
   public static ConfigMaster populateCurrencyPairsConfigMaster(ConfigMaster cfgMaster) {
-    storeCurrencyMatrix(cfgMaster, CurrencyPairs.DEFAULT_CURRENCY_PAIRS, createCurrencyPairs());
+    storeCurrencyPairs(cfgMaster, CurrencyPairs.DEFAULT_CURRENCY_PAIRS, createCurrencyPairs());
     return cfgMaster;
   }
 
@@ -56,7 +56,7 @@ public class CurrencyPairsConfigPopulator {
     return CurrencyPairs.of(pairs);
   }
 
-  private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyPairs currencyPairs) {
+  private static void storeCurrencyPairs(final ConfigMaster cfgMaster, final String name, final CurrencyPairs currencyPairs) {
     ConfigItem<CurrencyPairs> doc = ConfigItem.of(currencyPairs);
     doc.setName(name);
     ConfigMasterUtils.storeByName(cfgMaster, doc);

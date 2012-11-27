@@ -99,7 +99,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
       new YieldCurveConfigPopulator(cm);
     }
     if (isCurrencyMatrix()) {
-      new CurrencyMatrixConfigPopulator(cm);
+      // TODO: [PLAT-2379] This won't work if the currency pair conventions aren't already loaded
+      CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(cm);
     }
     if (isSwaptionVolatilitySurface()) {
       new SwaptionVolatilitySurfaceConfigPopulator(cm);
@@ -143,7 +144,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         return getConfigMaster();
@@ -170,7 +171,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
@@ -207,12 +208,12 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
+      final ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
       return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(isYieldCurve(), other.isYieldCurve()) &&
           JodaBeanUtils.equal(isCurrencyMatrix(), other.isCurrencyMatrix()) &&
@@ -256,7 +257,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the config master.
    * @param configMaster  the new value of the property
    */
-  public void setConfigMaster(ConfigMaster configMaster) {
+  public void setConfigMaster(final ConfigMaster configMaster) {
     this._configMaster = configMaster;
   }
 
@@ -281,7 +282,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the yield curves in the config master.
    * @param yieldCurve  the new value of the property
    */
-  public void setYieldCurve(boolean yieldCurve) {
+  public void setYieldCurve(final boolean yieldCurve) {
     this._yieldCurve = yieldCurve;
   }
 
@@ -306,7 +307,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the currency matrix in the config master.
    * @param currencyMatrix  the new value of the property
    */
-  public void setCurrencyMatrix(boolean currencyMatrix) {
+  public void setCurrencyMatrix(final boolean currencyMatrix) {
     this._currencyMatrix = currencyMatrix;
   }
 
@@ -331,7 +332,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param swaptionVolatilitySurface  the new value of the property
    */
-  public void setSwaptionVolatilitySurface(boolean swaptionVolatilitySurface) {
+  public void setSwaptionVolatilitySurface(final boolean swaptionVolatilitySurface) {
     this._swaptionVolatilitySurface = swaptionVolatilitySurface;
   }
 
@@ -356,7 +357,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param irFutureOptionSurface  the new value of the property
    */
-  public void setIrFutureOptionSurface(boolean irFutureOptionSurface) {
+  public void setIrFutureOptionSurface(final boolean irFutureOptionSurface) {
     this._irFutureOptionSurface = irFutureOptionSurface;
   }
 
@@ -381,7 +382,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param fxOptionVolatilitySurface  the new value of the property
    */
-  public void setFxOptionVolatilitySurface(boolean fxOptionVolatilitySurface) {
+  public void setFxOptionVolatilitySurface(final boolean fxOptionVolatilitySurface) {
     this._fxOptionVolatilitySurface = fxOptionVolatilitySurface;
   }
 
@@ -406,7 +407,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param equityOptionSurface  the new value of the property
    */
-  public void setEquityOptionSurface(boolean equityOptionSurface) {
+  public void setEquityOptionSurface(final boolean equityOptionSurface) {
     this._equityOptionSurface = equityOptionSurface;
   }
 
@@ -431,7 +432,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the volatility cubes in the config master.
    * @param volatilityCube  the new value of the property
    */
-  public void setVolatilityCube(boolean volatilityCube) {
+  public void setVolatilityCube(final boolean volatilityCube) {
     this._volatilityCube = volatilityCube;
   }
 
@@ -456,7 +457,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the FX forward curves in the config master.
    * @param fxForwardCurve  the new value of the property
    */
-  public void setFxForwardCurve(boolean fxForwardCurve) {
+  public void setFxForwardCurve(final boolean fxForwardCurve) {
     this._fxForwardCurve = fxForwardCurve;
   }
 
@@ -481,7 +482,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create curve calculation configurations in the config master.
    * @param curveCalculationConfiguration  the new value of the property
    */
-  public void setCurveCalculationConfiguration(boolean curveCalculationConfiguration) {
+  public void setCurveCalculationConfiguration(final boolean curveCalculationConfiguration) {
     this._curveCalculationConfiguration = curveCalculationConfiguration;
   }
 
@@ -576,7 +577,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return _configMaster;
