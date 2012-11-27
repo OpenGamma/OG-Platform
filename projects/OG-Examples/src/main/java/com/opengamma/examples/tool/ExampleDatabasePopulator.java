@@ -23,6 +23,7 @@ import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleExchangeLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
@@ -100,6 +101,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() {
     loadExchanges();
+    loadHolidays();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -340,6 +342,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating exchange data");
     try {
       final ExampleExchangeLoader loader = new ExampleExchangeLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadHolidays() {
+    final Log log = new Log("Creating holiday data");
+    try {
+      final ExampleHolidayLoader loader = new ExampleHolidayLoader();
       loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
