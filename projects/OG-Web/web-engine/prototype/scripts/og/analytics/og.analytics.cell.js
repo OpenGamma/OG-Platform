@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Cell',
     dependencies: ['og.api.rest', 'og.analytics.Data', 'og.common.events'],
     obj: function () {
-        var module = this, events = og.common.events, constructor = function (config, label) {
+        var module = this, events = og.common.events, Cell = function (config, label) {
             var cell = this;
             label = label ? '[' + label + ']' : '';
             var fatal_handler = function (message) {
@@ -30,10 +30,10 @@ $.register_module({
                 })
                 .on('fatal', fatal_handler);
         };
-        constructor.prototype.fire = events.fire;
-        constructor.prototype.kill = function () {this.dataman.kill();};
-        constructor.prototype.off = events.off;
-        constructor.prototype.on = events.on;
-        return constructor;
+        Cell.prototype.fire = events.fire;
+        Cell.prototype.kill = function () {this.dataman.kill();};
+        Cell.prototype.off = events.off;
+        Cell.prototype.on = events.on;
+        return Cell;
     }
 });

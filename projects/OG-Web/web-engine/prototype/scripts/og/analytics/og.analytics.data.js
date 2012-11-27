@@ -10,7 +10,7 @@ $.register_module({
         $(window).on('unload', function () {
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
-        var constructor = function (source, config, label) {
+        var Data = function (source, config, label) {
             var data = this, api = og.api.rest.views, id = og.common.id('data'), meta,
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
@@ -188,8 +188,8 @@ $.register_module({
                 setTimeout(initialize); // allow events to be attached
             }
         };
-        constructor.prototype.off = og.common.events.off;
-        constructor.prototype.on = og.common.events.on;
-        return constructor;
+        Data.prototype.off = og.common.events.off;
+        Data.prototype.on = og.common.events.on;
+        return Data;
     }
 });

@@ -34,17 +34,6 @@ $.register_module({
                 .then(function (result) {block.template = set_template(config.module, result);});
         };
         /**
-         * adds an arbitrary number of children to Block instance (configuration options of each child should be passed)
-         * @type Block
-         * @returns {Block} reference to current Block instance
-         */        
-        Block.prototype.add = function () {
-            var block = this;
-            Array.prototype.slice.call(arguments)
-                .forEach(function (child) {block.children.push(new Block(block.form, child));});
-            return block;
-        };
-        /**
          * generates the HTML for a Block instance and all of its children and calls a supplied handler with that string
          * @param {Function} handler the handler that receives the HTML string
          * @type Block
