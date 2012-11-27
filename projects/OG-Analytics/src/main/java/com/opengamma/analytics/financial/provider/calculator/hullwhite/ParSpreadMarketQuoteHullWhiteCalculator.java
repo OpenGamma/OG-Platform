@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -15,7 +14,7 @@ import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactor
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, Double> {
+public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -34,25 +33,13 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
    * Constructor.
    */
   private ParSpreadMarketQuoteHullWhiteCalculator() {
+    super(new HullWhiteProviderAdapter<Double>(ParSpreadMarketQuoteDiscountingCalculator.getInstance()));
   }
 
   /**
    * Pricing methods.
    */
   private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
-  /**
-   * Composite calculator.
-   */
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
-    try {
-      return derivative.accept(this, multicurves);
-    } catch (final Exception e) {
-      return derivative.accept(PSMQDC, multicurves.getMulticurveProvider());
-    }
-  }
 
   //     -----     Futures     -----
 
@@ -65,11 +52,6 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_IRFUT_HW.price(future, multicurves) - future.getReferencePrice();
-  }
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

@@ -105,7 +105,7 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate, NOT_USED);
     final MultipleCurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_ISSUER);
-    final MultipleCurrencyAmount pvCalculator = PVC.visit(deposit, PROVIDER_ISSUER);
+    final MultipleCurrencyAmount pvCalculator = deposit.accept(PVC, PROVIDER_ISSUER);
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvMethod, pvCalculator);
   }
 
@@ -236,7 +236,7 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = TRADE_DATE;
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate, NOT_USED);
     final double parSpreadMethod = METHOD_DEPOSIT.parSpread(deposit, PROVIDER_ISSUER);
-    final double parSpreadCalculator = PSMQIDC.visit(deposit, PROVIDER_ISSUER);
+    final double parSpreadCalculator = deposit.accept(PSMQIDC, PROVIDER_ISSUER);
     assertEquals("DepositDefinition: present value", parSpreadMethod, parSpreadCalculator, TOLERANCE_SPREAD);
   }
 
@@ -260,7 +260,7 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = TRADE_DATE;
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate, NOT_USED);
     final MulticurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, PROVIDER_ISSUER);
-    final MulticurveSensitivity pscsCalculator = PSMQCSIDC.visit(deposit, PROVIDER_ISSUER);
+    final MulticurveSensitivity pscsCalculator = deposit.accept(PSMQCSIDC, PROVIDER_ISSUER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_SPREAD);
   }
 

@@ -71,7 +71,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET.getInflationProvider());
-    final MultipleCurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET.getInflationProvider());
+    final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_1.accept(PVIC, MARKET.getInflationProvider());
     assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
   }
 

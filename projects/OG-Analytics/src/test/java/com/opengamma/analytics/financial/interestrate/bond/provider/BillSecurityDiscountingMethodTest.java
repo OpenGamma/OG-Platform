@@ -104,7 +104,7 @@ public class BillSecurityDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_SECURITY.presentValue(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
-    final MultipleCurrencyAmount pvCalculator = PVIC.visit(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
+    final MultipleCurrencyAmount pvCalculator = BILL_BEL_IAM_SEC.accept(PVIC, ISSUER_MULTICURVE);
     assertEquals("Bill Security: discounting method - present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -220,7 +220,7 @@ public class BillSecurityDiscountingMethodTest {
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_SECURITY.presentValueCurveSensitivity(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSIC.visit(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = BILL_BEL_IAM_SEC.accept(PVCSIC, ISSUER_MULTICURVE);
     AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 

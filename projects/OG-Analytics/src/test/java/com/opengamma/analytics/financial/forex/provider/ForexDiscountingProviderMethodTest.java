@@ -126,7 +126,7 @@ public class ForexDiscountingProviderMethodTest {
     final MultipleCurrencyAmount exposureMethod = METHOD_FX.currencyExposure(FX, PROVIDER);
     final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, PROVIDER);
     assertEquals("Currency exposure", pv, exposureMethod);
-    final MultipleCurrencyAmount exposureCalculator = CEDC.visit(FX, PROVIDER);
+    final MultipleCurrencyAmount exposureCalculator = FX.accept(CEDC, PROVIDER);
     assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 

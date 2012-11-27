@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -25,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an ...
  */
-public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -44,6 +43,7 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
    * Constructor.
    */
   private PresentValueIssuerCalculator() {
+    super(new IssuerProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -54,20 +54,6 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
   private static final BondFutureDiscountingMethod METHOD_BNDFUT_DSC = BondFutureDiscountingMethod.getInstance();
-
-  /**
-   * Composite calculator.
-   */
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
-    try {
-      return derivative.accept(this, issuercurves);
-    } catch (final Exception e) {
-      return derivative.accept(PVDC, issuercurves.getMulticurveProvider());
-    }
-  }
 
   //     -----     Deposit     -----
 
@@ -103,10 +89,5 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   @Override
   public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final IssuerProviderInterface issuercurves) {
     return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 }

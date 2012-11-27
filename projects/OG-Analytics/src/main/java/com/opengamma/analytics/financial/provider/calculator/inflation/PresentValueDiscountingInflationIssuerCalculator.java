@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethod;
@@ -17,7 +16,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<InflationIssuerProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingInflationIssuerCalculator extends InstrumentDerivativeVisitorDelegate<InflationIssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -36,6 +35,7 @@ public final class PresentValueDiscountingInflationIssuerCalculator extends Inst
    * Constructor.
    */
   private PresentValueDiscountingInflationIssuerCalculator() {
+    super(new InflationIssuerProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingInflationCalculator.getInstance()));
   }
 
   /**
@@ -43,17 +43,6 @@ public final class PresentValueDiscountingInflationIssuerCalculator extends Inst
    */
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SEC = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TR = new BondCapitalIndexedTransactionDiscountingMethod();
-
-  private static final PresentValueDiscountingInflationCalculator PVDIC = PresentValueDiscountingInflationCalculator.getInstance();
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final InflationIssuerProviderInterface market) {
-    try {
-      return derivative.accept(this, market);
-    } catch (final Exception e) {
-      return derivative.accept(PVDIC, market.getInflationProvider());
-    }
-  }
 
   @Override
   public MultipleCurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface market) {
@@ -63,11 +52,6 @@ public final class PresentValueDiscountingInflationIssuerCalculator extends Inst
   @Override
   public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface market) {
     return METHOD_BOND_TR.presentValue(bond, market);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

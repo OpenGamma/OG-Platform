@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -18,7 +17,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -29,6 +28,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
    * Constructor.
    */
   private PresentValueHullWhiteCalculator() {
+    super(new HullWhiteProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -44,19 +44,6 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
    */
   private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_SWPT_PHYS = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
-  /**
-   * Composite calculator.
-   */
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
-    try {
-      return derivative.accept(this, multicurves);
-    } catch (final Exception e) {
-      return derivative.accept(PVDC, multicurves.getMulticurveProvider());
-    }
-  }
 
   //     -----     Futures     -----
 
@@ -68,11 +55,6 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   @Override
   public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWPT_PHYS.presentValue(swaption, hullWhite);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

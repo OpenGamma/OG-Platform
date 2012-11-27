@@ -51,8 +51,8 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
     final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<String, Currency>(bond.getIssuer(), bond.getCurrency()));
-    final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
-    final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 

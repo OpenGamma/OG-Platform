@@ -59,7 +59,7 @@ public class BondFutureSecurityDiscountingMethodTest {
   private static final int NB_BOND = 7;
   private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
+    DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
@@ -268,7 +268,7 @@ public class BondFutureSecurityDiscountingMethodTest {
     final double priceFuture = METHOD_FUT_DSC.price(BOND_FUTURE, ISSUER_MULTICURVES);
     final double pvExpected = (priceFuture - REF_PRICE) * NOTIONAL;
     assertEquals("Bond future Discounting Method: present value amount", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
-    final MultipleCurrencyAmount presentValueCalculator = PVIC.visit(BOND_FUTURE, ISSUER_MULTICURVES);
+    final MultipleCurrencyAmount presentValueCalculator = BOND_FUTURE.accept(PVIC, ISSUER_MULTICURVES);
     assertEquals("Bond future Discounting Method: present value from price", pvComputed.getAmount(EUR), presentValueCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -289,9 +289,9 @@ public class BondFutureSecurityDiscountingMethodTest {
    * Tests the present value  curve sensitivity method for bond futures.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_FUT_DSC.presentValueCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES).cleaned();
-    MulticurveSensitivity pcs = METHOD_FUT_DSC.priceCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES);
-    MultipleCurrencyMulticurveSensitivity pvcsExpected = MultipleCurrencyMulticurveSensitivity.of(EUR, pcs.multipliedBy(NOTIONAL).cleaned());
+    final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_FUT_DSC.presentValueCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES).cleaned();
+    final MulticurveSensitivity pcs = METHOD_FUT_DSC.priceCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsExpected = MultipleCurrencyMulticurveSensitivity.of(EUR, pcs.multipliedBy(NOTIONAL).cleaned());
     AssertSensivityObjects.assertEquals("Bond future Discounting Method: pv curve sensitivity", pvcsComputed, pvcsExpected, TOLERANCE_PV_DELTA);
   }
 

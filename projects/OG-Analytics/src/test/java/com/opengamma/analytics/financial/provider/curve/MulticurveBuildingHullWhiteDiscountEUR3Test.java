@@ -327,7 +327,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
       for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
-          pv[loopcurve][loopins] = curves.getMulticurveProvider().getFxRates().convert(PVHWC.visit(instruments[loopcurve][loopins], curves), EUR).getAmount();
+          pv[loopcurve][loopins] = curves.getMulticurveProvider().getFxRates().convert(instruments[loopcurve][loopins].accept(PVHWC, curves), EUR).getAmount();
           assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }

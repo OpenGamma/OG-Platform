@@ -120,7 +120,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void presentValueFixedMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_1, ISSUER_MULTICURVES);
-    final MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_FIXED_SECURITY_1, ISSUER_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = BOND_FIXED_SECURITY_1.accept(PVIC, ISSUER_MULTICURVES);
     assertEquals("Fixed coupon bond security: present value Method vs Calculator", pvMethod.getAmount(CUR), pvCalculator.getAmount(CUR), TOLERANCE_PV);
   }
 

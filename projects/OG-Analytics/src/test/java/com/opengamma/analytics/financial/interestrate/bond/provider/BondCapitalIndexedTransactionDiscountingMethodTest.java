@@ -83,7 +83,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   public void presentValueTips1() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
     final MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    final MultipleCurrencyAmount pvSettlement = PVDIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET.getInflationProvider()).multipliedBy(
+    final MultipleCurrencyAmount pvSettlement = BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement().accept(PVDIC, MARKET.getInflationProvider()).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
         pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
@@ -95,7 +95,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    final MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    final MultipleCurrencyAmount pvCalculator = BOND_TIPS_1_TRANSACTION.accept(PVDIIC, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

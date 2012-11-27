@@ -7,8 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
@@ -26,7 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<InflationProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingInflationCalculator extends InstrumentDerivativeVisitorDelegate<InflationProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -45,6 +44,7 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
    * Constructor.
    */
   private PresentValueDiscountingInflationCalculator() {
+    super(new InflationProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -63,17 +63,6 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
    * Pricing method for zero-coupon with interpolated reference index.
    */
   private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD_ZC_INTERPOLATION_GEARING = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
-
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final InflationProviderInterface multicurves) {
-    try {
-      return derivative.accept(this, multicurves);
-    } catch (final Exception e) {
-      return derivative.accept(PVDC, multicurves.getMulticurveProvider());
-    }
-  }
 
   @Override
   public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface market) {
@@ -103,11 +92,6 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
   @Override
   public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface market) {
     return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

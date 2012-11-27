@@ -96,7 +96,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue((CouponInflationZeroCouponMonthlyGearing) BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
     MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_GILT_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_GILT_1.getCoupon().getNumberOfPayments(); loopcpn++) {
-      pvCoupon = pvCoupon.plus(PVDIC.visit(BOND_SECURITY_GILT_1.getCoupon().getNthPayment(loopcpn), marketUKGovt));
+      pvCoupon = pvCoupon.plus(BOND_SECURITY_GILT_1.getCoupon().getNthPayment(loopcpn).accept(PVDIC, marketUKGovt));
     }
     final MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
     final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
@@ -109,7 +109,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
-    final MultipleCurrencyAmount pvCalculator = PVDIIC.visit(BOND_SECURITY_GILT_1, MARKET);
+    final MultipleCurrencyAmount pvCalculator = BOND_SECURITY_GILT_1.accept(PVDIIC, MARKET);
     assertEquals("Inflation Capital Indexed bond: present value", pvMethod, pvCalculator);
   }
 
@@ -145,7 +145,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue((CouponInflationZeroCouponInterpolationGearing) BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
     MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_TIPS_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_TIPS_1.getCoupon().getNumberOfPayments(); loopcpn++) {
-      pvCoupon = pvCoupon.plus(PVDIC.visit(BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn), marketUSGovt));
+      pvCoupon = pvCoupon.plus(BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn).accept(PVDIC, marketUSGovt));
     }
     final MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
     final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_TIPS_1, MARKET);

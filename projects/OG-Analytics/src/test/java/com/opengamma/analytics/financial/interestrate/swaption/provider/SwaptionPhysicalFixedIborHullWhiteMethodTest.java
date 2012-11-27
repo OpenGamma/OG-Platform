@@ -172,7 +172,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    final MultipleCurrencyAmount pvCalculator = PVHWC.visit(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = SWAPTION_LONG_PAYER.accept(PVHWC, HW_MULTICURVES);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value : method and calculator", pvMethod, pvCalculator);
   }
 

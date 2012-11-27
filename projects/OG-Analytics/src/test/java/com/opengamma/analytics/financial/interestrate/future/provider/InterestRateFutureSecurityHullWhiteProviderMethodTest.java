@@ -108,7 +108,7 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
   @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_IRFUT_HW.presentValue(ERU2, HW_PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = PVHWC.visit(ERU2, HW_PROVIDER);
+    final MultipleCurrencyAmount pvCalculator = ERU2.accept(PVHWC, HW_PROVIDER);
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pvCalculator.getAmount(EUR), pvMethod.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -117,8 +117,8 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_PROVIDER, HW_PROVIDER.getMulticurveProvider().getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(ERU2, HW_PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_PROVIDER, HW_PROVIDER.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(ERU2, HW_PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 

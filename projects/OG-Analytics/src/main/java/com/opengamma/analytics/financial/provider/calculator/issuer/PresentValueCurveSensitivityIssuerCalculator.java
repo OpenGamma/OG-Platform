@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
@@ -20,7 +19,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -39,27 +38,15 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
    * Constructor.
    */
   private PresentValueCurveSensitivityIssuerCalculator() {
+    super(new IssuerProviderAdapter<MultipleCurrencyMulticurveSensitivity>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
   /**
    * Pricing methods.
    */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
-  /**
-   * Composite calculator.
-   */
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
-
-  @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
-    try {
-      return derivative.accept(this, issuercurves);
-    } catch (final Exception e) {
-      return derivative.accept(PVCSDC, issuercurves.getMulticurveProvider());
-    }
-  }
 
   //     -----     Deposit     -----
 
@@ -78,11 +65,6 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   @Override
   public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves);
-  }
-
-  @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

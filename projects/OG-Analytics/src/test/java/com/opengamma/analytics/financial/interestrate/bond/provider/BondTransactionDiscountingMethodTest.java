@@ -189,10 +189,10 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testFixedBondMethodCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    final MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator =BOND_TRANSACTION_FIXED_3.accept(PVIC, ISSUER_MULTICURVES);
     assertEquals("Fixed bond present value: Method vs Calculator", pvMethod, pvCalculator);
     final MultipleCurrencyMulticurveSensitivity pvsMethod = METHOD_BOND_TR.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvsCalculator = PVCSIC.visit(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvsCalculator = BOND_TRANSACTION_FIXED_3.accept(PVCSIC, ISSUER_MULTICURVES);
     AssertSensivityObjects.assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
   }
 
@@ -211,9 +211,9 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVSIborBond() {
     final MultipleCurrencyMulticurveSensitivity pvs = METHOD_BOND_TR.presentValueSensitivity(BOND_TRANSACTION_FRN, ISSUER_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvsNominal = PVCSIC.visit(NOMINAL_TR_1_FRN, ISSUER_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvsCoupon = PVCSIC.visit(COUPON_TR_1_FRN, ISSUER_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvsSettlement = PVCSIC.visit(BOND_SETTLEMENT_FRN, ISSUER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvsNominal = NOMINAL_TR_1_FRN.accept(PVCSIC, ISSUER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvsCoupon = COUPON_TR_1_FRN.accept(PVCSIC, ISSUER_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvsSettlement = BOND_SETTLEMENT_FRN.accept(PVCSIC, ISSUER_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("FRN present value sensitivity", expectedPvs, pvs.cleaned());
   }

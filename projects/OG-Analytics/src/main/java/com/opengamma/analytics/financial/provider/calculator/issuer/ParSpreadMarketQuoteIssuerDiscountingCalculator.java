@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
@@ -17,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.IssuerProviderInte
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, Double> {
+public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -36,6 +35,7 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
    * Constructor.
    */
   private ParSpreadMarketQuoteIssuerDiscountingCalculator() {
+    super(new IssuerProviderAdapter<Double>(ParSpreadMarketQuoteDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -43,19 +43,6 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
    */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
-  /**
-   * Composite calculator.
-   */
-  private static final ParSpreadMarketQuoteDiscountingCalculator PVDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final IssuerProviderInterface issuercurves) {
-    try {
-      return derivative.accept(this, issuercurves);
-    } catch (final Exception e) {
-      return derivative.accept(PVDC, issuercurves.getMulticurveProvider());
-    }
-  }
 
   //     -----     Deposit     -----
 
@@ -69,11 +56,6 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
   @Override
   public Double visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.parSpread(bill, issuercurves);
-  }
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }
