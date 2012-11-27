@@ -65,6 +65,7 @@ public class FutureInstrumentsDescriptionDataSet {
 
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency BNDFUT_CUR = Currency.EUR;
+  private static final String ISSUER_NAME = "Issuer";
   private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
   private static final DayCount BNDFUT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BNDFUT_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -83,7 +84,7 @@ public class FutureInstrumentsDescriptionDataSet {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
       BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(BNDFUT_CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], BNDFUT_PAYMENT_TENOR, RATE[loopbasket],
-          BNDFUT_SETTLEMENT_DAYS, CALENDAR, BNDFUT_DAY_COUNT, BNDFUT_BUSINESS_DAY, YIELD_CONVENTION, BNDFUT_IS_EOM);
+          BNDFUT_SETTLEMENT_DAYS, CALENDAR, BNDFUT_DAY_COUNT, BNDFUT_BUSINESS_DAY, YIELD_CONVENTION, BNDFUT_IS_EOM, ISSUER_NAME);
     }
   }
   private static final ZonedDateTime BNDFUT_LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 21);

@@ -79,10 +79,9 @@ public final class PaymentFixedDiscountingProviderMethod {
    * @return The sensitivity.
    */
   public StringValue presentValueParallelCurveSensitivity(PaymentFixed payment, final MulticurveProviderInterface multicurves) {
-    final String curveName = payment.getFundingCurveName();
     final double time = payment.getPaymentTime();
     double sensitivity = -time * payment.getAmount() * multicurves.getDiscountFactor(payment.getCurrency(), time);
-    return StringValue.from(curveName, sensitivity);
+    return StringValue.from(multicurves.getName(payment.getCurrency()), sensitivity);
   }
 
 }

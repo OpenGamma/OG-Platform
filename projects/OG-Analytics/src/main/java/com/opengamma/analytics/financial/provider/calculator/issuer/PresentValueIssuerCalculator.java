@@ -9,8 +9,11 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -47,6 +50,7 @@ public final class PresentValueIssuerCalculator extends AbstractInstrumentDeriva
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
   /**
    * Composite calculator.
    */
@@ -78,6 +82,16 @@ public final class PresentValueIssuerCalculator extends AbstractInstrumentDeriva
   @Override
   public MultipleCurrencyAmount visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.presentValue(bill, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuercurves) {
+    return METHOD_BOND_SEC.presentValue(bond, issuercurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBondIborSecurity(final BondIborSecurity bond, final IssuerProviderInterface issuercurves) {
+    return METHOD_BOND_SEC.presentValue(bond, issuercurves);
   }
 
 }
