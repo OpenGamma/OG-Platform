@@ -21,6 +21,7 @@ import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.examples.loader.ExampleExchangeLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
@@ -83,7 +84,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   * 
+   *
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -98,6 +99,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    loadExchanges();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -328,6 +330,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadExchanges() {
+    final Log log = new Log("Creating exchange data");
+    try {
+      final ExampleExchangeLoader loader = new ExampleExchangeLoader();
+      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
