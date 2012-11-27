@@ -89,7 +89,7 @@ public class CurrencyMatrixConfigPopulator {
     final Currency commonCross = Currency.USD;
     for (final String currency : DOLLARS_PER_UNIT_CURRENCIES) {
       matrix.setLiveData(commonCross, Currency.of(currency),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency)));
+          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), currency + commonCross.toString())));
     }
     for (final String currency : UNITS_PER_DOLLAR_CURRENCIES) {
       matrix.setLiveData(Currency.of(currency), commonCross,
