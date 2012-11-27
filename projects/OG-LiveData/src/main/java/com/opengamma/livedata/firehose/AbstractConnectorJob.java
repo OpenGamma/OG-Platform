@@ -74,7 +74,10 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
     public void run() {
       try {
         while (true) {
-          _queue.add(_stream.readRecord());
+         Record record = _stream.readRecord();
+          s_logger.debug("Fire-hose decoder about to add record " + record + " to queue (size " + _queue.size() + ")");
+          _queue.add(record);
+          s_logger.debug("Fire-hose decoder added record " + record + " to queue (size " + _queue.size() + ")");
         }
       } catch (IOException e) {
         s_logger.warn("I/O exception caught - {}", e.toString());
@@ -142,10 +145,17 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
           getPipeLineExecutor().submit(decoder);
           final BlockingQueue<Object> records = decoder.getQueue();
           try {
+
+            s_logger.debug("Chunker about to take a record from queue (size {})", records.size());
             Object record = records.take();
+            s_logger.debug("Chunker decoder took a record from queue (size {})", records.size());
+
             while (record != s_eof) {
+              s_logger.debug("Chunker about to invoke call-back method to send record {} on MQ", record);
               getCallback().received((Record) record);
+              s_logger.debug("Call-back completed, chunker about to take another record from queue (size {})", records.size());
               record = records.take();
+              s_logger.debug("Chunker decoder took another record from queue (size {})", records.size());
             }
           } catch (InterruptedException e) {
             throw new OpenGammaRuntimeException("Interrupted", e);

@@ -219,6 +219,33 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
+   * The theta (non-forward).
+   *
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call, false for put
+   * @param interestRate the interest rate
+   * @return The forward theta
+   */
+  @ExternalFunction
+  public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall, final double interestRate) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    final int sign = isCall ? 1 : -1;
+    final double b = 0; // for now set cost of carry to 0
+    final double rootT = Math.sqrt(timeToExpiry);
+    final double sigmaRootT = lognormalVol * rootT;
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double d2 = d1 - sigmaRootT;
+
+    final double value = -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT - sign * (b - interestRate) * forward * NORMAL.getCDF(sign * d1) - sign * interestRate * strike *
+        Math.exp(-interestRate * timeToExpiry) * NORMAL.getCDF(sign * d2);
+
+    return value;
+  }
+
+  /**
    * The forward (i.e. driftless) theta 
    * @param forward The forward value of the underlying
    * @param strike The Strike
