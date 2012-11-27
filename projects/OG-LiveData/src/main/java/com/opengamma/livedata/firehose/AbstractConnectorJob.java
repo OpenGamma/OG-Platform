@@ -28,6 +28,9 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractConnectorJob.class);
 
+  /** the capacity of the buffer between the fire-hose receiver thread and the active mq sender thread */
+  private int QUEUE_CAPACITY = 100;
+
   /**
    * Callback to receive values from the connector as they are produced.
    */
@@ -59,7 +62,7 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
    */
   private class RecordDecoder implements Runnable {
 
-    private final BlockingQueue<Object> _queue = new LinkedBlockingQueue<Object>();
+    private final BlockingQueue<Object> _queue = new LinkedBlockingQueue<Object>(QUEUE_CAPACITY);
     private final RecordStream<Record> _stream;
 
     public RecordDecoder(final RecordStream<Record> stream) {
