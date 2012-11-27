@@ -438,7 +438,7 @@ public class VoDLegacyCreditDefaultSwapTest {
     final VoDLegacyCreditDefaultSwap vod = new VoDLegacyCreditDefaultSwap();
 
     // Compute the VoD
-    final double valueOnDefault = vod.getRecoveryRate01CreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, priceType);
+    final double valueOnDefault = vod.getValueOnDefaultCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, priceType);
 
     // -------------------------------------------------------------------------------------
 
