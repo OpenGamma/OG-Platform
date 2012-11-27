@@ -7,9 +7,9 @@ $.register_module({
     name: 'og.common.util.ui.Block',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text, has = 'hasOwnProperty';
+        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
         /** @private */
-        var template_gen = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
+        var set_template = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
         /**
          * creates a Block instance
          * @name Block
@@ -28,9 +28,10 @@ $.register_module({
             var block = this, config = block.config = config || {};
             block.children = config.children || [];
             block.form = form;
-            if (!block[has]('template')) block.template = block.template || null; // if falsey, create instance variable
-            if (!block.template) $.when(config.module ? api_text({module: config.module}) : void 0)
-                .then(function (result) {block.template = template_gen(config.module, result);});
+            if (block.template) return; // good to go if template is supplied by prototype
+            block.template = 'loading';
+            $.when(config.module ? api_text({module: config.module}) : void 0)
+                .then(function (result) {block.template = set_template(config.module, result);});
         };
         /**
          * adds an arbitrary number of children to Block instance (configuration options of each child should be passed)
@@ -64,7 +65,7 @@ $.register_module({
                 return block.config.wrap ? Handlebars.compile(block.config.wrap)({html: html}) : html;
             };
             if (block.config.content) return handler(block.config.content), block;
-            if (template === null) return setTimeout(function () {block.html(handler);}, STALL), block;
+            if (template === 'loading') return setTimeout(function () {block.html(handler);}, STALL), block;
             if (generator) return generator(handler, template), block;
             if (!total) return internal_handler(), block;
             block.children.forEach(function (val, idx) {

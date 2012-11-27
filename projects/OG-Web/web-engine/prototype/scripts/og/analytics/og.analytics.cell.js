@@ -15,7 +15,9 @@ $.register_module({
             };
             cell.dataman = new og.analytics.Data(config.source, {bypass: true, label: 'cell' + label})
                 .on('meta', function (meta, raw) {
-                    cell.dataman.viewport({rows: [config.row], cols: [config.col], format: config.format});
+                    cell.dataman.viewport({
+                        rows: [config.row], cols: [config.col], format: config.format, log: config.log
+                    });
                 })
                 .on('data', function (data) {
                     var cell_data = data[0];
