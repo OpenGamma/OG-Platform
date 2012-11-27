@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -57,7 +58,14 @@ public class FXSpotRateMarketDataFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _currencyPairs = new ConfigDBCurrencyPairsSource(OpenGammaCompilationContext.getConfigSource(context)).getCurrencyPairs(_convention);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    if (configSource == null) {
+      throw new UnsupportedOperationException("A config source is required");
+    }
+    _currencyPairs = new ConfigDBCurrencyPairsSource(configSource).getCurrencyPairs(_convention);
+    if (_currencyPairs == null) {
+      throw new UnsupportedOperationException("No convention called " + _convention + " found");
+    }
   }
 
   @Override

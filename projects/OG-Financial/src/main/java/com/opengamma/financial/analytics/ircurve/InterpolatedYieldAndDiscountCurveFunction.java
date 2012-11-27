@@ -107,15 +107,12 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   @Override
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);
-
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(_definition.getCurrency());
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
     final String curveReqName = _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE;
     _result = new ValueSpecification(curveReqName, targetSpec, properties);
-
     _specResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties);
-
     _results = Sets.newHashSet(_result, _specResult);
   }
 

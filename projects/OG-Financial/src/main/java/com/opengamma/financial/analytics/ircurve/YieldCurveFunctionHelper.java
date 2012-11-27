@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -39,7 +39,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 public class YieldCurveFunctionHelper {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFunctionHelper.class);
@@ -59,10 +59,12 @@ public class YieldCurveFunctionHelper {
 
   public YieldCurveDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
-
+    if (_curveSpecificationBuilder == null) {
+      throw new UnsupportedOperationException("An interpolated yield curve specification builder is required");
+    }
     _definition = getDefinition(context);
     if (_definition == null) {
-      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
+      throw new UnsupportedOperationException("No curve definition for " + _curveName + " on " + _currency);
     } else {
       if (_definition.getUniqueId() != null) {
         context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());

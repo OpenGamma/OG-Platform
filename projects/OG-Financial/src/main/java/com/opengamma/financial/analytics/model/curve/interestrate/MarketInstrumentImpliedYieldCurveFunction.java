@@ -154,10 +154,25 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    if (holidaySource == null) {
+      throw new UnsupportedOperationException("A holiday source is required");
+    }
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    if (regionSource == null) {
+      throw new UnsupportedOperationException("A region source is required");
+    }
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    if (conventionSource == null) {
+      throw new UnsupportedOperationException("A convention bundle source is required");
+    }
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    if (securitySource == null) {
+      throw new UnsupportedOperationException("A security source is required");
+    }
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    if (timeSeriesResolver == null) {
+      throw new UnsupportedOperationException("A historical time series resolver is required");
+    }
     _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }

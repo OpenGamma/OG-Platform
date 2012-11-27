@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -137,7 +137,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           try {
             s_logger.debug("Compiling {}", function);
             return function.compile(context, atInstant);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             s_logger.warn("Compiling {} threw {}", function.getShortName(), e);
             throw e;
           }
@@ -150,14 +150,15 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       Future<CompiledFunctionDefinition> future;
       try {
         future = completionService.take();
-      } catch (InterruptedException e1) {
+      } catch (final InterruptedException e1) {
         Thread.interrupted();
         throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
       }
       try {
-        CompiledFunctionDefinition compiledFunction = future.get();
+        final CompiledFunctionDefinition compiledFunction = future.get();
         compiled.addFunction(compiledFunction);
-      } catch (Exception e) {
+      } catch (final Exception e) {
+        e.printStackTrace();
         // Don't propagate the error outwards; it just won't be in the compiled repository
         s_logger.debug("Error compiling function definition", e);
         failures.incrementAndGet();
@@ -251,7 +252,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       try {
         s_logger.info("Using concurrent call to compile {}", atInstant);
         return existing.call();
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Exception from concurrent call", e);
       }
     }
