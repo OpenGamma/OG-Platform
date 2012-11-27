@@ -416,12 +416,8 @@ $.register_module({
         Grid.prototype.fire = og.common.events.fire;
         Grid.prototype.kill = function () {
             var grid = this;
-            try {grid.dataman.kill();}
-                catch (error) {og.dev.warn(module.name + ': dataman kill failed', error);}
-            try {grid.clipboard.dataman.kill();}
-                catch (error) {og.dev.warn(module.name + ': clipboard kill failed', error);}
-            try {grid.elements.style.remove();}
-                catch (error) {og.dev.warn(module.name + ': style remove failed', error);}
+            try {grid.dataman.kill();} catch (error) {}
+            try {grid.elements.style.remove();} catch (error) {}
         };
         Grid.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
