@@ -123,7 +123,8 @@ $.register_module({
                     rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                     selection = grid.selector.selection(rectangle);
                 if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                if (!(cell = grid.cell(selection))) return;
+                if (!(cell = grid.cell(selection))) return; // cell is undefined
+                if (!cell.value.v) return; // cell is empty
                 cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
                 cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
