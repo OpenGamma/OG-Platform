@@ -103,9 +103,8 @@ public class ResultsCacheTest {
     cache.put(resultsModel1);
 
     ResultsCache.Result result1 = cache.getResult(CALC_CONFIG, _spec1, Double.class);
-    assertNull(result1.getValue());
-    assertNotNull(result1.getHistory());
-    assertEquals(0, result1.getHistory().size());
+    assertEquals(NotCalculatedSentinel.EVALUATION_ERROR, result1.getValue());
+    assertNull(result1.getHistory());
 
     InMemoryViewComputationResultModel resultsModel2 = new InMemoryViewComputationResultModel();
     resultsModel2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, ExecutionLog.EMPTY));

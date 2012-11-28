@@ -29,7 +29,7 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractConnectorJob.class);
 
   /** the capacity of the buffer between the fire-hose receiver thread and the active mq sender thread */
-  private int QUEUE_CAPACITY = 100;
+  private int QUEUE_CAPACITY = 5000;
 
   /**
    * Callback to receive values from the connector as they are produced.
@@ -77,10 +77,12 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
     public void run() {
       try {
         while (true) {
-         Record record = _stream.readRecord();
-          s_logger.debug("Fire-hose decoder about to add record " + record + " to queue (size " + _queue.size() + ")");
-          _queue.add(record);
-          s_logger.debug("Fire-hose decoder added record " + record + " to queue (size " + _queue.size() + ")");
+          Record record = _stream.readRecord();
+          try {
+            _queue.put(record);
+          } catch (InterruptedException e) {
+            e.printStackTrace();  // TODO
+          }
         }
       } catch (IOException e) {
         s_logger.warn("I/O exception caught - {}", e.toString());
@@ -133,6 +135,8 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
   @Override
   public void run() {
     s_logger.info("Started connection job");
+
+    // Reconnect until quit requested
     while (!_poisoned) {
       prepareConnection();
       if (_poisoned) {
@@ -143,31 +147,30 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
         s_logger.info("Connected");
         getCallback().connected();
         if (isPipeLineRead()) {
+
+          // Multi-threaded mode
           final RecordStream<Record> stream = getStreamFactory().newInstance(new BufferedInputStream(getInputStream()));
           final RecordDecoder decoder = new RecordDecoder(stream);
           getPipeLineExecutor().submit(decoder);
-          final BlockingQueue<Object> records = decoder.getQueue();
+          final BlockingQueue<Object> queue = decoder.getQueue();
           try {
-
-            s_logger.debug("Chunker about to take a record from queue (size {})", records.size());
-            Object record = records.take();
-            s_logger.debug("Chunker decoder took a record from queue (size {})", records.size());
-
+            Object record = queue.take();
             while (record != s_eof) {
-              s_logger.debug("Chunker about to invoke call-back method to send record {} on MQ", record);
               getCallback().received((Record) record);
-              s_logger.debug("Call-back completed, chunker about to take another record from queue (size {})", records.size());
-              record = records.take();
-              s_logger.debug("Chunker decoder took another record from queue (size {})", records.size());
+              record = queue.take();
             }
           } catch (InterruptedException e) {
             throw new OpenGammaRuntimeException("Interrupted", e);
           }
+
         } else {
+
+          // Single-threaded mode
           final RecordStream<Record> records = getStreamFactory().newInstance(new BufferedInputStream(getInputStream()));
           do {
             getCallback().received(records.readRecord());
           } while (true);
+
         }
       } catch (IOException e) {
         ioExceptionInRead(e);

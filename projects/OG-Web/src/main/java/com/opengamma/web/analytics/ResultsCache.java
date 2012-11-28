@@ -95,8 +95,7 @@ import com.opengamma.util.money.CurrencyAmount;
     ResultKey key = new ResultKey(calcConfigName, spec);
     CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
-      CacheItem newResult = CacheItem.forValue(value, result.getExecutionLog(), _lastUpdateId);
-      _results.put(key, newResult);
+      _results.put(key, new CacheItem(value, result.getExecutionLog(), _lastUpdateId));
     } else {
       cacheResult.setLatestValue(value, result.getExecutionLog(), _lastUpdateId);
     }
@@ -211,29 +210,13 @@ import com.opengamma.util.money.CurrencyAmount;
    */
   private static class CacheItem {
 
-    private final Collection<Object> _history;
-
+    private Collection<Object> _history;
     private Object _latestValue;
     private long _lastUpdateId = -1;
     private ExecutionLog _executionLog;
 
-    @SuppressWarnings("unchecked")
-    private CacheItem(Collection<Object> history) {
-      _history = history;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static CacheItem forValue(Object value, ExecutionLog executionLog, long lastUpdateId) {
-      ArgumentChecker.notNull(value, "value");
-      CircularFifoBuffer history;
-      if (s_historyTypes.contains(value.getClass())) {
-        history = new CircularFifoBuffer(MAX_HISTORY_SIZE);
-      } else {
-        history = null;
-      }
-      CacheItem result = new CacheItem(history);
-      result.setLatestValue(value, executionLog, lastUpdateId);
-      return result;
+    private CacheItem(Object value, ExecutionLog executionLog, long lastUpdateId) {
+      setLatestValue(value, executionLog, lastUpdateId);
     }
 
     /**
@@ -242,10 +225,19 @@ import com.opengamma.util.money.CurrencyAmount;
      * @param executionLog The execution log associated generated when calculating the value
      * @param lastUpdateId ID of the set of results that calculated it
      */
+    @SuppressWarnings("unchecked")
     private void setLatestValue(Object latestValue, ExecutionLog executionLog, long lastUpdateId) {
+      ArgumentChecker.notNull(latestValue, "latestValue");
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
       _executionLog = executionLog;
+      // this can happen if the first value is an error and then real values arrive. this is possible if market
+      // data subscriptions take time to set up. in that case the history will initially be null (because error
+      // sentinel types aren't in s_historyTypes) and then when a valid value arrives the type can be checked and
+      // history created if required
+      if (_history == null && s_historyTypes.contains(latestValue.getClass())) {
+        _history = new CircularFifoBuffer(MAX_HISTORY_SIZE);
+      }
       if (_history != null) {
         _history.add(latestValue);
       }
