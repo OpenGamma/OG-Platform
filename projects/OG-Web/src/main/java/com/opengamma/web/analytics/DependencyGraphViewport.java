@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Viewport on a grid displaying the dependency graph showing how a value is calculated. This class isn't thread safe.
  */
-public class DependencyGraphViewport implements AnalyticsViewport {
+public class DependencyGraphViewport implements Viewport {
 
   /** The calculation configuration used when calculating the value and its ancestor values. */
   private final String _calcConfigName;
@@ -28,32 +28,39 @@ public class DependencyGraphViewport implements AnalyticsViewport {
   private ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
   private ViewportResults _latestResults;
+  /** The current state. Dep graph viewports are never empty, they will always have structure and metadata. */
+  private State _state = State.STALE_DATA;
 
   /**
    * @param calcConfigName Calculation configuration used to calculate the dependency graph
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the viewport's data changes
+   * @param viewportDefinition The viewport definition
+   * @param cycle The view cycle from the previous calculation cycle
+   * @param cache The current results
    */
   /* package */ DependencyGraphViewport(String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
-                                        String callbackId) {
+                                        String callbackId,
+                                        ViewportDefinition viewportDefinition,
+                                        ViewCycle cycle,
+                                        ResultsCache cache) {
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _calcConfigName = calcConfigName;
     _gridStructure = gridStructure;
     _callbackId = callbackId;
+    update(viewportDefinition, cycle, cache);
   }
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid.
-   *
    * @param cycle The cycle used to calculate the latest set of results
    * @param cache Cache of results for the grid
-   * @return The viewport's callback ID if there is data available, {@code null} if not
    */
   @Override
-  public String update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
+  public void update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
     ArgumentChecker.notNull(viewportDefinition, "viewportSpec");
     ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(cache, "cache");
@@ -62,15 +69,14 @@ public class DependencyGraphViewport implements AnalyticsViewport {
                                              viewportDefinition + ", grid: " + _gridStructure);
     }
     _viewportDefinition = viewportDefinition;
-    return updateResults(cycle, cache);
+    updateResults(cycle, cache);
   }
 
   /**
    * Updates the data in the viewport when a new set of results arrives from the calculation engine.
    * @param cache Cache of results
-   * @return ID of the viewport's data which is passed to listeners to notify them the data has changed
    */
-  /* package */ String updateResults(ViewCycle cycle, ResultsCache cache) {
+  /* package */ void updateResults(ViewCycle cycle, ResultsCache cache) {
     ComputationCycleQuery query = new ComputationCycleQuery();
     query.setCalculationConfigurationName(_calcConfigName);
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
@@ -83,16 +89,12 @@ public class DependencyGraphViewport implements AnalyticsViewport {
                                                      _viewportDefinition,
                                                      _gridStructure.getColumnStructure(),
                                                      cache.getLastCalculationDuration());
-    String callbackId;
     if (newResults.equals(_latestResults)) {
-      // return null to signal the results haven't changed
-      callbackId = null;
+      _state = State.STALE_DATA;
     } else {
-      // results have changed, return the viewport's callback ID so the client is notified
-      callbackId = _callbackId;
+      _state = State.FRESH_DATA;
     }
     _latestResults = newResults;
-    return callbackId;
   }
 
   @Override
@@ -103,5 +105,14 @@ public class DependencyGraphViewport implements AnalyticsViewport {
   @Override
   public ViewportDefinition getDefinition() {
     return _viewportDefinition;
+  }
+
+  public String getCallbackId() {
+    return _callbackId;
+  }
+
+  @Override
+  public State getState() {
+    return _state;
   }
 }
