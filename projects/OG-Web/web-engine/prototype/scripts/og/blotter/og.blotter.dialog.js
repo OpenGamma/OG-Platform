@@ -36,7 +36,7 @@ $.register_module({
             },
             dialog.load = function () {
                 og.common.util.ui.dialog({
-                    type: 'input', title: 'Add New Trade', width: 800, height: 700,
+                    type: 'input', title: 'Add New Trade', width: 530, height: 700,
                     form: dialog.generate(dialog.form_handler),
                     buttons: {
                         'Create': function () {$(this).dialog('close');},
