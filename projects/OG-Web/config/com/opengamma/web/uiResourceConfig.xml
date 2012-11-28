@@ -347,6 +347,8 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cap_floor.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cap_floor_cms_spread.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
