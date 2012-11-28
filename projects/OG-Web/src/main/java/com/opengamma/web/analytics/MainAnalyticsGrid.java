@@ -80,18 +80,6 @@ import com.opengamma.util.tuple.Pair;
     return updatedIds;
   }
 
-  /**
-   * Updates a viewport on the main grid, e.g. in response the the user scrolling the grid.
-   *
-   * @param viewportId ID of the viewport
-   * @param viewportDefinition Definition of the updated viewport
-   * @return The viewport's callback ID if it was updated or {@code null} if not
-   * @throws DataNotFoundException If no viewport exists with the specified ID
-   */
-  /* package */ /*String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
-    return getViewport(viewportId).update(viewportDefinition, _cycle, _cache);
-  }*/
-
   // -------- dependency graph grids --------
 
   /**

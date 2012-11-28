@@ -46,7 +46,7 @@ public class ResultsFormatter {
                   new LabelledMatrix2DFormatter(),
                   new LabelledMatrix3DFormatter(),
                   new TenorFormatter(),
-                  new MultipleCurrencyAmountFormatter(),
+                  new MultipleCurrencyAmountFormatter(doubleFormatter),
                   new MissingMarketDataSentinelFormatter(),
                   new NotCalculatedSentinelFormatter(),
                   new ForwardCurveFormatter(),
