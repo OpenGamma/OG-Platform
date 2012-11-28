@@ -11,13 +11,12 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Base class for grids that display analytics data calculated by the engine.
  * @param <V> The type of viewport created and used by this grid.
  */
-/* package */ abstract class AnalyticsGrid<V extends AnalyticsViewport> {
+/* package */ abstract class AnalyticsGrid<V extends Viewport> {
 
   /** Viewports keyed by ID. */
   protected final Map<Integer, V> _viewports = Maps.newHashMap();
@@ -41,7 +40,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * @return The row and column structure of the grid
    */
-  public abstract GridStructure getGridStructure();
+  /* package */ abstract GridStructure getGridStructure();
 
   /* package */ abstract ViewCycle getViewCycle();
 
@@ -50,8 +49,14 @@ import com.opengamma.util.tuple.Pair;
   /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
     V viewport = getViewport(viewportId);
     ViewportDefinition currentViewportDefinition = viewport.getDefinition();
-    String callbackId = viewport.update(viewportDefinition, getViewCycle(), getResultsCache());
+    viewport.update(viewportDefinition, getViewCycle(), getResultsCache());
     _viewportListener.viewportUpdated(currentViewportDefinition, viewportDefinition, getGridStructure());
+    String callbackId;
+    if (viewport.getState() != Viewport.State.EMPTY) {
+      callbackId = viewport.getCallbackId();
+    } else {
+      callbackId = null;
+    }
     return callbackId;
   }
 
@@ -82,9 +87,8 @@ import com.opengamma.util.tuple.Pair;
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    Pair<V, Boolean> pair = createViewport(viewportDefinition, callbackId);
-    V viewport = pair.getFirst();
-    boolean hasData = pair.getSecond();
+    V viewport = createViewport(viewportDefinition, callbackId);
+    boolean hasData = (viewport.getState() != Viewport.State.EMPTY);
     _viewports.put(viewportId, viewport);
     return hasData;
   }
@@ -96,7 +100,7 @@ import com.opengamma.util.tuple.Pair;
    * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @return The new viewport and a flag indicating whether there is data available for it
    */
-  protected abstract Pair<V, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId);
+  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId);
 
   /**
    * Deletes a viewport.
@@ -104,7 +108,7 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
   /* package */ void deleteViewport(int viewportId) {
-    AnalyticsViewport viewport = _viewports.remove(viewportId);
+    Viewport viewport = _viewports.remove(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }

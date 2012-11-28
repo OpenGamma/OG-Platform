@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Row and column structure for a grid that displays the dependency graph used when calculating a value.
- * Each row contains one calcuated value from the results, all other columns in the row contain meta data about
+ * Each row contains one calcuated value from the results, all other columns in the row contain metadata about
  * the value.
  */
 public class DependencyGraphGridStructure implements GridStructure {
@@ -34,7 +34,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final int TARGET_TYPE_COL = 1;
   private static final int VALUE_NAME_COL = 2;
   private static final int VALUE_COL = 3;
-  private static final int FN_NAME_COL = 4;
+  private static final int FUNCTION_NAME_COL = 4;
   private static final int PROPERTIES_COL = 5;
 
   /** The fixed set of columns used in all dependency graph grids. */
@@ -131,7 +131,7 @@ public class DependencyGraphGridStructure implements GridStructure {
         return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
       case VALUE_COL:
         return ViewportResults.valueCell(value, valueSpec, history, executionLog, colIndex);
-      case FN_NAME_COL:
+      case FUNCTION_NAME_COL:
         return ViewportResults.stringCell(fnName, colIndex);
       case PROPERTIES_COL:
         return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);

@@ -17,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.
  */
-/* package */ abstract class MainGridViewport implements AnalyticsViewport {
+/* package */ abstract class MainGridViewport implements Viewport {
 
   static final int LABEL_COLUMN = 0;
 
@@ -30,26 +30,35 @@ import com.opengamma.util.tuple.Pair;
   private ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
   private ViewportResults _latestResults;
+  /** The current state. */
+  private State _state = State.EMPTY;
 
   /**
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
+   * @param viewportDefinition The viewport definition
+   * @param cycle The view cycle from the previous calculation cycle
+   * @param cache The current results
    */
-  /* package */ MainGridViewport(MainGridStructure gridStructure, String callbackId) {
+  /* package */ MainGridViewport(MainGridStructure gridStructure,
+                                 String callbackId,
+                                 ViewportDefinition viewportDefinition,
+                                 ViewCycle cycle,
+                                 ResultsCache cache) {
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
     _gridStructure = gridStructure;
+    update(viewportDefinition, cycle, cache);
   }
 
   /**
    * Updates the data in the viewport using the results in the cache.
    * @param cache The latest results
-   * @return If any of the data in this viewport was updated in the last calculation cycyel the callback ID of the
-   * viewport is returned. If none of the data in the viewport was updated then null is returned.
    */
-  /* package */ String updateResults(ResultsCache cache) {
+  /* package */ void updateResults(ResultsCache cache) {
     boolean updated = false;
+    boolean hasData = false;
     List<ViewportResults.Cell> results = Lists.newArrayList();
     for (GridCell cell : _viewportDefinition) {
       int rowIndex = cell.getRow();
@@ -65,7 +74,11 @@ import com.opengamma.util.tuple.Pair;
           ValueSpecification valueSpec = cellTarget.getSecond();
           ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
           updated = updated || cacheResult.isUpdated();
-          results.add(ViewportResults.valueCell(cacheResult.getValue(),
+          Object value = cacheResult.getValue();
+          if (value != null) {
+            hasData = true;
+          }
+          results.add(ViewportResults.valueCell(value,
                                                 valueSpec,
                                                 cacheResult.getHistory(),
                                                 cacheResult.getExecutionLog(),
@@ -81,9 +94,11 @@ import com.opengamma.util.tuple.Pair;
                                          _gridStructure.getColumnStructure(),
                                          cache.getLastCalculationDuration());
     if (updated) {
-      return _callbackId;
+      _state = State.FRESH_DATA;
+    } else if (hasData) {
+      _state = State.STALE_DATA;
     } else {
-      return null;
+      _state = State.EMPTY;
     }
   }
 
@@ -99,11 +114,11 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Updates the viewport definition (e.g. in reponse to the user scrolling the grid and changing the visible area).
    * @param viewportDefinition The new viewport definition
+   * @param viewCycle The view cycle from the previous calculation cycle
    * @param cache The current results
-   * @return The viewport's callback ID or {@code null} if it wasn't updated
    */
   @Override
-  public String update(ViewportDefinition viewportDefinition, ViewCycle viewCycle, ResultsCache cache) {
+  public void update(ViewportDefinition viewportDefinition, ViewCycle viewCycle, ResultsCache cache) {
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(cache, "cache");
     if (!viewportDefinition.isValidFor(_gridStructure)) {
@@ -111,7 +126,7 @@ import com.opengamma.util.tuple.Pair;
                                              viewportDefinition + ", grid: " + _gridStructure);
     }
     _viewportDefinition = viewportDefinition;
-    return updateResults(cache);
+    updateResults(cache);
   }
 
   @Override
@@ -122,5 +137,14 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public ViewportDefinition getDefinition() {
     return _viewportDefinition;
+  }
+
+  public String getCallbackId() {
+    return _callbackId;
+  }
+
+  @Override
+  public State getState() {
+    return _state;
   }
 }

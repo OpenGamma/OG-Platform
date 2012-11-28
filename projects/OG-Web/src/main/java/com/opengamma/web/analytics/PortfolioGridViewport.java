@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -26,8 +27,12 @@ import com.opengamma.id.UniqueId;
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
    */
-  /* package */ PortfolioGridViewport(MainGridStructure gridStructure, String callbackId) {
-    super(gridStructure, callbackId);
+  /* package */ PortfolioGridViewport(MainGridStructure gridStructure,
+                                      String callbackId,
+                                      ViewportDefinition viewportDefinition,
+                                      ViewCycle cycle,
+                                      ResultsCache cache) {
+    super(gridStructure, callbackId, viewportDefinition, cycle, cache);
   }
 
   @Override

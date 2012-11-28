@@ -65,7 +65,7 @@ public interface AnalyticsView {
    * viewport in a view.
    * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return {@code true} if there is data available for the new viewport
+   * @return true if there is data available for the new viewport
    */
   boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
@@ -76,12 +76,7 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
-   * that data received for the viewport corresponds to the current viewport structure. If the client makes an
-   * asynchronous request for data and the viewport structure changes at the same time then there is a race condition
-   * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
-   * allows this situation to be detected and avoided.
-   * TODO don't generate and return viewport version ID, client will supply one. part of ViewportDefinition?
+   * @return The viewport's callback ID if there is data available, null if not
    */
   String updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition);
 
@@ -163,7 +158,7 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The viewport's callback ID if there is data available, {@code null} if not
+   * @return The viewport's callback ID if there is data available, null if not
    */
   String updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition);
 
