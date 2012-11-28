@@ -137,8 +137,9 @@ public final class CSVDocumentReader implements Iterable<FudgeMsg> {
     public FudgeMsg next() {
       MutableFudgeMsg currentMsg = s_fudgeContext.newMessage();
       for (int i = 0; i < _header.length; i++) {
-        if (_currentRow[i] != null) {
-          currentMsg.add(_header[i], StringUtils.trim(_currentRow[i]));
+        String currentRow = StringUtils.trimToNull(_currentRow[i]);
+        if (currentRow != null) {
+          currentMsg.add(_header[i], currentRow);
         }
       }
       return currentMsg;
