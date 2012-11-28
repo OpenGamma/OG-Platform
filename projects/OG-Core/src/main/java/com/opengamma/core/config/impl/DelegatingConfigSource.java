@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.PassthroughChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -178,12 +177,9 @@ public class DelegatingConfigSource
 
   @Override
   public ChangeManager changeManager() {
-    final Map<String, ConfigSource> delegates = getDelegates();
-    final List<ChangeProvider> changeProviders = new ArrayList<ChangeProvider>();
-    for (final ConfigSource configSource : delegates.values()) {
-      changeProviders.add(configSource);
-    }
-    return new AggregatingChangeManager(changeProviders);
+    final PassthroughChangeManager cm = new PassthroughChangeManager(getDelegates().values());
+    cm.addChangeManager(getDefaultDelegate().changeManager());
+    return cm;
   }
 
   @Override

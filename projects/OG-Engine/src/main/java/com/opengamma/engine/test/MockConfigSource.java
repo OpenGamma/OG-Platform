@@ -119,11 +119,13 @@ public class MockConfigSource implements ConfigSource {
   }
 
   public ConfigItem<ViewDefinition> put(final ViewDefinition viewDefinition) {
+    // REVIEW 2012-11-28 Andrew -- This shouldn't be specific to view definition
     final ConfigItem<ViewDefinition> item = ConfigItem.of(viewDefinition);
     if (item.getValue().getUniqueId() == null) {
       item.getValue().setUniqueId(UniqueId.of(ViewDefinition.class.getName(), item.getValue().getName()));
     }
     _store.put(viewDefinition.getUniqueId().getObjectId(), item);
+    // TODO: should probably notify the change manager
     return item;
   }
 

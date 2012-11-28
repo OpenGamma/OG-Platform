@@ -42,6 +42,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
    * The cache manager.
    */
   private final CacheManager _cacheManager;
+
   /**
    * The result cache.
    */
