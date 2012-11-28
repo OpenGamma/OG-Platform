@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -40,7 +40,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
   /**
    * Pricing methods.
    */
-  private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
+  private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteMethod.getInstance();
 
   //     -----     Futures     -----
 

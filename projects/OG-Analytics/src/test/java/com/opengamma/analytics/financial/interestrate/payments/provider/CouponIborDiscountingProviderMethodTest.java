@@ -31,6 +31,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponIborDiscountingProviderMethodTest {
 
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
@@ -43,31 +44,29 @@ public class CouponIborDiscountingProviderMethodTest {
   private static final CouponIborDefinition CPN_IBOR_DEFINITION = CouponIborDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, EURIBOR3M);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
   private static final CouponIbor CPN_IBOR = (CouponIbor) CPN_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final CouponIborDiscountingProviderMethod METHOD_CPN_IBOR = CouponIborDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
   @Test
   public void presentValueMarketDiscount() {
-    final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
-    final double forward = PROVIDER.getForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
-    final double df = PROVIDER.getDiscountFactor(EURIBOR3M.getCurrency(), CPN_IBOR.getPaymentTime());
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_IBOR.presentValue(CPN_IBOR, MULTICURVES);
+    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CPN_IBOR.getFixingPeriodStartTime(), CPN_IBOR.getFixingPeriodEndTime(), CPN_IBOR.getFixingAccrualFactor());
+    final double df = MULTICURVES.getDiscountFactor(EURIBOR3M.getCurrency(), CPN_IBOR.getPaymentTime());
     final double pvExpected = NOTIONAL * ACCRUAL_FACTOR * forward * df;
     assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD_CPN_IBOR.presentValue(CPN_IBOR, PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = CPN_IBOR.accept(PVDC, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_IBOR.presentValue(CPN_IBOR, MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = CPN_IBOR.accept(PVDC, MULTICURVES);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -75,8 +74,8 @@ public class CouponIborDiscountingProviderMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_IBOR.accept(PVCSDC, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CPN_IBOR.presentValueCurveSensitivity(CPN_IBOR, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_IBOR.accept(PVCSDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 

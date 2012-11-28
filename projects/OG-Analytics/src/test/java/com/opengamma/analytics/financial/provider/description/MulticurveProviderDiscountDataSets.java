@@ -106,6 +106,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M", CALENDAR_EUR);
   private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M", CALENDAR_CAD);
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA", CALENDAR_EUR);
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", CALENDAR_USD);
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final Period LAG_EUR = Period.ofDays(14);
@@ -156,6 +157,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
     MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
+    MULTICURVES_EUR_USD.setCurve(FEDFUND, USD_DSC);
     MULTICURVES_EUR_USD.setCurve(Currency.EUR, EUR_DSC);
     MULTICURVES_EUR_USD.setCurve(USDLIBOR3M, USD_FWD3);
     MULTICURVES_EUR_USD.setCurve(USDLIBOR6M, USD_FWD6);
@@ -355,7 +357,7 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static IndexON[] getIndexesON() {
-    return new IndexON[] {EONIA};
+    return new IndexON[] {FEDFUND, EONIA};
   }
 
   public static String[] getIssuerNames() {

@@ -49,7 +49,7 @@ public class MonteCarloDiscountFactorCalculator extends InstrumentDerivativeVisi
     double ibor;
     final double omega = (payment.isCap() ? 1.0 : -1.0);
     for (int looppath = 0; looppath < nbPath; looppath++) {
-      ibor = (-impactAmount[0][0] * pathDiscountFactors[looppath][0][0] / (impactAmount[0][1] * pathDiscountFactors[looppath][0][1]) - 1.0) / payment.getFixingYearFraction();
+      ibor = (-impactAmount[0][0] * pathDiscountFactors[looppath][0][0] / (impactAmount[0][1] * pathDiscountFactors[looppath][0][1]) - 1.0) / payment.getFixingAccrualFactor();
       price += Math.max(omega * (ibor - payment.getStrike()), 0) * pathDiscountFactors[looppath][0][2];
     }
     price = price / nbPath * payment.getNotional() * payment.getPaymentYearFraction();

@@ -86,7 +86,7 @@ public class CapFloorIborHullWhiteMethodTest {
     double t0 = CAP_LONG.getFixingPeriodStartTime();
     double t1 = CAP_LONG.getFixingPeriodEndTime();
     double theta = CAP_LONG.getFixingTime();
-    double deltaF = CAP_LONG.getFixingYearFraction();
+    double deltaF = CAP_LONG.getFixingAccrualFactor();
     double deltaP = CAP_LONG.getPaymentYearFraction();
     double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
     double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);

@@ -67,7 +67,7 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     double tp = cap.getPaymentTime();
     double t0 = cap.getFixingPeriodStartTime();
     double t1 = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingYearFraction();
+    double deltaF = cap.getFixingAccrualFactor();
     double deltaP = cap.getPaymentYearFraction();
     double k = cap.getStrike();
     double dfPay = hwData.getCurve(cap.getFundingCurveName()).getDiscountFactor(tp);
@@ -101,7 +101,7 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     double tp = cap.getPaymentTime();
     double t0 = cap.getFixingPeriodStartTime();
     double t1 = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingYearFraction();
+    double deltaF = cap.getFixingAccrualFactor();
     double deltaP = cap.getPaymentYearFraction();
     double k = cap.getStrike();
     double omega = (cap.isCap() ? 1.0 : -1.0);
@@ -145,7 +145,7 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     double[] t = new double[2];
     t[0] = cap.getFixingPeriodStartTime();
     t[1] = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingYearFraction();
+    double deltaF = cap.getFixingAccrualFactor();
     double deltaP = cap.getPaymentYearFraction();
     double k = cap.getStrike();
     double omega = (cap.isCap() ? 1.0 : -1.0);

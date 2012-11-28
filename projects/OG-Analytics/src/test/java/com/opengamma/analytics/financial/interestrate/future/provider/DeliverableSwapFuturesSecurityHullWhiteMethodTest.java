@@ -100,7 +100,8 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
     assertEquals("DeliverableSwapFuturesSecurityDefinition: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
-  @Test
+  @Test(enabled = false)
+  // TODO
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsExact = PS_MQ_C.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = PS_MQ_FDC.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES);

@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesSecurityHullWhiteMethod;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteProviderMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
@@ -41,7 +41,7 @@ public final class MarketQuoteCurveSensitivityHullWhiteCalculator extends Instru
   /**
    * Pricing methods.
    */
-  private static final InterestRateFutureSecurityHullWhiteProviderMethod METHOD_IR_FUT = InterestRateFutureSecurityHullWhiteProviderMethod.getInstance();
+  private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IR_FUT = InterestRateFutureSecurityHullWhiteMethod.getInstance();
   private static final DeliverableSwapFuturesSecurityHullWhiteMethod METHOD_SWAP_FUT = DeliverableSwapFuturesSecurityHullWhiteMethod.getInstance();
 
   @Override

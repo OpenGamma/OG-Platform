@@ -55,18 +55,25 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Test class for the replication method for CMS caplet/floorlet with a SABR smile.
  */
 public class CapFloorCMSSABRReplicationMethodTest {
-
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
-  private static final Currency CUR = EURIBOR6M.getCurrency();
+  private static final Currency EUR = EURIBOR6M.getCurrency();
   private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
+  private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
+
+  public static final String NOT_USED = "Not used";
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
+
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
 
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
 
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final IndexSwap INDEX_SWAP_5Y = new IndexSwap(EUR1YEURIBOR6M, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, 1.0, 0.0, true);
 
@@ -88,17 +95,11 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMSDefinition CMS_FLOOR_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
   private static final CouponFixedDefinition COUPON_STRIKE_DEFINITION = new CouponFixedDefinition(CMS_COUPON_DEFINITION, STRIKE);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final CapFloorCMS CMS_FLOOR = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
-  private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
   private static final CapFloorCMSSABRReplicationMethod METHOD_CAP_CMS_SABR = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
@@ -122,14 +123,14 @@ public class CapFloorCMSSABRReplicationMethodTest {
     // CMS cap/floor with strike 0 has the same price as a CMS coupon.
     final MultipleCurrencyAmount priceCMSCoupon = PVSSC.visit(CMS_COUPON, SABR_MULTICURVES);
     final MultipleCurrencyAmount priceCMSCap0 = PVSSC.visit(CMS_CAP_0, SABR_MULTICURVES);
-    assertEquals("CapFloorCMSSABRReplicationMethod: present value", priceCMSCoupon.getAmount(CUR), priceCMSCap0.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("CapFloorCMSSABRReplicationMethod: present value", priceCMSCoupon.getAmount(EUR), priceCMSCap0.getAmount(EUR), TOLERANCE_PV);
     final MultipleCurrencyAmount priceCMSCap = PVSSC.visit(CMS_CAP, SABR_MULTICURVES);
-    assertEquals("CapFloorCMSSABRReplicationMethod: present value", 5224.559, priceCMSCap.getAmount(CUR), TOLERANCE_PV); //From previous run
+    assertEquals("CapFloorCMSSABRReplicationMethod: present value", 5224.559, priceCMSCap.getAmount(EUR), TOLERANCE_PV); //From previous run
     final MultipleCurrencyAmount priceCMSFloor = PVSSC.visit(CMS_FLOOR, SABR_MULTICURVES);
-    assertEquals("CapFloorCMSSABRReplicationMethod: present value", 20149.939, priceCMSFloor.getAmount(CUR), TOLERANCE_PV); //From previous run
+    assertEquals("CapFloorCMSSABRReplicationMethod: present value", 20149.939, priceCMSFloor.getAmount(EUR), TOLERANCE_PV); //From previous run
     final MultipleCurrencyAmount priceStrike = COUPON_STRIKE.accept(PVDC, MULTICURVES);
     // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
-    assertEquals("CapFloorCMSSABRReplicationMethod: present value", priceCMSCap.getAmount(CUR) - priceCMSFloor.getAmount(CUR), priceCMSCoupon.getAmount(CUR) - priceStrike.getAmount(CUR), 2.0E+3);
+    assertEquals("CapFloorCMSSABRReplicationMethod: present value", priceCMSCap.getAmount(EUR) - priceCMSFloor.getAmount(EUR), priceCMSCoupon.getAmount(EUR) - priceStrike.getAmount(EUR), 2.0E+3);
   }
 
   @Test
@@ -137,8 +138,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
    */
   public void presentValueMethodVsCalculator() {
-    final double pvMethod = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, SABR_MULTICURVES).getAmount(CUR);
-    final double pvCalculator = PVSSC.visit(CMS_CAP, SABR_MULTICURVES).getAmount(CUR);
+    final double pvMethod = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, SABR_MULTICURVES).getAmount(EUR);
+    final double pvCalculator = PVSSC.visit(CMS_CAP, SABR_MULTICURVES).getAmount(EUR);
     assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvMethod, pvCalculator, TOLERANCE_PV);
   }
 
@@ -167,7 +168,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the present value SABR parameters sensitivity vs finite difference.
    */
   public void presentValueSABRSensitivity() {
-    final double pv = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, SABR_MULTICURVES).getAmount(CUR);
+    final double pv = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, SABR_MULTICURVES).getAmount(EUR);
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD_CAP_CMS_SABR.presentValueSABRSensitivity(CMS_CAP, SABR_MULTICURVES);
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
@@ -177,7 +178,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerAlphaBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleAlphaBumped).getAmount(CUR);
+    final double pvLongPayerAlphaBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
     assertEquals("Number of alpha sensitivity", pvsCapLong.getAlpha().getMap().keySet().size(), 1);
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
@@ -185,7 +186,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
     final SABRSwaptionProviderDiscount sabrBundleRhoBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerRhoBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleRhoBumped).getAmount(CUR);
+    final double pvLongPayerRhoBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
     assertEquals("Number of rho sensitivity", pvsCapLong.getRho().getMap().keySet().size(), 1);
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
@@ -193,7 +194,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
     final SABRSwaptionProviderDiscount sabrBundleNuBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterNuBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerNuBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleNuBumped).getAmount(CUR);
+    final double pvLongPayerNuBumped = METHOD_CAP_CMS_SABR.presentValue(CMS_CAP, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;
     assertEquals("Number of nu sensitivity", pvsCapLong.getNu().getMap().keySet().size(), 1);
     assertTrue("Nu sensitivity expiry/tenor", pvsCapLong.getNu().getMap().keySet().contains(expectedExpiryTenor));
@@ -226,8 +227,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
       final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
       final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
       final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftUp, SABR_MULTICURVES).getAmount(CUR);
-      final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftDo, SABR_MULTICURVES).getAmount(CUR);
+      final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftUp, SABR_MULTICURVES).getAmount(EUR);
+      final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftDo, SABR_MULTICURVES).getAmount(EUR);
       final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
       final double sensiComputed = METHOD_CAP_CMS_SABR.presentValueStrikeSensitivity(cmsCap, SABR_MULTICURVES);
       errorRelative[loopstrike] = (sensiExpected - sensiComputed) / sensiExpected;
@@ -251,8 +252,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
       final CapFloorCMS cmsFloor = (CapFloorCMS) cmsFloorDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
       final CapFloorCMS cmsFloorShiftUp = (CapFloorCMS) cmsFloorShiftUpDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
       final CapFloorCMS cmsFloorShiftDo = (CapFloorCMS) cmsFloorShiftDoDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftUp, SABR_MULTICURVES).getAmount(CUR);
-      final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftDo, SABR_MULTICURVES).getAmount(CUR);
+      final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftUp, SABR_MULTICURVES).getAmount(EUR);
+      final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftDo, SABR_MULTICURVES).getAmount(EUR);
       final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
       final double sensiComputed = METHOD_CAP_CMS_SABR.presentValueStrikeSensitivity(cmsFloor, SABR_MULTICURVES);
       errorRelative[loopstrike] = (sensiExpected - sensiComputed) / sensiExpected;
@@ -274,10 +275,10 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    final double pvCalculator = PVSSC.visit(cap, SABR_MULTICURVES).getAmount(CUR);
+    final double pvCalculator = PVSSC.visit(cap, SABR_MULTICURVES).getAmount(EUR);
     double pvExpected = 0.0;
     for (int loopcpn = 0; loopcpn < cap.getNumberOfPayments(); loopcpn++) {
-      pvExpected += PVSSC.visit(cap.getNthPayment(loopcpn), SABR_MULTICURVES).getAmount(CUR);
+      pvExpected += PVSSC.visit(cap.getNthPayment(loopcpn), SABR_MULTICURVES).getAmount(EUR);
     }
     assertEquals("Cap annuity - SABR pv", pvExpected, pvCalculator, 1.0E-2);
   }

@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -40,6 +42,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    */
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
+  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUT = InterestRateFutureDiscountingMethod.getInstance();
 
   /**
    * Computes the par rate of a swap with one fixed leg.
@@ -78,6 +81,13 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final MulticurveProviderInterface multicurves) {
     final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return pvSecond / pvbp;
+  }
+
+  //     -----     Futures     -----
+
+  @Override
+  public Double visitInterestRateFuture(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_IR_FUT.parRate(futures, multicurves);
   }
 
 }

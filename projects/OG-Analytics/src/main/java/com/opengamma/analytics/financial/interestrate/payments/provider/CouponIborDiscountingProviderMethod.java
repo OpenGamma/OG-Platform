@@ -46,14 +46,14 @@ public final class CouponIborDiscountingProviderMethod {
   /**
    * Compute the present value of a Ibor coupon by discounting.
    * @param coupon The coupon.
-   * @param multicurve The multi-curve provider.
+   * @param multicurves The multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount presentValue(final CouponIbor coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurve, "Multi-curves provider");
-    final double forward = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
-    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    ArgumentChecker.notNull(multicurves, "Multi-curves provider");
+    final double forward = multicurves.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }

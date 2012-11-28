@@ -94,6 +94,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @param futures The futures.
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The sensitivity.
+   * TODO: review Dsc sensitivity
    */
   public MulticurveSensitivity priceCurveSensitivity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
@@ -117,7 +118,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
     // Backward sweep
     final double priceBar = 1.0;
     final double[] dfBar = new double[nbCf];
-    dfBar[0] = -(price - cfe.getNthPayment(0).getAmount() * adjustments[0]) / df[0];
+    dfBar[0] = -(price - cfe.getNthPayment(0).getAmount() * adjustments[0]) / df[0] * priceBar;
     for (int loopcf = 1; loopcf < nbCf; loopcf++) {
       dfBar[loopcf] = (cfe.getNthPayment(loopcf).getAmount() * adjustments[loopcf]) / df[0] * priceBar;
     }

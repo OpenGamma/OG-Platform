@@ -12,11 +12,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSpreadSABRBinormalMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRReplicationMethod;
-import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.provider.description.SABRSwaptionProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -25,33 +23,34 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueSABRSwaptionCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<SABRSwaptionProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueSABRSwaptionRightExtrapolationCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<SABRSwaptionProviderInterface, MultipleCurrencyAmount> {
 
   /**
-   * The unique instance of the calculator.
+   * The cut-off strike. The smile is extrapolated above that level.
    */
-  private static final PresentValueSABRSwaptionCalculator INSTANCE = new PresentValueSABRSwaptionCalculator();
+  private final double _cutOffStrike;
+  /**
+   * The tail thickness parameter.
+   */
+  private final double _mu;
 
   /**
-   * Gets the calculator instance.
-   * @return The calculator.
+   * The methods.
    */
-  public static PresentValueSABRSwaptionCalculator getInstance() {
-    return INSTANCE;
-  }
+  private final CouponCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCpn;
+  private final CapFloorCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCap;
 
   /**
    * Constructor.
+   * @param cutOffStrike The cut-off strike.
+   * @param mu The tail thickness parameter.
    */
-  private PresentValueSABRSwaptionCalculator() {
+  public PresentValueSABRSwaptionRightExtrapolationCalculator(final double cutOffStrike, final double mu) {
+    _mu = mu;
+    _cutOffStrike = cutOffStrike;
+    _methodExtraCMSCpn = new CouponCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
+    _methodExtraCMSCap = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
   }
-
-  /**
-   * Pricing methods.
-   */
-  private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SWT_PHYS = SwaptionPhysicalFixedIborSABRMethod.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD_CMS_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
-  private static final CouponCMSSABRReplicationMethod METHOD_CMS_CPN = CouponCMSSABRReplicationMethod.getInstance();
 
   @Override
   public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final SABRSwaptionProviderInterface sabr) {
@@ -61,18 +60,13 @@ public final class PresentValueSABRSwaptionCalculator extends InstrumentDerivati
   // -----     Payment/Coupon     ------
 
   @Override
-  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
-    return METHOD_SWT_PHYS.presentValue(swaption, sabr);
-  }
-
-  @Override
   public MultipleCurrencyAmount visitCouponCMS(final CouponCMS payment, final SABRSwaptionProviderInterface sabr) {
-    return METHOD_CMS_CPN.presentValue(payment, sabr);
+    return _methodExtraCMSCpn.presentValue(payment, sabr);
   }
 
   @Override
   public MultipleCurrencyAmount visitCapFloorCMS(final CapFloorCMS payment, final SABRSwaptionProviderInterface sabr) {
-    return METHOD_CMS_CAP.presentValue(payment, sabr);
+    return _methodExtraCMSCap.presentValue(payment, sabr);
   }
 
   @Override
@@ -80,10 +74,10 @@ public final class PresentValueSABRSwaptionCalculator extends InstrumentDerivati
     if (sabr.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
       // TODO: improve correlation data handling
       final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabr.getSABRParameter();
-      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation(), METHOD_CMS_CAP, METHOD_CMS_CPN);
+      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation(), _methodExtraCMSCap, _methodExtraCMSCpn);
       return method.presentValue(payment, sabr);
     }
-    throw new UnsupportedOperationException("The PresentValueSABRSwaptionCalculator visitor visitCapFloorCMSSpread requires a SABRInterestRateCorrelationParameters with correlation as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorCMSSpread requires a SABRInterestRateDataBundle with correlation as data.");
   }
 
   // -----     Annuity     ------

@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscount
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
@@ -53,6 +55,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUT = InterestRateFutureDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
 
   //     -----     Deposit     -----
@@ -94,6 +97,13 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
+  }
+
+  //     -----     Futures     -----
+
+  @Override
+  public Double visitInterestRateFuture(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_IR_FUT.price(futures, multicurves) - futures.getReferencePrice();
   }
 
   //     -----     Forex     -----

@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 /**
  * Methods for the pricing of interest rate futures generic to all models.
  */
-public abstract class InterestRateFutureProviderMethod {
+public abstract class InterestRateFutureMethod {
 
   /**
    * Compute the present value of a future transaction from a quoted price.

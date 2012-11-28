@@ -154,11 +154,11 @@ public class CapFloorIborLMMDDMethodTest {
     final double displacement = PARAMETERS_LMM.getDisplacement()[index];
     final double beta = forwardCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime())
         * discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime()) / discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime());
-    final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingYearFraction()) / beta;
+    final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingAccrualFactor()) / beta;
     // Strike adjusted from Forward on forward curve and Forward on discount curve.
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeAdjusted + displacement, 1.0, CAP_LAST.isCap());
     final double forwardDsc = (discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodStartTime()) / discountingCurve.getDiscountFactor(CAP_LAST.getFixingPeriodEndTime()) - 1.0)
-        / CAP_LAST.getFixingYearFraction();
+        / CAP_LAST.getFixingAccrualFactor();
     final double df = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(CAP_LAST.getPaymentTime());
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardDsc + displacement, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);

@@ -24,25 +24,25 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005. 
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
  */
-public final class InterestRateFutureSecurityHullWhiteProviderMethod extends InterestRateFutureProviderMethod {
+public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRateFutureMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final InterestRateFutureSecurityHullWhiteProviderMethod INSTANCE = new InterestRateFutureSecurityHullWhiteProviderMethod();
+  private static final InterestRateFutureSecurityHullWhiteMethod INSTANCE = new InterestRateFutureSecurityHullWhiteMethod();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static InterestRateFutureSecurityHullWhiteProviderMethod getInstance() {
+  public static InterestRateFutureSecurityHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private InterestRateFutureSecurityHullWhiteProviderMethod() {
+  private InterestRateFutureSecurityHullWhiteMethod() {
   }
 
   /**

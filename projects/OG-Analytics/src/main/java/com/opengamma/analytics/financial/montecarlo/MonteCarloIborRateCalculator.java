@@ -61,7 +61,7 @@ public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAda
     final double[] discounting = new double[nbPath];
     final double omega = (payment.isCap() ? 1.0 : -1.0);
     for (int looppath = 0; looppath < nbPath; looppath++) {
-      ibor[looppath] = impactAmount[0] * pathIborRate[impactIndex[0]][looppath] + (impactAmount[0] - 1.0) / payment.getFixingYearFraction();
+      ibor[looppath] = impactAmount[0] * pathIborRate[impactIndex[0]][looppath] + (impactAmount[0] - 1.0) / payment.getFixingAccrualFactor();
       // Ibor in the right convention; path in Dsc curve
       payoff = Math.max(omega * (ibor[looppath] - payment.getStrike()), 0);
       discounting[looppath] = 1.0;
