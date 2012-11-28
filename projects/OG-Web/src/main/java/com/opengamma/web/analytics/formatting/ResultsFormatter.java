@@ -121,49 +121,6 @@ public class ResultsFormatter {
     return value instanceof MissingInput;
   }
 
-  /**
-   * Returns a formatted version of a value suitable for display in a single cell in the UI. If the data is too big
-   * to fit in a single cell (e.g. a matrix) this method returns a summary value.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
-   * for display in the UI.
-   */
-/*
-  @SuppressWarnings("unchecked")
-  public Object formatForDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForDisplay(value, valueSpec);
-  }
-*/
-
-  /**
-   * Returns a formatted version of a value including all information. This might not fit into a single grid cell in
-   * the UI, e.g. a matrix. If the value is a data structure it is encoded as JSON.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
-   * for display in the UI.
-   */
-/*
-  @SuppressWarnings("unchecked")
-  public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForExpandedDisplay(value, valueSpec);
-  }
-*/
-
-  /**
-   * Formats a single history value in a format suitable for embedding in a JSON object.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return A formatted value suitable for embedding in a JSON object or null if the value is null
-   */
-/*
-  @SuppressWarnings("unchecked")
-  public Object formatForHistory(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForHistory(value, valueSpec);
-  }
-*/
-
   @SuppressWarnings("unchecked")
   public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format) {
     return getFormatter(value, valueSpec).format(value, valueSpec, format);
