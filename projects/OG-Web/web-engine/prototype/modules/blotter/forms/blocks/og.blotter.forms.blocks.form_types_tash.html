@@ -1,16 +1,27 @@
 <select name="form_types">
 	<option>Select a trade type</option>
-	<option value="Vanilla_swap">Vanilla Swap</option>
-	<option value="Variance_swap">Varience Swap</option>
-	<option value="Swaption">Swaption</option>
-	<option value="Fx_forward">FX Forward</option>
-	<option value="Fx_barrier_option">FX Barrier Option</option>
-	<option value="Fx_option">FX Option</option>
-	<option value="Non_del_fx_option">Non-Deliverable FX Option</option>
-	<option value="Bond_future">Bond future</option>
-	<option value="Bond">Bond</option>
-	<option value="Trade">Trade</option>
-	<option value="Cap_floor_cms_spread">Cap/Floor CMS spread</option>
-	<option value="Cap_floor">Cap/Floor</option>
-	<option value="Forward_rate_agreement">Forward Rate Agreement</option>
+	<optgroup label="Trades">
+		<option value="Vanilla_swap">Vanilla Swap</option>
+		<option value="Variance_swap">Varience Swap</option>
+		<option value="Swaption">Swaption</option>
+		<option value="Fx_forward">FX Forward</option>
+		<option value="Fx_barrier_option">FX Barrier Option</option>
+		<option value="Fx_option">FX Option</option>
+		<option value="Non_del_fx_option">Non-Deliverable FX Option</option>
+		<option value="Bond_future">Bond future</option>
+		<option value="Bond">Bond</option>
+		<option value="Trade">Trade</option>
+		<option value="Cap_floor_cms_spread">Cap/Floor CMS spread</option>
+		<option value="Cap_floor">Cap/Floor</option>
+		<option value="Forward_rate_agreement">Forward Rate Agreement</option>
+	 </optgroup>
+  	<optgroup label="Assignment/Termination/Liquidation (temp)">
+  		<option value="Edit_swaption">Swaption</option>
+  		<option value="Edit_cap_floor">Cap/Floor</option>
+  		<option value="Edit_ir_swap">IR Swap</option>
+  		<option value="Edit_equity_option">Equity Option</option>
+  		<option value="Edit_fra">FRA</option>
+  		<option value="Edit_fx_option">FX Option Termination</option>
+  		<option value="Edit_forward">Forward Liquidation</option>
+  	</optgroup>
 </select>

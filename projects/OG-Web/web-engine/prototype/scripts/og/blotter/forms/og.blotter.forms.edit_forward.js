@@ -3,16 +3,16 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Cap_floor_cms_spread',
+    name: 'og.blotter.forms.Edit_forward',
     dependencies: [],
     obj: function () {   
         return function () {
             var contructor = this;
             contructor.load = function () {
                 var config = {}, dialog; 
-                config.title = 'Cap/Floor CMS Spread';
+                config.title = 'Forward Liquidation';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.blocks.cap_floor_tash',
+                    module: 'og.blotter.forms.edit_forward_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
