@@ -70,7 +70,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * The time from now to when the contract is settled, in days.
    * @return the number of days
    */
-  int getSettlementDays();
+  Integer getSettlementDays();
 
   /**
    * The time from now to when the bond coupon is paid, in days. If the number of settlement days depends on the length of the bond, this is
@@ -80,6 +80,10 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return the number of days
    */
   Integer getBondSettlementDays(ZonedDateTime bondSettlementDate, ZonedDateTime bondMaturityDate);
+
+  // REVIEW: 2012-11-26 Andrew -- The getBondSettlementDays method puts behavior into what should be just a data object. The data to perform
+  // the calculation should be in this bundle, along with a something that describes/names the method if the calculation might then vary between
+  // conventions. This is how the business day conventions work for example.
 
   /**
    * Future point value, if applicable.

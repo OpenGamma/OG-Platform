@@ -11,18 +11,18 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
- * Default implementation of ReferenceRateSource that uses an underlying ReferenceRateMaster as a data source. 
+ * Default implementation of ConventinBundleSource that uses an underlying ConventionBundleMaster as a data source.
  */
 public class DefaultConventionBundleSource implements ConventionBundleSource {
 
-  private ConventionBundleMaster _referenceRateMaster;
-  
-  public DefaultConventionBundleSource(ConventionBundleMaster referenceRateMaster) {
+  private final ConventionBundleMaster _referenceRateMaster;
+
+  public DefaultConventionBundleSource(final ConventionBundleMaster referenceRateMaster) {
     _referenceRateMaster = referenceRateMaster;
   }
   @Override
-  public ConventionBundle getConventionBundle(ExternalId identifier) {
-    ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
+  public ConventionBundle getConventionBundle(final ExternalId identifier) {
+    final ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
     final int size = result.getResults().size();
     switch (size) {
       case 0:
@@ -35,8 +35,8 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getConventionBundle(ExternalIdBundle identifiers) {
-    ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifiers));
+  public ConventionBundle getConventionBundle(final ExternalIdBundle identifiers) {
+    final ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifiers));
     final int size = result.getResults().size();
     switch (size) {
       case 0:
@@ -49,8 +49,8 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getConventionBundle(UniqueId identifier) {
-    ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
+  public ConventionBundle getConventionBundle(final UniqueId identifier) {
+    final ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
     if (doc != null) {
       return doc.getValue();
     } else {

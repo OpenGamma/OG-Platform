@@ -85,11 +85,17 @@
   </bean>
   
   <!-- Conventions -->
-  <!-- TODO [PLAT-637] -->
-  <bean id="conventionBundleSource" class="com.opengamma.financial.convention.DefaultConventionBundleSource">
+  <bean id="conventionBundleSource" class="com.opengamma.financial.convention.EHCachingConventionBundleSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.convention.InMemoryConventionBundleMaster"/>
+      <bean class="com.opengamma.financial.convention.rest.RemoteConventionBundleSource">
+        <constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/conventionBundleSource" />
+          </bean>
+        </constructor-arg>
+      </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- Config Source -->
