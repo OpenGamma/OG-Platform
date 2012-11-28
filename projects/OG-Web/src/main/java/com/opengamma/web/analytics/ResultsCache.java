@@ -23,7 +23,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -96,11 +95,8 @@ import com.opengamma.util.money.CurrencyAmount;
     ResultKey key = new ResultKey(calcConfigName, spec);
     CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
-      // don't create an item for an error value
-      if (!(value instanceof MissingInput)) {
-        CacheItem newResult = CacheItem.forValue(value, result.getExecutionLog(), _lastUpdateId);
-        _results.put(key, newResult);
-      }
+      CacheItem newResult = CacheItem.forValue(value, result.getExecutionLog(), _lastUpdateId);
+      _results.put(key, newResult);
     } else {
       cacheResult.setLatestValue(value, result.getExecutionLog(), _lastUpdateId);
     }
