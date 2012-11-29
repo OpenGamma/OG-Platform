@@ -54,7 +54,7 @@ import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfig
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -347,7 +347,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final CompiledFunctionDefinition receiveYieldCurveMarketDataFunction = createFunction(compContext, execContext, new YieldCurveMarketDataFunction(receiveCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition marketInstrumentImpliedYieldCurveFunction = createFunction(compContext, execContext, new MarketInstrumentImpliedYieldCurveFunction(
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurveFunction());
+    final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurvesFunction());
     ComputationTarget target;
     // PAY
     target = new ComputationTarget(payCurrency);

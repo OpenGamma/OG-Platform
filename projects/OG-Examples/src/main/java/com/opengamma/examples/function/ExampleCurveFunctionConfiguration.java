@@ -25,8 +25,8 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
 import com.opengamma.financial.analytics.model.curve.future.IRFuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurveParRateMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
@@ -111,9 +111,11 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
-    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(),
-        Arrays.asList("Discounting-Discounting", "Discounting", "Discounting")));
+    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurvesFunction.class.getName()));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurvesDefaults.class.getName(),
+        Arrays.asList(
+            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+            "EUR", "DefaultTwoCurveEURConfig", "Discounting")));
   }
 
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {

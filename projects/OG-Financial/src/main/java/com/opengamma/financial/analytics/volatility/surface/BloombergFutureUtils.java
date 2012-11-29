@@ -20,6 +20,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
 
@@ -146,6 +147,23 @@ public class BloombergFutureUtils {
   public static final String getExpiryCodeForSoybeanFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     final StringBuilder futureCode = new StringBuilder();
     final LocalDate expiry = SoybeanFutureOptionExpiryCalculator.getInstance().getExpiryMonth(nthFuture, curveDate);
+    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
+    final int yearsNum = expiry.getYear() % 10;
+    futureCode.append(Integer.toString(yearsNum));
+    return futureCode.toString();
+  }
+
+  /**
+   * Produces the month-year string required to build ExternalId for Bloomberg ticker of Soybean Futures,
+   * which have a different set of expiry months
+   * @param futurePrefix 2 character string of future (eg "S ", "GC")
+   * @param nthFuture The n'th future following valuation date
+   * @param curveDate Date curve is valid; valuation date
+   * @return e.g. M2 (for June 2012) or Z3 (for December 2013)
+   */
+  public static final String getExpiryCodeForSoybeanFutures(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
+    final StringBuilder futureCode = new StringBuilder();
+    final LocalDate expiry = SoybeanFutureExpiryCalculator.getInstance().getExpiryMonth(nthFuture, curveDate);
     futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
     final int yearsNum = expiry.getYear() % 10;
     futureCode.append(Integer.toString(yearsNum));

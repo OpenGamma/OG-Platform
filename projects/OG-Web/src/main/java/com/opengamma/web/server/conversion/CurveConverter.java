@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -34,6 +35,21 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
       if (mode == ConversionMode.FULL) {
         List<Double[]> detailedData = getData(interpolatedCurve);
         result.put("detailed", detailedData);
+      }
+      return result;
+    }
+    if (value instanceof NodalDoublesCurve) {
+      NodalDoublesCurve nodalCurve = (NodalDoublesCurve) value;
+      List<Double[]> data = new ArrayList<Double[]>();
+      double[] xData = nodalCurve.getXDataAsPrimitive();
+      double[] yData = nodalCurve.getYDataAsPrimitive();
+      for (int i = 0; i < nodalCurve.size(); i++) {
+        data.add(new Double[] {xData[i], yData[i] });
+      }
+      result.put("summary", data);
+      if (mode == ConversionMode.FULL) {
+        // can't interpolate values for nodal curve, thus summary == detailed
+        result.put("detailed", data);
       }
       return result;
     }

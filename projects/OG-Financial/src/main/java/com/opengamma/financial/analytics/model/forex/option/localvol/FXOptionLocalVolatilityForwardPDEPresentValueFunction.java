@@ -112,7 +112,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getResultProperties() {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -121,7 +121,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue) {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -130,7 +130,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getPriceProperties(final ValueRequirement desiredValue) {
     ValueProperties result = ValueProperties.builder().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();

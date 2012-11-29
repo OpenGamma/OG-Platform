@@ -9,15 +9,24 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *  Provider of Interest Rate Future Instrument ID's.
- *  Tied closely to BloombergIRFutureInstrumentProviderUtils.
+ *  Provider of commodity Future Instrument ID's.
  */
 public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
+
+  private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
+  static {
+    EXPIRY_RULES = HashBiMap.create();
+    EXPIRY_RULES.put("S ", SoybeanFutureExpiryCalculator.getInstance());
+  }
 
   private final String _futurePrefix;
   private final String _postfix;
@@ -25,7 +34,7 @@ public class BloombergCommodityFuturePriceCurveInstrumentProvider implements Fut
   private final String _tickerScheme;
 
   /**
-   * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
+   * @param futurePrefix Two character string representing future type. e.g. S  , AA etc.
    * @param postfix Generally, "Comdty"
    * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_VALUE
    * @param tickerScheme Expecting BLOOMBERG_TICKER_WEAK or BLOOMBERG_TICKER
@@ -42,7 +51,7 @@ public class BloombergCommodityFuturePriceCurveInstrumentProvider implements Fut
   }
 
   /** If a 4th argument is not provided, constructor uses BLOOMBERG_TICKER_WEAK as its ExternalScheme
-   * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
+   * @param futurePrefix Two character string representing future type. e.g. S  , AA etc.
    * @param postfix Generally, "Comdty"
    * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_PRICE
    */
@@ -70,15 +79,21 @@ public class BloombergCommodityFuturePriceCurveInstrumentProvider implements Fut
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
    * @param strike option's strike, not null
-   * @param futureDate date of future validity; valuation date, not null
+   * @param curveDate date of future validity; valuation date, not null
    * @return the id of the Bloomberg ticker
    */
-  public ExternalId getInstrument(final Number futureNumber, final LocalDate forwardDate) {
+  public ExternalId getInstrument(final Number futureNumber, final LocalDate curveDate) {
     ArgumentChecker.notNull(futureNumber, "futureOptionNumber");
-    ArgumentChecker.notNull(forwardDate, "surface date");
+    ArgumentChecker.notNull(curveDate, "curve date");
     final StringBuffer ticker = new StringBuffer();
     ticker.append(getFuturePrefix());
-    ticker.append(BloombergFutureUtils.getExpiryCodeForSoybeanFutureOptions(getFuturePrefix(), futureNumber.intValue(), forwardDate));
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFuturePrefix());
+    if (expiryRule == null) {
+      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + getFuturePrefix() + ". Determine week and day pattern and add to EXPIRY_RULES.");
+    }
+    final LocalDate expiryDate = expiryRule.getExpiryMonth(futureNumber.intValue(), curveDate);
+    final String expiryCode = BloombergFutureUtils.getShortExpiryCode(expiryDate);
+    ticker.append(expiryCode);
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getTickerScheme(), ticker.toString());

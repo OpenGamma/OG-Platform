@@ -20,6 +20,8 @@ import com.opengamma.util.ArgumentChecker;
 
   private static final String DATA = "data";
   private static final String LABELS = "labels";
+  private static final String LABEL = "Label";
+  private static final String VALUE = "Value";
 
   private final DoubleFormatter _doubleFormatter;
 
@@ -56,13 +58,13 @@ import com.opengamma.util.ArgumentChecker;
     if (value.getLabelsTitle() != null) {
       labelsTitle = value.getLabelsTitle();
     } else {
-      labelsTitle = "Labels";
+      labelsTitle = LABEL;
     }
     String valuesTitle;
     if (value.getValuesTitle() != null) {
       valuesTitle = value.getValuesTitle();
     } else {
-      valuesTitle = "Values";
+      valuesTitle = VALUE;
     }
     resultsMap.put(LABELS, ImmutableList.of(labelsTitle, valuesTitle));
     return resultsMap;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local;
@@ -38,11 +38,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ *
  */
 public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityPDEFunction {
 
@@ -67,15 +68,15 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     final PDELocalVolatilityCalculator<?> pdeCalculator =
         getPDECalculator(new LocalVolatilityForwardPDECalculator(theta, nTimeSteps, nSpaceSteps, timeStepBunching, spaceStepBunching, maxProxyDelta, centreMoneyness), interpolator);
-    final Object localVolatilityObject = inputs.getValue(getVolatilitySurfaceRequirement(target, desiredValue));
+    final Object localVolatilityObject = inputs.getValue(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE);
     if (localVolatilityObject == null) {
       throw new OpenGammaRuntimeException("Could not get local volatility surface");
     }
-    final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(target, desiredValue));
+    final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get forward curve");
     }
-    final Object discountingCurveObject = inputs.getValue(getDiscountingCurveRequirement(target, desiredValue));
+    final Object discountingCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (discountingCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get discounting curve");
     }
@@ -107,7 +108,7 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
   @Override
   protected ValueProperties getResultProperties() {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -117,7 +118,7 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
