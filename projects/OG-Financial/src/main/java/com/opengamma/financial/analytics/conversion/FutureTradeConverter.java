@@ -5,16 +5,18 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Visits a Trade of an EquityFutureSecurity (OG-Financial)
- * Converts it to a EquityFutureDefinition (OG-Analytics)
- * TODO - Not sure this should extend from what looks to be an InterestRateFutureConverter
+ * Visits a Trade containing a FutureSecurity (OG-Financial)
+ * Converts it to an InstrumentDefinitionWithData (OG-Analytics)
  */
-public class EquityFutureConverter {
+public class FutureTradeConverter {
+  private static final FutureSecurityConverter SECURITY_CONVERTER = new FutureSecurityConverter();
 
   /**
    * Converts an EquityFutureSecurity Trade to an EquityFutureDefinition
@@ -22,8 +24,12 @@ public class EquityFutureConverter {
    * @param futuresPrice This is typically the last margin price. On trade date, this might be the traded level
    * @return EquityFutureDefinition
    */
-  public EquityFutureDefinition visitEquityFutureTrade(final Trade trade, final double futuresPrice) {
-    final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
-    return new EquityFutureDefinition(security.getExpiry().getExpiry(), security.getSettlementDate(), futuresPrice, security.getCurrency(), security.getUnitAmount());
+  public InstrumentDefinitionWithData<?, Double> convert(final Trade trade, final double futuresPrice) {
+    ArgumentChecker.notNull(trade, "trade");
+    final Security security = trade.getSecurity();
+    if (security instanceof FutureSecurity) {
+      return SECURITY_CONVERTER.visit((FutureSecurity) security, futuresPrice);
+    }
+    throw new IllegalArgumentException("Can only handle FutureSecurity");
   }
 }

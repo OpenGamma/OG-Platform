@@ -8,7 +8,8 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -18,14 +19,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 
 /**
  * Default properties to define the choices of overhedge (shift of strike)
  * and smoothing (width of ramp created by pricing binary as call or put spread)
  */
-public class EquityIndexVanillaBarrierOptionDefaultPropertiesFunction extends DefaultPropertyFunction {
-
+public class EquityIndexVanillaBarrierOptionDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionDefaults.class);
   private final String _callSpreadFullWidth;
   private final String _barrierOverhedge;
 
@@ -46,17 +48,17 @@ public class EquityIndexVanillaBarrierOptionDefaultPropertiesFunction extends De
     ValueRequirementNames.VALUE_RHO
   };
 
-  public EquityIndexVanillaBarrierOptionDefaultPropertiesFunction(final String barrierOverhedge, final String callSpreadFullWidth) {
+  public EquityIndexVanillaBarrierOptionDefaults(final String barrierOverhedge, final String callSpreadFullWidth) {
     super(ComputationTargetType.SECURITY, true);
-    Validate.notNull(barrierOverhedge, "No barrierOverhedge name was provided to use as default value.");
-    Validate.notNull(callSpreadFullWidth, "No callSpreadFullWidth name was provided to use as default value.");
+    ArgumentChecker.notNull(barrierOverhedge, "No barrierOverhedge name was provided to use as default value.");
+    ArgumentChecker.notNull(callSpreadFullWidth, "No callSpreadFullWidth name was provided to use as default value.");
     _barrierOverhedge = barrierOverhedge;
     _callSpreadFullWidth = callSpreadFullWidth;
   }
 
 
   @Override
-  protected void getDefaults(PropertyDefaults defaults) {
+  protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.BINARY_OVERHEDGE);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
@@ -64,12 +66,14 @@ public class EquityIndexVanillaBarrierOptionDefaultPropertiesFunction extends De
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (ValuePropertyNames.BINARY_OVERHEDGE.equals(propertyName)) {
       return Collections.singleton(_barrierOverhedge);
-    } else if (ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH.equals(propertyName)) {
+    }
+    if (ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH.equals(propertyName)) {
       return Collections.singleton(_callSpreadFullWidth);
     }
+    s_logger.error("Could not get default value for {}", propertyName);
     return null;
   }
 

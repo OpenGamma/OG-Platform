@@ -50,17 +50,17 @@ public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunct
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
+  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market, SHIFT);
     final Double[] xValues;
     final Double[] yValues;
     if (market.getVolatilitySurface() instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
-      BlackVolatilitySurfaceMoneynessFcnBackedByGrid volDataBundle = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) market.getVolatilitySurface();
+      final BlackVolatilitySurfaceMoneynessFcnBackedByGrid volDataBundle = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) market.getVolatilitySurface();
       xValues = ArrayUtils.toObject(volDataBundle.getGridData().getExpiries());
-      double[][] strikes2d = volDataBundle.getGridData().getStrikes();
-      Set<Double> strikeSet = new HashSet<Double>();
-      for (int i = 0; i < strikes2d.length; i++) {
-        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strikes2d[i])));
+      final double[][] strikes2d = volDataBundle.getGridData().getStrikes();
+      final Set<Double> strikeSet = new HashSet<Double>();
+      for (final double[] element : strikes2d) {
+        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(element)));
       }
       yValues = strikeSet.toArray(new Double[] {});
     } else {
@@ -70,8 +70,8 @@ public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunct
 
     final Set<Double> xSet = new HashSet<Double>(Arrays.asList(xValues));
     final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
-    Double[] uniqueX = xSet.toArray(new Double[0]);
-    String[] expLabels = new String[uniqueX.length];
+    final Double[] uniqueX = xSet.toArray(new Double[0]);
+    final String[] expLabels = new String[uniqueX.length];
     // Format the expiries for display
     for (int i = 0; i < uniqueX.length; i++) {
       uniqueX[i] = roundTwoDecimals(uniqueX[i]);
@@ -97,16 +97,16 @@ public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunct
     return matrix;
   }
 
-  private double roundTwoDecimals(double d) {
-    DecimalFormat twoDForm = new DecimalFormat("#.##");
+  private double roundTwoDecimals(final double d) {
+    final DecimalFormat twoDForm = new DecimalFormat("#.##");
     return Double.valueOf(twoDForm.format(d));
-}
+  }
 
   @Override
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
 
-    String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityIndexOptionSecurity) target.getSecurity()).getUnderlyingId());
+    final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityIndexOptionSecurity) target.getSecurity()).getUnderlyingId());
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
@@ -118,10 +118,10 @@ public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunct
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    String bbgTicker = getBloombergTicker(tsSource, getEquityIndexOptionSecurity(target).getUnderlyingId());
-    Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
+    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final String bbgTicker = getBloombergTicker(tsSource, getEquityIndexOptionSecurity(target).getUnderlyingId());
+    final Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
       .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
     return propsBuilder;
   }

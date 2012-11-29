@@ -120,14 +120,13 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final ExerciseType exerciseType = ((EquityBarrierOptionSecurity) security).getExerciseType();
     if (!(exerciseType instanceof EuropeanExerciseType)) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    // Get requirements common to all EquityIndexOptions's
+    // Get requirements common to all EquityIndexOptionss
     final Set<ValueRequirement> commonReqs = super.getRequirements(context, target, desiredValue);
     if (commonReqs == null) {
       return null;
@@ -164,13 +163,10 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    Builder builder =  super.createValueProperties(target, desiredValue, executionContext)
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
+    final Builder builder = super.createValueProperties(target, desiredValue, executionContext)
         .with(ValuePropertyNames.BINARY_OVERHEDGE, desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE))
         .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH));
-
-    ValueProperties constraints = desiredValue.getConstraints();
-    ValueProperties properties = builder.get();
     return builder;
   }
 

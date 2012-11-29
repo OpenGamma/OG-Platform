@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFXFutureDefinition;
 import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
 import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleInstrumentDefinition;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -27,7 +28,7 @@ import com.opengamma.financial.security.future.StockFutureSecurity;
 /**
  *
  */
-public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleInstrumentDefinition<?>> {
+public class SimpleFutureConverter extends FinancialSecurityVisitorAdapter<SimpleInstrumentDefinition<?>> {
 
   @Override
   public SimpleInstrumentDefinition<?> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
