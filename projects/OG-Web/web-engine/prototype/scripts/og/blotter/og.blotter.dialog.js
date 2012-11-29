@@ -34,7 +34,7 @@ $.register_module({
             };
             dialog.clear = function () {
                 $(form_block).empty();
-                $('ui-dialog-titlebar').html("Add New Trade");
+                $('.ui-dialog-title').html("Add New Trade");
             };
             dialog.load();
         };
