@@ -37,13 +37,20 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwaptionCashFixedIborG2ppMethodTest {
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-  private static final IborIndex IBOR_INDEX = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
-  private static final Currency CUR = IBOR_INDEX.getCurrency();
-  private static final Calendar CALENDAR = IBOR_INDEX.getCalendar();
+  private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
+  private static final Currency EUR = EURIBOR3M.getCurrency();
+  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
+
+  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = TestsDataSetG2pp.createG2ppParameters1();
+  private static final G2ppProviderDiscount G2PP_MULTICURVES = new G2ppProviderDiscount(MULTICURVES, PARAMETERS_G2PP, EUR);
+
+  public static final String NOT_USED = "Not used";
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
-  private static final int SPOT_LAG = IBOR_INDEX.getSpotLag();
+  private static final int SPOT_LAG = EURIBOR3M.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
@@ -64,8 +71,6 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS_PAYER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
   //to derivatives
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   //  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   //  private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -74,9 +79,6 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_RECEIVER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS_PAYER_LONG = SWAPTION_PHYS_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-
-  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = TestsDataSetG2pp.createG2ppParameters1();
-  private static final G2ppProviderDiscount G2PP_MULTICURVES = new G2ppProviderDiscount(MULTICURVES, PARAMETERS_G2PP, CUR);
 
   private static final SwaptionPhysicalFixedIborG2ppApproximationMethod METHOD_G2PP_PHYS_APPROXIMATION = SwaptionPhysicalFixedIborG2ppApproximationMethod.getInstance();
   private static final SwaptionCashFixedIborG2ppNumericalIntegrationMethod METHOD_G2PP_NI = new SwaptionCashFixedIborG2ppNumericalIntegrationMethod();
@@ -90,7 +92,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   public void physical() {
     MultipleCurrencyAmount pvPhys = METHOD_G2PP_PHYS_APPROXIMATION.presentValue(SWAPTION_PHYS_PAYER_LONG, G2PP_MULTICURVES);
     MultipleCurrencyAmount pvCash = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    assertEquals("Swaption physical - G2++ - present value - hard coded value", pvPhys.getAmount(CUR), pvCash.getAmount(CUR), 2.0E+5);
+    assertEquals("Swaption physical - G2++ - present value - hard coded value", pvPhys.getAmount(EUR), pvCash.getAmount(EUR), 2.0E+5);
   }
 
   @Test(enabled = true)
@@ -100,7 +102,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   public void presentValue() {
     MultipleCurrencyAmount pv = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
     double pvExpected = 1583688.804;
-    assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(CUR), 1E-2);
+    assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(EUR), 1E-2);
   }
 
   @Test
@@ -110,10 +112,10 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   public void longShortParity() {
     MultipleCurrencyAmount pvPayerLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
     MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
-    assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(CUR), -pvPayerShort.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(EUR), -pvPayerShort.getAmount(EUR), TOLERANCE_PV);
     MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
     MultipleCurrencyAmount pvReceiverShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_RECEIVER, G2PP_MULTICURVES);
-    assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(CUR), -pvReceiverShort.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(EUR), -pvReceiverShort.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test(enabled = false)

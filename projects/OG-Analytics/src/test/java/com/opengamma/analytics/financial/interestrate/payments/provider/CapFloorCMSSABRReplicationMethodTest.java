@@ -55,6 +55,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Test class for the replication method for CMS caplet/floorlet with a SABR smile.
  */
 public class CapFloorCMSSABRReplicationMethodTest {
+
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Currency EUR = EURIBOR6M.getCurrency();

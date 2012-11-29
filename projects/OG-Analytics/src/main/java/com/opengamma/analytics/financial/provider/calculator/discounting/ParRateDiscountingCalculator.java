@@ -41,6 +41,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * The methods and calculators.
    */
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
+
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUT = InterestRateFutureDiscountingMethod.getInstance();
 

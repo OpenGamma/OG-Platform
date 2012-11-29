@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.provider.description.InflationProviderI
 
 /**
  * 
+ * @param <RESULT_TYPE> The result-type for the provider.
  */
 public class InflationIssuerProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<InflationIssuerProviderInterface, RESULT_TYPE> {
   private final InstrumentDerivativeVisitor<InflationProviderInterface, RESULT_TYPE> _visitor;

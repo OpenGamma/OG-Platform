@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 
 /**
  * 
+ * @param <RESULT_TYPE> The result-type for the provider.
  */
 public class InflationProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<InflationProviderInterface, RESULT_TYPE> {
   private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
