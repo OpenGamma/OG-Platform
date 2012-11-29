@@ -9,8 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'FX Option Termination';
+                constructor.title = 'FX Option Termination';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.edit_fx_option_tash',
                     data: {},
@@ -18,14 +17,8 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     extras:{}
                 });
-                form.children.push(
-                     new form.Block({
-                        module: 'og.blotter.forms.blocks.edit_partial_tash',
-                        extras: {}
-                    })
-                );
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
+                
             }; 
             constructor.load();
             constructor.kill = function () {

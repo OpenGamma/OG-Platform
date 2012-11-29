@@ -9,8 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'FX Option';
+                constructor.title = 'FX Option';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_derivative_tash',
                     data: {},
@@ -29,7 +28,7 @@ $.register_module({
                     })
                 );
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
+                
             }; 
             constructor.load();
             constructor.kill = function () {

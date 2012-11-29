@@ -9,8 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'Cap/Floor';
+                constructor.title = 'Cap/Floor';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.blocks.cap_floor_tash',
                     data: {},
@@ -19,7 +18,7 @@ $.register_module({
                     extras:{}
                 });
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
+                
             }; 
             constructor.load();
             constructor.kill = function () {

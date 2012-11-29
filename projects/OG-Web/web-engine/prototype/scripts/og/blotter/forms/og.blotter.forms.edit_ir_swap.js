@@ -9,8 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'IR Swap Assignment/Termination';
+                constructor.title = 'IR Swap Assignment/Termination';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.edit_swap_tash',
                     data: {},
@@ -23,25 +22,21 @@ $.register_module({
                         module: 'og.blotter.forms.blocks.edit_action_tash',
                         extras: {}
                     }),
-                     new form.Block({
-                        module: 'og.blotter.forms.blocks.edit_partial_tash',
-                        extras: {}
-                    }),
-                     new form.Block({
+                    new form.Block({
                         module: 'og.blotter.forms.blocks.edit_fees_tash',
                         extras: {}
                     }),
-                     new form.Block({
+                    new form.Block({
                         module: 'og.blotter.forms.blocks.edit_termination_tash',
                         extras: {}
                     }),
-                     new form.Block({
+                    new form.Block({
                         module: 'og.blotter.forms.blocks.edit_assignment_tash',
                         extras: {}
                     })
                 );
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
+                
             }; 
             constructor.load();
             constructor.kill = function () {

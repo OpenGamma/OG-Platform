@@ -9,8 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'Varience Swap';
+                constructor.title = 'Varience Swap';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.variance_swap_tash',
                     data: {},
@@ -36,7 +35,7 @@ $.register_module({
                         extras: {}
                     })    
                 );
-                $('.OG-blotter-form-title').html(config.title);
+                
                 form.dom();
             }; 
             constructor.load();
