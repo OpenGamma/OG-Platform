@@ -18,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -42,7 +42,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -62,7 +62,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   // TODO: Refactor - this is a field name, like PX_LAST - We can't reference BloombergConstants.BBG_FIELD_DIVIDEND_YIELD here
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();  // TODO: Had been EquityFutureConverter();
+  private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
@@ -163,15 +163,13 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     }
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
-    final EquityFutureDefinition defn = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(),
-        simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
-    final EquityFuture derivative = defn.toDerivative(valuationTime, lastMarginPrice);
+    final InstrumentDefinitionWithData<?, Double> definition = security.accept(CONVERTER);
+    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice);
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
     // Call OG-Analytics
-    final double value = getComputedValue(derivative, dataBundle, trade);
+    final double value = getComputedValue((EquityFuture) derivative, dataBundle, trade); //TODO remove cast
     final ValueSpecification specification = new ValueSpecification(_valueRequirementName, target.toSpecification(),
         createValueProperties(target, getFundingCurveName(desiredValue), getCurveConfigName(desiredValue), getPricingMethodName()).get());
     return Collections.singleton(new ComputedValue(specification, value));
@@ -212,7 +210,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof FutureSecurity;  // was: EquityFutureSecurity;
+    return target.getTrade().getSecurity() instanceof FutureSecurity;
   }
 
   @Override

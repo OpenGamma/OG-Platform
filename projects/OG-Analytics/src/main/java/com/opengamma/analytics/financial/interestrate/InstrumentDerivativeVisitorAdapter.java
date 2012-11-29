@@ -762,6 +762,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
     return getException(future);
   }
+
   //  -----     Deprecated     -----
 
   @Override
