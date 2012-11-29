@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 
-public class HistoricalTimeSeriesBundleFormatter extends AbstractFormatter<HistoricalTimeSeriesBundle> {
+/* package */ class HistoricalTimeSeriesBundleFormatter extends AbstractFormatter<HistoricalTimeSeriesBundle> {
 
   /* package */ HistoricalTimeSeriesBundleFormatter() {
     super(HistoricalTimeSeriesBundle.class);

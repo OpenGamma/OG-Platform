@@ -6,15 +6,22 @@
 package com.opengamma.web.analytics.formatting;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /* package */ class MultipleCurrencyAmountFormatter extends AbstractFormatter<MultipleCurrencyAmount> {
+
+  private static final String DATA = "data";
+  private static final String LABELS = "labels";
+  private static final String CURRENCY = "Currency";
+  private static final String AMOUNT = "Amount";
 
   private final DoubleFormatter _doubleFormatter;
 
@@ -35,7 +42,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
     return "Vector (" + value.size() + ")";
   }
 
-  private List<List<String>> formatExpanded(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+  private Map<String, Object> formatExpanded(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+    Map<String, Object> resultsMap = Maps.newHashMap();
     CurrencyAmount[] currencyAmounts = value.getCurrencyAmounts();
     List<List<String>> results = Lists.newArrayListWithCapacity(currencyAmounts.length);
     for (CurrencyAmount currencyAmount : currencyAmounts) {
@@ -43,7 +51,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
       List<String> rowResults = ImmutableList.of(currencyAmount.getCurrency().getCode(), formattedValue);
       results.add(rowResults);
     }
-    return results;
+    resultsMap.put(DATA, results);
+    resultsMap.put(LABELS, ImmutableList.of(CURRENCY, AMOUNT));
+    return resultsMap;
   }
 
     @Override
