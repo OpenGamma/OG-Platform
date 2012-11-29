@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -20,8 +20,10 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
+@Deprecated
 public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,

@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -19,8 +19,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
+@Deprecated
 public class ForexLocalVolatilityPDEPresentValueResultCollection {
   /** Label for pips PV quotes calculated using local volatility */
   public static final String LV_PIPS = "Local Volatility Pips";

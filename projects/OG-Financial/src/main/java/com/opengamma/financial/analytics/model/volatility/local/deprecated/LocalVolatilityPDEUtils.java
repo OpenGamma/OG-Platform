@@ -1,24 +1,26 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.INTEGRATED_VARIANCE;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LINEAR_TIME;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LINEAR_Y;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LOG_TIME;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LOG_Y;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.MONEYNESS;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.STRIKE;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.VOLATILITY;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.INTEGRATED_VARIANCE;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.LINEAR_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.LINEAR_Y;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.LOG_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.LOG_Y;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.MONEYNESS;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.STRIKE;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.VOLATILITY;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
+@Deprecated
 public class LocalVolatilityPDEUtils {
 
   static boolean isMoneynessSurface(final String property) {

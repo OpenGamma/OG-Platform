@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
-import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
+import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,8 +37,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
+@Deprecated
 public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override

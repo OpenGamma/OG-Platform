@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -49,7 +49,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  *
+ * @deprecated Deprecated
  */
+@Deprecated
 public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilityPDEGridFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ForexLocalVolatilityPDEGridFunction.class);
 

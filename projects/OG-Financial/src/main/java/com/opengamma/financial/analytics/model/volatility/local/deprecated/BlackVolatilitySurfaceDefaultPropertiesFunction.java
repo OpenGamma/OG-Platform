@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -19,8 +19,9 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Deprecated
  */
+@Deprecated
 public class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;

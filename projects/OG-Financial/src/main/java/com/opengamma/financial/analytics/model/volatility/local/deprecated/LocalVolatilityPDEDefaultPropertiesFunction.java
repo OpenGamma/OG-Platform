@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,21 +18,16 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
-public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final String[] GREEK_NAMES = new String[] {
-    ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
-    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
-    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
-    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
-    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL,
-    ValueRequirementNames.LOCAL_VOLATILITY_DOMESTIC_PRICE };
+@Deprecated
+public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final String[] REQUIREMENTS = new String[] {
+    ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID,
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS,
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA,
+    ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES};
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;
   private final String _surfaceType;
@@ -48,12 +43,10 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
   private final String _timeGridBunching;
   private final String _spaceGridBunching;
   private final String _maxMoneyness;
-  private final String _strikeInterpolatorName;
 
-  public ForexLocalVolatilityPDEGreekDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType,
-      final String xAxis, final String yAxis, final String yAxisType, final String surfaceName, final String h, final String pdeDirection, final String theta,
-      final String timeSteps, final String spaceSteps, final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness,
-      final String strikeInterpolatorName) {
+  public LocalVolatilityPDEDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis,
+      final String yAxis, final String yAxisType, final String surfaceName, final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
+      final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -70,7 +63,6 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
     ArgumentChecker.notNull(timeGridBunching, "time grid bunching");
     ArgumentChecker.notNull(spaceGridBunching, "space grid bunching");
     ArgumentChecker.notNull(maxMoneyness, "maximum moneyness");
-    ArgumentChecker.notNull(strikeInterpolatorName, "strike interpolator name");
     _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
     _forwardCurveName = forwardCurveName;
     _surfaceType = surfaceType;
@@ -86,28 +78,26 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
     _timeGridBunching = timeGridBunching;
     _spaceGridBunching = spaceGridBunching;
     _maxMoneyness = maxMoneyness;
-    _strikeInterpolatorName = strikeInterpolatorName;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String greek : GREEK_NAMES) {
-      defaults.addValuePropertyName(greek, ValuePropertyNames.CURVE);
-      defaults.addValuePropertyName(greek, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS);
-      defaults.addValuePropertyName(greek, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_THETA);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_GRID_BUNCHING);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
-      defaults.addValuePropertyName(greek, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR);
+    for (final String requirement : REQUIREMENTS) {
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS);
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_THETA);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_GRID_BUNCHING);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
     }
   }
 
@@ -121,6 +111,9 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_H.equals(propertyName)) {
       return Collections.singleton(_h);
+    }
+    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE.equals(propertyName)) {
+      return Collections.singleton(_yAxisType);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS.equals(propertyName)) {
       return Collections.singleton(_maxMoneyness);
@@ -151,9 +144,6 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS.equals(propertyName)) {
       return Collections.singleton(_xAxis);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_strikeInterpolatorName);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS.equals(propertyName)) {
       return Collections.singleton(_yAxis);

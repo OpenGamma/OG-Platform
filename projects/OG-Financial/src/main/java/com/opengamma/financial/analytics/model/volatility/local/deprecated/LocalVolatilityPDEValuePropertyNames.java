@@ -1,13 +1,15 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local.old;
+package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 /**
- * 
+ *
+ * @deprecated Deprecated
  */
+@Deprecated
 public class LocalVolatilityPDEValuePropertyNames {
   /** Name of the PDE method */
   public static final String LOCAL_VOLATILITY_METHOD = "LocalVolatilityPDEMethod";
