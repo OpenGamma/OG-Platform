@@ -45,9 +45,9 @@ import com.opengamma.util.money.Currency;
  */
 public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
   private static final Obligor DUMMY_OBLIGOR = new Obligor(
-      "",
-      "",
-      "",
+      "Dummy",
+      "Dummy",
+      "Dummy",
       CreditRating.A,
       CreditRating.A,
       CreditRatingMoodys.A,
