@@ -2,17 +2,6 @@
  * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-blotter-dialog{
-    background-color: white;
-    border: 1px solid black;
-    box-shadow: 3px 3px 3px #000;
-    height: 800px;
-    margin: 10px auto;
-    overflow: auto;
-    padding: 5px;
-    width: 800px;
-    z-index: 5;
-}
 .OG-blotter-form-block{
 	padding: 10px;
 }
