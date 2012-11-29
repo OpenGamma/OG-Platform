@@ -16,20 +16,7 @@ import com.opengamma.util.money.Currency;
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorProviderInterface {
-
-  /**
-   * The multicurve provider.
-   */
-  private final MulticurveProviderDiscount _multicurveProvider;
-  /**
-   * The Hull-White one factor model parameters.
-   */
-  private final HullWhiteOneFactorPiecewiseConstantParameters _parameters;
-  /**
-   * The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
-   */
-  private final Currency _ccyHW;
+public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProviderInterface {
 
   /**
    * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
@@ -38,30 +25,25 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
    */
   public HullWhiteOneFactorProviderDiscount(final MulticurveProviderDiscount multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
-    _multicurveProvider = multicurves;
-    _parameters = parameters;
-    _ccyHW = ccyHW;
+    super(multicurves, parameters, ccyHW);
   }
 
-  @Override
-  public HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters() {
-    return _parameters;
-  }
-
-  @Override
-  public Currency getHullWhiteCurrency() {
-    return _ccyHW;
-  }
-
-  @Override
-  public HullWhiteOneFactorProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
-    return new HullWhiteOneFactorProviderDiscount(multicurveProvider, _parameters, _ccyHW);
-  }
-
+  /**
+   * Returns the MulticurveProvider from which the HullWhiteOneFactorProvider is composed.
+   * @return The multi-curves provider.
+   */
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
-    return _multicurveProvider;
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
+  }
+
+  /**
+   * Create a new copy of the provider.
+   * @return The bundle.
+   */
+  @Override
+  public HullWhiteOneFactorProviderDiscount copy() {
+    return (HullWhiteOneFactorProviderDiscount) super.copy();
   }
 
   /**
@@ -70,7 +52,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @return The curve.
    */
   public YieldAndDiscountCurve getCurve(final Currency ccy) {
-    return _multicurveProvider.getCurve(ccy);
+    return getMulticurveProvider().getCurve(ccy);
   }
 
   /**
@@ -79,7 +61,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @return The curve.
    */
   public YieldAndDiscountCurve getCurve(final IborIndex index) {
-    return _multicurveProvider.getCurve(index);
+    return getMulticurveProvider().getCurve(index);
   }
 
   /**
@@ -88,7 +70,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @return The curve.
    */
   public YieldAndDiscountCurve getCurve(final IndexON index) {
-    return _multicurveProvider.getCurve(index);
+    return getMulticurveProvider().getCurve(index);
   }
 
   /**
@@ -97,7 +79,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @param curve The yield curve used for discounting.
    */
   public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
-    _multicurveProvider.setCurve(ccy, curve);
+    getMulticurveProvider().setCurve(ccy, curve);
   }
 
   /**
@@ -106,7 +88,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @param curve The curve.
    */
   public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
-    _multicurveProvider.setCurve(index, curve);
+    getMulticurveProvider().setCurve(index, curve);
   }
 
   /**
@@ -115,7 +97,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    * @param curve The curve.
    */
   public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
-    _multicurveProvider.setCurve(index, curve);
+    getMulticurveProvider().setCurve(index, curve);
   }
 
   /**
@@ -125,7 +107,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    */
   public void setAll(final HullWhiteOneFactorProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
-    _multicurveProvider.setAll(other.getMulticurveProvider());
+    getMulticurveProvider().setAll(other.getMulticurveProvider());
   }
 
   /**
@@ -135,7 +117,7 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
-    _multicurveProvider.replaceCurve(ccy, curve);
+    getMulticurveProvider().replaceCurve(ccy, curve);
   }
 
   /**
@@ -145,22 +127,22 @@ public class HullWhiteOneFactorProviderDiscount implements HullWhiteOneFactorPro
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
-    _multicurveProvider.replaceCurve(index, curve);
+    getMulticurveProvider().replaceCurve(index, curve);
   }
 
   public HullWhiteOneFactorProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   public HullWhiteOneFactorProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   public HullWhiteOneFactorProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, _parameters, _ccyHW);
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
 }

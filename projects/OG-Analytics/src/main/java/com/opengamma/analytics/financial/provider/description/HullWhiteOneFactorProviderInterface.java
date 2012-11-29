@@ -11,30 +11,64 @@ import com.opengamma.util.money.Currency;
 /**
  * Interface for Hull-White parameters provider for one currency.
  */
-public interface HullWhiteOneFactorProviderInterface {
+public class HullWhiteOneFactorProviderInterface {
+
+  /**
+   * The multicurve provider.
+   */
+  private final MulticurveProviderInterface _multicurveProvider;
+  /**
+   * The Hull-White one factor model parameters.
+   */
+  private final HullWhiteOneFactorPiecewiseConstantParameters _parameters;
+  /**
+   * The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   */
+  private final Currency _ccyHW;
+
+  /**
+   * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
+   * @param multicurves The multi-curves provider.
+   * @param parameters The Hull-White one factor parameters.
+   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   */
+  public HullWhiteOneFactorProviderInterface(final MulticurveProviderInterface multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
+    _multicurveProvider = multicurves;
+    _parameters = parameters;
+    _ccyHW = ccyHW;
+  }
 
   /**
    * Create a new copy of the provider.
    * @return The bundle.
    */
-  HullWhiteOneFactorProviderInterface copy();
+  public HullWhiteOneFactorProviderInterface copy() {
+    MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
+    return new HullWhiteOneFactorProviderInterface(multicurveProvider, _parameters, _ccyHW);
+  }
 
   /**
    * Returns the Hull-White one factor model parameters.
    * @return The parameters.
    */
-  HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters();
+  public HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters() {
+    return _parameters;
+  }
 
   /**
    * Returns the currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
    * @return The currency.
    */
-  Currency getHullWhiteCurrency();
+  public Currency getHullWhiteCurrency() {
+    return _ccyHW;
+  }
 
   /**
    * Returns the MulticurveProvider from which the HullWhiteOneFactorProvider is composed.
    * @return The multi-curves provider.
    */
-  MulticurveProviderInterface getMulticurveProvider();
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return _multicurveProvider;
+  }
 
 }
