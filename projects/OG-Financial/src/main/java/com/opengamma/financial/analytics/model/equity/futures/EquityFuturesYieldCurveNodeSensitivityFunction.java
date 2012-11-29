@@ -56,13 +56,13 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
 
   private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
 
-  public EquityFuturesYieldCurveNodeSensitivityFunction(String pricingMethodName) {
+  public EquityFuturesYieldCurveNodeSensitivityFunction(final String pricingMethodName) {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, pricingMethodName);
   }
 
   // Need to do this to get labels for the output
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
-    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
@@ -87,7 +87,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     // 1. Build the analytic derivative to be priced
     final Trade trade = target.getTrade();
     final FutureSecurity security = (FutureSecurity) trade.getSecurity();
@@ -100,7 +100,8 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     //final EquityFutureDefinition definition = CONVERTER.visitEquityFutureTrade(trade, lastMarginPrice);
     final SimpleFutureDefinition simpleDefn = (SimpleFutureDefinition) security.accept(CONVERTER);
     // TODO: Refactor and hence remove the following line
-    final EquityFutureDefinition definition = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(), simpleDefn.getReferencePrice(), simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
+    final EquityFutureDefinition definition = new EquityFutureDefinition(simpleDefn.getExpiry(), simpleDefn.getSettlementDate(), simpleDefn.getReferencePrice(),
+        simpleDefn.getCurrency(), simpleDefn.getUnitAmount());
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final EquityFuture derivative = definition.toDerivative(valuationTime);
 
@@ -109,7 +110,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
 
     // 3. Create specification that matches the properties promised in getResults
     // For the curve we're bumping, create a bundle
-    YieldCurveBundle curveBundle = new YieldCurveBundle();
+    final YieldCurveBundle curveBundle = new YieldCurveBundle();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String fundingCurveName = getFundingCurveName(desiredValue);
     final String curveConfigName = getCurveConfigName(desiredValue);
@@ -129,7 +130,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
     final DoubleMatrix1D sensVector;
     if (((YieldCurve) fundingCurve).getCurve() instanceof InterpolatedDoublesCurve) {
       final double settle = derivative.getTimeToSettlement();
-      EquityFuturesPricer pricer = EquityFuturePricerFactory.getMethod(getPricingMethodName());
+      final EquityFuturesPricer pricer = EquityFuturePricerFactory.getMethod(getPricingMethodName());
       final double rhoSettle = -1 * settle * pricer.presentValue(derivative, market);
       //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
       final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
@@ -137,8 +138,7 @@ public class EquityFuturesYieldCurveNodeSensitivityFunction extends EquityFuture
       curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settle, rhoSettle)));
       sensVector = distributor.curveToNodeSensitivities(curveSensMap, curveBundle);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);
-    } else {
-      throw new IllegalArgumentException("YieldCurveNodeSensitivities currently available only for Funding Curve backed by a InterpolatedDoublesCurve");
     }
+    throw new IllegalArgumentException("YieldCurveNodeSensitivities currently available only for Funding Curve backed by a InterpolatedDoublesCurve");
   }
 }

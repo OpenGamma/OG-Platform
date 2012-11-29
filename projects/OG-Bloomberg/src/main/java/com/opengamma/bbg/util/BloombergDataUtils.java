@@ -852,5 +852,14 @@ public final class BloombergDataUtils {
     localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
     return localDate.toString(BLOOMBERG_DATE_FORMATTER);
   }
+  
+  /**
+   * Returns future month code for a given month
+   * @param month the month of year, not null
+   * @return the future month code, null if not available
+   */
+  public static String futureMonthCode(MonthOfYear month) {
+    return s_monthCode.get(month);
+  }
 
 }

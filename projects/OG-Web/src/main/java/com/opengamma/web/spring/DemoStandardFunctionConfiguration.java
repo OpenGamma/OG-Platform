@@ -112,7 +112,7 @@ import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunctio
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesYieldCurveNodeSensitivityFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionImpliedVolFunction;
@@ -125,7 +125,7 @@ import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOpt
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVommaFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionPresentValueFunction;
@@ -596,7 +596,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addBlackCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addLocalVolatilityGridFunctions(functionConfigs);
-    addEquityVolatilitySurfaceCalculators(functionConfigs);
+    addEquityPureVolatilitySurfaceCalculators(functionConfigs);
     addCDSCalculators(functionConfigs);
     
     addBlackVolatilitySurface(functionConfigs);
@@ -916,7 +916,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionSpotVannaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionRhoFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
+    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaults.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
         "CAD", "DefaultTwoCurveCADConfig", "Discounting",
@@ -941,7 +941,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaultPropertiesFunction.class, "0.0", "0.001"));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaults.class, "0.0", "0.001"));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1278,7 +1278,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
     
     functionConfigs.add(functionConfiguration(EquityBlackVolatilitySurfaceDefaults.class,
-        "DJX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG"));
+        "DJX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG",
+        "SPX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG",
+        "NKY Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "JPY", "DefaultTwoCurveJPYConfig", "BBG"));
   }
   
   private static void addLocalVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
@@ -1293,7 +1295,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(LocalVolatilitySurfaceDefaults.class, "0.001"));
   }
   
-  private static void addEquityVolatilitySurfaceCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityPureVolatilitySurfaceCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceNoDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(AffineDividendFunction.class.getName()));

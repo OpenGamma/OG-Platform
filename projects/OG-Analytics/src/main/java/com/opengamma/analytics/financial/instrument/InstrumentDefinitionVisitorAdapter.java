@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -684,7 +686,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -694,7 +696,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -704,7 +706,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -714,7 +716,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -724,7 +726,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -734,7 +736,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -744,7 +746,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -754,11 +756,31 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
   public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFutureDefinition(final EquityFutureDefinition future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFutureDefinition(final EquityFutureDefinition future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future) {
     return getException(future);
   }
 

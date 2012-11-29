@@ -60,20 +60,23 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
     // Get Funding Curve Name
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
       return null;
     }
     final String fundingCurveName = fundingCurves.iterator().next();
-    result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), fundingCurveName));
-    return result;
+    requirements.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), fundingCurveName));
+    return requirements;
   }
 
   // Need to do this to get labels for the output
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
-    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
@@ -117,7 +120,7 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
     }
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingObject;
     // Put curve into a bundle
-    YieldCurveBundle curveBundle = new YieldCurveBundle();
+    final YieldCurveBundle curveBundle = new YieldCurveBundle();
     curveBundle.setCurve(fundingCurveName, fundingCurve);
     if (!(fundingCurve instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
@@ -129,7 +132,7 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
 
       // Compute the sum of the underlying vanillas' present values
       double pv = 0.0;
-      for (EquityIndexOption derivative : vanillas) {
+      for (final EquityIndexOption derivative : vanillas) {
         pv += PV_CALCULATOR.visitEquityIndexOption(derivative, market);
       }
       final double rhoSettle = -1 * settlementTime * pv;
@@ -158,7 +161,7 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market) {
+  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market) {
     return null;
   }
 }

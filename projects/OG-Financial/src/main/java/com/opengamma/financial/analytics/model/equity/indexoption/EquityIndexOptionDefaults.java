@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -30,10 +32,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Populates EquityIndexOptionFunction's, including EquityIndexVanillaBarrierOptionFunction's, with defaults.
+ * Populates {@link EquityIndexOptionFunction}, including {@link EquityIndexVanillaBarrierOptionFunction}, with defaults.
  */
-public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyFunction {
-
+public class EquityIndexOptionDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionDefaults.class);
   private final Map<Currency, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
   private final String _volSurfaceName;
   private final String _smileInterpolator;
@@ -60,7 +62,7 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
    * @param smileInterpolator Name of the interpolation method for the smile (e.g. Spline)
    * @param currencyCurveConfigAndDiscountingCurveNames Choice of MultiCurveCalculationConfig. e.g. DefaultTwoCurveUSDConfig
    */
-  public EquityIndexOptionDefaultPropertiesFunction(final String priority, final String volSurface, final String smileInterpolator,
+  public EquityIndexOptionDefaults(final String priority, final String volSurface, final String smileInterpolator,
       final String... currencyCurveConfigAndDiscountingCurveNames) {
 
     super(ComputationTargetType.SECURITY, true);
@@ -94,24 +96,27 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
-
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity()); // getCurrency(target);
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final Pair<String, String> pair = _currencyCurveConfigAndDiscountingCurveNames.get(ccy);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(pair.getSecond());
-    } else if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
+    }
+    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(pair.getFirst());
-    } else if (ValuePropertyNames.SURFACE.equals(propertyName)) {
+    }
+    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_volSurfaceName);
-    } else if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
+    }
+    if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_smileInterpolator);
     }
+    s_logger.error("Cannot get a default value for {}", propertyName);
     return null;
   }
 
   @Override
-  /** Applies to EquityIndexOptionSecurity and EquityBarrierOptionSecurity */
+  /* Applies to EquityIndexOptionSecurity and EquityBarrierOptionSecurity */
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;

@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -756,6 +758,26 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitEnergyFuture(final EnergyFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFuture(final EquityFuture future, final DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFuture(final EquityFuture future) {
+    return visit(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final DATA_TYPE data) {
+    return visit(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
     return visit(future);
   }
 

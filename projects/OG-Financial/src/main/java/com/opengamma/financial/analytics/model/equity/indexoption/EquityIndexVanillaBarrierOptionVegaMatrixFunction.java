@@ -55,7 +55,7 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market) {
+  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market) {
     final NodalDoublesSurface vegaSurface;
     if (market.getVolatilitySurface() instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
       // unpack the market data, including the interpolators
@@ -72,26 +72,26 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
 
       // Prices of vanillas in base scenario
       final int nVanillas = vanillaOptions.size();
-      EquityIndexOption[] vanillas = vanillaOptions.toArray(new EquityIndexOption[nVanillas]);
+      final EquityIndexOption[] vanillas = vanillaOptions.toArray(new EquityIndexOption[nVanillas]);
       final Double[] basePrices = new Double[nVanillas];
       for (int v = 0; v < nVanillas; v++) {
         basePrices[v] = PVC.visitEquityIndexOption(vanillas[v], market);
       }
 
       // Smile fits across strikes in base scenario, one per expiry
-      Function1D<Double, Double>[] smileFitsBase = surfaceInterpolator.getIndependentSmileFits(volGrid);
+      final Function1D<Double, Double>[] smileFitsBase = surfaceInterpolator.getIndependentSmileFits(volGrid);
 
       // Bump market at each expiry and strike scenario
       // In each scenario, reprice each of the underlying vanillaOptions
       // NOTE: Only computing down-shift as this appears to produce more stable risk, and is faster
-      List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<Triple<Double, Double, Double>>();
+      final List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<Triple<Double, Double, Double>>();
       final int expiryIndex = SurfaceArrayUtils.getLowerBoundIndex(expiries, optionExpiry);
       for (int t = Math.max(0, expiryIndex - 3); t < Math.min(nExpiries, expiryIndex + 4); t++) {
         final int nStrikes = strikes[t].length;
         int idxLow = SurfaceArrayUtils.getLowerBoundIndex(strikes[t], vanillas[0].getStrike());
         int idxHigh = idxLow;
         for (int v = 1; v < nVanillas; v++) {
-          int idxV = SurfaceArrayUtils.getLowerBoundIndex(strikes[t], vanillas[v].getStrike());
+          final int idxV = SurfaceArrayUtils.getLowerBoundIndex(strikes[t], vanillas[v].getStrike());
           idxLow = Math.min(idxLow, idxV);
           idxHigh = Math.max(idxHigh, idxV);
         }
@@ -99,13 +99,13 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
         for (int k = Math.max(0, idxLow - 6); k < Math.min(nStrikes, idxHigh + 16); k++) {
           // Scenario (t,k)
           // TODO: REVIEW Each scenario only requires a single new smile fit in k. We only recompute the smile function for the expiry we are bumping..
-          double[] bumpedVols = Arrays.copyOf(vols[t], nStrikes);
+          final double[] bumpedVols = Arrays.copyOf(vols[t], nStrikes);
           bumpedVols[k] = vols[t][k] - SHIFT;
           final Function1D<Double, Double> thisExpirysSmile = strikeInterpolator.getVolatilityFunction(forwards[t], strikes[t], expiries[t], bumpedVols);
-          Function1D<Double, Double>[] scenarioSmileFits = Arrays.copyOf(smileFitsBase, smileFitsBase.length);
+          final Function1D<Double, Double>[] scenarioSmileFits = Arrays.copyOf(smileFitsBase, smileFitsBase.length);
           scenarioSmileFits[t] = thisExpirysSmile;
-          BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.combineIndependentSmileFits(scenarioSmileFits, volGrid);
-          StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
+          final BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.combineIndependentSmileFits(scenarioSmileFits, volGrid);
+          final StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
           // Sensitivities
           for (int v = 0; v < nVanillas; v++) {
             final Double shiftedPV = PVC.visit(vanillas[v], shiftedMarket);
@@ -122,9 +122,9 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
       // Find unique set of expiries,
       final Double[] uniqueX = ArrayUtils.toObject(expiries);
       // and strikes
-      Set<Double> strikeSet = new HashSet<Double>();
-      for (int i = 0; i < strikes.length; i++) {
-        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strikes[i])));
+      final Set<Double> strikeSet = new HashSet<Double>();
+      for (final double[] strike : strikes) {
+        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strike)));
       }
       final Double[] uniqueY = strikeSet.toArray(new Double[0]);
       // Fill matrix with values, zero where no vega is available
@@ -147,16 +147,15 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
       return vegaMatrix;
 
 
-    } else {
-      throw new OpenGammaRuntimeException("Currently will only accept a VolatilitySurface of type: BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
     }
+    throw new OpenGammaRuntimeException("Currently will only accept a VolatilitySurface of type: BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
   }
 
   @Override
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
 
-    String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityBarrierOptionSecurity) target.getSecurity()).getUnderlyingId());
+    final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityBarrierOptionSecurity) target.getSecurity()).getUnderlyingId());
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
@@ -167,10 +166,10 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
-    HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    String bbgTicker = getBloombergTicker(tsSource, getEquityBarrierOptionSecurity(target).getUnderlyingId());
-    Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
+    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final String bbgTicker = getBloombergTicker(tsSource, getEquityBarrierOptionSecurity(target).getUnderlyingId());
+    final Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
       .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
     return propsBuilder;
   }

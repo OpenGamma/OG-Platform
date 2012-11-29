@@ -91,7 +91,6 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_MAX_PROXY_DELTA);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS);
-      defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_SPACE_DIRECTION_INTERPOLATOR);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_SPACE_STEPS_BUNCHING);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_THETA);

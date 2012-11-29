@@ -23,6 +23,8 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -959,6 +961,26 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitFloatingRateNote(final FloatingRateNote derivative) {
       throw new NotImplementedException("Not implemented because derivative is deprecated");
+    }
+
+    @Override
+    public String visitEquityFuture(final EquityFuture future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityFuture(final EquityFuture future, final T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final T data) {
+      return getValue(future, true);
     }
   }
 }

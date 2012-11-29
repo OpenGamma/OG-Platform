@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
@@ -19,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -44,8 +43,8 @@ public final class EquityFuturesRatesSensitivityCalculator {
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
   public DoubleMatrix1D calcDeltaBucketed(final EquityFuture future, final SimpleFutureDataBundle dataBundle) {
-    Validate.notNull(future, "null future");
-    Validate.notNull(dataBundle, "null data bundle");
+    ArgumentChecker.notNull(future, "future");
+    ArgumentChecker.notNull(dataBundle, "data bundle");
     if (!(dataBundle.getFundingCurve() instanceof YieldCurve)) {
       throw new IllegalArgumentException("Calculator expects a YieldCurve. Perhaps it has encountered a discount curve?");
     }
@@ -57,10 +56,10 @@ public final class EquityFuturesRatesSensitivityCalculator {
     final EquityFuturesPresentValueCalculator pricer = EquityFuturesPresentValueCalculator.getInstance();
     SimpleFutureDataBundle bumpedMarket = new SimpleFutureDataBundle(discCrv.withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
-    final double pvUp = pricer.visit(future, bumpedMarket);
+    final double pvUp = future.accept(pricer, bumpedMarket);
     bumpedMarket = new SimpleFutureDataBundle(discCrv.withSingleShift(settlement, -SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
-    final double pvDown = pricer.visit(future, bumpedMarket);
+    final double pvDown = future.accept(pricer, bumpedMarket);
     final double sensitivity = (pvUp - pvDown) / (2.0 * SHIFT);
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sensitivity)));

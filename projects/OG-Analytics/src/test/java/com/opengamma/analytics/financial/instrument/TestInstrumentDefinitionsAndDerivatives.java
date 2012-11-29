@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.collections.Sets;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
@@ -24,6 +25,8 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -221,6 +224,10 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final MetalFutureDefinition METAL_FUTURE = MetalFutureDefinition.withPhysicalSettlement(SETTLE_DATE, ExternalId.of("a", "b"), 100, SETTLE_DATE, SETTLE_DATE, NOTIONAL, "tonnes", 100,
       CUR, SETTLE_DATE.minusYears(1));
   public static final MetalFutureOptionDefinition METAL_FUTURE_OPTION = new MetalFutureOptionDefinition(SETTLE_DATE, METAL_FUTURE, 100, ExerciseDecisionType.AMERICAN, true);
+
+  public static final EquityFutureDefinition EQUITY_FUTURE = new EquityFutureDefinition(SETTLE_DATE, SETTLE_DATE, 100, CUR, 100);
+  public static final EquityIndexDividendFutureDefinition EQUITY_INDEX_DIVIDEND_FUTURE = new EquityIndexDividendFutureDefinition(SETTLE_DATE, SETTLE_DATE, 1200, CUR, 100);
+
   public static final InterestRateFutureDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   public static final InterestRateFutureOptionMarginSecurityDefinition IR_FUT_OPT_MARGIN_SEC_DEF = FutureInstrumentsDescriptionDataSet.createInterestRateFutureOptionMarginSecurityDefinition();
   public static final InterestRateFutureOptionMarginTransactionDefinition IR_FUT_OPT_MARGIN_T_DEF = FutureInstrumentsDescriptionDataSet.createInterestRateFutureOptionMarginTransactionDefinition();
@@ -302,6 +309,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(ENERGY_FUTURE);
     ALL_INSTRUMENTS.add(ENERGY_FUTURE_OPTION);
     ALL_INSTRUMENTS.add(ENERGY_FWD);
+    ALL_INSTRUMENTS.add(EQUITY_FUTURE);
+    ALL_INSTRUMENTS.add(EQUITY_INDEX_DIVIDEND_FUTURE);
     ALL_INSTRUMENTS.add(FF_SECURITY);
     ALL_INSTRUMENTS.add(FF_TRANSACTION);
     ALL_INSTRUMENTS.add(FRA);
@@ -387,6 +396,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(ENERGY_FUTURE.toDerivative(ENERGY_FUTURE.getSettlementDate(), curveNames));
     ALL_DERIVATIVES.add(ENERGY_FUTURE_OPTION.toDerivative(ENERGY_FUTURE_OPTION.getExpiryDate().minusDays(1), curveNames));
     ALL_DERIVATIVES.add(ENERGY_FWD.toDerivative(ENERGY_FWD.getSettlementDate(), curveNames));
+    ALL_DERIVATIVES.add(EQUITY_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_DIVIDEND_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
     ALL_DERIVATIVES.add(FF_SECURITY.toDerivative(FF_SECURITY.getFixingPeriodDate()[0], curveNames));
     ALL_DERIVATIVES.add(FF_TRANSACTION.toDerivative(FF_TRANSACTION.getTradeDate(), new DoubleTimeSeries[] {ts, ts }, curveNames));
     ALL_DERIVATIVES.add(FRA.toDerivative(FRA.getAccrualStartDate(), ts, curveNames));
