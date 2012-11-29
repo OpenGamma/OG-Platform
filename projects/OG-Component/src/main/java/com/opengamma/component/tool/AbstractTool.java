@@ -44,7 +44,7 @@ public abstract class AbstractTool<T extends ToolContext> {
   /**
    * Configuration command line option.
    */
-  private static final String CONFIG_RESOURCE_OPTION = "c";
+  protected static final String CONFIG_RESOURCE_OPTION = "c";
   /**
    * Logging command line option.
    */
