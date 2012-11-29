@@ -54,18 +54,8 @@ import com.opengamma.util.ArgumentChecker;
       results.add(rowResults);
     }
     resultsMap.put(DATA, results);
-    String labelsTitle;
-    if (value.getLabelsTitle() != null) {
-      labelsTitle = value.getLabelsTitle();
-    } else {
-      labelsTitle = LABEL;
-    }
-    String valuesTitle;
-    if (value.getValuesTitle() != null) {
-      valuesTitle = value.getValuesTitle();
-    } else {
-      valuesTitle = VALUE;
-    }
+    String labelsTitle = value.getLabelsTitle() != null ? value.getLabelsTitle() : LABEL;
+    String valuesTitle = value.getValuesTitle() != null ? value.getValuesTitle() : VALUE;
     resultsMap.put(LABELS, ImmutableList.of(labelsTitle, valuesTitle));
     return resultsMap;
   }
