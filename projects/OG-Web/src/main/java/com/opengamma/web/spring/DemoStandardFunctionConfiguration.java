@@ -336,15 +336,9 @@ import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeas
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.local.EquityDupireLocalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexDupireLocalVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDEMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDESABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDESplineDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDESABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDESplineDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceSABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceSplineDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDEDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction;
@@ -355,14 +349,12 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 import com.opengamma.financial.analytics.model.volatility.surface.black.EquityBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.ForexBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRInterpolatorDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineInterpolatorDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceDividendCorrectionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceNoDividendCorrectionFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.pure.defaultproperties.PureVolatilitySurfaceSplineDefaults;
 import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
 import com.opengamma.financial.analytics.timeseries.FXVolatilitySurfaceHistoricalTimeSeriesFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
@@ -587,19 +579,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
-//    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
-//    addDeprecatedSABRCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
-//    addDeprecatedForexOptionCalculators(functionConfigs);
-//    addDeprecatedForexForwardCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
-//    addDeprecatedInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
     addSimpleFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
@@ -607,10 +594,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCommodityFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
-//    addDeprecatedBlackCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
+    addLocalVolatilityGridFunctions(functionConfigs);
     addEquityVolatilitySurfaceCalculators(functionConfigs);
     addCDSCalculators(functionConfigs);
+    
+    addBlackVolatilitySurface(functionConfigs);
+    addFXBlackVolatilitySurface(functionConfigs);
+    addEquityBlackVolatilitySurface(functionConfigs);
+    addLocalVolatilitySurface(functionConfigs);
     
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     addCashFlowFunctions(functionConfigs);
@@ -1122,27 +1114,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addLocalVolatilityCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class.getName()));
-
-    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
-
-
-    functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName()));
-
-    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
-
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
-
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction.class.getName(), Arrays
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction.class.getName(), Arrays
@@ -1197,8 +1168,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), Arrays
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
-    addLocalVolatilityGridFunctions(functionConfigs);
-    addFXLocalVolatilityDefaultProperties(functionConfigs);
+    
+    functionConfigs.add(functionConfiguration(ForwardPDEDefaults.class, 
+        "0.5", "100", "100", "5.0", "0.05", "1.5", "1.0", Interpolator1DFactory.DOUBLE_QUADRATIC, "Discounting"));
+    functionConfigs.add(functionConfiguration(BackwardPDEDefaults.class,
+        "0.5", "100", "100", "5.0", "0.05", "3.5", Interpolator1DFactory.DOUBLE_QUADRATIC, "Discounting"));    
   }
 
   private static void addLocalVolatilityGridFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -1258,114 +1232,67 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
   }
 
-  private static void addFXLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
-//    final List<String> commonBlackSurfaceInterpolatorProperties = getBlackVolatilitySurfaceDefaultProperties(functionConfigs);
-//
-//    // commonForexBLACKSurfaceProperties
-//    final List<String> commonForexBlackSurfaceProperties = getCommonFXBlackSurfaceProperties(commonBlackSurfaceInterpolatorProperties);
-//    final List<String> forexBlackSurfaceMixedLogNormalProperties = getFXMixedLogNormalSurfaceProperties(commonForexBlackSurfaceProperties);
-//    final List<String> forexBlackSurfaceSABRProperties = getFXSABRBlackSurfaceProperties(commonForexBlackSurfaceProperties);
-//    final List<String> forexBlackSurfaceSplineProperties = getFXSplineBlackSurfaceProperties(commonForexBlackSurfaceProperties);
-//
-//    // commonForexLOCALSurfaceProperties
-//    final List<String> commonForexLocalSurfaceProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-//    commonForexLocalSurfaceProperties.add("1e-3"); // "SurfaceDerivativeEPS" shift used for FD derivative approximations
-//    final List<String> forexLocalSurfaceMixedLogNormalProperties = getFXMixedLogNormalSurfaceProperties(commonForexLocalSurfaceProperties);
-//    final List<String> forexLocalSurfaceSABRProperties = getFXSABRBlackSurfaceProperties(commonForexLocalSurfaceProperties);
-//    final List<String> forexLocalSurfaceSplineProperties = getFXSplineBlackSurfaceProperties(commonForexLocalSurfaceProperties);
-//
-//    final List<String> commonForexBackwardPDEProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
-//    commonForexBackwardPDEProperties.add("0.5");
-//    commonForexBackwardPDEProperties.add("100");
-//    commonForexBackwardPDEProperties.add("100");
-//    commonForexBackwardPDEProperties.add("5.0");
-//    commonForexBackwardPDEProperties.add("0.05");
-//    commonForexBackwardPDEProperties.add("3.5");
-//    commonForexBackwardPDEProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-//    commonForexBackwardPDEProperties.add("FUNDING");
-//    final List<String> forexBackwardPDEMixedLogNormalProperties = getFXMixedLogNormalSurfaceProperties(commonForexBackwardPDEProperties);
-//    final List<String> forexBackwardPDESABRProperties = getFXSABRBlackSurfaceProperties(commonForexBackwardPDEProperties);
-//    final List<String> forexBackwardPDESplineProperties = getFXSplineBlackSurfaceProperties(commonForexBackwardPDEProperties);
-//    final List<String> commonForexForwardPDEProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
-//    commonForexForwardPDEProperties.add("0.5");
-//    commonForexForwardPDEProperties.add("100");
-//    commonForexForwardPDEProperties.add("100");
-//    commonForexForwardPDEProperties.add("5.0");
-//    commonForexForwardPDEProperties.add("0.05");
-//    commonForexForwardPDEProperties.add("1.5");
-//    commonForexForwardPDEProperties.add("1.0");
-//    commonForexForwardPDEProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-//    commonForexForwardPDEProperties.add("FUNDING");
-//    final List<String> forexForwardPDEMixedLogNormalProperties = getFXMixedLogNormalSurfaceProperties(commonForexForwardPDEProperties);
-//    final List<String> forexForwardPDESABRProperties = getFXSABRBlackSurfaceProperties(commonForexForwardPDEProperties);
-//    final List<String> forexForwardPDESplineProperties = getFXSplineBlackSurfaceProperties(commonForexForwardPDEProperties);
-//
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexBlackSurfaceMixedLogNormalProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(), forexBlackSurfaceSABRProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), forexBlackSurfaceSplineProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexLocalSurfaceMixedLogNormalProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSABRDefaults.class.getName(), forexLocalSurfaceSABRProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSplineDefaults.class.getName(), forexLocalSurfaceSplineProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BackwardPDEMixedLogNormalDefaults.class.getName(), forexBackwardPDEMixedLogNormalProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BackwardPDESABRDefaults.class.getName(), forexBackwardPDESABRProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BackwardPDESplineDefaults.class.getName(), forexBackwardPDESplineProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(ForwardPDEMixedLogNormalDefaults.class.getName(), forexForwardPDEMixedLogNormalProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(ForwardPDESABRDefaults.class.getName(), forexForwardPDESABRProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(ForwardPDESplineDefaults.class.getName(), forexForwardPDESplineProperties));
+  //TODO move next few methods into the surface configuration class
+  private static void addBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> commonProperties = Arrays.asList(
+      BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
+      BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,
+      BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE,
+      Interpolator1DFactory.DOUBLE_QUADRATIC,
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final List<String> sabrProperties = new ArrayList<String>(commonProperties);
+    sabrProperties.add(VolatilityFunctionFactory.HAGAN);
+    sabrProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
+    sabrProperties.add("false");
+    sabrProperties.add("0.5");
+    final List<String> mixedLogNormalProperties = new ArrayList<String>(commonProperties);
+    mixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
+    final List<String> splineProperties = new ArrayList<String>(commonProperties);
+    splineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // Spline default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    splineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
+    
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(), sabrProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(), mixedLogNormalProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), splineProperties));
   }
+    
+  private static void addFXBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
+    
+    functionConfigs.add(functionConfiguration(FXBlackVolatilitySurfaceDefaults.class,
+        "EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "DEFAULT"));
+  }
+  
+  private static void addEquityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
+    
+    functionConfigs.add(functionConfiguration(EquityBlackVolatilitySurfaceDefaults.class,
+        "DJX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG"));
+  }
+  
+  private static void addLocalVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
 
-//  private static List<String> getFXSplineBlackSurfaceProperties(final List<String> commonForexBlackSurfaceProperties) {
-//    // BlackSurface with Spline Interpolation and  ShiftedLogNormalTailExtrapolation
-//    final List<String> blackSurfaceSplineProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-//    blackSurfaceSplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-//    blackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    blackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    // Spline default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
-//    blackSurfaceSplineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
-//    return blackSurfaceSplineProperties;
-//  }
-//
-//  private static List<String> getFXSABRBlackSurfaceProperties(final List<String> commonForexBlackSurfaceProperties) {
-//    final List<String> forexBlackSurfaceSABRProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-//    forexBlackSurfaceSABRProperties.add(VolatilityFunctionFactory.HAGAN);
-//    forexBlackSurfaceSABRProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
-//    forexBlackSurfaceSABRProperties.add("false");
-//    forexBlackSurfaceSABRProperties.add("0.5");
-//    return forexBlackSurfaceSABRProperties;
-//  }
-//
-//  private static List<String> getFXMixedLogNormalSurfaceProperties(final List<String> commonForexBlackSurfaceProperties) {
-//    final List<String> forexBlackSurfaceMixedLogNormalProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-//    forexBlackSurfaceMixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
-//    return forexBlackSurfaceMixedLogNormalProperties;
-//  }
-//
-//  private static List<String> getCommonFXBlackSurfaceProperties(final List<String> commonBlackSurfaceInterpolatorProperties) {
-//    final List<String> commonForexBlackSurfaceProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
-//    commonForexBlackSurfaceProperties.add("FUNDING-FUNDING");
-//    commonForexBlackSurfaceProperties.add(ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
-//    commonForexBlackSurfaceProperties.add("DEFAULT");
-//    return commonForexBlackSurfaceProperties;
-//  }
-//
-//  private static List<String> getBlackVolatilitySurfaceDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
-//    final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
-//        BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
-//        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,
-//        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE,
-//        Interpolator1DFactory.DOUBLE_QUADRATIC,
-//        Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-//        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    final List<String> mixedLogNormalProperties = getFXMixedLogNormalSurfaceProperties(commonBlackSurfaceInterpolatorProperties);
-//    final List<String> sabrProperties = getFXSABRBlackSurfaceProperties(commonBlackSurfaceInterpolatorProperties);
-//    final List<String> splineProperties = getFXSplineBlackSurfaceProperties(commonBlackSurfaceInterpolatorProperties);
-//
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults.class.getName(), mixedLogNormalProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorDefaults.class.getName(), sabrProperties));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorDefaults.class.getName(), splineProperties));
-//    return commonBlackSurfaceInterpolatorProperties;
-//  }
-//
+    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
+
+    functionConfigs.add(functionConfiguration(LocalVolatilitySurfaceDefaults.class, "0.001"));
+  }
+  
   private static void addEquityVolatilitySurfaceCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceNoDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
