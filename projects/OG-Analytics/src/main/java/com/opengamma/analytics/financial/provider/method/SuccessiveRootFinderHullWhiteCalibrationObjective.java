@@ -5,11 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.method;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
@@ -90,7 +87,6 @@ public class SuccessiveRootFinderHullWhiteCalibrationObjective extends Successiv
   @Override
   public void setInstrument(InstrumentDerivative instrument) {
     super.setInstrument(instrument);
-    Validate.isTrue(instrument instanceof CapFloorIbor, "Instrument should be a cap/floor");
   }
 
   @Override

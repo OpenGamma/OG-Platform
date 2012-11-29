@@ -13,9 +13,11 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -44,11 +46,17 @@ public class SuccessiveRootFinderHullWhiteCalibrationEngine<DATA_TYPE> extends S
    */
   @Override
   public void addInstrument(final InstrumentDerivative instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    Validate.isTrue(instrument instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+    ArgumentChecker.isTrue((instrument instanceof CapFloorIbor) || (instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
     getBasket().add(instrument);
     getMethod().add(calculator);
     getCalibrationPrice().add(0.0);
-    _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
+    if (instrument instanceof CapFloorIbor) {
+      _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
+    }
+    if (instrument instanceof SwaptionPhysicalFixedIbor) {
+      _calibrationTimes.add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
+    }
+
   }
 
   /**
