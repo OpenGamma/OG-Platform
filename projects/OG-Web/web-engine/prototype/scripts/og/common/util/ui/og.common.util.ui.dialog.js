@@ -126,7 +126,6 @@ $.register_module({
                 // Create custom content
                 if (obj.custom) {$obj.append(obj.custom);}
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
-
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');
         }
