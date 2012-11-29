@@ -78,7 +78,8 @@ $.register_module({
                 UNPLOTTABLE_SURFACE_DATA: [1],
                 TENOR                   : [0],
                 TIME_SERIES             : [4, 1],
-                UNKNOWN                 : [0]
+                UNKNOWN                 : [0],
+                VECTOR                  : [0, 1]
             }
         };
     }

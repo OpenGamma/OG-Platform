@@ -68,7 +68,8 @@
                 data: (is_matrix ? object.matrix : object.data).reduce(function (acc, val, i) {
                     var obj = {};
                     if (is_matrix) obj.ylabelscol = ylabels[i];
-                    val.forEach(function (val, i) {obj[xlabels[i]] = val;});
+                    if ($.isArray(val)) val.forEach(function (val, i) {obj[xlabels[i]] = val;});
+                    else obj[xlabels[0]] = val
                     return acc.push(obj) && acc;
                 }, []),
                 columns:cols

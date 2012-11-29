@@ -17,6 +17,7 @@ $.register_module({
                     .Cell({source: config.source, col: config.col, row: config.row, format: 'EXPANDED'}, 'data')
                     .on('data', function (cell) {
                         if (!cell.error && cell.v) {
+                            if (cell.v.label) cell.v.labels = [cell.v.label]; // if there is only one label
                             if (!instantiated)
                                 $data_grid = (instantiated = true) && $(config.selector).ogdata(cell.v);
                             else gadget.update(cell.v);

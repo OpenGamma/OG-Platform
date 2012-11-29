@@ -8,20 +8,17 @@ $.register_module({
     obj: function () {
         var module = this, tab = '\t', line = '\n', textarea, node, is_array = $.isArray, formatters = {
             CURVE: function (value, single) {
-                if (!single || !value) return '**CURVE**';
+                if (!single) return '**CURVE**';
                 return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
             },
-            DOUBLE: function (value) {
-                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : ''
-            },
+            DOUBLE: function (value) {return value.v || '';},
             LABELLED_MATRIX_1D: function (value, single) {
-                if (!single || !value)
-                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
-                return (is_array(value) ? value : value.v || []).map(function (row) {return row.join(tab);}).join(line);
+                if (!single) return value.v || '**1D MATRIX**';
+                return [value.v.labels.join(tab)]
+                    .concat(value.v.data.map(function (row) {return row.join(tab);})).join(line);
             },
             LABELLED_MATRIX_2D: function (value, single) {
-                if (!single || !value)
-                    return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
+                if (!single) return value.v || '**2D MATRIX**';
                 var rows, cols, matrix;
                 value = value.v || value;
                 cols = [''].concat(value['xLabels']);
@@ -30,15 +27,10 @@ $.register_module({
                 return cols.join(tab) + line + matrix
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
-            LABELLED_MATRIX_3D: function (value, single) {
-                if (!single) return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
-                return '**3D MATRIX**';
-            },
-            PRIMITIVE: function (value) {
-                return typeof value === 'string' ? value : typeof value.v === 'string' ? value.v : '';
-            },
+            LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
+            PRIMITIVE: function (value) {return value.v || '';},
             SURFACE_DATA: function (value, single) {
-                if (!single || !value) return '** SURFACE DATA **';
+                if (!single) return value.v || '**SURFACE DATA**';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
                 value = value.v || value;
                 col_len = (cols = value.xLabels).length;
@@ -52,7 +44,7 @@ $.register_module({
                 return result.join(line);
             },
             TIME_SERIES: function (value, single) {
-                if (!single || !value) return '**TIME SERIES**';
+                if (!single) return '**TIME SERIES**';
                 var rows, cols, pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
                 value = value.v || value;
                 rows = value.timeseries.data;
@@ -69,7 +61,12 @@ $.register_module({
                 var type = value.t;
                 return value && formatters[type] ? formatters[type](value, single) : value && value.v || '';
             },
-            UNPLOTTABLE_SURFACE_DATA: function (value, single) {return formatters.LABELLED_MATRIX_2D(value, single);}
+            UNPLOTTABLE_SURFACE_DATA: function (value, single) {return formatters.LABELLED_MATRIX_2D(value, single);},
+            VECTOR: function (value, single) {
+                if (!single) return value.v || '**VECTOR**';
+                if (value.v.label) value.v.data.unshift(value.v.label);
+                return value.v.data.join(line);
+            }
         };
         var constructor = function (grid) {
             var clipboard = this;
@@ -81,8 +78,9 @@ $.register_module({
                 .on('deselect', function () {clipboard.clear();});
         };
         var data_handler = function (data) {
-            var clipboard = this, grid = clipboard.grid, lcv, index = 0, selection = clipboard.selection,
-                rows = selection.rows.length, cols = selection.cols.length, row;
+            var clipboard = this, grid = clipboard.grid, lcv, index, selection = clipboard.selection, rows, cols, row;
+            if (!clipboard.selection) return; // user has deselected before handler came back, so bail
+            index = 0; rows = selection.rows.length; cols = selection.cols.length;
             clipboard.data = [];
             while (rows--) for (clipboard.data.push(row = []), lcv = 0; lcv < cols; lcv += 1)
                 row.push({value: data[index++], type: clipboard.selection.type[lcv]});
