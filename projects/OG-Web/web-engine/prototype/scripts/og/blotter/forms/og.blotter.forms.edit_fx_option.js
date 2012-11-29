@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var contructor = this;
-            contructor.load = function () {
+            var constructor = this;
+            constructor.load = function () {
                 var config = {}, dialog; 
                 config.title = 'FX Option Termination';
                 var form = new og.common.util.ui.Form({
@@ -27,8 +27,8 @@ $.register_module({
                 form.dom();
                 $('.OG-blotter-form-title').html(config.title);
             }; 
-            contructor.load();
-            contructor.kill = function () {
+            constructor.load();
+            constructor.kill = function () {
             };
         };
     }
