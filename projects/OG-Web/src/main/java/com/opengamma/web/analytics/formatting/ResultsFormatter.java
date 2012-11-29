@@ -64,6 +64,7 @@ public class ResultsFormatter {
                   new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter(),
                   new HistoricalTimeSeriesBundleFormatter(),
                   new VolatilitySurfaceSpecificationFormatter(),
+                  new CurrencyPairsFormatter(),
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter());
   }
 
