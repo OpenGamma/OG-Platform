@@ -15,14 +15,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
-/**
- *
- */
-public class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
+/* package */ class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
 
   private final DoubleFormatter _doubleFormatter;
 
-  public SnapshotDataBundleFormatter(DoubleFormatter doubleFormatter) {
+  /* package */ SnapshotDataBundleFormatter(DoubleFormatter doubleFormatter) {
     super(SnapshotDataBundle.class);
     ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
     _doubleFormatter = doubleFormatter;

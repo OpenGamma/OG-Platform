@@ -10,7 +10,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * @param <T> Type of object formatted by the formatter
  */
-public interface TypeFormatter<T> {
+/* package */ interface TypeFormatter<T> {
 
   public static final String FORMATTING_ERROR = "Formatting Error";
 

@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 
-public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
+/* package */ class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
     extends AbstractFormatter<InterpolatedYieldCurveSpecificationWithSecurities> {
 
   /* package */ InterpolatedYieldCurveSpecificationWithSecuritiesFormatter() {

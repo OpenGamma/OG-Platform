@@ -12,7 +12,7 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
  * Formats instances of {@link NotCalculatedSentinel} which are placeholders in the analytics results for values
  * that couldn't be calculated.
  */
-public class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalculatedSentinel> {
+/* package */ class NotCalculatedSentinelFormatter extends AbstractFormatter<NotCalculatedSentinel> {
 
   /* package */ NotCalculatedSentinelFormatter() {
     super(NotCalculatedSentinel.class);
