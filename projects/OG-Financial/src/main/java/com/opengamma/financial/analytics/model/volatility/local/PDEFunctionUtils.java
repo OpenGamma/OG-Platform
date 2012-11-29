@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local;
@@ -25,19 +25,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 
 /**
- * 
+ *
  */
 public class PDEFunctionUtils {
 
   public static Set<ValueRequirement> ensureForwardPDEFunctionProperties(final ValueProperties constraints) {
-    final Set<ValueRequirement> blackSurfaceRequirements = BlackVolatilitySurfacePropertyUtils.ensureAllBlackSurfaceProperties(constraints);
-    if (blackSurfaceRequirements == null) {
-      return null;
-    }
-    final Set<ValueRequirement> localSurfaceRequirements = LocalVolatilitySurfaceUtils.ensureDupireLocalVolatilitySurfaceProperties(constraints);
-    if (localSurfaceRequirements == null) {
-      return null;
-    }
     final Set<String> thetas = constraints.getValues(PROPERTY_THETA);
     if (thetas == null || thetas.size() != 1) {
       return null;

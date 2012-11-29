@@ -8,10 +8,12 @@ package com.opengamma.financial.analytics.model.volatility.surface.black.default
 import java.util.Collections;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,15 +22,16 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurfaceDefaults {
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceSplineDefaults.class);
   private final String _yInterpolator;
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
   private final String _splineExtrapolatorFailBehaviour;
 
   public BlackVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
-      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
-      final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String splineExtrapolatorFailureBehaviour) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName);
+      final String timeLeftExtrapolator, final String timeRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator,
+      final String splineExtrapolatorFailureBehaviour) {
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     ArgumentChecker.notNull(yInterpolator, "y interpolator");
     ArgumentChecker.notNull(yLeftExtrapolator, "y left extrapolator");
     ArgumentChecker.notNull(yRightExtrapolator, "y right extrapolator");
@@ -42,18 +45,16 @@ public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurface
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
+    for (final String valueRequirement : getRequirementNames()) {
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
+    }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> surfaceDefaults = super.getDefaultValue(context, target, desiredValue, propertyName);
-    if (surfaceDefaults != null) {
-      return surfaceDefaults;
-    }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_yInterpolator);
     }
@@ -66,6 +67,11 @@ public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurface
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE.equals(propertyName)) {
       return Collections.singleton(_splineExtrapolatorFailBehaviour);
     }
+    final Set<String> surfaceDefaults = super.getDefaultValue(context, target, desiredValue, propertyName);
+    if (surfaceDefaults != null) {
+      return surfaceDefaults;
+    }
+    s_logger.error("Could not get default for {} in this function", propertyName);
     return null;
   }
 
