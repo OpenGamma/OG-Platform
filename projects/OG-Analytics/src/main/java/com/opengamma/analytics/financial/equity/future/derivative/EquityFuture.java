@@ -8,14 +8,14 @@ package com.opengamma.analytics.financial.equity.future.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.equity.Derivative;
-import com.opengamma.analytics.financial.equity.DerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class EquityFuture implements Derivative {
+public class EquityFuture implements InstrumentDerivative {
   private final double _timeToExpiry;
   private final double _timeToSettlement;
   private final double _strike;
@@ -24,17 +24,17 @@ public class EquityFuture implements Derivative {
 
   /**
    * 
-   * @param timeToExpiry    time (in years as a double) until the date-time at which the reference index is fixed  
+   * @param timeToExpiry    time (in years as a double) until the date-time at which the reference index is fixed
    * @param timeToSettlement  time (in years as a double) until the date-time at which the contract is settled
    * @param strike         Set strike price at trade time. Note that we may handle margin by resetting this at the end of each trading day
    * @param currency       The reporting currency of the future
-   *  @param unitAmount    The unit value per tick, in given currency  
+   *  @param unitAmount    The unit value per tick, in given currency
    */
   public EquityFuture(final double timeToExpiry,
-                      final double timeToSettlement,
-                      final double strike,
-                      final Currency currency,
-                      final double unitAmount) {
+      final double timeToSettlement,
+      final double strike,
+      final Currency currency,
+      final double unitAmount) {
     // TODO Case -  Validate!!!
     Validate.isTrue(unitAmount > 0, "point value must be positive");
     _timeToExpiry = timeToExpiry;
@@ -45,7 +45,7 @@ public class EquityFuture implements Derivative {
   }
 
   /**
-   * Gets the date when the reference rate is set 
+   * Gets the date when the reference rate is set
    * @return the fixing date (in years as a double)
    */
   public double getTimeToExpiry() {
@@ -53,7 +53,7 @@ public class EquityFuture implements Derivative {
   }
 
   /**
-   * Gets the date when payments are made 
+   * Gets the date when payments are made
    * @return the delivery date (in years as a double)
    */
   public double getTimeToSettlement() {
@@ -78,14 +78,12 @@ public class EquityFuture implements Derivative {
   }
 
   @Override
-  /// @export "accept-visitor"
-  public <S, T> T accept(final DerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitEquityFuture(this, data);
   }
 
-  /// @end
   @Override
-  public <T> T accept(final DerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitEquityFuture(this);
   }
 
@@ -107,7 +105,7 @@ public class EquityFuture implements Derivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -117,7 +115,7 @@ public class EquityFuture implements Derivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    EquityFuture other = (EquityFuture) obj;
+    final EquityFuture other = (EquityFuture) obj;
 
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;

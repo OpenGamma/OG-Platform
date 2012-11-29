@@ -27,6 +27,8 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -935,6 +937,26 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition option) {
       return getValue(option, false);
+    }
+
+    @Override
+    public String visitEquityFutureDefinition(final EquityFutureDefinition future, final T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityFutureDefinition(final EquityFutureDefinition future) {
+      return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future, final T data) {
+      return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future) {
+      return getValue(future, false);
     }
   }
 }
