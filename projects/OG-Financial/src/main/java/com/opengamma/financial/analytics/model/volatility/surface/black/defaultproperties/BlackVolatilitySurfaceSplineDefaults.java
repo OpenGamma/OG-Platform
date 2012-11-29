@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,13 +21,13 @@ import com.opengamma.util.ArgumentChecker;
  *   BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR
  *   BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE
  */
-public class BlackVolatilitySurfaceSplineInterpolatorDefaults extends BlackVolatilitySurfaceInterpolatorDefaults {
+public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurfaceDefaults {
   private final String _splineInterpolator;
   private final String _splineLeftExtrapolator;
   private final String _splineRightExtrapolator;
   private final String _splineExtrapolatorFailBehaviour;
 
-  public BlackVolatilitySurfaceSplineInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform,
+  public BlackVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform,
       final String timeInterpolator, final String timeLeftExtrapolator, final String timeRightExtrapolator,
       final String splineInterpolator, final String splineLeftExtrapolator, final String splineRightExtrapolator, final String splineExtrapolatorFailBehaviour) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
@@ -45,10 +44,12 @@ public class BlackVolatilitySurfaceSplineInterpolatorDefaults extends BlackVolat
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
+    for (final String valueRequirement : getValueRequirements()) {
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
+    }
   }
 
   @Override

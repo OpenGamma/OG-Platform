@@ -21,7 +21,33 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends DefaultPropertyFunction {
+public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR,
+    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.DUAL_GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FOREX_DOMESTIC_PRICE,
+    ValueRequirementNames.FOREX_PV_QUOTES,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_VOMMA,
+    ValueRequirementNames.FORWARD_VANNA,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_DUAL_DELTA,
+    ValueRequirementNames.GRID_DUAL_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_DELTA,
+    ValueRequirementNames.GRID_FORWARD_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_VEGA,
+    ValueRequirementNames.GRID_FORWARD_VANNA,
+    ValueRequirementNames.GRID_FORWARD_VOMMA,
+    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_PRESENT_VALUE
+  };
   private final String _timeAxis;
   private final String _yAxis;
   private final String _volatilityTransform;
@@ -29,7 +55,7 @@ public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends Default
   private final String _timeLeftExtrapolator;
   private final String _timeRightExtrapolator;
 
-  public BlackVolatilitySurfaceInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(timeAxis, "time axis");
@@ -48,12 +74,14 @@ public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends Default
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_VOLATILITY_TRANSFORM);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_RIGHT_EXTRAPOLATOR);
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_AXIS);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_VOLATILITY_TRANSFORM);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_INTERPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_LEFT_EXTRAPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_RIGHT_EXTRAPOLATOR);
+    }
   }
 
   @Override
@@ -84,4 +112,7 @@ public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends Default
     return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_INTERPOLATOR_DEFAULTS;
   }
 
+  protected static String[] getValueRequirements() {
+    return VALUE_REQUIREMENTS;
+  }
 }

@@ -5,32 +5,35 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
+import java.util.Set;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.money.Currency;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.property.DefaultPropertyFunction;
 
 /**
  *
  */
-public class SoybeanFutureOptionBlackVolatilitySurfaceDefaults extends InstrumentSpecificBlackVolatilitySurfaceDefaults {
+public class SoybeanFutureOptionBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
 
-  public SoybeanFutureOptionBlackVolatilitySurfaceDefaults(final String... defaultsPerUid) {
-    super(defaultsPerUid);
+  /**
+   * @param targetType
+   * @param permitWithout
+   */
+  protected SoybeanFutureOptionBlackVolatilitySurfaceDefaults(final ComputationTargetType targetType, final boolean permitWithout) {
+    super(targetType, permitWithout);
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uniqueId = target.getUniqueId();
-    if (Currency.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      final String uid = uniqueId.getValue();
-      return getUids().contains(uid);
-    }
-    return false;
+  protected void getDefaults(final PropertyDefaults defaults) {
   }
+
+  @Override
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    return null;
+  }
+
 
 }

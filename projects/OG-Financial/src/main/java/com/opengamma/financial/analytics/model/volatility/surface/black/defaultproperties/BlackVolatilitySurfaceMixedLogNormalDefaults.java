@@ -11,16 +11,15 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 
 /**
  *
  */
-public class BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults extends BlackVolatilitySurfaceInterpolatorDefaults {
+public class BlackVolatilitySurfaceMixedLogNormalDefaults extends BlackVolatilitySurfaceDefaults {
   private final String _weightingFunction;
 
-  public BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceMixedLogNormalDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String weightingFunction) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     _weightingFunction = weightingFunction;
@@ -29,7 +28,9 @@ public class BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults extends Bl
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
+    for (final String valueRequirement : getValueRequirements()) {
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
+    }
   }
 
   @Override

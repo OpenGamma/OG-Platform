@@ -20,47 +20,92 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
  */
-public abstract class InstrumentSpecificBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InstrumentSpecificBlackVolatilitySurfaceDefaults.class);
-  private final Map<String, String> _uidToCurveName;
-  private final Map<String, String> _uidToCurveCalculationMethodName;
-  private final Map<String, String> _uidToSurfaceName;
+public class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXBlackVolatilitySurfaceDefaults.class);
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.DUAL_GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FOREX_DOMESTIC_PRICE,
+    ValueRequirementNames.FOREX_PV_QUOTES,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_VOMMA,
+    ValueRequirementNames.FORWARD_VANNA,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_DUAL_DELTA,
+    ValueRequirementNames.GRID_DUAL_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_DELTA,
+    ValueRequirementNames.GRID_FORWARD_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_VEGA,
+    ValueRequirementNames.GRID_FORWARD_VANNA,
+    ValueRequirementNames.GRID_FORWARD_VOMMA,
+    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_PRESENT_VALUE
+  };
+  private final Map<String, String> _currencyPairToCurveName;
+  private final Map<String, String> _currencyPairToCurveCalculationMethodName;
+  private final Map<String, String> _currencyPairToSurfaceName;
 
-  public InstrumentSpecificBlackVolatilitySurfaceDefaults(final String... defaultsPerUid) {
+  public FXBlackVolatilitySurfaceDefaults(final String... defaultsPercurrencyPair) {
     super(ComputationTargetType.PRIMITIVE, true);
-    ArgumentChecker.notNull(defaultsPerUid, "defaults per currency");
-    final int n = defaultsPerUid.length;
-    ArgumentChecker.notNull(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per uid value");
-    _uidToCurveName = Maps.newLinkedHashMap();
-    _uidToCurveCalculationMethodName = Maps.newLinkedHashMap();
-    _uidToSurfaceName = Maps.newLinkedHashMap();
+    ArgumentChecker.notNull(defaultsPercurrencyPair, "defaults per currency");
+    final int n = defaultsPercurrencyPair.length;
+    ArgumentChecker.isTrue(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per currency pair");
+    _currencyPairToCurveName = Maps.newLinkedHashMap();
+    _currencyPairToCurveCalculationMethodName = Maps.newLinkedHashMap();
+    _currencyPairToSurfaceName = Maps.newLinkedHashMap();
     for (int i = 0; i < n; i += 4) {
-      final String uid = defaultsPerUid[i];
-      _uidToCurveName.put(uid, defaultsPerUid[i + 1]);
-      _uidToCurveCalculationMethodName.put(uid, defaultsPerUid[i + 2]);
-      _uidToSurfaceName.put(uid, defaultsPerUid[i + 3]);
+      final String currencyPair = defaultsPercurrencyPair[i];
+      _currencyPairToCurveName.put(currencyPair, defaultsPercurrencyPair[i + 1]);
+      _currencyPairToCurveCalculationMethodName.put(currencyPair, defaultsPercurrencyPair[i + 2]);
+      _currencyPairToSurfaceName.put(currencyPair, defaultsPercurrencyPair[i + 3]);
     }
   }
 
   @Override
-  public abstract boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    final UniqueId uniqueId = target.getUniqueId();
+    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
+      final String currencyPair = uniqueId.getValue();
+      if (_currencyPairToCurveName.containsKey(currencyPair)) {
+        return true;
+      }
+      final String firstCcy = currencyPair.substring(0, 3);
+      final String secondCcy = currencyPair.substring(3, 6);
+      final String reversedCcys = secondCcy + firstCcy;
+      return _currencyPairToCurveName.containsKey(reversedCcys);
+    }
+    return false;
+  }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ValuePropertyNames.SURFACE);
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
+    }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String uid = target.getUniqueId().getValue();
-    final String curveName = _uidToCurveName.get(uid);
+    final String currencyPair = target.getUniqueId().getValue();
+    final String curveName = _currencyPairToCurveName.get(currencyPair);
     if (curveName == null) {
       s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
       return null;
@@ -69,16 +114,13 @@ public abstract class InstrumentSpecificBlackVolatilitySurfaceDefaults extends D
       return Collections.singleton(curveName);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_uidToCurveCalculationMethodName.get(uid));
+      return Collections.singleton(_currencyPairToCurveCalculationMethodName.get(currencyPair));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_uidToSurfaceName.get(uid));
+      return Collections.singleton(_currencyPairToSurfaceName.get(currencyPair));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
   }
 
-  protected Set<String> getUids() {
-    return _uidToCurveName.keySet();
-  }
 }

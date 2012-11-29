@@ -59,6 +59,7 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
   private final String _spaceDirectionInterpolator;
   private final String _discountingCurveName;
 
+  //TODO need a discounting name per uid
   public ForwardPDEDefaults(final String theta, final String nTimeSteps, final String nSpaceSteps, final String timeStepBunching, final String spaceStepBunching,
       final String maxProxyDelta, final String centreMoneyness, final String spaceDirectionInterpolator, final String discountingCurveName) {
     super(ComputationTargetType.SECURITY, true);
