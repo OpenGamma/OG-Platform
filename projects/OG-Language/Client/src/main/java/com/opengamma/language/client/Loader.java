@@ -37,6 +37,7 @@ public class Loader extends ContextInitializationBean {
   private static final Logger s_logger = LoggerFactory.getLogger(Loader.class);
 
   private Configuration _configuration;
+  private String _configMaster = "configMaster";
   private String _positionMaster = "positionMaster";
   private String _portfolioMaster = "portfolioMaster";
   private String _securityMaster = "securityMaster";
@@ -53,6 +54,14 @@ public class Loader extends ContextInitializationBean {
 
   public Configuration getConfiguration() {
     return _configuration;
+  }
+
+  public void setConfigMaster(final String configMaster) {
+    _configMaster = configMaster;
+  }
+
+  public String getConfigMaster() {
+    return _configMaster;
   }
 
   public void setPositionMaster(final String positionMaster) {
@@ -133,6 +142,7 @@ public class Loader extends ContextInitializationBean {
   protected void initContext(final MutableGlobalContext globalContext) {
     s_logger.info("Configuring \"shared\" remote client support");
     final ExternalTargetProvider targets = new ExternalTargetProvider();
+    targets.setConfigMaster(getConfiguration().getURIConfiguration(getConfigMaster()));
     targets.setPositionMaster(getConfiguration().getURIConfiguration(getPositionMaster()));
     targets.setPortfolioMaster(getConfiguration().getURIConfiguration(getPortfolioMaster()));
     targets.setSecurityMaster(getConfiguration().getURIConfiguration(getSecurityMaster()));
