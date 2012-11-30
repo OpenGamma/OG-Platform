@@ -223,7 +223,7 @@ public class BaroneAdesiWhaleyModelTest {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void impliedVol2Test() {
 
     final double s0 = 110;
