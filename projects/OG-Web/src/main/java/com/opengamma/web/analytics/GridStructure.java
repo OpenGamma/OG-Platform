@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The row and column structure of a grid that displays analytics data.
@@ -30,8 +31,9 @@ public interface GridStructure {
   /**
    * @param row The row index
    * @param col The column index
-   * @return The {@link ValueSpecification} for the cell or {@code null} if the cell's value isn't calculated
+   * @return Pair of value spec and calculation config name
    * by the engine
    */
-  ValueSpecification getValueSpecificationForCell(int row, int col);
+  Pair<String, ValueSpecification> getTargetForCell(int row, int col);
+  
 }

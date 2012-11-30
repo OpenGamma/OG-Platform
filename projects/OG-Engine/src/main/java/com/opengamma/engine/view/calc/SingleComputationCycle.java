@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +51,11 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogModeSource;
+import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -440,17 +443,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       if (computedValue == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataSpec);
-        ExecutionLogMode logMode = getLogModeSource().getLogMode(marketDataSpec);
-        ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, "Market data missing from snapshot " + getValuationTime()), logMode);
+        // TODO provide elevated logs if requested from market data providers 
+        ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
+        ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
+        AggregatedExecutionLog aggregatedExecutionLog = new SimpleAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
         computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
-        computedValueResult = new ComputedValueResult(computedValue, executionLog);
+        computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
       } else {
-        computedValueResult = new ComputedValueResult(computedValue, ExecutionLog.EMPTY);
+        computedValueResult = new ComputedValueResult(computedValue, AggregatedExecutionLog.EMPTY);
         fragmentResultModel.addMarketData(computedValueResult);
         fullResultModel.addMarketData(computedValueResult);
       }
       addMarketDataToResults(marketDataSpec, computedValueResult, fragmentResultModel, getResultModel());
-      addToAllCaches(marketDataRequirement, computedValue, cacheMarketDataOperation);
+      addToAllCaches(marketDataRequirement, computedValue, computedValueResult, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
@@ -496,18 +501,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private void addToAllCaches(final ValueRequirement valueRequirement, final ComputedValue dataAsValue, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
+  private void addToAllCaches(final ValueRequirement valueRequirement, final ComputedValue computedValue,
+      final ComputedValueResult computedValueResult, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
     for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
-      if ((dataAsValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
-        cacheValue = dataAsValue;
+      if ((computedValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
+        cacheValue = computedValue;
       } else {
-        final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
-        if (newValue != dataAsValue.getValue()) {
-          cacheValue = new ComputedValue(dataAsValue.getSpecification(), newValue);
+        final Object newValue = cacheMarketData.getValue().apply(valueRequirement, computedValue.getValue());
+        if (newValue != computedValue.getValue()) {
+          cacheValue = new ComputedValue(computedValue.getSpecification(), newValue);
         } else {
-          cacheValue = dataAsValue;
+          cacheValue = computedValue;
         }
       }
       cache.putSharedValue(cacheValue);
@@ -544,10 +550,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
           new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
       final Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
+      final Collection<DependencyNode> nodesToCopy = new LinkedList<DependencyNode>();
       final Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         final DependencyNodeJobExecutionResult previousExecutionResult = previousJobExecutionResultCache.find(unchangedNode.getOutputValues());
-        if (getLogModeSource().getLogMode(unchangedNode.getOutputValues()) == ExecutionLogMode.FULL
+        if (getLogModeSource().getLogMode(unchangedNode) == ExecutionLogMode.FULL
             && (previousExecutionResult == null || previousExecutionResult.getJobResultItem().getExecutionLog().getEvents() == null)) {
           // Need to rerun calculation to collect logs, so cannot reuse
           continue;
@@ -557,6 +564,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           setNodeState(unchangedNode, nodeState);
           if (nodeState == NodeStateFlag.EXECUTED) {
             specsToCopy.addAll(unchangedNode.getOutputValues());
+            nodesToCopy.add(unchangedNode);
           } else {
             for (ValueSpecification outputValue : unchangedNode.getOutputValues()) {
               errors.add(new ComputedValue(outputValue, NotCalculatedSentinel.SUPPRESSED));
@@ -580,7 +588,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           }
           Object previousValue = computedValueResult.getValue() != null ? computedValueResult.getValue() : NotCalculatedSentinel.EVALUATION_ERROR;
           newValues.add(new ComputedValue(valueSpec, previousValue));
-          jobExecutionResultCache.put(valueSpec, previousJobExecutionResultCache.get(valueSpec));
+          DependencyNodeJobExecutionResult previousDependencyNodeJobExecutionResult = previousJobExecutionResultCache.get(valueSpec);
+          jobExecutionResultCache.put(valueSpec, previousDependencyNodeJobExecutionResult);
         }
         cache.putSharedValues(newValues);
       }
@@ -646,7 +655,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       CalculationJobResultItem jobResultItem = itrResultItem.next();
       DependencyNode node = itrNode.next();
       String computeNodeId = executionResult.getResult().getComputeNodeId();
-      DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem);
+      Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
+      for (ValueSpecification inputValueSpec : node.getInputValues()) {
+        DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
+        if (nodeResult == null) {
+          // Market data
+          continue;
+        }
+        inputLogs.add(nodeResult.getAggregatedExecutionLog());
+      }
+      ExecutionLogMode executionLogMode = getLogModeSource().getLogMode(node);
+      ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
+      AggregatedExecutionLog aggregatedExecutionLog = new SimpleAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
+      DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
       processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel, jobExecutionResultCache);
     }
   }
@@ -674,12 +695,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private ComputedValueResult createComputedValueResult(ValueSpecification valueSpec, Object calculatedValue, DependencyNodeJobExecutionResult jobExecutionResult) {
     if (jobExecutionResult == null) {
-      return new ComputedValueResult(valueSpec, calculatedValue, ExecutionLog.EMPTY, null, null, null);
+      return new ComputedValueResult(valueSpec, calculatedValue, AggregatedExecutionLog.EMPTY, null, null, null);
     } else {
       CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
       return new ComputedValueResult(valueSpec,
                                      calculatedValue,
-                                     jobResultItem.getExecutionLog(),
+                                     jobExecutionResult.getAggregatedExecutionLog(),
                                      jobExecutionResult.getComputeNodeId(),
                                      jobResultItem.getMissingInputs(),
                                      jobResultItem.getResult());

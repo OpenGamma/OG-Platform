@@ -321,8 +321,8 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public Response setMinimumLogMode(SetMinimumLogModeRequest request) {
     updateLastAccessed();
     ArgumentChecker.notNull(request.getMinimumLogMode(), "minimumLogMode");
-    ArgumentChecker.notNull(request.getResultSpecifications(), "resultSpecifications");
-    getViewClient().setMinimumLogMode(request.getMinimumLogMode(), request.getResultSpecifications());
+    ArgumentChecker.notNull(request.getTargets(), "targets");
+    getViewClient().setMinimumLogMode(request.getMinimumLogMode(), request.getTargets());
     return responseOk();
   }
   

@@ -566,7 +566,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       }
     };
     SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess(), versionCorrection);
+        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess().getExecutionLogModeSource(), versionCorrection);
     return getCycleManager().manage(cycle);
   }
 

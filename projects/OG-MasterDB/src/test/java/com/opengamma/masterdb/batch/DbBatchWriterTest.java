@@ -52,7 +52,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -524,7 +524,7 @@ public class DbBatchWriterTest extends DbTest {
     ComputationTargetSpecification computationTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
     ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "asd").get();
     ValueSpecification valueSpec = new ValueSpecification("value", computationTargetSpec, properties);
-    ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, ExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
+    ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, AggregatedExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
     //cvr.setRequirements(newHashSet(_requirement));
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
@@ -536,7 +536,7 @@ public class DbBatchWriterTest extends DbTest {
     _batchMaster.createMarketData(marketDataUid);            
     RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    ComputedValueResult cvr = new ComputedValueResult(_specification, 1000.0, ExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
+    ComputedValueResult cvr = new ComputedValueResult(_specification, 1000.0, AggregatedExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
     //cvr.setRequirements(newHashSet(_requirement));
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);

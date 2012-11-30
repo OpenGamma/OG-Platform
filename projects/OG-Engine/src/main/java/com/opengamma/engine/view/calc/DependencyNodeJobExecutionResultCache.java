@@ -16,14 +16,14 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class DependencyNodeJobExecutionResultCache {
 
-  private final Map<ValueSpecification, DependencyNodeJobExecutionResult> _resultMap = new ConcurrentHashMap<ValueSpecification, DependencyNodeJobExecutionResult>();
+  private final Map<ValueSpecification, DependencyNodeJobExecutionResult> _resultsBySpec = new ConcurrentHashMap<ValueSpecification, DependencyNodeJobExecutionResult>();
   
   public void put(ValueSpecification valueSpec, DependencyNodeJobExecutionResult jobExecutionResult) {
-    _resultMap.put(valueSpec, jobExecutionResult);
+    _resultsBySpec.put(valueSpec, jobExecutionResult);
   }
   
   public DependencyNodeJobExecutionResult get(ValueSpecification valueSpec) {
-    return _resultMap.get(valueSpec);
+    return _resultsBySpec.get(valueSpec);
   }
   
   /**
@@ -36,7 +36,7 @@ public class DependencyNodeJobExecutionResultCache {
    */
   public DependencyNodeJobExecutionResult find(Set<ValueSpecification> valueSpecs) {
     for (ValueSpecification valueSpec : valueSpecs) {
-      DependencyNodeJobExecutionResult result = _resultMap.get(valueSpec);
+      DependencyNodeJobExecutionResult result = _resultsBySpec.get(valueSpec);
       if (result != null) {
         return result;
       }

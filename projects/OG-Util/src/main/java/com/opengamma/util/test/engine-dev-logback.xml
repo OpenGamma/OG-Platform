@@ -8,7 +8,7 @@
   
   <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
 
-  <root level="warn">
+  <root level="info">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="BRIDGE" />
   </root>

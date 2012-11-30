@@ -5,14 +5,13 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +26,6 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
@@ -132,11 +130,9 @@ public class ExecutionPlanTest {
     return graph;
   }
 
-  @SuppressWarnings("unchecked")
   private ExecutionLogModeSource createLogModeSource() {
     ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
-    when(logModeSource.getLogMode(any(ValueSpecification.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     return logModeSource;
   }
   

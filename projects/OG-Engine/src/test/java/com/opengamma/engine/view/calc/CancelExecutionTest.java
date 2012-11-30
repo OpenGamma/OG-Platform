@@ -211,7 +211,7 @@ public class CancelExecutionTest {
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new SimplePortfolio("Test Portfolio"), 0);
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(Instant.ofEpochMillis(1), new MarketDataSpecification());
     ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);

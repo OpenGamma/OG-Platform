@@ -6,7 +6,7 @@
 package com.opengamma.web.analytics;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -28,6 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -51,22 +52,23 @@ public class LoggingViewportListenerTest {
     LoggingViewportListener listener = new LoggingViewportListener(viewClient);
     ViewportDefinition viewportDef = viewportDef(true, _cells12);
     listener.viewportCreated(viewportDef, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, valueSpecs(_cells12));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cells12));
     listener.viewportDeleted(viewportDef, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, valueSpecs(_cells12));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cells12));
   }
 
   /**
    * creates a deletes a viewport with no logging enabled
    */
   @Test
+  @SuppressWarnings("unchecked")
   public void createDeleteNoLogging() {
     ViewClient viewClient = mock(ViewClient.class);
     LoggingViewportListener listener = new LoggingViewportListener(viewClient);
     ViewportDefinition viewportDef = viewportDef(false, _cells12);
     listener.viewportCreated(viewportDef, _gridStructure);
     listener.viewportDeleted(viewportDef, _gridStructure);
-    verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySetOf(ValueSpecification.class));
+    verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySet());
   }
 
   @Test
@@ -75,18 +77,19 @@ public class LoggingViewportListenerTest {
     LoggingViewportListener listener = new LoggingViewportListener(viewClient);
     ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
     listener.viewportCreated(viewportDef1, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, valueSpecs(_cells12));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cells12));
 
     ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
     listener.viewportUpdated(viewportDef1, viewportDef2, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, valueSpecs(_cell1));
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, valueSpecs(_cell3));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cell1));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cell3));
 
     listener.viewportDeleted(viewportDef2, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, valueSpecs(_cells23));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cells23));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void createUpdateDeleteNoLogging() {
     ViewClient viewClient = mock(ViewClient.class);
     LoggingViewportListener listener = new LoggingViewportListener(viewClient);
@@ -95,7 +98,7 @@ public class LoggingViewportListenerTest {
     ViewportDefinition viewportDef2 = viewportDef(false, _cells23);
     listener.viewportUpdated(viewportDef1, viewportDef2, _gridStructure);
     listener.viewportDeleted(viewportDef2, _gridStructure);
-    verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySetOf(ValueSpecification.class));
+    verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySet());
   }
 
   @Test
@@ -105,13 +108,13 @@ public class LoggingViewportListenerTest {
     ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
     ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
     listener.viewportCreated(viewportDef1, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, valueSpecs(_cell1, _cell2));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cell1, _cell2));
     listener.viewportCreated(viewportDef2, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, valueSpecs(_cell3));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cell3));
     listener.viewportDeleted(viewportDef1, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, valueSpecs(_cell1));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cell1));
     listener.viewportDeleted(viewportDef2, _gridStructure);
-    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, valueSpecs(_cell2, _cell3));
+    verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cell2, _cell3));
   }
 // -----------------------------------------------------------------------------------
 
@@ -130,28 +133,28 @@ public class LoggingViewportListenerTest {
   private static GridStructure gridStructure(List<GridCell> cells) {
     GridStructure mock = mock(GridStructure.class);
     for (GridCell cell : cells) {
-      when(mock.getValueSpecificationForCell(cell.getRow(), cell.getColumn())).thenReturn(valueSpec(cell));
+      when(mock.getTargetForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
     }
     return mock;
   }
 
-  private static ValueSpecification valueSpec(GridCell cell) {
+  private static Pair<String, ValueSpecification> target(GridCell cell) {
     int row = cell.getRow();
     int col = cell.getColumn();
     ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.POSITION,
                                                                                UniqueId.of("Cell", row + "," + col));
     ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "fnName").get();
-    return new ValueSpecification("valueName(" + row + "," + col + ")", target, properties);
+    return Pair.of("Default", new ValueSpecification("valueName(" + row + "," + col + ")", target, properties));
   }
 
-  private Set<ValueSpecification> valueSpecs(GridCell... cells) {
-    return valueSpecs(Arrays.asList(cells));
+  private Set<Pair<String, ValueSpecification>> resultSpecs(GridCell... cells) {
+    return resultSpecs(Arrays.asList(cells));
   }
 
-  private Set<ValueSpecification> valueSpecs(List<GridCell> cells) {
-    Set<ValueSpecification> specs = Sets.newHashSet();
+  private Set<Pair<String, ValueSpecification>> resultSpecs(List<GridCell> cells) {
+    Set<Pair<String, ValueSpecification>> specs = Sets.newHashSet();
     for (GridCell cell : cells) {
-      specs.add(valueSpec(cell));
+      specs.add(target(cell));
     }
     return specs;
   }

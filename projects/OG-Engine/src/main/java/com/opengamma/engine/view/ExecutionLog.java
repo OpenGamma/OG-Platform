@@ -14,28 +14,29 @@ import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 
 /**
- * Provides access to the log events which occurred during some execution.
+ * Provides access to the log events which occurred during an individual execution.
  * <p>
  * These are summarised as error, warning and information indicators, although the full list of events may contain any
  * level of log event.
  */
 @PublicAPI
 public interface ExecutionLog {
-  
+
   /**
    * An empty execution log.
    */
   ExecutionLog EMPTY = EmptyExecutionLog.INSTANCE;
-
+  //-------------------------------------------------------------------------
+  
   /**
-   * The levels of log events in this log, not null.
+   * Gets the levels of log events which occurred during the execution.
    *
-   * @return The levels of log events in this log, not null.
+   * @return the levels of log events, not null.
    */
   EnumSet<LogLevel> getLogLevels();
 
   /**
-   * Gets the log events, if these have been collected.
+   * Gets the log events which occurred during the execution, if these have been collected.
    *  
    * @return an ordered list of log events, null if not collected
    */

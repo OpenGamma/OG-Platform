@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.log.LogEvent;
@@ -34,6 +35,9 @@ import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormat
  */
 public class ViewportResultsJsonWriter {
 
+  /**
+   * Version field
+   */
   public static final String VERSION = "version";
 
   private static final String VALUE = "v";
@@ -72,7 +76,7 @@ public class ViewportResultsJsonWriter {
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
       DataType columnFormat = _formatter.getDataType(columnType);
       Map<String, Object> valueMap = Maps.newHashMap();
-      ExecutionLog executionLog = cell.getExecutionLog();
+      AggregatedExecutionLog executionLog = cell.getExecutionLog();
       LogLevel logLevel = minLogLevel(executionLog);
 
       valueMap.put(VALUE, formattedValue);
@@ -111,7 +115,7 @@ public class ViewportResultsJsonWriter {
     return value instanceof MissingInput;
   }
 
-  private static LogLevel minLogLevel(ExecutionLog log) {
+  private static LogLevel minLogLevel(AggregatedExecutionLog log) {
     if (log == null) {
       return null;
     }
@@ -124,29 +128,33 @@ public class ViewportResultsJsonWriter {
     return logLevelList.get(logLevelList.size() - 1);
   }
 
-  private static boolean hasLogOutput(ExecutionLog log) {
-    if (log == null) {
+  private static boolean hasLogOutput(AggregatedExecutionLog aggregatedLog) {
+    // NOTE jonathan 2012-11-30 -- restored previous behaviour against new API, so only looks at the root log.
+    if (aggregatedLog == null || aggregatedLog.getRootLog() == null || aggregatedLog.getRootLog().getExecutionLog() == null) {
       return false;
     }
-    if (log.hasException()) {
+    ExecutionLog rootLog = aggregatedLog.getRootLog().getExecutionLog();
+    if (rootLog.hasException()) {
       return true;
     }
-    if (log.getEvents() != null && !log.getEvents().isEmpty()) {
+    if (rootLog.getEvents() != null && !rootLog.getEvents().isEmpty()) {
       return true;
     }
     return false;
   }
 
-  private static Map<String, Object> formatLogOutput(ExecutionLog log) {
+  private static Map<String, Object> formatLogOutput(AggregatedExecutionLog aggregatedLog) {
+    // NOTE jonathan 2012-11-30 -- restored previous behaviour against new API, so only looks at the root log.
     Map<String, Object> output = Maps.newHashMap();
-    if (log.hasException()) {
-      output.put(EXCEPTION_CLASS, log.getExceptionClass());
-      output.put(EXCEPTION_MESSAGE, log.getExceptionMessage());
-      output.put(EXCEPTION_STACK_TRACE, log.getExceptionStackTrace());
+    ExecutionLog rootLog = aggregatedLog.getRootLog().getExecutionLog();
+    if (rootLog.hasException()) {
+      output.put(EXCEPTION_CLASS, rootLog.getExceptionClass());
+      output.put(EXCEPTION_MESSAGE, rootLog.getExceptionMessage());
+      output.put(EXCEPTION_STACK_TRACE, rootLog.getExceptionStackTrace());
     }
-    if (log.getEvents() != null && !log.getEvents().isEmpty()) {
+    if (rootLog.getEvents() != null && !rootLog.getEvents().isEmpty()) {
       List<Map<String, Object>> events = Lists.newArrayList();
-      for (LogEvent logEvent : log.getEvents()) {
+      for (LogEvent logEvent : rootLog.getEvents()) {
         events.add(ImmutableMap.<String, Object>of(LEVEL, logEvent.getLevel(), MESSAGE, logEvent.getMessage()));
       }
       output.put(EVENTS, events);

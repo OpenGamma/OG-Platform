@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Listens for changes to viewports and updates the logging configuration in the {@link ViewClient}.
@@ -25,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    *
    */
-  private final Map<ValueSpecification, Integer> _refCounts = Maps.newHashMap();
+  private final Map<Pair<String, ValueSpecification>, Integer> _refCounts = Maps.newHashMap();
 
   /* package */ LoggingViewportListener(ViewClient viewClient) {
     ArgumentChecker.notNull(viewClient, "viewClient");
@@ -40,9 +41,9 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private void enableLogging(ViewportDefinition viewportDef, GridStructure gridStructure) {
-    Set<ValueSpecification> newVals = Sets.newHashSet();
+    Set<Pair<String, ValueSpecification>> newVals = Sets.newHashSet();
     for (GridCell cell : viewportDef) {
-      ValueSpecification valueSpec = gridStructure.getValueSpecificationForCell(cell.getRow(), cell.getColumn());
+      Pair<String, ValueSpecification> valueSpec = gridStructure.getTargetForCell(cell.getRow(), cell.getColumn());
       Integer refCount = _refCounts.get(valueSpec);
       Integer newRefCount;
       if (refCount == null) {
@@ -64,69 +65,69 @@ import com.opengamma.util.ArgumentChecker;
       Set<GridCell> newCells = Sets.newHashSet(newDef.iterator());
       Set<GridCell> cellsRemoved = Sets.difference(currentCells, newCells);
       Set<GridCell> cellsAdded = Sets.difference(newCells, currentCells);
-      enableLogging(valueSpecsFor(cellsAdded.iterator(), gridStructure));
-      disableLogging(valueSpecsFor(cellsRemoved.iterator(), gridStructure));
+      enableLogging(targetsFor(cellsAdded.iterator(), gridStructure));
+      disableLogging(targetsFor(cellsRemoved.iterator(), gridStructure));
     } else if (!currentDef.enableLogging() && newDef.enableLogging()) {
       // no logging for current viewport, increase log level for all cells
-      enableLogging(valueSpecsFor(newDef.iterator(), gridStructure));
+      enableLogging(targetsFor(newDef.iterator(), gridStructure));
     } else if (currentDef.enableLogging() && !newDef.enableLogging()) {
       // reduce logging level for all cells in current viewport
-      disableLogging(valueSpecsFor(currentDef.iterator(), gridStructure));
+      disableLogging(targetsFor(currentDef.iterator(), gridStructure));
     }
   }
 
-  private Set<ValueSpecification> valueSpecsFor(Iterator<GridCell> cellIterator, GridStructure gridStructure) {
-    Set<ValueSpecification> valueSpecs = Sets.newHashSet();
+  private Set<Pair<String, ValueSpecification>> targetsFor(Iterator<GridCell> cellIterator, GridStructure gridStructure) {
+    Set<Pair<String, ValueSpecification>> targets = Sets.newHashSet();
     while (cellIterator.hasNext()) {
       GridCell cell = cellIterator.next();
-      valueSpecs.add(gridStructure.getValueSpecificationForCell(cell.getRow(), cell.getColumn()));
+      targets.add(gridStructure.getTargetForCell(cell.getRow(), cell.getColumn()));
     }
-    return valueSpecs;
+    return targets;
   }
 
   @Override
   public void viewportDeleted(ViewportDefinition viewportDef, GridStructure gridStructure) {
     if (viewportDef.enableLogging()) {
-      disableLogging(valueSpecsFor(viewportDef.iterator(), gridStructure));
+      disableLogging(targetsFor(viewportDef.iterator(), gridStructure));
     }
   }
 
   /**
    * Increments the ref count for the value specs and returns the set of specs whose ref count was previously zero.
-   * @param valuesSpecs The referenced specs
+   * @param targets The referenced specs
    */
-  private void enableLogging(Set<ValueSpecification> valuesSpecs) {
-    Set<ValueSpecification> newlyReferenced = Sets.newHashSet();
-    for (ValueSpecification valueSpec : valuesSpecs) {
-      Integer refCount = _refCounts.get(valueSpec);
+  private void enableLogging(Set<Pair<String, ValueSpecification>> targets) {
+    Set<Pair<String, ValueSpecification>> newlyReferenced = Sets.newHashSet();
+    for (Pair<String, ValueSpecification> target : targets) {
+      Integer refCount = _refCounts.get(target);
       Integer newRefCount;
       if (refCount == null) {
         newRefCount = 1;
-        newlyReferenced.add(valueSpec);
+        newlyReferenced.add(target);
       } else {
         newRefCount = refCount + 1;
       }
-      _refCounts.put(valueSpec, newRefCount);
+      _refCounts.put(target, newRefCount);
     }
     _viewClient.setMinimumLogMode(ExecutionLogMode.FULL, newlyReferenced);
   }
 
   /**
    * Decrements the ref count for the value specs and returns the set of specs whose ref count is now zero.
-   * @param valuesSpecs The referenced specs
+   * @param targets The referenced specs
    */
-  private void disableLogging(Set<ValueSpecification> valuesSpecs) {
-    Set<ValueSpecification> dereferenced = Sets.newHashSet();
-    for (ValueSpecification valueSpec : valuesSpecs) {
-      Integer refCount = _refCounts.get(valueSpec);
+  private void disableLogging(Set<Pair<String, ValueSpecification>> targets) {
+    Set<Pair<String, ValueSpecification>> dereferenced = Sets.newHashSet();
+    for (Pair<String, ValueSpecification> target : targets) {
+      Integer refCount = _refCounts.get(target);
       Integer newRefCount;
       if (refCount != null) {
         if (refCount.equals(1)) {
-          _refCounts.remove(valueSpec);
-          dereferenced.add(valueSpec);
+          _refCounts.remove(target);
+          dereferenced.add(target);
         } else {
           newRefCount = refCount - 1;
-          _refCounts.put(valueSpec, newRefCount);
+          _refCounts.put(target, newRefCount);
         }
       }
     }
