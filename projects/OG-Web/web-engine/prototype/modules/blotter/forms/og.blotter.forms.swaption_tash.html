@@ -5,32 +5,16 @@
         <col style="width: 30%">              
         <col style="width: 70%">              
       </colgroup>
-      <thead>
-        <tr>
-          <th>
-            <span><em>Swaption</em></span>
-          </th>
-          <th></th>
-        </tr>
-      </thead>
       <tbody>
         <tr>
           <td>
+            <span>Settlement</span>
           </td>
           <td>
-            Long <input type="radio" name="name" value="long">
-            Short <input type="radio" name="name" value="short">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Settlement</span>
-            </label>
-          </td>
-          <td>
-            Cash <input type="radio" name="name" value="cash">
-            Swap <input type="radio" name="name" value="swap">
+            <label>Long <input type="radio" name="name1" value="long"></label>
+            <label>Short <input type="radio" name="name1" value="short"></label>            
+            <label>Cash <input type="radio" name="name2" value="cash"></label>
+            <label>Swap <input type="radio" name="name2" value="swap"></label>
           </td>
         </tr>
         <tr>
@@ -59,35 +43,21 @@
               <span>Premium</span>
             </label>
           </td>
-          <td>
-            <input name="" type="text" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Premium Currency</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Premium Date</span>
-            </label>
-          </td>
-          <td>
-            <input name="" type="text" />
+          <td class="og-triple-cell">
+            <input name="" type="text" placeholder="Amount"/>
+            <select>
+              <option value="" selected disabled="disabled">Currency</option>
+            </select>
+            <input name="" type="text" placeholder="Date"/>
           </td>
         </tr>
       </tbody>
     </table>
   </section>
-  <div>{{{item_0}}}</div>
-  <div>{{{item_1}}}</div>
-  <div>{{{item_2}}}</div>
-  <div>{{{item_3}}}</div>
+  {{{item_0}}}
+  <section>
+    {{{item_1}}}
+    {{{item_2}}}
+    {{{item_3}}}
+  <section>
 </div>

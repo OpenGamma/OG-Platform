@@ -32,7 +32,7 @@ $.register_module({
                     }) ,
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                        extras: {}
+                        extras: {swaption:true}
                     })    
                 );
                 form.dom();

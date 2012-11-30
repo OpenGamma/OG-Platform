@@ -2,8 +2,8 @@
  * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-blotter-form-block{
-	padding: 10px;
+.OG-blotter-form-block section{
+	margin-bottom:10px;
 }
 .OG-blotter-dialog input[type="text"]{
 	width: 50%
@@ -11,10 +11,17 @@
 .OG-blotter-dialog select{
 	width: 50%
 } 
-.OG-blotter-form-block .og-triple-cell input,
+.OG-blotter-form-block .og-triple-cell input[type="text"],
 .OG-blotter-form-block .og-triple-cell select {
-	width: 30%;
+	width: 31%;
+}
+.OG-blotter-form-block .og-double-cell input[type="text"],
+.OG-blotter-form-block .og-double-cell select {
+	width: 47%;
 }
 .OG-blotter-form-block .OG-table{
 	margin-top: 2px;
+}
+.OG-blotter-form-block label{
+	display: inline;
 }
