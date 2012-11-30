@@ -12,12 +12,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.IR01LegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
 import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
@@ -39,14 +40,13 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Test of the implementation of the valuation model for a CDS
+ * Test of the implementation of the IR01 calculations for a legacy CDS
  */
-public class PresentValueLegacyCreditDefaultSwapTest {
+public class IR01LegacyCreditDefaultSwapTest {
 
-  // ----------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------
 
   // TODO : Add all the tests
-  // TODO : Fix the time decay test
 
   // ----------------------------------------------------------------------------------
 
@@ -127,9 +127,9 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = false;
-  private static final boolean adjustEffectiveDate = false;
-  private static final boolean adjustMaturityDate = false;
+  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = true;
+  private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
@@ -154,20 +154,20 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   final ZonedDateTime baseDate = ZonedDateTime.of(baseDateYear, baseDateMonth, baseDateDay, 0, 0, 0, 0, TimeZone.UTC);
 
   double[] times = {
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),   // 1M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),   // 2M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),   // 3M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),    // 6M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 6, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 9M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 12M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 18M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 2Y
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 30M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 3Y
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 42M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),    // 4Y
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),    // 54M
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),    // 5Y
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 6, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
@@ -391,209 +391,71 @@ public class PresentValueLegacyCreditDefaultSwapTest {
   // -----------------------------------------------------------------------------------------------
 
   @Test
-  public void testPresentValueLegacyCreditDefaultSwapAdHoc() {
+  public void testIR01CalculationParallelShift() {
 
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running Ad-hoc CDS PV test  ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Set the valuation date on which to compute the CDS MtM
-    final ZonedDateTime rollingDate = valuationDate;
-
-    // Build the valuation CDS from the baseline CDS object
-    final LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // Calculate the CDS MtM
-    final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
+    // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("CDS PV = " + "\t" + presentValue);
+      System.out.println("Running parallel IR01 calculation test ...");
     }
 
-    // -----------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------
+
+    // Define the market data to calibrate to
+
+    // The type of spread bump to apply
+    final InterestRateBumpType interestRateBumpType = InterestRateBumpType.ADDITIVE_PARALLEL;
+
+    // The number of CDS instruments used to calibrate against
+    final int numberOfCalibrationCDS = 8;
+
+    // The flat spread
+    final double flatSpread = 550.0;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
+    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
+    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
+    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2013, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2015, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2018, 6, 20);
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    marketSpreads[0] = flatSpread;
+    marketSpreads[1] = flatSpread;
+    marketSpreads[2] = flatSpread;
+    marketSpreads[3] = flatSpread;
+    marketSpreads[4] = flatSpread;
+    marketSpreads[5] = flatSpread;
+    marketSpreads[6] = flatSpread;
+    marketSpreads[7] = flatSpread;
+
+    // The magnitude (but not direction) of bump to apply (in bps)
+    final double interestRateBump = 1.0;
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a CS01 calculator object
+    final IR01LegacyCreditDefaultSwap ir01 = new IR01LegacyCreditDefaultSwap();
+
+    // Compute the IR01 for a parallel shift
+    final double parallelIR01 = ir01.getIR01ParallelShiftCreditDefaultSwap(valuationDate, cds, yieldCurve, tenors, marketSpreads, interestRateBump, interestRateBumpType, priceType);
+
+    // -------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      System.out.println("CDS IR01 = " + parallelIR01);
+    }
+
+    // -------------------------------------------------------------------------------------
   }
 
   // -----------------------------------------------------------------------------------------------
 
-  //@Test
-  public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivity() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS Recovery Rate Sensitivity test  ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    for (double testRecoveryRate = 0.0; testRecoveryRate <= 1.0; testRecoveryRate += 0.1) {
-
-      valuationCDS = valuationCDS.withRecoveryRate(testRecoveryRate);
-
-      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
-
-      if (outputResults) {
-        System.out.println("Recovery Rate = " + "\t" + testRecoveryRate + "\t" + "CDS PV = " + "\t" + presentValue);
-      }
-
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  //@Test
-  public void testPresentValueLegacyCreditDefaultSwapSpreadSensitivity() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS Spread Sensitivity test  ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    double testSpread = 0.0;
-
-    valuationCDS = valuationCDS.withSpread(testSpread);
-
-    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
-
-    if (outputResults) {
-      System.out.println("Spread = " + "\t" + testSpread + "\t" + "CDS PV = " + "\t" + presentValue);
-    }
-
-    for (testSpread = 10.0; testSpread <= 1.0e6; testSpread *= 10.0) {
-
-      valuationCDS = valuationCDS.withSpread(testSpread);
-
-      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
-
-      if (outputResults) {
-        System.out.println("Spread = " + "\t" + testSpread + "\t" + "CDS PV = " + "\t" + presentValue);
-      }
-
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  //@Test
-  public void testPresentValueLegacyCreditDefaultSwapTimeDecay() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS PV time decay test ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    final LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // -----------------------------------------------------------------------------------------------
-
-    // start at the initial valuation date
-    ZonedDateTime rollingdate = valuationDate.minusDays(1);
-
-    // Specify the end date
-    final ZonedDateTime endDate = maturityDate.plusDays(3);
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Main loop of test
-
-    while (rollingdate.isBefore(endDate)) {
-
-      // Roll the current valuation date
-      rollingdate = rollingdate.plusDays(1);
-
-      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingdate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
-
-      // Output results
-      if (outputResults) {
-        System.out.println(rollingdate + "\t" + presentValue);
-      }
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  //@Test
-  public void testPresentValueLegacyCreditDefaultSwapIncreasingMaturity() {
-
-    // -----------------------------------------------------------------------------------------------
-
-    if (outputResults) {
-      System.out.println("Running CDS increasing maturity test ...");
-    }
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // -----------------------------------------------------------------------------------------------
-
-    // start at the initial valuation date
-    ZonedDateTime rollingMaturityDate = valuationDate.plusDays(1);
-
-    // Specify the end date
-    final ZonedDateTime endDate = valuationDate.plusDays(4001);
-
-    // -----------------------------------------------------------------------------------------------
-
-    // Main loop of test
-
-    while (rollingMaturityDate.isBefore(endDate)) {
-
-      // Roll the current valuation date
-      rollingMaturityDate = rollingMaturityDate.plusDays(1);
-
-      // Modify the CDS's valuation date
-      valuationCDS = valuationCDS.withMaturityDate(rollingMaturityDate);
-
-      final double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, hazardRateCurve, priceType);
-
-      // Output results
-      if (outputResults) {
-        System.out.println(rollingMaturityDate + "\t" + presentValue);
-      }
-    }
-
-    // -----------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
 }

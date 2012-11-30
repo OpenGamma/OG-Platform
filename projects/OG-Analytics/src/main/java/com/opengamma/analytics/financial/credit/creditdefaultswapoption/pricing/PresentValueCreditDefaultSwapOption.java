@@ -30,6 +30,7 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to sort out the calculation of the forward starting spread
   // TODO : Need to check through this model in detail
   // TODO : Sort out if we need the 'PriceType' field
+  // TODO : Need to add error checking for d1 and d2 calculations
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -61,6 +62,8 @@ public class PresentValueCreditDefaultSwapOption {
 
     double presentValue = 0.0;
     double frontendProtection = 0.0;
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     double optionStrike = cdsSwaption.getOptionStrike();
 
@@ -101,7 +104,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double calculateRiskydV01(final ZonedDateTime valuationDate,
+  private double calculateRiskydV01(
+      final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
@@ -113,7 +117,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double calculateForwardSpread(final ZonedDateTime valuationDate,
+  private double calculateForwardSpread(
+      final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
@@ -125,7 +130,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double calculateFrontendProtection(final ZonedDateTime valuationDate,
+  private double calculateFrontendProtection(
+      final ZonedDateTime valuationDate,
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
