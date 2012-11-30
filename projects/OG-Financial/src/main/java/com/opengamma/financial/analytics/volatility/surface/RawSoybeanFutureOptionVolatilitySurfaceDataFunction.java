@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics.volatility.surface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -29,8 +29,7 @@ public class RawSoybeanFutureOptionVolatilitySurfaceDataFunction extends RawVola
       return false;
     }
     final String targetScheme = target.getUniqueId().getScheme();
-    return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    return Currency.OBJECT_SCHEME.equals(targetScheme);
 
   }
 
