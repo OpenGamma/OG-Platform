@@ -27,14 +27,15 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
+import com.opengamma.financial.analytics.model.commodity.CommodityForwardCurveFromFutureCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveMarketDataFunction;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveFromMarketQuotesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveMarketDataFunction;
+import com.opengamma.financial.analytics.model.curve.forward.InterpolatedForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.future.BondFuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.CommodityFuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.IRFuturePriceCurveFunction;
@@ -138,7 +139,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     }
 
     addNewVolatilityCubeFunction(configs);
-    addForwardSwapCurveFunction(configs);
+    addForwardCurveFunction(configs);
   }
 
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {
@@ -160,11 +161,13 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
             "CHF", "DefaultTwoCurveCHFConfig", "Discounting")));
   }
   
-  private void addForwardSwapCurveFunction(final List<FunctionConfiguration> configs) {
+  private void addForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveMarketDataFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveFromMarketQuotesFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(ForwardSwapCurveFromMarketQuotesDefaults.class.getName(), Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));
+    configs.add(new StaticFunctionConfiguration(CommodityForwardCurveFromFutureCurveFunction.class.getName()));
+    configs.add(new ParameterizedFunctionConfiguration(InterpolatedForwardCurveDefaults.class.getName(), Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));
   }
+
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(IRFuturePriceCurveFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(BondFuturePriceCurveFunction.class.getName()));
@@ -190,6 +193,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         "ForwardSwapQuotes", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator");
     configs.add(new ParameterizedFunctionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingDefaults.class.getName(), defaults));
   }
+
   //-------------------------------------------------------------------------
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());

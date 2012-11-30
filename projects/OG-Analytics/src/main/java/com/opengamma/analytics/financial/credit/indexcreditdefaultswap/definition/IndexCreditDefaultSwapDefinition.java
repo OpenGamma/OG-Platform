@@ -70,6 +70,9 @@ public class IndexCreditDefaultSwapDefinition {
 
   // Member variables (all private and final) of the CDS index swap contract (defines what a CDS index swap is)
 
+  // The name of the index e.g. Bespoke_1
+  private final String _indexName;
+
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
@@ -157,7 +160,9 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   //Constructor for a CDS index swap definition object (all fields are user specified)
-  public IndexCreditDefaultSwapDefinition(final BuySellProtection buySellProtection,
+  public IndexCreditDefaultSwapDefinition(
+      final String indexName,
+      final BuySellProtection buySellProtection,
       final Obligor protectionBuyer,
       final Obligor protectionSeller,
       final UnderlyingPool underlyingPool,
@@ -188,6 +193,8 @@ public class IndexCreditDefaultSwapDefinition {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
+
+    ArgumentChecker.notNull(indexName, "Index name");
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell");
 
@@ -225,6 +232,8 @@ public class IndexCreditDefaultSwapDefinition {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Initialise the member variables for the CDS index object
+
+    _indexName = indexName;
 
     _buySellProtection = buySellProtection;
 
@@ -312,6 +321,10 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public member accessor methods
+
+  public String getIndexName() {
+    return _indexName;
+  }
 
   public BuySellProtection getBuySellProtection() {
     return _buySellProtection;

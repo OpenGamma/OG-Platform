@@ -137,9 +137,13 @@ public final class CSVDocumentReader implements Iterable<FudgeMsg> {
     public FudgeMsg next() {
       MutableFudgeMsg currentMsg = s_fudgeContext.newMessage();
       for (int i = 0; i < _header.length; i++) {
-        String currentRow = StringUtils.trimToNull(_currentRow[i]);
-        if (currentRow != null) {
-          currentMsg.add(_header[i], currentRow);
+        try {
+          String currentRow = StringUtils.trimToNull(_currentRow[i]);
+          if (currentRow != null) {
+            currentMsg.add(_header[i], currentRow);
+          }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+          // do nothing, current row has less columns compared to header
         }
       }
       return currentMsg;

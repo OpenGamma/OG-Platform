@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.csv;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -39,12 +44,21 @@ public class CSVDocumentReaderTest {
     row.add("JobTitle", "CQO");
     _expectedRows.add(row);
     
+    row = s_fudgeContext.newMessage();
+    row.add("Name", "Andrew");
+    row.add("JobTitle", "Engineer");
+    _expectedRows.add(row);
+    
+    row = s_fudgeContext.newMessage();
+    row.add("Name", "Alan");
+    _expectedRows.add(row);
+    
   }
   
   public void csvReader() {
     List<FudgeMsg> actualRows = Lists.newArrayList();
     
-    CSVDocumentReader reader = new CSVDocumentReader(CSVDocumentReaderTest.class.getResource("TestCSV.txt"));
+    CSVDocumentReader reader = new CSVDocumentReader(CSVDocumentReaderTest.class.getResource("test_csv_document_read.csv"));
     for (FudgeMsg row : reader) {
       actualRows.add(row);
     }

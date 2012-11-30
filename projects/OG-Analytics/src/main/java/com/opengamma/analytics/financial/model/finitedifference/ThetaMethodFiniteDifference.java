@@ -328,7 +328,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         setA(i - 1, _coefficients.getA(getT2(), x));
         setB(i - 1, _coefficients.getB(getT2(), x));
         setC(i - 1, _coefficients.getC(getT2(), x));
-        //TODO R White 4/08/2011 change this back debug
+        //TODO R White 19/09/2012 change this back debug
         //setRho(i - 1, getA(i - 1));
         setRho(i - 1, getFittingParameter(getGrid(), getA(i - 1), getB(i - 1), i));
       }

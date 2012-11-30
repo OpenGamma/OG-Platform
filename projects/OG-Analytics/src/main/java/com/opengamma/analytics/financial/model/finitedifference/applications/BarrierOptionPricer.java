@@ -168,6 +168,7 @@ public class BarrierOptionPricer {
     PDEResults1D res = SOLVER.solve(pdeData);
     //for now just do linear interpolation on price. TODO replace this with something more robust 
     final double[] xNodes = grid.getSpaceNodes();
+
     final int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, spot);
     final double w = (xNodes[index + 1] - spot) / (xNodes[index + 1] - xNodes[index]);
     return w * res.getFunctionValue(index) + (1 - w) * res.getFunctionValue(index + 1);

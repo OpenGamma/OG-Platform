@@ -30,7 +30,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * 
+ *
  */
 public class ScriptsGenerator {
 
@@ -44,16 +44,22 @@ public class ScriptsGenerator {
       Map<String, Object> templateData = newHashMap();
       templateData.put("className", className);
       templateData.put("project", project.replaceFirst("(?i)og-", "").toLowerCase());
-      Template template = cfg.getTemplate("script-template.ftl");
-      generate(className, scriptDir, template, templateData);
+      Template winTemplate = cfg.getTemplate("script-template-win.ftl");
+      generate(className, scriptDir, winTemplate, templateData, true);      
+      Template nixTemplate = cfg.getTemplate("script-template.ftl");
+      generate(className, scriptDir, nixTemplate, templateData, false);
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
-  
-  public static void generate(String className, File scriptDir, Template template, Object templateData) {
+
+  public static void generate(String className, File scriptDir, Template template, Object templateData, boolean windows) {
     String scriptName = scriptName(className);
-    File outputFile = new File(scriptDir + File.separator + scriptName + ".sh");
+    File outputFile;
+    if (windows)
+      outputFile = new File(scriptDir + File.separator + scriptName + ".bat");
+    else
+      outputFile = new File(scriptDir + File.separator + scriptName + ".sh");
     writeScriptFile(outputFile, template, templateData);
   }
 
@@ -70,12 +76,12 @@ public class ScriptsGenerator {
             return !s.equals("");
           }
         }),
-        new Function1<String, String>() {
-          @Override
-          public String execute(String s) {
-            return s.toLowerCase();
-          }
-        });
+      new Function1<String, String>() {
+        @Override
+        public String execute(String s) {
+          return s.toLowerCase();
+        }
+      });
     return Joiner.on("-").join(split);
   }
 
@@ -95,5 +101,5 @@ public class ScriptsGenerator {
       throw new OpenGammaRuntimeException("Error writing to output file", e);
     }
   }
-  
+
 }

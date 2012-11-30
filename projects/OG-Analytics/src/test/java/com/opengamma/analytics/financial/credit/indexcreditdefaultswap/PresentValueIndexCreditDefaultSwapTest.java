@@ -51,6 +51,8 @@ public class PresentValueIndexCreditDefaultSwapTest {
 
   // The index CDS contract parameters
 
+  private static final String indexName = "Bespoke_1";
+
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
   private static final String protectionBuyerTicker = "BARC";
@@ -161,6 +163,7 @@ public class PresentValueIndexCreditDefaultSwapTest {
 
   //Construct the index (from the pool and the other contract parameters)
   private static final IndexCreditDefaultSwapDefinition dummyIndex = new IndexCreditDefaultSwapDefinition(
+      indexName,
       buySellProtection,
       indexProtectionBuyer,
       indexProtectionSeller,
