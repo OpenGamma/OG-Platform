@@ -19,16 +19,15 @@ $.register_module({
                 });
                 form.children.push(
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.derivative_value_tash',
+                        module: 'og.blotter.forms.blocks.fx_derivative_value_tash',
                         extras: {}
-                    }),
-                     new form.Block({
-                        module: 'og.blotter.forms.blocks.fx_option_date_tash',
+                    }),                    
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.fx_derivative_date_tash',
                         extras: {}
                     })
                 );
                 form.dom();
-                
             }; 
             constructor.load();
             constructor.kill = function () {
