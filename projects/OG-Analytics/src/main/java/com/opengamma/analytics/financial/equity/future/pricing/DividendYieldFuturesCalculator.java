@@ -3,11 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.future;
+package com.opengamma.analytics.financial.equity.future.pricing;
 
-import com.opengamma.analytics.financial.commodity.derivative.AgricultureFuture;
-import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
-import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
@@ -18,23 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SimpleFutureDataBundle, Double> {
+public abstract class DividendYieldFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SimpleFutureDataBundle, Double> {
 
-  /* package */MarkToMarketFuturesCalculator() {
-  }
-
-  @Override
-  public Double visitAgricultureFuture(final AgricultureFuture future, final SimpleFutureDataBundle dataBundle) {
-    ArgumentChecker.notNull(future, "future");
-    ArgumentChecker.notNull(dataBundle, "data bundle");
-    return getResult(dataBundle, future.getReferencePrice(), future.getUnitAmount(), future.getExpiry());
-  }
-
-  @Override
-  public Double visitEnergyFuture(final EnergyFuture future, final SimpleFutureDataBundle dataBundle) {
-    ArgumentChecker.notNull(future, "future");
-    ArgumentChecker.notNull(dataBundle, "data bundle");
-    return getResult(dataBundle, future.getReferencePrice(), future.getUnitAmount(), future.getExpiry());
+  /* package */DividendYieldFuturesCalculator() {
   }
 
   @Override
@@ -51,19 +34,12 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
     return getResult(dataBundle, future.getStrike(), future.getUnitAmount(), future.getTimeToSettlement());
   }
 
-  @Override
-  public Double visitMetalFuture(final MetalFuture future, final SimpleFutureDataBundle dataBundle) {
-    ArgumentChecker.notNull(future, "future");
-    ArgumentChecker.notNull(dataBundle, "data bundle");
-    return getResult(dataBundle, future.getReferencePrice(), future.getUnitAmount(), future.getExpiry());
-  }
-
   abstract double getResult(SimpleFutureDataBundle dataBundle, double strike, double unitAmount, double t);
 
   /**
    * Calculates the present value
    */
-  public static final class PresentValueCalculator extends MarkToMarketFuturesCalculator {
+  public static final class PresentValueCalculator extends DividendYieldFuturesCalculator {
     private static final PresentValueCalculator INSTANCE = new PresentValueCalculator();
 
     public static PresentValueCalculator getInstance() {
@@ -83,7 +59,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Calculates the spot delta
    */
-  public static final class SpotDeltaCalculator extends MarkToMarketFuturesCalculator {
+  public static final class SpotDeltaCalculator extends DividendYieldFuturesCalculator {
     private static final SpotDeltaCalculator INSTANCE = new SpotDeltaCalculator();
 
     public static SpotDeltaCalculator getInstance() {
@@ -102,7 +78,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Calculates the rates delta
    */
-  public static final class RatesDeltaCalculator extends MarkToMarketFuturesCalculator {
+  public static final class RatesDeltaCalculator extends DividendYieldFuturesCalculator {
     private static final RatesDeltaCalculator INSTANCE = new RatesDeltaCalculator();
 
     public static RatesDeltaCalculator getInstance() {
@@ -121,7 +97,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Calculates the pv01
    */
-  public static final class PV01Calculator extends MarkToMarketFuturesCalculator {
+  public static final class PV01Calculator extends DividendYieldFuturesCalculator {
     private static final PV01Calculator INSTANCE = new PV01Calculator();
 
     public static PV01Calculator getInstance() {
@@ -140,7 +116,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Gets the spot price
    */
-  public static final class SpotPriceCalculator extends MarkToMarketFuturesCalculator {
+  public static final class SpotPriceCalculator extends DividendYieldFuturesCalculator {
     private static final SpotPriceCalculator INSTANCE = new SpotPriceCalculator();
 
     public static SpotPriceCalculator getInstance() {
@@ -160,7 +136,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Gets the forward price
    */
-  public static final class ForwardPriceCalculator extends MarkToMarketFuturesCalculator {
+  public static final class ForwardPriceCalculator extends DividendYieldFuturesCalculator {
     private static final ForwardPriceCalculator INSTANCE = new ForwardPriceCalculator();
 
     public static ForwardPriceCalculator getInstance() {

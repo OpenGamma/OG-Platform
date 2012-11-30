@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -25,7 +23,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -33,12 +33,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunction {
-
+public class EquityDividendYieldPricingDefaults extends DefaultPropertyFunction {
   private final Map<Currency, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
-  private final String _pricingMethodName;
   private final PriorityClass _priority;
-
 
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
@@ -53,14 +50,12 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
 
   /**
    * @param priority The priority class of {@link DefaultPropertyFunction} instances, allowing them to be ordered relative to each other. ABOVE_NORMAL, NORMAL, BELOW_NORMAL, LOWEST
-   * @param pricingMethodName One of MARK_TO_MARKET, COST_OF_CARRY or DIVIDEND_YIELD
    * @param currencyCurveConfigAndDiscountingCurveNames Choice of MultiCurveCalculationConfig. e.g. DefaultTwoCurveUSDConfig
    */
-  public EquityFuturesDefaultPropertiesFunction(String priority, final String pricingMethodName, final String... currencyCurveConfigAndDiscountingCurveNames) {
+  public EquityDividendYieldPricingDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.TRADE, true);
-    Validate.notNull(priority, "No priority was provided.");
-    Validate.notNull(pricingMethodName, "No pricingMethodName was provided to use as default value.");
-    Validate.notNull(currencyCurveConfigAndDiscountingCurveNames, "No curveCalculationConfigName was provided to use as default value.");
+    ArgumentChecker.notNull(priority, "No priority was provided.");
+    ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "No curveCalculationConfigName was provided to use as default value.");
     _priority = PriorityClass.valueOf(priority);
 
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
@@ -71,26 +66,18 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
       final Currency ccy = Currency.of(currencyCurveConfigAndDiscountingCurveNames[i]);
       _currencyCurveConfigAndDiscountingCurveNames.put(ccy, pair);
     }
-
-    _pricingMethodName = pricingMethodName;
-    Validate.isTrue(pricingMethodName.equals(EquityFuturePricerFactory.MARK_TO_MARKET)
-        || pricingMethodName.equals(EquityFuturePricerFactory.COST_OF_CARRY)
-        || pricingMethodName.equals(EquityFuturePricerFactory.DIVIDEND_YIELD),
-        "OG-Analytics provides the following pricing methods for EquityFutureSecurity: MARK_TO_MARKET, DIVIDEND_YIELD and COST_OF_CARRY. " +
-      "If specifying a default, it must be one of these three.");
   }
 
   @Override
-  protected void getDefaults(PropertyDefaults defaults) {
+  protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.CALCULATION_METHOD);
     }
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(ccy)) {
       s_logger.error("Could not get config for currency " + ccy + "; should never happen");
@@ -102,19 +89,17 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
       return Collections.singleton(pair.getSecond());
     } else if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(pair.getFirst());
-    } else if (ValuePropertyNames.CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_pricingMethodName);
     }
     return null;
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
     final Security sec = target.getTrade().getSecurity();
-    if (!(sec instanceof FutureSecurity)) { // was Equity
+    if (!(sec instanceof EquityFutureSecurity || sec instanceof EquityIndexDividendFutureSecurity || sec instanceof IndexFutureSecurity)) {
       return false;
     }
     final Currency ccy = FinancialSecurityUtils.getCurrency(sec);
@@ -132,5 +117,5 @@ public class EquityFuturesDefaultPropertiesFunction extends DefaultPropertyFunct
     return OpenGammaFunctionExclusions.EQUITY_FUTURE_DEFAULTS;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityFuturesDefaultPropertiesFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityDividendYieldPricingDefaults.class);
 }

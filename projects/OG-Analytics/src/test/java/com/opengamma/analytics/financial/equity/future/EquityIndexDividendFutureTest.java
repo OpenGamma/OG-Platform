@@ -45,14 +45,14 @@ public class EquityIndexDividendFutureTest {
   @Test
   public void testTimeSeries() {
 
-    ZonedDateTime lastCloseDate = FIXING_DATE;
-    double lastClose = FIXING_TS.getValue(lastCloseDate);
+    final ZonedDateTime lastCloseDate = FIXING_DATE;
+    final double lastClose = FIXING_TS.getValue(lastCloseDate);
     assertEquals(lastClose, 98, 0);
 
-    double latestFixing = FIXING_TS.getLatestValue();
+    final double latestFixing = FIXING_TS.getLatestValue();
     assertEquals(latestFixing, 100, 0);
 
-    ZonedDateTime HighNoon = lastCloseDate.plusHours(12);
+    final ZonedDateTime HighNoon = lastCloseDate.plusHours(12);
     assertNull("ArrayZonedDateTimeDoubleTimeSeries.getValue has not returned a null value for a time missing from the series", FIXING_TS.getValue(HighNoon));
 
     // BLOOMBERG_TICKER~Z H1 Index

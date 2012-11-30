@@ -14,13 +14,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
-
 /**
  * 
  */
-public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SimpleFutureDataBundle, Double> {
+public abstract class CostOfCarryFuturesCalculator extends InstrumentDerivativeVisitorAdapter<SimpleFutureDataBundle, Double> {
 
-  /* package */MarkToMarketFuturesCalculator() {
+  /* package */CostOfCarryFuturesCalculator() {
   }
 
   @Override
@@ -63,7 +62,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Calculates the present value
    */
-  public static final class PresentValueCalculator extends MarkToMarketFuturesCalculator {
+  public static final class PresentValueCalculator extends CostOfCarryFuturesCalculator {
     private static final PresentValueCalculator INSTANCE = new PresentValueCalculator();
 
     public static PresentValueCalculator getInstance() {
@@ -75,7 +74,8 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
 
     @Override
     double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
-      return (dataBundle.getMarketPrice() - strike) * unitAmount;
+      final double fwdPrice = ForwardPriceCalculator.getInstance().getResult(dataBundle, strike, unitAmount, t);
+      return (fwdPrice - strike) * unitAmount;
     }
 
   }
@@ -83,7 +83,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Calculates the spot delta
    */
-  public static final class SpotDeltaCalculator extends MarkToMarketFuturesCalculator {
+  public static final class SpotDeltaCalculator extends CostOfCarryFuturesCalculator {
     private static final SpotDeltaCalculator INSTANCE = new SpotDeltaCalculator();
 
     public static SpotDeltaCalculator getInstance() {
@@ -95,14 +95,16 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
 
     @Override
     double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
-      return unitAmount;
+      final double discountRate = dataBundle.getFundingCurve().getInterestRate(t);
+      final double costOfCarry = Math.exp(t * (discountRate - dataBundle.getDividendYield()));
+      return costOfCarry * unitAmount;
     }
   }
 
   /**
    * Calculates the rates delta
    */
-  public static final class RatesDeltaCalculator extends MarkToMarketFuturesCalculator {
+  public static final class RatesDeltaCalculator extends CostOfCarryFuturesCalculator {
     private static final RatesDeltaCalculator INSTANCE = new RatesDeltaCalculator();
 
     public static RatesDeltaCalculator getInstance() {
@@ -114,14 +116,17 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
 
     @Override
     double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
-      return t * dataBundle.getMarketPrice() * unitAmount;
+      final double discountRate = dataBundle.getFundingCurve().getInterestRate(t);
+      final double costOfCarry = Math.exp(t * (discountRate - dataBundle.getDividendYield()));
+      final double fwdPrice = dataBundle.getSpotValue() * costOfCarry;
+      return t * fwdPrice * unitAmount;
     }
   }
 
   /**
    * Calculates the pv01
    */
-  public static final class PV01Calculator extends MarkToMarketFuturesCalculator {
+  public static final class PV01Calculator extends CostOfCarryFuturesCalculator {
     private static final PV01Calculator INSTANCE = new PV01Calculator();
 
     public static PV01Calculator getInstance() {
@@ -140,7 +145,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Gets the spot price
    */
-  public static final class SpotPriceCalculator extends MarkToMarketFuturesCalculator {
+  public static final class SpotPriceCalculator extends CostOfCarryFuturesCalculator {
     private static final SpotPriceCalculator INSTANCE = new SpotPriceCalculator();
 
     public static SpotPriceCalculator getInstance() {
@@ -160,7 +165,7 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
   /**
    * Gets the forward price
    */
-  public static final class ForwardPriceCalculator extends MarkToMarketFuturesCalculator {
+  public static final class ForwardPriceCalculator extends CostOfCarryFuturesCalculator {
     private static final ForwardPriceCalculator INSTANCE = new ForwardPriceCalculator();
 
     public static ForwardPriceCalculator getInstance() {
@@ -172,7 +177,9 @@ public abstract class MarkToMarketFuturesCalculator extends InstrumentDerivative
 
     @Override
     double getResult(final SimpleFutureDataBundle dataBundle, final double strike, final double unitAmount, final double t) {
-      return dataBundle.getMarketPrice();
+      final double discountRate = dataBundle.getFundingCurve().getInterestRate(t);
+      final double costOfCarry = Math.exp(t * (discountRate - dataBundle.getDividendYield()));
+      return dataBundle.getSpotValue() * costOfCarry;
     }
 
   }
