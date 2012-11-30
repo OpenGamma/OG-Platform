@@ -32,6 +32,7 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // The name of the pool e.g. "Pool_1"
   private final String _poolName;
 
   // A vector of obligors constituting the underlying pool
