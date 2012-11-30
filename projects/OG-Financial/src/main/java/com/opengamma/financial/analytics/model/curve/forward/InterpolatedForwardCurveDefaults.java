@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForwardSwapCurveFromMarketQuotesDefaults extends DefaultPropertyFunction {
+public class InterpolatedForwardCurveDefaults extends DefaultPropertyFunction {
   private final String _forwardCurveInterpolator;
   private final String _forwardCurveLeftExtrapolator;
   private final String _forwardCurveRightExtrapolator;
 
-  public ForwardSwapCurveFromMarketQuotesDefaults(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
+  public InterpolatedForwardCurveDefaults(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
