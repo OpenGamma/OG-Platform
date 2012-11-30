@@ -36,7 +36,7 @@ public class ScriptsGenerator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ScriptsGenerator.class);
 
-  public static void generate(File scriptDir, String project, String className, boolean windows) {
+  public static void generate(File scriptDir, String project, String className) {
     try {
       Configuration cfg = new Configuration();
       cfg.setObjectWrapper(new DefaultObjectWrapper());
@@ -44,12 +44,10 @@ public class ScriptsGenerator {
       Map<String, Object> templateData = newHashMap();
       templateData.put("className", className);
       templateData.put("project", project.replaceFirst("(?i)og-", "").toLowerCase());
-      Template template;
-      if (windows)
-        template = cfg.getTemplate("script-template-win.ftl");
-      else
-        template = cfg.getTemplate("script-template.ftl");
-      generate(className, scriptDir, template, templateData, windows);
+      Template winTemplate = cfg.getTemplate("script-template-win.ftl");
+      generate(className, scriptDir, winTemplate, templateData, true);      
+      Template nixTemplate = cfg.getTemplate("script-template.ftl");
+      generate(className, scriptDir, nixTemplate, templateData, false);
     } catch (IOException e) {
       e.printStackTrace();
     }

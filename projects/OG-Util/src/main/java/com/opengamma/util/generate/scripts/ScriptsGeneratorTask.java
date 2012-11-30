@@ -30,7 +30,6 @@ public class ScriptsGeneratorTask extends Task {
 
   private ArrayList<FileSet> _filesets = newArrayList();
   
-  private boolean _windows;
 
   public String getProjectName() {
     return _projectName;
@@ -57,14 +56,6 @@ public class ScriptsGeneratorTask extends Task {
     return _filesets;
   }
 
-  public boolean isWindows() {
-    return _windows;
-  }
-
-  public void setWindows(boolean _windows) {
-    this._windows = _windows;
-  }
-
   //-------------------------------------------------------------------------
 
   @Override
@@ -82,7 +73,7 @@ public class ScriptsGeneratorTask extends Task {
 
     for (String className : classNames) {
       try {
-        ScriptsGenerator.generate(new File(getScriptDir()), getProjectName(), className, isWindows());
+        ScriptsGenerator.generate(new File(getScriptDir()), getProjectName(), className);
       } catch (Exception e) {
         throw new BuildException("Error generating script for class " + className, e);
       }
