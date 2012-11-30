@@ -44,7 +44,7 @@ public final class NormalImpliedVolatilityAnalytic implements NormalImpliedVolat
   /** approx 1.49e-8 **/
   private static final double SQRT_MACHINE_EPSILON = Math.sqrt(MACHINE_EPSILON);
 
-  private static final boolean POLISH_ROOT = true;
+  private static final boolean POLISH_ROOT = false;
 
   private static final NormalPriceFunction NORMAL_PRICE_FUNCTION = new NormalPriceFunction();
 
@@ -115,6 +115,7 @@ public final class NormalImpliedVolatilityAnalytic implements NormalImpliedVolat
       final double vega = (2 * derivative[1]) / newData.getNumeraire();
       impliedBpvol -= (newStraddlePrem - straddlePrem) / vega;
     }
+
     return impliedBpvol;
 
   }
