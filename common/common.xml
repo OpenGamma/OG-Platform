@@ -121,6 +121,9 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+    <copy todir="${classes.dir}" includeemptydirs="false" failonerror="false">
+      <fileset dir="${src.resources.dir}" />
+    </copy>
 	</target>
 
 	<!-- build Javadocs for the project -->
@@ -194,6 +197,9 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+    <copy todir="${tests.classes.dir}" includeemptydirs="false" failonerror="false">
+      <fileset dir="${tests.resources.dir}" />
+    </copy>
 	</target>
 
 	<!-- ================================================================ -->
@@ -270,7 +276,6 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
-			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />
@@ -283,7 +288,6 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
-			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />
