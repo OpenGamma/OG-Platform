@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the computation of Gamma for a vanilla Legacy CDS
+ * Class containing methods for the computation of Gamma for a vanilla Legacy CDS (parallel and bucketed bumps)
  */
 public class GammaLegacyCreditDefaultSwap {
 

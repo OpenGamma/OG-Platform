@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the computation of CS01 for a vanilla Legacy CDS
+ * Class containing methods for the computation of CS01 for a vanilla Legacy CDS (parallel and bucketed bumps)
  */
 public class CS01LegacyCreditDefaultSwap {
 
@@ -33,7 +33,8 @@ public class CS01LegacyCreditDefaultSwap {
 
   // TODO : Further checks on efficacy of input arguments
   // TODO : Need to get the times[] calculation correct
-  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation 
+  // TODO : Need to consider more sophisticated sensitivity calculations e.g. algorithmic differentiation
+  // TODO : Move the calculation of generic CDS risk sensitivities (CS01, Gamma, IR01, RecRate01, VoD and theta) into the vanilla definition
 
   // NOTE : We enforce spreadBump > 0, therefore if the marketSpreads > 0 (an exception is thrown if this is not the case) then bumpedMarketSpreads > 0 by construction
 
@@ -76,15 +77,7 @@ public class CS01LegacyCreditDefaultSwap {
     // Vector to hold the bumped market spreads
     final double[] bumpedMarketSpreads = new double[marketSpreads.length];
 
-    // Vector of times for the new hazard rate curve
-    final double[] times = new double[marketTenors.length];
-
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    times[0] = 0.0;
-    for (int m = 1; m < marketTenors.length; m++) {
-      times[m] = ACT365.getDayCountFraction(valuationDate, marketTenors[m]);
-    }
 
     // Calculate the bumped spreads
     for (int m = 0; m < marketTenors.length; m++) {

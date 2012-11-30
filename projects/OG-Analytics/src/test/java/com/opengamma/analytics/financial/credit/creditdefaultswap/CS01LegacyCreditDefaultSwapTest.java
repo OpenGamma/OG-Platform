@@ -390,7 +390,7 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test
   public void testCS01CalculationParallelShift() {
 
     // -------------------------------------------------------------------------------------
@@ -464,7 +464,7 @@ public class CS01LegacyCreditDefaultSwapTest {
     // -------------------------------------------------------------------------------------
 
     if (outputResults) {
-      System.out.println("Running parallel CS01 calculation test ...");
+      System.out.println("Running parallel CS01 calculation test (3 tenors) ...");
     }
 
     // -------------------------------------------------------------------------------------
@@ -516,7 +516,7 @@ public class CS01LegacyCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  // @Test
+  @Test
   public void testCS01CalculationBucketed() {
 
     // -------------------------------------------------------------------------------------

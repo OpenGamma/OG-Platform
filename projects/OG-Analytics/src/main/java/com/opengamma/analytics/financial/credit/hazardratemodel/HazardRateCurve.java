@@ -102,5 +102,9 @@ public class HazardRateCurve {
     return Math.exp((_offset - t) * getHazardRate(t)) / _zeroDiscountFactor;
   }
 
+  public int getNumberOfCurvePoints() {
+    return _shiftedTimePoints.length;
+  }
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 }
