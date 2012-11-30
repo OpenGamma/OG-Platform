@@ -504,7 +504,7 @@
   <target name="script-gen">
     <taskdef name="scriptgen" classname="com.opengamma.util.generate.scripts.ScriptsGeneratorTask" classpath="${lib.path.jar.file}" />
       
-    <scriptgen scriptDir="${dist.dir}/${dist.name}/scripts" projectName="${ant.project.name}">
+    <scriptgen scriptDir="${dist.dir}/${dist.name}/scripts" projectName="${ant.project.name}" windows="true">
     	<fileset dir="${dist.dir}/${dist.name}" includes="**/*.jar"/>
     </scriptgen>
     
