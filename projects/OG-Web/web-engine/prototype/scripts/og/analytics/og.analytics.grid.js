@@ -135,6 +135,9 @@ $.register_module({
                 .off('click').on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
                     return grid.fire('viewchange', $(this).html().toLowerCase()), false;
                 })
+                .on('click', '.OG-g-h-set-name', function (event) {
+                    return $('.OG-g-h-set-name .og-menu').toggle(), false;
+                })
                 .off('mousedown').on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();

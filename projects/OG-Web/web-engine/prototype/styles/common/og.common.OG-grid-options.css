@@ -6,15 +6,25 @@
 .OG-grid-options .og-icon-down {
     top: -6px;
     right: -5px;
+    cursor: default;
 }
 
 .OG-grid-options .og-menu {
     background: #fff;
-    display: inline-block;
     position: absolute;
     top: 20px;
     left: -6px;
-    padding: 0 5px 0 5px;
     border: 1px solid #ccc;
+    display: none;
+}
+
+.OG-grid-options .og-menu div {
+    padding: 0 5px 0 5px;
     min-width: 70px;
+}
+
+.OG-grid-options .og-menu div:hover {
+    background-color: #80c696;
+    color: #fff;
+    text-shadow: none;
 }
