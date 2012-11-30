@@ -215,16 +215,19 @@ $.register_module({
             columns.headers = [];
             columns.descriptions = [];
             columns.types = [];
+            columns.widths = [];
             columns.fixed[0].columns.forEach(function (col) {
                 columns.headers.push(col.header);
                 columns.types.push(col.type);
                 columns.descriptions.push(col.description);
+                columns.widths.push(col.width);
             });
             columns.scroll.forEach(function (set) {
                 set.columns.forEach(function (col) {
                     columns.headers.push(col.header);
                     columns.types.push(col.type);
                     columns.descriptions.push(col.description);
+                    columns.widths.push(col.width);
                 });
             });
             unravel_structure.call(grid);
@@ -266,7 +269,7 @@ $.register_module({
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
-                    result = {
+                    widths = meta.columns.widths, result = {
                         rows: [], loading: loading, holder_height: Math
                             .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
                     };
@@ -277,7 +280,8 @@ $.register_module({
                     for (data_row = rows[i]; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
                         value = formatter[type = types[column]] ?
-                            data[index] && formatter[type](data[index]) : data[index] && data[index].v || '';
+                            data[index] && formatter[type](data[index], widths[column], row_height)
+                                : data[index] && data[index].v || '';
                         prefix = fixed && j === 0 ? meta.unraveled_cache[meta.unraveled[data_row]]({
                             state: grid.meta.nodes[data_row] ? 'collapse' : 'expand'
                         }) : '';
@@ -294,7 +298,8 @@ $.register_module({
                 if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, data, true, loading));
-                grid.elements.scroll_body[0][HTML] = templates.row(row_data(grid, data, false, loading));
+                grid.elements.scroll_body
+                    .html(grid.formatter.transform(templates.row(row_data(grid, data, false, loading))));
                 grid.updated(+new Date);
                 if (loading) {
                     if (!grid.elements.notified) grid.elements.main
@@ -361,10 +366,10 @@ $.register_module({
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
-                scroll_position = left_position + inner.width, col_buffer = 3, lcv,
-                row_end = Math.min(row_start + (meta.visible_rows * 2), meta.available.length),
+                scroll_position = left_position + inner.width, col_buffer = 3, lcv, row_buffer = meta.visible_rows,
+                row_end = Math.min(row_start + meta.visible_rows + row_buffer, meta.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            lcv = Math.max(0, row_start - meta.visible_rows); viewport.rows = [];
+            lcv = Math.max(0, row_start - row_buffer); viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);

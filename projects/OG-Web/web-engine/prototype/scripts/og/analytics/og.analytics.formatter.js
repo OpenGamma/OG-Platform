@@ -9,46 +9,56 @@ $.register_module({
         var module = this;
         $.fn.sparkline.defaults.common.disableHiddenCheck = true;
         return function (grid) {
-            var formatter = this, curves = false, sp_options = {
-                type: 'line', lineColor: '#b0b0b0', fillColor: '#ecedee', spotColor: '#b0b0b0',
-                minSpotColor: '#b0b0b0', maxSpotColor: '#b0b0b0', disableInteraction: true
-            };
+            var formatter = this, curves = false, sparklines = false;
             formatter.DOUBLE = function (value) {
-                var curr, last, indicator = !value || !value.h || !value.h.length ? null
+                var curr, last, sparkline, indicator = !value || !value.h || !value.h.length ? null
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
                         : curr > last ? 'up' : 'static';
+                if (sparkline = grid.config.sparklines && indicator) sparklines = true;
                 return !value ? ''
                     : (curr < 0 ? '<span class="og-neg">' + value.v + '</span>' : value.v || '') +
-                        (grid.config.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '') +
+                        (sparkline ? '<span class="OG-g-sp">[' +
+                            JSON.stringify(value.h.map(function (v, i) {return [i, v];})) + ']</span>' : '') +
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
-            formatter.UNKNOWN = function (value) {
+            formatter.UNKNOWN = function (value, width, height) {
                 var type = value && value.t;
                 if (!type) return '';
-                return value && formatter[type] ? formatter[type](value) : value && value.v || '';
+                return value && formatter[type] ? formatter[type](value, width, height) : value && value.v || '';
             };
-            formatter.CURVE = function (value) {
+            formatter.CURVE = function (value, width, height) {
                 try {
                     curves = true;
-                    return '<span class="fl">[' + JSON.stringify($.isArray(value) ? value : value.v || []) + ']</span>';
+                    return '<span class="OG-g-fl" style="width: ' + width + 'px; height: ' + height + 'px;">[' +
+                        JSON.stringify(value.v) + ']</span>';
                 } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
             };
-            grid.on('render', function () {
-                if (grid.config.sparklines) grid.elements.parent.find('.OG-g .sp').sparkline('html', sp_options);
-                // only bother looking for flot elements if the grid has some curve values in the last render
-                if (curves) (curves = false), grid.elements.parent.find('.OG-g .fl').each(function () {
-                    var $this = $(this), data;
+            formatter.transform = function (html) {
+                var node = $(html);
+                // only bother if the grid has some curve values in the last render
+                if (curves) (curves = false), node.find('.OG-g-fl').each(function () {
+                    var $this = $(this);
                     try {
-                        data = JSON.parse($this.text());
-                        $.plot($this, data, {
-                            colors: ['#456899'],
-                            grid: {borderWidth: 0, minBorderMargin: 1},
+                        $.plot($this, JSON.parse($this.text()), {
+                            grid: {show: false}, colors: ['#456899'],
                             series: {shadowSize: 0, lines: {lineWidth: 1}},
                             xaxis: {show: false}, yaxis: {show: false}
                         });
                     } catch (error) {og.dev.warn(module.name + ': ', error);}
                 });
-            });
+                // only bother if the grid has some sparkline values in the last render
+                if (sparklines) (sparklines = false), node.find('.OG-g-sp').each(function () {
+                    var $this = $(this);
+                    try {
+                        $.plot($this, JSON.parse($this.text()), {
+                            grid: {show: false}, colors: ['#456899'],
+                            series: {shadowSize: 0, lines: {lineWidth: 1}},
+                            xaxis: {show: false}, yaxis: {show: false}
+                        });
+                    } catch (error) {og.dev.warn(module.name + ': ', error);}
+                });
+                return node;
+            };
         };
     }
 });
