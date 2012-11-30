@@ -17,7 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.component.factory.source.HistoricalTimeSeriesSourceComponentFactory;
-import com.opengamma.examples.historical.normalization.MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean;
+import com.opengamma.examples.historical.normalization.ExampleHistoricalTimeSeriesFieldAdjustmentMapFactoryBean;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
@@ -34,7 +34,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesResolver initResolver() {
-    final MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean factory = new MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean();
+    final ExampleHistoricalTimeSeriesFieldAdjustmentMapFactoryBean factory = new ExampleHistoricalTimeSeriesFieldAdjustmentMapFactoryBean();
     final Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldAdjustmentMaps = ImmutableList.of(factory.getObjectCreating());
 
     final HistoricalTimeSeriesSelector selector = new DefaultHistoricalTimeSeriesSelector(getConfigSource());
