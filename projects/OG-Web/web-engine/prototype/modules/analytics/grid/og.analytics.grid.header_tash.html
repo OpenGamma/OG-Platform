@@ -2,11 +2,11 @@
   {{#each sets}}
     <div class="OG-g-h-set">
       {{#if not_depgraph}}
-        {{#if view}}
+        {{#if views}}
           <div class="OG-g-h-set-name s{{index}}"><div class="OG-grid-options">
-              {{view}}<span class="OG-icon og-icon-down"></span>
+              {{views.selected}}<span class="OG-icon og-icon-down"></span>
               <div class="og-menu">
-                {{#each views}}<div>{{value}}</div>{{/each}}
+                {{#each views.rest}}<div class="og-js-viewchange">{{this}}</div>{{/each}}
               </div>
           </div></div>
         {{else}}

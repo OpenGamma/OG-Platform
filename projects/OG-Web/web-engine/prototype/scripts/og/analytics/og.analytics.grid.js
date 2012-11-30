@@ -98,12 +98,9 @@ $.register_module({
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
                 .on('types', function (types) {
-                    grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
-                        return {
-                            value: key.toUpperCase(),
-                            selected: config.source.type ? key === config.source.type : key === 'portfolio'
-                        };
-                    });
+                    grid.views = {selected: config.source.type || 'portfolio'};
+                    grid.views.rest = Object.keys(types)
+                        .filter(function (key) {return types[key] && key !== grid.views.selected;});
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
             grid.clipboard = new og.analytics.Clipboard(grid);
@@ -135,7 +132,7 @@ $.register_module({
             };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
-                .off('click').on('click', '.OG-g-h-set-name a', function (event) {
+                .off('click').on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
                     return grid.fire('viewchange', $(this).html().toLowerCase()), false;
                 })
                 .off('mousedown').on('mousedown', function (event) {
