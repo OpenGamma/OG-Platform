@@ -2,11 +2,12 @@
   {{#each sets}}
     <div class="OG-g-h-set">
       {{#if not_depgraph}}
-        {{#if views}}
-          <div class="OG-g-h-set-name s{{index}}"><div>
-          {{#each views}}
-            {{#selected}}<strong>{{/selected}}<a href="#">{{value}}</a>{{#selected}}</strong>{{/selected}}
-          {{/each}}
+        {{#if view}}
+          <div class="OG-g-h-set-name s{{index}}"><div class="OG-grid-options">
+              {{view}}<span class="OG-icon og-icon-down"></span>
+              <div class="og-menu">
+                {{#each views}}<div>{{value}}</div>{{/each}}
+              </div>
           </div></div>
         {{else}}
           <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>

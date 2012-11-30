@@ -34,6 +34,7 @@
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
     <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
     <fragment>/styles/common/og.common.OG-g.css</fragment>
+    <fragment>/styles/common/og.common.OG-grid-options.css</fragment>
     <fragment>/styles/common/og.common.OG-tab-overflow-panel.css</fragment>
   </bundle>
   <bundle id="common.util.css">

@@ -1,0 +1,20 @@
+/*
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-grid-options .og-icon-down {
+    top: -6px;
+    right: -5px;
+}
+
+.OG-grid-options .og-menu {
+    background: #fff;
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    left: -6px;
+    padding: 0 5px 0 5px;
+    border: 1px solid #ccc;
+    min-width: 70px;
+}
