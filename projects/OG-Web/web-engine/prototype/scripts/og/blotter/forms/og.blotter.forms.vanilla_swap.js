@@ -36,7 +36,6 @@ $.register_module({
                     })     
                 );
                 form.dom();
-                
             }; 
             constructor.kill = function () {
             };
