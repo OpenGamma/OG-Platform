@@ -1,117 +1,120 @@
-<section>
-    <table class="OG-table">
-      <colgroup>
-        <col style="width: 30%">              
-        <col style="width: 70%">              
-      </colgroup>
-      <tbody>
-        <tr>
-          <td>
-          </td>
-          <td>
-            Cap <input type="radio" name="name" value="cap">
-            Floor <input type="radio" name="name" value="floor">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Start Date</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Maturity Date</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Notional</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Strike</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-          </td>
-          <td>
-            Pay <input type="radio" name="name" value="pay">
-            Recieve <input type="radio" name="name" value="recieve">
-          </td>
-        </tr>
-        <tr>
-        <tr>
-          <td>
-            <label>
-              <span>Index 1</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Index 2</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Currency</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Frequency</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Day Count</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        Type
+      </td>
+      <td>
+        Cap <input type="radio" name="name1" value="cap">
+        Floor <input type="radio" name="name1" value="floor">
+        Pay <input type="radio" name="name2" value="pay">
+        Recieve <input type="radio" name="name2" value="recieve">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Maturity Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <select></select>
+        <input name="" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Strike</span>
+        </label>
+      </td>
+      <td>
+        <input name="" type="text" />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Index</span>
+        </label>
+      </td>
+      <td>
+        <input name="" type="text" />
+      </td>
+    </tr>
+    {{#if cms}}
+    <tr>
+      <td>
+        <label>
+          <span>Index 2</span>
+        </label>
+      </td>
+      <td>
+        <input name="" type="text" />
+      </td>
+    </tr>
+    {{/if}}
+    <tr>
+      <td>
+        <label>
+          <span>Currency</span>
+        </label>
+      </td>
+      <td>
+        <select></select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        <select></select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        <select></select>
+      </td>
+    </tr>
+  </tbody>
+</table>

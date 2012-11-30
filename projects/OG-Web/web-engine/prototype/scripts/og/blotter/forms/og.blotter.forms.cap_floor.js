@@ -11,14 +11,19 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'Cap/Floor';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.blocks.cap_floor_tash',
+                    module: 'og.blotter.forms.cap_floor_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
                     extras:{}
                 });
-                form.dom();
-                
+                form.children.push(
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.cap_floor_tash',
+                        extras: {}
+                    })
+                );
+                form.dom();  
             }; 
             constructor.load();
             constructor.kill = function () {
