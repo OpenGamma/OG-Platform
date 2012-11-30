@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,14 @@ public class MulticurveSensitivity {
   public static MulticurveSensitivity ofForward(final Map<String, List<ForwardSensitivity>> sensitivityForward) {
     ArgumentChecker.notNull(sensitivityForward, "Sensitivity forward");
     return new MulticurveSensitivity(new HashMap<String, List<DoublesPair>>(), sensitivityForward);
+  }
+
+  public static MulticurveSensitivity ofForward(final String curveName, final ForwardSensitivity pointSensitivity) {
+    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    listForward.add(pointSensitivity);
+    HashMap<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
+    mapFwd.put(curveName, listForward);
+    return MulticurveSensitivity.ofForward(mapFwd);
   }
 
   /**

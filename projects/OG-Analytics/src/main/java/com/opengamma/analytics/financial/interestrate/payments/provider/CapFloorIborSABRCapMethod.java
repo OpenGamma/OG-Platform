@@ -15,9 +15,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -54,10 +54,6 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
    * The Black function used in the pricing.
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /**
-   * The par rate sensitivity calculator.
-   */
-  private static final ParRateCurveSensitivityDiscountingCalculator PRCSDC = ParRateCurveSensitivityDiscountingCalculator.getInstance();
 
   /**
    * Computes the present value of a cap/floor in the SABR model.
@@ -93,7 +89,8 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     final double forward = sabr.getMulticurveProvider().getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = sabr.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final MulticurveSensitivity forwardDr = cap.accept(PRCSDC, sabr.getMulticurveProvider());
+    final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(sabr.getMulticurveProvider().getName(cap.getIndex()),
+        new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), 1.0));
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final double[] volatilityAdjoint = sabr.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);

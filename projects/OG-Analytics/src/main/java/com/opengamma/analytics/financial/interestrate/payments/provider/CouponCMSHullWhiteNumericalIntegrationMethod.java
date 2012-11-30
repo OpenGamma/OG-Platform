@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
@@ -21,29 +21,27 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Pricing method of a CMS cap/floor in the Hull-White (extended Vasicek) model by approximation.
- * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008. 
- * Available at http://ssrn.com/abstract=985551
+ * Pricing method of a CMS coupon in the Hull-White (extended Vasicek) model by numerical integration.
  */
-public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
+public final class CouponCMSHullWhiteNumericalIntegrationMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CapFloorCMSHullWhiteNumericalIntegrationMethod INSTANCE = new CapFloorCMSHullWhiteNumericalIntegrationMethod();
+  private static final CouponCMSHullWhiteNumericalIntegrationMethod INSTANCE = new CouponCMSHullWhiteNumericalIntegrationMethod();
+
+  /**
+   * Private constructor.
+   */
+  private CouponCMSHullWhiteNumericalIntegrationMethod() {
+  }
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CapFloorCMSHullWhiteNumericalIntegrationMethod getInstance() {
+  public static CouponCMSHullWhiteNumericalIntegrationMethod getInstance() {
     return INSTANCE;
-  }
-
-  /**
-   * Private constructor.
-   */
-  private CapFloorCMSHullWhiteNumericalIntegrationMethod() {
   }
 
   /**
@@ -57,14 +55,20 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
   /**
    * Minimal number of integration steps.
    */
-  private static final int NB_INTEGRATION = 100;
+  private static final int NB_INTEGRATION = 10;
 
-  public MultipleCurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorProviderInterface hullWhite) {
+  /**
+   * Compute the present value of a CMS coupon with the Hull-White (extended Vasicek) model by numerical integration.
+   * @param cms The CMS coupon.
+   * @param hwMulticurves The Hull-White and multi-curves provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(final CouponCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(cms, "CMS");
-    ArgumentChecker.notNull(hullWhite, "Hull-White provider");
+    ArgumentChecker.notNull(hwMulticurves, "Hull-White provider");
     Currency ccy = cms.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
+    HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
+    MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
     final double expiryTime = cms.getFixingTime();
     final SwapFixedCoupon<? extends Payment> swap = cms.getUnderlyingSwap();
     final int nbFixed = cms.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
@@ -76,7 +80,6 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
       dfFixed[loopcf] = multicurves.getDiscountFactor(ccy, swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swap.getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swap.getFixedLeg().getNthPayment(loopcf).getNotional();
     }
-
     final AnnuityPaymentFixed cfeIbor = swap.getSecondLeg().accept(CFEC, multicurves);
     final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
     final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
@@ -86,11 +89,10 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
       dfIbor[loopcf] = multicurves.getDiscountFactor(ccy, cfeIbor.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowIbor[loopcf] = dfIbor[loopcf] * cfeIbor.getNthPayment(loopcf).getAmount();
     }
-
     final double alphaPayment = MODEL.alpha(parameters, 0.0, expiryTime, expiryTime, cms.getPaymentTime());
     final double dfPayment = multicurves.getDiscountFactor(ccy, cms.getPaymentTime());
     // Integration
-    final CMSIntegrant integrant = new CMSIntegrant(discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, alphaPayment, cms.getStrike(), (cms.isCap() ? 1.0 : -1.0));
+    final CMSIntegrant integrant = new CMSIntegrant(discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, alphaPayment);
     final double limit = 10.0;
     final double absoluteTolerance = 1.0E-8;
     final double relativeTolerance = 1.0E-9;
@@ -114,8 +116,6 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
     private final double[] _discountedCashFlowIbor;
     private final double[] _alphaIbor;
     private final double _alphaPayment;
-    private final double _strike;
-    private final double _omega;
 
     /**
      * Constructor to the integrant function.
@@ -124,26 +124,21 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod {
      * @param discountedCashFlowIbor The discounted cash flows of the underlying swap Ibor leg.
      * @param alphaIbor The bond volatilities of the underlying swap Ibor leg.
      * @param alphaPayment The bond volatilities of the payment discount factor.
-     * @param strike The strike.
-     * @param omega The factor.
      */
-    public CMSIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final double alphaPayment,
-        final double strike, final double omega) {
+    public CMSIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final double alphaPayment) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _discountedCashFlowIbor = discountedCashFlowIbor;
       _alphaIbor = alphaIbor;
       _alphaPayment = alphaPayment;
-      _strike = strike;
-      _omega = omega;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double x) {
-      @SuppressWarnings("synthetic-access")
       final double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
       final double dfDensity = Math.exp(-(x + _alphaPayment) * (x + _alphaPayment) / 2.0);
-      final double result = dfDensity * Math.max(_omega * (swapRate - _strike), 0.0);
+      final double result = dfDensity * swapRate;
       return result;
     }
   }

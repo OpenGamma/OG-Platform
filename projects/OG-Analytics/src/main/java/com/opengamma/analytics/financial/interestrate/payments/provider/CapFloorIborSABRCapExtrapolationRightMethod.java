@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.method.CapFloorIborSABRCapMethodInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -45,10 +45,6 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
    * The Black function used in the pricing.
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /**
-   * The par rate sensitivity calculator.
-   */
-  private static final ParRateCurveSensitivityDiscountingCalculator PRCSDC = ParRateCurveSensitivityDiscountingCalculator.getInstance();
 
   /**
    * Constructor from cut-off strike and tail parameter.
@@ -100,13 +96,14 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
    * @param sabr The SABR cap and multi-curves provider. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRCapProviderInterface sabr) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final SABRCapProviderInterface sabr) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(sabr, "SABR cap provider");
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     final double forward = sabr.getMulticurveProvider().getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = sabr.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final MulticurveSensitivity forwardDr = cap.accept(PRCSDC, sabr.getMulticurveProvider());
+    final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(sabr.getMulticurveProvider().getName(cap.getIndex()),
+        new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), 1.0));
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final List<DoublesPair> list = new ArrayList<DoublesPair>();

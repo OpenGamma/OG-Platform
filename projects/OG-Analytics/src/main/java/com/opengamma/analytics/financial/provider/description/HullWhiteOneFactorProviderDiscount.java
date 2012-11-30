@@ -43,7 +43,8 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    */
   @Override
   public HullWhiteOneFactorProviderDiscount copy() {
-    return (HullWhiteOneFactorProviderDiscount) super.copy();
+    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    return new HullWhiteOneFactorProviderDiscount(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   /**

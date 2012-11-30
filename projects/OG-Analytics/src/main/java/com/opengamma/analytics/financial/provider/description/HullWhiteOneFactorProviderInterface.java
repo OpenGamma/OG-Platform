@@ -44,7 +44,7 @@ public class HullWhiteOneFactorProviderInterface {
    */
   public HullWhiteOneFactorProviderInterface copy() {
     MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
-    return new HullWhiteOneFactorProviderInterface(multicurveProvider, _parameters, _ccyHW);
+    return new HullWhiteOneFactorProviderInterface(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   /**

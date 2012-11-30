@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
@@ -14,8 +14,6 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -25,24 +23,24 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008. 
  * Available at http://ssrn.com/abstract=985551
  */
-public final class CapFloorCMSHullWhiteApproximationMethod {
+public final class CouponCMSHullWhiteApproximationMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CapFloorCMSHullWhiteApproximationMethod INSTANCE = new CapFloorCMSHullWhiteApproximationMethod();
+  private static final CouponCMSHullWhiteApproximationMethod INSTANCE = new CouponCMSHullWhiteApproximationMethod();
 
   /**
    * Private constructor.
    */
-  private CapFloorCMSHullWhiteApproximationMethod() {
+  private CouponCMSHullWhiteApproximationMethod() {
   }
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CapFloorCMSHullWhiteApproximationMethod getInstance() {
+  public static CouponCMSHullWhiteApproximationMethod getInstance() {
     return INSTANCE;
   }
 
@@ -54,18 +52,14 @@ public final class CapFloorCMSHullWhiteApproximationMethod {
    * The cash flow equivalent calculator used in computations.
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
-  /**
-   * The normal distribution implementation.
-   */
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * Compute the present value of a CMS cap/floor with the Hull-White (extended Vasicek) model by approximation.
-   * @param cms The CMS cap/floor.
+   * Compute the present value of a CMS coupon with the Hull-White (extended Vasicek) model by approximation.
+   * @param cms The CMS coupon.
    * @param hwMulticurves The Hull-White and multi-curves provider.
-   * @return The cap/floor price.
+   * @return The coupon price.
    */
-  public MultipleCurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final CouponCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(cms, "CMS");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White provider");
     Currency ccy = cms.getCurrency();
@@ -94,27 +88,9 @@ public final class CapFloorCMSHullWhiteApproximationMethod {
     }
     final double alphaPayment = MODEL.alpha(parameters, 0.0, expiryTime, expiryTime, cms.getPaymentTime());
     final double x0 = -alphaPayment;
-    final double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor) - cms.getStrike();
-    final double a1 = MODEL.swapRateD1(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
     final double a2 = MODEL.swapRateD2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
-
-    //    AnnuityPaymentFixed cfe = CFEC.visit(swap.withCoupon(cms.getStrike()), hwData);
-    //    double[] alpha = new double[cfe.getNumberOfPayments()];
-    //    double[] df = new double[cfe.getNumberOfPayments()];
-    //    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
-    //    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-    //      alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
-    //      df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
-    //      discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
-    //    }
-    //    double kappaTest = MODEL.kappa(discountedCashFlow, alpha);
-
-    final double kappa = -a0 / a1 - alphaPayment; // approximation
-    final double kappatilde = kappa + alphaPayment;
-    final double omega = (cms.isCap() ? 1.0 : -1.0);
-    final double s2pi = 1.0 / Math.sqrt(2.0 * Math.PI);
-    double pv = omega * (a0 + a2 / 2) * NORMAL.getCDF(-omega * kappatilde) + s2pi * Math.exp(-kappatilde * kappatilde / 2) * (a1 + a2 * kappatilde);
-    pv *= dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
+    final double pv = (a0 + a2 / 2) * dfPayment * cms.getNotional() * cms.getPaymentYearFraction();
     return MultipleCurrencyAmount.of(cms.getCurrency(), pv);
   }
 
