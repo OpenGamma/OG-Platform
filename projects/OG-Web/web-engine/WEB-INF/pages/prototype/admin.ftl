@@ -18,6 +18,6 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </div>
 ${ogScript.print('og_common.js',false)}
 <!--[if lt IE 9]>${ogScript.print('ie.js',false)}<![endif]-->
-${ogScript.print('og_main.js',false)}
+${ogScript.print('og_admin.js',false)}
 </body>
 </html>

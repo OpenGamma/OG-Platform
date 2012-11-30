@@ -85,6 +85,17 @@ $.register_module({
                     south: {paneSelector: '.OG-layout-analytics-dock-south' ,size: '33%'},
                     center: {paneSelector: '.OG-layout-analytics-dock-center', size: '34%'}
                 })
+            };},
+            blotter: function () {
+                return {
+                    main: $('.OG-layout-blotter-container').layout({
+                        defaults: {
+                            enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
+                            togglerLength_open: 0
+                        },
+                        north: {spacing_open: 0, paneClass: 'OG-layout-blotter-masthead', size: 67},
+                        center: {spacing_open: 0, paneClass: 'OG-layout-analytics-center'}
+                    })
             };}
         };
     }

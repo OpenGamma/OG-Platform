@@ -1,0 +1,14 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-layout-blotter-container {
+    height: 100%;
+    background: #fff;
+    visibility: hidden;
+}
+
+.OG-layout-blotter-center {
+    background: #f8f8f8;
+}

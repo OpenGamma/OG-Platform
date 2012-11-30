@@ -7,6 +7,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
   <div class="ui-layout-center"></div>
   <div class="ui-layout-north"><#include "modules/common/og.common.masthead.ftl"></div>
 </div>
+${ogScript.print('og_common.js', false)}
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_analytics.js',false)}
 </body>
