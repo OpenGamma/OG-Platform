@@ -11,3 +11,10 @@
 .OG-blotter-dialog select{
 	width: 50%
 } 
+.OG-blotter-form-block .og-triple-cell input,
+.OG-blotter-form-block .og-triple-cell select {
+	width: 30%;
+}
+.OG-blotter-form-block .OG-table{
+	margin-top: 2px;
+}
