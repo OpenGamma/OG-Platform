@@ -187,12 +187,12 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     Set<String> requestedCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
     final boolean permissive = OpenGammaCompilationContext.isPermissive(context);
     if (!permissive && ((requestedCurveNames == null) || requestedCurveNames.isEmpty())) {
-      s_logger.error("Must specify a curve name");
+      s_logger.debug("Must specify a curve name");
       return null;
     }
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
-      s_logger.error("Must specify a curve calculation config");
+      s_logger.debug("Must specify a curve calculation config");
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
@@ -200,13 +200,13 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
+      s_logger.debug("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      s_logger.debug("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
       return null;
     }
     final String[] availableCurveNames = curveCalculationConfig.getYieldCurveNames();
@@ -215,7 +215,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     } else {
       final Set<String> intersection = YieldCurveFunctionUtils.intersection(requestedCurveNames, availableCurveNames);
       if (intersection.isEmpty()) {
-        s_logger.error("None of the requested curves {} are available in curve calculation configuration called {}", requestedCurveNames, curveCalculationConfigName);
+        s_logger.debug("None of the requested curves {} are available in curve calculation configuration called {}", requestedCurveNames, curveCalculationConfigName);
         return null;
       }
       requestedCurveNames = intersection;
@@ -223,11 +223,11 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final String[] applicableCurveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, availableCurveNames);
     final Set<String> curveNames = YieldCurveFunctionUtils.intersection(requestedCurveNames, applicableCurveNames);
     if (curveNames.isEmpty()) {
-      s_logger.error("{} {} security is not sensitive to the curves {}", new Object[] {currency, security.getClass(), curveNames });
+      s_logger.debug("{} {} security is not sensitive to the curves {}", new Object[] {currency, security.getClass(), curveNames });
       return null;
     }
     if (!permissive && (curveNames.size() != 1)) {
-      s_logger.error("Must specify single curve name constraint, got {}", curveNames);
+      s_logger.debug("Must specify single curve name constraint, got {}", curveNames);
       return null;
     }
     final String curve = curveNames.iterator().next();
