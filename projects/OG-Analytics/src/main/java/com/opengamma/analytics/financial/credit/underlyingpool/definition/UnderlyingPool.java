@@ -32,6 +32,8 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  private final String _poolName;
+
   // A vector of obligors constituting the underlying pool
   private final Obligor[] _obligors;
 
@@ -76,6 +78,7 @@ public class UnderlyingPool {
   // Ctor for the pool of obligor objects
 
   public UnderlyingPool(
+      final String poolName,
       final Obligor[] obligors,
       final Currency[] currency,
       final DebtSeniority[] debtSeniority,
@@ -92,6 +95,7 @@ public class UnderlyingPool {
 
     // Check the validity of the input arguments
 
+    ArgumentChecker.notNull(poolName, "Pool name");
     ArgumentChecker.notNull(obligors, "Obligors");
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(debtSeniority, "Debt Seniority");
@@ -138,6 +142,8 @@ public class UnderlyingPool {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    _poolName = poolName;
+
     _obligors = obligors;
 
     _numberOfObligors = obligors.length;
@@ -159,6 +165,10 @@ public class UnderlyingPool {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  public String getPoolName() {
+    return _poolName;
+  }
 
   public Obligor[] getObligors() {
     return _obligors;

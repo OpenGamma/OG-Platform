@@ -37,6 +37,8 @@ public class UnderlyingPoolDummyPool {
 
   // Define the composition of the underlying pool
 
+  private static final String poolName = "Test_1";
+
   private static final int numberOfObligors = 5;
   private static final int numberOfTenors = 4;
 
@@ -170,6 +172,7 @@ public class UnderlyingPoolDummyPool {
 
     // Call the pool constructor
     final UnderlyingPool underlyingPool = new UnderlyingPool(
+        poolName,
         obligors,
         currency,
         debtSeniority,
