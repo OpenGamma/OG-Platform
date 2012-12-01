@@ -47,7 +47,8 @@ public class NormalImpliedVolatilityAnalyticTest {
 
     double maxRelErrVol = -1.0;
     double maxRelErrPrice = -1.0;
-    double dAtMaxErr = Double.NaN;
+    double dAtMaxErrVol = Double.NaN;
+    double dAtMaxErrPrice = Double.NaN;
     Random rng = new Random();
     for (int i = 0; i < 500000; ++i) {
       double d = rng.nextDouble() * dMax;
@@ -73,18 +74,23 @@ public class NormalImpliedVolatilityAnalyticTest {
       double relErrVol = Math.abs(bpvol - impliedBpvol) / bpvol;
       if (relErrVol > maxRelErrVol) {
         maxRelErrVol = relErrVol;
-        dAtMaxErr = d;
+        dAtMaxErrVol = d;
       }
 
       double relErrPrice = Math.abs(impliedPrice - expectedPrice) / expectedPrice;
       if (relErrPrice > maxRelErrPrice) {
         maxRelErrPrice = relErrPrice;
+        dAtMaxErrPrice = d;
       }
 
     }
 
-    Assert.assertTrue(maxRelErrVol < expectedMaxRelErrVol);
-    Assert.assertTrue(maxRelErrPrice < expectedMaxRelErrPrice);
+    if (!(maxRelErrVol < expectedMaxRelErrVol)) {
+        fail("Max Relative Error in vol failed at d="+dAtMaxErrVol);
+    }
+    if (!(maxRelErrPrice<expectedMaxRelErrPrice)) {
+      fail("Max Relative Error in price failed at d="+dAtMaxErrPrice);
+    }
 
   }
 
