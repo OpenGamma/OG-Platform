@@ -536,7 +536,7 @@ public class ViewClientTest {
     InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
     
     ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
-    MockFunction fn = new MockFunction(MockFunction.UNIQUE_ID, target) {
+    MockFunction fn1 = new MockFunction(MockFunction.UNIQUE_ID + "1", target) {
       
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
@@ -546,14 +546,29 @@ public class ViewClientTest {
       }
       
     };
-    ValueRequirement requirement = new ValueRequirement("OUTPUT", target.toSpecification());
-    fn.addResult(requirement, "Result");
-    functionRepository.addFunction(fn);
+    ValueRequirement requirement1 = new ValueRequirement("value1", target.toSpecification());
+    fn1.addResult(requirement1, "result1");
+    functionRepository.addFunction(fn1);
+    
+    MockFunction fn2 = new MockFunction(MockFunction.UNIQUE_ID + "2", target) {
+      
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        LogBridge.getInstance().log(new SimpleLogEvent(LogLevel.WARN, "Warning during execution"));
+        return super.execute(executionContext, inputs, target, desiredValues);
+      }
+      
+    };
+    fn2.addRequirement(requirement1);
+    ValueRequirement requirement2 = new ValueRequirement("value2", target.toSpecification());
+    fn2.addResult(requirement2, "result2");
+    functionRepository.addFunction(fn2);    
+    
     env.setFunctionRepository(functionRepository);
     
     ViewDefinition vd = new ViewDefinition(UniqueId.of("test", "vd1"), "Test view", UserPrincipal.getLocalUser());
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(vd, "Default");
-    calcConfig.addSpecificRequirement(requirement);
+    calcConfig.addSpecificRequirement(requirement2);
     vd.addViewCalculationConfiguration(calcConfig);
     vd.setMinFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
     vd.setMaxFullCalculationPeriod(Long.MAX_VALUE);  // Never force a full calculation
@@ -576,7 +591,7 @@ public class ViewClientTest {
     
     assertEquals(1, result1.getAllResults().size());
     ComputedValueResult result1Value = Iterables.getOnlyElement(result1.getAllResults()).getComputedValue();
-    assertEquals("Result", result1Value.getValue());
+    assertEquals("result2", result1Value.getValue());
     
     AggregatedExecutionLog log1 = result1Value.getAggregatedExecutionLog();
     assertNotNull(log1);
@@ -597,7 +612,7 @@ public class ViewClientTest {
     
     assertEquals(1, result2.getAllResults().size());
     ComputedValueResult result2Value = Iterables.getOnlyElement(result2.getAllResults()).getComputedValue();
-    assertEquals("Result", result2Value.getValue());
+    assertEquals("result2", result2Value.getValue());
     
     AggregatedExecutionLog log2 = result2Value.getAggregatedExecutionLog();
     assertNotNull(log2);
@@ -605,22 +620,36 @@ public class ViewClientTest {
     assertTrue(log2.getLogLevels().contains(LogLevel.WARN));
     assertFalse(log2.getLogLevels().contains(LogLevel.INFO));
     assertNotNull(log2.getLogs());
-    assertEquals(1, log2.getLogs().size());
-    ExecutionLogWithContext executionLogWithContext = Iterables.getOnlyElement(log2.getLogs());
-    assertNotNull(executionLogWithContext);
-    assertEquals(fn.getFunctionDefinition().getShortName(), executionLogWithContext.getFunctionName());
-    assertEquals(resultSpec.getSecond().getTargetSpecification(), executionLogWithContext.getTargetSpecification());
-    ExecutionLog executionLog = executionLogWithContext.getExecutionLog();
-    assertEquals(2, executionLog.getEvents().size());
-    LogEvent log2Event1 = executionLog.getEvents().get(0);
-    assertEquals(LogLevel.WARN, log2Event1.getLevel());
-    assertEquals("Warning during execution", log2Event1.getMessage());
-    LogEvent log2Event2 = executionLog.getEvents().get(1);
-    assertEquals(LogLevel.ERROR, log2Event2.getLevel());
-    assertEquals("Error during execution", log2Event2.getMessage());
-    assertNull(executionLog.getExceptionClass());
-    assertNull(executionLog.getExceptionMessage());
-    assertNull(executionLog.getExceptionStackTrace());
+    assertEquals(2, log2.getLogs().size());
+    
+    ExecutionLogWithContext result2LogContext = log2.getLogs().get(0);
+    assertNotNull(result2LogContext);
+    assertEquals(fn2.getFunctionDefinition().getShortName(), result2LogContext.getFunctionName());
+    assertEquals(resultSpec.getSecond().getTargetSpecification(), result2LogContext.getTargetSpecification());
+    ExecutionLog result2Log = result2LogContext.getExecutionLog();
+    assertEquals(1, result2Log.getEvents().size());
+    LogEvent result2Event1 = result2Log.getEvents().get(0);
+    assertEquals(LogLevel.WARN, result2Event1.getLevel());
+    assertEquals("Warning during execution", result2Event1.getMessage());
+    assertNull(result2Log.getExceptionClass());
+    assertNull(result2Log.getExceptionMessage());
+    assertNull(result2Log.getExceptionStackTrace());
+    
+    ExecutionLogWithContext result1LogContext = log2.getLogs().get(1);
+    assertNotNull(result1LogContext);
+    assertEquals(fn1.getFunctionDefinition().getShortName(), result1LogContext.getFunctionName());
+    assertEquals(resultSpec.getSecond().getTargetSpecification(), result1LogContext.getTargetSpecification());
+    ExecutionLog result1Log = result1LogContext.getExecutionLog();
+    assertEquals(2, result1Log.getEvents().size());
+    LogEvent result1Event1 = result1Log.getEvents().get(0);
+    assertEquals(LogLevel.WARN, result1Event1.getLevel());
+    assertEquals("Warning during execution", result1Event1.getMessage());
+    LogEvent result1Event2 = result1Log.getEvents().get(1);
+    assertEquals(LogLevel.ERROR, result1Event2.getLevel());
+    assertEquals("Error during execution", result1Event2.getMessage());
+    assertNull(result1Log.getExceptionClass());
+    assertNull(result1Log.getExceptionMessage());
+    assertNull(result1Log.getExceptionStackTrace());
     
     client.setMinimumLogMode(ExecutionLogMode.INDICATORS, ImmutableSet.of(resultSpec));
     recalcJob.triggerCycle();
@@ -630,7 +659,7 @@ public class ViewClientTest {
     
     assertEquals(1, result3.getAllResults().size());
     ComputedValueResult result3Value = Iterables.getOnlyElement(result3.getAllResults()).getComputedValue();
-    assertEquals("Result", result3Value.getValue());
+    assertEquals("result2", result3Value.getValue());
     
     AggregatedExecutionLog log3 = result3Value.getAggregatedExecutionLog();
     assertNotNull(log3);
@@ -647,7 +676,7 @@ public class ViewClientTest {
     
     assertEquals(1, result4.getAllResults().size());
     ComputedValueResult result4Value = Iterables.getOnlyElement(result4.getAllResults()).getComputedValue();
-    assertEquals("Result", result4Value.getValue());
+    assertEquals("result2", result4Value.getValue());
     
     AggregatedExecutionLog log4 = result4Value.getAggregatedExecutionLog();
     assertNotNull(log4); 
