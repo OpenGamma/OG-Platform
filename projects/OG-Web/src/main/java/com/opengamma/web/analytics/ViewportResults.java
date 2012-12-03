@@ -11,7 +11,7 @@ import java.util.List;
 import javax.time.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -111,7 +111,7 @@ public class ViewportResults {
   /* package */ static Cell valueCell(Object value,
                                       ValueSpecification valueSpecification,
                                       Collection<Object> history,
-                                      ExecutionLog executionLog,
+                                      AggregatedExecutionLog executionLog,
                                       int column) {
     return new Cell(value, valueSpecification, history, column, null, null, executionLog);
   }
@@ -177,7 +177,7 @@ public class ViewportResults {
   /**
    * A single grid cell in a set of results, including the cell's value, value specification and history.
    */
-  /* package */ static class Cell {
+  /* package */ static final class Cell {
 
     private final Object _value;
     private final ValueSpecification _valueSpecification;
@@ -185,7 +185,7 @@ public class ViewportResults {
     private final int _column;
     private final UniqueId _positionId;
     private final UniqueId _nodeId;
-    private final ExecutionLog _executionLog;
+    private final AggregatedExecutionLog _executionLog;
 
     private Cell(Object value,
                  ValueSpecification valueSpecification,
@@ -193,7 +193,7 @@ public class ViewportResults {
                  int column,
                  UniqueId positionId,
                  UniqueId nodeId,
-                 ExecutionLog executionLog) {
+                 AggregatedExecutionLog executionLog) {
       _value = value;
       _valueSpecification = valueSpecification;
       _history = history;
@@ -243,7 +243,7 @@ public class ViewportResults {
       return _nodeId;
     }
 
-    /* package */ ExecutionLog getExecutionLog() {
+    /* package */ AggregatedExecutionLog getExecutionLog() {
       return _executionLog;
     }
 

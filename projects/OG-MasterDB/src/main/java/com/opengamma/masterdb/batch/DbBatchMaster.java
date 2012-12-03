@@ -44,7 +44,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -430,7 +430,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       final ValueProperties valueProperties = RiskValueProperties.parseJson(valueRequirementsSyntheticForm);
       final String configurationName = rs.getString("config_name");
       final ValueSpecification valueSpecification = ValueSpecification.of(valueName, computationTargetType, targetId, valueProperties);
-      final ComputedValueResult computedValue = new ComputedValueResult(valueSpecification, value, ExecutionLog.EMPTY);
+      final ComputedValueResult computedValue = new ComputedValueResult(valueSpecification, value, AggregatedExecutionLog.EMPTY);
       final ViewResultEntry viewResultEntry = new ViewResultEntry(configurationName, computedValue);
 
       return viewResultEntry;

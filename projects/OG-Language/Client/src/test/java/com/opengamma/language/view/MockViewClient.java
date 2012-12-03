@@ -27,6 +27,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Mock of the ViewClient for testing.
@@ -209,7 +210,7 @@ import com.opengamma.livedata.UserPrincipal;
   }
   
   @Override
-  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets) {
     throw new UnsupportedOperationException();
   }
 

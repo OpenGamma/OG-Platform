@@ -81,7 +81,7 @@ import com.opengamma.util.tuple.Pair;
           results.add(ViewportResults.valueCell(value,
                                                 valueSpec,
                                                 cacheResult.getHistory(),
-                                                cacheResult.getExecutionLog(),
+                                                cacheResult.getAggregatedExecutionLog(),
                                                 colIndex));
         } else {
           Collection<Object> emptyHistory = cache.emptyHistory(columnType);

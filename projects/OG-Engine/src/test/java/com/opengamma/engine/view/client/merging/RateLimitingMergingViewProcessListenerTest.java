@@ -22,7 +22,7 @@ import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -156,7 +156,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   private ComputedValueResult getComputedValueResult(String valueName, Object value) {
     UniqueId uniqueId = UniqueId.of("Scheme", valueName);
     ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
-    return new ComputedValueResult(new ValueSpecification(valueRequirement, "FunctionId"), value, ExecutionLog.EMPTY);
+    return new ComputedValueResult(new ValueSpecification(valueRequirement, "FunctionId"), value, AggregatedExecutionLog.EMPTY);
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingViewProcessListener mergingListener, TestViewResultListener testListener, int period) throws InterruptedException {

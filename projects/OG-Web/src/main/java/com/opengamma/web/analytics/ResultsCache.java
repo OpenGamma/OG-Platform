@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.util.ArgumentChecker;
@@ -51,7 +51,7 @@ import com.opengamma.util.money.CurrencyAmount;
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
-  private long _lastUpdateId = 0;
+  private long _lastUpdateId;
 
   /** Duration of the last calculation cycle. */
   private Duration _lastCalculationDuration = Duration.ZERO;
@@ -95,9 +95,9 @@ import com.opengamma.util.money.CurrencyAmount;
     ResultKey key = new ResultKey(calcConfigName, spec);
     CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
-      _results.put(key, new CacheItem(value, result.getExecutionLog(), _lastUpdateId));
+      _results.put(key, new CacheItem(value, result.getAggregatedExecutionLog(), _lastUpdateId));
     } else {
-      cacheResult.setLatestValue(value, result.getExecutionLog(), _lastUpdateId);
+      cacheResult.setLatestValue(value, result.getAggregatedExecutionLog(), _lastUpdateId);
     }
   }
 
@@ -115,7 +115,7 @@ import com.opengamma.util.money.CurrencyAmount;
     if (item != null) {
       // flag whether this result was updated by the last set of results that were put into the cache
       boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
-      return new Result(item.getValue(), item.getHistory(), item.getExecutionLog(), updatedByLastResults);
+      return new Result(item.getValue(), item.getHistory(), item.getAggregatedExecutionLog(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
         return s_emptyResultWithHistory;
@@ -150,17 +150,17 @@ import com.opengamma.util.money.CurrencyAmount;
    * An item from the cache including its history and a flag indicating whether it was updated by the most recent
    * calculation cycle. Instances of this class are intended for users of the cache.
    */
-  /* package */ static class Result {
+  /* package */ static final class Result {
 
     private final Object _value;
     private final Collection<Object> _history;
     private final boolean _updated;
-    private final ExecutionLog _executionLog;
+    private final AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private Result(Object value, Collection<Object> history, ExecutionLog executionLog, boolean updated) {
+    private Result(Object value, Collection<Object> history, AggregatedExecutionLog aggregatedExecutionLog, boolean updated) {
       _value = value;
       _history = history;
-      _executionLog = executionLog;
+      _aggregatedExecutionLog = aggregatedExecutionLog;
       _updated = updated;
     }
 
@@ -200,22 +200,22 @@ import com.opengamma.util.money.CurrencyAmount;
       return new Result(null, Collections.emptyList(), null, false);
     }
 
-    /* package */ ExecutionLog getExecutionLog() {
-      return _executionLog;
+    /* package */ AggregatedExecutionLog getAggregatedExecutionLog() {
+      return _aggregatedExecutionLog;
     }
   }
 
   /**
    * An item stored in the cache, this is an internal implementation detail.
    */
-  private static class CacheItem {
+  private final static class CacheItem {
 
     private Collection<Object> _history;
     private Object _latestValue;
     private long _lastUpdateId = -1;
-    private ExecutionLog _executionLog;
+    private AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private CacheItem(Object value, ExecutionLog executionLog, long lastUpdateId) {
+    private CacheItem(Object value, AggregatedExecutionLog executionLog, long lastUpdateId) {
       setLatestValue(value, executionLog, lastUpdateId);
     }
 
@@ -226,11 +226,11 @@ import com.opengamma.util.money.CurrencyAmount;
      * @param lastUpdateId ID of the set of results that calculated it
      */
     @SuppressWarnings("unchecked")
-    private void setLatestValue(Object latestValue, ExecutionLog executionLog, long lastUpdateId) {
+    private void setLatestValue(Object latestValue, AggregatedExecutionLog executionLog, long lastUpdateId) {
       ArgumentChecker.notNull(latestValue, "latestValue");
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
-      _executionLog = executionLog;
+      _aggregatedExecutionLog = executionLog;
       // this can happen if the first value is an error and then real values arrive. this is possible if market
       // data subscriptions take time to set up. in that case the history will initially be null (because error
       // sentinel types aren't in s_historyTypes) and then when a valid value arrives the type can be checked and
@@ -247,8 +247,6 @@ import com.opengamma.util.money.CurrencyAmount;
       return _latestValue;
     }
 
-
-    @SuppressWarnings("unchecked")
     /* package */ Collection<Object> getHistory() {
       if (_history != null) {
         return Collections.unmodifiableCollection(_history);
@@ -265,15 +263,15 @@ import com.opengamma.util.money.CurrencyAmount;
       return _lastUpdateId;
     }
 
-    private ExecutionLog getExecutionLog() {
-      return _executionLog;
+    private AggregatedExecutionLog getAggregatedExecutionLog() {
+      return _aggregatedExecutionLog;
     }
   }
 
   /**
    * Immutable key for items in the cache, this is in implelemtation detail.
    */
-  private static class ResultKey {
+  private static final class ResultKey {
 
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;
