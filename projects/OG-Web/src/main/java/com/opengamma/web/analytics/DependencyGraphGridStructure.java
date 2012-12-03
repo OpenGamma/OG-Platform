@@ -104,7 +104,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       ResultsCache.Result cacheResult = cache.getResult(calcConfigName, spec, null);
       Collection<Object> history = cacheResult.getHistory();
       Object value = cacheResult.getValue();
-      AggregatedExecutionLog executionLog = cacheResult.getExecutionLog();
+      AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
       String fnName = _fnNames.get(rowIndex);
       results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, history, executionLog));
     }
