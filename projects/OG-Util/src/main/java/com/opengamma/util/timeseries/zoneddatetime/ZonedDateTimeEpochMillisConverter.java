@@ -176,11 +176,6 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   }
 
   @Override
-  public Pair<ZonedDateTime, Double> makePair(final ZonedDateTime dateTime, final Double value) {
-    return Pair.of(dateTime, value);
-  }
-
-  @Override
   public DoubleTimeSeries<ZonedDateTime> convertFromLong(final DoubleTimeSeries<ZonedDateTime> templateTS, final FastLongDoubleTimeSeries pldts) {
     final ZonedDateTime[] dateTimes = new ZonedDateTime[pldts.size()];
     final Double[] values = new Double[pldts.size()];
@@ -254,4 +249,5 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   public <T> Pair<ZonedDateTime, T> makePair(ZonedDateTime dateTime, T value) {
     return Pair.of(dateTime, value);
   }
+
 }
