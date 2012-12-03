@@ -16,12 +16,20 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
 
 /**
- * Simple implementation of {@link AggregatedExecutionLog}.
+ * Default implementation of {@link AggregatedExecutionLog}.
+ * <p>
+ * In {@link ExecutionLogMode#INDICATORS} mode, the root log and dependent logs are inspected to obtain an aggregate of
+ * the log levels, but no individual logs are stored. In {@link ExecutionLogMode#FULL} mode, individual non-empty logs
+ * are also stored.
  */
-public class SimpleAggregatedExecutionLog implements AggregatedExecutionLog {
+public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
 
   private final EnumSet<LogLevel> _logLevels;
   private final List<ExecutionLogWithContext> _logs;
+  /**
+   * Flag to indicate whether the execution log at the root level was empty and has been excluded.
+   */
+  private final boolean _emptyRoot;
   
   /**
    * Constructs an instance for a root level with possible logs from its dependencies. 
@@ -30,15 +38,19 @@ public class SimpleAggregatedExecutionLog implements AggregatedExecutionLog {
    * @param dependentLogs  the dependent logs, if any, may be null or empty
    * @param logMode  the mode describing the outputs required, not null
    */
-  public SimpleAggregatedExecutionLog(ExecutionLogWithContext rootLog, List<AggregatedExecutionLog> dependentLogs, ExecutionLogMode logMode) {
+  public DefaultAggregatedExecutionLog(ExecutionLogWithContext rootLog, List<AggregatedExecutionLog> dependentLogs, ExecutionLogMode logMode) {
     ArgumentChecker.notNull(rootLog, "rootLog");
     ArgumentChecker.notNull(logMode, "logMode");
     _logLevels = EnumSet.copyOf(rootLog.getExecutionLog().getLogLevels());
     if (logMode == ExecutionLogMode.FULL) {
       _logs = new ArrayList<ExecutionLogWithContext>();
-      _logs.add(rootLog);
+      _emptyRoot = rootLog.getExecutionLog().isEmpty();
+      if (!_emptyRoot) {
+        _logs.add(rootLog);
+      }
     } else {
       _logs = null;
+      _emptyRoot = false;
     }
     if (dependentLogs != null) {
       for (AggregatedExecutionLog dependentLog : dependentLogs) {
@@ -57,10 +69,12 @@ public class SimpleAggregatedExecutionLog implements AggregatedExecutionLog {
    * 
    * @param logLevels  an overview of the log levels, not null
    * @param logs  the individual logs, null if not available
+   * @param emptyRoot  true if the root log was empty, false otherwise
    */
-  public SimpleAggregatedExecutionLog(EnumSet<LogLevel> logLevels, List<ExecutionLogWithContext> logs) {
+  public DefaultAggregatedExecutionLog(EnumSet<LogLevel> logLevels, List<ExecutionLogWithContext> logs, boolean emptyRoot) {
     _logLevels = logLevels;
     _logs = logs;
+    _emptyRoot = emptyRoot;
   }
   
   @Override
@@ -70,7 +84,7 @@ public class SimpleAggregatedExecutionLog implements AggregatedExecutionLog {
   
   @Override
   public ExecutionLogWithContext getRootLog() {
-    return _logs != null && _logs.size() > 0 ? _logs.get(0) : null;
+    return _logs != null && !_emptyRoot ? _logs.get(0) : null;
   }
 
   @Override

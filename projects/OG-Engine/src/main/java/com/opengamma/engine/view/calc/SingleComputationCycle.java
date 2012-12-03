@@ -446,7 +446,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         // TODO provide elevated logs if requested from market data providers 
         ExecutionLog executionLog = MutableExecutionLog.single(SimpleLogEvent.of(LogLevel.WARN, null), ExecutionLogMode.INDICATORS);
         ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Market Data", marketDataSpec.getTargetSpecification(), executionLog);
-        AggregatedExecutionLog aggregatedExecutionLog = new SimpleAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+        AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
         computedValue = new ComputedValue(marketDataSpec, MissingMarketDataSentinel.getInstance());
         computedValueResult = new ComputedValueResult(computedValue, aggregatedExecutionLog);
       } else {
@@ -666,7 +666,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
       ExecutionLogMode executionLogMode = getLogModeSource().getLogMode(node);
       ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of(node, jobResultItem.getExecutionLog());
-      AggregatedExecutionLog aggregatedExecutionLog = new SimpleAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
+      AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, new ArrayList<AggregatedExecutionLog>(inputLogs), executionLogMode);
       DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
       processDependencyNodeResult(jobExecutionResult, depGraph, node, computationCache, fragmentResultModel, fullResultModel, jobExecutionResultCache);
     }

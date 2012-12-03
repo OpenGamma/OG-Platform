@@ -113,6 +113,11 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
       public String getExceptionStackTrace() {
         return exceptionStackTrace;
       }
+
+      @Override
+      public boolean isEmpty() {
+        return getLogLevels().isEmpty() && !hasException();
+      }
       
     };
   }
