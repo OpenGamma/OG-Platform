@@ -186,7 +186,7 @@ public class DbScriptReader {
    * @return a map from schema name to the latest schema version, not null
    */
   public Map<String, Integer> getLatestVersions() {
-    Map<String, Integer> result = new HashMap<String, Integer>();
+    Map<String, Integer> result = new HashMap<>();
     for (String databaseName : getDatabaseVendors()) {
       for (String schemaName : getAllSchemaNames(databaseName)) {
         int latestVersion = getLatestCreationScriptVersion(databaseName, schemaName);

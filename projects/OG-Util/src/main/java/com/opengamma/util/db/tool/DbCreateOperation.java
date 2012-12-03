@@ -43,8 +43,7 @@ public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> 
     if (isDropCatalog()) {
       dropCatalog();
     }
-    SqlScriptWriter writer = createSqlScriptWriter();
-    try {
+    try (SqlScriptWriter writer = createSqlScriptWriter()) {
       Set<String> schemaNames = getDbToolContext().getSchemaNames() != null ? getDbToolContext().getSchemaNames() : getAllSchemaNames();
       for (String schema : schemaNames) {
         s_logger.info("Processing schema " + schema);
@@ -55,15 +54,9 @@ public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> 
       s_logger.info("Scripts processed successfully");
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Error processing creation scripts", e);
-    } finally {
-      try {
-        writer.close();
-      } catch (IOException e) {
-        s_logger.error("Error closing SQL script writer", e);
-      }
     }
   }
-  
+
   protected void dropCatalog() {
     contextNotNull(getDbToolContext().catalog());
     
@@ -84,7 +77,7 @@ public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> 
     s_logger.info("Dropping contents of catalog " + getDbToolContext().getCatalog());
     getDbToolContext().getDbManagement().dropSchema(getDbToolContext().getCatalog(), null);
   }
-  
+
   //-------------------------------------------------------------------------
   private boolean isDropCatalog() {
     return _dropCatalog;

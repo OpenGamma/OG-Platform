@@ -38,7 +38,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
    * @return a pair formed from the two parameters, not null
    */
   public static <B> LongObjectPair<B> of(final long first, final B second) {
-    return new LongObjectPair<B>(first, second);
+    return new LongObjectPair<>(first, second);
   }
 
   /**

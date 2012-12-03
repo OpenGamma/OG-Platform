@@ -89,14 +89,12 @@ public class CPPLogToJUnit implements Runnable {
   }
 
   private Map<String, Collection<UnitTest>> readTests() {
-    try {
-      final Map<String, Collection<UnitTest>> testsBySuite = new HashMap<String, Collection<UnitTest>>();
-      final String baseSuite = getInputFile().substring(getInputFile().lastIndexOf(File.separator) + 1).replace('-',
-          '.');
-      final Pattern testClassStart = Pattern
-          .compile("INFO com\\.opengamma\\.language\\.util\\.AbstractTest null - Running test \\d+ - ([^\\s]+)");
-      final Pattern timestamp = Pattern.compile("^(\\d+)");
-      final BufferedReader reader = new BufferedReader(new FileReader(getInputFile()));
+    final Map<String, Collection<UnitTest>> testsBySuite = new HashMap<>();
+    final String baseSuite = getInputFile().substring(getInputFile().lastIndexOf(File.separator) + 1).replace('-', '.');
+    final Pattern testClassStart = Pattern.compile(
+        "INFO com\\.opengamma\\.language\\.util\\.AbstractTest null - Running test \\d+ - ([^\\s]+)");
+    final Pattern timestamp = Pattern.compile("^(\\d+)");
+    try (BufferedReader reader = new BufferedReader(new FileReader(getInputFile()))) {
       String str = reader.readLine();
       String currentSuite = null;
       String currentClass = null;

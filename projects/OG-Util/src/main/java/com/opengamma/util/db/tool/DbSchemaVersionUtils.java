@@ -33,8 +33,7 @@ public final class DbSchemaVersionUtils {
     if (schemaVersionStream == null) {
       return null;
     }
-    BufferedReader reader = new BufferedReader(new InputStreamReader(schemaVersionStream));
-    try {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(schemaVersionStream))) {
       String version = reader.readLine();
       return Integer.parseInt(version);
     } catch (Exception e) {
