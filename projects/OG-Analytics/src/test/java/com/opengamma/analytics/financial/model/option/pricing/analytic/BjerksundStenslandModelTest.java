@@ -44,36 +44,97 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     assertEquals(fd, anal, Math.abs(fd) * 2e-8);
   }
 
-  @Test(enabled = false)
-  public void greekTest() {
-    final double s0 = 100;
+  @Test
+  //(enabled = false)
+  public void callTest() {
+    final double[] s0Set = new double[] {90, 100, 110, 160 };
     final double k = 100;
     final double r = 0.1;
-    final double b = 0.0;
-    final double t = 0.5;
+    final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
     final double sigma = 0.35;
+    final double t = 0.5;
 
     BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    final double call = bs.getCallPrice(s0, k, sigma, t, r, b);
-    final double[] pAdj = bs.getCallPriceAdjoint(s0, k, r, b, t, sigma);
+    for (double s0 : s0Set) {
+      for (double b : bSet) {
 
-    System.out.println(call + "\t" + pAdj[0]);
+        final double call = bs.getCallPrice(s0, k, sigma, t, r, b);
+        final double[] sense = bs.getCallPriceAdjoint(s0, k, r, b, t, sigma);
 
-    final double[] parms = new double[] {s0, k, r, b, t, sigma };
-    final int n = parms.length;
-    final double eps = 1e-5;
+        assertEquals("price " + s0 + " " + b, call, sense[0], 1e-13);
+        //  System.out.println(call + "\t" + sense[0]);
 
-    for (int i = 0; i < n; i++) {
-      double[] temp = Arrays.copyOf(parms, n);
-      temp[i] += eps;
-      //double up = bs.getCallPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
-      double up = bs.getCallPriceAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])[0];
-      temp[i] -= 2 * eps;
-      //double down = bs.getCallPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
-      double down = bs.getCallPriceAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])[0];
-      double fd = (up - down) / 2 / eps;
-      System.out.println(fd + "\t" + pAdj[i + 1]);
+        final double[] parms = new double[] {s0, k, r, b, t, sigma };
+        final int n = parms.length;
+        final double eps = 1e-5;
+
+        for (int i = 0; i < n; i++) {
+          double[] temp = Arrays.copyOf(parms, n);
+          temp[i] += eps;
+          double up = bs.getCallPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
+          //double up = bs.getCallPriceAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])[0];
+          temp[i] -= 2 * eps;
+          double down = bs.getCallPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
+          //double down = bs.getCallPriceAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])[0];
+          double fd;
+          if (i == 3 && Math.abs(b) < eps) {
+            //there is a discontinuity in the gradient at at b == 0 r != 0, hence forward difference for the test
+            fd = (up - sense[0]) / eps;
+            assertEquals(i + " " + k + " " + b, fd, sense[i + 1], Math.abs(fd) * 1e-4);
+          } else {
+            fd = (up - down) / 2 / eps;
+            assertEquals(i + " " + k + " " + b, fd, sense[i + 1], Math.abs(fd) * 1e-5);
+          }
+          // System.out.println(fd + "\t" + sense[i + 1]);
+
+        }
+      }
+    }
+  }
+
+  @Test
+  public void putTest() {
+    final double[] s0Set = new double[] {60, 90, 100, 110 };
+    final double k = 100;
+    final double r = 0.1;
+    final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
+    final double sigma = 0.25;
+    final double t = 1.5;
+
+    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+
+    for (double s0 : s0Set) {
+      for (double b : bSet) {
+
+        final double call = bs.getPutPrice(s0, k, sigma, t, r, b);
+        final double[] sense = bs.getPutPriceAdjoint(s0, k, r, b, t, sigma);
+
+        assertEquals("price " + s0 + " " + b, call, sense[0], 1e-13);
+        //System.out.println(call + "\t" + sense[0]);
+
+        final double[] parms = new double[] {s0, k, r, b, t, sigma };
+        final int n = parms.length;
+        final double eps = 1e-5;
+
+        for (int i = 0; i < n; i++) {
+          double[] temp = Arrays.copyOf(parms, n);
+          temp[i] += eps;
+          double up = bs.getPutPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
+          temp[i] -= 2 * eps;
+          double down = bs.getPutPrice(temp[0], temp[1], temp[5], temp[4], temp[2], temp[3]);
+          double fd;
+          if (i == 3 && Math.abs(b) < eps) {
+            //there is a discontinuity in the gradient at at b == 0 r != 0, hence backwards difference for the test
+            fd = (sense[0] - down) / eps;
+            assertEquals(i + " " + k + " " + b, fd, sense[i + 1], Math.abs(fd) * 1e-4);
+          } else {
+            fd = (up - down) / 2 / eps;
+            assertEquals(i + " " + k + " " + b, fd, sense[i + 1], Math.abs(fd) * 1e-5);
+          }
+
+        }
+      }
     }
   }
 
@@ -304,7 +365,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
         double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
         double fd = (up - down) / 2 / eps;
         //System.out.println(fd + "\t" + sense[i + 1]);
-        assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-8);
+        assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-7);
       }
     }
   }
@@ -333,7 +394,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
         double down = bs.getI2Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
         double fd = (up - down) / 2 / eps;
         //   System.out.println(fd + "\t" + sense[i + 1]);
-        assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-8);
+        assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-7);
       }
     }
   }
