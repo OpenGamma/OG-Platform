@@ -56,10 +56,11 @@ public class ScriptsGenerator {
   public static void generate(String className, File scriptDir, Template template, Object templateData, boolean windows) {
     String scriptName = scriptName(className);
     File outputFile;
-    if (windows)
+    if (windows) {
       outputFile = new File(scriptDir + File.separator + scriptName + ".bat");
-    else
+    } else {
       outputFile = new File(scriptDir + File.separator + scriptName + ".sh");
+    }
     writeScriptFile(outputFile, template, templateData);
   }
 
