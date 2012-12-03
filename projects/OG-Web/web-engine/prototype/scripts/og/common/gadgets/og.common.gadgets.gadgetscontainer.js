@@ -133,12 +133,12 @@ $.register_module({
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
                     if (id === void 0) id = live_id;
-                    tabs = gadgets.reduce(function (acc, val, i) {
+                    tabs = gadgets.reduce(function (acc, val, idx) {
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
-                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id,
+                            'col_name': val.config.col_name, 'active': gadgets[idx].active = id === val.id,
                             'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
-                            'gadget': val, 'gadget_index': i
+                            'gadget': val, 'gadget_index': idx
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
