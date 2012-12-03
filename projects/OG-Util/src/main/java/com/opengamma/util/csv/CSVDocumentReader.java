@@ -136,17 +136,22 @@ public final class CSVDocumentReader implements Iterable<FudgeMsg> {
     @Override
     public FudgeMsg next() {
       MutableFudgeMsg currentMsg = s_fudgeContext.newMessage();
-      for (int i = 0; i < _header.length; i++) {
-        try {
-          String currentRow = StringUtils.trimToNull(_currentRow[i]);
-          if (currentRow != null) {
-            currentMsg.add(_header[i], currentRow);
-          }
-        } catch (ArrayIndexOutOfBoundsException ex) {
-          // do nothing, current row has less columns compared to header
+      int size = getMessageSize();
+      for (int i = 0; i < size; i++) {
+        String currentRow = StringUtils.trimToNull(_currentRow[i]);
+        if (currentRow != null) {
+          currentMsg.add(_header[i], currentRow);
         }
       }
       return currentMsg;
+    }
+
+    private int getMessageSize() {
+      int size = _header.length;
+      if (_currentRow.length < size) {
+        size = _currentRow.length;
+      }
+      return size;
     }
 
     @Override
