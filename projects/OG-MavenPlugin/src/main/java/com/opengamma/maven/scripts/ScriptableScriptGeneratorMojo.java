@@ -20,6 +20,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -125,7 +126,7 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
         getLog().warn("No template for scriptable class " + className);
         continue;
       }
-      ScriptsGenerator.generate(className, _outputDir, template, templateData);
+      ScriptsGenerator.generate(className, _outputDir, template, templateData, SystemUtils.IS_OS_WINDOWS);
     }
     
     if (_additionalScripts != null) {
