@@ -17,7 +17,8 @@ $.register_module({
                 if (sparkline = grid.config.sparklines && indicator) sparklines = true;
                 return !value ? ''
                     : (curr < 0 ? '<span class="og-neg">' + value.v + '</span>' : value.v || '') +
-                        (sparkline ? '<span class="OG-g-sp" style="height: 15px; width: 45px;">[' +
+                        (sparkline ? '<span class="OG-g-sp" ' +
+                            'style="height: 15px; width: 45px; position: absolute; top: 3px; right: 18px;">[' +
                             JSON.stringify(value.h.map(function (v, i) {return [i, v];})) + ']</span>' : '') +
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
@@ -29,7 +30,8 @@ $.register_module({
             formatter.CURVE = function (value, width, height) {
                 try {
                     curves = true;
-                    return '<span class="OG-g-fl" style="width: ' + width + 'px; height: ' + height + 'px;">[' +
+                    return '<span class="OG-g-fl" style="width: ' + width + 'px; height: ' + height +
+                        'px; position: absolute; top: 0; right: 0; left: 0; bottom: 0">[' +
                         JSON.stringify(value.v) + ']</span>';
                 } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
             };
