@@ -135,10 +135,13 @@ $.register_module({
                 .on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
                     return grid.fire('viewchange', $(this).html().toLowerCase()), false;
                 })
-                .on('click', '.OG-g-h-set-name', function (event) {
+                .on('click', '.OG-g-h-set-name .og-dropdown', function (event) {
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
                 })
-                .on('mousedown', function (event) {
+                .on('click', '.OG-g-h-set-name .og-sparklines', function (event) {
+                    return grid.config.sparklines = grid.config.sparklines ? false : true, false;
+                })
+                .off('mousedown').on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;

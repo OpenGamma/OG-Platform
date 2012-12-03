@@ -28,3 +28,54 @@
     color: #fff;
     text-shadow: none;
 }
+
+.OG-grid-options div {
+    display: inline-block;
+}
+
+
+/*
+ * Sparklines
+ */
+.OG-grid-options .og-sparklines {
+    border: 1px solid #e0e2e3;
+    background-color: #fff;
+    height: 13px;
+    padding: 0 7px 0 0;
+    line-height: 12px;
+    margin-right: 1px;
+}
+
+.OG-grid-options .og-icon-sparkline {
+    background-color: #555;
+    width: 12px;
+    height: 11px;
+    margin: 1px;
+    vertical-align: sub;
+    cursor: default;
+}
+
+.OG-grid-options .og-sparklines span {
+    margin-left: 2px;
+}
+
+
+/*
+ * Divider
+ */
+.OG-grid-options .og-divider {
+    background-color: #d6d6d6;
+    width: 1px;
+    position: absolute;
+    top: -1px;
+    bottom: 0;
+
+}
+
+/*
+ * Dropdown
+ */
+.OG-grid-options .og-dropdown {
+    margin-left: 5px;
+}
+
