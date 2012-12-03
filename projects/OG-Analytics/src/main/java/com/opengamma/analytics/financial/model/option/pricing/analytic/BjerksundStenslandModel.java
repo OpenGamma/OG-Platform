@@ -11,9 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
-import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
@@ -115,7 +114,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
         final double sigma = data.getVolatility(t, k);
         double r = data.getInterestRate(t);
         double b = data.getCostOfCarry();
-        StandardOptionDataBundle newData = data;
+        //  StandardOptionDataBundle newData = data;
         if (!definition.isCall()) {
           if (s == 0) {
             return k;
@@ -126,20 +125,41 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
           s = k;
           k = temp;
           final YieldAndDiscountCurve curve = data.getInterestRateCurve().withParallelShift(-b);
-          newData = data.withInterestRateCurve(curve).withSpot(s);
+          //  newData = data.withInterestRateCurve(curve).withSpot(s);
         }
-        if (b >= r) {
-          final OptionDefinition european = new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), definition.isCall());
-          final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(european);
-          return bsm.evaluate(newData);
-        }
+        //        if (b >= r) {
+        //          final OptionDefinition european = new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), definition.isCall());
+        //          final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(european);
+        //          return bsm.evaluate(newData);
+        //        }
         return getCallPrice(s, k, sigma, t, r, b);
       }
     };
     return pricingFunction;
   }
 
+  /**
+   * This uses the put-call trnasformation 
+   * @param s
+   * @param k
+   * @param sigma
+   * @param t2
+   * @param r
+   * @param b
+   * @return
+   */
+  protected double getPutPrice(final double s, final double k, final double sigma, final double t2, final double r, final double b) {
+    return getCallPrice(k, s, sigma, t2, r - b, -b);
+  }
+
   protected double getCallPrice(final double s, final double k, final double sigma, final double t2, final double r, final double b) {
+
+    if (b >= r) {
+      final double fwd = s * Math.exp(b * t2);
+      final double df = Math.exp(-r * t2);
+      return df * BlackFormulaRepository.price(fwd, k, t2, sigma, true);
+    }
+
     final double sigmaSq = sigma * sigma;
     final double y = 0.5 - b / sigmaSq;
     final double beta = y + Math.sqrt(y * y + 2 * r / sigmaSq);
@@ -232,10 +252,27 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
 
   protected double[] getCallPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
 
+    double[] res = new double[7];
+    //European option case 
+    if (b >= r) {
+      final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
+      res[0] = mod.price(s0, k, r, b, t, sigma, true);
+      System.arraycopy(mod.getPriceAdjoint(s0, k, r, b, t, sigma, true), 0, res, 1, 6);
+      return res;
+    }
+
+    final double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
+    //early exicise 
+    if (s0 >= x2Adj[0]) {
+      res[0] = s0 - k;
+      res[1] = 1.0;
+      res[2] = -1.0;
+      return res;
+    }
+
+    final double[] x1Adj = getI1Adjoint(k, r, b, sigma, t);
     final double sigmaSq = sigma * sigma;
     final double[] betaAdj = getBetaAdjoint(r, b, sigmaSq);
-    final double[] x1Adj = getI1Adjoint(k, r, b, sigma, t);
-    final double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
     final double[] alpha1Adj = getAlphaAdjoint(k, x1Adj[0], betaAdj[0]);
     final double[] alpha2Adj = getAlphaAdjoint(k, x2Adj[0], betaAdj[0]);
 
@@ -311,13 +348,13 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
 
     //TODO tBar is wrong - cannot find why
     final double tBar = psi5Adj[2] * psi5Bar + psi4Adj[2] * psi4Bar + psi3Adj[2] * psi3Bar + psi2Adj[2] * psi2Bar + psi1Adj[2] * psi1Bar
-        + (phi6Adj[2] * phi6Bar + phi5Adj[2] * phi5Bar + phi4Adj[2] * phi4Bar + phi3Adj[2] * phi3Bar + phi2Adj[2] * phi2Bar + phi1Adj[1] * phi1Bar)
+        + (phi6Adj[2] * phi6Bar + phi5Adj[2] * phi5Bar + phi4Adj[2] * phi4Bar + phi3Adj[2] * phi3Bar + phi2Adj[2] * phi2Bar + phi1Adj[2] * phi1Bar)
         + x2Adj[5] * x2Bar + x1Adj[5] * x1Bar;
 
     final double sigmaBar = psi5Adj[9] * psi5Bar + psi4Adj[9] * psi4Bar + psi3Adj[9] * psi3Bar + psi2Adj[9] * psi2Bar + psi1Adj[9] * psi1Bar
         + phi6Adj[8] * phi6Bar + phi5Adj[8] * phi5Bar + phi4Adj[8] * phi4Bar + phi3Adj[8] * phi3Bar + phi2Adj[8] * phi2Bar + phi1Adj[8] * phi1Bar
         + x2Adj[4] * x2Bar + x1Adj[4] * x1Bar + 2 * sigma * betaAdj[3] * betaBar;
-    double[] res = new double[7];
+
     res[0] = w9;
     res[1] = sBar;
     res[2] = kBar;
@@ -326,6 +363,25 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     res[5] = tBar;
     res[6] = sigmaBar;
 
+    return res;
+  }
+
+  final double[] getPutPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
+
+    final double s0Prime = k;
+    final double kPrime = s0;
+    final double rPrime = r - b;
+    final double bPrime = -b;
+    final double[] cAdjoint = getCallPriceAdjoint(s0Prime, kPrime, rPrime, bPrime, t, sigma);
+    final double[] res = new double[7];
+
+    res[0] = cAdjoint[0];
+    res[1] = cAdjoint[2];
+    res[2] = cAdjoint[1];
+    res[3] = cAdjoint[3];
+    res[4] = -cAdjoint[3] - cAdjoint[4];
+    res[5] = cAdjoint[5];
+    res[6] = cAdjoint[6];
     return res;
   }
 
@@ -635,7 +691,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double[] betaAdj = getBetaAdjoint(r, b, sigmaSq);
     final double zeta = (betaAdj[0]) / (betaAdj[0] - 1);
     final double bInf = zeta * k;
-    final double z = r / (b - r);
+    final double z = r / (r - b);
     final double b0 = z < 1 ? k : k * z;
     final double w1 = -(b * u + 2 * sigmaRootT);
     final double w2 = bInf - b0;
@@ -658,8 +714,8 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double[] res = new double[6];
     res[0] = w6;
     res[1] = 2 * w3 / k * w3Bar + (z < 1 ? 1.0 : z) * b0Bar + zeta * bInfBar; //kBar
-    res[2] = (1 + z) / (b - r) * zBar + betaAdj[1] * betaBar; //rBar
-    res[3] = -u * w1Bar - z / (b - r) * zBar + betaAdj[2] * betaBar; //bBar
+    res[2] = (1 - z) / (r - b) * zBar + betaAdj[1] * betaBar; //rBar
+    res[3] = -u * w1Bar + z / (r - b) * zBar + betaAdj[2] * betaBar; //bBar
     res[4] = -2 * rootT * w1Bar + 2 * sigma * betaAdj[3] * betaBar; //sigmaBar
     res[5] = -(b + sigma / rootT) * w1Bar * (isT1 ? RHO2 : 1.0); //tBar
 
