@@ -187,7 +187,7 @@ public abstract class AbstractDocumentation implements Runnable {
    * Processes the portfolio against the function repository to determine typical properties and applicability of
    * value requirement names to each asset class discovered. The portfolio is filtered so that only a small sample
    * of each unique asset class is considered - this is to save time when there are many portfolios to consider.
-   * 
+   *
    * @param portfolio a portfolio containing a sample of asset class instances
    */
   public void processAvailablePortfolioOutputs(final Portfolio portfolio) {
@@ -201,8 +201,8 @@ public abstract class AbstractDocumentation implements Runnable {
       s_logger.info("Calculating available outputs from {} ({})", portfolio.getName(), portfolio.getUniqueId());
       final AvailableOutputs outputs = new AvailablePortfolioOutputs(filtered, getFunctionRepository(), getFunctionExclusionGroups(), getAvailabilityProvider(), null);
       synchronized (_availableOutputsBySecurityType) {
-        for (AvailableOutput output : outputs.getOutputs()) {
-          for (String securityType : output.getSecurityTypes()) {
+        for (final AvailableOutput output : outputs.getOutputs()) {
+          for (final String securityType : output.getSecurityTypes()) {
             storeMapSet(securityType, output, _availableOutputsBySecurityType);
           }
           if (output.isAvailableOnPortfolioNode()) {
@@ -211,7 +211,7 @@ public abstract class AbstractDocumentation implements Runnable {
         }
       }
       synchronized (_availableOutputsByName) {
-        for (AvailableOutput output : outputs.getOutputs()) {
+        for (final AvailableOutput output : outputs.getOutputs()) {
           storeMapSet(output.getValueName(), output, _availableOutputsByName);
         }
       }
@@ -222,7 +222,7 @@ public abstract class AbstractDocumentation implements Runnable {
    * Parse a source file that describes value requirement names complete with Javadoc. Note the parse
    * is crude at best, so may not be able to handle arbitrary source inputs despite them being legal
    * Java and Javadoc.
-   * 
+   *
    * @param sourceCodePath path to the Java source (e.g. ValueRequirementNames.java)
    */
   public void processValueRequirementNames(final String sourceCodePath) {
@@ -250,7 +250,7 @@ public abstract class AbstractDocumentation implements Runnable {
           }
           StringBuilder sb;
           do {
-            int chars = _underlying.read(cbuf, off, len);
+            final int chars = _underlying.read(cbuf, off, len);
             if (chars <= 0) {
               return chars;
             }
@@ -417,7 +417,7 @@ public abstract class AbstractDocumentation implements Runnable {
         }
       }
       reader.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new OpenGammaRuntimeException("I/O exception", e);
     }
   }
@@ -446,7 +446,7 @@ public abstract class AbstractDocumentation implements Runnable {
         }
       }
       reader.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new OpenGammaRuntimeException("I/O exception", e);
     }
   }
@@ -469,10 +469,10 @@ public abstract class AbstractDocumentation implements Runnable {
         + "each asset class.\n");
     final List<String> categories = new ArrayList<String>(_valueRequirementByCategory.keySet());
     Collections.sort(categories);
-    for (String category : categories) {
+    for (final String category : categories) {
       sb.append("\nh2. ").append(category).append("\n\n");
       sb.append("|| Value Requirement Name || Java Constant || Description ||\n");
-      for (ValueRequirementInfo info : _valueRequirementByCategory.get(category)) {
+      for (final ValueRequirementInfo info : _valueRequirementByCategory.get(category)) {
         sb.append("| ").append(info.getName()).append(" | ").append(info.getSymbol()).append(" | ");
         if (info.getJavadoc().startsWith("TODO")) {
           s_logger.error("Missing javadoc for " + info.getSymbol());
@@ -492,7 +492,7 @@ public abstract class AbstractDocumentation implements Runnable {
   }
 
   /**
-   * Emit a grid of all the top-level value requirement names and which security types they apply to. 
+   * Emit a grid of all the top-level value requirement names and which security types they apply to.
    */
   protected void emitTopLevelRequirementsPage() {
     final StringBuilder sb = new StringBuilder();
@@ -505,7 +505,7 @@ public abstract class AbstractDocumentation implements Runnable {
     final List<String> valueRequirementNames = new ArrayList<String>(_availableOutputsByName.keySet());
     Collections.sort(valueRequirementNames, String.CASE_INSENSITIVE_ORDER);
     sb.append("|| Value Requirement Name");
-    for (String securityType : securityTypes) {
+    for (final String securityType : securityTypes) {
       sb.append(" || ");
       if (securityType.length() == 0) {
         sb.append("[Aggregate|Aggregate Value Requirements]");
@@ -514,20 +514,20 @@ public abstract class AbstractDocumentation implements Runnable {
       }
     }
     sb.append(" ||\n");
-    for (String valueRequirementName : valueRequirementNames) {
+    for (final String valueRequirementName : valueRequirementNames) {
       sb.append("| ").append(valueRequirementName).append(" |");
-      for (AvailableOutput output : _availableOutputsByName.get(valueRequirementName)) {
+      for (final AvailableOutput output : _availableOutputsByName.get(valueRequirementName)) {
         if (output.isAvailableOnPortfolioNode()) {
           sb.append(" Yes");
           break;
         }
       }
-      for (String securityType : securityTypes) {
+      for (final String securityType : securityTypes) {
         if (securityType.length() == 0) {
           continue;
         }
         sb.append(" |");
-        for (AvailableOutput output : _availableOutputsByName.get(valueRequirementName)) {
+        for (final AvailableOutput output : _availableOutputsByName.get(valueRequirementName)) {
           if (output.isAvailableOn(securityType)) {
             sb.append(" Yes");
             break;
@@ -540,7 +540,7 @@ public abstract class AbstractDocumentation implements Runnable {
   }
 
   protected String javaDocToWiki(final String javadoc) {
-    String s = javadoc.replace("\n", " ").replaceAll("\\s\\s+", " ");
+    final String s = javadoc.replace("\n", " ").replaceAll("\\s\\s+", " ").replaceAll("\\{@link #([^\\}]+)\\}", "\\{\\{$1\\}\\}");
     // TODO: handle other javadoc entities and html markup that might be present
     return s;
   }
@@ -551,7 +551,7 @@ public abstract class AbstractDocumentation implements Runnable {
     final List<String> valueNames = new ArrayList<String>(valueRequirements.keySet());
     Collections.sort(valueNames);
     sbTable.append("|| Value Requirement Name || Properties ||\n");
-    for (String valueName : valueNames) {
+    for (final String valueName : valueNames) {
       sbDetail.append("\n{anchor:").append(valueName.replace(" ", "")).append("}\nh2. ").append(valueName).append("\n\n");
       final ValueRequirementInfo valueInfo = _valueRequirementByName.get(valueName);
       if (valueInfo != null) {
@@ -565,8 +565,8 @@ public abstract class AbstractDocumentation implements Runnable {
       }
       sbTable.append("| [").append(valueName).append("|#").append(valueName.replace(" ", "")).append("] | ");
       final Map<String, Set<String>> propertyValues = new HashMap<String, Set<String>>();
-      for (ValueProperties properties : valueRequirements.get(valueName)) {
-        for (String propertyName : properties.getProperties()) {
+      for (final ValueProperties properties : valueRequirements.get(valueName)) {
+        for (final String propertyName : properties.getProperties()) {
           Set<String> values = propertyValues.get(propertyName);
           if (values == null) {
             values = new HashSet<String>();
@@ -579,7 +579,7 @@ public abstract class AbstractDocumentation implements Runnable {
       Collections.sort(propertyNames);
       int count = 0;
       boolean comma = false;
-      for (String propertyName : propertyNames) {
+      for (final String propertyName : propertyNames) {
         if (ValuePropertyNames.FUNCTION.equals(propertyName)) {
           continue;
         }
@@ -596,7 +596,7 @@ public abstract class AbstractDocumentation implements Runnable {
         // TODO: fetch the description of the property name in the context of this value requirement name & construct any links etc ...
         String s = valueName + "." + propertyName;
         int i = -1;
-        for (Pair<Pattern, String> description : _valuePropertyDescription) {
+        for (final Pair<Pattern, String> description : _valuePropertyDescription) {
           i++;
           final Matcher m = description.getKey().matcher(s);
           if (m.matches()) {
@@ -619,7 +619,7 @@ public abstract class AbstractDocumentation implements Runnable {
           }
           int count2 = 0;
           boolean comma2 = false;
-          for (String exampleValue : exampleValues) {
+          for (final String exampleValue : exampleValues) {
             if (comma2) {
               sbDetail.append(", ");
             } else {
@@ -646,13 +646,13 @@ public abstract class AbstractDocumentation implements Runnable {
 
   /**
    * Creates an asset class page detailing the value requirements available and properties.
-   * 
+   *
    * @param securityType the security type
    */
   protected void emitSecurityTypePage(final String securityType) {
     final StringBuilder sb = new StringBuilder();
     final Map<String, Set<ValueProperties>> valueRequirements = new HashMap<String, Set<ValueProperties>>();
-    for (AvailableOutput output : _availableOutputsBySecurityType.get(securityType)) {
+    for (final AvailableOutput output : _availableOutputsBySecurityType.get(securityType)) {
       storeMapSet(output.getValueName(), output.getPositionProperties(securityType), valueRequirements);
     }
     emitValueRequirements(valueRequirements, sb);
@@ -663,7 +663,7 @@ public abstract class AbstractDocumentation implements Runnable {
    * Creates a page for each asset class.
    */
   protected void emitSecurityTypePages() {
-    for (String securityType : _availableOutputsBySecurityType.keySet()) {
+    for (final String securityType : _availableOutputsBySecurityType.keySet()) {
       if (securityType.length() == 0) {
         continue;
       }
@@ -677,7 +677,7 @@ public abstract class AbstractDocumentation implements Runnable {
   protected void emitAggregationPage() {
     final StringBuilder sb = new StringBuilder();
     final Map<String, Set<ValueProperties>> valueRequirements = new HashMap<String, Set<ValueProperties>>();
-    for (AvailableOutput output : _availableOutputsBySecurityType.get("")) {
+    for (final AvailableOutput output : _availableOutputsBySecurityType.get("")) {
       storeMapSet(output.getValueName(), output.getPortfolioNodeProperties(), valueRequirements);
     }
     emitValueRequirements(valueRequirements, sb);
@@ -692,14 +692,14 @@ public abstract class AbstractDocumentation implements Runnable {
         return o1.getValue().get() - o2.getValue().get();
       }
     });
-    for (Map.Entry<String, AtomicInteger> property : properties) {
+    for (final Map.Entry<String, AtomicInteger> property : properties) {
       s_logger.error("No property description for {} ({} times)", property.getKey(), property.getValue());
     }
   }
 
   protected void reportOverdocumentedProperties() {
     int i = 0;
-    for (Pair<Pattern, String> entry : _valuePropertyDescription) {
+    for (final Pair<Pattern, String> entry : _valuePropertyDescription) {
       if (_valuePropertyDescriptionUsed[i++] == 0) {
         s_logger.warn("Entry {} never used ({})", entry.getFirst().pattern(), entry.getSecond());
       }
@@ -715,6 +715,7 @@ public abstract class AbstractDocumentation implements Runnable {
     emitSecurityTypePages();
     emitAggregationPage();
     reportUndocumentedProperties();
+    reportOverdocumentedProperties();
   }
 
 }

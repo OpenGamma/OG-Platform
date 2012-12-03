@@ -24,6 +24,7 @@ public final class PrettyPrintSecurityType {
     s_data.put("CAP-FLOOR", "Cap/Floor");
     s_data.put("CAP-FLOOR CMS SPREAD", "Cap/Floor CMS Spread");
     s_data.put("CASH", "Cash");
+    s_data.put("COMMODITYFUTURE_OPTION", "Commodity Future Option");
     s_data.put("EQUITY", "Equity");
     s_data.put("EQUITY VARIANCE SWAP", "Equity Variance Swap");
     s_data.put("EQUITY_BARRIER_OPTION", "Equity Barrier Option");
