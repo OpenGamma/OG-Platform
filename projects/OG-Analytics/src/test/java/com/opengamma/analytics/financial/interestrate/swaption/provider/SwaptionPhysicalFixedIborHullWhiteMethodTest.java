@@ -14,6 +14,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -28,6 +30,7 @@ import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhit
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.financial.montecarlo.provider.HullWhiteMonteCarloMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -43,6 +46,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -73,7 +77,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final boolean IS_LONG = true;
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SPOT_LAG, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
-  private static final double RATE = 0.0325;
+  private static final double RATE = 0.0175;
   private static final boolean FIXED_IS_PAYER = true;
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER);
@@ -98,6 +102,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
+  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
@@ -108,8 +113,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
 
   private static final SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod METHOD_HW_INTEGRATION = SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteApproximationMethod METHOD_HW_APPROXIMATION = SwaptionPhysicalFixedIborHullWhiteApproximationMethod.getInstance();
-  //  private static final int NB_PATH = 12500;
-  //  private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
+  private static final int NB_PATH = 12500;
+  private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, CUR);
@@ -215,57 +220,56 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     assertEquals("Swaption physical - Hull-White - present value - explicit/numerical integration", pvReceiverLongExplicit.getAmount(CUR), pvReceiverLongApproximation.getAmount(CUR), 5.0E+2);
   }
 
-  //  @Test
-  //  /**
-  //   * Approximation analysis.
-  //   */
-  //  public void presentValueApproximationAnalysis() {
-  //    BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
-  //    int nbStrike = 20;
-  //    double[] pvExplicit = new double[nbStrike + 1];
-  //    double[] pvApproximation = new double[nbStrike + 1];
-  //    double[] strike = new double[nbStrike + 1];
-  //    double[] volExplicit = new double[nbStrike + 1];
-  //    double[] volApprox = new double[nbStrike + 1];
-  //    double strikeRange = 0.035;
-  //    SwapFixedCoupon<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  //    double forward = ParRateCalculator.getInstance().visit(swap, CURVES);
-  //    double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, CURVES);
-  //    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
-  //      strike[loopstrike] = forward - strikeRange + 3 * strikeRange * loopstrike / nbStrike; // From forward-strikeRange to forward+2*strikeRange
-  //      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);
-  //      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition, IS_LONG);
-  //      SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  //      pvExplicit[loopstrike] = METHOD_HW.presentValue(swaption, BUNDLE_HW).getAmount();
-  //      pvApproximation[loopstrike] = METHOD_HW_APPROXIMATION.presentValue(swaption, BUNDLE_HW).getAmount();
-  //      BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
-  //      volExplicit[loopstrike] = implied.getImpliedVolatility(data, swaption, pvExplicit[loopstrike]);
-  //      volApprox[loopstrike] = implied.getImpliedVolatility(data, swaption, pvApproximation[loopstrike]);
-  //      assertEquals("Swaption physical - Hull-White - implied volatility - explicit/approximation", volExplicit[loopstrike], volApprox[loopstrike], 0.1E-2); // 0.10%
-  //    }
-  //  }
-  //
-  //  @Test(enabled = true)
-  //  /**
-  //   * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
-  //   */
-  //  public void presentValueMonteCarlo() {
-  //    int nbPath = 12500;
-  //    HullWhiteMonteCarloMethod methodMC;
-  //    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-  //    // Seed fixed to the DEFAULT_SEED for testing purposes.
-  //    CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
-  //    CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+4);
-  //    double pvMCPreviousRun = 5137844.655;
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(), 1.0E-2);
-  //    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-  //    CurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_PAYER_SHORT, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvPayerLongMC.getAmount(), pvPayerShortMC.getAmount(), 1.0E-2);
-  //    CurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_RECEIVER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    double pvSwap = PVC.visit(SWAP_RECEIVER, CURVES);
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo - payer/receiver/swap parity", pvReceiverLongMC.getAmount() + pvPayerShortMC.getAmount(), pvSwap, 1.0E+5);
-  //  }
+  @Test
+  /**
+   * Approximation analysis.
+   */
+  public void presentValueApproximationAnalysis() {
+    BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
+    int nbStrike = 20;
+    double[] pvExplicit = new double[nbStrike + 1];
+    double[] pvApproximation = new double[nbStrike + 1];
+    double[] strike = new double[nbStrike + 1];
+    double[] volExplicit = new double[nbStrike + 1];
+    double[] volApprox = new double[nbStrike + 1];
+    double strikeRange = 0.010;
+    SwapFixedCoupon<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    double forward = swap.accept(PRDC, MULTICURVES);
+    double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, MULTICURVES);
+    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
+      strike[loopstrike] = forward - strikeRange + 3 * strikeRange * loopstrike / nbStrike; // From forward-strikeRange to forward+2*strikeRange
+      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);
+      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition, IS_LONG);
+      SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      pvExplicit[loopstrike] = METHOD_HW.presentValue(swaption, HW_MULTICURVES).getAmount(CUR);
+      pvApproximation[loopstrike] = METHOD_HW_APPROXIMATION.presentValue(swaption, HW_MULTICURVES).getAmount(CUR);
+      BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
+      volExplicit[loopstrike] = implied.getImpliedVolatility(data, swaption, pvExplicit[loopstrike]);
+      volApprox[loopstrike] = implied.getImpliedVolatility(data, swaption, pvApproximation[loopstrike]);
+      assertEquals("Swaption physical - Hull-White - implied volatility - explicit/approximation", volExplicit[loopstrike], volApprox[loopstrike], 1.0E-3); // 0.10%
+    }
+  }
+
+  @Test(enabled = true)
+  /**
+   * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
+   */
+  public void presentValueMonteCarlo() {
+    HullWhiteMonteCarloMethod methodMC;
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+    // Seed fixed to the DEFAULT_SEED for testing purposes.
+    MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    MultipleCurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_LONG_PAYER, CUR, HW_MULTICURVES);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(CUR), pvPayerLongMC.getAmount(CUR), 1.0E+4);
+    double pvMCPreviousRun = 5788344.797;
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(CUR), TOLERANCE_PV);
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+    MultipleCurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_SHORT_PAYER, CUR, HW_MULTICURVES);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvPayerLongMC.getAmount(CUR), pvPayerShortMC.getAmount(CUR), TOLERANCE_PV);
+    MultipleCurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_LONG_RECEIVER, CUR, HW_MULTICURVES);
+    MultipleCurrencyAmount pvSwap = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo - payer/receiver/swap parity", pvReceiverLongMC.getAmount(CUR) + pvPayerShortMC.getAmount(CUR), pvSwap.getAmount(CUR), 1.0E+5);
+  }
 
   @Test
   /**
@@ -353,45 +357,17 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
         pvhwsReceiverLong.plus(pvhwsPayerShort).cleaned(TOLERANCE_PV_DELTA), TOLERANCE_PV_DELTA);
   }
 
-  //
-  //  @Test
-  //  /**
-  //   * Tests the curve sensitivity in Monte Carlo approach.
-  //   */
-  //  public void presentValueCurveSensitivityMonteCarlo() {
-  //    double toleranceDelta = 1.0E+6; // 100 USD by bp
-  //    InterestRateCurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-  //    int nbPath = 30000; // 10000 path -> 200 USD by bp
-  //    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-  //    InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    pvcsMC = pvcsMC.cleaned();
-  //    InterestRateCurveSensitivity diff = pvcsExplicit.cleaned().plus(pvcsMC.multipliedBy(-1)).cleaned();
-  //    final List<DoublesPair> sensiDsc = diff.getSensitivities().get(FUNDING_CURVE_NAME);
-  //    int nbDsc = sensiDsc.size();
-  //    for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {
-  //      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopdsc + ")", 0.0, sensiDsc.get(loopdsc).second, toleranceDelta);
-  //    }
-  //    final List<DoublesPair> sensiFwd = diff.getSensitivities().get(FORWARD_CURVE_NAME);
-  //    int nbFwd = sensiFwd.size();
-  //    for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-  //      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopfwd + ")", 0.0, sensiFwd.get(loopfwd).second, toleranceDelta);
-  //    }
-  //
-  //    // From previous run
-  //    final List<DoublesPair> sensiDscMC = pvcsMC.getSensitivities().get(FUNDING_CURVE_NAME);
-  //    final List<DoublesPair> sensiFwdMC = pvcsMC.getSensitivities().get(FORWARD_CURVE_NAME);
-  //    double[] sensiDscExpected = new double[] {0.0000, 0.0000, -3637714.1984, 557942.4840, -3787541.0789, 613898.2842, -4080860.4679, 589073.7077, -4178299.1839, 652156.5042, -4447809.9953,
-  //        617234.4471, -4506992.0525, 678479.4058, -4754223.0800, 591911.3273, -4821219.8085, 708193.7945, -4922426.5897, 664008.0977, -5056657.1907, 734532.5709};
-  //    double[] sensiFwdExpected = new double[] {-248654368.3630, 4284328.0810, 4407573.3981, 4466697.9207, 4639237.7090, 4802919.1013, 4902043.1034, 4924368.2503, 5082799.3958, 5231525.2847,
-  //        5310677.1705, 5308454.0898, 5453701.6063, 5606360.6795, 5762074.8382, 5665693.0081, 9427619.7175, -343032977.1261, 348874771.7538, -350204210.4835, 352341391.2901, 5938939.1529,
-  //        362465824.7561};
-  //    for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {
-  //      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopdsc + ")", sensiDscExpected[loopdsc], sensiDscMC.get(loopdsc).second, 1.0E-2);
-  //    }
-  //    for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
-  //      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopfwd + ")", sensiFwdExpected[loopfwd], sensiFwdMC.get(loopfwd).second, 1.0E-2);
-  //    }
-  //  }
+  @Test
+  /**
+   * Tests the curve sensitivity in Monte Carlo approach.
+   */
+  public void presentValueCurveSensitivityMonteCarlo() {
+    double toleranceDelta = 1.0E+6; // 100 USD by bp
+    MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
+    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+    MultipleCurrencyMulticurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, CUR, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
+    AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvcsExplicit, pvcsMC, toleranceDelta);
+  }
 
   @Test(enabled = false)
   /**
@@ -399,14 +375,14 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 10000;
+    final int nbTest = 1000;
     MultipleCurrencyAmount pvPayerLongExplicit = MultipleCurrencyAmount.of(CUR, 0.0);
     MultipleCurrencyAmount pvPayerLongIntegration = MultipleCurrencyAmount.of(CUR, 0.0);
     MultipleCurrencyAmount pvPayerLongApproximation = MultipleCurrencyAmount.of(CUR, 0.0);
-    //      MultipleCurrencyAmount pvPayerLongMC;
+    @SuppressWarnings("unused")
+    MultipleCurrencyAmount pvPayerLongMC = MultipleCurrencyAmount.of(CUR, 0.0);
     double[] pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     MultipleCurrencyMulticurveSensitivity pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    //    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -453,13 +429,13 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     System.out.println(nbTest + " swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
     // Performance note: HW approximation: 19-Nov-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 10000 swaptions.
 
-    //      startTime = System.currentTimeMillis();
-    //      for (int looptest = 0; looptest < nbTest; looptest++) {
-    //        pvPayerLongMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_LONG_PAYER, CUR, FUNDING_CURVE_NAME, HW_MULTICURVES);
-    //      }
-    //      endTime = System.currentTimeMillis();
-    //      System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms");
-    //      // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 9200 ms for 1000 swaptions (12500 paths).
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_LONG_PAYER, CUR, HW_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms");
+    // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 9200 ms for 1000 swaptions (12500 paths).
 
     final double difference = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongIntegration.getAmount(CUR);
     final double difference2 = pvPayerLongExplicit.getAmount(CUR) - pvPayerLongApproximation.getAmount(CUR);
@@ -471,33 +447,33 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     System.out.println("HW sensitivity: " + Arrays.toString(pvhws));
   }
 
-  //  @Test(enabled = false)
-  //  /**
-  //   * Tests of performance. "enabled = false" for the standard testing.
-  //   */
-  //  public void performanceCurveSensitivity() {
-  //    long startTime, endTime;
-  //    final int nbTest = 25;
-  //    CurrencyAmount pvMC = CurrencyAmount.of(CUR, 0.0);
-  //    InterestRateCurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-  //    InterestRateCurveSensitivity pvcsMC = pvcsExplicit;
-  //    int nbPath = 12500;
-  //    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-  //
-  //    startTime = System.currentTimeMillis();
-  //    for (int looptest = 0; looptest < nbTest; looptest++) {
-  //      pvMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_PAYER_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    }
-  //    endTime = System.currentTimeMillis();
-  //    System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms / price:" + pvMC.toString());
-  //    // Performance note: HW approximation: 14-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 240 ms for 25 swaptions (12500 paths).
-  //    startTime = System.currentTimeMillis();
-  //    for (int looptest = 0; looptest < nbTest; looptest++) {
-  //      pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, FUNDING_CURVE_NAME, BUNDLE_HW);
-  //    }
-  //    endTime = System.currentTimeMillis();
-  //    System.out.println(nbTest + " curve sensitivity swaption Hull-White MC method: (" + nbPath + " paths) " + (endTime - startTime) + " ms / risk:" + pvcsMC.toString());
-  //    // Performance note: curve sensitivity (40): 12-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 765 ms for 25 swaptions (12500 paths).
-  //  }
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performanceCurveSensitivity() {
+    long startTime, endTime;
+    final int nbTest = 25;
+    MultipleCurrencyAmount pvMC = MultipleCurrencyAmount.of(CUR, 0.0);
+    MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    MultipleCurrencyMulticurveSensitivity pvcsMC = pvcsExplicit;
+    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_LONG_PAYER, CUR, HW_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms / price:" + pvMC.toString());
+    // Performance note: HW approximation: 03-Dec-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 25 swaptions (12500 paths).
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, CUR, HW_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve sensitivity swaption Hull-White MC method: (" + NB_PATH + " paths) " + (endTime - startTime) + " ms / risk:" + pvcsMC.toString());
+    // Performance note: curve sensitivity (40): 03-Dec-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 600 ms for 25 swaptions (12500 paths).
+
+  }
 
 }

@@ -9,13 +9,13 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProvider, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -51,7 +51,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
    * @return The par spread.
    */
   @Override
-  public MulticurveSensitivity visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProviderInterface multicurves) {
+  public MulticurveSensitivity visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProvider multicurves) {
     return METHOD_IRFUT_HW.priceCurveSensitivity(futures, multicurves);
   }
 

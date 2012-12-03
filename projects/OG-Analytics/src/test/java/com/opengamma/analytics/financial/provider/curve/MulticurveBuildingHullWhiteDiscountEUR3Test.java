@@ -52,7 +52,7 @@ import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpread
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -339,7 +339,7 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
    * Analyzes the shape of the forward curve.
    */
   public void forwardAnalysis() {
-    final HullWhiteOneFactorProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
+    final HullWhiteOneFactorProvider marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
     final int jump = 1;
     final int startIndex = 0;
     final int nbDate = 2750;
@@ -365,8 +365,8 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   }
 
   private static Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final HullWhiteOneFactorProviderDiscount knownData, final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
+      final String[][] curveNames, final HullWhiteOneFactorProviderDiscount knownData, final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, Double> calculator,
+      final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nbUnits = curveGenerators.length;
     final double[][] parametersGuess = new double[nbUnits][];
     final GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];

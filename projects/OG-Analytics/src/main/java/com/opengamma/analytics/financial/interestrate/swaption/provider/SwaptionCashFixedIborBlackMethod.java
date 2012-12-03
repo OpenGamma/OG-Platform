@@ -57,7 +57,7 @@ public final class SwaptionCashFixedIborBlackMethod {
   /**
    * The par rate calculator.
    */
-  private static final ParRateDiscountingCalculator PRC = ParRateDiscountingCalculator.getInstance();
+  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   /**
    * The swap method.
    */
@@ -74,7 +74,7 @@ public final class SwaptionCashFixedIborBlackMethod {
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
     final double tenor = swaption.getMaturityTime();
-    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack.getMulticurveProvider());
+    final double forward = swaption.getUnderlyingSwap().accept(PRDC, curveBlack.getMulticurveProvider());
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
@@ -98,7 +98,7 @@ public final class SwaptionCashFixedIborBlackMethod {
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
-    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack.getMulticurveProvider());
+    final double forward = swaption.getUnderlyingSwap().accept(PRDC, curveBlack.getMulticurveProvider());
     // Derivative of the forward with respect to the rates.
     final MulticurveSensitivity forwardDr = swaption.getUnderlyingSwap().accept(PRCS, curveBlack.getMulticurveProvider());
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
@@ -132,7 +132,7 @@ public final class SwaptionCashFixedIborBlackMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
-    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack.getMulticurveProvider());
+    final double forward = swaption.getUnderlyingSwap().accept(PRDC, curveBlack.getMulticurveProvider());
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getMulticurveProvider().getDiscountFactor(swaption.getCurrency(), swaption.getSettlementTime());
     final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());

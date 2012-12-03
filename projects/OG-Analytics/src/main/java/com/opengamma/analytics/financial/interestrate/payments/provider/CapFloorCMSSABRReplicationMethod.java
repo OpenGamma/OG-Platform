@@ -138,8 +138,8 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
     final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward);
     final double factor = discountFactor / integrantDelta.h(forward) * integrantDelta.g(forward);
-    final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    final double relativeTolerance = 1E-2;
+    final double absoluteTolerance = 1.0E+1 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
+    final double relativeTolerance = 1.0E-2;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
     // Price
     final double[] bs = integrantDelta.bsbsp(strike);

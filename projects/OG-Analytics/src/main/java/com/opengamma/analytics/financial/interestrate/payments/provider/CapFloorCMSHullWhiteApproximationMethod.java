@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
@@ -65,7 +65,7 @@ public final class CapFloorCMSHullWhiteApproximationMethod {
    * @param hwMulticurves The Hull-White and multi-curves provider.
    * @return The cap/floor price.
    */
-  public MultipleCurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorProvider hwMulticurves) {
     ArgumentChecker.notNull(cms, "CMS");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White provider");
     Currency ccy = cms.getCurrency();

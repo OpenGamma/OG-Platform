@@ -49,6 +49,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Triple;
 
 public class SwaptionPhysicalFixedIborSABRMethodTest {
 
@@ -297,20 +298,48 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //    double atm = PRDC.visit(swaptions[0].getUnderlyingSwap(), CURVES);
   //  }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 1000;
+    final int nbTest = 5000;
     final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
     final MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbTest];
     final PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
+    @SuppressWarnings("unused")
+    Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle> pvad;
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
+    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 5000 swaptions.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
+    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 210 ms for 5000 swaptions.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pvcs[looptest] = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pvss[looptest] = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
+    // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
@@ -318,9 +347,17 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-      pvss[looptest] = PVSSSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-      pvcs[looptest] = PVCSSSC.visit(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
+    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 1000 swaptions.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pvcs[looptest] = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+      pvss[looptest] = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");

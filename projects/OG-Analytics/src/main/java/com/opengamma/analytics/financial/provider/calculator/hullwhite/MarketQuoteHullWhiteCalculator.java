@@ -11,12 +11,12 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Delivera
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 
 /**
  * Calculate the market quote of instruments dependent of a Hull-White one factor provider.
  */
-public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, Double> {
+public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProvider, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -44,19 +44,19 @@ public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVi
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IR_FUT = InterestRateFutureSecurityHullWhiteMethod.getInstance();
 
   @Override
-  public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
+  public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProvider multicurves) {
     return derivative.accept(this, multicurves);
   }
 
   //     -----     Futures     -----
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public Double visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_IR_FUT.price(futures, hullWhite);
   }
 
   @Override
-  public Double visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public Double visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_SWAP_FUT.price(futures, hullWhite);
   }
 

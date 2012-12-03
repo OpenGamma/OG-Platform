@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
@@ -74,7 +74,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hullWhite.getMulticurveProvider());
     return presentValue(swaption, cfe, hullWhite);
@@ -87,7 +87,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
     final double expiryTime = swaption.getTimeToExpiry();
@@ -114,7 +114,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value Hull-White parameters sensitivity.
    */
-  public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
     final int nbSigma = hullWhite.getHullWhiteParameters().getVolatility().length;
@@ -158,7 +158,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
     final Currency ccy = swaption.getCurrency();

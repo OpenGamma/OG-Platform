@@ -13,13 +13,13 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloor
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProvider, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -51,19 +51,19 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   //     -----     Payment/Coupon     -----
 
   @Override
-  public MultipleCurrencyAmount visitCapFloorIbor(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitCapFloorIbor(final CapFloorIbor cap, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_CAPFLOOR_IBOR.presentValue(cap, hullWhite);
   }
 
   //     -----     Futures     -----
 
   @Override
-  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_IRFUT_HW.presentValue(futures, hullWhite);
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_SWPT_PHYS.presentValue(swaption, hullWhite);
   }
 

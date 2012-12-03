@@ -96,7 +96,6 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
     final double[] volatilityAdjoint = sabr.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();

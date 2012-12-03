@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -59,7 +59,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod 
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(hullWhite, "Hull-White provider");
     final Currency ccy = swaption.getCurrency();

@@ -11,13 +11,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Delivera
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.DeliverableSwapFuturesSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
  * Calculate the market quote of instruments dependent of a Hull-White one factor provider.
  */
-public final class MarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> {
+public final class MarketQuoteCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProvider, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -45,19 +45,19 @@ public final class MarketQuoteCurveSensitivityHullWhiteCalculator extends Instru
   private static final DeliverableSwapFuturesSecurityHullWhiteMethod METHOD_SWAP_FUT = DeliverableSwapFuturesSecurityHullWhiteMethod.getInstance();
 
   @Override
-  public MulticurveSensitivity visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
+  public MulticurveSensitivity visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProvider multicurves) {
     return derivative.accept(this, multicurves);
   }
 
   //     -----     Futures     -----
 
   @Override
-  public MulticurveSensitivity visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MulticurveSensitivity visitInterestRateFuture(final InterestRateFuture futures, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_IR_FUT.priceCurveSensitivity(futures, hullWhite);
   }
 
   @Override
-  public MulticurveSensitivity visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MulticurveSensitivity visitDeliverableSwapFuturesSecurity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProvider hullWhite) {
     return METHOD_SWAP_FUT.priceCurveSensitivity(futures, hullWhite);
   }
 

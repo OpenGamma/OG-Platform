@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 
@@ -33,7 +33,7 @@ public class SuccessiveRootFinderHullWhiteCalibrationObjective extends Successiv
   /**
    * The Hull-White parameters and curves bundle.
    */
-  private HullWhiteOneFactorProviderInterface _hwProvider;
+  private HullWhiteOneFactorProvider _hwProvider;
 
   /**
    * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value 
@@ -57,7 +57,7 @@ public class SuccessiveRootFinderHullWhiteCalibrationObjective extends Successiv
    */
   @Override
   public void setMulticurves(MulticurveProviderInterface multicurves) {
-    _hwProvider = new HullWhiteOneFactorProviderInterface(multicurves, _hwParameters, _ccyHW);
+    _hwProvider = new HullWhiteOneFactorProvider(multicurves, _hwParameters, _ccyHW);
   }
 
   /**
@@ -72,7 +72,7 @@ public class SuccessiveRootFinderHullWhiteCalibrationObjective extends Successiv
    * Sets the Hull-White curve bundle.
    * @return The Hull-White curve bundle.
    */
-  public HullWhiteOneFactorProviderInterface getHwProvider() {
+  public HullWhiteOneFactorProvider getHwProvider() {
     return _hwProvider;
   }
 

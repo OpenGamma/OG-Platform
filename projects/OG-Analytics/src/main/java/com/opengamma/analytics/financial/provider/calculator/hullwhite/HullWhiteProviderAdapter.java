@@ -8,14 +8,14 @@ package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 
 /**
  * 
  * @param <RESULT_TYPE> The result-type for the provider.
  */
-public class HullWhiteProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, RESULT_TYPE> {
+public class HullWhiteProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProvider, RESULT_TYPE> {
   private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
 
   public HullWhiteProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
@@ -28,7 +28,7 @@ public class HullWhiteProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeV
   }
 
   @Override
-  public RESULT_TYPE visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface data) {
+  public RESULT_TYPE visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProvider data) {
     return derivative.accept(_visitor, data.getMulticurveProvider());
   }
 

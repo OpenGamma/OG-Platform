@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.provider.description;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -16,16 +16,16 @@ import com.opengamma.util.money.Currency;
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvider {
+public class LiborMarketModelDisplacedDiffusionProviderDiscount extends LiborMarketModelDisplacedDiffusionProvider {
 
   /**
-   * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
+   * Constructor from exiting multicurveProvider and LMM parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
    * @param multicurves The multi-curves provider.
-   * @param parameters The Hull-White one factor parameters.
-   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   * @param parameters The LMM one factor parameters.
+   * @param ccy The currency for which the LMM parameters are valid (LMM on the discounting curve).
    */
-  public HullWhiteOneFactorProviderDiscount(final MulticurveProviderDiscount multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
-    super(multicurves, parameters, ccyHW);
+  public LiborMarketModelDisplacedDiffusionProviderDiscount(final MulticurveProviderDiscount multicurves, LiborMarketModelDisplacedDiffusionParameters parameters, Currency ccy) {
+    super(multicurves, parameters, ccy);
   }
 
   /**
@@ -42,9 +42,9 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    * @return The bundle.
    */
   @Override
-  public HullWhiteOneFactorProviderDiscount copy() {
+  public LiborMarketModelDisplacedDiffusionProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
-    return new HullWhiteOneFactorProviderDiscount(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
+    return new LiborMarketModelDisplacedDiffusionProviderDiscount(multicurveProvider, getLMMParameters(), getLMMCurrency());
   }
 
   /**
@@ -106,7 +106,7 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    * @param other The other provider.
    * TODO: REVIEW: Should we check that the curve are already present? Should we update the HW parameters.
    */
-  public void setAll(final HullWhiteOneFactorProviderDiscount other) {
+  public void setAll(final LiborMarketModelDisplacedDiffusionProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     getMulticurveProvider().setAll(other.getMulticurveProvider());
   }
@@ -131,19 +131,19 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
     getMulticurveProvider().replaceCurve(index, curve);
   }
 
-  public HullWhiteOneFactorProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
+  public LiborMarketModelDisplacedDiffusionProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
     MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
+    return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 
-  public HullWhiteOneFactorProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+  public LiborMarketModelDisplacedDiffusionProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
     MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
+    return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 
-  public HullWhiteOneFactorProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+  public LiborMarketModelDisplacedDiffusionProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
     MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
-    return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
+    return new LiborMarketModelDisplacedDiffusionProviderDiscount(decoratedMulticurve, getLMMParameters(), getLMMCurrency());
   }
 
 }

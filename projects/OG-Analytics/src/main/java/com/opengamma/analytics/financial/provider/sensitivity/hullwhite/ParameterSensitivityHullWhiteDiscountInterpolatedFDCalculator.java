@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -36,7 +36,7 @@ public class ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator {
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -47,7 +47,7 @@ public class ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;

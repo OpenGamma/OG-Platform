@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -30,12 +30,12 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityHullWhiteCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityHullWhiteCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface hullWhite,
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProvider hullWhite,
       final Set<String> curvesSet) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     // YieldAndDiscount

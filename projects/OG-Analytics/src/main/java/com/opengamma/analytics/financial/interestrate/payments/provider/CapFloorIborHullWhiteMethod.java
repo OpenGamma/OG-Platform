@@ -13,7 +13,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -76,7 +76,7 @@ public final class CapFloorIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
     Currency ccy = cap.getCurrency();
@@ -105,7 +105,7 @@ public final class CapFloorIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
     Currency ccy = cap.getCurrency();
@@ -152,7 +152,7 @@ public final class CapFloorIborHullWhiteMethod {
    * @param hullWhite The Hull-White parameters and the curves.
    * @return The present value parameters sensitivity.
    */
-  public double[] presentValueHullWhiteSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public double[] presentValueHullWhiteSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProvider hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
     Currency ccy = cap.getCurrency();

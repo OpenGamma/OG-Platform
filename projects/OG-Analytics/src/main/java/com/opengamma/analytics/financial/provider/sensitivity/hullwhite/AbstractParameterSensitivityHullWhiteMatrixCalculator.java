@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -28,13 +28,13 @@ public abstract class AbstractParameterSensitivityHullWhiteMatrixCalculator {
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times for the discounting curve
    * and with respect to forward rates for the forward curves.
    */
-  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> _curveSensitivityCalculator;
+  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MulticurveSensitivity> _curveSensitivityCalculator;
 
   /**
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterSensitivityHullWhiteMatrixCalculator(final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
+  public AbstractParameterSensitivityHullWhiteMatrixCalculator(final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
@@ -49,7 +49,7 @@ public abstract class AbstractParameterSensitivityHullWhiteMatrixCalculator {
    * instrument sensitivity but only the one in the set will be in the output. The curve order in the output is the set order.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final HullWhiteOneFactorProviderInterface multicurves, final Set<String> curvesSet) {
+  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final HullWhiteOneFactorProvider multicurves, final Set<String> curvesSet) {
     Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(multicurves, "null multicurve");
     Validate.notNull(curvesSet, "null curves set");
@@ -66,6 +66,6 @@ public abstract class AbstractParameterSensitivityHullWhiteMatrixCalculator {
    * @param curvesSet The set of curves for which the sensitivity will be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public abstract DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface multicurves, final Set<String> curvesSet);
+  public abstract DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final HullWhiteOneFactorProvider multicurves, final Set<String> curvesSet);
 
 }

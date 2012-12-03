@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Interface for Hull-White parameters provider for one currency.
  */
-public class HullWhiteOneFactorProviderInterface {
+public class HullWhiteOneFactorProvider {
 
   /**
    * The multicurve provider.
@@ -32,7 +32,7 @@ public class HullWhiteOneFactorProviderInterface {
    * @param parameters The Hull-White one factor parameters.
    * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
    */
-  public HullWhiteOneFactorProviderInterface(final MulticurveProviderInterface multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
+  public HullWhiteOneFactorProvider(final MulticurveProviderInterface multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
     _multicurveProvider = multicurves;
     _parameters = parameters;
     _ccyHW = ccyHW;
@@ -42,9 +42,9 @@ public class HullWhiteOneFactorProviderInterface {
    * Create a new copy of the provider.
    * @return The bundle.
    */
-  public HullWhiteOneFactorProviderInterface copy() {
+  public HullWhiteOneFactorProvider copy() {
     MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
-    return new HullWhiteOneFactorProviderInterface(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
+    return new HullWhiteOneFactorProvider(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   /**

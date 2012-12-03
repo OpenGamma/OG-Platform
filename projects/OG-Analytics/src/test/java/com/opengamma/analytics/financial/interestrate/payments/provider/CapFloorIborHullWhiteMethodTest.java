@@ -11,12 +11,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.montecarlo.provider.HullWhiteMonteCarloMethod;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
@@ -26,6 +29,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.Paramete
 import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.Currency;
@@ -44,7 +48,7 @@ public class CapFloorIborHullWhiteMethodTest {
   //  private static final Calendar CALENDAR = EURIBOR3M.getCalendar();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
   public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // Cap/floor description
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 100000000; //100m
@@ -70,11 +74,9 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final ParameterSensitivityHullWhiteCalculator PS_HW_C = new ParameterSensitivityHullWhiteCalculator(PVCSHWC);
   private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PS_HW_FDC = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT);
 
-  //  private static final int NB_PATH = 12500;
+  private static final int NB_PATH = 12500;
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+0; // 0.01 currency unit for 1bp
-
-  //  private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
 
   @Test
   public void presentValueStandard() {
@@ -155,45 +157,46 @@ public class CapFloorIborHullWhiteMethodTest {
     }
   }
 
-  //  @Test(enabled = true)
-  //  /**
-  //   * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
-  //   */
-  //  public void monteCarlo() {
-  //    HullWhiteMonteCarloMethod methodMC;
-  //    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
-  //    // Seed fixed to the DEFAULT_SEED for testing purposes.
-  //    CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
-  //    CurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, EUR, NOT_USED_A[0], HW_MULTICURVES);
-  //    assertEquals("Cap/floor - Hull-White - Monte Carlo", pvExplicit.getAmount(), pvMC.getAmount(), 4.0E+2);
-  //    double pvMCPreviousRun = 150060.593;
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
-  //    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
-  //    CurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, EUR, NOT_USED_A[0], HW_MULTICURVES);
-  //    assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvMC.getAmount(), pvShortMC.getAmount(), 1.0E-2);
-  //  }
-  //
-  //  @Test(enabled = false)
-  //  /**
-  //   * Performance for a high number of paths.
-  //   */
-  //  public void performance() {
-  //    long startTime, endTime;
-  //    CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
-  //    HullWhiteMonteCarloMethod methodMC;
-  //    int nbPath = 1000000;
-  //    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-  //    int nbTest = 10;
-  //    double[] pv = new double[nbTest];
-  //    double[] pvDiff = new double[nbTest];
-  //    startTime = System.currentTimeMillis();
-  //    for (int looptest = 0; looptest < nbTest; looptest++) {
-  //      pv[looptest] = methodMC.presentValue(CAP_LONG, EUR, NOT_USED_A[0], HW_MULTICURVES).getAmount();
-  //      pvDiff[looptest] = pv[looptest] - pvExplicit.getAmount();
-  //    }
-  //    endTime = System.currentTimeMillis();
-  //    System.out.println(nbTest + " pv cap/floor Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms");
-  //    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 2400 ms for 10 cap with 1,000,000 paths.
-  //  }
+  @Test(enabled = true)
+  /**
+   * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
+   */
+  public void monteCarlo() {
+    HullWhiteMonteCarloMethod methodMC;
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
+    // Seed fixed to the DEFAULT_SEED for testing purposes.
+    MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    MultipleCurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, EUR, HW_MULTICURVES);
+    assertEquals("Cap/floor - Hull-White - Monte Carlo", pvExplicit.getAmount(EUR), pvMC.getAmount(EUR), 5.0E+2);
+    double pvMCPreviousRun = 136707.032;
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(EUR), TOLERANCE_PV);
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
+    MultipleCurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, EUR, HW_MULTICURVES);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvMC.getAmount(EUR), pvShortMC.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Performance for a high number of paths.
+   */
+  public void performance() {
+    long startTime, endTime;
+    MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    HullWhiteMonteCarloMethod methodMC;
+    int nbPath = 1000000;
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    int nbTest = 10;
+    double[] pv = new double[nbTest];
+    double[] pvDiff = new double[nbTest];
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = methodMC.presentValue(CAP_LONG, EUR, HW_MULTICURVES).getAmount(EUR);
+      pvDiff[looptest] = pv[looptest] - pvExplicit.getAmount(EUR);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv cap/floor Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms. Error: " + pvDiff[0]);
+    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 2400 ms for 10 cap with 1,000,000 paths.
+  }
 
 }

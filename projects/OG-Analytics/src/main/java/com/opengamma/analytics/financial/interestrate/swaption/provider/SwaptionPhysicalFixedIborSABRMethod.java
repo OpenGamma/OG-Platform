@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
@@ -137,6 +138,51 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     sensi.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
     sensi.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[6]);
     return sensi;
+  }
+
+  /**
+   * Computes the present value of a physical delivery European swaption in the SABR model and its sensitivities with respect to the curve and SABR parameters.
+   * The sensitivities are computed using algorithmic differentiation.
+   * @param swaption The swaption.
+   * @param sabrData The SABR data.
+   * @return The present value, present value curves sensitivity and present value SABR sensitivity.
+   */
+  public Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle> presentValueAD(final SwaptionPhysicalFixedIbor swaption,
+      final SABRSwaptionProviderInterface sabrData) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(sabrData, "SABR swaption provider");
+    final DayCount dayCountModification = sabrData.getSABRGenerator().getFixedLegDayCount();
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
+    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData.getMulticurveProvider());
+    final double maturity = swaption.getMaturityTime();
+    // TODO: A better notion of maturity may be required (using period?)
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
+    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
+    final BlackPriceFunction blackFunction = new BlackPriceFunction();
+    final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatilityAdjoint[0]);
+    final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
+    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(swaption.getCurrency(), pvbpModified * func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0));
+    // Curve sensitivity
+    final MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
+    final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
+    final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    MulticurveSensitivity result = pvbpModifiedDr.multipliedBy(bsAdjoint[0]);
+    result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
+    if (!swaption.isLong()) {
+      result = result.multipliedBy(-1);
+    }
+    MultipleCurrencyMulticurveSensitivity pvcs = MultipleCurrencyMulticurveSensitivity.of(swaption.getCurrency(), result);
+    // SABR sensitivity
+    final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
+    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final double omega = (swaption.isLong() ? 1.0 : -1.0);
+    pvss.addAlpha(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[3]);
+    pvss.addBeta(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[4]);
+    pvss.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
+    pvss.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[6]);
+    return new Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle>(pv, pvcs, pvss);
   }
 
 }
