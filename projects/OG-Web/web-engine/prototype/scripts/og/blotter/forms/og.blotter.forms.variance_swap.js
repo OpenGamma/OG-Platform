@@ -35,7 +35,6 @@ $.register_module({
                         extras: {}
                     })    
                 );
-                
                 form.dom();
             }; 
             constructor.load();
