@@ -81,7 +81,7 @@ public final class SoybeanFutureExpiryCalculator implements ExchangeTradedInstru
   private LocalDate getNextExpiryMonth(final LocalDate dtCurrent) {
     MonthOfYear mthCurrent = dtCurrent.getMonthOfYear();
     int idx = Arrays.binarySearch(SOYBEAN_FUTURE_EXPIRY_MONTHS, mthCurrent);
-    if (idx >= (SOYBEAN_FUTURE_EXPIRY_MONTHS.length - 1)) {
+    if (Math.abs(idx) >= (SOYBEAN_FUTURE_EXPIRY_MONTHS.length - 1)) {
       return LocalDate.of(dtCurrent.getYear() + 1, MonthOfYear.JANUARY, dtCurrent.getDayOfMonth());
     } else if (idx >= 0) {
       return dtCurrent.with(SOYBEAN_FUTURE_EXPIRY_MONTHS[idx + 1]);

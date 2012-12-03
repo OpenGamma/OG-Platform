@@ -33,6 +33,7 @@ public class BloombergCommodityFuturePriceCurveInstrumentProviderTest extends Fi
 
   private static final LocalDate DATE_AFTER_FIFTEENTH = LocalDate.of(2012, 11, 21);
   private static final LocalDate DATE_BEFORE_FIFTEENTH = LocalDate.of(2012, 11, 10);
+  private static final LocalDate DATE_IN_DECEMBER = LocalDate.of(2012, 12, 10);
   static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("a");
 
   private static final Short[] EXPIRY_OFFSETS = new Short[] {1, 2, 8, 10};
@@ -50,6 +51,7 @@ public class BloombergCommodityFuturePriceCurveInstrumentProviderTest extends Fi
     assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(6).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(3, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
     assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(9).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(5, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
     assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(16).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(9, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
+    assertEquals(DATE_IN_DECEMBER.plusMonths(1).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(1, DATE_IN_DECEMBER).getMonthOfYear());
   }
 
   @Test
