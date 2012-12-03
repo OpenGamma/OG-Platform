@@ -131,14 +131,14 @@ $.register_module({
                 if (!last_x) return; else (last_x = last_y = last_corner = null), grid.fire('cellhoverout', cell);
             };
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
-            elements.parent.html(templates.container({id: grid.id.substring(1)}))
-                .off('click').on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
+            elements.parent.unbind().html(templates.container({id: grid.id.substring(1)}))
+                .on('click', '.OG-g-h-set-name .og-js-viewchange', function (event) {
                     return grid.fire('viewchange', $(this).html().toLowerCase()), false;
                 })
                 .on('click', '.OG-g-h-set-name', function (event) {
                     return $('.OG-g-h-set-name .og-menu').toggle(), false;
                 })
-                .off('mousedown').on('mousedown', function (event) {
+                .on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
@@ -146,16 +146,16 @@ $.register_module({
                     grid.resize().selector.clear();
                     return false; // kill bubbling if it's a node
                 })
-                .off('mousemove').on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
+                .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
                 })
-                .off('mouseover').on('mouseover', '.OG-g-rest, .OG-g-h-cols', function () {
+                .on('mouseover', '.OG-g-rest, .OG-g-h-cols', function () {
                     out_timeout = clearTimeout(out_timeout) || setTimeout(hoverout_handler, stall);
                 })
                 .on('mouseover', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
                 })
-                .off('mouseleave').on('mouseleave', function () {
+                .on('mouseleave', function () {
                     out_timeout = clearTimeout(out_timeout) || setTimeout(hoverout_handler, stall);
                 });
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
@@ -392,8 +392,8 @@ $.register_module({
             return (handler && handler.call(grid)), grid;
         };
         var viewport_buffer = function () {
-            var meta = this.meta;
-            return {col: 3, row: meta.visible_rows};
+            var grid = this, meta = grid.meta, sparklines = grid.config.sparklines;
+            return {col: sparklines ? 0 : 3, row: sparklines ? 0 : Math.min(meta.visible_rows, 20)};
         };
         Grid.prototype.alive = function () {
             var grid = this;
