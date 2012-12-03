@@ -12,10 +12,11 @@ $.register_module({
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
             gadget.alive = function () {return grid.alive();};
             gadget.load = function () {
+                var source = $.extend({depgraph: true, row: config.row, col: config.col}, config.source);
                 $(config.selector).addClass(alive).css(css_position);
                 menu = (config.selector.indexOf('inplace') >= 0) ? false : true;
                 grid = new og.analytics.Grid({
-                    selector: config.selector, source: config.source, cellmenu: menu, child: config.child
+                    selector: config.selector, source: source, cellmenu: menu, child: config.child
                 });
             };
             gadget.load();

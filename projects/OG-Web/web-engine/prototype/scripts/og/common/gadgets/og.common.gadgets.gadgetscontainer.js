@@ -142,9 +142,10 @@ $.register_module({
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
-                    $.each(tabs, function (key,val) {
+                    $.each(tabs, function (key, val) {
                         var menu_config, menu_template, radios, menu, swap_config,
-                            tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
+                            depgraph = val.gadget.config.options.source.depgraph,
+                            tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
                         menu = new og.common.util.ui.DropMenu(menu_config);
@@ -152,8 +153,8 @@ $.register_module({
                         radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
-                                gadget: "og.common.gadgets." + $(this).attr('value'),
-                                options: val.gadget.config.options, fingerprint: "", gadget_name: $(this).attr('title'),
+                                gadget: 'og.common.gadgets.' + $(this).attr('value'),
+                                options: val.gadget.config.options, fingerprint: '', gadget_name: $(this).attr('title'),
                                 gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
                                 data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
                             };

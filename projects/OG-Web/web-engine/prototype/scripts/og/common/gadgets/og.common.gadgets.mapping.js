@@ -25,30 +25,20 @@ $.register_module({
                 'new-window' : [2, 4, 3, 1, 0, 5],
                 'inplace'    : [2, 4, 3, 1, 0, 5]
             },
-            options: function (cell, grid, panel, override) {
-                var gadget_type, source = $.extend({}, grid.source), gadget_options,
-                    override_gadget = override || '';
-                gadget_type = override_gadget.length ? override_gadget : mapping.type(cell, panel);
+            options: function (cell, grid, panel) {
+                var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
                 gadget_options = {
                     gadget: 'og.common.gadgets.' + gadget_type,
-                    options: {source: source, child: true},
-                    row_name: cell.row_name,
-                    col_name: cell.col_name,
+                    options: {
+                        source: source, child: true, col: cell.col, row: cell.row,
+                        menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
+                        id: cell.value.positionId, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
+                    },
+                    row_name: cell.row_name, col_name: cell.col_name,
                     gadget_name: gadget_names[gadget_type],
                     gadget_type: gadget_type,
                     data_type: cell.type
                 };
-                if (gadget_type === 'Data' || gadget_type === 'Curve' || gadget_type === 'Surface')
-                    $.extend(gadget_options.options, {col: cell.col, row: cell.row});
-                if (gadget_type === 'ExpandedPositions') {
-                    $.extend(gadget_options.options, {
-                        col: cell.col, row: cell.row,
-                        id: cell.value.positionId, editable: false, external_links: true, child: true
-                    });
-                }
-                if (gadget_type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
-                if (gadget_type === 'Timeseries') $.extend(gadget_options.options,
-                    {menu: false, datapoints_link: false, col: cell.col, row: cell.row});
                 return gadget_options;
             },
             type: function (cell, panel) {
@@ -58,16 +48,17 @@ $.register_module({
                     for (k = 0; k < type_map.length; k++)
                         if (order[i] === type_map[k]) return mapping.gadgets[order[i]];
             },
-            available_types : function (data_type){
-                var types_array = mapping.data_type_map[data_type], i,  types = {gadgets:[]};
+            available_types: function (data_type, depgraph){
+                var types_array = mapping.data_type_map[data_type], i, types = {gadgets:[]}, current, gadget;
                 for (i = 0; i < types_array.length; i++){
-                    var current = mapping.gadgets[types_array[i]],
+                    current = mapping.gadgets[types_array[i]];
+                    if (depgraph && current === 'Depgraph') continue;
                     gadget = {name: current, gadget_name: gadget_names[current]};
                     types.gadgets.push(gadget);
                 }
                 return types;
             },
-            depgraph_blacklist: ["DOUBLE", "PRIMITIVE", "TENOR", "UNKNOWN"],
+            depgraph_blacklist: ['DOUBLE', 'PRIMITIVE', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [1, 3],
                 DOUBLE                  : [0],
