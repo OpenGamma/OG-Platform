@@ -366,10 +366,10 @@ $.register_module({
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / inner.height) * meta.rows),
-                scroll_position = left_position + inner.width, col_buffer = 3, lcv, row_buffer = meta.visible_rows,
-                row_end = Math.min(row_start + meta.visible_rows + row_buffer, meta.available.length),
+                scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv,
+                row_end = Math.min(row_start + meta.visible_rows + buffer.row, meta.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            lcv = Math.max(0, row_start - row_buffer); viewport.rows = [];
+            lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
             (viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) viewport.cols.push(lcv++);
@@ -378,11 +378,11 @@ $.register_module({
                 if (!('scan' in acc)) return acc;
                 if ((acc.scan += col.width) >= left_position) {
                     if (!acc.cols.length && idx) // pad before
-                        for (lcv = Math.max(0, idx - col_buffer); lcv < idx; lcv += 1) acc.cols.push(lcv + fixed_len);
+                        for (lcv = Math.max(0, idx - buffer.col); lcv < idx; lcv += 1) acc.cols.push(lcv + fixed_len);
                     acc.cols.push(idx + fixed_len);
                 }
                 if (acc.scan > scroll_position) {
-                    for (lcv = idx + 1; lcv < Math.min(idx + col_buffer, scroll_cols.length); lcv += 1)
+                    for (lcv = idx + 1; lcv < Math.min(idx + buffer.col, scroll_cols.length); lcv += 1)
                         acc.cols.push(lcv + fixed_len);
                     delete acc.scan;
                 }
@@ -390,6 +390,10 @@ $.register_module({
             }, {scan: 0, cols: []}).cols);
             grid.dataman.viewport(viewport);
             return (handler && handler.call(grid)), grid;
+        };
+        var viewport_buffer = function () {
+            var meta = this.meta;
+            return {col: 3, row: meta.visible_rows};
         };
         Grid.prototype.alive = function () {
             var grid = this;
@@ -486,14 +490,12 @@ $.register_module({
             };
             meta.visible_rows = Math.min(Math.ceil(meta.inner.scroll_height / row_height), meta.rows);
             css = templates.css({
-                id: id, viewport_width: meta.inner.width,
+                id: id, viewport_width: meta.inner.width, rest_top: meta.inner.height,
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
-                scroll_left: columns.width.fixed,
+                scroll_left: columns.width.fixed, set_height: config.source.depgraph ? 0 : set_height,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
-                rest_top: meta.inner.height,
-                set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });

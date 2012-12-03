@@ -180,7 +180,7 @@
 }
 
 /* sparkline */
-.OG-g-sp {position: absolute; top: 3px; right: 18px; height: 15px; width: 45px;}
+.OG-g-sp {position: absolute; top: 3px; right: 18px;}
 
 /* flot */
 .OG-g-fl {position: absolute; top: 0; right: 0; left: 0; bottom: 0}
