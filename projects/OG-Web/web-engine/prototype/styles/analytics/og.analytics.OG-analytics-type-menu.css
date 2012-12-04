@@ -2,7 +2,7 @@
  * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-analytics-typemenu .og-menu{
+.OG-analytics-typemenu .og-menu {
 	background: none repeat scroll 0 0 #fff;
 	border: 1px solid #DADCDD;
 	display: none;
@@ -21,7 +21,6 @@
     border: 1px solid transparent;
     text-transform: uppercase;
     display: inline-block;
-    
     height: 18px;
     margin: 0 1px 0 0;
     position: relative;
@@ -33,7 +32,7 @@
     background-color: #fff;
 }
 
-.OG-analytics-typemenu .og-menu-toggle:after{
+.OG-analytics-typemenu .og-menu-toggle:after {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     background-color: transparent;
     background-position: -5px -4px;
@@ -44,13 +43,13 @@
     position: absolute;
     top: 7px;
     width: 7px;
-    z-index: 6; 
+    z-index: 6;
 }
 
-.OG-analytics-typemenu .og-menu-toggle{
+.OG-analytics-typemenu .og-menu-toggle {
     padding: 0 18px 0 3px;
 }
 
-.OG-analytics-typemenu .og-active:after{
+.OG-analytics-typemenu .og-active:after {
 	border:none!important;
 }
