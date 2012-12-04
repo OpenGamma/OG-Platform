@@ -31,9 +31,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
-/**
- *
- */
 public class JsonBeanDataSinkTest {
 
   static {
