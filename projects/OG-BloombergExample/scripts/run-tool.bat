@@ -59,18 +59,13 @@ if exist "%JAVA_CMD%.exe" (
 )
 
 :: ---------------------------------------------------------------------------
-::     CLASS PATH     
-
-set PREFIX=%BASEDIR%
+::     CLASS PATH  
 
 setLocal EnableDelayedExpansion
 set _CLASSPATH=
-echo "searching jars in %PREFIX%\lib"
-for /f "tokens=*" %%G in ('dir /ad /s /b "%PREFIX%\..\lib"') do (
-    echo %%G
+for /R "%BASEDIR%\lib" %%G in (.) do (
     set _CLASSPATH=!_CLASSPATH!;%%G\*
 )
-echo "_CLASSPATH: !_CLASSPATH!"
 
 
 rem Get standard environment variables
