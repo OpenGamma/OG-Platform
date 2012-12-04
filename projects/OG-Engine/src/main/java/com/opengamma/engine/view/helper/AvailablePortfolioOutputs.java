@@ -199,6 +199,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             if (requirement.isSatisfiedBy(result)) {
               final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
               if ((group == null) || visitedFunctions.add(group)) {
+                s_logger.debug("Resolving {} to satisfy {}", result, requirement);
                 final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, requirement, result.compose(requirement));
                 if (resolved != null) {
                   if (allResults == null) {
@@ -249,6 +250,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             } else {
               final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
               if (requirementTarget != null) {
+                s_logger.debug("Resolving {} for function {}", requirement, function);
                 final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, new ComputationTarget(requirementTarget), requirement);
                 if (satisfied == null) {
                   s_logger.debug("Can't satisfy {} for function {}", requirement, function);
@@ -256,6 +258,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                     return null;
                   }
                 } else {
+                  s_logger.debug("Resolved {} to {}", requirement, satisfied);
                   inputs.put(satisfied.iterator(), requirement);
                 }
               } else {
