@@ -8,9 +8,18 @@
 	display: none;
 	margin-left: -6px;
 	margin-top: 1px;
-	padding: 2px 5px 2px 1px;
 	position: fixed;
 	z-index: 6;
+}
+
+.OG-analytics-typemenu .og-menu div {
+    padding: 2px 5px 2px 8px;
+}
+
+.OG-analytics-typemenu .og-menu div:hover {
+    background-color: #80c696;
+    color: #fff;
+    text-shadow: none;
 }
 
 .OG-analytics-typemenu input {
@@ -24,11 +33,15 @@
     height: 18px;
     margin: 0 1px 0 0;
     position: relative;
-    cursor: pointer;
+    cursor: default;
 }
 
+.OG-analytics-typemenu .OG-icon {
+    cursor: default;
+}
+
+
 .OG-analytics-typemenu:hover {
-    border: 1px solid #ccc;
     background-color: #fff;
 }
 
@@ -53,3 +66,34 @@
 .OG-analytics-typemenu .og-active:after {
 	border:none!important;
 }
+
+/* POSITION ICONS */
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Depgraph {
+    top: 2px;
+    height: 14px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Data {
+    top: 3px;
+    height: 13px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Depgraph {
+    top: 2px;
+    height: 14px;
+}
+
+.OG-analytics-typemenu .og-menu .OG-icon {
+    padding-right: 18px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Data {
+    top: 3px;
+    height: 13px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Depgraph {
+    top: 3px;
+    height: 14px;
+}
+

@@ -2,12 +2,12 @@
  * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-icon.og-icon-Depgraph:after {
+.OG-icon.og-icon-Curve:after {
   display: inline-block;
-  background-position: -67px -77px;
+  background-position: -112px -78px;
   background-color: transparent;
-  height: 14px;
-  width: 13px;
+  height: 13px;
+  width: 15px;
   z-index: 2;
   position: absolute;
 }

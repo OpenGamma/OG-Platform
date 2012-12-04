@@ -149,26 +149,43 @@ $.register_module({
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
-                        menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
-                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
-                            menu.$dom.toggle.html($(this).attr('title'));
-                            swap_config = {
-                                gadget: 'og.common.gadgets.' + $(this).attr('value'),
-                                options: val.gadget.config.options, fingerprint: '', gadget_name: $(this).attr('title'),
-                                gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
-                                data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
-                            };
-                            container.add([swap_config], val.gadget_index);
-                            menu.close();
+                        menu.$dom.toggle.on('mousedown', menu.toggle_handler.bind(menu));
+                        var $icon = $('<div class="OG-icon og-icon-' + val.gadget_type + '"></div>').css({
+                            width: '13px', height: '14px'
                         });
-                        for (var i = 0; i < radios.length; i++) {
-                            radios[i].checked = false;
-                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
-                                radios[i].checked = true;
-                                menu.$dom.toggle.html(val.gadget_name);
-                            }
-                        }
-                        if (radios.length === 1) radios[0].disabled=true;
+                        menu.$dom.toggle.html($icon);
+
+//                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
+////                            menu.$dom.toggle.html($(this).attr('title'));
+//                            console.log($(this).attr('title'));
+//                            var $icon = $('<div class="OG-icon og-icon-dependency-graph"></div>').css({
+//                                width: '13px', height: '14px'
+//                            });
+//                            menu.$dom.toggle.html($icon);
+//                            swap_config = {
+//                                gadget: 'og.common.gadgets.' + $(this).attr('value'),
+//                                options: val.gadget.config.options, fingerprint: '', gadget_name: $(this).attr('title'),
+//                                gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
+//                                data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
+//                            };
+//                            container.add([swap_config], val.gadget_index);
+//                            menu.close();
+//                        });
+//                        for (var i = 0; i < radios.length; i++) {
+//                            radios[i].checked = false;
+//                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
+//                                radios[i].checked = true;
+////                                menu.$dom.toggle.html(val.gadget_name);
+//                                var $icon = $('<div class="OG-icon og-icon-dependency-graph"></div>').css({
+//                                    width: '13px', height: '14px'
+//                                });
+//                                menu.$dom.toggle.html($icon);
+//                            }
+//                        }
+//                        if (radios.length === 1) radios[0].disabled = true;
+
+
+
                     });
                     reflow();
                     show_gadget(id);
