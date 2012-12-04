@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
@@ -137,6 +138,9 @@ public final class JodaBeanConverters {
     
     @Override
     public ExternalIdBundle convertFromString(Class<? extends ExternalIdBundle> cls, String str) {
+      if (StringUtils.isEmpty(str)) {
+        return ExternalIdBundle.EMPTY;
+      }
       ArrayList<String> strings = new ArrayList<String>();
       for (String s : str.split(",")) {
         strings.add(s.trim());

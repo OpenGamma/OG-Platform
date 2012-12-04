@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.blotter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,10 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Set<String> _ignorePropertyNames;
   private final Set<MetaProperty<?>> _ignoreProperties;
+
+  /* package */ BeanTraverser() {
+    this(Collections.<MetaProperty<?>>emptySet(), Collections.<String>emptySet());
+  }
 
   /* package */ BeanTraverser(Set<MetaProperty<?>> ignoreProperties, Set<String> ignorePropertyNames) {
     ArgumentChecker.notNull(ignoreProperties, "ignoreProperties");
