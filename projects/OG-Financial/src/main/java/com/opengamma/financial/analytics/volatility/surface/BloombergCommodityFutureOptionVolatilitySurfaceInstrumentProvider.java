@@ -86,4 +86,12 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     return ExternalId.of(getScheme(), ticker.toString());
   }
 
+  ExchangeTradedInstrumentExpiryCalculator getExpiryCalculator() {
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFutureOptionPrefix());
+    if (expiryRule == null) {
+      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + getFutureOptionPrefix());
+    }
+    return expiryRule;
+  }
+
 }
