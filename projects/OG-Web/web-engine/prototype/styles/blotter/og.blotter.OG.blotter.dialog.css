@@ -5,15 +5,21 @@
 .OG-blotter-form-block section{
     margin-bottom:10px;
 }
+.OG-blotter-dialog input{
+    width: auto;
+}
 .OG-blotter-dialog input[type="text"]{
-    width: 50%
+    width: 50%;
 }
 .OG-blotter-dialog select{
-    width: 50%
+    width: 50%;
 } 
 .OG-blotter-form-block .og-triple-cell input[type="text"],
 .OG-blotter-form-block .og-triple-cell select {
     width: 31%;
+}
+.OG-blotter-form-block .og-attribute-cell input[type="text"]{
+    width: 43%;
 }
 .OG-blotter-form-block .og-double-cell input[type="text"],
 .OG-blotter-form-block .og-double-cell select {
@@ -24,4 +30,12 @@
 }
 .OG-blotter-form-block label{
     display: inline;
+}
+.OG-blotter-form-block .og-awesome-list {
+   	background-color: #FFFFFF;
+    border: 1px solid #E3E3E3;
+    height: 71px;
+    margin-top: 4px;
+    overflow-y: scroll;
+    width: 97%;
 }

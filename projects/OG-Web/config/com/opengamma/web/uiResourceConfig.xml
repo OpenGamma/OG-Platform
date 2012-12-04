@@ -292,6 +292,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.autocombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.attributes.js</fragment>
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>
