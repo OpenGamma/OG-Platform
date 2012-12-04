@@ -187,11 +187,6 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   @Override
-  public Pair<Double, Double> makePair(final Double dateTime, final Double value) {
-    return Pair.of(dateTime, value);
-  }
-
-  @Override
   public DoubleTimeSeries<Double> convertFromLong(final DoubleTimeSeries<Double> templateTS, final FastLongDoubleTimeSeries pldts) {
     final Double[] dateTimes = new Double[pldts.size()];
     final Double[] values = new Double[pldts.size()];
@@ -269,4 +264,5 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   public <T> Pair<Double, T> makePair(Double dateTime, T value) {
     return Pair.of(dateTime, value);
   }
+
 }

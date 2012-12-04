@@ -72,7 +72,13 @@ public class SetSnapshotGlobalValueFunction extends AbstractFunctionInvoker impl
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[SNAPSHOT], (String) parameters[VALUE_NAME], (UniqueId) parameters[IDENTIFIER], (Double) parameters[OVERRIDE_VALUE], (Double) parameters[MARKET_VALUE], (MarketDataValueType)parameters[TYPE]);
+    return invoke(
+        (ManageableMarketDataSnapshot) parameters[SNAPSHOT],
+        (String) parameters[VALUE_NAME],
+        (UniqueId) parameters[IDENTIFIER],
+        (Double) parameters[OVERRIDE_VALUE],
+        (Double) parameters[MARKET_VALUE],
+        (MarketDataValueType) parameters[TYPE]);
   }
 
   // PublishedFunction

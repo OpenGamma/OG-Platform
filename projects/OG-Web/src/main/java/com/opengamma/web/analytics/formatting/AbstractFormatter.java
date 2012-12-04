@@ -49,6 +49,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Returns the same format type as {@link #getDataType()}.
+   * 
    * @param value The value
    * @return The format type returned by {@link #getDataType()}
    */
@@ -56,9 +57,13 @@ import com.opengamma.util.ArgumentChecker;
   public DataType getDataTypeForValue(T value) {
     return getDataType();
   }
-  
-  static abstract class Formatter<T> {
-    
+
+  //-------------------------------------------------------------------------
+  /**
+   * A formatter element.
+   * @param <T>  the formatter type
+   */
+  abstract static class Formatter<T> {
     private final Format _format;
 
     Formatter(Format format) {

@@ -75,20 +75,20 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.SECURITY;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getPosition().getSecurity() instanceof RawSecurity)) {
+    if (!(target.getSecurity() instanceof RawSecurity)) {
       return false;
     }
-    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final RawSecurity security = (RawSecurity) target.getSecurity();
     return security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);
   }
 
   private ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    final Security security = target.getPosition().getSecurity();
+    final Security security = target.getSecurity();
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ValueProperties.Builder properties = createValueProperties();
     properties.with(ValuePropertyNames.CURRENCY, currency);
@@ -126,7 +126,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final Set<ValueRequirement> requirements = Sets.newHashSet();
     requirements.add(getCurveRequirement(target, curve, curveCalcConfig));
     requirements.add(getCurveSpecRequirement(target, curve));
-    requirements.addAll(getSensitivityRequirements(context.getSecuritySource(), (RawSecurity) target.getPosition().getSecurity()));
+    requirements.addAll(getSensitivityRequirements(context.getSecuritySource(), (RawSecurity) target.getSecurity()));
     return requirements;
   }
 
@@ -174,8 +174,8 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     }
     assert curveName != null;
     assert curveCalculationConfig != null;
-    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    final BigDecimal qty = target.getPosition().getQuantity();
+    final RawSecurity security = (RawSecurity) target.getSecurity();
+    //final BigDecimal qty = target.getPosition().getQuantity();
     final ValueRequirement curveRequirement = getCurveRequirement(target, curveName, curveCalculationConfig);
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
@@ -192,7 +192,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     interpolatedCurves.put(curveName, curve);
     final YieldCurveBundle bundle = new YieldCurveBundle(interpolatedCurves);
-    final DoubleMatrix1D sensitivitiesForCurves = getSensitivities(executionContext.getSecuritySource(), inputs, security, curveSpec, curve, qty);
+    final DoubleMatrix1D sensitivitiesForCurves = getSensitivities(executionContext.getSecuritySource(), inputs, security, curveSpec, curve);
     final ValueProperties.Builder properties = createValueProperties(target)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig);
@@ -204,7 +204,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   }
 
   private DoubleMatrix1D getSensitivities(final SecuritySource secSource, final FunctionInputs inputs, final RawSecurity rawSecurity, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final YieldAndDiscountCurve curve, BigDecimal qty) {
+      final YieldAndDiscountCurve curve) {
     final Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
     final double[] entries = new double[curveSpec.getStrips().size()];
     int i = 0;
@@ -215,7 +215,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
         if (computedValue != null) {
           final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
           final Double value = (Double) mhts.getTimeSeries().getLatestValue();
-          entries[i] = -value * (qty.doubleValue() / 10000d); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
+          entries[i] = -value; //* (qty.doubleValue() ); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
           s_logger.warn("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
           entries[i] = 0d;
@@ -265,14 +265,14 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   }
 
   protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String curveCalculationConfig) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
     properties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
   protected ValueRequirement getCurveSpecRequirement(final ComputationTarget target, final String curveName) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties.Builder properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }

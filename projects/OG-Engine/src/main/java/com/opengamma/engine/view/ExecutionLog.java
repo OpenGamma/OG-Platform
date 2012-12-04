@@ -71,4 +71,14 @@ public interface ExecutionLog {
    */
   String getExceptionStackTrace();
   
+  //-------------------------------------------------------------------------
+  /**
+   * Indicates whether the log is empty.
+   * <p>
+   * An empty log contains no events and no exception.
+   * 
+   * @return true if the log is empty, false otherwise
+   */
+  boolean isEmpty();
+  
 }
