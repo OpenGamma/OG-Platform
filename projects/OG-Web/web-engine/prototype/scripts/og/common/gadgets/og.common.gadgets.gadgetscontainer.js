@@ -144,49 +144,35 @@ $.register_module({
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key, val) {
-                        var menu_config, menu_template, radios, menu, swap_config,
+                        var menu_config, menu_template, radios, menu, swap_config, $icon,
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('mousedown', menu.toggle_handler.bind(menu));
-                        var $icon = $('<div class="OG-icon og-icon-' + val.gadget_type + '"></div>').css({
-                            width: '13px', height: '14px'
+                        window.menu = menu;
+                        $icon = $('<div class="OG-icon og-icon-' + val.gadget_type + '"></div>')
+                            .css({width: '13px', height: '14px'});
+                        menu.$dom.menu.on('mousedown', '.og-js-icon', function () {
+                            var gadget_type = $(this).attr('data-gadget_type'), $icon,
+                                gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                            menu.close();
+                            if (gadget_type === val.gadget_type) return;
+                            $icon = $('<div class="OG-icon og-icon-' + (val.gadget_type = gadget_type) + '"></div>')
+                                .css({width: '13px', height: '14px'});
+                            menu.$dom.toggle.html($icon);
+                            swap_config = {
+                                gadget: 'og.common.gadgets.' + gadget_type, gadget_name: gadget_name,
+                                options: val.gadget.config.options, gadget_type: gadget_type,
+                                col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
+                                row_name: val.gadget.config.row_name
+                            };
+                            swap_config.fingerprint = JSON.stringify(swap_config);
+                            if (false !== container.fire('swap', swap_config, val.gadget_index))
+                                container.add([swap_config], val.gadget_index);
                         });
                         menu.$dom.toggle.html($icon);
-
-//                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
-////                            menu.$dom.toggle.html($(this).attr('title'));
-//                            console.log($(this).attr('title'));
-//                            var $icon = $('<div class="OG-icon og-icon-dependency-graph"></div>').css({
-//                                width: '13px', height: '14px'
-//                            });
-//                            menu.$dom.toggle.html($icon);
-//                            swap_config = {
-//                                gadget: 'og.common.gadgets.' + $(this).attr('value'),
-//                                options: val.gadget.config.options, fingerprint: '', gadget_name: $(this).attr('title'),
-//                                gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
-//                                data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
-//                            };
-//                            container.add([swap_config], val.gadget_index);
-//                            menu.close();
-//                        });
-//                        for (var i = 0; i < radios.length; i++) {
-//                            radios[i].checked = false;
-//                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
-//                                radios[i].checked = true;
-////                                menu.$dom.toggle.html(val.gadget_name);
-//                                var $icon = $('<div class="OG-icon og-icon-dependency-graph"></div>').css({
-//                                    width: '13px', height: '14px'
-//                                });
-//                                menu.$dom.toggle.html($icon);
-//                            }
-//                        }
-//                        if (radios.length === 1) radios[0].disabled = true;
-
-
-
                     });
                     reflow();
                     show_gadget(id);
@@ -203,7 +189,7 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index) {
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = (index >= 0) ? 1 : 0;
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
@@ -220,10 +206,10 @@ $.register_module({
                             display: idx === data.length - 1 ? 'block' : 'none'
                         });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
-                    if(swap) {
+                    if (swap) {
                         $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
                         gadgets[index].gadget.alive();
-                        gadgets.splice(index ,1, gadget);
+                        gadgets.splice(index, 1, gadget);
                     }
                     else gadgets.push(gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
@@ -244,7 +230,7 @@ $.register_module({
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
-                if (id) gadgets[extract_index(id)].gadget.resize();
+                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
                 if (!silent) container.fire('del', index);
             };

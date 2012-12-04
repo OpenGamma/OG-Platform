@@ -79,6 +79,10 @@ $.register_module({
                 if (!last_fingerprint[container].length) delete last_fingerprint[container];
                 if (!last_object[container].length) delete last_object[container];
                 return (!silent && go()), url;
+            },
+            swap: function (container, params, index) {
+                last_object[container][index] = JSON.parse(last_fingerprint[container][index] = JSON.stringify(params));
+                return go(), url;
             }
         };
     }
