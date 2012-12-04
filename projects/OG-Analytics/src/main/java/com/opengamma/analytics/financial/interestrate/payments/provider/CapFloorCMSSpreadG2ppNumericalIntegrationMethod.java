@@ -22,7 +22,26 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Method to compute the present value of CMS spread cap/floor with the G2++ model by numerical integration.
  */
-public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
+public final class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
+
+  /**
+   * The method unique instance.
+   */
+  private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod INSTANCE = new CapFloorCMSSpreadG2ppNumericalIntegrationMethod();
+
+  /**
+   * Private constructor.
+   */
+  private CapFloorCMSSpreadG2ppNumericalIntegrationMethod() {
+  }
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static CapFloorCMSSpreadG2ppNumericalIntegrationMethod getInstance() {
+    return INSTANCE;
+  }
 
   /**
    * The model used in computations.

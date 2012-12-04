@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -30,12 +30,12 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityHullWhiteCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityHullWhiteCalculator(InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProvider hullWhite,
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final HullWhiteOneFactorProviderInterface hullWhite,
       final Set<String> curvesSet) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     // YieldAndDiscount
@@ -43,8 +43,7 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
       Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getSensitivity(ccySensi).getYieldDiscountingSensitivities();
       for (final String name : sensitivityDsc.keySet()) {
         if (curvesSet.contains(name)) {
-          result = result
-              .plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
+          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterSensitivity(name, sensitivityDsc.get(name))));
         }
       }
     }
@@ -53,8 +52,7 @@ public class ParameterSensitivityHullWhiteCalculator extends AbstractParameterSe
       Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getSensitivity(ccySensi).getForwardSensitivities();
       for (final String name : sensitivityFwd.keySet()) {
         if (curvesSet.contains(name)) {
-          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi),
-              new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
+          result = result.plus(new ObjectsPair<String, Currency>(name, ccySensi), new DoubleMatrix1D(hullWhite.getMulticurveProvider().parameterForwardSensitivity(name, sensitivityFwd.get(name))));
         }
       }
     }

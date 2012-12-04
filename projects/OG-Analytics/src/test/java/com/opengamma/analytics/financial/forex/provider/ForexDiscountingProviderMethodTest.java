@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.forex.method.MulticurveProviderDiscountForexDataSets;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingProviderMethod;
@@ -32,17 +31,18 @@ import com.opengamma.util.time.DateUtils;
  */
 public class ForexDiscountingProviderMethodTest {
 
+  private static final MulticurveProviderInterface MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
+
+  public static final String NOT_USED = "Not used";
+  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 5, 24);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
-  private static final MulticurveProviderInterface PROVIDER = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
-
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
   private static final PaymentFixedDefinition PAY_DEFINITION_1 = new PaymentFixedDefinition(CUR_1, PAYMENT_DATE, NOMINAL_1);
@@ -68,9 +68,9 @@ public class ForexDiscountingProviderMethodTest {
    * Tests the present value computation.
    */
   public void presentValue() {
-    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, PROVIDER);
-    final MultipleCurrencyAmount ca1 = METHOD_PAY.presentValue(PAY_1, PROVIDER);
-    final MultipleCurrencyAmount ca2 = METHOD_PAY.presentValue(PAY_2, PROVIDER);
+    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, MULTICURVES);
+    final MultipleCurrencyAmount ca1 = METHOD_PAY.presentValue(PAY_1, MULTICURVES);
+    final MultipleCurrencyAmount ca2 = METHOD_PAY.presentValue(PAY_2, MULTICURVES);
     assertEquals("ForexDiscountingMethod: presentValue", ca1.plus(ca2), pv);
   }
 
@@ -79,8 +79,8 @@ public class ForexDiscountingProviderMethodTest {
    * Test the present value through the method and through the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD_FX.presentValue(FX, PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = FX.accept(PVDC, PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_FX.presentValue(FX, MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = FX.accept(PVDC, MULTICURVES);
     assertEquals("ForexDiscountingMethod: presentValue: Method vs Calculator", pvMethod, pvCalculator);
   }
 
@@ -89,9 +89,9 @@ public class ForexDiscountingProviderMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyMulticurveSensitivity pvcs = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvs1 = PAY_1.accept(PVSCDC, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvs2 = PAY_2.accept(PVSCDC, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcs = METHOD_FX.presentValueCurveSensitivity(FX, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvs1 = PAY_1.accept(PVSCDC, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvs2 = PAY_2.accept(PVSCDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("ForexDiscountingMethod: presentValueCurveSensitivity", pvs1.plus(pvs2).cleaned(), pvcs.cleaned(), TOLERANCE_PV_DELTA);
   }
 
@@ -100,8 +100,8 @@ public class ForexDiscountingProviderMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, PROVIDER);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FX.accept(PVSCDC, PROVIDER);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_FX.presentValueCurveSensitivity(FX, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = FX.accept(PVSCDC, MULTICURVES);
     AssertSensivityObjects.assertEquals("", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
@@ -112,8 +112,8 @@ public class ForexDiscountingProviderMethodTest {
   public void presentValueReverse() {
     final ForexDefinition fxReverseDefinition = new ForexDefinition(CUR_2, CUR_1, PAYMENT_DATE, -NOMINAL_1 * FX_RATE, 1.0 / FX_RATE);
     final Forex fxReverse = fxReverseDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, PROVIDER);
-    final MultipleCurrencyAmount pvReverse = METHOD_FX.presentValue(fxReverse, PROVIDER);
+    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, MULTICURVES);
+    final MultipleCurrencyAmount pvReverse = METHOD_FX.presentValue(fxReverse, MULTICURVES);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), TOLERANCE_PV);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_2), pvReverse.getAmount(CUR_2), TOLERANCE_PV);
   }
@@ -123,10 +123,10 @@ public class ForexDiscountingProviderMethodTest {
    * Tests the currency exposure computation.
    */
   public void currencyExposure() {
-    final MultipleCurrencyAmount exposureMethod = METHOD_FX.currencyExposure(FX, PROVIDER);
-    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, PROVIDER);
+    final MultipleCurrencyAmount exposureMethod = METHOD_FX.currencyExposure(FX, MULTICURVES);
+    final MultipleCurrencyAmount pv = METHOD_FX.presentValue(FX, MULTICURVES);
     assertEquals("Currency exposure", pv, exposureMethod);
-    final MultipleCurrencyAmount exposureCalculator = FX.accept(CEDC, PROVIDER);
+    final MultipleCurrencyAmount exposureCalculator = FX.accept(CEDC, MULTICURVES);
     assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 

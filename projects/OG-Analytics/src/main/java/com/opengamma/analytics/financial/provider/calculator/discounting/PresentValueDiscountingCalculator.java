@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -81,6 +83,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final ForexDiscountingProviderMethod METHOD_FOREX = ForexDiscountingProviderMethod.getInstance();
   private static final FederalFundsFutureTransactionDiscountingMethod METHOD_FFFUT_TRA = FederalFundsFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -185,6 +188,11 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final MulticurveProviderInterface multicurves) {
     return METHOD_FOREX_SWAP.presentValue(derivative, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX_NDF.presentValue(derivative, multicurves);
   }
 
 }

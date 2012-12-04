@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -34,6 +36,16 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
     super(PresentValueDiscountingCalculator.getInstance());
   }
 
-  // TODO: Add FX specific products when required
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+
+  // -----     Forex     ------
+
+  @Override
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves);
+  }
 
 }

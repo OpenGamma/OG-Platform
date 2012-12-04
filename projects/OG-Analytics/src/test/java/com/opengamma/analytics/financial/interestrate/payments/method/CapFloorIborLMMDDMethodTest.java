@@ -75,7 +75,7 @@ public class CapFloorIborLMMDDMethodTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
 
-  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
   private static final int NB_CPN_IBOR = SWAP_PAYER.getSecondLeg().getNumberOfPayments();
   private static final boolean IS_CAP = true;
 
@@ -254,7 +254,7 @@ public class CapFloorIborLMMDDMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 100;
+    final int nbTest = 10;
 
     final YieldAndDiscountCurve dsc = CURVES.getCurve(CURVES_NAME[0]);
     LiborMarketModelMonteCarloMethod methodLmmMc;
@@ -267,7 +267,7 @@ public class CapFloorIborLMMDDMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " cap/floor LMM Monte Carlo method: " + (endTime - startTime) + " ms");
-    // Performance note: LMM Monte Carlo: 15-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 100 cap.
+    // Performance note: LMM Monte Carlo: 15-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 980 ms for 10 cap (12,500 paths).
   }
 
 }

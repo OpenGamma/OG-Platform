@@ -66,7 +66,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
   private static final CapFloorCMSSpread CMS_SPREAD = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
 
   // Method and calculators
-  private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod METHOD_NI = new CapFloorCMSSpreadG2ppNumericalIntegrationMethod();
+  private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod METHOD_NI = CapFloorCMSSpreadG2ppNumericalIntegrationMethod.getInstance();
   //  private static final CapFloorCMSSpreadG2ppApproximationMethod METHOD_APPROX = new CapFloorCMSSpreadG2ppApproximationMethod();
   //  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 

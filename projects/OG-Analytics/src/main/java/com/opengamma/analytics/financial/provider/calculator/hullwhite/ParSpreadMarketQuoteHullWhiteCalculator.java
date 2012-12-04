@@ -9,12 +9,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProvider, Double> {
+public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -50,7 +50,7 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
    * @return The par spread.
    */
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProvider multicurves) {
+  public Double visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface multicurves) {
     return METHOD_IRFUT_HW.price(future, multicurves) - future.getReferencePrice();
   }
 

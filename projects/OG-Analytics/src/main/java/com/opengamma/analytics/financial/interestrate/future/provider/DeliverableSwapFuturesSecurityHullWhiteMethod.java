@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPi
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -67,7 +67,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price.
    */
-  public double price(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProvider hwMulticurves) {
+  public double price(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();
@@ -96,7 +96,7 @@ public final class DeliverableSwapFuturesSecurityHullWhiteMethod {
    * @return The sensitivity.
    * TODO: review Dsc sensitivity
    */
-  public MulticurveSensitivity priceCurveSensitivity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProvider hwMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final DeliverableSwapFuturesSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     final Currency ccy = futures.getCurrency();

@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
@@ -63,7 +63,7 @@ public final class CouponCMSHullWhiteNumericalIntegrationMethod {
    * @param hwMulticurves The Hull-White and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CouponCMS cms, final HullWhiteOneFactorProvider hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final CouponCMS cms, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(cms, "CMS");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White provider");
     Currency ccy = cms.getCurrency();

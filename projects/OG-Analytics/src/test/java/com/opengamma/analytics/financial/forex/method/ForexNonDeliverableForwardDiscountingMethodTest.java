@@ -35,7 +35,7 @@ import com.opengamma.util.time.DateUtils;
 public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final Currency USD = Currency.EUR;
+  private static final Currency USD = Currency.USD;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 100000000; // 1m
@@ -52,8 +52,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
   private static final YieldCurveBundle CURVESFX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
 
-  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1] });
-  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3] });
+  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
+  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3]});
 
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();

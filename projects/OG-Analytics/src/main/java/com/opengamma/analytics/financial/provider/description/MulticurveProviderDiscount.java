@@ -40,7 +40,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   /**
    * The matrix containing the exchange rates.
    */
-  private final FXMatrix _fxMatrix;
+  private FXMatrix _fxMatrix;
   /**
    * Map of all curves used in the provider. The order is ???
    */
@@ -347,6 +347,10 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _forwardIborCurves.putAll(other._forwardIborCurves);
     _forwardONCurves.putAll(other._forwardONCurves);
     setAllCurves();
+  }
+
+  public void setForexMatrix(final FXMatrix fxMatrix) {
+    _fxMatrix = fxMatrix;
   }
 
   /**

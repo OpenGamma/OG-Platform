@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Interface for LMM parameters in one currency and multi-curves provider.
  */
-public class LiborMarketModelDisplacedDiffusionProvider {
+public class LiborMarketModelDisplacedDiffusionProvider implements LiborMarketModelDisplacedDiffusionProviderInterface {
 
   /**
    * The multicurve provider.
@@ -42,23 +42,26 @@ public class LiborMarketModelDisplacedDiffusionProvider {
    * Create a new copy of the provider.
    * @return The bundle.
    */
+  @Override
   public LiborMarketModelDisplacedDiffusionProvider copy() {
     MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
     return new LiborMarketModelDisplacedDiffusionProvider(multicurveProvider, getLMMParameters(), getLMMCurrency());
   }
 
   /**
-   * Returns the Hull-White one factor model parameters.
+   * Returns the LMM parameters.
    * @return The parameters.
    */
+  @Override
   public LiborMarketModelDisplacedDiffusionParameters getLMMParameters() {
     return _parameters;
   }
 
   /**
-   * Returns the currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   * Returns the currency for which the LMM parameters are valid (LMM on the discounting curve).
    * @return The currency.
    */
+  @Override
   public Currency getLMMCurrency() {
     return _ccy;
   }
@@ -67,6 +70,7 @@ public class LiborMarketModelDisplacedDiffusionProvider {
    * Returns the MulticurveProvider from which the HullWhiteOneFactorProvider is composed.
    * @return The multi-curves provider.
    */
+  @Override
   public MulticurveProviderInterface getMulticurveProvider() {
     return _multicurveProvider;
   }

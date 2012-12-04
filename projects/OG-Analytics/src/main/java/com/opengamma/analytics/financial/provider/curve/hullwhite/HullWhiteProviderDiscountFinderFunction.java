@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.curve.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -21,7 +21,7 @@ public class HullWhiteProviderDiscountFinderFunction extends Function1D<DoubleMa
   /**
    * The instrument value calculator.
    */
-  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, Double> _calculator;
+  private final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> _calculator;
   /**
    * The data required for curve building.
    */
@@ -32,7 +32,7 @@ public class HullWhiteProviderDiscountFinderFunction extends Function1D<DoubleMa
    * @param calculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public HullWhiteProviderDiscountFinderFunction(final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, Double> calculator, final HullWhiteProviderDiscountBuildingData data) {
+  public HullWhiteProviderDiscountFinderFunction(final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> calculator, final HullWhiteProviderDiscountBuildingData data) {
     ArgumentChecker.notNull(calculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
     _calculator = calculator;

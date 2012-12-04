@@ -41,7 +41,7 @@ public final class ForexDiscountingProviderMethod {
   private static final PaymentFixedDiscountingProviderMethod METHOD_PAY = PaymentFixedDiscountingProviderMethod.getInstance();
 
   /**
-   * Compute the present value by discounting in payment in its own currency.
+   * Computes the present value by discounting each payment in its own currency.
    * @param fx The Forex derivative.
    * @param multicurves The multi-curves provider.
    * @return The multi-currency present value.
@@ -52,6 +52,12 @@ public final class ForexDiscountingProviderMethod {
     return pv1.plus(pv2);
   }
 
+  /**
+   * Computes the currency exposure by discounting each payment in its own currency.
+   * @param fx The Forex derivative.
+   * @param multicurves The multi-curves provider.
+   * @return The multi-currency present value.
+   */
   public MultipleCurrencyAmount currencyExposure(final Forex fx, final MulticurveProviderInterface multicurves) {
     return presentValue(fx, multicurves);
   }
@@ -63,8 +69,8 @@ public final class ForexDiscountingProviderMethod {
    * @return The forward rate.
    */
   public double forwardForexRate(final Forex fx, final MulticurveProviderInterface multicurves) {
-    final double dfDomestic = multicurves.getDiscountFactor(fx.getCurrency1(), fx.getPaymentTime());
-    final double dfForeign = multicurves.getDiscountFactor(fx.getCurrency2(), fx.getPaymentTime());
+    final double dfDomestic = multicurves.getDiscountFactor(fx.getCurrency2(), fx.getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(fx.getCurrency1(), fx.getPaymentTime());
     final double spot = multicurves.getFxRate(fx.getCurrency1(), fx.getCurrency2());
     return spot * dfForeign / dfDomestic;
   }

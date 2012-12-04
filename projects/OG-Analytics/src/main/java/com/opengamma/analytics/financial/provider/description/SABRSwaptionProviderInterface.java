@@ -32,7 +32,7 @@ public interface SABRSwaptionProviderInterface {
   GeneratorSwapFixedIbor getSABRGenerator();
 
   /**
-   * Returns the MulticurveProvider from which the InflationProvider is composed.
+   * Returns the MulticurveProvider from which the SABRSwaptionProviderInterface is composed.
    * @return The multi-curves provider.
    */
   MulticurveProviderInterface getMulticurveProvider();

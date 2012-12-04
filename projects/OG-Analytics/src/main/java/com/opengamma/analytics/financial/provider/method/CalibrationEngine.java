@@ -44,7 +44,7 @@ public abstract class CalibrationEngine<DATA_TYPE> {
    */
   private final Currency _ccy;
 
-  //TODO: Should there exists also a way to add an instrument with its direct price (not the method)?
+  //TODO: Should there exists also a way to add an instrument with its direct price (not the calculator)?
 
   /**
    * Constructor of the calibration engine. The basket and calculator list are empty.

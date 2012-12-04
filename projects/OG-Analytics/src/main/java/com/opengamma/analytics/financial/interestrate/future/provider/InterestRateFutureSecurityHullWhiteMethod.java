@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -56,7 +56,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price.
    */
-  public double price(final InterestRateFuture future, final HullWhiteOneFactorProvider hwMulticurves) {
+  public double price(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
@@ -66,7 +66,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     return price;
   }
 
-  public MultipleCurrencyAmount presentValue(final InterestRateFuture future, final HullWhiteOneFactorProvider hwMulticurves) {
+  public MultipleCurrencyAmount presentValue(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     final double pv = presentValueFromPrice(future, price(future, hwMulticurves));
     return MultipleCurrencyAmount.of(future.getCurrency(), pv);
   }
@@ -77,7 +77,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price rate sensitivity.
    */
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProvider hwMulticurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
     double futureConvexityFactor = MODEL.futureConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
@@ -98,7 +98,7 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
    * @return The present value rate sensitivity.
    * TODO: REVIEW: Should this method be in InterestRateFutureProviderMethod?
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProvider hwMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     MulticurveSensitivity priceSensi = priceCurveSensitivity(future, hwMulticurves);
     MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(future.getCurrency(),
         priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity()));

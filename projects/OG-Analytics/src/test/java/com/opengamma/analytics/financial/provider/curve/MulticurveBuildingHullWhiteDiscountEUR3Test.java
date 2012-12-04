@@ -51,8 +51,9 @@ import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpread
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -133,10 +134,10 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   public static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_EUR_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
-    GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR};
+      GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
 
   //  /** Market values for the Fwd 3M USD curve */
   //  public static final double[] FWD3_EUR_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600};
@@ -150,20 +151,20 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   public static final double[] FWD3_EUR_MARKET_QUOTES = new double[] {0.0420, 0.9780, 0.9780, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_EUR_GENERATORS = new GeneratorInstrument[] {GENERATOR_EURIBOR3M, GENERATOR_ER, GENERATOR_ER, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
-    EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M};
+      EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_EUR_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(1), Period.ofMonths(1), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5),
-    Period.ofYears(7), Period.ofYears(10)};
+      Period.ofYears(7), Period.ofYears(10)};
   public static final Integer[] FWD3_EUR_EXTRA_DATA = new Integer[] {0, 1, 2, 0, 0, 0, 0, 0, 0};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD6_EUR_MARKET_QUOTES = new double[] {0.0440, 0.0440, 0.0440, 0.0445, 0.0485, 0.0555, 0.0580, 0.0610};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD6_EUR_GENERATORS = new GeneratorInstrument[] {GENERATOR_EURIBOR6M, GENERATOR_FRA_6M, GENERATOR_FRA_6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M,
-    EUR1YEURIBOR6M, EUR1YEURIBOR6M};
+      EUR1YEURIBOR6M, EUR1YEURIBOR6M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD6_EUR_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(9), Period.ofMonths(12), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7),
-    Period.ofYears(10)};
+      Period.ofYears(10)};
 
   /** Standard USD discounting curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_EUR;
@@ -364,9 +365,10 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
     }
   }
 
-  private static Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final HullWhiteOneFactorProviderDiscount knownData, final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, Double> calculator,
-      final InstrumentDerivativeVisitor<HullWhiteOneFactorProvider, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
+  private static Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
+      final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final HullWhiteOneFactorProviderDiscount knownData,
+      final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nbUnits = curveGenerators.length;
     final double[][] parametersGuess = new double[nbUnits][];
     final GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];

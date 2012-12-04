@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.LiborMark
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.provider.description.LiborMarketModelDisplacedDiffusionProvider;
+import com.opengamma.analytics.financial.provider.description.LiborMarketModelDisplacedDiffusionProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
@@ -55,7 +55,7 @@ public final class CapFloorIborLMMDDMethod {
    * @param lmmData The Model parameters.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final LiborMarketModelDisplacedDiffusionProvider lmmData) {
+  public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(lmmData, "LMM provider");
     Currency ccy = cap.getCurrency();
