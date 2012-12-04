@@ -3,6 +3,6 @@
  * Please see distribution for license.
  */
 .OG-shadow {
-    -webkit-box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
-    box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.1);
 }
