@@ -9,21 +9,18 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block, add_list = '.og-attributes-add-list',
         attribute = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>');
         var Attributes = function (config) {
-            var block = this, attr, form = config.form;
-            attr = {module: 'og.views.forms.attributes_tash'};
-            form.Block.call(block, attr);
-            block.on('form:load', function () {              
-                $(add_list).find('.og-js-rem').on('click').click(function (event) {$(event.target).parent().remove();});
-            }).on('click', '.og-js-add-attribute', function (event) {
-                    event.preventDefault();
-                    var $group = $(event.target).parent();
-                    if (!$group.find('[name=attr_key]').val() || !$group.find('[name=attr_val]').val()) return;
-                    $(add_list).prepend(attribute({
-                        key: $group.find('[name=attr_key]').val(),
-                        value: $group.find('[name=attr_val]').val()
-                    }));
-                    $group.find('[name^=attr]').val('');
-                    block.load();
+            var block = this, id = og.common.id('attributes'), form = config.form;
+            form.Block.call(block, {module: 'og.views.forms.attributes_tash', extras: {id: id}});
+            block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {
+                $(event.target).parent().remove();
+            }).on('click', '#' + id + ' .og-js-add-attribute', function (event) {
+                event.preventDefault();
+                var $group = $(event.target).parent(), key = $group.find('[name=attr_key]').val(),
+                    value = $group.find('[name=attr_val]').val();
+                if (!key || !value) return;
+                $(add_list).prepend(attribute({key: key, value: value}));
+                $group.find('[name^=attr]').val('');
+                block.load();
             });
         };
         Attributes.prototype = new Block; // inherit Block prototype
