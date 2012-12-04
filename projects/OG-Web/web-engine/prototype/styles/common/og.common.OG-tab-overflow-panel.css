@@ -30,3 +30,7 @@
     color: #fff;
     cursor: default;
 }
+
+.OG-tab-overflow-panel .OG-multiselect {
+    display: none;
+}
