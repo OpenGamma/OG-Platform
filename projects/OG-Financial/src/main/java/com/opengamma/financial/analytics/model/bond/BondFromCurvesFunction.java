@@ -114,15 +114,15 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     final ValueProperties riskFreeCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, riskFreeCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, riskFreeCurveConfig)
-        .withOptional(PROPERTY_RISK_FREE_CURVE)
-        .withOptional(PROPERTY_RISK_FREE_CURVE_CONFIG).get();
+        .withOptional(PROPERTY_RISK_FREE_CURVE).with(PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
+        .withOptional(PROPERTY_RISK_FREE_CURVE_CONFIG).with(PROPERTY_RISK_FREE_CURVE_CONFIG, riskFreeCurveConfig).get();
     final ValueRequirement riskFreeCurveRequirement =
         new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), riskFreeCurveProperties);
     final ValueProperties creditCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, creditCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, creditCurveConfig)
-        .withOptional(PROPERTY_CREDIT_CURVE)
-        .withOptional(PROPERTY_CREDIT_CURVE_CONFIG).get();
+        .withOptional(PROPERTY_CREDIT_CURVE).with(PROPERTY_CREDIT_CURVE, creditCurveName)
+        .withOptional(PROPERTY_CREDIT_CURVE_CONFIG).with(PROPERTY_CREDIT_CURVE_CONFIG, creditCurveConfig).get();
     final ValueRequirement creditCurveRequirement =
         new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), creditCurveProperties);
     return Sets.newHashSet(riskFreeCurveRequirement, creditCurveRequirement);
