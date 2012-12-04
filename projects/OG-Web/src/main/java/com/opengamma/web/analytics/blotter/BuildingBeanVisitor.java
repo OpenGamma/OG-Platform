@@ -41,7 +41,7 @@ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    _sink.setBeanData(property.name(), _bean, traverser);
+    _sink.setBeanData(property.name(), (Bean) property.get(_bean), traverser);
   }
 
   @Override
@@ -75,6 +75,7 @@ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
   }
 }
 
+// TODO is this necessary? implement the visitor directly?
 /* package */ interface BeanDataSink<T> {
 
   void setValue(String propertyName, Object value);
@@ -90,6 +91,7 @@ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
   T finish();
 }
 
+// TODO just implement the visitor interface directly?
 /* package */ class JsonBeanDataSink implements BeanDataSink<JSONObject> {
 
   private final JSONObject _json = new JSONObject();
