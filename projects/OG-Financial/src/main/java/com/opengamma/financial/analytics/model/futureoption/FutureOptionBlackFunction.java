@@ -21,8 +21,7 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -42,6 +41,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
@@ -58,9 +58,6 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Basic Black Futures Option
  */
 public abstract class FutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
-  /** The name of the calculation method */
-  public static final String BLACK_METHOD = "BlackMethod";
-
   private final String _valueRequirementName;     // Set in concrete classes
   private CommodityFutureOptionConverter _converter;  // Set in init() call, not constructor, as requires OpenGammaCompilationContext
   private static final Logger s_logger = LoggerFactory.getLogger(FutureOptionBlackFunction.class);
@@ -126,11 +123,6 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingObject;
 
-    final ConstantDoublesSurface constVol = ConstantDoublesSurface.from(0.2); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(constVol); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
-    final ForwardCurve forwardCurve = new ForwardCurve(spot); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED
-
-/* // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
     // c. The Vol Surface
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
@@ -148,7 +140,6 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     } else {
       forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve()); // else build from spot and funding curve
     }
-*/
     final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     return market;
   }
@@ -269,7 +260,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
         volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
 
     // Return the set
-    return Sets.newHashSet(spotReq, fundingReq); // , volReq
+    return Sets.newHashSet(spotReq, fundingReq, volReq);
   }
 
   // TODO: REQUIRES A REWORK
@@ -311,8 +302,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   }
 
   protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
-    // Alternatively, as in EquityFuturesFunction: ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
   }
 
   protected final String getValueRequirementName() {

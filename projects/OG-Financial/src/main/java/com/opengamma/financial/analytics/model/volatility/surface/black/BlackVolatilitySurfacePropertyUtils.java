@@ -250,6 +250,9 @@ public class BlackVolatilitySurfacePropertyUtils {
 
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
     final String smileInterpolator = desiredValue.getConstraint(PROPERTY_SMILE_INTERPOLATOR);
+    if (smileInterpolator == null) {
+      throw new OpenGammaRuntimeException(PROPERTY_SMILE_INTERPOLATOR + " not set");
+    }
     if (smileInterpolator.equals(SPLINE)) {
       return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue);
     }

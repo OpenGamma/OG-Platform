@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleR
 import com.opengamma.financial.analytics.model.volatility.surface.InterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.VolatilitySurfaceSpecificationFunction;
 import com.opengamma.financial.analytics.volatility.surface.BondFutureOptionVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.CommodityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -79,6 +80,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, BondFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, CommodityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexCallDeltaVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexFlatWithTermStructureVolatilitySurfaceFunction.class.getName());

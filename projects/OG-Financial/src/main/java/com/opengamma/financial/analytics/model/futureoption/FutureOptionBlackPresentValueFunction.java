@@ -24,7 +24,7 @@ public class FutureOptionBlackPresentValueFunction extends FutureOptionBlackFunc
 
   @Override
   protected Object computeValues(CommodityFutureOption<?> derivative, StaticReplicationDataBundle market) {
-    final double pv = 0.0; // CALC.visitCommodityFutureOption(derivative, market);
+    final double pv = 0; //CALC.visitCommodityFutureOption(derivative, market);
     return pv;
   }
 
